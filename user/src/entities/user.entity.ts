@@ -17,7 +17,7 @@ import {
   TermAndCondition,
   Variation,
   Wishlist,
-} from "../../../entities/index";
+} from "../../../entities/index"; // Adjust imports as needed
 
 @Entity()
 export class User {
@@ -45,7 +45,7 @@ export class User {
       RATHER_NOT_SAY: "rather not to say",
     },
     nullable: true,
-    default: null,
+    default: null
   })
   gender: "male" | "female" | "others" | "rather not to say" | null;
 

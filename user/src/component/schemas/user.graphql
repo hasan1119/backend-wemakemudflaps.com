@@ -1,0 +1,97 @@
+# user.graphql
+
+# Importing the Apollo Federation specs for linking services.
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@key"])
+
+# Enum representing Gender options.
+enum Gender {
+  MALE
+  FEMALE
+  OTHERS
+  RATHER_NOT_SAY
+}
+
+# Enum representing the different user roles.
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+# Main User type, which represents the user model in the system.
+type User @key(fields: "id") {
+  id: ID! # Unique identifier for the user.
+  firstName: String! # User's first name.
+  lastName: String! # User's last name.
+  email: String! # User's email address.
+  password: String! # User's password.
+  gender: Gender # User's gender.
+  role: Role! # User's role (either CUSTOMER or ADMIN).
+  # Relationships to other models.
+  categories: [Category!] # Categories associated with the user.
+  subCategories: [SubCategory!] # Subcategories associated with the user.
+  products: [Product!] # Products associated with the user.
+  variations: [Variation!] # Product variations associated with the user.
+  orders: [Order!] # Orders made by the user.
+  cartItems: [Cart!] # Items in the user's cart.
+  wishlistItems: [Wishlist!] # Items in the user's wishlist.
+  productReviews: [ProductReview!] # Reviews given by the user for products.
+  productRequests: [ProductRequest!] # Product requests made by the user.
+  notifications: [Notification!] # Notifications for the user.
+  media: [Media!] # Media files associated with the user.
+  coupons: [Coupon!] # Coupons associated with the user.
+  faq: [FAQ!] # FAQs related to the user.
+  privacyPolicies: [PrivacyPolicy!] # Privacy policies accepted by the user.
+  termsAndConditions: [TermAndCondition!] # Terms and conditions accepted by the user.
+  popupBanners: [PopupBanner!] # Popup banners associated with the user.
+  newsLetters: [Newsletter!] # Newsletters the user is subscribed to.
+  createdAt: String! # Timestamp when the user was created.
+  deletedAt: String # Timestamp when the user was deleted (nullable).
+}
+
+# Type for the response when fetching a single user.
+type UserResponse {
+  statusCode: Int! # HTTP status code.
+  success: Boolean! # Whether the operation was successful or not.
+  user: User! # User object returned.
+  message: String! # Response message.
+}
+
+# Type for the response when fetching a list of users.
+type UsersResponse {
+  statusCode: Int! # HTTP status code.
+  success: Boolean! # Whether the operation was successful or not.
+  users: [User!]! # Array of User objects.
+  message: String! # Response message.
+}
+
+# Response type when a user registers.
+type UserRegisterResponse {
+  statusCode: Int! # HTTP status code.
+  success: Boolean! # Whether the registration was successful or not.
+  token: String! # Authentication token.
+  message: String! # Response message.
+}
+
+# Response type when a user logs in.
+type UserLoginResponse {
+  statusCode: Int! # HTTP status code.
+  success: Boolean! # Whether the login was successful or not.
+  token: String! # Authentication token.
+  message: String! # Response message.
+}
+
+# Response type when a user's information is updated.
+type UserUpdateResponse {
+  statusCode: Int! # HTTP status code.
+  success: Boolean! # Whether the update was successful or not.
+  token: Boolean! # Whether the token was updated (if applicable).
+  message: String! # Response message.
+}
+
+# Response type when a user is deleted.
+type UserDeleteResponse {
+  statusCode: Int! # HTTP status code.
+  success: Boolean! # Whether the delete operation was successful or not.
+  message: String! # Response message.
+}

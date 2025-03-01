@@ -1,0 +1,37 @@
+# Mutations to modify user data.
+type Mutation {
+  # Register a new user.
+  # This mutation allows the creation of a new user by providing necessary details like name, email, password, gender, and role.
+  # The response will include a `UserRegisterResponse` with status and token.
+  register(
+    firstName: String! # The first name of the user.
+    lastName: String! # The last name of the user.
+    email: String! # The email address of the user.
+    password: String! # The password for the user (hashed on the server).
+    gender: Gender # The gender of the user (optional).
+    role: Role # The role of the user (e.g., ADMIN, CUSTOMER).
+  ): UserRegisterResponse!
+
+  # Log in an existing user.
+  # This mutation allows users to log in by providing their email and password.
+  # The response will include a `UserLoginResponse` with status and an authentication token.
+  login(email: String!, password: String!): UserLoginResponse!
+
+  # Update an existing user's information.
+  # This mutation allows the modification of an existing user's data (like name, email, password, gender, and role).
+  # The user must be identified by their unique `id`. The response will contain a `UserUpdateResponse` indicating success or failure.
+  updateUser(
+    id: ID! # The unique ID of the user to be updated.
+    firstName: String # The updated first name of the user (optional).
+    lastName: String # The updated last name of the user (optional).
+    email: String # The updated email of the user (optional).
+    password: String # The updated password of the user (optional).
+    gender: Gender # The updated gender of the user (optional).
+    role: Role # The updated role of the user (optional).
+  ): UserUpdateResponse!
+
+  # Delete a user by ID.
+  # This mutation allows the deletion of a user from the system by providing their unique `id`.
+  # The response will include a `UserDeleteResponse` to indicate success or failure.
+  deleteUser(id: ID!): UserDeleteResponse!
+}
