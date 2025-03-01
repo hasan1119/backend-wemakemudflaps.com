@@ -1,0 +1,24 @@
+supergraph:
+  listen: 127.0.0.1:4000
+  path: /
+  introspection: true
+
+homepage:
+  enabled: false
+sandbox:
+  enabled: false
+
+cors:
+  allow_credentials: true # ✅ Required to send cookies
+  allow_headers: ["content-type", "authorization"]
+  expose_headers: ["set-cookie"] # ✅ Ensures cookies are accessible
+  origins:
+    - https://studio.apollographql.com
+headers:
+  all:
+    request:
+      - propagate:
+          named: Authorization
+
+csrf:
+  unsafe_disabled: true
