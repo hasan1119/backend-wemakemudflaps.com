@@ -6,8 +6,14 @@ export class Media {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({
+    type: "enum",
+    enum: ["image", "video", "pdf", "cvs", "docx", "excel", "ppt", "others"],
+  })
+  mediaType: string;
+
   @Column()
-  imageUrl: string;
+  mediaUrl: string;
 
   @ManyToOne(() => Product, (product) => product.media, {
     nullable: true,
