@@ -15,7 +15,7 @@ import {
   ProductReview,
   SubCategory,
   TermAndCondition,
-  Variation,
+  Variant,
   Wishlist,
 } from "../../../entities/index";
 
@@ -38,23 +38,18 @@ export class User {
 
   @Column({
     type: "enum",
-    enum: {
-      MALE: "male",
-      FEMALE: "female",
-      OTHERS: "others",
-      RATHER_NOT_SAY: "rather not to say",
-    },
+    enum: ["male", "female", "others", "rather not to say"],
     nullable: true,
     default: null,
   })
-  gender: "male" | "female" | "others" | "rather not to say" | null;
+  gender: string | null;
 
   @Column({
     type: "enum",
-    enum: { CUSTOMER: "customer", ADMIN: "admin" },
+    enum: ["customer", "admin"],
     default: "customer",
   })
-  role: "customer" | "admin";
+  role: string;
 
   @OneToMany(() => Category, (category) => category.createdBy)
   categories: Category[];
@@ -65,8 +60,8 @@ export class User {
   @OneToMany(() => Product, (product) => product.createdBy)
   products: Product[];
 
-  @OneToMany(() => Variation, (variation) => variation.createdBy)
-  variations: Variation[];
+  @OneToMany(() => Variant, (variation) => variation.createdBy)
+  variations: Variant[];
 
   @OneToMany(() => Order, (order) => order.orderedBy)
   orders: Order[];

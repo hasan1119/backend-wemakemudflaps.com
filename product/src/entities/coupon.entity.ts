@@ -11,9 +11,9 @@ export class Coupon {
 
   @Column({
     type: "enum",
-    enum: { PERCENTAGE: "percentage", FIXED: "fixed" },
+    enum: ["percentage", "fixed"],
   })
-  discountType: "percentage" | "fixed";
+  discountType: string;
 
   @Column({ type: "decimal", precision: 10, scale: 2 })
   discountValue: number;

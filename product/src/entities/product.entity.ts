@@ -13,6 +13,7 @@ import {
   Coupon,
   Media,
   OrderItem,
+  ProductPrice,
   ProductReview,
   SubCategory,
   User,
@@ -26,7 +27,7 @@ export class Product {
   id: number;
 
   @Column({ unique: true, nullable: true })
-  sku: string | null; // For non-variant products only
+  sku: string | null;
 
   @Column()
   name: string;
@@ -34,41 +35,40 @@ export class Product {
   @Column({ type: "text", nullable: false })
   description: string;
 
+  @Column({ type: "boolean", default: false })
+  hasVariant: boolean; // Will true for variant products or false
+
+  @Column({ type: "boolean", default: false })
+  hasBulk: boolean; // Will true for bulk selling products or false
+
   @Column({ type: "decimal", precision: 10, scale: 2 })
-  basePrice: number;
+  basePrice: number; // Used for non-variant products
 
   @Column({ type: "int", nullable: true })
-  stockQuantity: number | null; // For non-variant products only
+  stockQuantity: number | null; // Used for non-variant products
 
   @Column({ type: "int", nullable: true })
-  warranty: number | null;
+  warranty: number | null; // Used for non-variant products
+
+  @Column({ type: "int", default: 1 })
+  minOrderQuantity: number; // Bulk selling constraint
 
   @Column({
     type: "enum",
-    enum: {
-      DAY: "day",
-      DAYS: "days",
-      WEEK: "week",
-      WEEKS: "weeks",
-      Month: "month",
-      MONTHS: "months",
-      YEAR: "year",
-      YEARS: "years",
-      LIFE_TIME: "life-time",
-    },
+    enum: [
+      "day",
+      "days",
+      "week",
+      "weeks",
+      "month",
+      "months",
+      "year",
+      "years",
+      "life-time",
+    ],
     nullable: true,
   })
-  warrantyPeriod:
-    | "day"
-    | "days"
-    | "week"
-    | "weeks"
-    | "month"
-    | "months"
-    | "year"
-    | "years"
-    | "life-time"
-    | null;
+  warrantyPeriod: string | null;
 
   @ManyToOne(() => Category, (category) => category.products, {
     nullable: true,
@@ -77,7 +77,7 @@ export class Product {
   @JoinColumn({ name: "categoryId" })
   category: Category;
 
-  @Column({ type: "text", array: true, nullable: true })
+  @Column({ type: "simple-array", nullable: true })
   tags: string[];
 
   @ManyToOne(() => SubCategory, (subCategory) => subCategory.products)
@@ -106,6 +106,9 @@ export class Product {
     cascade: true,
   })
   variants: VariantValue[];
+
+  @OneToMany(() => ProductPrice, (price) => price.product, { cascade: true })
+  prices: ProductPrice[];
 
   @ManyToOne(() => User, (user) => user.products, { nullable: false })
   createdBy: User;

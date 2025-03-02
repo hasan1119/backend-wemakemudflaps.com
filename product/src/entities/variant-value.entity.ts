@@ -26,9 +26,6 @@ export class VariantValue {
   @Column({ type: "text", nullable: true })
   description: string | null;
 
-  @Column({ type: "text", nullable: true })
-  additionalInfo: string | null;
-
   @Column({ nullable: true })
   warranty: number | null;
 

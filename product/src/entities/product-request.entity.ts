@@ -14,13 +14,10 @@ export class ProductRequest {
 
   @Column({
     type: "enum",
-    enum: {
-      PENDING: "pending",
-      FULFILLED: "fulfilled",
-    },
+    enum: ["pending", "fulfilled"],
     default: "pending",
   })
-  status: "pending" | "fulfilled";
+  status: string;
 
   @ManyToOne(() => User, (user) => user.productRequests, { nullable: true })
   requestedBy: User | null; // Nullable for guest orders

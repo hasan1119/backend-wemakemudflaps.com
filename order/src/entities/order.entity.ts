@@ -17,16 +17,16 @@ export class Order {
 
   @Column({
     type: "enum",
-    enum: {
-      PLACED: "placed",
-      CONFIRMED: "confirmed",
-      SHIPPED: "shipped",
-      DELIVERED: "delivered",
-      CANCELED: "canceled",
-    },
-    default: "placed",
+    enum: [
+      "pending",
+      "placed",
+      "confirmed",
+      "shipped",
+      "delivered",
+      "canceled",
+    ],
   })
-  gender: "placed" | "confirmed" | "shipped" | "delivered" | "canceled";
+  oderStatus: string;
 
   @ManyToOne(() => User, (user) => user.orders, { nullable: true })
   orderedBy: User | null; // Nullable for guest orders
