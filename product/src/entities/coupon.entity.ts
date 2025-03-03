@@ -11,6 +11,12 @@ export class Coupon {
 
   @Column({
     type: "enum",
+    enum: ["product", "order"],
+  })
+  discountOn: string;
+
+  @Column({
+    type: "enum",
     enum: ["percentage", "fixed"],
   })
   discountType: string;
