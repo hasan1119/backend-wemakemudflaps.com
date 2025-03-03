@@ -72,7 +72,7 @@ export class User {
   @OneToMany(() => Wishlist, (wishlist) => wishlist.createdBy)
   wishlistItems: Wishlist[];
 
-  @OneToMany(() => ProductReview, (review) => review.reviewdBy)
+  @OneToMany(() => ProductReview, (review) => review.reviewedBy)
   productReviews: ProductReview[];
 
   @OneToMany(() => ProductRequest, (request) => request.requestedBy)
