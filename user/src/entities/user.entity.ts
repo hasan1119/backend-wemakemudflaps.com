@@ -17,7 +17,7 @@ import {
   TermAndCondition,
   Variant,
   Wishlist,
-} from "../../../entities/index";
+} from "../../../entities/index"; // Adjust imports as needed
 
 @Entity()
 export class User {
@@ -40,7 +40,7 @@ export class User {
     type: "enum",
     enum: ["male", "female", "others", "rather not to say"],
     nullable: true,
-    default: null,
+    default: null
   })
   gender: string | null;
 
