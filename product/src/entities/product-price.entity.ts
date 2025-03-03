@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product } from "./product.entity";
+import { Product, VariantValue } from "../../../entities/index";
 
 @Entity()
 export class ProductPrice {
@@ -10,13 +10,20 @@ export class ProductPrice {
   minQuantity: number; // Minimum quantity for this price tier
 
   @Column({ nullable: true })
-  maxQuantity: number; // Maximum quantity (nullable for open-ended tiers like 40+)
+  maxQuantity: number | null; // Maximum quantity (nullable for open-ended tiers like 40+)
 
   @Column("decimal", { precision: 10, scale: 2 })
   price: number; // Price for this tier
 
   @ManyToOne(() => Product, (product) => product.prices, {
+    nullable: true,
     onDelete: "CASCADE",
   })
-  product: Product;
+  product: Product | null;
+
+  @ManyToOne(() => VariantValue, (variant) => variant.prices, {
+    nullable: true,
+    onDelete: "CASCADE",
+  })
+  variant: VariantValue | null;
 }

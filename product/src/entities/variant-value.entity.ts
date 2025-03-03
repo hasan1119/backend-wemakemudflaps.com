@@ -7,7 +7,12 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Media, Product, VariantAttribute } from "../../../entities/index";
+import {
+  Media,
+  Product,
+  ProductPrice,
+  VariantAttribute,
+} from "../../../entities/index";
 
 @Entity()
 export class VariantValue {
@@ -22,6 +27,9 @@ export class VariantValue {
 
   @Column({ default: 0 })
   stockQuantity: number;
+
+  @Column({ type: "int", default: 1 })
+  minOrderQuantity: number;
 
   @Column({ type: "text", nullable: true })
   description: string | null;
@@ -44,17 +52,7 @@ export class VariantValue {
     ],
     nullable: true,
   })
-  warrantyPeriod:
-    | "day"
-    | "days"
-    | "week"
-    | "weeks"
-    | "month"
-    | "months"
-    | "year"
-    | "years"
-    | "life-time"
-    | null;
+  warrantyPeriod: string | null;
 
   @ManyToOne(() => Product, (product) => product.variants, {
     onDelete: "CASCADE",
@@ -64,6 +62,9 @@ export class VariantValue {
   @ManyToMany(() => VariantAttribute)
   @JoinTable()
   attributes: VariantAttribute[];
+
+  @OneToMany(() => ProductPrice, (price) => price.variant, { cascade: true })
+  prices: ProductPrice[];
 
   @OneToMany(() => Media, (media) => media.variantValue, { cascade: true })
   photos: Media[];
