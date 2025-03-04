@@ -1,32 +1,41 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../../../entities/index";
+import { User } from "../../../entities";
 
 @Entity()
 export class PopupBanner {
+  // Auto-incrementing primary key
   @PrimaryGeneratedColumn()
   id: number;
 
+  // Optional image URL for the popup banner
   @Column({ type: "text", nullable: true })
   imageUrl: string;
 
+  // Optional message to be displayed on the popup banner
   @Column({ type: "text", nullable: true })
   message: string;
 
+  // Indicates whether the popup banner is active
   @Column({ type: "boolean", nullable: true })
   isActive: boolean;
 
+  // Start time when the popup banner should be displayed (optional)
   @Column({ type: "timestamp", nullable: true })
   startTime: Date;
 
+  // End time when the popup banner should be removed
   @Column({ type: "timestamp" })
   endTime: Date;
 
+  // User who created the popup banner (Many banners can be created by one user)
   @ManyToOne(() => User, (user) => user.popupBanners, { nullable: false })
   createdBy: User;
 
+  // Timestamp when the popup banner was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
+  // Timestamp for soft deletion (null if not deleted)
   @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date; // For soft deletion
+  deletedAt: Date;
 }

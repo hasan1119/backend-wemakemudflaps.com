@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product, User, VariantValue } from "../../../entities/index";
+import { Product, User } from "../../../entities";
 
 @Entity()
 export class Media {
@@ -21,12 +21,6 @@ export class Media {
   })
   product: Product;
 
-  @ManyToOne(() => VariantValue, (variantValue) => variantValue.photos, {
-    nullable: true,
-    onDelete: "CASCADE",
-  })
-  variantValue: VariantValue;
-
   @ManyToOne(() => User, (user) => user.media, { nullable: false })
   createdBy: User;
 
@@ -34,5 +28,5 @@ export class Media {
   createdAt: Date;
 
   @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date | null;
+  deletedAt: Date | null; // For soft deletion
 }

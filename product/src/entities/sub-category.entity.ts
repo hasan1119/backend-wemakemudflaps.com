@@ -1,32 +1,39 @@
 import {
   Column,
   Entity,
+  ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Category, Product, User } from "../../../entities/index";
+import { Category, Product, User } from "../../../entities";
 
 @Entity()
 export class SubCategory {
+  // Auto-incrementing primary key for the sub category
   @PrimaryGeneratedColumn()
   id: number;
 
+  // The name of the subcategory (must be unique)
   @Column({ unique: true })
   name: string;
 
+  // Relationship to the category to which this subcategory belongs
   @ManyToOne(() => Category, (category) => category.subCategories)
   category: Category;
 
-  @OneToMany(() => Product, (product) => product.subCategory)
+  // Relationship to the products associated with this subcategory
+  @ManyToMany(() => Product, (product) => product.subCategories)
   products: Product[];
 
+  // The user who created this subcategory (cannot be null)
   @ManyToOne(() => User, (user) => user.subCategories, { nullable: false })
   createdBy: User;
 
+  // Timestamp when the subcategory was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
+  // Timestamp for soft deletion (null if not deleted)
   @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date | null; // For soft deletion
+  deletedAt: Date | null;
 }

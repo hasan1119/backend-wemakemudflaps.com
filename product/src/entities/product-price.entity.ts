@@ -1,29 +1,56 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product, VariantValue } from "../../../entities/index";
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import {
+  Product,
+  ProductTieredPrice,
+  ProductVariation,
+} from "../../../entities/";
 
 @Entity()
 export class ProductPrice {
+  // Auto-incrementing primary key for the product price
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  minQuantity: number; // Minimum quantity for this price tier
+  // Pricing type: "Fixed" (fixed price per unit) or "Percentage" (discount percentage)
+  @Column({
+    type: "enum",
+    enum: ["Fixed", "Percentage"],
+  })
+  productType: string;
 
-  @Column({ nullable: true })
-  maxQuantity: number | null; // Maximum quantity (nullable for open-ended tiers like 40+)
+  // Tiered pricing rules for bulk or quantity-based pricing
+  @OneToMany(
+    () => ProductTieredPrice,
+    (tieredPrice) => tieredPrice.productPrice,
+    { cascade: true, onDelete: "CASCADE" }
+  )
+  tieredPrices: ProductTieredPrice[];
 
-  @Column("decimal", { precision: 10, scale: 2 })
-  price: number; // Price for this tier
-
-  @ManyToOne(() => Product, (product) => product.prices, {
+  // For simple products, link back to the product
+  @OneToOne(() => Product, (product) => product.tierPricingInfo, {
     nullable: true,
     onDelete: "CASCADE",
   })
   product: Product | null;
 
-  @ManyToOne(() => VariantValue, (variant) => variant.prices, {
+  // For variable products, link to the specific product variation
+  @OneToOne(() => ProductVariation, (variation) => variation.tierPricingInfo, {
     nullable: true,
     onDelete: "CASCADE",
   })
-  variant: VariantValue | null;
+  productVariation: ProductVariation | null;
+
+  // Timestamp when the user was created
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  createdAt: Date;
+
+  // Timestamp for soft deletion (null if not deleted)
+  @Column({ type: "timestamp", nullable: true })
+  deletedAt: Date | null;
 }
