@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product, User, VariantValue } from "../../../entities/index";
+import { Product, User, VariantValue } from "../../../entities";
 
 @Entity()
 export class Cart {

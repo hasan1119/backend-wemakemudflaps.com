@@ -1,20 +1,25 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../../../entities/index";
+import { User } from "../../../entities";
 
 @Entity()
 export class PrivacyPolicy {
+  // Auto-incrementing primary key
   @PrimaryGeneratedColumn()
   id: number;
 
+  // Content of the privacy policy
   @Column()
   content: string;
 
+  // User who created the privacy policy (Many policies can be created by one user)
   @ManyToOne(() => User, (user) => user.privacyPolicies, { nullable: false })
   createdBy: User;
 
+  // Timestamp when the privacy policy was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
+  // Timestamp for soft deletion (null if not deleted)
   @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date | null; // For soft deletion
+  deletedAt: Date | null;
 }

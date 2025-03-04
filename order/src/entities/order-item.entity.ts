@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Order, Product, VariantValue } from "./../../../entities/index";
+import { Order, Product } from "./../../../entities";
 
 @Entity()
 export class OrderItem {
@@ -17,11 +17,6 @@ export class OrderItem {
 
   @ManyToOne(() => Product, (product) => product.orderItems)
   product: Product;
-
-  @ManyToOne(() => VariantValue, (variantValue) => variantValue.orderItems, {
-    nullable: true,
-  })
-  variant: VariantValue | null;
 
   @Column({ type: "timestamp", nullable: true })
   deletedAt: Date | null; // For soft deletion

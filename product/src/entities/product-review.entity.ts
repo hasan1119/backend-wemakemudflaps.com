@@ -1,44 +1,45 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { Product, User } from "../../../entities/index";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Product, User } from "../../../entities";
 
 @Entity()
 export class ProductReview {
+  // Auto-incrementing primary key for the product review
   @PrimaryGeneratedColumn()
   id: number;
 
+  // The comment left by the user or guest about the product
   @Column({ type: "text", nullable: false })
   comment: string;
 
+  // The rating given to the product (out of 5)
   @Column({ type: "int", nullable: false })
-  rating: number; // Rating out of 5
+  rating: number;
 
+  // Indicates if the review is approved or rejected by an admin
   @Column({ type: "boolean", default: false })
-  isApproved: boolean; // Admin can approve or reject reviews
+  isApproved: boolean;
 
+  // This field stores the user who left the review, can be null for guest reviews
   @ManyToOne(() => User, (user) => user.productReviews, { nullable: true })
-  reviewedBy: User | null; // Nullable for guest reviews
+  reviewedBy: User | null;
 
+  // Name of the guest user leaving the review (nullable)
   @Column({ nullable: true })
-  guestName: string | null; // Name of the guest user
+  guestName: string | null;
 
+  // Email of the guest user leaving the review (nullable)
   @Column({ nullable: true })
-  guestEmail: string | null; // Email of the guest user
+  guestEmail: string | null;
 
+  // This field stores the product being reviewed
   @ManyToOne(() => Product, (product) => product.reviews, { nullable: false })
-  product: Product; // Product being reviewed
+  product: Product;
 
-  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  // Timestamp when the product review was created (auto-generated)
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
+  // Timestamp for soft deletion (null if not deleted)
   @Column({ type: "timestamp", nullable: true })
-  updatedAt: Date | null; // Timestamp for when the review is updated
-
-  @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date | null; // For soft deletion
+  deletedAt: Date | null;
 }

@@ -3,56 +3,96 @@ import {
   Entity,
   JoinColumn,
   JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import {
-  Cart,
+  Brand,
   Category,
-  Coupon,
   Media,
-  OrderItem,
+  ProductAttribute,
   ProductPrice,
-  ProductReview,
+  ProductVariation,
+  ShippingClass,
   SubCategory,
+  TaxClass,
+  TaxStatus,
   User,
-  VariantValue,
-  Wishlist,
-} from "../../../entities/index";
+} from "../../../entities";
 
 @Entity()
 export class Product {
+  // Auto-incrementing primary key for the product
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true, nullable: true })
-  sku: string | null;
+  /* ====================== Basic Info ====================== */
 
+  // Product type: either "Simple product" or "Variable product"
+  @Column({
+    type: "enum",
+    enum: ["Simple product", "Variable product"],
+  })
+  productType: string;
+
+  // Product name
   @Column()
   name: string;
 
-  @Column({ type: "text", nullable: false })
-  description: string;
+  // Default thumbnail image for the product
+  @OneToOne(() => Media, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn()
+  defaultImage: Media | null;
 
-  @Column({ type: "boolean", default: false })
-  hasVariant: boolean; // Will true for variant products or false
+  // Additional images related to the product
+  @OneToMany(() => Media, (media) => media.product, { nullable: true })
+  images: Media[] | null;
 
-  @Column({ type: "boolean", default: false })
-  hasBulk: boolean; // Will true for bulk selling products or false
+  // Related videos for the product
+  @OneToMany(() => Media, (media) => media.product, { nullable: true })
+  videos: Media[] | null;
 
-  @Column({ type: "decimal", precision: 10, scale: 2 })
-  basePrice: number; // Used for non-variant products
+  // Associated brand for the product
+  @ManyToOne(() => Brand, (brand) => brand.products, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "product_brand" })
+  brand: Brand | null;
 
-  @Column({ type: "int", nullable: true })
-  stockQuantity: number | null; // Used for non-variant products
+  // Main product description
+  @Column({ type: "text" })
+  defaultMainDescription: string;
 
-  @Column({ type: "int", nullable: true })
-  warranty: number | null; // Used for non-variant products
+  // Short description
+  @Column({ type: "text", nullable: true })
+  defaultShortDescription: string | null;
 
-  @Column({ type: "int", default: 1 })
-  minOrderQuantity: number; // Bulk selling constraint
+  // Comma-separated product tags
+  @Column({ type: "simple-array", nullable: true })
+  defaultTags: string[] | null;
 
+  // Primary category for the product
+  @ManyToOne(() => Category, (category) => category.products, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "category_id" })
+  category: Category;
+
+  // Multiple sub-categories associated with the product
+  @ManyToMany(() => SubCategory, (subCategory) => subCategory.products)
+  @JoinTable({ name: "product_subcategory_ids" })
+  subCategories: SubCategory[];
+
+  // Warranty digit for the variation (nullable)
+  @Column({ nullable: true })
+  warrantyDigit: number | null;
+
+  // Warranty period unit for the variation (e.g., "days", "months")
   @Column({
     type: "enum",
     enum: [
@@ -68,54 +108,255 @@ export class Product {
     ],
     nullable: true,
   })
-  warrantyPeriod: string | null;
+  defaultWarrantyPeriod: string | null;
 
-  @ManyToOne(() => Category, (category) => category.products, {
+  /* ====================== General Pricing Info ====================== */
+
+  // Regular price for a simple product
+  @Column({ type: "decimal", precision: 10, scale: 2 })
+  regularPrice: number;
+
+  // Sale price for a simple product
+  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  salePrice: number | null;
+
+  // Sale price start date
+  @Column({ type: "timestamp", nullable: true })
+  salePriceStartAt: Date | null;
+
+  // Sale price end date
+  @Column({ type: "timestamp", nullable: true })
+  salePriceEndAt: Date | null;
+
+  // Tier pricing info for simple products (one-to-one relation with ProductPrice)
+  @OneToOne(() => ProductPrice, (pricing) => pricing.product, {
+    nullable: true,
+    cascade: true, // Ensures the associated tier prices is deleted if the product is deleted
+  })
+  @JoinColumn({ name: "product_tier_pricing_id" })
+  tierPricingInfo: ProductPrice | null;
+
+  // Sale quantity limit (if the product is a deal)
+  @Column({ nullable: true })
+  saleQuantity: number | null;
+
+  // Tax status (controls whether the product cost or shipping is taxable)
+  @ManyToOne(() => TaxStatus, (taxStatus) => taxStatus.products, {
     nullable: true,
     onDelete: "SET NULL",
   })
-  @JoinColumn({ name: "categoryId" })
-  category: Category;
+  @JoinColumn({ name: "tax_status_id" })
+  taxStatus: TaxStatus | null;
 
-  @Column({ type: "simple-array", nullable: true })
-  tags: string[];
-
-  @ManyToOne(() => SubCategory, (subCategory) => subCategory.products)
-  @JoinTable({ name: "product_subcategory" })
-  subCategories: SubCategory[];
-
-  @OneToMany(() => Media, (media) => media.product)
-  media: Media[];
-
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
-  orderItems: OrderItem[];
-
-  @OneToMany(() => Coupon, (coupon) => coupon.product)
-  coupons: Coupon[];
-
-  @OneToMany(() => Cart, (cart) => cart.product)
-  cartItems: Cart[];
-
-  @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
-  wishlistItems: Wishlist[];
-
-  @OneToMany(() => ProductReview, (review) => review.product)
-  reviews: ProductReview[];
-
-  @OneToMany(() => VariantValue, (variantValue) => variantValue.product, {
-    cascade: true,
+  // Tax class (defines tax rates for the product)
+  @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {
+    nullable: true,
+    onDelete: "SET NULL",
   })
-  variants: VariantValue[];
+  @JoinColumn({ name: "tax_class_id" })
+  taxClass: TaxClass | null;
 
-  @OneToMany(() => ProductPrice, (price) => price.product, { cascade: true })
-  prices: ProductPrice[];
+  /* ====================== Quantity Settings ====================== */
 
+  // Minimum purchase quantity (for simple products)
+  @Column({ nullable: true })
+  minQuantity: number | null;
+
+  // Default quantity
+  @Column({ nullable: true })
+  defaultQuantity: number | null;
+
+  // Maximum purchase quantity
+  @Column({ nullable: true })
+  maxQuantity: number | null;
+
+  // Step increment when adding product to cart
+  @Column({ default: 1 })
+  quantityStep: number;
+
+  /* ====================== Inventory Info ====================== */
+
+  // Unique SKU (Stock Keeping Unit) identifier
+  @Column({ unique: true, nullable: true })
+  sku: string | null;
+
+  // Model number or identifier
+  @Column({ nullable: true })
+  model: string | null;
+
+  // Whether to manage stock level
+  @Column({ type: "boolean", nullable: true, default: null })
+  manageStock: boolean | null;
+
+  // Stock quantity (for simple products; for variable products, stock is managed at variation level)
+  @Column({ nullable: true, default: null })
+  stockQuantity: number | null;
+
+  // Backorder settings (defines if backorders are allowed)
+  @Column({
+    type: "enum",
+    enum: ["Don't allow", "Allow but notify customer", "Allow"],
+    nullable: true,
+    default: null,
+  })
+  allowBackOrders: string | null;
+
+  // Low stock threshold to trigger notification
+  @Column({ nullable: true, default: null })
+  lowStockThresHold: number | null;
+
+  // Stock status displayed on the frontend
+  @Column({
+    type: "enum",
+    enum: ["In stock", "Out of stock", "On backorder"],
+    nullable: true,
+    default: null,
+  })
+  stockStatus: string | null;
+
+  // If true, only one item can be purchased per order
+  @Column({ type: "boolean", default: true })
+  soldIndividually: boolean;
+
+  // Initial number in stock (for stock progress bar display)
+  @Column({ nullable: true, default: null })
+  initialNumberInStock: string | null;
+
+  /* ====================== Shipping Info ====================== */
+
+  // Unit of weight for the product
+  @Column({
+    type: "enum",
+    enum: [
+      "Milligram",
+      "Gram",
+      "Kilogram",
+      "Ton",
+      "Pound",
+      "Ounce",
+      "Stone",
+      "Carat",
+      "Grain",
+      "Quintal",
+      "Metric Ton",
+    ],
+    nullable: true,
+    default: null,
+  })
+  weightUnit: string | null;
+
+  // Weight of the product
+  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  weight: number | null;
+
+  // Dimension unit for the variation (e.g., "Centimeter", "Meter")
+  @Column({
+    type: "enum",
+    enum: [
+      "Millimeter",
+      "Centimeter",
+      "Meter",
+      "Kilometer",
+      "Inch",
+      "Foot",
+      "Yard",
+    ],
+    nullable: true,
+    default: null,
+  })
+  dimensionUnit: string | null;
+
+  // Length of the variation (nullable)
+  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  length: number | null;
+
+  // Width of the variation (nullable)
+  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  width: number | null;
+
+  // Height of the variation (nullable)
+  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  height: number | null;
+
+  // Shipping class for grouping similar products for shipping rules
+  @ManyToOne(() => ShippingClass, (shippingClass) => shippingClass.products, {
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "shipping_class_id" })
+  shippingClass: string;
+
+  /* ====================== Linked Products ====================== */
+
+  // Upsell products (premium or higher-end alternatives)
+  @ManyToMany(() => Product, { nullable: true })
+  @JoinTable({
+    name: "product_upsells",
+    joinColumn: { name: "product_id", referencedColumnName: "id" },
+    inverseJoinColumn: {
+      name: "upsell_product_id",
+      referencedColumnName: "id",
+    },
+  })
+  upsells: Product[] | null;
+
+  // Cross-sell products (complementary products)
+  @ManyToMany(() => Product, { nullable: true })
+  @JoinTable({
+    name: "product_cross_sells",
+    joinColumn: { name: "product_id", referencedColumnName: "id" },
+    inverseJoinColumn: {
+      name: "cross_sell_product_id",
+      referencedColumnName: "id",
+    },
+  })
+  crossSells: Product[] | null;
+
+  /* ====================== Attributes ====================== */
+
+  // Additional product attributes (e.g., material, style)
+  @ManyToMany(() => ProductAttribute, {
+    cascade: true, // Ensures the associated product attribute is deleted if the product is deleted
+    nullable: true,
+  })
+  @JoinTable({
+    name: "product_attributes",
+    joinColumn: { name: "product_id", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "attribute_id", referencedColumnName: "id" },
+  })
+  attributes: ProductAttribute[] | null;
+
+  /* ====================== Variations ====================== */
+
+  // Variations for variable products (each representing a distinct combination of attribute values)
+  @OneToMany(() => ProductVariation, (variation) => variation.product, {
+    cascade: true, // Ensures the associated product attribute is deleted if the product is deleted
+    nullable: true,
+  })
+  variations: ProductVariation[] | null;
+
+  /* ====================== Advanced Settings ====================== */
+
+  // Purchase note sent to customers after buying the product
+  @Column({ type: "text", nullable: true })
+  purchaseNote: string | null;
+
+  // Enable or disable product reviews
+  @Column({ type: "boolean", default: true })
+  enableReviews: boolean;
+
+  // Custom badge text for the product (e.g., "New", "Sale")
+  @Column({ nullable: true })
+  customBadge: string | null;
+
+  // User who created the product
   @ManyToOne(() => User, (user) => user.products, { nullable: false })
   createdBy: User;
 
+  // Timestamp when the user was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
+  // Timestamp for soft deletion (null if not deleted)
   @Column({ type: "timestamp", nullable: true })
   deletedAt: Date | null;
 }
