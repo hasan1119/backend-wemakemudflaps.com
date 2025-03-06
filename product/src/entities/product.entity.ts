@@ -352,6 +352,14 @@ export class Product {
   @Column({ nullable: true })
   customBadge: string | null;
 
+  // For preview mode (Admins/Authorities can see)
+  @Column({ type: "boolean", default: false })
+  isPreview: boolean;
+
+  // For customer visibility
+  @Column({ type: "boolean", default: false })
+  isVisible: boolean;
+
   // User who created the product
   @ManyToOne(() => User, (user) => user.products, { nullable: false })
   createdBy: User;
