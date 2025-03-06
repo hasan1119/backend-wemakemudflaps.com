@@ -137,6 +137,10 @@ export class ProductVariation {
   })
   defaultWarrantyPeriod: string | null;
 
+  // Warranty policy for the variation (nullable)
+  @Column({ nullable: true })
+  warrantyPolicy: string | null;
+
   // Dimension unit for the variation (e.g., "Centimeter", "Meter")
   @Column({
     type: "enum",
