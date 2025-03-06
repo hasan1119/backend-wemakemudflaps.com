@@ -110,6 +110,10 @@ export class Product {
   })
   defaultWarrantyPeriod: string | null;
 
+  // Warranty policy for the variation (nullable)
+  @Column({ nullable: true })
+  warrantyPolicy: string | null;
+
   /* ====================== General Pricing Info ====================== */
 
   // Regular price for a simple product
