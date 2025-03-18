@@ -7,19 +7,38 @@ import {
 } from "typeorm";
 import { User } from "../../../entities";
 
+const PermissionNames = [
+  "Brand",
+  "Category",
+  "Product",
+  "Product Review",
+  "Shipping Class",
+  "Sub Category",
+  "Tax Class",
+  "Tax Status",
+  "FAQ",
+  "News Letter",
+  "Pop Up Banner",
+  "Privacy & Policy",
+  "Terms & Conditions",
+  "Oder",
+  "Notification",
+  "Media",
+];
+
 @Entity()
 export class Permission {
   // Auto-incrementing primary key
   @PrimaryGeneratedColumn()
   id: number;
 
-  /*
-   * Allows predefined + permission
-   * Predefined: "Brand", "Category", "Product", "Product Review", "Shipping Class", "Sub Category", "Tax Class", "Tax Status", "FAQ", "News Letter", "Pop Up Banner", "Privacy & Policy", "Terms & Conditions", "Oder", "Notification" and "Media"
-   */
-  // Permissions (e.g., "Brand", "Category", "Product", "Product Review", "Shipping Class", "Sub Category", "Tax Class", "Tax Status", "FAQ", "News Letter", "Pop Up Banner", "Privacy & Policy", "Term & Condition", "Oder", "Notification" and "Media"  )
-  @Column({ unique: true })
-  name: string;
+  // Permissions
+  @Column({
+    type: "enum",
+    enum: PermissionNames,
+    unique: true, // Ensures each permission has a unique name
+  })
+  name: PermissionName;
 
   // Description for the permission
   @Column({ nullable: true })
