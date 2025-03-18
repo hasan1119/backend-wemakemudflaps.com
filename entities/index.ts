@@ -27,4 +27,6 @@ export { Newsletter } from "../site-setting/src/entities/news-letter.entity";
 export { PopupBanner } from "../site-setting/src/entities/pop-up-banner.entity";
 export { PrivacyPolicy } from "../site-setting/src/entities/privacy-and-policy.entity";
 export { TermAndCondition } from "../site-setting/src/entities/term-and-condition.entity";
+export { Permission } from "../user/src/entities/permission.entity";
+export { Role } from "../user/src/entities/user-role.entity";
 export { User } from "../user/src/entities/user.entity";
