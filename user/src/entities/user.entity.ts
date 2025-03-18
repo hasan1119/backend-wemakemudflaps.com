@@ -1,4 +1,11 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import {
   Brand,
   Cart,
@@ -9,11 +16,13 @@ import {
   Newsletter,
   Notification,
   Order,
+  Permission,
   PopupBanner,
   PrivacyPolicy,
   Product,
   ProductRequest,
   ProductReview,
+  Role,
   ShippingClass,
   SubCategory,
   TaxClass,
@@ -53,13 +62,14 @@ export class User {
   })
   gender: string | null;
 
-  // Role of the user (customer/admin)
-  @Column({
-    type: "enum",
-    enum: ["customer", "admin"],
-    default: "customer",
-  })
-  role: string;
+  // Each user has only one role
+  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
+  @JoinColumn({ name: "roleId" })
+  role: Role;
+
+  // Permissions specific to each user
+  @OneToMany(() => Permission, (permission) => permission.user)
+  permissions: Permission[];
 
   // Orders placed by the user
   @OneToMany(() => Order, (order) => order.orderedBy)

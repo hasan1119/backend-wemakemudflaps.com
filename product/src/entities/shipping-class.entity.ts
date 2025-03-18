@@ -14,7 +14,7 @@ export class ShippingClass {
   id: number;
 
   /*
-   * Allows predefined + custom tax classes
+   * Allows predefined + custom shipping classes
    * Predefined: "No shipping class", "Flat rate", "Free Shipping", "UPS"
    */
   // The value of the shipping class (e.g., "Free Shipping", "Flat rate", etc.)
