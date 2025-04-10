@@ -56,7 +56,7 @@ export class User {
   // Gender of the user (optional)
   @Column({
     type: "enum",
-    enum: ["male", "female", "others", "rather not to say"],
+    enum: ["MALE", "FEMALE", "OTHERS", "RATHER_NOT_SAY"],
     nullable: true,
     default: null,
   })

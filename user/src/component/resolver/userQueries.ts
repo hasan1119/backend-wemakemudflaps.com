@@ -1,3 +1,8 @@
+import { getUser, getUsers } from "../../controllers";
+
 export const userQueriesResolver = {
-  Query: {},
+  Query: {
+    getUsers,
+    getUser,
+  },
 };

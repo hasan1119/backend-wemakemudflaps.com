@@ -2,16 +2,16 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import CONFIG from "./src/config/config";
-import { connectDB } from "./src/db";
-import { resolvers } from "./src/helper/combine/resolver"; // Combined resolvers
-import { typeDefs } from "./src/helper/combine/schema"; // Combined schemas
+import { connectDB } from "./src/helper";
+import { resolvers } from "./src/helper/combine/resolver";
+import { typeDefs } from "./src/helper/combine/schema";
 import createContext from "./src/middleware/context";
 
 async function startApolloServer() {
   // Connect to the database
   await connectDB();
 
-  // Create the Apollo Server instance
+  // Create the Apollo Server instance with subgraph schema
   const server = new ApolloServer({
     schema: buildSubgraphSchema([{ typeDefs, resolvers }]),
   });
@@ -26,8 +26,8 @@ async function startApolloServer() {
     });
 
     console.log(`🚀 Subgraph ${subgraphName} running at ${url}`);
-  } catch (error: Error | any) {
-    console.error("❌ Error starting Apollo Subgraph:", error);
+  } catch (err) {
+    console.error("Error starting Apollo Subgraph:", err);
   }
 }
 

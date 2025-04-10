@@ -17,6 +17,7 @@ interface Config {
   DB_PASSWORD: string;
   DB_NAME: string;
   DB_SYNCHRONIZE: boolean;
+  DB_ENTITIES: string;
   DB_MIGRATIONS: string;
 
   /* Bcrypt configurations */
@@ -56,6 +57,7 @@ const CONFIG: Config = {
   DB_NAME: process.env.DB_NAME as string,
   DB_SYNCHRONIZE:
     (process.env.DB_SYNCHRONIZE as string) === "true" ? true : false,
+  DB_ENTITIES: process.env.DB_ENTITIES as string,
   DB_MIGRATIONS: process.env.DB_MIGRATIONS as string,
 
   /* Bcrypt configurations */
