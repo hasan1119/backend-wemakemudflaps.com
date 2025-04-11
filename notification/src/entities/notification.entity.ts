@@ -3,9 +3,8 @@ import { Order, Product, User } from "../../../entities";
 
 @Entity()
 export class Notification {
-  // Auto-incrementing primary key for the notification
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Type of the notification (e.g., 'order_placed', 'order_confirmed', etc.)
   @Column()

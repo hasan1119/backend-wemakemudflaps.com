@@ -3,9 +3,8 @@ import { User } from "../../../entities";
 
 @Entity()
 export class FAQ {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Question of the FAQ
   @Column()

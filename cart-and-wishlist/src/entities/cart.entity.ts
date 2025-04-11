@@ -3,8 +3,8 @@ import { Product, User, VariantValue } from "../../../entities";
 
 @Entity()
 export class Cart {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column()
   quantity: number;

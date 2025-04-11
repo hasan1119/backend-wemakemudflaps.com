@@ -15,11 +15,11 @@ const DecodeToken = async (token: string): Promise<JwtPayload | null> => {
     if (
       decoded &&
       typeof decoded === "object" &&
-      "user_id" in decoded &&
+      "id" in decoded &&
       "email" in decoded &&
       "username" in decoded &&
-      "first_name" in decoded &&
-      "last_name" in decoded &&
+      "firstName" in decoded &&
+      "lastName" in decoded &&
       "role" in decoded
     ) {
       return decoded;

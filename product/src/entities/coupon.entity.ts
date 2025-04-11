@@ -3,9 +3,8 @@ import { Order, Product, User } from "../../../entities";
 
 @Entity()
 export class Coupon {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Unique code for the coupon
   @Column({ unique: true })

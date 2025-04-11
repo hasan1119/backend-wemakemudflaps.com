@@ -7,29 +7,27 @@ import config from "../../config/config";
  * @param user_id - The user's unique ID.
  * @param email - The user's email.
  * @param username - The user's username.
- * @param first_name - The user's first name.
- * @param last_name - The user's last name.
+ * @param firstName - The user's first name.
+ * @param lastName - The user's last name.
  * @param role - The user's role.
  * @param trackingId - The user's tracking ID.
  * @param expiresIn - Optional. The token expiration time.
  * @returns {Promise<string>} - A promise that resolves to the signed JWT token.
  */
 const EncodeToken = async (
-  user_id: number,
+  id: string,
   email: string,
-  username: string,
-  first_name: string,
-  last_name: string,
+  firstName: string,
+  lastName: string,
   role: string,
   expiresIn?: string
 ): Promise<string> => {
   // Payload to include in the token
   const PAYLOAD = {
-    user_id,
+    id,
     email,
-    username,
-    first_name,
-    last_name,
+    firstName,
+    lastName,
     role,
   };
 

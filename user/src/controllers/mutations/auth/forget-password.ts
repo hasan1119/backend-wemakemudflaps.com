@@ -1,1 +1,173 @@
-export const forgetPassword = async () => {};
+import { Repository } from "typeorm";
+import { v4 as uuidv4 } from "uuid";
+import CONFIG from "../../../config/config";
+import { Context } from "../../../context";
+import { User } from "../../../entities/user.entity";
+import { BaseResponse, MutationForgetPasswordArgs } from "../../../types";
+import { emailSchema } from "../../../utils/data-validation/auth/auth";
+import SendEmail from "../../../utils/email/send-email";
+
+// Define the type for lockout session
+interface LockoutSession {
+  lockedAt: number; // Timestamp when the account was locked
+  duration: number; // Duration in seconds for the lockout
+}
+
+/**
+ * Handles the password reset request via email.
+ * - Validates the provided email.
+ * - Checks if the user exists.
+ * - Generates a password reset token and saves it to the user.
+ * - Sends a password reset email with a reset link.
+ *
+ * @param _ - Unused GraphQL parent argument
+ * @param args - Contains the email address for password reset
+ * @param context - Application context with AppDataSource
+ * @returns Promise<BaseResponse> - Response status and message
+ */
+export const forgetPassword = async (
+  _,
+  args: MutationForgetPasswordArgs,
+  context: Context
+): Promise<BaseResponse> => {
+  const { AppDataSource, redis } = context;
+  const { getSession, setSession, deleteSession } = redis;
+  const { email } = args;
+
+  // Get the User repository
+  const userRepository: Repository<User> = AppDataSource.getRepository(User);
+
+  try {
+    // Validate the provided email using Zod schema
+    const validationResult = await emailSchema.safeParseAsync({ email });
+
+    // Return the first validation error message if validation fails
+    if (!validationResult.success) {
+      const errorMessage = validationResult.error.errors[0].message;
+      return {
+        statusCode: 400,
+        success: false,
+        message: errorMessage,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Check if a user exists with the provided email
+    const user = await userRepository.findOne({ where: { email } });
+    if (!user) {
+      return {
+        statusCode: 400,
+        success: false,
+        message: "No user found with this email.",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Account lock check using Redis session data
+    const forgetPasswordAttemptsKey = `forget_password_attempts_${email}`;
+    const lockoutKey = `lockout_${email}`;
+
+    const lockoutSession = await getSession(forgetPasswordAttemptsKey);
+
+    // Handle lockout state
+    if (lockoutSession) {
+      const { lockedAt, duration } = lockoutSession as LockoutSession; // Cast to LockoutSession type
+      const timePassed = Math.floor((Date.now() - lockedAt) / 1000); // Time passed in seconds
+      const timeLeft = duration - timePassed;
+
+      if (timeLeft > 0) {
+        // If lock time is remaining, return the time left
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        return {
+          statusCode: 400,
+          success: false,
+          message: `Too many request. Please try again after ${minutes}m ${seconds}s.`,
+          __typename: "BaseResponse",
+        };
+      } else {
+        // Unlock the account if the lock time has expired
+        await deleteSession(lockoutKey);
+      }
+    }
+
+    // Generate a unique reset token (UUID)
+    const resetToken = uuidv4();
+    user.resetPasswordToken = resetToken;
+
+    // Save the token to the user record
+    await userRepository.save(user);
+
+    // Create the reset password link using the token
+    const resetLink = `${CONFIG.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    // Prepare email contents
+    const subject = "Password Reset Request";
+    const text = `Please use the following link to reset your password: ${resetLink}`;
+    const html = `<p>Please use the following link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`;
+
+    // Attempt to send the reset email
+    const emailSent = await SendEmail({
+      to: email,
+      subject,
+      text,
+      html,
+    });
+
+    // If email sending fails, return an error
+    if (!emailSent) {
+      return {
+        statusCode: 500,
+        success: false,
+        message: "Failed to send password reset email.",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Increment login attempt count
+    const sessionData = (await getSession(forgetPasswordAttemptsKey)) as {
+      attempts: number;
+    } | null;
+    const newAttempts = (sessionData?.attempts || 0) + 1;
+
+    // Store updated attempts count in Redis with 1-hour TTL
+    await setSession(
+      forgetPasswordAttemptsKey,
+      { attempts: newAttempts },
+      3600
+    );
+
+    // Lock forget password request after 1 attempt
+    if (newAttempts >= 1) {
+      const lockDuration = 60; // 1 minute in seconds
+      await setSession(
+        lockoutKey,
+        { locked: true, lockedAt: Date.now(), duration: lockDuration },
+        lockDuration
+      );
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Too many request. Please try again after 1 minutes.",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Return success response
+    return {
+      statusCode: 200,
+      success: true,
+      message: "Password reset email sent successfully.",
+      __typename: "BaseResponse",
+    };
+  } catch (error: Error | any) {
+    // Log and return a generic error response
+    console.error("Forget password error:", error);
+    return {
+      statusCode: 500,
+      success: false,
+      message: "Failed to process password reset request.",
+      __typename: "BaseResponse",
+    };
+  }
+};

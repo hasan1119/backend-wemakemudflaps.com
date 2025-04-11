@@ -3,9 +3,8 @@ import { Product, User } from "../../../entities";
 
 @Entity()
 export class ProductReview {
-  // Auto-incrementing primary key for the product review
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // The comment left by the user or guest about the product
   @Column({ type: "text", nullable: false })

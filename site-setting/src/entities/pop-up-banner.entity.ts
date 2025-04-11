@@ -3,9 +3,8 @@ import { User } from "../../../entities";
 
 @Entity()
 export class PopupBanner {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Optional image URL for the popup banner
   @Column({ type: "text", nullable: true })

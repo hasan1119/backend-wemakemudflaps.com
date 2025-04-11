@@ -11,7 +11,8 @@
     "rootDir": "./src",
     "typeRoots": ["./node_modules/@types"],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "lib": ["ES2017", "ES2018", "DOM"]
   },
   "include": ["src/**/*"]
 }

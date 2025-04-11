@@ -3,8 +3,8 @@ import { Product, User, VariantValue } from "../../../entities";
 
 @Entity()
 export class Wishlist {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @ManyToOne(() => User, (user) => user.wishlistItems, { nullable: true })
   createdBy: User | null; // Nullable for guest carts

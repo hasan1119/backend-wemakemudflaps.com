@@ -3,9 +3,8 @@ import { User } from "../../../entities";
 
 @Entity()
 export class TermAndCondition {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Content of the terms and conditions
   @Column()

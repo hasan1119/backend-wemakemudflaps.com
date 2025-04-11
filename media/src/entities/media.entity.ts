@@ -3,8 +3,8 @@ import { Product, User } from "../../../entities";
 
 @Entity()
 export class Media {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column({
     type: "enum",

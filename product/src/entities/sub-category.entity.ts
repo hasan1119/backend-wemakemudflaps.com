@@ -9,9 +9,8 @@ import { Category, Product, User } from "../../../entities";
 
 @Entity()
 export class SubCategory {
-  // Auto-incrementing primary key for the sub category
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // The name of the subcategory (must be unique)
   @Column({ unique: true })

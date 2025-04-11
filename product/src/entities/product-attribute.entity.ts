@@ -4,9 +4,8 @@ import { ProductAttributeValue } from "../../../entities";
 
 @Entity()
 export class ProductAttribute {
-  // Auto-incrementing primary key for the product attribute
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // The name of the product attribute (e.g., "Size", "Color")
   @Column({ unique: true })

@@ -9,9 +9,8 @@ import { User } from "../../../entities";
 
 @Entity()
 export class Newsletter {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Title of the newsletter
   @Column({ type: "text", nullable: false })

@@ -1,21 +1,22 @@
 import {
   changePassword,
-  deleteUser,
   forgetPassword,
   login,
   register,
   resetPassword,
-  updateUser,
+  updateProfile,
+  updateUserPermission,
+  updateUserRole,
 } from "../../controllers";
-
 export const userMutationsResolver = {
   Mutation: {
     changePassword,
-    deleteUser,
     forgetPassword,
     login,
     register,
     resetPassword,
-    updateUser,
+    updateUserPermission,
+    updateUserRole,
+    updateProfile,
   },
 };

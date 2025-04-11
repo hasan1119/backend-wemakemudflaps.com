@@ -9,9 +9,8 @@ import { Product, User } from "../../../entities";
 
 @Entity()
 export class ShippingClass {
-  // Auto-incrementing primary key for the shipping class
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   /*
    * Allows predefined + custom shipping classes

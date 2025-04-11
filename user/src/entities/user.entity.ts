@@ -30,12 +30,10 @@ import {
   TermAndCondition,
   Wishlist,
 } from "../../../entities";
-
 @Entity()
 export class User {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // First name of the user
   @Column()
@@ -56,7 +54,7 @@ export class User {
   // Gender of the user (optional)
   @Column({
     type: "enum",
-    enum: ["MALE", "FEMALE", "OTHERS", "RATHER_NOT_SAY"],
+    enum: ["Male", "Female", "Others", "Rather not to say"],
     nullable: true,
     default: null,
   })
@@ -66,6 +64,14 @@ export class User {
   @ManyToOne(() => Role, (role) => role.users, { nullable: false })
   @JoinColumn({ name: "roleId" })
   role: Role;
+
+  // forget password token
+  @Column({ nullable: true })
+  resetPasswordToken: string | null;
+
+  // Roles created by this user
+  @OneToMany(() => Role, (role) => role.createdBy)
+  roles: Role[];
 
   // Permissions specific to each user
   @OneToMany(() => Permission, (permission) => permission.user)

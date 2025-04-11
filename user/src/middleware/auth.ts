@@ -4,13 +4,12 @@ import { redis } from "../helper";
 
 // User session interface to define the structure of the session object
 interface UserSession {
-  user_id: number;
+  id: string;
   email: string;
   username: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   role?: string;
-  trackingId: number;
 }
 
 export async function authMiddleware(
@@ -20,20 +19,22 @@ export async function authMiddleware(
   try {
     // Extract the token from the authorization header
     const token =
-      req.headers?.authorization && req.headers?.authorization?.split(" ")[1] || req.cookies?.token;
+      (req.headers?.authorization &&
+        req.headers?.authorization?.split(" ")[1]) ||
+      req.cookies?.token;
 
     // If no token is provided, throw an error
     if (!token) {
-      throw new Error("No token provided in the authorization headers or cookies");
+      throw new Error(
+        "No token provided in the authorization headers or cookies"
+      );
     }
 
     // Verify the JWT using the secret key
     const decoded = jwt.verify(token, config.SECRET_KEY) as UserSession;
 
     // Fetch the user session from Redis using the decoded user ID
-    const session = await redis.getSession<UserSession>(
-      decoded.trackingId.toString()
-    );
+    const session = await redis.getSession<UserSession>(decoded.id);
 
     // If no session is found or it's invalid, throw an error
     if (!session) {

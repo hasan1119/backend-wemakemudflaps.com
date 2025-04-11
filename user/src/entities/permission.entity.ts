@@ -7,36 +7,54 @@ import {
 } from "typeorm";
 import { User } from "../../../entities";
 
-const PermissionNames = [
-  "Brand",
-  "Category",
-  "Product",
-  "Product Review",
-  "Shipping Class",
-  "Sub Category",
-  "Tax Class",
-  "Tax Status",
-  "FAQ",
-  "News Letter",
-  "Pop Up Banner",
-  "Privacy & Policy",
-  "Terms & Conditions",
-  "Oder",
-  "Notification",
-  "Media",
-];
+// Define PermissionName as a TypeScript type (union of literals)
+export type PermissionName =
+  | "User"
+  | "Brand"
+  | "Category"
+  | "Product"
+  | "Product Review"
+  | "Shipping Class"
+  | "Sub Category"
+  | "Tax Class"
+  | "Tax Status"
+  | "FAQ"
+  | "News Letter"
+  | "Pop Up Banner"
+  | "Privacy & Policy"
+  | "Terms & Conditions"
+  | "Order"
+  | "Notification"
+  | "Media";
 
 @Entity()
 export class Permission {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Permissions
   @Column({
     type: "enum",
-    enum: PermissionNames,
-    unique: true, // Ensures each permission has a unique name
+    enum: [
+      "User",
+      "Brand",
+      "Category",
+      "Product",
+      "Product Review",
+      "Shipping Class",
+      "Sub Category",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "News Letter",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+      "Media",
+    ],
+    unique: true,
   })
   name: PermissionName;
 
@@ -49,7 +67,7 @@ export class Permission {
   @JoinColumn({ name: "userId" })
   user: User;
 
-  // User who created the permission (Many permission can be created by one user)
+  // User who created the permission
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: "createdBy" })
   createdBy: User | null;

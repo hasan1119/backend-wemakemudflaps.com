@@ -13,9 +13,8 @@ import {
 
 @Entity()
 export class ProductPrice {
-  // Auto-incrementing primary key for the product price
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Pricing type: "Fixed" (fixed price per unit) or "Percentage" (discount percentage)
   @Column({

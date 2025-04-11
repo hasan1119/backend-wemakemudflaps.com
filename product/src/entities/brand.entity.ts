@@ -9,9 +9,8 @@ import { Product, User } from "../../../entities";
 
 @Entity()
 export class Brand {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Unique name of the brand
   @Column({ unique: true })

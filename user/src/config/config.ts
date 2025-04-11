@@ -3,8 +3,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 interface Config {
-  /* Application port*/
+  /* Application port */
   PORT: number;
+
+  /* Application Frontend Url */
+  FRONTEND_URL: string;
 
   /* Sub Graph name */
   SUB_GRAPH_NAME: string;
@@ -44,6 +47,9 @@ interface Config {
 const CONFIG: Config = {
   /* Application port*/
   PORT: parseInt(process.env.PORT as string, 10),
+
+  /* Application Frontend Url */
+  FRONTEND_URL: process.env.FRONTEND_URL as string,
 
   /* Sub Graph name */
   SUB_GRAPH_NAME: process.env.SUB_GRAPH_NAME as string,

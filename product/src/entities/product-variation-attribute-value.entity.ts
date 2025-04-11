@@ -9,9 +9,8 @@ import { ProductVariation, ProductVariationAttribute } from "../../../entities";
 
 @Entity()
 export class ProductVariationAttributeValue {
-  // Auto-incrementing primary key for the product variation attribute value
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // The value itself (e.g., "Red", "Large", etc.)
   @Column()

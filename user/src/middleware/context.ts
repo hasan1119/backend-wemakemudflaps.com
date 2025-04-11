@@ -2,11 +2,10 @@ import { AppDataSource, redis } from "../helper";
 import DecodeToken from "../utils/jwt/decode-token";
 
 export type UserSession = {
-  user_id: number;
+  id: string;
   email: string;
-  username: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   role: string;
 };
 
@@ -21,7 +20,7 @@ const createContext = async ({ req, res }) => {
       if (decoded) {
         // Fetch the user session from Redis using the decoded user ID
         const userSession = await redis.getSession<UserSession>(
-          decoded.trackingId.toString()
+          decoded.trackingId
         );
 
         user = userSession || null; // Set user only if session exists
@@ -30,18 +29,11 @@ const createContext = async ({ req, res }) => {
 
     // Extract necessary headers and add them to the context
     const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "";
-    const acceptLanguage = req.headers["accept-language"] || "";
-    const languages = acceptLanguage
-      .split(",")
-      .map((lang) => lang.split(";")[0].trim())
-      .filter((lang) => /^[a-zA-Z-]+$/.test(lang));
 
     return {
       AppDataSource,
       user,
       ip,
-      acceptLanguage,
-      languages,
       redis,
       req,
       res,

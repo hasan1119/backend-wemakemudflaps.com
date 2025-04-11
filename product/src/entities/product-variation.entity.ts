@@ -18,9 +18,8 @@ import {
 
 @Entity()
 export class ProductVariation {
-  // Auto-incrementing primary key for the product variation
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // SKU for the product variation (nullable)
   @Column({ unique: true, nullable: true })

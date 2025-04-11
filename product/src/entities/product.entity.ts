@@ -25,9 +25,8 @@ import {
 
 @Entity()
 export class Product {
-  // Auto-incrementing primary key for the product
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   /* ====================== Basic Info ====================== */
 

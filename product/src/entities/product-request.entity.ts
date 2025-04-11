@@ -3,9 +3,8 @@ import { User } from "../../../entities";
 
 @Entity()
 export class ProductRequest {
-  // Auto-incrementing primary key for the product request
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // The name of the requested product
   @Column()

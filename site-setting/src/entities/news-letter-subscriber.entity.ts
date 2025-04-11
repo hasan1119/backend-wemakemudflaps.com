@@ -7,9 +7,8 @@ import {
 
 @Entity()
 export class NewsletterSubscriber {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Subscriber's unique email address
   @Column({ type: "text", unique: true })

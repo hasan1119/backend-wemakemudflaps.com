@@ -10,9 +10,8 @@ import { User } from "../../../entities";
 
 @Entity()
 export class Role {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   /*
    * Allows predefined + permission

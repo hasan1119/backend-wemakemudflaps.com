@@ -3,9 +3,8 @@ import { User } from "../../../entities";
 
 @Entity()
 export class PrivacyPolicy {
-  // Auto-incrementing primary key
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Content of the privacy policy
   @Column()

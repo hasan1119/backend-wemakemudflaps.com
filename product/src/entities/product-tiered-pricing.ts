@@ -3,9 +3,8 @@ import { ProductPrice } from "../../../entities";
 
 @Entity()
 export class ProductTieredPrice {
-  // Auto-incrementing primary key for the product tier price
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Minimum quantity required for this pricing tier
   @Column()

@@ -9,9 +9,8 @@ import { Product, User } from "../../../entities";
 
 @Entity()
 export class TaxStatus {
-  // Auto-incrementing primary key for the tax status
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   /*
    * Allows predefined + custom tax statuses

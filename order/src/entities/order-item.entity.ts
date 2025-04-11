@@ -3,8 +3,8 @@ import { Order, Product } from "./../../../entities";
 
 @Entity()
 export class OrderItem {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column()
   quantity: number;

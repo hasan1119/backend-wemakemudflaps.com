@@ -9,9 +9,8 @@ import { Coupon, OrderItem, User } from "../../../entities";
 
 @Entity()
 export class Order {
-  // Auto-incrementing primary key for the order
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   // Total amount for the order (e.g., price after applying discounts, taxes, etc.)
   @Column({ type: "decimal", precision: 10, scale: 2 })
