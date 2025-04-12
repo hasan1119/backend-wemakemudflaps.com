@@ -163,8 +163,16 @@ export const login = async (
       role: user.role.name,
     };
 
-    // Save session in Redis
-    await setSession(user.id, session, 2592000); // 30 days in seconds
+    // Cache permissions in Redis with configurable TTL
+    const userCacheKey = `user-${user.id}`;
+    const TTL = 2592000; // 30 days in seconds
+
+    try {
+      await setSession(user.id, session, TTL);
+      await setSession(userCacheKey, session, TTL);
+    } catch (redisError) {
+      console.warn("Redis error caching user data:", redisError);
+    }
 
     return {
       statusCode: 200,

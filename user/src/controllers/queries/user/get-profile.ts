@@ -37,11 +37,7 @@ export const getProfile = async (
     let userExist: any = null;
 
     // Check Redis for cached user data
-    try {
-      userExist = await getSession(userCacheKey);
-    } catch (redisError) {
-      console.warn("Redis error fetching user profile:", redisError);
-    }
+    userExist = await getSession(userCacheKey);
 
     // Check the user exists or not
     if (!userExist) {
@@ -69,11 +65,8 @@ export const getProfile = async (
       };
 
       const TTL = 2592000; // 30 days in seconds
-      try {
-        await setSession(userCacheKey, userData, TTL);
-      } catch (redisError) {
-        console.warn("Redis error caching user data:", redisError);
-      }
+
+      await setSession(userCacheKey, userData, TTL);
 
       userExist = userData;
     }

@@ -103,21 +103,17 @@ export const updateProfile = async (
     const userCacheKey = `user-${user.id}`;
     const TTL = 2592000; // 30 days in seconds
 
-    try {
-      await setSession(
-        userCacheKey,
-        {
-          id: existingUser.id,
-          firstName: existingUser.firstName,
-          lastName: existingUser.lastName,
-          email: existingUser.email,
-          role: existingUser.role?.name || null,
-        },
-        TTL
-      );
-    } catch (redisError) {
-      console.warn("Redis error caching profile:", redisError);
-    }
+    await setSession(
+      userCacheKey,
+      {
+        id: existingUser.id,
+        firstName: existingUser.firstName,
+        lastName: existingUser.lastName,
+        email: existingUser.email,
+        role: existingUser.role?.name || null,
+      },
+      TTL
+    );
 
     // Return success response
     return {

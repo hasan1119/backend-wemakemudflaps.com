@@ -69,14 +69,8 @@ export const updateUserRoleInfo = async (
     // Check Redis for cached user permissions
     const permissionCacheKey = `user-permissions-${user.id}`;
     let userPermissions: Permission[] | null = null;
-    try {
-      userPermissions = await getSession<Permission[]>(permissionCacheKey);
-    } catch (redisError) {
-      console.warn(
-        "Redis error fetching permissions, falling back to database:",
-        redisError
-      );
-    }
+
+    userPermissions = await getSession<Permission[]>(permissionCacheKey);
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database, selecting only necessary fields
@@ -87,11 +81,8 @@ export const updateUserRoleInfo = async (
 
       // Cache permissions in Redis with configurable TTL
       const TTL = 2592000; // 30 days in seconds
-      try {
-        await setSession(permissionCacheKey, userPermissions, TTL);
-      } catch (redisError) {
-        console.warn("Redis error caching permissions:", redisError);
-      }
+
+      await setSession(permissionCacheKey, userPermissions, TTL);
     }
 
     // Check if the user has the "canUpdate" permission for roles
@@ -127,11 +118,8 @@ export const updateUserRoleInfo = async (
     // Check Redis for role existence
     const roleCacheKey = `user-role-${id}`;
     let existingRole: Role | null = null;
-    try {
-      existingRole = await getSession<Role>(roleCacheKey);
-    } catch (redisError) {
-      console.warn("Redis error fetching role:", redisError);
-    }
+
+    existingRole = await getSession<Role>(roleCacheKey);
 
     if (!existingRole) {
       // Cache miss: Fetch role from database
@@ -150,11 +138,8 @@ export const updateUserRoleInfo = async (
 
       // Cache role data
       const TTL = 2592000; // 30 days in seconds
-      try {
-        await setSession(roleCacheKey, existingRole, TTL);
-      } catch (redisError) {
-        console.warn("Redis error caching role:", redisError);
-      }
+
+      await setSession(roleCacheKey, existingRole, TTL);
     }
 
     // Check for duplicate role name, excluding the current role
@@ -162,11 +147,8 @@ export const updateUserRoleInfo = async (
     const roleNameCacheKey = `role-name-${normalizedRoleKey}`;
     let duplicateRole: Role | null = null;
     let cachedRoleNameExists: string | null = null;
-    try {
-      cachedRoleNameExists = await getSession<string>(roleNameCacheKey);
-    } catch (redisError) {
-      console.warn("Redis error checking role name:", redisError);
-    }
+
+    cachedRoleNameExists = await getSession<string>(roleNameCacheKey);
 
     if (
       cachedRoleNameExists === "exists" &&
@@ -185,11 +167,8 @@ export const updateUserRoleInfo = async (
       if (duplicateRole) {
         // Cache duplicate name
         const TTL = 2592000; // 30 days in seconds
-        try {
-          await setSession(roleNameCacheKey, "exists", TTL);
-        } catch (redisError) {
-          console.warn("Redis error caching role name:", redisError);
-        }
+
+        await setSession(roleNameCacheKey, "exists", TTL);
       }
     }
 
@@ -206,11 +185,8 @@ export const updateUserRoleInfo = async (
     const oldNormalizedRoleKey = existingRole.name.trim().toLowerCase();
     if (oldNormalizedRoleKey !== normalizedRoleKey) {
       const oldRoleNameCacheKey = `role-name-${oldNormalizedRoleKey}`;
-      try {
-        await deleteSession(oldRoleNameCacheKey);
-      } catch (redisError) {
-        console.warn("Redis error deleting old role name cache:", redisError);
-      }
+
+      await deleteSession(oldRoleNameCacheKey);
     }
 
     // Update the role with the full User entity as createdBy
@@ -223,14 +199,11 @@ export const updateUserRoleInfo = async (
 
     // Update Redis caches
     const TTL = 2592000; // 30 days in seconds
-    try {
-      await setSession(roleCacheKey, updatedRole, TTL);
-      await setSession(roleNameCacheKey, "exists", TTL);
-      // Invalidate cached role lists
-      await deleteSession("roles-all");
-    } catch (redisError) {
-      console.warn("Redis error caching updated role:", redisError);
-    }
+
+    await setSession(roleCacheKey, updatedRole, TTL);
+    await setSession(roleNameCacheKey, "exists", TTL);
+    // Invalidate cached role lists
+    await deleteSession("roles-all");
 
     return {
       statusCode: 200,

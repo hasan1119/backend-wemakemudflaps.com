@@ -68,14 +68,8 @@ export const createUserRole = async (
     // Check Redis for cached user permissions
     const permissionCacheKey = `user-permissions-${user.id}`;
     let userPermissions: Permission[] | null = null;
-    try {
-      userPermissions = await getSession<Permission[]>(permissionCacheKey);
-    } catch (redisError) {
-      console.warn(
-        "Redis error fetching permissions, falling back to database:",
-        redisError
-      );
-    }
+
+    userPermissions = await getSession<Permission[]>(permissionCacheKey);
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database, selecting only necessary fields
@@ -86,11 +80,8 @@ export const createUserRole = async (
 
       // Cache permissions in Redis with configurable TTL
       const TTL = 2592000; // 30 days in seconds
-      try {
-        await setSession(permissionCacheKey, userPermissions, TTL);
-      } catch (redisError) {
-        console.warn("Redis error caching permissions:", redisError);
-      }
+
+      await setSession(permissionCacheKey, userPermissions, TTL);
     }
 
     // Check if the user has the "canCreate" permission for roles
@@ -129,11 +120,8 @@ export const createUserRole = async (
     // Check Redis for role name existence
     const roleNameCacheKey = `role-name-${normalizedRoleKey}`;
     let cachedRoleExists: string | null = null;
-    try {
-      cachedRoleExists = await getSession<string>(roleNameCacheKey);
-    } catch (redisError) {
-      console.warn("Redis error checking role name:", redisError);
-    }
+
+    cachedRoleExists = await getSession<string>(roleNameCacheKey);
 
     if (cachedRoleExists === "exists") {
       return {
@@ -150,11 +138,9 @@ export const createUserRole = async (
     if (existingRole) {
       // Cache the fact that this role exists
       const TTL = 2592000; // 30 days in seconds
-      try {
-        await setSession(roleNameCacheKey, "exists", TTL);
-      } catch (redisError) {
-        console.warn("Redis error caching role name:", redisError);
-      }
+
+      await setSession(roleNameCacheKey, "exists", TTL);
+
       return {
         statusCode: 400,
         success: false,
@@ -176,14 +162,11 @@ export const createUserRole = async (
     // Cache the new role data and name existence
     const roleDataCacheKey = `user-role-${savedRole.id}`;
     const TTL = 2592000; // 30 days in seconds
-    try {
-      await setSession(roleDataCacheKey, savedRole, TTL);
-      await setSession(roleNameCacheKey, "exists", TTL);
-      // Invalidate cached role lists to ensure freshness
-      await deleteSession("roles-all");
-    } catch (redisError) {
-      console.warn("Redis error caching role data:", redisError);
-    }
+
+    await setSession(roleDataCacheKey, savedRole, TTL);
+    await setSession(roleNameCacheKey, "exists", TTL);
+    // Invalidate cached role lists to ensure freshness
+    await deleteSession("roles-all");
 
     return {
       statusCode: 201,

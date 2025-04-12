@@ -55,14 +55,8 @@ export const deleteUserRole = async (
     // Check Redis for cached user permissions
     const permissionCacheKey = `user-permissions-${user.id}`;
     let userPermissions: Permission[] | null = null;
-    try {
-      userPermissions = await getSession<Permission[]>(permissionCacheKey);
-    } catch (redisError) {
-      console.warn(
-        "Redis error fetching permissions, falling back to database:",
-        redisError
-      );
-    }
+
+    userPermissions = await getSession<Permission[]>(permissionCacheKey);
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database, selecting only necessary fields
@@ -73,11 +67,8 @@ export const deleteUserRole = async (
 
       // Cache permissions in Redis with configurable TTL
       const TTL = 2592000; // 30 days in seconds
-      try {
-        await setSession(permissionCacheKey, userPermissions, TTL);
-      } catch (redisError) {
-        console.warn("Redis error caching permissions:", redisError);
-      }
+
+      await setSession(permissionCacheKey, userPermissions, TTL);
     }
 
     // Check if the user has the "canDelete" permission for roles
@@ -113,11 +104,8 @@ export const deleteUserRole = async (
     // Check Redis for role existence
     const roleCacheKey = `user-role-${id}`;
     let role: Role | null = null;
-    try {
-      role = await getSession<Role>(roleCacheKey);
-    } catch (redisError) {
-      console.warn("Redis error fetching role:", redisError);
-    }
+
+    role = await getSession<Role>(roleCacheKey);
 
     if (!role) {
       // Cache miss: Fetch role from database
@@ -134,22 +122,16 @@ export const deleteUserRole = async (
 
       // Cache role data
       const TTL = 2592000; // 30 days in seconds
-      try {
-        await setSession(roleCacheKey, role, TTL);
-      } catch (redisError) {
-        console.warn("Redis error caching role:", redisError);
-      }
+
+      await setSession(roleCacheKey, role, TTL);
     }
 
     // Check Redis for cached user-role association count
     const userCountCacheKey = `role-users-${id}`;
     let userCount: number | null = null;
-    try {
-      const cachedUserCount = await getSession<string>(userCountCacheKey);
-      userCount = cachedUserCount ? parseInt(cachedUserCount, 10) : null;
-    } catch (redisError) {
-      console.warn("Redis error fetching user count:", redisError);
-    }
+
+    const cachedUserCount = await getSession<string>(userCountCacheKey);
+    userCount = cachedUserCount ? parseInt(cachedUserCount, 10) : null;
 
     if (userCount === null) {
       // Cache miss: Count users in database efficiently
@@ -160,11 +142,8 @@ export const deleteUserRole = async (
 
       // Cache user count
       const TTL = 2592000; // 30 days in seconds
-      try {
-        await setSession(userCountCacheKey, userCount.toString(), TTL);
-      } catch (redisError) {
-        console.warn("Redis error caching user count:", redisError);
-      }
+
+      await setSession(userCountCacheKey, userCount.toString(), TTL);
     }
 
     if (userCount > 0) {
@@ -182,14 +161,11 @@ export const deleteUserRole = async (
     // Invalidate related Redis caches
     const normalizedRoleKey = role.name.trim().toLowerCase();
     const roleNameCacheKey = `role-name-${normalizedRoleKey}`;
-    try {
-      await deleteSession(roleCacheKey); // Clear role data
-      await deleteSession(userCountCacheKey); // Clear user count
-      await deleteSession(roleNameCacheKey); // Clear role name
-      await deleteSession("roles-all"); // Invalidate role lists
-    } catch (redisError) {
-      console.warn("Redis error deleting caches:", redisError);
-    }
+
+    await deleteSession(roleCacheKey); // Clear role data
+    await deleteSession(userCountCacheKey); // Clear user count
+    await deleteSession(roleNameCacheKey); // Clear role name
+    await deleteSession("roles-all"); // Invalidate role lists
 
     return {
       statusCode: 200,
