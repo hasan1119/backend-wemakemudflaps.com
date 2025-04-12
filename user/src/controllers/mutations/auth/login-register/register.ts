@@ -48,13 +48,13 @@ const PermissionNames: PermissionName[] = [
 export const register = async (
   _: any,
   args: MutationRegisterArgs,
-  { AppDataSource }: Context
+  { AppDataSource, redis }: Context
 ): Promise<BaseResponse | ErrorResponse> => {
-  // Destructure the input arguments
   const { firstName, lastName, email, password, gender } = args;
+  const { getSession, setSession, deleteSession } = redis;
 
   try {
-    // Initialize repositories for User, Role, and Permission entities
+    // Initialize repositories
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
     const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
     const permissionRepository: Repository<Permission> =
@@ -69,10 +69,9 @@ export const register = async (
       gender,
     });
 
-    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."), // Converts the path array to a string
+        field: error.path.join("."),
         message: error.message,
       }));
 
@@ -85,7 +84,7 @@ export const register = async (
       };
     }
 
-    // Check if a user with this email already exists
+    // Check for existing user with the same email
     const existingUser = await userRepository.findOne({ where: { email } });
     if (existingUser) {
       return {
@@ -96,57 +95,64 @@ export const register = async (
       };
     }
 
-    // Hash the password for secure storage
+    // Hash the password
     const hashedPassword = await HashInfo(password);
 
-    // Count existing users to determine if this is the first user
+    // Check if this is the first user or if Super Admin role is missing
     const userCount = await userRepository.count();
-
-    // Check if a Super Admin role already exists
     const superAdminRole = await roleRepository.findOne({
       where: { name: "SUPER ADMIN" },
     });
 
     let role: Role;
 
-    // If no Super Admin role exists or no users exist, create a Super Admin
     if (!superAdminRole || userCount === 0) {
-      // Create the Super Admin role
+      // Create Super Admin role
       role = roleRepository.create({
         name: "SUPER ADMIN",
         description:
           "Has full control over all aspects of the eCommerce platform.",
-        createdBy: null, // No creator for the first role
+        createdBy: null,
       });
       await roleRepository.save(role);
 
-      // Create the Super Admin user with the newly created role
+      // Create Super Admin user
       const newUser = userRepository.create({
         firstName,
         lastName,
         email,
         password: hashedPassword,
         gender: gender || null,
-        role: role.id, // Assign the Super Admin role
+        role, // Assign the Role entity object
       });
+
       const savedUser = await userRepository.save(newUser);
 
-      // Create full permissions for the Super Admin
+      // Create permissions for Super Admin
       const permissions = PermissionNames.map((name: PermissionName) =>
         permissionRepository.create({
           name,
           description: `Full access to manage ${name}`,
-          user: savedUser, // Assign to the saved user (required field)
-          createdBy: savedUser, // Super Admin creates their own permissions
+          user: savedUser,
+          createdBy: savedUser,
           canCreate: true,
           canRead: true,
           canUpdate: true,
           canDelete: true,
         })
       );
+
       await permissionRepository.save(permissions);
 
-      // Return success response for Super Admin registration
+      // Fetch all persisted permissions
+      const fullPermissions = await permissionRepository.find({
+        where: { user: { id: savedUser.id } },
+      });
+
+      const TTL = 2592000; // 30 days in seconds
+      const permissionCacheKey = `user-permissions-${savedUser.id}`;
+      await setSession(permissionCacheKey, fullPermissions, TTL);
+
       return {
         statusCode: 201,
         success: true,
@@ -154,36 +160,87 @@ export const register = async (
         __typename: "BaseResponse",
       };
     } else {
-      // Super Admin exists, so register a regular Customer user
-      const defaultRole = await roleRepository.findOne({
+      // Register a Customer user
+      let defaultRole = await roleRepository.findOne({
         where: { name: "CUSTOMER" },
       });
 
-      // If no Customer role exists, create one
       if (!defaultRole) {
-        const newDefaultRole = roleRepository.create({
+        defaultRole = roleRepository.create({
           name: "CUSTOMER",
           description:
             "Regular customers who can browse products, place orders, and view their purchase history.",
-          createdBy: null, // No creator for initial Customer role
+          createdBy: null,
         });
-        role = await roleRepository.save(newDefaultRole);
+        role = await roleRepository.save(defaultRole);
       } else {
         role = defaultRole;
       }
 
-      // Create the Customer user with the Customer role
-      const newUser = userRepository.create({
+      // Create Customer user
+      const savedUser = userRepository.create({
         firstName,
         lastName,
         email,
         password: hashedPassword,
         gender: gender || null,
-        role: role.id, // Assign the Customer role
+        role, // Assign the Role entity object
       });
-      const savedUser = await userRepository.save(newUser);
+      await userRepository.save(savedUser);
 
-      // Return success response for Customer registration
+      // Assign CUSTOMER permissions
+      const customerPermissions = PermissionNames.map(
+        (name: PermissionName) => {
+          let canCreate = false;
+          let canRead = true;
+          let canUpdate = false;
+          let canDelete = false;
+
+          if (name === "Order") {
+            canCreate = true;
+            canRead = true;
+            canUpdate = false;
+            canDelete = true;
+          }
+
+          if (name === "Notification") {
+            canCreate = false;
+            canRead = true;
+            canUpdate = true;
+            canDelete = true;
+          }
+
+          if (name === "User") {
+            canCreate = false;
+            canRead = false;
+            canUpdate = false;
+            canDelete = false;
+          }
+
+          return permissionRepository.create({
+            name,
+            description: `Access to ${name} features`,
+            user: savedUser,
+            createdBy: null,
+            canCreate,
+            canRead,
+            canUpdate,
+            canDelete,
+          });
+        }
+      );
+
+      await permissionRepository.save(customerPermissions);
+
+      // Fetch all persisted permissions
+      const fullCustomerPermissions = await permissionRepository.find({
+        where: { user: { id: savedUser.id } },
+      });
+
+      const TTL = 2592000; // 30 days in seconds
+      const permissionCacheKey = `user-permissions-${savedUser.id}`;
+      await setSession(permissionCacheKey, fullCustomerPermissions, TTL);
+
       return {
         statusCode: 201,
         success: true,
@@ -192,10 +249,7 @@ export const register = async (
       };
     }
   } catch (error: any) {
-    // Log the error for debugging purposes
     console.error("Error registering user:", error);
-
-    // Return a detailed error message if available, otherwise a generic one
     return {
       statusCode: 500,
       success: false,

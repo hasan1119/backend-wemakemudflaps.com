@@ -2,6 +2,7 @@ import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { Permission } from "../../../../entities/permission.entity";
 import { Role } from "../../../../entities/user-role.entity";
+import { User } from "../../../../entities/user.entity";
 import {
   BaseResponse,
   ErrorResponse,
@@ -10,9 +11,15 @@ import {
 import { userRoleSchema } from "../../../../utils/data-validation/auth/auth";
 
 /**
- * Creates a new user role in the system after validating its name and ensuring no duplicate role name exists
+ * Creates a new user role in the system with validation and permission checks.
+ * - Validates input using Zod schema.
+ * - Ensures the user is authenticated and has permission to create roles.
+ * - Checks for duplicate role names using Redis and database.
+ * - Fetches the full User entity for createdBy to match the Role schema.
+ * - Creates and saves the role, caching the result.
+ * - Invalidates role list caches to keep data fresh.
  * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for creating the role (role name and description)
+ * @param args - Arguments for creating the role (name, description)
  * @param context - Application context containing AppDataSource, user, and redis
  * @returns Promise<BaseResponse | ErrorResponse> - Result of the create operation
  */
@@ -21,13 +28,15 @@ export const createUserRole = async (
   args: MutationCreateUserRoleArgs,
   { AppDataSource, user, redis }: Context
 ): Promise<BaseResponse | ErrorResponse> => {
-  const { getSession, setSession } = redis;
+  const { getSession, setSession, deleteSession } = redis;
   const { name, description } = args;
 
   try {
+    // Initialize repositories for Role, Permission, and User entities
     const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
     const permissionRepository: Repository<Permission> =
       AppDataSource.getRepository(Permission);
+    const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
     // Validate input data using Zod schema
     const validationResult = await userRoleSchema.safeParseAsync({
@@ -45,25 +54,48 @@ export const createUserRole = async (
       };
     }
 
-    // 🔴 Check Redis for cached user permissions
-    const permissionCacheKey = `user-permissions-${user.id}-role`;
-    let userPermissions: Permission[] | null = await getSession<Permission[]>(
-      permissionCacheKey
-    );
+    // Fetch the full User entity for createdBy
+    const creator = await userRepository.findOne({ where: { id: user.id } });
+    if (!creator) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: "Authenticated user not found in database",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Check Redis for cached user permissions
+    const permissionCacheKey = `user-permissions-${user.id}`;
+    let userPermissions: Permission[] | null = null;
+    try {
+      userPermissions = await getSession<Permission[]>(permissionCacheKey);
+    } catch (redisError) {
+      console.warn(
+        "Redis error fetching permissions, falling back to database:",
+        redisError
+      );
+    }
 
     if (!userPermissions) {
-      // Cache miss: Fetch permissions from database
+      // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
-        where: { user: { id: user.id }, name: "Role" }, // TypeORM enum workaround
+        where: { user: { id: user.id }, name: "Role" },
+        select: ["id", "canCreate", "canUpdate", "canDelete"],
       });
 
-      // Cache permissions in Redis (TTL: 30 days)
-      await setSession(permissionCacheKey, userPermissions, 60 * 60 * 24 * 30);
+      // Cache permissions in Redis with configurable TTL
+      const TTL = 2592000; // 30 days in seconds
+      try {
+        await setSession(permissionCacheKey, userPermissions, TTL);
+      } catch (redisError) {
+        console.warn("Redis error caching permissions:", redisError);
+      }
     }
 
     // Check if the user has the "canCreate" permission for roles
     const canCreateRole = userPermissions.some(
-      (permission) => permission.canCreate
+      (permission) => permission.name === "Role" && permission.canCreate
     );
 
     if (!canCreateRole) {
@@ -91,10 +123,17 @@ export const createUserRole = async (
       };
     }
 
+    // Normalize role name for case-insensitive comparison
     const normalizedRoleKey = name.trim().toLowerCase();
-    // 🔴 Check Redis for role existence
-    const roleCacheKey = `role-name-${normalizedRoleKey}`;
-    const cachedRoleExists = await getSession<string>(roleCacheKey);
+
+    // Check Redis for role name existence
+    const roleNameCacheKey = `role-name-${normalizedRoleKey}`;
+    let cachedRoleExists: string | null = null;
+    try {
+      cachedRoleExists = await getSession<string>(roleNameCacheKey);
+    } catch (redisError) {
+      console.warn("Redis error checking role name:", redisError);
+    }
 
     if (cachedRoleExists === "exists") {
       return {
@@ -109,8 +148,13 @@ export const createUserRole = async (
     const existingRole = await roleRepository.findOne({ where: { name } });
 
     if (existingRole) {
-      // Cache the fact that this role exists (TTL: 30 days)
-      await setSession(roleCacheKey, "exists", 60 * 60 * 24 * 30);
+      // Cache the fact that this role exists
+      const TTL = 2592000; // 30 days in seconds
+      try {
+        await setSession(roleNameCacheKey, "exists", TTL);
+      } catch (redisError) {
+        console.warn("Redis error caching role name:", redisError);
+      }
       return {
         statusCode: 400,
         success: false,
@@ -119,31 +163,36 @@ export const createUserRole = async (
       };
     }
 
-    // Create the new role
+    // Create the new role with the full User entity as createdBy
     const role = roleRepository.create({
       name,
       description: description || null,
+      createdBy: creator,
     });
 
     // Save the role to the database
     const savedRole = await roleRepository.save(role);
 
-    // 🔴 Cache the new role data
+    // Cache the new role data and name existence
     const roleDataCacheKey = `user-role-${savedRole.id}`;
-    await setSession(roleDataCacheKey, savedRole, 60 * 60 * 24 * 30); // 30 days
-
-    // 🔴 Cache the role name to prevent future duplicates
-    await setSession(roleCacheKey, "exists", 60 * 60 * 24 * 30); // 30 days
+    const TTL = 2592000; // 30 days in seconds
+    try {
+      await setSession(roleDataCacheKey, savedRole, TTL);
+      await setSession(roleNameCacheKey, "exists", TTL);
+      // Invalidate cached role lists to ensure freshness
+      await deleteSession("roles-all");
+    } catch (redisError) {
+      console.warn("Redis error caching role data:", redisError);
+    }
 
     return {
-      statusCode: 200,
+      statusCode: 201,
       success: true,
       message: "Role created successfully",
       __typename: "BaseResponse",
     };
   } catch (error: any) {
     console.error("Error creating role:", error);
-
     return {
       statusCode: 500,
       success: false,

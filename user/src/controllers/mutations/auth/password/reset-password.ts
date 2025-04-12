@@ -1,13 +1,13 @@
 import { Repository } from "typeorm";
-import { Context } from "../../../context";
-import { User } from "../../../entities/user.entity";
+import { Context } from "../../../../context";
+import { User } from "../../../../entities/user.entity";
 import {
   BaseResponse,
   ErrorResponse,
   MutationResetPasswordArgs,
-} from "../../../types";
-import HashInfo from "../../../utils/bcrypt/hash-info";
-import { resetPasswordSchema } from "../../../utils/data-validation/auth/auth";
+} from "../../../../types";
+import HashInfo from "../../../../utils/bcrypt/hash-info";
+import { resetPasswordSchema } from "../../../../utils/data-validation/auth/auth";
 
 /**
  * Handles resetting the user's password using a token.

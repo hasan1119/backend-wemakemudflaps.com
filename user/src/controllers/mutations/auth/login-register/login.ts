@@ -164,7 +164,7 @@ export const login = async (
     };
 
     // Save session in Redis
-    await setSession(user.id, session, 60 * 60 * 24 * 30); // 30 days in seconds
+    await setSession(user.id, session, 2592000); // 30 days in seconds
 
     return {
       statusCode: 200,
