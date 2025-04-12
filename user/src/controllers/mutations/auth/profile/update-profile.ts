@@ -99,7 +99,7 @@ export const updateProfile = async (
       "30d" // Set the token expiration time
     );
 
-    // Cache permissions in Redis with configurable TTL
+    // Cache user data in Redis with configurable TTL
     const userCacheKey = `user-${user.id}`;
     const TTL = 2592000; // 30 days in seconds
 

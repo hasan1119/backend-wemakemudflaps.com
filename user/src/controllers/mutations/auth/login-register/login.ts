@@ -163,7 +163,7 @@ export const login = async (
       role: user.role.name,
     };
 
-    // Cache permissions in Redis with configurable TTL
+    // Cache user data in Redis with configurable TTL
     const userCacheKey = `user-${user.id}`;
     const TTL = 2592000; // 30 days in seconds
 
