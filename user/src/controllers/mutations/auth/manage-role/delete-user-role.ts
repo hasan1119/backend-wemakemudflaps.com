@@ -27,8 +27,8 @@ export const deleteUserRole = async (
   args: MutationDeleteUserRoleArgs,
   { AppDataSource, user, redis }: Context
 ): Promise<BaseResponse | ErrorResponse> => {
-  const { getSession, setSession, deleteSession } = redis;
   const { id } = args;
+  const { getSession, setSession, deleteSession } = redis;
 
   try {
     // Initialize repositories for Role, User, and Permission entities

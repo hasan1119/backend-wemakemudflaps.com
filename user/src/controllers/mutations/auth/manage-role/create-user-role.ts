@@ -28,8 +28,8 @@ export const createUserRole = async (
   args: MutationCreateUserRoleArgs,
   { AppDataSource, user, redis }: Context
 ): Promise<BaseResponse | ErrorResponse> => {
-  const { getSession, setSession, deleteSession } = redis;
   const { name, description } = args;
+  const { getSession, setSession, deleteSession } = redis;
 
   try {
     // Initialize repositories for Role, Permission, and User entities

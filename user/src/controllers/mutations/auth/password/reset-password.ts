@@ -82,7 +82,7 @@ export const resetPassword = async (
       message: "Password reset successfully.",
       __typename: "BaseResponse",
     };
-  } catch (error: Error | any) {
+  } catch (error: any) {
     console.error("Reset password error:", error);
     return {
       statusCode: 500,

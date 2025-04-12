@@ -15,17 +15,20 @@ import EncodeToken from "../../../../utils/jwt/encode-token";
  * - Validates the input data.
  * - Updates the user's name, email, password, gender, and role.
  * - Hashes the password if it is updated.
+ * - Redis cache for user data after update in database.
+ * - Caches user and role data in Redis for future requests.
  * @param _ - Unused GraphQL parent argument
  * @param args - User update arguments ( firstName, lastName, email, gender )
- * @param context - Application context containing AppDataSource and user
+ * @param context - Application context containing AppDataSource, user and redis
  * @returns Promise<UserUpdateResponse | ErrorResponse | BaseResponse> - User profile update result with status and message
  */
 export const updateProfile = async (
   _: any,
   args: MutationUpdateProfileArgs,
-  { AppDataSource, user }: Context
+  { AppDataSource, user, redis }: Context
 ): Promise<UserProfileUpdateResponse | ErrorResponse | BaseResponse> => {
   const { firstName, lastName, email, gender } = args;
+  const { setSession } = redis;
 
   try {
     // Validate input data using Zod schema for update profile
@@ -95,6 +98,26 @@ export const updateProfile = async (
       existingUser.role.name,
       "30d" // Set the token expiration time
     );
+
+    // Cache permissions in Redis with configurable TTL
+    const userCacheKey = `user-${user.id}`;
+    const TTL = 2592000; // 30 days in seconds
+
+    try {
+      await setSession(
+        userCacheKey,
+        {
+          id: existingUser.id,
+          firstName: existingUser.firstName,
+          lastName: existingUser.lastName,
+          email: existingUser.email,
+          role: existingUser.role?.name || null,
+        },
+        TTL
+      );
+    } catch (redisError) {
+      console.warn("Redis error caching profile:", redisError);
+    }
 
     // Return success response
     return {

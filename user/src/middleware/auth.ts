@@ -43,7 +43,7 @@ export async function authMiddleware(
 
     // Return the session object if valid
     return decoded;
-  } catch (err: Error | any) {
+  } catch (err: any) {
     // If an error occurs during verification or session retrieval, respond with a 403 error
     return res.status(403).send({
       message: err?.message, // Return the error message from the caught exception

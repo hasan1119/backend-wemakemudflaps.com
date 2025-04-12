@@ -4,63 +4,104 @@ import { User } from "../../../entities/user.entity";
 import { BaseResponse, UserResponse } from "../../../types";
 
 /**
- * Retrieves own profile data.
- * - Fetches the user from the database.
- * - Returns appropriate response based on whether user is found.
+ * Retrieves the authenticated user's profile data, including their role name.
+ * - Checks Redis cache for user data before querying the database.
+ * - Fetches the user by ID, including their role relation.
+ * - Caches user and role data in Redis for future requests.
+ * - Returns the user profile with role name or an error response.
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Unused GraphQL argument
- * @param context - Application context containing AppDataSource
- * @returns Promise<UserResponse | BaseResponse> - User details or error response
+ * @param __ - Unused GraphQL argument
+ * @param context - Application context containing AppDataSource, user, and redis
+ * @returns Promise<UserResponse | BaseResponse> - User details with role name or error response
  */
 export const getProfile = async (
   _: any,
   __: any,
-  context: Context
+  { AppDataSource, user, redis }: Context
 ): Promise<UserResponse | BaseResponse> => {
-  const { AppDataSource, user } = context;
+  const { getSession, setSession } = redis;
 
   try {
-    // Get the User repository
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
-
-    // Attempt to find the user by ID and email
-    const userExist = await userRepository.findOne({
-      where: { email: user.email },
-      relations: ["role"],
-    });
-
-    // If user not found, return a 404 response
-    if (!userExist) {
+    if (!user || !user.id) {
       return {
-        statusCode: 404,
+        statusCode: 401,
         success: false,
-        message: "User not found.",
+        message: "You're not authenticated.",
         __typename: "BaseResponse",
       };
     }
 
-    // Return the found user
+    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+    const userCacheKey = `user-${user.id}`;
+    let userExist: any = null;
+
+    // Check Redis for cached user data
+    try {
+      userExist = await getSession(userCacheKey);
+    } catch (redisError) {
+      console.warn("Redis error fetching user profile:", redisError);
+    }
+
+    // Check the user exists or not
+    if (!userExist) {
+      const dbUser = await userRepository.findOne({
+        where: { id: user.id },
+        relations: ["role"],
+        select: ["id", "firstName", "lastName", "email", "gender", "role"],
+      });
+
+      if (!dbUser) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "User not found.",
+          __typename: "BaseResponse",
+        };
+      }
+
+      const userData = {
+        id: dbUser.id,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
+        email: dbUser.email,
+        role: dbUser.role?.name || null,
+      };
+
+      const TTL = 2592000; // 30 days in seconds
+      try {
+        await setSession(userCacheKey, userData, TTL);
+      } catch (redisError) {
+        console.warn("Redis error caching user data:", redisError);
+      }
+
+      userExist = userData;
+    }
+
+    // Validate role existence
+    if (!userExist.role) {
+      return {
+        statusCode: 500,
+        success: false,
+        message: "User role is missing or invalid.",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Return the user profile with role name
     return {
       statusCode: 200,
       success: true,
-      message: "User fetched successfully.",
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role.name,
-      },
+      message: "Profile fetched successfully.",
+      user: userExist,
       __typename: "UserResponse",
     };
-  } catch (error: Error | any) {
-    console.error("Error fetching user by ID:", error);
-
+  } catch (error: any) {
+    console.error("Error to get profile:", error);
     return {
       statusCode: 500,
       success: false,
-      message: "Failed to fetch user.",
+      message: error.message || "Internal server error",
       __typename: "BaseResponse",
     };
   }

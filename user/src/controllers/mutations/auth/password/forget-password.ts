@@ -35,8 +35,8 @@ export const forgetPassword = async (
   context: Context
 ): Promise<BaseResponse | ErrorResponse> => {
   const { AppDataSource, redis } = context;
-  const { getSession, setSession, deleteSession } = redis;
   const { email } = args;
+  const { getSession, setSession, deleteSession } = redis;
 
   // Get the User repository
   const userRepository: Repository<User> = AppDataSource.getRepository(User);
@@ -169,7 +169,7 @@ export const forgetPassword = async (
       message: "Password reset email sent successfully.",
       __typename: "BaseResponse",
     };
-  } catch (error: Error | any) {
+  } catch (error: any) {
     // Log and return a generic error response
     console.error("Forget password error:", error);
     return {
