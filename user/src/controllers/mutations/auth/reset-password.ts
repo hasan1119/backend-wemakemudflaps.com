@@ -1,7 +1,11 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
-import { BaseResponse, MutationResetPasswordArgs } from "../../../types";
+import {
+  BaseResponse,
+  ErrorResponse,
+  MutationResetPasswordArgs,
+} from "../../../types";
 import HashInfo from "../../../utils/bcrypt/hash-info";
 import { resetPasswordSchema } from "../../../utils/data-validation/auth/auth";
 
@@ -15,13 +19,13 @@ import { resetPasswordSchema } from "../../../utils/data-validation/auth/auth";
  * @param _ - Unused GraphQL parent argument
  * @param args - Contains token and new password
  * @param context - Application context with AppDataSource
- * @returns Promise<BaseResponse> - Response status and message
+ * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
  */
 export const resetPassword = async (
   _: any,
   args: MutationResetPasswordArgs,
   context: Context
-): Promise<BaseResponse> => {
+): Promise<BaseResponse | ErrorResponse> => {
   const { AppDataSource } = context;
   const { token, newPassword } = args;
 
@@ -35,14 +39,19 @@ export const resetPassword = async (
       newPassword,
     });
 
-    // Return the first validation error message if validation fails
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
-      const errorMessage = validationResult.error.errors[0].message;
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."), // Converts the path array to a string
+        message: error.message,
+      }));
+
       return {
         statusCode: 400,
         success: false,
-        message: errorMessage,
-        __typename: "BaseResponse",
+        message: "Validation failed.",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
       };
     }
 

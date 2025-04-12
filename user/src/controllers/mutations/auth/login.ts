@@ -3,6 +3,7 @@ import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import {
   BaseResponse,
+  ErrorResponse,
   MutationLoginArgs,
   UserLoginResponse,
 } from "../../../types";
@@ -23,13 +24,13 @@ interface LockoutSession {
  * @param _ - Unused GraphQL parent argument
  * @param args - Login arguments (email, password)
  * @param context - Application context containing AppDataSource
- * @returns Promise<UserLoginResponse | BaseResponse> - Login result with status and message
+ * @returns Promise<UserLoginResponse | ErrorResponse | BaseResponse> - Login result with status and message
  */
 export const login = async (
   _: any,
   args: MutationLoginArgs,
   context: Context
-): Promise<UserLoginResponse | BaseResponse> => {
+): Promise<UserLoginResponse | ErrorResponse | BaseResponse> => {
   const { redis, AppDataSource } = context;
   const { getSession, setSession, deleteSession } = redis;
 
@@ -45,14 +46,19 @@ export const login = async (
       password,
     });
 
-    // If validation fails, return the first error message
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
-      const errorMessage = validationResult.error.errors[0].message;
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."), // Converts the path array to a string
+        message: error.message,
+      }));
+
       return {
         statusCode: 400,
         success: false,
-        message: errorMessage,
-        __typename: "BaseResponse",
+        message: "Validation failed.",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
       };
     }
 

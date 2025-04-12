@@ -52,6 +52,20 @@ type User @key(fields: "id") {
   # taxStatus: [TaxStatus!] # Tax statuses created by the user.
 }
 
+# Type for validation and general errors
+type ErrorResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  errors: [FieldError!] # Array of field-specific errors
+}
+
+# Type representing errors for specific fields
+type FieldError {
+  field: String! # Name of the field that caused the error
+  message: String! # Error message associated with the field
+}
+
 # Common interface to return status and message.
 type BaseResponse {
   statusCode: Int!

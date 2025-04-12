@@ -96,8 +96,8 @@ export const changePasswordSchema = z.object({
     ),
 });
 
-// Define the Zod schema for the update user input
-export const updateUserSchema = z.object({
+// Define the Zod schema for the update profile input
+export const updateProfileSchema = z.object({
   firstName: z
     .string()
     .min(1, { message: "First name is required" })

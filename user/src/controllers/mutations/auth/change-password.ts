@@ -1,7 +1,11 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
-import { BaseResponse, MutationChangePasswordArgs } from "../../../types";
+import {
+  BaseResponse,
+  ErrorResponse,
+  MutationChangePasswordArgs,
+} from "../../../types";
 import CompareInfo from "../../../utils/bcrypt/compare-info";
 import HashInfo from "../../../utils/bcrypt/hash-info";
 import { changePasswordSchema } from "../../../utils/data-validation/auth/auth";
@@ -14,13 +18,13 @@ import { changePasswordSchema } from "../../../utils/data-validation/auth/auth";
  * @param _ - Unused GraphQL parent argument
  * @param args - Password change arguments (oldPassword, newPassword)
  * @param context - Application context containing AppDataSource and user
- * @returns Promise<BaseResponse> change result with status and message
+ * @returns Promise<BaseResponse | ErrorResponse> change result with status and message
  */
 export const changePassword = async (
   _: any,
   args: MutationChangePasswordArgs,
   { AppDataSource, user }: Context
-): Promise<BaseResponse> => {
+): Promise<BaseResponse | ErrorResponse> => {
   const { oldPassword, newPassword } = args;
 
   try {
@@ -30,14 +34,19 @@ export const changePassword = async (
       newPassword,
     });
 
-    // If validation fails, return the first error message
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
-      const errorMessage = validationResult.error.errors[0].message;
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."), // Converts the path array to a string
+        message: error.message,
+      }));
+
       return {
         statusCode: 400,
         success: false,
-        message: errorMessage,
-        __typename: "BaseResponse",
+        message: "Validation failed.",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
       };
     }
 
@@ -46,7 +55,7 @@ export const changePassword = async (
       return {
         statusCode: 401,
         success: false,
-        message: "User not authenticated",
+        message: "You're not authenticated",
         __typename: "BaseResponse",
       };
     }

@@ -3,7 +3,11 @@ import { v4 as uuidv4 } from "uuid";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
-import { BaseResponse, MutationForgetPasswordArgs } from "../../../types";
+import {
+  BaseResponse,
+  ErrorResponse,
+  MutationForgetPasswordArgs,
+} from "../../../types";
 import { emailSchema } from "../../../utils/data-validation/auth/auth";
 import SendEmail from "../../../utils/email/send-email";
 
@@ -23,13 +27,13 @@ interface LockoutSession {
  * @param _ - Unused GraphQL parent argument
  * @param args - Contains the email address for password reset
  * @param context - Application context with AppDataSource
- * @returns Promise<BaseResponse> - Response status and message
+ * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
  */
 export const forgetPassword = async (
   _,
   args: MutationForgetPasswordArgs,
   context: Context
-): Promise<BaseResponse> => {
+): Promise<BaseResponse | ErrorResponse> => {
   const { AppDataSource, redis } = context;
   const { getSession, setSession, deleteSession } = redis;
   const { email } = args;
@@ -41,14 +45,19 @@ export const forgetPassword = async (
     // Validate the provided email using Zod schema
     const validationResult = await emailSchema.safeParseAsync({ email });
 
-    // Return the first validation error message if validation fails
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
-      const errorMessage = validationResult.error.errors[0].message;
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."), // Converts the path array to a string
+        message: error.message,
+      }));
+
       return {
         statusCode: 400,
         success: false,
-        message: errorMessage,
-        __typename: "BaseResponse",
+        message: "Validation failed.",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
       };
     }
 

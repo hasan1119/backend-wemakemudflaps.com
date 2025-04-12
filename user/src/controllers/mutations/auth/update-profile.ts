@@ -3,10 +3,11 @@ import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import {
   BaseResponse,
+  ErrorResponse,
   MutationUpdateProfileArgs,
   UserProfileUpdateResponse,
 } from "../../../types";
-import { updateUserSchema } from "../../../utils/data-validation/auth/auth";
+import { updateProfileSchema } from "../../../utils/data-validation/auth/auth";
 import EncodeToken from "../../../utils/jwt/encode-token";
 
 /**
@@ -17,32 +18,37 @@ import EncodeToken from "../../../utils/jwt/encode-token";
  * @param _ - Unused GraphQL parent argument
  * @param args - User update arguments ( firstName, lastName, email, gender )
  * @param context - Application context containing AppDataSource and user
- * @returns Promise<UserUpdateResponse | BaseResponse> - User update result with status and message
+ * @returns Promise<UserUpdateResponse | ErrorResponse | BaseResponse> - User profile update result with status and message
  */
 export const updateProfile = async (
   _: any,
   args: MutationUpdateProfileArgs,
   { AppDataSource, user }: Context
-): Promise<UserProfileUpdateResponse | BaseResponse> => {
+): Promise<UserProfileUpdateResponse | ErrorResponse | BaseResponse> => {
   const { firstName, lastName, email, gender } = args;
 
   try {
-    // Validate input data using Zod schema for user update
-    const validationResult = await updateUserSchema.safeParseAsync({
+    // Validate input data using Zod schema for update profile
+    const validationResult = await updateProfileSchema.safeParseAsync({
       firstName,
       lastName,
       email,
       gender,
     });
 
-    // If validation fails, return the first error message
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
-      const errorMessage = validationResult.error.errors[0].message;
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."), // Converts the path array to a string
+        message: error.message,
+      }));
+
       return {
         statusCode: 400,
         success: false,
-        message: errorMessage,
-        __typename: "BaseResponse",
+        message: "Validation failed.",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
       };
     }
 
@@ -51,7 +57,7 @@ export const updateProfile = async (
       return {
         statusCode: 401,
         success: false,
-        message: "User not authenticated",
+        message: "You're not authenticated",
         __typename: "BaseResponse",
       };
     }
@@ -95,12 +101,12 @@ export const updateProfile = async (
       statusCode: 200,
       success: true,
       token,
-      message: "User updated successfully",
+      message: "Profile updated successfully",
       __typename: "UserProfileUpdateResponse",
     };
   } catch (error: any) {
     // Log the error for debugging purposes
-    console.error("Error updating user:", error);
+    console.error("Error updating user profile:", error);
 
     // Return a detailed error message if available, otherwise a generic one
     return {
