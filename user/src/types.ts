@@ -42,6 +42,8 @@ export type FieldError = {
 export type Mutation = {
   __typename?: 'Mutation';
   changePassword: BaseResponse;
+  createUserRole: BaseResponse;
+  deleteUserRole: BaseResponse;
   forgetPassword: BaseResponse;
   login: UserLoginResponse;
   register: BaseResponse;
@@ -49,12 +51,24 @@ export type Mutation = {
   updateProfile: UserProfileUpdateResponse;
   updateUserPermission: BaseResponse;
   updateUserRole: BaseResponse;
+  updateUserRoleInfo: BaseResponse;
 };
 
 
 export type MutationChangePasswordArgs = {
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
+};
+
+
+export type MutationCreateUserRoleArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteUserRoleArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -100,6 +114,13 @@ export type MutationUpdateUserPermissionArgs = {
 
 export type MutationUpdateUserRoleArgs = {
   role: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateUserRoleInfoArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type Permissions = {
@@ -333,6 +354,8 @@ export type FieldErrorResolvers<ContextType = Context, ParentType extends Resolv
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   changePassword?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
+  createUserRole?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
+  deleteUserRole?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'id'>>;
   forgetPassword?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationForgetPasswordArgs, 'email'>>;
   login?: Resolver<ResolversTypes['UserLoginResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   register?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password'>>;
@@ -340,6 +363,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponse'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'id'>>;
   updateUserPermission?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'id'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'role'>>;
+  updateUserRoleInfo?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id' | 'name'>>;
 };
 
 export type PermissionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Permissions'] = ResolversParentTypes['Permissions']> = {

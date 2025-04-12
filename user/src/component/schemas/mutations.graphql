@@ -63,4 +63,28 @@ type Mutation {
   # This mutation allows authorized users to update other users permission by user id.
   # The response will include a `BaseResponse` indicating success or failure.
   updateUserPermission(id: ID!): BaseResponse!
+
+  # Delete a user role by ID.
+  # This mutation allows authorized users to delete a user role by providing the unique ID.
+  # The response will include a `BaseResponse` indicating success or failure.
+  deleteUserRole(
+    id: ID! # The unique ID of the user role to be deleted.
+  ): BaseResponse!
+
+  # Create a new user role.
+  # This mutation allows authorized users to create new roles for other users.
+  # The response will include a `BaseResponse` indicating success or failure.
+  createUserRole(
+    name: String! # The name of the new user role to be created.
+    description: String # The description associated with the role.
+  ): BaseResponse!
+
+  # Update existing user role info.
+  # This mutation allows authorized users to update existing roles for other users.
+  # The response will include a `BaseResponse` indicating success or failure.
+  updateUserRoleInfo(
+    id: ID! # The unique ID of the user role to be deleted.
+    name: String! # The name of the new user role to be created.
+    description: String # The description associated with the role.
+  ): BaseResponse!
 }

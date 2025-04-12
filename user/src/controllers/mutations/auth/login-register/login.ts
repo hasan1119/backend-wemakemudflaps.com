@@ -1,15 +1,15 @@
 import { Repository } from "typeorm";
-import { Context } from "../../../context";
-import { User } from "../../../entities/user.entity";
+import { Context } from "../../../../context";
+import { User } from "../../../../entities/user.entity";
 import {
   BaseResponse,
   ErrorResponse,
   MutationLoginArgs,
   UserLoginResponse,
-} from "../../../types";
-import CompareInfo from "../../../utils/bcrypt/compare-info";
-import { loginSchema } from "../../../utils/data-validation/auth/auth";
-import EncodeToken from "../../../utils/jwt/encode-token";
+} from "../../../../types";
+import CompareInfo from "../../../../utils/bcrypt/compare-info";
+import { loginSchema } from "../../../../utils/data-validation/auth/auth";
+import EncodeToken from "../../../../utils/jwt/encode-token";
 
 // Define the type for lockout session
 interface LockoutSession {
@@ -29,9 +29,8 @@ interface LockoutSession {
 export const login = async (
   _: any,
   args: MutationLoginArgs,
-  context: Context
+  { redis, AppDataSource }: Context
 ): Promise<UserLoginResponse | ErrorResponse | BaseResponse> => {
-  const { redis, AppDataSource } = context;
   const { getSession, setSession, deleteSession } = redis;
 
   const { email, password } = args;
@@ -155,11 +154,24 @@ export const login = async (
       "30d" // Set the token expiration time
     );
 
+    // Create and store session
+    const session = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role.name,
+    };
+
+    // Save session in Redis
+    await setSession(user.id, session, 60 * 60 * 24 * 30); // 30 days in seconds
+
     return {
       statusCode: 200,
       success: true,
       message: "Login successful.",
-      __typename: "BaseResponse",
+      token,
+      __typename: "UserLoginResponse",
     };
   } catch (error: any) {
     // Log the error for debugging purposes

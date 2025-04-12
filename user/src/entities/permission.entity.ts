@@ -24,6 +24,7 @@ export type PermissionName =
   | "Privacy & Policy"
   | "Terms & Conditions"
   | "Order"
+  | "Role"
   | "Notification"
   | "Media";
 
@@ -51,6 +52,7 @@ export class Permission {
       "Privacy & Policy",
       "Terms & Conditions",
       "Order",
+      "Role",
       "Notification",
       "Media",
     ],

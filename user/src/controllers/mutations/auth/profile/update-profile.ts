@@ -1,14 +1,14 @@
 import { Repository } from "typeorm";
-import { Context } from "../../../context";
-import { User } from "../../../entities/user.entity";
+import { Context } from "../../../../context";
+import { User } from "../../../../entities/user.entity";
 import {
   BaseResponse,
   ErrorResponse,
   MutationUpdateProfileArgs,
   UserProfileUpdateResponse,
-} from "../../../types";
-import { updateProfileSchema } from "../../../utils/data-validation/auth/auth";
-import EncodeToken from "../../../utils/jwt/encode-token";
+} from "../../../../types";
+import { updateProfileSchema } from "../../../../utils/data-validation/auth/auth";
+import EncodeToken from "../../../../utils/jwt/encode-token";
 
 /**
  * Allows the user to update their account information.

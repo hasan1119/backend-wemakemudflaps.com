@@ -1,18 +1,18 @@
 import { Repository } from "typeorm";
-import { Context } from "../../../context";
+import { Context } from "../../../../context";
 import {
   Permission,
   PermissionName,
-} from "../../../entities/permission.entity";
-import { Role } from "../../../entities/user-role.entity";
-import { User } from "../../../entities/user.entity";
+} from "../../../../entities/permission.entity";
+import { Role } from "../../../../entities/user-role.entity";
+import { User } from "../../../../entities/user.entity";
 import {
   BaseResponse,
   ErrorResponse,
   MutationRegisterArgs,
-} from "../../../types";
-import HashInfo from "../../../utils/bcrypt/hash-info";
-import { registerSchema } from "../../../utils/data-validation/auth/auth";
+} from "../../../../types";
+import HashInfo from "../../../../utils/bcrypt/hash-info";
+import { registerSchema } from "../../../../utils/data-validation/auth/auth";
 
 // List of all possible permission names for the system
 const PermissionNames: PermissionName[] = [
@@ -30,6 +30,7 @@ const PermissionNames: PermissionName[] = [
   "Pop Up Banner",
   "Privacy & Policy",
   "Terms & Conditions",
+  "Role",
   "Order",
   "Notification",
   "Media",
@@ -103,7 +104,7 @@ export const register = async (
 
     // Check if a Super Admin role already exists
     const superAdminRole = await roleRepository.findOne({
-      where: { name: "Super Admin" },
+      where: { name: "SUPER ADMIN" },
     });
 
     let role: Role;
@@ -112,7 +113,7 @@ export const register = async (
     if (!superAdminRole || userCount === 0) {
       // Create the Super Admin role
       role = roleRepository.create({
-        name: "Super Admin",
+        name: "SUPER ADMIN",
         description:
           "Has full control over all aspects of the eCommerce platform.",
         createdBy: null, // No creator for the first role
@@ -155,13 +156,13 @@ export const register = async (
     } else {
       // Super Admin exists, so register a regular Customer user
       const defaultRole = await roleRepository.findOne({
-        where: { name: "Customer" },
+        where: { name: "CUSTOMER" },
       });
 
       // If no Customer role exists, create one
       if (!defaultRole) {
         const newDefaultRole = roleRepository.create({
-          name: "Customer",
+          name: "CUSTOMER",
           description:
             "Regular customers who can browse products, place orders, and view their purchase history.",
           createdBy: null, // No creator for initial Customer role

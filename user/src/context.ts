@@ -12,7 +12,7 @@ export type Context = {
     getSession: <T>(sessionId: string) => Promise<T | null>;
     setSession: (
       id: string,
-      sessionData: object,
+      sessionData: object | string,
       ttl?: number
     ) => Promise<void>;
     deleteSession: (id: string) => Promise<void>;

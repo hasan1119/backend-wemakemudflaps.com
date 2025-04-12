@@ -1,15 +1,15 @@
 import { Repository } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
-import CONFIG from "../../../config/config";
-import { Context } from "../../../context";
-import { User } from "../../../entities/user.entity";
+import CONFIG from "../../../../config/config";
+import { Context } from "../../../../context";
+import { User } from "../../../../entities/user.entity";
 import {
   BaseResponse,
   ErrorResponse,
   MutationForgetPasswordArgs,
-} from "../../../types";
-import { emailSchema } from "../../../utils/data-validation/auth/auth";
-import SendEmail from "../../../utils/email/send-email";
+} from "../../../../types";
+import { emailSchema } from "../../../../utils/data-validation/auth/auth";
+import SendEmail from "../../../../utils/email/send-email";
 
 // Define the type for lockout session
 interface LockoutSession {

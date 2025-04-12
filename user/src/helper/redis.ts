@@ -32,7 +32,7 @@ async function getSession<T>(sessionId: string): Promise<T | null> {
  */
 async function setSession(
   id: string,
-  sessionData: object,
+  sessionData: object | string,
   ttl: number = config.REDIS_SESSION_TTL || 3600
 ): Promise<void> {
   try {

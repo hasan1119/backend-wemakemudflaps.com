@@ -1,14 +1,14 @@
 import { Repository } from "typeorm";
-import { Context } from "../../../context";
-import { User } from "../../../entities/user.entity";
+import { Context } from "../../../../context";
+import { User } from "../../../../entities/user.entity";
 import {
   BaseResponse,
   ErrorResponse,
   MutationChangePasswordArgs,
-} from "../../../types";
-import CompareInfo from "../../../utils/bcrypt/compare-info";
-import HashInfo from "../../../utils/bcrypt/hash-info";
-import { changePasswordSchema } from "../../../utils/data-validation/auth/auth";
+} from "../../../../types";
+import CompareInfo from "../../../../utils/bcrypt/compare-info";
+import HashInfo from "../../../../utils/bcrypt/hash-info";
+import { changePasswordSchema } from "../../../../utils/data-validation/auth/auth";
 
 /**
  * Allows the user to change their password.
