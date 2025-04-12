@@ -25,6 +25,20 @@ export type BaseResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export type ErrorResponse = {
+  __typename?: 'ErrorResponse';
+  errors?: Maybe<Array<FieldError>>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type FieldError = {
+  __typename?: 'FieldError';
+  field: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   changePassword: BaseResponse;
@@ -260,6 +274,8 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
+  FieldError: ResolverTypeWrapper<FieldError>;
   Mutation: ResolverTypeWrapper<{}>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Permissions: ResolverTypeWrapper<Permissions>;
@@ -279,6 +295,8 @@ export type ResolversParentTypes = {
   String: Scalars['String']['output'];
   Int: Scalars['Int']['output'];
   Boolean: Scalars['Boolean']['output'];
+  ErrorResponse: ErrorResponse;
+  FieldError: FieldError;
   Mutation: {};
   ID: Scalars['ID']['output'];
   Permissions: Permissions;
@@ -296,6 +314,20 @@ export type BaseResponseResolvers<ContextType = Context, ParentType extends Reso
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ErrorResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ErrorResponse'] = ResolversParentTypes['ErrorResponse']> = {
+  errors?: Resolver<Maybe<Array<ResolversTypes['FieldError']>>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FieldErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FieldError'] = ResolversParentTypes['FieldError']> = {
+  field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -391,6 +423,8 @@ export type UsersResponseResolvers<ContextType = Context, ParentType extends Res
 
 export type Resolvers<ContextType = Context> = {
   BaseResponse?: BaseResponseResolvers<ContextType>;
+  ErrorResponse?: ErrorResponseResolvers<ContextType>;
+  FieldError?: FieldErrorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Permissions?: PermissionsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
