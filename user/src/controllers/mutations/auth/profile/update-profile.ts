@@ -67,27 +67,29 @@ export const updateProfile = async (
 
     // Retrieve the user from the database (already authenticated user)
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    const existingUser = await userRepository.findOne({
+
+    // Fetch the full User entity for authenticated user
+    const authenticatedUser = await userRepository.findOne({
       where: { id: user.id },
     });
 
-    if (!existingUser) {
+    if (!authenticatedUser) {
       return {
         statusCode: 404,
         success: false,
-        message: "User not found",
+        message: "Authenticated user not found in database",
         __typename: "BaseResponse",
       };
     }
 
     // Update user fields only if provided
-    if (firstName) existingUser.firstName = firstName;
-    if (lastName) existingUser.lastName = lastName;
-    if (email) existingUser.email = email;
-    if (gender) existingUser.gender = gender;
+    if (firstName) authenticatedUser.firstName = firstName;
+    if (lastName) authenticatedUser.lastName = lastName;
+    if (email) authenticatedUser.email = email;
+    if (gender) authenticatedUser.gender = gender;
 
     // Save updated user data
-    await userRepository.save(existingUser);
+    await userRepository.save(authenticatedUser);
 
     // Regenerate the JWT token after the update
     const token = await EncodeToken(
@@ -101,19 +103,14 @@ export const updateProfile = async (
 
     // Cache user data in Redis with configurable TTL
     const userCacheKey = `user-${user.id}`;
-    const TTL = 2592000; // 30 days in seconds
 
-    await setSession(
-      userCacheKey,
-      {
-        id: existingUser.id,
-        firstName: existingUser.firstName,
-        lastName: existingUser.lastName,
-        email: existingUser.email,
-        role: existingUser.role?.name || null,
-      },
-      TTL
-    );
+    await setSession(userCacheKey, {
+      id: existingUser.id,
+      firstName: existingUser.firstName,
+      lastName: existingUser.lastName,
+      email: existingUser.email,
+      role: existingUser.role?.name || null,
+    }); // TTL : default 30 days of redis session because of the env
 
     // Return success response
     return {

@@ -31,6 +31,16 @@ export const deleteUserRole = async (
   const { getSession, setSession, deleteSession } = redis;
 
   try {
+    // Check if user is authenticated
+    if (!user) {
+      return {
+        statusCode: 401,
+        success: false,
+        message: "You're not authenticated",
+        __typename: "BaseResponse",
+      };
+    }
+
     // Initialize repositories for Role, User, and Permission entities
     const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
@@ -42,12 +52,16 @@ export const deleteUserRole = async (
       id,
     });
 
-    // Check if user is authenticated
-    if (!user) {
+    // Fetch the full User entity for authenticated user
+    const authenticatedUser = await userRepository.findOne({
+      where: { id: user.id },
+    });
+
+    if (!authenticatedUser) {
       return {
-        statusCode: 401,
+        statusCode: 404,
         success: false,
-        message: "You're not authenticated",
+        message: "Authenticated user not found in database",
         __typename: "BaseResponse",
       };
     }
@@ -62,13 +76,11 @@ export const deleteUserRole = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id }, name: "Role" },
-        select: ["id", "canCreate", "canUpdate", "canDelete"],
+        select: ["id", "canDelete"],
       });
 
       // Cache permissions in Redis with configurable TTL
-      const TTL = 2592000; // 30 days in seconds
-
-      await setSession(permissionCacheKey, userPermissions, TTL);
+      await setSession(permissionCacheKey, userPermissions); // TTL : default 30 days of redis session because of the env
     }
 
     // Check if the user has the "canDelete" permission for roles
@@ -109,7 +121,25 @@ export const deleteUserRole = async (
 
     if (!role) {
       // Cache miss: Fetch role from database
-      role = await roleRepository.findOne({ where: { id } });
+      role = await roleRepository.findOne({
+        where: { id },
+        relations: ["createdBy", "createdBy.role"],
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          createdAt: true,
+          createdBy: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            role: {
+              name: true,
+            },
+          },
+        },
+      });
 
       if (!role) {
         return {
@@ -121,9 +151,20 @@ export const deleteUserRole = async (
       }
 
       // Cache role data
-      const TTL = 2592000; // 30 days in seconds
-
-      await setSession(roleCacheKey, role, TTL);
+      await setSession(roleCacheKey, {
+        id: role.id,
+        name: role.name,
+        description: role.description,
+        createdAt: role.createdAt.toISOString(),
+        createdBy: {
+          id: authenticatedUser.id,
+          name: `${
+            authenticatedUser.firstName + " " + authenticatedUser.lastName
+          }`,
+          email: authenticatedUser.email,
+          role: authenticatedUser.role,
+        },
+      }); // TTL : default 30 days of redis session because of the env
     }
 
     // Check Redis for cached user-role association count
@@ -141,9 +182,7 @@ export const deleteUserRole = async (
       });
 
       // Cache user count
-      const TTL = 2592000; // 30 days in seconds
-
-      await setSession(userCountCacheKey, userCount.toString(), TTL);
+      await setSession(userCountCacheKey, userCount.toString()); // TTL : default 30 days of redis session because of the env
     }
 
     if (userCount > 0) {
@@ -165,7 +204,6 @@ export const deleteUserRole = async (
     await deleteSession(roleCacheKey); // Clear role data
     await deleteSession(userCountCacheKey); // Clear user count
     await deleteSession(roleNameCacheKey); // Clear role name
-    await deleteSession("roles-all"); // Invalidate role lists
 
     return {
       statusCode: 200,

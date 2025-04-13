@@ -62,15 +62,17 @@ export const changePassword = async (
 
     // Retrieve the user from the database (no need to fetch again if we already have it in context)
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    const existingUser = await userRepository.findOne({
+
+    // Fetch the full User entity for authenticated user
+    const authenticatedUser = await userRepository.findOne({
       where: { id: user.id },
     });
 
-    if (!existingUser) {
+    if (!authenticatedUser) {
       return {
         statusCode: 404,
         success: false,
-        message: "User not found",
+        message: "Authenticated user not found in database",
         __typename: "BaseResponse",
       };
     }
@@ -78,7 +80,7 @@ export const changePassword = async (
     // Check if the old password matches the stored hashed password
     const isOldPasswordValid = await CompareInfo(
       oldPassword,
-      existingUser.password
+      authenticatedUser.password
     );
 
     if (!isOldPasswordValid) {

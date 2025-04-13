@@ -25,6 +25,14 @@ export type BaseResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export type CreatedBy = {
+  __typename?: 'CreatedBy';
+  email?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name?: Maybe<Scalars['String']['output']>;
+  role?: Maybe<Scalars['String']['output']>;
+};
+
 export type ErrorResponse = {
   __typename?: 'ErrorResponse';
   errors?: Maybe<Array<FieldError>>;
@@ -138,7 +146,8 @@ export type Query = {
   __typename?: 'Query';
   getAllUsers: UsersResponse;
   getProfile: UserResponse;
-  getRoles: UserRolesResponse;
+  getRole: RoleResponse;
+  getRoles: RolesResponse;
 };
 
 
@@ -148,11 +157,34 @@ export type QueryGetAllUsersArgs = {
   showPerPage: Scalars['Int']['input'];
 };
 
-export type Roles = {
-  __typename?: 'Roles';
+
+export type QueryGetRoleArgs = {
+  id: Scalars['String']['input'];
+};
+
+export type Role = {
+  __typename?: 'Role';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name?: Maybe<Scalars['String']['output']>;
+};
+
+export type RoleResponse = {
+  __typename?: 'RoleResponse';
+  message: Scalars['String']['output'];
+  role?: Maybe<Role>;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type RolesResponse = {
+  __typename?: 'RolesResponse';
+  message: Scalars['String']['output'];
+  role: Array<Role>;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type User = {
@@ -188,14 +220,6 @@ export type UserResponse = {
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
   user: User;
-};
-
-export type UserRolesResponse = {
-  __typename?: 'UserRolesResponse';
-  message: Scalars['String']['output'];
-  role: Array<Roles>;
-  statusCode: Scalars['Int']['output'];
-  success: Scalars['Boolean']['output'];
 };
 
 export type UsersResponse = {
@@ -295,18 +319,20 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CreatedBy: ResolverTypeWrapper<CreatedBy>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
   FieldError: ResolverTypeWrapper<FieldError>;
   Mutation: ResolverTypeWrapper<{}>;
-  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Permissions: ResolverTypeWrapper<Permissions>;
   Query: ResolverTypeWrapper<{}>;
-  Roles: ResolverTypeWrapper<Roles>;
+  Role: ResolverTypeWrapper<Role>;
+  RoleResponse: ResolverTypeWrapper<RoleResponse>;
+  RolesResponse: ResolverTypeWrapper<RolesResponse>;
   User: ResolverTypeWrapper<User>;
   UserLoginResponse: ResolverTypeWrapper<UserLoginResponse>;
   UserProfileUpdateResponse: ResolverTypeWrapper<UserProfileUpdateResponse>;
   UserResponse: ResolverTypeWrapper<UserResponse>;
-  UserRolesResponse: ResolverTypeWrapper<UserRolesResponse>;
   UsersResponse: ResolverTypeWrapper<UsersResponse>;
 };
 
@@ -316,18 +342,20 @@ export type ResolversParentTypes = {
   String: Scalars['String']['output'];
   Int: Scalars['Int']['output'];
   Boolean: Scalars['Boolean']['output'];
+  CreatedBy: CreatedBy;
+  ID: Scalars['ID']['output'];
   ErrorResponse: ErrorResponse;
   FieldError: FieldError;
   Mutation: {};
-  ID: Scalars['ID']['output'];
   Permissions: Permissions;
   Query: {};
-  Roles: Roles;
+  Role: Role;
+  RoleResponse: RoleResponse;
+  RolesResponse: RolesResponse;
   User: User;
   UserLoginResponse: UserLoginResponse;
   UserProfileUpdateResponse: UserProfileUpdateResponse;
   UserResponse: UserResponse;
-  UserRolesResponse: UserRolesResponse;
   UsersResponse: UsersResponse;
 };
 
@@ -335,6 +363,14 @@ export type BaseResponseResolvers<ContextType = Context, ParentType extends Reso
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreatedByResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatedBy'] = ResolversParentTypes['CreatedBy']> = {
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  role?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -380,13 +416,32 @@ export type PermissionsResolvers<ContextType = Context, ParentType extends Resol
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   getAllUsers?: Resolver<ResolversTypes['UsersResponse'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'pageNo' | 'showPerPage'>>;
   getProfile?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType>;
-  getRoles?: Resolver<ResolversTypes['UserRolesResponse'], ParentType, ContextType>;
+  getRole?: Resolver<ResolversTypes['RoleResponse'], ParentType, ContextType, RequireFields<QueryGetRoleArgs, 'id'>>;
+  getRoles?: Resolver<ResolversTypes['RolesResponse'], ParentType, ContextType>;
 };
 
-export type RolesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Roles'] = ResolversParentTypes['Roles']> = {
+export type RoleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Role'] = ResolversParentTypes['Role']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RoleResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RoleResponse'] = ResolversParentTypes['RoleResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  role?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RolesResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RolesResponse'] = ResolversParentTypes['RolesResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  role?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -426,14 +481,6 @@ export type UserResponseResolvers<ContextType = Context, ParentType extends Reso
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type UserRolesResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserRolesResponse'] = ResolversParentTypes['UserRolesResponse']> = {
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  role?: Resolver<Array<ResolversTypes['Roles']>, ParentType, ContextType>;
-  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type UsersResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UsersResponse'] = ResolversParentTypes['UsersResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   pageNo?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -447,17 +494,19 @@ export type UsersResponseResolvers<ContextType = Context, ParentType extends Res
 
 export type Resolvers<ContextType = Context> = {
   BaseResponse?: BaseResponseResolvers<ContextType>;
+  CreatedBy?: CreatedByResolvers<ContextType>;
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Permissions?: PermissionsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  Roles?: RolesResolvers<ContextType>;
+  Role?: RoleResolvers<ContextType>;
+  RoleResponse?: RoleResponseResolvers<ContextType>;
+  RolesResponse?: RolesResponseResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserLoginResponse?: UserLoginResponseResolvers<ContextType>;
   UserProfileUpdateResponse?: UserProfileUpdateResponseResolvers<ContextType>;
   UserResponse?: UserResponseResolvers<ContextType>;
-  UserRolesResponse?: UserRolesResponseResolvers<ContextType>;
   UsersResponse?: UsersResponseResolvers<ContextType>;
 };
 

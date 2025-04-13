@@ -64,9 +64,7 @@ export const getProfile = async (
         role: dbUser.role?.name || null,
       };
 
-      const TTL = 2592000; // 30 days in seconds
-
-      await setSession(userCacheKey, userData, TTL);
+      await setSession(userCacheKey, userData); // TTL : default 30 days of redis session because of the env
 
       userExist = userData;
     }

@@ -2,6 +2,14 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@key"])
 
+# Type for the createdBy.
+type CreatedBy {
+  id: ID!
+  name: String
+  email: String
+  role: String
+}
+
 # Type for the permission of user.
 type Permissions {
   id: ID!
@@ -13,11 +21,13 @@ type Permissions {
   canDelete: Boolean!
 }
 
-# Type for the user roles.
-type Roles {
+# Type for the user role.
+type Role {
   id: ID!
   name: String
   description: String
+  createdBy: CreatedBy
+  createdAt: String
 }
 
 # Main User type, which represents the user model in the system.
@@ -109,9 +119,17 @@ type UserProfileUpdateResponse {
 }
 
 # Response type when fetching the user roles.
-type UserRolesResponse {
+type RolesResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  role: [Roles!]!
+  role: [Role!]!
+}
+
+# Response type when fetching the single role info.
+type RoleResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  role: Role
 }

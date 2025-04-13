@@ -32,6 +32,16 @@ export const updateUserRoleInfo = async (
   const { getSession, setSession, deleteSession } = redis;
 
   try {
+    // Check if user is authenticated
+    if (!user) {
+      return {
+        statusCode: 401,
+        success: false,
+        message: "You're not authenticated",
+        __typename: "BaseResponse",
+      };
+    }
+
     // Initialize repositories for Role, Permission, and User entities
     const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
     const permissionRepository: Repository<Permission> =
@@ -45,19 +55,12 @@ export const updateUserRoleInfo = async (
       description,
     });
 
-    // Check if user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
-      };
-    }
+    // Fetch the full User entity for authenticated user
+    const authenticatedUser = await userRepository.findOne({
+      where: { id: user.id },
+    });
 
-    // Fetch the full User entity for createdBy
-    const creator = await userRepository.findOne({ where: { id: user.id } });
-    if (!creator) {
+    if (!authenticatedUser) {
       return {
         statusCode: 404,
         success: false,
@@ -76,13 +79,11 @@ export const updateUserRoleInfo = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id }, name: "Role" },
-        select: ["id", "canCreate", "canUpdate", "canDelete"],
+        select: ["id", "canUpdate"],
       });
 
       // Cache permissions in Redis with configurable TTL
-      const TTL = 2592000; // 30 days in seconds
-
-      await setSession(permissionCacheKey, userPermissions, TTL);
+      await setSession(permissionCacheKey, userPermissions); // TTL : default 30 days of redis session because of the env
     }
 
     // Check if the user has the "canUpdate" permission for roles
@@ -125,6 +126,22 @@ export const updateUserRoleInfo = async (
       // Cache miss: Fetch role from database
       existingRole = await roleRepository.findOne({
         where: { id },
+        relations: ["createdBy", "createdBy.role"],
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          createdAt: true,
+          createdBy: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            role: {
+              name: true,
+            },
+          },
+        },
       });
 
       if (!existingRole) {
@@ -137,9 +154,18 @@ export const updateUserRoleInfo = async (
       }
 
       // Cache role data
-      const TTL = 2592000; // 30 days in seconds
-
-      await setSession(roleCacheKey, existingRole, TTL);
+      await setSession(roleCacheKey, {
+        id: existingRole.id,
+        name: existingRole.name,
+        description: existingRole.description,
+        createdAt: existingRole.createdAt.toISOString(),
+        createdBy: {
+          id: user.id,
+          name: `${user.firstName + " " + user.lastName}`,
+          email: user.email,
+          role: user.role,
+        },
+      }); // TTL : default 30 days of redis session because of the env
     }
 
     // Check for duplicate role name, excluding the current role
@@ -166,9 +192,7 @@ export const updateUserRoleInfo = async (
 
       if (duplicateRole) {
         // Cache duplicate name
-        const TTL = 2592000; // 30 days in seconds
-
-        await setSession(roleNameCacheKey, "exists", TTL);
+        await setSession(roleNameCacheKey, "exists"); // TTL : default 30 days of redis session because of the env
       }
     }
 
@@ -192,18 +216,24 @@ export const updateUserRoleInfo = async (
     // Update the role with the full User entity as createdBy
     existingRole.name = name;
     existingRole.description = description || null;
-    existingRole.createdBy = creator; // Track who modified the role
 
     // Save the updated role to the database
     const updatedRole = await roleRepository.save(existingRole);
 
     // Update Redis caches
-    const TTL = 2592000; // 30 days in seconds
-
-    await setSession(roleCacheKey, updatedRole, TTL);
-    await setSession(roleNameCacheKey, "exists", TTL);
-    // Invalidate cached role lists
-    await deleteSession("roles-all");
+    await setSession(roleCacheKey, {
+      id: updatedRole.id,
+      name: updatedRole.name,
+      description: updatedRole.description,
+      createdAt: updatedRole.createdAt.toISOString(),
+      createdBy: {
+        id: user.id,
+        name: `${user.firstName + " " + user.lastName}`,
+        email: user.email,
+        role: user.role,
+      },
+    }); // TTL : default 30 days of redis session because of the env
+    await setSession(roleNameCacheKey, "exists"); // TTL : default 30 days of redis session because of the env
 
     return {
       statusCode: 200,

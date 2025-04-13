@@ -165,11 +165,10 @@ export const login = async (
 
     // Cache user data in Redis with configurable TTL
     const userCacheKey = `user-${user.id}`;
-    const TTL = 2592000; // 30 days in seconds
 
     try {
-      await setSession(user.id, session, TTL);
-      await setSession(userCacheKey, session, TTL);
+      await setSession(user.id, session); // TTL : default 30 days of redis session because of the env
+      await setSession(userCacheKey, session); // TTL : default 30 days of redis session because of the env
     } catch (redisError) {
       console.warn("Redis error caching user data:", redisError);
     }

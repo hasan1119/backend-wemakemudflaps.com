@@ -149,9 +149,8 @@ export const register = async (
         where: { user: { id: savedUser.id } },
       });
 
-      const TTL = 2592000; // 30 days in seconds
       const permissionCacheKey = `user-permissions-${savedUser.id}`;
-      await setSession(permissionCacheKey, fullPermissions, TTL);
+      await setSession(permissionCacheKey, fullPermissions); // TTL : default 30 days of redis session because of the env
 
       return {
         statusCode: 201,
@@ -237,9 +236,8 @@ export const register = async (
         where: { user: { id: savedUser.id } },
       });
 
-      const TTL = 2592000; // 30 days in seconds
       const permissionCacheKey = `user-permissions-${savedUser.id}`;
-      await setSession(permissionCacheKey, fullCustomerPermissions, TTL);
+      await setSession(permissionCacheKey, fullCustomerPermissions); // TTL : default 30 days of redis session because of the env
 
       return {
         statusCode: 201,

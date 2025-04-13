@@ -2,7 +2,7 @@
 type Query {
   # Fetch own profile.
   # This query allows you to retrieve the details of your own profile data.
-  # The response will include a `UserResponseUserResponse` containing a token, user data, and status.
+  # The response will include a `UserResponseUserResponse` containing user data, and status.
   getProfile: UserResponse!
 
   # Fetch all users with pagination and optional search.
@@ -10,20 +10,20 @@ type Query {
   # You can paginate the results by specifying the `pageNo` and `showPerPage`.
   # You can also filter the users by a `searchKeyWord` (e.g., searching by name or email).
   # If no `searchKeyWord` is provided, it returns all users.
-  # The response will include a `UsersResponse` containing a token, user data, and status.
+  # The response will include a `UsersResponse` containing users data, and status.
   getAllUsers(
     pageNo: Int! # The page number to fetch (for pagination).
     showPerPage: Int! # The number of users to display per page (for pagination).
     searchKeyWord: String # Optional search term to filter users (can be by name, email, etc.).
   ): UsersResponse!
 
-  # Fetch all user's own profile information.
-  # This query allows you to retrieve all of his user information.
-  # The response will include a `UserResponse` containing a user data, and status.
-  getProfile: UserResponse!
+  # Fetch all user role info.
+  # This query allows you to retrieve all the user roles.
+  # The response will include a `RoleResponse` containing a single user role info, and status.
+  getRole(id: String!): RoleResponse!
 
   # Fetch all user roles.
   # This query allows you to retrieve all the user roles.
-  # The response will include a `UserRolesResponse` containing a token, user data, and status.
-  getRoles: UserRolesResponse!
+  # The response will include a `RolesResponse` containing user roles info, and status.
+  getRoles: RolesResponse!
 }

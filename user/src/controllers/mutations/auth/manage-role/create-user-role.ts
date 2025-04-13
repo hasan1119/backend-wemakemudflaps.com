@@ -32,6 +32,16 @@ export const createUserRole = async (
   const { getSession, setSession, deleteSession } = redis;
 
   try {
+    // Check if user is authenticated
+    if (!user) {
+      return {
+        statusCode: 401,
+        success: false,
+        message: "You're not authenticated",
+        __typename: "BaseResponse",
+      };
+    }
+
     // Initialize repositories for Role, Permission, and User entities
     const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
     const permissionRepository: Repository<Permission> =
@@ -44,19 +54,12 @@ export const createUserRole = async (
       description,
     });
 
-    // Check if user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
-      };
-    }
+    // Fetch the full User entity for authenticated user
+    const authenticatedUser = await userRepository.findOne({
+      where: { id: user.id },
+    });
 
-    // Fetch the full User entity for createdBy
-    const creator = await userRepository.findOne({ where: { id: user.id } });
-    if (!creator) {
+    if (!authenticatedUser) {
       return {
         statusCode: 404,
         success: false,
@@ -75,13 +78,11 @@ export const createUserRole = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id }, name: "Role" },
-        select: ["id", "canCreate", "canUpdate", "canDelete"],
+        select: ["id", "canCreate"],
       });
 
       // Cache permissions in Redis with configurable TTL
-      const TTL = 2592000; // 30 days in seconds
-
-      await setSession(permissionCacheKey, userPermissions, TTL);
+      await setSession(permissionCacheKey, userPermissions); // TTL : default 30 days of redis session because of the env
     }
 
     // Check if the user has the "canCreate" permission for roles
@@ -137,9 +138,7 @@ export const createUserRole = async (
 
     if (existingRole) {
       // Cache the fact that this role exists
-      const TTL = 2592000; // 30 days in seconds
-
-      await setSession(roleNameCacheKey, "exists", TTL);
+      await setSession(roleNameCacheKey, "exists"); // TTL : default 30 days of redis session because of the env
 
       return {
         statusCode: 400,
@@ -153,7 +152,7 @@ export const createUserRole = async (
     const role = roleRepository.create({
       name,
       description: description || null,
-      createdBy: creator,
+      createdBy: authenticatedUser,
     });
 
     // Save the role to the database
@@ -161,12 +160,23 @@ export const createUserRole = async (
 
     // Cache the new role data and name existence
     const roleDataCacheKey = `user-role-${savedRole.id}`;
-    const TTL = 2592000; // 30 days in seconds
 
-    await setSession(roleDataCacheKey, savedRole, TTL);
-    await setSession(roleNameCacheKey, "exists", TTL);
-    // Invalidate cached role lists to ensure freshness
-    await deleteSession("roles-all");
+    await setSession(roleDataCacheKey, {
+      id: savedRole.id,
+      name: savedRole.name,
+      description: savedRole.description,
+      createdAt: savedRole.createdAt.toISOString(),
+      createdBy: {
+        id: authenticatedUser.id,
+        name: `${
+          authenticatedUser.firstName + " " + authenticatedUser.lastName
+        }`,
+        email: authenticatedUser.email,
+        role: authenticatedUser.role,
+      },
+    }); // TTL : default 30 days of redis session because of the env
+
+    await setSession(roleNameCacheKey, "exists"); // TTL : default 30 days of redis session because of the env
 
     return {
       statusCode: 201,
