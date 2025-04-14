@@ -181,6 +181,17 @@ export const deleteUserRole = async (
       }); // TTL : default 30 days of redis session because of the env
     }
 
+    // Check for protected roles
+    const protectedRoles = ["SUPER ADMIN", "ADMIN", "CUSTOMER"];
+    if (protectedRoles.includes(role.name)) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: `The role "${role.name}" is protected and cannot be deleted`,
+        __typename: "BaseResponse",
+      };
+    }
+
     // Check Redis for cached user-role association count
     let userCount: number | null = null;
 
