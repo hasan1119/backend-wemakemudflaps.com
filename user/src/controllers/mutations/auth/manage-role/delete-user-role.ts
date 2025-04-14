@@ -4,6 +4,13 @@ import { Permission } from "../../../../entities/permission.entity";
 import { Role } from "../../../../entities/user-role.entity";
 import { User } from "../../../../entities/user.entity";
 import {
+  getSingleUserCacheKey,
+  getSingleUserPermissionCacheKey,
+  getSingleUserRoleCacheKey,
+  getSingleUserRoleNameCacheKey,
+  getUserRoleCountAssociateCacheKey,
+} from "../../../../helper/redis/session-keys";
+import {
   BaseResponse,
   ErrorResponse,
   MutationDeleteUserRoleArgs,
@@ -47,40 +54,45 @@ export const deleteUserRole = async (
     const permissionRepository: Repository<Permission> =
       AppDataSource.getRepository(Permission);
 
-    // Validate input data using Zod schema
-    const validationResult = await idSchema.safeParseAsync({
-      id,
-    });
+    // Check Redis for cached user's email
+    let userData;
 
-    // Fetch the full User entity for authenticated user
-    const authenticatedUser = await userRepository.findOne({
-      where: { id: user.id },
-    });
+    userData = await getSession(getSingleUserCacheKey(user.id));
 
-    if (!authenticatedUser) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: "Authenticated user not found in database",
-        __typename: "BaseResponse",
-      };
+    if (!userData) {
+      // Cache miss: Fetch user from database
+      userData = await userRepository.findOne({
+        where: { id: user.id },
+      });
+
+      if (!userData) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "Authenticated user not found in database",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Check Redis for cached user permissions
-    const permissionCacheKey = `user-permissions-${user.id}`;
-    let userPermissions: Permission[] | null = null;
+    let userPermissions;
 
-    userPermissions = await getSession<Permission[]>(permissionCacheKey);
+    userPermissions = await getSession<Permission[]>(
+      getSingleUserPermissionCacheKey(userData.id)
+    );
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id }, name: "Role" },
-        select: ["id", "canDelete"],
       });
 
-      // Cache permissions in Redis with configurable TTL
-      await setSession(permissionCacheKey, userPermissions); // TTL : default 30 days of redis session because of the env
+      // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(
+        getSingleUserPermissionCacheKey(userData.id),
+        userPermissions
+      );
     }
 
     // Check if the user has the "canDelete" permission for roles
@@ -92,10 +104,15 @@ export const deleteUserRole = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to delete roles.",
+        message: "You do not have permission to delete roles",
         __typename: "BaseResponse",
       };
     }
+
+    // Validate input data using Zod schema
+    const validationResult = await idSchema.safeParseAsync({
+      id,
+    });
 
     // If validation fails, return detailed error messages
     if (!validationResult.success) {
@@ -107,17 +124,16 @@ export const deleteUserRole = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed.",
+        message: "Validation failed",
         errors: errorMessages,
         __typename: "ErrorResponse",
       };
     }
 
     // Check Redis for role existence
-    const roleCacheKey = `user-role-${id}`;
-    let role: Role | null = null;
+    let role;
 
-    role = await getSession<Role>(roleCacheKey);
+    role = await getSession(getSingleUserRoleCacheKey(id));
 
     if (!role) {
       // Cache miss: Fetch role from database
@@ -151,27 +167,26 @@ export const deleteUserRole = async (
       }
 
       // Cache role data
-      await setSession(roleCacheKey, {
+      await setSession(getSingleUserRoleCacheKey(role.id), {
         id: role.id,
         name: role.name,
         description: role.description,
         createdAt: role.createdAt.toISOString(),
         createdBy: {
-          id: authenticatedUser.id,
-          name: `${
-            authenticatedUser.firstName + " " + authenticatedUser.lastName
-          }`,
-          email: authenticatedUser.email,
-          role: authenticatedUser.role,
+          id: userData.id,
+          name: `${userData.firstName + " " + userData.lastName}`,
+          email: userData.email,
+          role: userData.role,
         },
       }); // TTL : default 30 days of redis session because of the env
     }
 
     // Check Redis for cached user-role association count
-    const userCountCacheKey = `role-users-${id}`;
     let userCount: number | null = null;
 
-    const cachedUserCount = await getSession<string>(userCountCacheKey);
+    const cachedUserCount = await getSession<string>(
+      getUserRoleCountAssociateCacheKey(role.id)
+    );
     userCount = cachedUserCount ? parseInt(cachedUserCount, 10) : null;
 
     if (userCount === null) {
@@ -182,7 +197,10 @@ export const deleteUserRole = async (
       });
 
       // Cache user count
-      await setSession(userCountCacheKey, userCount.toString()); // TTL : default 30 days of redis session because of the env
+      await setSession(
+        getUserRoleCountAssociateCacheKey(role.id),
+        userCount.toString()
+      ); // TTL : default 30 days of redis session because of the env
     }
 
     if (userCount > 0) {
@@ -199,11 +217,10 @@ export const deleteUserRole = async (
 
     // Invalidate related Redis caches
     const normalizedRoleKey = role.name.trim().toLowerCase();
-    const roleNameCacheKey = `role-name-${normalizedRoleKey}`;
 
-    await deleteSession(roleCacheKey); // Clear role data
-    await deleteSession(userCountCacheKey); // Clear user count
-    await deleteSession(roleNameCacheKey); // Clear role name
+    await deleteSession(getSingleUserRoleCacheKey(role.id)); // Clear role data
+    await deleteSession(getUserRoleCountAssociateCacheKey(role.id)); // Clear user count
+    await deleteSession(getSingleUserRoleNameCacheKey(normalizedRoleKey)); // Clear role name
 
     return {
       statusCode: 200,

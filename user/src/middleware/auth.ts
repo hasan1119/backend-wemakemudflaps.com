@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import config from "../config/config";
 import { redis } from "../helper";
+import { getUserSessionCacheKey } from "../helper/redis/session-keys";
 
 // User session interface to define the structure of the session object
 interface UserSession {
@@ -9,7 +10,7 @@ interface UserSession {
   username: string;
   firstName: string;
   lastName: string;
-  role?: string;
+  role: string;
 }
 
 export async function authMiddleware(
@@ -34,7 +35,9 @@ export async function authMiddleware(
     const decoded = jwt.verify(token, config.SECRET_KEY) as UserSession;
 
     // Fetch the user session from Redis using the decoded user ID
-    const session = await redis.getSession<UserSession>(decoded.id);
+    const session = await redis.getSession<UserSession>(
+      getUserSessionCacheKey(decoded.id)
+    );
 
     // If no session is found or it's invalid, throw an error
     if (!session) {

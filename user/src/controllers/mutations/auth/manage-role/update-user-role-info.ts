@@ -4,6 +4,13 @@ import { Permission } from "../../../../entities/permission.entity";
 import { Role } from "../../../../entities/user-role.entity";
 import { User } from "../../../../entities/user.entity";
 import {
+  getExistKeyWord,
+  getSingleUserCacheKey,
+  getSingleUserPermissionCacheKey,
+  getSingleUserRoleCacheKey,
+  getSingleUserRoleNameCacheKey,
+} from "../../../../helper/redis/session-keys";
+import {
   BaseResponse,
   ErrorResponse,
   MutationUpdateUserRoleInfoArgs,
@@ -48,42 +55,45 @@ export const updateUserRoleInfo = async (
       AppDataSource.getRepository(Permission);
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    // Validate input data using Zod schema
-    const validationResult = await userRoleSchema.safeParseAsync({
-      id,
-      name,
-      description,
-    });
+    // Check Redis for cached user's email
+    let userData;
 
-    // Fetch the full User entity for authenticated user
-    const authenticatedUser = await userRepository.findOne({
-      where: { id: user.id },
-    });
+    userData = await getSession(getSingleUserCacheKey(user.id));
 
-    if (!authenticatedUser) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: "Authenticated user not found in database",
-        __typename: "BaseResponse",
-      };
+    if (!userData) {
+      // Cache miss: Fetch user from database
+      userData = await userRepository.findOne({
+        where: { id: user.id },
+      });
+
+      if (!userData) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "Authenticated user not found in database",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Check Redis for cached user permissions
-    const permissionCacheKey = `user-permissions-${user.id}`;
-    let userPermissions: Permission[] | null = null;
+    let userPermissions;
 
-    userPermissions = await getSession<Permission[]>(permissionCacheKey);
+    userPermissions = await getSession<Permission[]>(
+      getSingleUserPermissionCacheKey(userData.id)
+    );
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id }, name: "Role" },
-        select: ["id", "canUpdate"],
       });
 
-      // Cache permissions in Redis with configurable TTL
-      await setSession(permissionCacheKey, userPermissions); // TTL : default 30 days of redis session because of the env
+      // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(
+        getSingleUserPermissionCacheKey(userData.id),
+        userPermissions
+      );
     }
 
     // Check if the user has the "canUpdate" permission for roles
@@ -95,10 +105,17 @@ export const updateUserRoleInfo = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to update role's info.",
+        message: "You do not have permission to update role's info",
         __typename: "BaseResponse",
       };
     }
+
+    // Validate input data using Zod schema
+    const validationResult = await userRoleSchema.safeParseAsync({
+      id,
+      name,
+      description,
+    });
 
     // If validation fails, return detailed error messages
     if (!validationResult.success) {
@@ -110,17 +127,16 @@ export const updateUserRoleInfo = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed.",
+        message: "Validation failed",
         errors: errorMessages,
         __typename: "ErrorResponse",
       };
     }
 
     // Check Redis for role existence
-    const roleCacheKey = `user-role-${id}`;
-    let existingRole: Role | null = null;
+    let existingRole;
 
-    existingRole = await getSession<Role>(roleCacheKey);
+    existingRole = await getSession(getSingleUserRoleCacheKey(id));
 
     if (!existingRole) {
       // Cache miss: Fetch role from database
@@ -154,7 +170,7 @@ export const updateUserRoleInfo = async (
       }
 
       // Cache role data
-      await setSession(roleCacheKey, {
+      await setSession(getSingleUserRoleCacheKey(existingRole.id), {
         id: existingRole.id,
         name: existingRole.name,
         description: existingRole.description,
@@ -170,14 +186,15 @@ export const updateUserRoleInfo = async (
 
     // Check for duplicate role name, excluding the current role
     const normalizedRoleKey = name.trim().toLowerCase();
-    const roleNameCacheKey = `role-name-${normalizedRoleKey}`;
-    let duplicateRole: Role | null = null;
-    let cachedRoleNameExists: string | null = null;
+    let duplicateRole;
+    let cachedRoleNameExists;
 
-    cachedRoleNameExists = await getSession<string>(roleNameCacheKey);
+    cachedRoleNameExists = await getSession<string>(
+      getSingleUserRoleNameCacheKey(normalizedRoleKey)
+    );
 
     if (
-      cachedRoleNameExists === "exists" &&
+      cachedRoleNameExists === getExistKeyWord() &&
       existingRole.name.toLowerCase() !== normalizedRoleKey
     ) {
       // Cache hit and name differs: Check database for duplicate
@@ -192,7 +209,10 @@ export const updateUserRoleInfo = async (
 
       if (duplicateRole) {
         // Cache duplicate name
-        await setSession(roleNameCacheKey, "exists"); // TTL : default 30 days of redis session because of the env
+        await setSession(
+          getSingleUserRoleNameCacheKey(normalizedRoleKey),
+          getExistKeyWord()
+        ); // TTL : default 30 days of redis session because of the env
       }
     }
 
@@ -208,9 +228,7 @@ export const updateUserRoleInfo = async (
     // Invalidate old role name cache if name changed
     const oldNormalizedRoleKey = existingRole.name.trim().toLowerCase();
     if (oldNormalizedRoleKey !== normalizedRoleKey) {
-      const oldRoleNameCacheKey = `role-name-${oldNormalizedRoleKey}`;
-
-      await deleteSession(oldRoleNameCacheKey);
+      await deleteSession(getSingleUserRoleNameCacheKey(oldNormalizedRoleKey));
     }
 
     // Update the role with the full User entity as createdBy
@@ -221,7 +239,7 @@ export const updateUserRoleInfo = async (
     const updatedRole = await roleRepository.save(existingRole);
 
     // Update Redis caches
-    await setSession(roleCacheKey, {
+    await setSession(getSingleUserRoleCacheKey(updatedRole.id), {
       id: updatedRole.id,
       name: updatedRole.name,
       description: updatedRole.description,
@@ -233,7 +251,10 @@ export const updateUserRoleInfo = async (
         role: user.role,
       },
     }); // TTL : default 30 days of redis session because of the env
-    await setSession(roleNameCacheKey, "exists"); // TTL : default 30 days of redis session because of the env
+    await setSession(
+      getSingleUserRoleNameCacheKey(normalizedRoleKey),
+      getExistKeyWord()
+    ); // TTL : default 30 days of redis session because of the env
 
     return {
       statusCode: 200,

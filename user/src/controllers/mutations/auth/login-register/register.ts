@@ -7,6 +7,12 @@ import {
 import { Role } from "../../../../entities/user-role.entity";
 import { User } from "../../../../entities/user.entity";
 import {
+  getSingleUserCacheKey,
+  getSingleUserPermissionCacheKey,
+  getSingleUserRoleCacheKey,
+  getUserEmailCacheKey,
+} from "../../../../helper/redis/session-keys";
+import {
   BaseResponse,
   ErrorResponse,
   MutationRegisterArgs,
@@ -54,12 +60,6 @@ export const register = async (
   const { getSession, setSession, deleteSession } = redis;
 
   try {
-    // Initialize repositories
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
-    const permissionRepository: Repository<Permission> =
-      AppDataSource.getRepository(Permission);
-
     // Validate input data using Zod schema
     const validationResult = await registerSchema.safeParseAsync({
       firstName,
@@ -78,21 +78,41 @@ export const register = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed.",
+        message: "Validation failed",
         errors: errorMessages,
         __typename: "ErrorResponse",
       };
     }
 
-    // Check for existing user with the same email
-    const existingUser = await userRepository.findOne({ where: { email } });
-    if (existingUser) {
+    // Initialize repositories
+    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
+    const permissionRepository: Repository<Permission> =
+      AppDataSource.getRepository(Permission);
+
+    // Check Redis for cached user's email
+    let userEmail;
+
+    userEmail = await getSession(getUserEmailCacheKey(email));
+
+    if (userEmail) {
       return {
         statusCode: 400,
         success: false,
         message: "Email already in use",
         __typename: "BaseResponse",
       };
+    } else {
+      // Check for existing user with the same email
+      userEmail = await userRepository.findOne({ where: { email } });
+      if (userEmail) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Email already in use",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Hash the password
@@ -104,7 +124,7 @@ export const register = async (
       where: { name: "SUPER ADMIN" },
     });
 
-    let role: Role;
+    let role;
 
     if (!superAdminRole || userCount === 0) {
       // Create Super Admin role
@@ -142,15 +162,21 @@ export const register = async (
         })
       );
 
-      await permissionRepository.save(permissions);
+      const fullPermissions = await permissionRepository.save(permissions);
 
-      // Fetch all persisted permissions
-      const fullPermissions = await permissionRepository.find({
-        where: { user: { id: savedUser.id } },
+      // Cache newly register user, user role & his/her permissions for curd  in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getSingleUserCacheKey(savedUser.id), {
+        id: savedUser.id,
+        email: savedUser.email,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        role: savedUser.role.name,
       });
-
-      const permissionCacheKey = `user-permissions-${savedUser.id}`;
-      await setSession(permissionCacheKey, fullPermissions); // TTL : default 30 days of redis session because of the env
+      await setSession(getSingleUserRoleCacheKey(role.id), role);
+      await setSession(
+        getSingleUserPermissionCacheKey(savedUser.id),
+        fullPermissions
+      );
 
       return {
         statusCode: 201,
@@ -229,15 +255,23 @@ export const register = async (
         }
       );
 
-      await permissionRepository.save(customerPermissions);
+      const fullCustomerPermissions = await permissionRepository.save(
+        customerPermissions
+      );
 
-      // Fetch all persisted permissions
-      const fullCustomerPermissions = await permissionRepository.find({
-        where: { user: { id: savedUser.id } },
+      // Cache newly register user, user role & his/her permissions for curd  in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getSingleUserCacheKey(savedUser.id), {
+        id: savedUser.id,
+        email: savedUser.email,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        role: savedUser.role.name,
       });
-
-      const permissionCacheKey = `user-permissions-${savedUser.id}`;
-      await setSession(permissionCacheKey, fullCustomerPermissions); // TTL : default 30 days of redis session because of the env
+      await setSession(getSingleUserRoleCacheKey(role.id), role);
+      await setSession(
+        getSingleUserPermissionCacheKey(savedUser.id),
+        fullCustomerPermissions
+      );
 
       return {
         statusCode: 201,

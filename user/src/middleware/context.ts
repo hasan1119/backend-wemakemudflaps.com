@@ -8,7 +8,7 @@ export type UserSession = {
   lastName: string;
   role: string;
 };
-
+s;
 const createContext = async ({ req, res }) => {
   try {
     let user: UserSession | null = null;
@@ -19,9 +19,7 @@ const createContext = async ({ req, res }) => {
       const decoded = await DecodeToken(token);
       if (decoded) {
         // Fetch the user session from Redis using the decoded user ID
-        const userSession = await redis.getSession<UserSession>(
-          decoded.trackingId
-        );
+        const userSession = await redis.getSession<UserSession>(decoded.id);
 
         user = userSession || null; // Set user only if session exists
       }

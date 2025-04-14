@@ -44,7 +44,7 @@ export const changePassword = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed.",
+        message: "Validation failed",
         errors: errorMessages,
         __typename: "ErrorResponse",
       };

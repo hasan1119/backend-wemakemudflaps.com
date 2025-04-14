@@ -2,6 +2,14 @@ import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
 import {
+  getlockoutKeyCacheKey,
+  getloginAttemptsKeyCacheKey,
+  getSingleUserCacheKey,
+  getSingleUserPermissionCacheKey,
+  getUserEmailCacheKey,
+  getUserSessionCacheKey,
+} from "../../../../helper/redis/session-keys";
+import {
   BaseResponse,
   ErrorResponse,
   MutationLoginArgs,
@@ -35,9 +43,6 @@ export const login = async (
 
   const { email, password } = args;
 
-  // Initialize repositories for User entity
-  const userRepository: Repository<User> = AppDataSource.getRepository(User);
-
   try {
     // Validate input data using Zod schema
     const validationResult = await loginSchema.safeParseAsync({
@@ -55,32 +60,72 @@ export const login = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed.",
+        message: "Validation failed",
         errors: errorMessages,
         __typename: "ErrorResponse",
       };
     }
 
-    // Load user with their role
-    const user = await userRepository.findOne({
-      where: { email },
-      relations: ["role"],
-    });
+    // Initialize repositories for User entity
+    const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    if (!user) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: `User not found with this email: ${email}`,
-        __typename: "BaseResponse",
-      };
+    // Check Redis for cached user's email
+    let userEmail;
+
+    let user;
+
+    userEmail = await getSession(getUserEmailCacheKey(email));
+
+    if (!userEmail) {
+      // Cache miss: Fetch user from database
+      user = await userRepository.findOne({
+        where: { email },
+        relations: ["role", "permissions"],
+      });
+
+      if (!user) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `User not found with this email: ${email}`,
+          __typename: "BaseResponse",
+        };
+      }
+
+      // Cache user, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getSingleUserCacheKey(user.id), {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role.name,
+      });
+
+      await setSession(getUserEmailCacheKey(email), user.email);
+
+      await setSession(
+        getSingleUserPermissionCacheKey(user.id),
+        user.permissions
+      );
+    } else {
+      // User email found in cache - fetch complete user info
+      user = await userRepository.findOne({
+        where: { email },
+        relations: ["role", "permissions"],
+      });
+
+      if (!user) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `User not found with this email: ${email}`,
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Account lock check using Redis session data
-    const loginAttemptsKey = `login_attempts_${email}`;
-    const lockoutKey = `lockout_${email}`;
-
-    const lockoutSession = await getSession(lockoutKey);
+    const lockoutSession = await getSession(getlockoutKeyCacheKey(user.email));
 
     // Handle lockout state
     if (lockoutSession) {
@@ -100,7 +145,7 @@ export const login = async (
         };
       } else {
         // Unlock the account if the lock time has expired
-        await deleteSession(lockoutKey);
+        await deleteSession(getlockoutKeyCacheKey(user.email));
       }
     }
 
@@ -109,19 +154,25 @@ export const login = async (
 
     if (!isPasswordValid) {
       // Increment login attempt count
-      const sessionData = (await getSession(loginAttemptsKey)) as {
+      const sessionData = (await getSession(
+        getloginAttemptsKeyCacheKey(user.email)
+      )) as {
         attempts: number;
       } | null;
       const newAttempts = (sessionData?.attempts || 0) + 1;
 
       // Store updated attempts count in Redis with 1-hour TTL
-      await setSession(loginAttemptsKey, { attempts: newAttempts }, 3600);
+      await setSession(
+        getloginAttemptsKeyCacheKey(user.email),
+        { attempts: newAttempts },
+        3600
+      );
 
       // Lock account after 5 failed attempts
       if (newAttempts >= 5) {
         const lockDuration = 900; // 15 minutes in seconds
         await setSession(
-          lockoutKey,
+          getlockoutKeyCacheKey(user.email),
           { locked: true, lockedAt: Date.now(), duration: lockDuration },
           lockDuration
         );
@@ -136,13 +187,13 @@ export const login = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Invalid password.",
+        message: "Invalid password",
         __typename: "BaseResponse",
       };
     }
 
     // Reset login attempts after successful password verification
-    await deleteSession(loginAttemptsKey);
+    await deleteSession(getloginAttemptsKeyCacheKey(user.email));
 
     // Generate JWT token
     const token = await EncodeToken(
@@ -163,20 +214,18 @@ export const login = async (
       role: user.role.name,
     };
 
-    // Cache user data in Redis with configurable TTL
-    const userCacheKey = `user-${user.id}`;
-
-    try {
-      await setSession(user.id, session); // TTL : default 30 days of redis session because of the env
-      await setSession(userCacheKey, session); // TTL : default 30 days of redis session because of the env
-    } catch (redisError) {
-      console.warn("Redis error caching user data:", redisError);
-    }
+    // Cache user, user session & permissions  for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
+    await setSession(getSingleUserCacheKey(user.id), session);
+    await setSession(getUserSessionCacheKey(user.id), session);
+    await setSession(
+      getSingleUserPermissionCacheKey(user.id),
+      user.permissions
+    );
 
     return {
       statusCode: 200,
       success: true,
-      message: "Login successful.",
+      message: "Login successful",
       token,
       __typename: "UserLoginResponse",
     };
