@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
+import { getSingleUserCacheKey } from "../../../helper/redis/session-keys";
 import { BaseResponse, UserResponse } from "../../../types";
 
 /**
@@ -27,17 +28,16 @@ export const getProfile = async (
       return {
         statusCode: 401,
         success: false,
-        message: "You're not authenticated.",
+        message: "You're not authenticated",
         __typename: "BaseResponse",
       };
     }
 
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    const userCacheKey = `user-${user.id}`;
     let userExist: any = null;
 
     // Check Redis for cached user data
-    userExist = await getSession(userCacheKey);
+    userExist = await getSession(getSingleUserCacheKey(user.id));
 
     // Check the user exists or not
     if (!userExist) {
@@ -64,19 +64,9 @@ export const getProfile = async (
         role: dbUser.role?.name || null,
       };
 
-      await setSession(userCacheKey, userData); // TTL : default 30 days of redis session because of the env
+      await setSession(getSingleUserCacheKey(user.id), userData); // TTL : default 30 days of redis session because of the env
 
       userExist = userData;
-    }
-
-    // Validate role existence
-    if (!userExist.role) {
-      return {
-        statusCode: 500,
-        success: false,
-        message: "User role is missing or invalid",
-        __typename: "BaseResponse",
-      };
     }
 
     // Return the user profile with role name
