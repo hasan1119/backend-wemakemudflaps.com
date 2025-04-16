@@ -64,7 +64,7 @@ export const resetPassword = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Invalid or expired password reset token.",
+        message: "Invalid or expired password reset token",
         __typename: "BaseResponse",
       };
     }
@@ -79,7 +79,7 @@ export const resetPassword = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Password reset successfully.",
+      message: "Password reset successfully",
       __typename: "BaseResponse",
     };
   } catch (error: any) {
@@ -87,7 +87,7 @@ export const resetPassword = async (
     return {
       statusCode: 500,
       success: false,
-      message: "Failed to reset password.",
+      message: "Failed to reset password",
       __typename: "BaseResponse",
     };
   }

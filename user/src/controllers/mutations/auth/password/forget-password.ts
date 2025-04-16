@@ -143,7 +143,7 @@ export const forgetPassword = async (
       return {
         statusCode: 500,
         success: false,
-        message: "Failed to send password reset email.",
+        message: "Failed to send password reset email",
         __typename: "BaseResponse",
       };
     }
@@ -181,7 +181,7 @@ export const forgetPassword = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Password reset email sent successfully.",
+      message: "Password reset email sent successfully",
       __typename: "BaseResponse",
     };
   } catch (error: any) {
@@ -190,7 +190,7 @@ export const forgetPassword = async (
     return {
       statusCode: 500,
       success: false,
-      message: "Failed to process password reset request.",
+      message: "Failed to process password reset request",
       __typename: "BaseResponse",
     };
   }
