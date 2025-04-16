@@ -169,7 +169,7 @@ export const updateUserRoleInfo = async (
         };
       }
 
-      // Cache role data
+      // Cache role data in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserRoleCacheKey(existingRole.id), {
         id: existingRole.id,
         name: existingRole.name,
@@ -185,7 +185,7 @@ export const updateUserRoleInfo = async (
           email: existingRole.createdBy.email,
           role: existingRole.createdBy.role,
         },
-      }); // TTL : default 30 days of redis session because of the env
+      });
     }
 
     // Check for duplicate role name, excluding the current role
@@ -212,11 +212,11 @@ export const updateUserRoleInfo = async (
       });
 
       if (duplicateRole) {
-        // Cache duplicate name
+        // Cache duplicate name in Redis with configurable TTL(default 30 days of redis session because of the env)
         await setSession(
           getSingleUserRoleNameCacheKey(normalizedRoleKey),
           getExistKeyWord()
-        ); // TTL : default 30 days of redis session because of the env
+        );
       }
     }
 
@@ -243,7 +243,7 @@ export const updateUserRoleInfo = async (
     // Save the updated role to the database
     const updatedRole = await roleRepository.save(existingRole);
 
-    // Update Redis caches
+    // Update Redis caches in Redis with configurable TTL(default 30 days of redis session because of the env)
     await setSession(getSingleUserRoleCacheKey(updatedRole.id), {
       id: updatedRole.id,
       name: updatedRole.name,
@@ -255,11 +255,11 @@ export const updateUserRoleInfo = async (
         email: userData.email,
         role: userData.role,
       },
-    }); // TTL : default 30 days of redis session because of the env
+    });
     await setSession(
       getSingleUserRoleNameCacheKey(normalizedRoleKey),
       getExistKeyWord()
-    ); // TTL : default 30 days of redis session because of the env
+    );
 
     return {
       statusCode: 200,

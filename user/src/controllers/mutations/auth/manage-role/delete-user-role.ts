@@ -166,7 +166,7 @@ export const deleteUserRole = async (
         };
       }
 
-      // Cache role data
+      // Cache role data in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserRoleCacheKey(role.id), {
         id: role.id,
         name: role.name,
@@ -178,7 +178,7 @@ export const deleteUserRole = async (
           email: userData.email,
           role: userData.role,
         },
-      }); // TTL : default 30 days of redis session because of the env
+      });
     }
 
     // Check for protected roles
@@ -207,11 +207,11 @@ export const deleteUserRole = async (
         select: [], // Optimize by not selecting fields
       });
 
-      // Cache user count
+      // Cache user count in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(
         getUserRoleCountAssociateCacheKey(role.id),
         userCount.toString()
-      ); // TTL : default 30 days of redis session because of the env
+      );
     }
 
     if (userCount > 0) {

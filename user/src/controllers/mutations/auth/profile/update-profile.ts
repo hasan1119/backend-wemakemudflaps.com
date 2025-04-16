@@ -114,14 +114,14 @@ export const updateProfile = async (
       "30d" // Set the token expiration time
     );
 
-    // Cache user data in Redis with configurable TTL
+    // Cache user data in Redis with configurable TTL(default 30 days of redis session because of the env)
     await setSession(getSingleUserCacheKey(userData.id), {
       id: userData.id,
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
       role: preservedRole || null,
-    }); // TTL : default 30 days of redis session because of the env
+    });
 
     // Return success response
     return {

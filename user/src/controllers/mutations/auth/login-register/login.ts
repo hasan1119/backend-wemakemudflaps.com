@@ -162,7 +162,7 @@ export const login = async (
           __typename: "BaseResponse",
         };
       } else {
-        // Clear chace and unlock the account if the lock time has expired
+        // Clear cache and unlock the account if the lock time has expired
         await deleteSession(getlockoutKeyCacheKey(user.email));
       }
     }

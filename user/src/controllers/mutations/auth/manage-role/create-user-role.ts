@@ -155,11 +155,11 @@ export const createUserRole = async (
     const existingRole = await roleRepository.findOne({ where: { name } });
 
     if (existingRole) {
-      // Cache the fact that this role exists
+      // Cache the fact that this role exists in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(
         getSingleUserRoleNameCacheKey(normalizedRoleKey),
         getExistKeyWord()
-      ); // TTL : default 30 days of redis session because of the env
+      );
 
       return {
         statusCode: 400,
@@ -179,7 +179,7 @@ export const createUserRole = async (
     // Save the role to the database
     const savedRole = await roleRepository.save(role);
 
-    // Cache the new role data and name existence
+    // Cache the new role data and name existence in Redis with configurable TTL(default 30 days of redis session because of the env)
     await setSession(getSingleUserRoleCacheKey(savedRole.id), {
       id: savedRole.id,
       name: savedRole.name,
@@ -191,12 +191,12 @@ export const createUserRole = async (
         email: userData.email,
         role: userData.role,
       },
-    }); // TTL : default 30 days of redis session because of the env
+    });
 
     await setSession(
       getSingleUserRoleNameCacheKey(normalizedRoleKey),
       getExistKeyWord()
-    ); // TTL : default 30 days of redis session because of the env
+    );
 
     return {
       statusCode: 201,

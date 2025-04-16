@@ -179,7 +179,8 @@ export const getRole = async (
       },
     };
 
-    await setSession(getSingleUserRoleCacheKey(id), responseRole); // TTL: default 30 days per redis session env
+    // Cache role data in Redis with configurable TTL(default 30 days of redis session because of the env)
+    await setSession(getSingleUserRoleCacheKey(id), responseRole);
 
     // Return the role data
     return {
