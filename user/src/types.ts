@@ -121,7 +121,8 @@ export type MutationUpdateUserPermissionArgs = {
 
 
 export type MutationUpdateUserRoleArgs = {
-  role: Scalars['String']['input'];
+  roleId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -398,7 +399,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   resetPassword?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponse'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'id'>>;
   updateUserPermission?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'id'>>;
-  updateUserRole?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'role'>>;
+  updateUserRole?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'roleId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id' | 'name'>>;
 };
 

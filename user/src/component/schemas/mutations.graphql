@@ -57,7 +57,7 @@ type Mutation {
   # Update user role by authorized user.
   # This mutation allows authorized users to update other users role.
   # The response will include a `BaseResponse` indicating success or failure.
-  updateUserRole(role: String!): BaseResponse!
+  updateUserRole(roleId: String!, userId: String): BaseResponse!
 
   # Update user permission across the application
   # This mutation allows authorized users to update other users permission by user id.

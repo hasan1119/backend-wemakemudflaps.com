@@ -246,7 +246,7 @@ export const updateUserRoleInfo = async (
     // Save the updated role to the database
     const updatedRole = await roleRepository.save(existingRole);
 
-    // Update Redis caches in Redis with configurable TTL(default 30 days of redis session because of the env)
+    // Update caches in Redis with configurable TTL(default 30 days of redis session because of the env)
     await setSession(getSingleUserRoleCacheKey(updatedRole.id), {
       id: updatedRole.id,
       name: updatedRole.name,

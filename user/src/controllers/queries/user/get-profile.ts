@@ -44,7 +44,7 @@ export const getProfile = async (
       const dbUser = await userRepository.findOne({
         where: { id: user.id },
         relations: ["role"],
-        select: ["id", "firstName", "lastName", "email", "gender", "role"],
+        select: ["id", "firstName", "lastName", "email", "gender"],
       });
 
       if (!dbUser) {

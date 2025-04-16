@@ -130,6 +130,12 @@ export const userRoleSchema = z.object({
     .optional(),
 });
 
+// Define the Zod schema for the update user's role input
+export const userRoleUpdateSchema = z.object({
+  roleId: z.string().uuid({ message: "Invalid UUID format" }),
+  userId: z.string().uuid({ message: "Invalid UUID format" }),
+});
+
 // ID Schema (Single UUID)
 export const idSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
