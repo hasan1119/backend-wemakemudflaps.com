@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
+import { getUserEmailCacheKey } from "../../../../helper/redis/session-keys";
 import {
   BaseResponse,
   ErrorResponse,
@@ -61,15 +62,29 @@ export const forgetPassword = async (
       };
     }
 
-    // Check if a user exists with the provided email
-    const user = await userRepository.findOne({ where: { email } });
+    // Check Redis for cached user's email
+    let user;
+
+    user = await getSession(getUserEmailCacheKey(email));
+
     if (!user) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: "No user found with this email.",
-        __typename: "BaseResponse",
-      };
+      // Check for existing user with the same email
+      user = await userRepository.findOne({
+        where: { email },
+        select: ["email", "resetPasswordToken"],
+      });
+
+      if (!user) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `User not found with this email: ${email}`,
+          __typename: "BaseResponse",
+        };
+      }
+
+      // Cache user email in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getUserEmailCacheKey(email), email);
     }
 
     // Account lock check using Redis session data
@@ -95,7 +110,7 @@ export const forgetPassword = async (
           __typename: "BaseResponse",
         };
       } else {
-        // Unlock the account if the lock time has expired
+        // Clear cache and unlock the account if the lock time has expired
         await deleteSession(lockoutKey);
       }
     }

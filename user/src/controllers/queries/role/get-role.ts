@@ -4,6 +4,11 @@ import { Permission } from "../../../entities/permission.entity";
 import { Role } from "../../../entities/user-role.entity";
 import { User } from "../../../entities/user.entity";
 import {
+  getSingleUserCacheKey,
+  getSingleUserPermissionCacheKey,
+  getSingleUserRoleCacheKey,
+} from "../../../helper/redis/session-keys";
+import {
   BaseResponse,
   ErrorResponse,
   QueryGetRoleArgs,
@@ -47,53 +52,63 @@ export const getRole = async (
       AppDataSource.getRepository(Permission);
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    // Validate input data using Zod schema
-    const validationResult = await idSchema.safeParseAsync({ id });
+    // Check Redis for cached user's email
+    let userData;
 
-    // Fetch the full User entity for authenticated user
-    const authenticatedUser = await userRepository.findOne({
-      where: { id: user.id },
-    });
+    userData = await getSession(getSingleUserCacheKey(user.id));
 
-    if (!authenticatedUser) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: "Authenticated user not found in database",
-        __typename: "BaseResponse",
-      };
+    if (!userData) {
+      // Cache miss: Fetch user from database
+      userData = await userRepository.findOne({
+        where: { id: user.id },
+      });
+
+      if (!userData) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "Authenticated user not found in database",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Check Redis for cached user permissions
-    const permissionCacheKey = `user-permissions-${user.id}`;
-    let userPermissions: Permission[] | null = null;
+    let userPermissions;
 
-    userPermissions = await getSession<Permission[]>(permissionCacheKey);
+    userPermissions = await getSession(
+      getSingleUserPermissionCacheKey(userData.id)
+    );
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id }, name: "Role" },
-        select: ["id", "canRead"],
       });
 
-      // Cache permissions in Redis with configurable TTL
-      await setSession(permissionCacheKey, userPermissions); // TTL: default 30 days per redis session env
+      // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(
+        getSingleUserPermissionCacheKey(userData.id),
+        userPermissions
+      );
     }
 
     // Check if the user has the "canRead" permission for roles
-    const canRead = userPermissions.some(
+    const canReadRole = userPermissions.some(
       (permission) => permission.name === "Role" && permission.canRead
     );
 
-    if (!canRead) {
+    if (!canReadRole) {
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to view role info.",
+        message: "You do not have permission to view role info",
         __typename: "BaseResponse",
       };
     }
+
+    // Validate input data using Zod schema
+    const validationResult = await idSchema.safeParseAsync({ id });
 
     // If validation fails, return detailed error messages
     if (!validationResult.success) {
@@ -112,10 +127,9 @@ export const getRole = async (
     }
 
     // Check Redis for cached role data
-    const roleCacheKey = `user-role-${id}`;
-    let role: Role | null = null;
+    let role;
 
-    role = await getSession<Role>(roleCacheKey);
+    role = await getSession(getSingleUserRoleCacheKey(id));
 
     if (!role) {
       // Cache miss: Fetch role from database with creator relation and creator's role
@@ -165,7 +179,7 @@ export const getRole = async (
       },
     };
 
-    await setSession(roleCacheKey, responseRole); // TTL: default 30 days per redis session env
+    await setSession(getSingleUserRoleCacheKey(id), responseRole); // TTL: default 30 days per redis session env
 
     // Return the role data
     return {

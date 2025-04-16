@@ -79,7 +79,7 @@ export const createUserRole = async (
     // Check Redis for cached user permissions
     let userPermissions;
 
-    userPermissions = await getSession<Permission[]>(
+    userPermissions = await getSession(
       getSingleUserPermissionCacheKey(userData.id)
     );
 

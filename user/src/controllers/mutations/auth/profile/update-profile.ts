@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
+import { getSingleUserCacheKey } from "../../../../helper/redis/session-keys";
 import {
   BaseResponse,
   ErrorResponse,
@@ -28,9 +29,19 @@ export const updateProfile = async (
   { AppDataSource, user, redis }: Context
 ): Promise<UserProfileUpdateResponse | ErrorResponse | BaseResponse> => {
   const { firstName, lastName, email, gender } = args;
-  const { setSession } = redis;
+  const { setSession, getSession } = redis;
 
   try {
+    // Ensure the user is authenticated
+    if (!user) {
+      return {
+        statusCode: 401,
+        success: false,
+        message: "You're not authenticated",
+        __typename: "BaseResponse",
+      };
+    }
+
     // Validate input data using Zod schema for update profile
     const validationResult = await updateProfileSchema.safeParseAsync({
       firstName,
@@ -55,61 +66,61 @@ export const updateProfile = async (
       };
     }
 
-    // Ensure the user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
-      };
-    }
-
     // Retrieve the user from the database (already authenticated user)
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    // Fetch the full User entity for authenticated user
-    const authenticatedUser = await userRepository.findOne({
-      where: { id: user.id },
-    });
+    // Check Redis for cached user's email
+    let userData;
 
-    if (!authenticatedUser) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: "Authenticated user not found in database",
-        __typename: "BaseResponse",
-      };
+    userData = await getSession(getSingleUserCacheKey(user.id));
+
+    if (!userData) {
+      // Cache miss: Fetch user from database
+      userData = await userRepository.findOne({
+        where: { id: user.id },
+      });
+
+      if (!userData) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "Authenticated user not found in database",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Update user fields only if provided
-    if (firstName) authenticatedUser.firstName = firstName;
-    if (lastName) authenticatedUser.lastName = lastName;
-    if (email) authenticatedUser.email = email;
-    if (gender) authenticatedUser.gender = gender;
+    if (firstName) userData.firstName = firstName;
+    if (lastName) userData.lastName = lastName;
+    if (email) userData.email = email;
+    if (gender) userData.gender = gender;
+
+    // perserve role for session
+    const preservedRole = user.role;
+    // Delete role from the userData to update the user info properly
+    delete userData.role;
 
     // Save updated user data
-    await userRepository.save(authenticatedUser);
+    await userRepository.save(userData);
 
     // Regenerate the JWT token after the update
     const token = await EncodeToken(
-      existingUser.id,
-      existingUser.email,
-      existingUser.firstName,
-      existingUser.lastName,
-      existingUser.role.name,
+      userData.id,
+      userData.email,
+      userData.firstName,
+      userData.lastName,
+      preservedRole,
       "30d" // Set the token expiration time
     );
 
     // Cache user data in Redis with configurable TTL
-    const userCacheKey = `user-${user.id}`;
-
-    await setSession(userCacheKey, {
-      id: existingUser.id,
-      firstName: existingUser.firstName,
-      lastName: existingUser.lastName,
-      email: existingUser.email,
-      role: existingUser.role?.name || null,
+    await setSession(getSingleUserCacheKey(userData.id), {
+      id: userData.id,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      role: preservedRole || null,
     }); // TTL : default 30 days of redis session because of the env
 
     // Return success response

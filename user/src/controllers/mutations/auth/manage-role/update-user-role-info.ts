@@ -79,7 +79,7 @@ export const updateUserRoleInfo = async (
     // Check Redis for cached user permissions
     let userPermissions;
 
-    userPermissions = await getSession<Permission[]>(
+    userPermissions = await getSession(
       getSingleUserPermissionCacheKey(userData.id)
     );
 
@@ -164,7 +164,7 @@ export const updateUserRoleInfo = async (
         return {
           statusCode: 404,
           success: false,
-          message: "Role not found.",
+          message: "Role not found",
           __typename: "ErrorResponse",
         };
       }
@@ -176,10 +176,14 @@ export const updateUserRoleInfo = async (
         description: existingRole.description,
         createdAt: existingRole.createdAt.toISOString(),
         createdBy: {
-          id: user.id,
-          name: `${user.firstName + " " + user.lastName}`,
-          email: user.email,
-          role: user.role,
+          id: existingRole.createdBy.id,
+          name: `${
+            existingRole.createdBy.firstName +
+            " " +
+            existingRole.createdBy.lastName
+          }`,
+          email: existingRole.createdBy.email,
+          role: existingRole.createdBy.role,
         },
       }); // TTL : default 30 days of redis session because of the env
     }
@@ -228,6 +232,7 @@ export const updateUserRoleInfo = async (
     // Invalidate old role name cache if name changed
     const oldNormalizedRoleKey = existingRole.name.trim().toLowerCase();
     if (oldNormalizedRoleKey !== normalizedRoleKey) {
+      // Clear cache in Redis with configurable
       await deleteSession(getSingleUserRoleNameCacheKey(oldNormalizedRoleKey));
     }
 
@@ -245,10 +250,10 @@ export const updateUserRoleInfo = async (
       description: updatedRole.description,
       createdAt: updatedRole.createdAt.toISOString(),
       createdBy: {
-        id: user.id,
-        name: `${user.firstName + " " + user.lastName}`,
-        email: user.email,
-        role: user.role,
+        id: userData.id,
+        name: `${userData.firstName + " " + userData.lastName}`,
+        email: userData.email,
+        role: userData.role,
       },
     }); // TTL : default 30 days of redis session because of the env
     await setSession(

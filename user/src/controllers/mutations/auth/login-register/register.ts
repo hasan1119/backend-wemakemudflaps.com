@@ -164,7 +164,7 @@ export const register = async (
 
       const fullPermissions = await permissionRepository.save(permissions);
 
-      // Cache newly register user, user role & his/her permissions for curd  in Redis with configurable TTL(default 30 days of redis session because of the env)
+      // Cache newly register user, user email, user role & his/her permissions for curd  in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(savedUser.id), {
         id: savedUser.id,
         email: savedUser.email,
@@ -172,6 +172,7 @@ export const register = async (
         lastName: savedUser.lastName,
         role: savedUser.role.name,
       });
+      await setSession(getUserEmailCacheKey(email), email);
       await setSession(getSingleUserRoleCacheKey(role.id), role);
       await setSession(
         getSingleUserPermissionCacheKey(savedUser.id),
@@ -198,6 +199,9 @@ export const register = async (
           createdBy: null,
         });
         role = await roleRepository.save(defaultRole);
+
+        // Cache newly created user role in Redis with configurable TTL(default 30 days of redis session because of the env)
+        await setSession(getSingleUserRoleCacheKey(role.id), role);
       } else {
         role = defaultRole;
       }
@@ -259,7 +263,7 @@ export const register = async (
         customerPermissions
       );
 
-      // Cache newly register user, user role & his/her permissions for curd  in Redis with configurable TTL(default 30 days of redis session because of the env)
+      // Cache newly register user, user email, user role & his/her permissions for curd  in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(savedUser.id), {
         id: savedUser.id,
         email: savedUser.email,
@@ -267,6 +271,7 @@ export const register = async (
         lastName: savedUser.lastName,
         role: savedUser.role.name,
       });
+      await setSession(getUserEmailCacheKey(email), savedUser.email);
       await setSession(getSingleUserRoleCacheKey(role.id), role);
       await setSession(
         getSingleUserPermissionCacheKey(savedUser.id),

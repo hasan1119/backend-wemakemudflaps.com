@@ -80,6 +80,7 @@ export const login = async (
       // Cache miss: Fetch user from database
       user = await userRepository.findOne({
         where: { email },
+        select: ["firstName", "lastName", "gender", "email"],
         relations: ["role", "permissions"],
       });
 
@@ -111,6 +112,7 @@ export const login = async (
       // User email found in cache - fetch complete user info
       user = await userRepository.findOne({
         where: { email },
+        select: ["firstName", "lastName", "gender", "email"],
         relations: ["role", "permissions"],
       });
 
@@ -122,6 +124,22 @@ export const login = async (
           __typename: "BaseResponse",
         };
       }
+
+      // Cache user, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getSingleUserCacheKey(user.id), {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role.name,
+      });
+
+      await setSession(getUserEmailCacheKey(email), user.email);
+
+      await setSession(
+        getSingleUserPermissionCacheKey(user.id),
+        user.permissions
+      );
     }
 
     // Account lock check using Redis session data
@@ -144,7 +162,7 @@ export const login = async (
           __typename: "BaseResponse",
         };
       } else {
-        // Unlock the account if the lock time has expired
+        // Clear chace and unlock the account if the lock time has expired
         await deleteSession(getlockoutKeyCacheKey(user.email));
       }
     }
@@ -192,7 +210,7 @@ export const login = async (
       };
     }
 
-    // Reset login attempts after successful password verification
+    // Clear cache login attempts after successful password verification
     await deleteSession(getloginAttemptsKeyCacheKey(user.email));
 
     // Generate JWT token
@@ -214,13 +232,8 @@ export const login = async (
       role: user.role.name,
     };
 
-    // Cache user, user session & permissions  for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(getSingleUserCacheKey(user.id), session);
+    // Cache session in Redis with configurable TTL(default 30 days of redis session because of the env)
     await setSession(getUserSessionCacheKey(user.id), session);
-    await setSession(
-      getSingleUserPermissionCacheKey(user.id),
-      user.permissions
-    );
 
     return {
       statusCode: 200,

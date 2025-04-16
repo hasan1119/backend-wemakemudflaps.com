@@ -51,7 +51,7 @@ export const getProfile = async (
         return {
           statusCode: 404,
           success: false,
-          message: "User not found.",
+          message: "User not found",
           __typename: "BaseResponse",
         };
       }
@@ -74,7 +74,7 @@ export const getProfile = async (
       return {
         statusCode: 500,
         success: false,
-        message: "User role is missing or invalid.",
+        message: "User role is missing or invalid",
         __typename: "BaseResponse",
       };
     }
@@ -83,7 +83,7 @@ export const getProfile = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Profile fetched successfully.",
+      message: "Profile fetched successfully",
       user: userExist,
       __typename: "UserResponse",
     };

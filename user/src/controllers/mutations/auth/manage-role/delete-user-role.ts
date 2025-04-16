@@ -78,7 +78,7 @@ export const deleteUserRole = async (
     // Check Redis for cached user permissions
     let userPermissions;
 
-    userPermissions = await getSession<Permission[]>(
+    userPermissions = await getSession(
       getSingleUserPermissionCacheKey(userData.id)
     );
 
@@ -229,9 +229,10 @@ export const deleteUserRole = async (
     // Invalidate related Redis caches
     const normalizedRoleKey = role.name.trim().toLowerCase();
 
-    await deleteSession(getSingleUserRoleCacheKey(role.id)); // Clear role data
-    await deleteSession(getUserRoleCountAssociateCacheKey(role.id)); // Clear user count
-    await deleteSession(getSingleUserRoleNameCacheKey(normalizedRoleKey)); // Clear role name
+    // Clear cache in Redis with configurable
+    await deleteSession(getSingleUserRoleCacheKey(role.id));
+    await deleteSession(getUserRoleCountAssociateCacheKey(role.id));
+    await deleteSession(getSingleUserRoleNameCacheKey(normalizedRoleKey));
 
     return {
       statusCode: 200,

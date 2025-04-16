@@ -96,8 +96,8 @@ export const changePassword = async (
     const hashedNewPassword = await HashInfo(newPassword);
 
     // Update the user's password in the database
-    existingUser.password = hashedNewPassword;
-    await userRepository.save(existingUser);
+    authenticatedUser.password = hashedNewPassword;
+    await userRepository.save(authenticatedUser);
 
     // Return success response
     return {
