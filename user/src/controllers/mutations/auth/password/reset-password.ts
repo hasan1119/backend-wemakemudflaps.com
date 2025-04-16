@@ -11,13 +11,15 @@ import { resetPasswordSchema } from "../../../../utils/data-validation/auth/auth
 
 /**
  * Handles resetting the user's password using a token.
- * - Validates input (token and new password).
- * - Finds the user with the given token.
- * - Hashes the new password and updates the user's password.
- * - Clears the reset token after successful update.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Finds the user with the given token
+ * - Hashes the new password and updates the user's password
+ * - Clears the reset token after successful update
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Contains token and new password
+ * @param args - Arguments for reset password (token and newPassword)
  * @param context - Application context with AppDataSource
  * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
  */

@@ -19,16 +19,19 @@ import { userRoleSchema } from "../../../../utils/data-validation/auth/auth";
 
 /**
  * Updates an existing user role with validation and permission checks.
- * - Validates input using Zod schema.
- * - Ensures the user is authenticated and has permission to update roles.
- * - Checks for duplicate role names, excluding the current role.
- * - Fetches the full User entity for createdBy to match the Role schema.
- * - Updates the role and caches, invalidating old caches as needed.
- * - Invalidates role list caches to keep data fresh.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Authenticates user and checks role update permission
+ * - Checks for duplicate role names, excluding the current role
+ * - Fetches the full User entity for createdBy to match the Role schema
+ * - Updates the role and caches, invalidating old caches as needed
+ * - Invalidates role list caches to keep data fresh
+ *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for updating the role (id, name, description)
- * @param context - Application context containing AppDataSource, user, and redis
- * @returns Promise<BaseResponse | ErrorResponse> - Result of the update operation
+ * @param context - GraphQL context with AppDataSource, Redis, and user info
+ * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
  */
 export const updateUserRoleInfo = async (
   _: any,

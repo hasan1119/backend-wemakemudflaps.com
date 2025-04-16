@@ -27,21 +27,25 @@ interface LockoutSession {
 
 /**
  * Logs a user into the system.
- * - Authenticates the user by checking the email and password.
- * - Returns a JWT token if successful, or an error message if not.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Checks Redis for user data to optimize performance via caching
+ * - Verifies the password and handles account lockout logic
+ * - Generates and returns a JWT token upon successful login
+ *
  * @param _ - Unused GraphQL parent argument
  * @param args - Login arguments (email, password)
- * @param context - Application context containing AppDataSource
- * @returns Promise<UserLoginResponse | ErrorResponse | BaseResponse> - Login result with status and message
+ * @param context - GraphQL context with AppDataSource and Redis
+ * @returns Promise<UserLoginResponse | ErrorResponse | BaseResponse> - Response status and message
  */
 export const login = async (
   _: any,
   args: MutationLoginArgs,
   { redis, AppDataSource }: Context
 ): Promise<UserLoginResponse | ErrorResponse | BaseResponse> => {
-  const { getSession, setSession, deleteSession } = redis;
-
   const { email, password } = args;
+  const { getSession, setSession, deleteSession } = redis;
 
   try {
     // Validate input data using Zod schema

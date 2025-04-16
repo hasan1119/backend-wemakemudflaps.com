@@ -44,12 +44,17 @@ const PermissionNames: PermissionName[] = [
 
 /**
  * Registers a new user in the system.
- * - Creates a Super Admin if no users exist or no Super Admin role exists.
- * - Otherwise, registers a regular Customer user.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Registers the first user as a Super Admin if no users or Super Admin role exists
+ * - Otherwise registers a user with a Customer role and sets default permissions
+ * - Caches the user's data, role, and permissions in Redis
+ *
  * @param _ - Unused GraphQL parent argument
  * @param args - Registration arguments (firstName, lastName, email, password, gender)
- * @param context - Application context containing AppDataSource
- * @returns Promise<BaseResponse | ErrorResponse> - Registration result with status and message
+ * @param context - GraphQL context with AppDataSource
+ * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
  */
 export const register = async (
   _: any,

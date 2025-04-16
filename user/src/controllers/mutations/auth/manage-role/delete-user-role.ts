@@ -18,16 +18,19 @@ import {
 import { idSchema } from "../../../../utils/data-validation/auth/auth";
 
 /**
- * Deletes a user role from the system with validation and permission checks.
- * - Validates input using Zod schema.
- * - Ensures the user is authenticated and has permission to delete roles.
- * - Verifies the role exists and has no associated users.
- * - Soft-deletes the role and clears related caches.
- * - Invalidates role list caches to keep data fresh.
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for deleting the role (id)
- * @param context - Application context containing AppDataSource, user, and redis
- * @returns Promise<BaseResponse | ErrorResponse> - Result of the delete operation
+ * Deletes a user role with validation and permission checks.
+ *
+ * Steps:
+ * - Validates input using Zod
+ * - Authenticates user and checks role delete permission
+ * - Confirms the role exists and is not protected or in use
+ * - Performs a soft delete on the role
+ * - Clears related cache entries
+ *
+ * @param _ - Unused parent resolver argument
+ * @param args - Contains the role ID to delete
+ * @param context - GraphQL context with AppDataSource, Redis, and user info
+ * @returns Promise<BaseResponse | ErrorResponse> Response status and message
  */
 export const deleteUserRole = async (
   _: any,

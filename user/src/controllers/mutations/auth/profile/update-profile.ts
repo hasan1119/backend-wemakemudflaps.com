@@ -13,13 +13,16 @@ import EncodeToken from "../../../../utils/jwt/encode-token";
 
 /**
  * Allows the user to update their account information.
- * - Validates the input data.
- * - Updates the user's name, email, password, gender, and role.
- * - Hashes the password if it is updated.
- * - Redis cache for user data after update in database.
- * - Caches user and role data in Redis for future requests.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Updates the user's name, email, password, gender, and role
+ * - Hashes the password if it is updated
+ * - Redis cache for user data after update in database
+ * - Caches user and role data in Redis for future requests
+ *
  * @param _ - Unused GraphQL parent argument
- * @param args - User update arguments ( firstName, lastName, email, gender )
+ * @param args - Arguments for update user profile ( firstName, lastName, email, gender )
  * @param context - Application context containing AppDataSource, user and redis
  * @returns Promise<UserUpdateResponse | ErrorResponse | BaseResponse> - User profile update result with status and message
  */

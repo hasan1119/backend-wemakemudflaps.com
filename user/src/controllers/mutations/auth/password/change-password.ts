@@ -11,14 +11,19 @@ import HashInfo from "../../../../utils/bcrypt/hash-info";
 import { changePasswordSchema } from "../../../../utils/data-validation/auth/auth";
 
 /**
- * Allows the user to change their password.
- * - Verifies the old password.
- * - Validates the new password.
- * - Updates the password in the database.
+ * Allows an authenticated user to change their password.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Ensures the user is authenticated
+ * - Verifies the old password
+ * - Hashes the new password
+ * - Updates the password in the database
+ *
  * @param _ - Unused GraphQL parent argument
- * @param args - Password change arguments (oldPassword, newPassword)
- * @param context - Application context containing AppDataSource and user
- * @returns Promise<BaseResponse | ErrorResponse> change result with status and message
+ * @param args - Arguments for change password (oldPassword and newPassword)
+ * @param context - GraphQL context with AppDataSource and user info
+ * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
  */
 export const changePassword = async (
   _: any,

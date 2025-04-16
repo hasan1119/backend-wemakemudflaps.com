@@ -18,9 +18,11 @@ import { idSchema } from "../../../utils/data-validation/auth/auth";
 
 /**
  * Retrieves a single user role by ID with validation and permission checks.
- * - Validates input using Zod schema.
- * - Ensures the user is authenticated and has permission to view roles.
- * - Checks Redis cache for role data before querying the database.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Authenticates user and checks role view permission
+ * - Checks Redis cache for role data before querying the database
  * - Returns the role data with combined firstName and lastName for createdBy, including the creator's role name.
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for retrieving the role (id)

@@ -18,17 +18,19 @@ import {
 import { userRoleSchema } from "../../../../utils/data-validation/auth/auth";
 
 /**
- * Creates a new user role in the system with validation and permission checks.
- * - Validates input using Zod schema.
- * - Ensures the user is authenticated and has permission to create roles.
- * - Checks for duplicate role names using Redis and database.
- * - Fetches the full User entity for createdBy to match the Role schema.
- * - Creates and saves the role, caching the result.
- * - Invalidates role list caches to keep data fresh.
+ * Creates a new user role in the system.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Authenticates user and checks role creation permission
+ * - Prevents duplicate role creation using Redis and DB checks
+ * - Saves role to the database with audit information
+ * - Caches created role and updates role name existence in Redis
+ *
  * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for creating the role (name, description)
- * @param context - Application context containing AppDataSource, user, and redis
- * @returns Promise<BaseResponse | ErrorResponse> - Result of the create operation
+ * @param args - Role creation input (name, description)
+ * @param context - GraphQL context with AppDataSource, Redis, and user info
+ * @returns BaseResponse | ErrorResponse - Response status and message
  */
 export const createUserRole = async (
   _: any,

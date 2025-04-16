@@ -20,14 +20,16 @@ interface LockoutSession {
 
 /**
  * Handles the password reset request via email.
- * - Validates the provided email.
- * - Checks if the user exists.
- * - Generates a password reset token and saves it to the user.
- * - Sends a password reset email with a reset link.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Checks if the user exists
+ * - Generates a password reset token and saves it to the user
+ * - Sends a password reset email with a reset link
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Contains the email address for password reset
- * @param context - Application context with AppDataSource
+ * @param args - Arguments for reset password request (email)
+ * @param context - GraphQL context with AppDataSource
  * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
  */
 export const forgetPassword = async (
