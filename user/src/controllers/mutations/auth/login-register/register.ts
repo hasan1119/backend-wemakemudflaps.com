@@ -135,10 +135,15 @@ export const register = async (
       userCount = await userRepository.count();
     }
 
-    // Initiate the empty variable for the user role
+    // Initiate the empty variable for the user role & super admin
     let role;
 
-    if (Number(userCount) === 0) {
+    // Check Redis for cached user role info
+    const cachedSuperAdminRole = await getSession(
+      getSingleUserRoleInfoByNameCacheKey("super admin")
+    );
+
+    if (Number(userCount) === 0 || !cachedSuperAdminRole) {
       // Check if Super Admin role is missing or not
       role = await roleRepository.findOne({
         where: { name: "SUPER ADMIN" },
@@ -154,6 +159,12 @@ export const register = async (
         });
         await roleRepository.save(role);
       }
+
+      // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(
+        getSingleUserRoleInfoByNameCacheKey("super admin"),
+        role
+      );
 
       // Create Super Admin user
       const newUser = userRepository.create({
@@ -206,11 +217,11 @@ export const register = async (
       };
     } else {
       // Check Redis for cached user role info
-      const cachedRole = await getSession(
+      const cachedCustomerRole = await getSession(
         getSingleUserRoleInfoByNameCacheKey("customer")
       );
 
-      if (!cachedRole) {
+      if (!cachedCustomerRole) {
         // Cache miss: Fetch user from database
         role = await roleRepository.findOne({
           where: { name: "CUSTOMER" },
@@ -238,7 +249,7 @@ export const register = async (
         email,
         password: hashedPassword,
         gender: gender || null,
-        role: cachedRole ? cachedRole : role, // Assign the Role entity object
+        role: cachedCustomerRole ? cachedCustomerRole : role, // Assign the Role entity object
       });
       await userRepository.save(savedUser);
 
