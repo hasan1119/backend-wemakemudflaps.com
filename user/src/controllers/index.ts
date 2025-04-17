@@ -12,5 +12,8 @@ export { updateUserPermission } from "./mutations/auth/permission/update-user-pe
 export { updateProfile } from "./mutations/auth/profile/update-profile";
 
 // Graphql queries for the auth and user data
+export { getRoleById } from "./queries/role/get-role-by-id";
+export { getRoles } from "./queries/role/get-roles";
 export { getProfile } from "./queries/user/get-profile";
+export { getUserById } from "./queries/user/get-user-by-id";
 export { getUsers } from "./queries/user/get-users";

@@ -7,9 +7,11 @@ import {
 import { Role } from "../../../../entities/user-role.entity";
 import { User } from "../../../../entities/user.entity";
 import {
+  getRegisterUserCountKeyCacheKey,
   getSingleUserCacheKey,
   getSingleUserPermissionCacheKey,
   getSingleUserRoleCacheKey,
+  getSingleUserRoleInfoByNameCacheKey,
   getUserEmailCacheKey,
 } from "../../../../helper/redis/session-keys";
 import {
@@ -108,7 +110,7 @@ export const register = async (
         __typename: "BaseResponse",
       };
     } else {
-      // Check for existing user with the same email
+      // Cache miss: Fetch user from database
       userEmail = await userRepository.findOne({ where: { email } });
       if (userEmail) {
         return {
@@ -123,23 +125,35 @@ export const register = async (
     // Hash the password
     const hashedPassword = await HashInfo(password);
 
-    // Check if this is the first user or if Super Admin role is missing
-    const userCount = await userRepository.count();
-    const superAdminRole = await roleRepository.findOne({
-      where: { name: "SUPER ADMIN" },
-    });
+    // Check Redis for cached users count
+    let userCount;
 
+    userCount = await getSession(getRegisterUserCountKeyCacheKey());
+
+    if (!userCount) {
+      // Cache miss: Fetch users count from database
+      userCount = await userRepository.count();
+    }
+
+    // Initiate the empty variable for the user role
     let role;
 
-    if (!superAdminRole || userCount === 0) {
-      // Create Super Admin role
-      role = roleRepository.create({
-        name: "SUPER ADMIN",
-        description:
-          "Has full control over all aspects of the eCommerce platform.",
-        createdBy: null,
+    if (Number(userCount) === 0) {
+      // Check if Super Admin role is missing or not
+      role = await roleRepository.findOne({
+        where: { name: "SUPER ADMIN" },
       });
-      await roleRepository.save(role);
+
+      if (!role) {
+        // Create Super Admin role
+        role = roleRepository.create({
+          name: "SUPER ADMIN",
+          description:
+            "Has full control over all aspects of the eCommerce platform.",
+          createdBy: null,
+        });
+        await roleRepository.save(role);
+      }
 
       // Create Super Admin user
       const newUser = userRepository.create({
@@ -191,24 +205,30 @@ export const register = async (
         __typename: "BaseResponse",
       };
     } else {
-      // Register a Customer user
-      let defaultRole = await roleRepository.findOne({
-        where: { name: "CUSTOMER" },
-      });
+      // Check Redis for cached user role info
+      const cachedRole = await getSession(
+        getSingleUserRoleInfoByNameCacheKey("customer")
+      );
 
-      if (!defaultRole) {
-        defaultRole = roleRepository.create({
-          name: "CUSTOMER",
-          description:
-            "Regular customers who can browse products, place orders, and view their purchase history.",
-          createdBy: null,
+      if (!cachedRole) {
+        // Cache miss: Fetch user from database
+        role = await roleRepository.findOne({
+          where: { name: "CUSTOMER" },
         });
-        role = await roleRepository.save(defaultRole);
 
-        // Cache newly created user role in Redis with configurable TTL(default 30 days of redis session because of the env)
-        await setSession(getSingleUserRoleCacheKey(role.id), role);
-      } else {
-        role = defaultRole;
+        if (!role) {
+          // Create customer role
+          role = roleRepository.create({
+            name: "CUSTOMER",
+            description:
+              "Regular customers who can browse products, place orders, view their purchase history and other related things.",
+            createdBy: null,
+          });
+          await roleRepository.save(role);
+        }
+
+        // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
+        await setSession(getSingleUserRoleInfoByNameCacheKey("customer"), role);
       }
 
       // Create Customer user
@@ -218,7 +238,7 @@ export const register = async (
         email,
         password: hashedPassword,
         gender: gender || null,
-        role, // Assign the Role entity object
+        role: cachedRole ? cachedRole : role, // Assign the Role entity object
       });
       await userRepository.save(savedUser);
 
@@ -286,7 +306,7 @@ export const register = async (
       return {
         statusCode: 201,
         success: true,
-        message: "User registered successfully",
+        message: "Registration successful",
         __typename: "BaseResponse",
       };
     }

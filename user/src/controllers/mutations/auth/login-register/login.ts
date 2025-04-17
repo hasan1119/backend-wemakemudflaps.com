@@ -2,8 +2,8 @@ import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
 import {
-  getlockoutKeyCacheKey,
-  getloginAttemptsKeyCacheKey,
+  getLockoutKeyCacheKey,
+  getLoginAttemptsKeyCacheKey,
   getSingleUserCacheKey,
   getSingleUserPermissionCacheKey,
   getUserEmailCacheKey,
@@ -147,7 +147,7 @@ export const login = async (
     }
 
     // Account lock check using Redis session data
-    const lockoutSession = await getSession(getlockoutKeyCacheKey(user.email));
+    const lockoutSession = await getSession(getLockoutKeyCacheKey(user.email));
 
     // Handle lockout state
     if (lockoutSession) {
@@ -167,7 +167,7 @@ export const login = async (
         };
       } else {
         // Clear cache and unlock the account if the lock time has expired
-        await deleteSession(getlockoutKeyCacheKey(user.email));
+        await deleteSession(getLockoutKeyCacheKey(user.email));
       }
     }
 
@@ -177,7 +177,7 @@ export const login = async (
     if (!isPasswordValid) {
       // Increment login attempt count
       const sessionData = (await getSession(
-        getloginAttemptsKeyCacheKey(user.email)
+        getLoginAttemptsKeyCacheKey(user.email)
       )) as {
         attempts: number;
       } | null;
@@ -185,7 +185,7 @@ export const login = async (
 
       // Store updated attempts count in Redis with 1-hour TTL
       await setSession(
-        getloginAttemptsKeyCacheKey(user.email),
+        getLoginAttemptsKeyCacheKey(user.email),
         { attempts: newAttempts },
         3600
       );
@@ -194,7 +194,7 @@ export const login = async (
       if (newAttempts >= 5) {
         const lockDuration = 900; // 15 minutes in seconds
         await setSession(
-          getlockoutKeyCacheKey(user.email),
+          getLockoutKeyCacheKey(user.email),
           { locked: true, lockedAt: Date.now(), duration: lockDuration },
           lockDuration
         );
@@ -215,7 +215,7 @@ export const login = async (
     }
 
     // Clear cache login attempts after successful password verification
-    await deleteSession(getloginAttemptsKeyCacheKey(user.email));
+    await deleteSession(getLoginAttemptsKeyCacheKey(user.email));
 
     // Generate JWT token
     const token = await EncodeToken(

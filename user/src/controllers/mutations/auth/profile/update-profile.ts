@@ -99,7 +99,7 @@ export const updateProfile = async (
     if (email) userData.email = email;
     if (gender) userData.gender = gender;
 
-    // perserve role for session
+    // preserve role for session
     const preservedRole = user.role;
     // Delete role from the userData to update the user info properly
     delete userData.role;

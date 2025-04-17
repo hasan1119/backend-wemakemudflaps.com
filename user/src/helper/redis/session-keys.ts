@@ -1,8 +1,8 @@
 // Functions to generate dynamic Redis session keys for user login
-export const getloginAttemptsKeyCacheKey = (email: string) => {
+export const getLoginAttemptsKeyCacheKey = (email: string) => {
   return `login-attempt-${email}`;
 };
-export const getlockoutKeyCacheKey = (email: string) => {
+export const getLockoutKeyCacheKey = (email: string) => {
   return `lockout-${email}`;
 };
 
@@ -19,6 +19,9 @@ export const getUserSessionCacheKey = (id: string) => {
 export const getUserEmailCacheKey = (email: string) => {
   return `user-email-${email}`;
 };
+export const getRegisterUserCountKeyCacheKey = () => {
+  return "user-count-register";
+};
 
 // Functions to generate dynamic Redis session keys for user roles
 export const getSingleUserRoleCacheKey = (id: string) => {
@@ -26,6 +29,9 @@ export const getSingleUserRoleCacheKey = (id: string) => {
 };
 export const getSingleUserRoleNameCacheKey = (name: string) => {
   return `role-name-${name}`;
+};
+export const getSingleUserRoleInfoByNameCacheKey = (name: string) => {
+  return `role-info-${name}`;
 };
 export const getUserRoleCountAssociateCacheKey = (id: string) => {
   return `user-role-${id}`;

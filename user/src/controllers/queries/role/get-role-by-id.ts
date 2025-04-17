@@ -29,7 +29,7 @@ import { idSchema } from "../../../utils/data-validation/auth/auth";
  * @param context - Application context containing AppDataSource, user, and redis
  * @returns Promise<RoleResponse | BaseResponse | ErrorResponse> - Result of the get operation
  */
-export const getRole = async (
+export const getRoleById = async (
   _: any,
   args: QueryGetRoleArgs,
   { AppDataSource, user, redis }: Context
