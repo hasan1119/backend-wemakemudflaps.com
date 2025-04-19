@@ -13,6 +13,7 @@ export type PermissionName =
   | "Brand"
   | "Category"
   | "Product"
+  | "Permission"
   | "Product Review"
   | "Shipping Class"
   | "Sub Category"
@@ -41,6 +42,7 @@ export class Permission {
       "Brand",
       "Category",
       "Product",
+      "Permission",
       "Product Review",
       "Shipping Class",
       "Sub Category",
@@ -56,7 +58,6 @@ export class Permission {
       "Notification",
       "Media",
     ],
-    unique: true,
   })
   name: PermissionName;
 

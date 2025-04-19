@@ -27,6 +27,7 @@ const PermissionNames: PermissionName[] = [
   "User",
   "Brand",
   "Category",
+  "Permission",
   "Product",
   "Product Review",
   "Shipping Class",
@@ -153,8 +154,7 @@ export const register = async (
         // Create Super Admin role
         role = roleRepository.create({
           name: "SUPER ADMIN",
-          description:
-            "Has full control over all aspects of the eCommerce platform.",
+          description: "Has full control over all aspects of the platform.",
           createdBy: null,
         });
         await roleRepository.save(role);
@@ -267,6 +267,25 @@ export const register = async (
             canUpdate = false;
             canDelete = true;
           }
+          if (name === "Permission") {
+            canCreate = false;
+            canRead = false;
+            canUpdate = false;
+            canDelete = false;
+          }
+          if (name === "News Letter") {
+            canCreate = false;
+            canRead = false;
+            canUpdate = false;
+            canDelete = false;
+          }
+
+          if (name === "Product Review") {
+            canCreate = true;
+            canRead = true;
+            canUpdate = true;
+            canDelete = true;
+          }
 
           if (name === "Notification") {
             canCreate = false;
@@ -282,6 +301,18 @@ export const register = async (
             canDelete = false;
           }
 
+          if (name === "Role") {
+            canCreate = false;
+            canRead = false;
+            canUpdate = false;
+            canDelete = false;
+          }
+          if (name === "Media") {
+            canCreate = false;
+            canRead = false;
+            canUpdate = false;
+            canDelete = false;
+          }
           return permissionRepository.create({
             name,
             description: `Access to ${name} features`,

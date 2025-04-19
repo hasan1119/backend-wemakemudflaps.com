@@ -133,3 +133,20 @@ type RoleResponse {
   message: String!
   role: Role
 }
+
+# Input type for a single permission entry
+input SinglePermissionInput {
+  name: String! # Name of the permission
+  canCreate: Boolean # Optional permission to create
+  canRead: Boolean # Optional permission to read
+  canUpdate: Boolean # Optional permission to update
+  canDelete: Boolean # Optional permission to delete
+  description: String # Optional description
+}
+
+# Input type for updating user permissions
+input UpdateUserPermissionInput {
+  userId: ID! # The ID of the user whose permissions are being updated
+  accessAll: Boolean # Whether the user has access to all permissions
+  permissions: [SinglePermissionInput!] # Optional array of permission settings
+}

@@ -57,7 +57,7 @@ export const deleteUserRole = async (
     const permissionRepository: Repository<Permission> =
       AppDataSource.getRepository(Permission);
 
-    // Check Redis for cached user's email
+    // Check Redis for cached user's data
     let userData;
 
     userData = await getSession(getSingleUserCacheKey(user.id));
@@ -88,7 +88,7 @@ export const deleteUserRole = async (
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
-        where: { user: { id: user.id }, name: "Role" },
+        where: { user: { id: user.id } },
       });
 
       // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)

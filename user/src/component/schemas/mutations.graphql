@@ -87,4 +87,11 @@ type Mutation {
     name: String! # The name of the new user role to be created.
     description: String # The description associated with the role.
   ): BaseResponse!
+
+  # Update existing user permission for CRUD.
+  # This mutation allows authorized users to update existing permissions for other users.
+  # The response will include a `BaseResponse` indicating success or failure.
+  updateUserPermission(
+    input: UpdateUserPermissionInput! # The input data for updating user permissions.
+  ): BaseResponse!
 }

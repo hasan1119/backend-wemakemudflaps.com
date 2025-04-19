@@ -72,7 +72,7 @@ export const updateProfile = async (
     // Retrieve the user from the database (already authenticated user)
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    // Check Redis for cached user's email
+    // Check Redis for cached user's data
     let userData;
 
     userData = await getSession(getSingleUserCacheKey(user.id));

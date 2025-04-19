@@ -112,38 +112,6 @@ export const login = async (
         getSingleUserPermissionCacheKey(user.id),
         user.permissions
       );
-    } else {
-      // User email found in cache - fetch complete user info
-      user = await userRepository.findOne({
-        where: { email },
-        select: ["firstName", "lastName", "gender", "email"],
-        relations: ["role", "permissions"],
-      });
-
-      if (!user) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `User not found with this email: ${email}`,
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Cache user, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getSingleUserCacheKey(user.id), {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role.name,
-      });
-
-      await setSession(getUserEmailCacheKey(email), user.email);
-
-      await setSession(
-        getSingleUserPermissionCacheKey(user.id),
-        user.permissions
-      );
     }
 
     // Account lock check using Redis session data

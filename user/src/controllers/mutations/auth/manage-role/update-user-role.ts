@@ -55,7 +55,7 @@ export const updateUserRole = async (
       AppDataSource.getRepository(Permission);
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    // Check Redis for cached user's id
+    // Check Redis for cached user's data
     let userData;
 
     userData = await getSession(getSingleUserCacheKey(user.id));
@@ -86,7 +86,7 @@ export const updateUserRole = async (
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
-        where: { user: { id: user.id }, name: "Role" },
+        where: { user: { id: user.id } },
       });
 
       // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
@@ -167,6 +167,7 @@ export const updateUserRole = async (
       const fetchedUser = await userRepository.findOne({
         where: { id: userId },
         relations: ["role"],
+        select: ["id", "firstName", "lastName", "email", "role"],
       });
 
       if (!fetchedUser) {

@@ -116,7 +116,7 @@ export type MutationUpdateProfileArgs = {
 
 
 export type MutationUpdateUserPermissionArgs = {
-  id: Scalars['ID']['input'];
+  input: UpdateUserPermissionInput;
 };
 
 
@@ -186,6 +186,21 @@ export type RolesResponse = {
   role: Array<Role>;
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
+};
+
+export type SinglePermissionInput = {
+  canCreate?: InputMaybe<Scalars['Boolean']['input']>;
+  canDelete?: InputMaybe<Scalars['Boolean']['input']>;
+  canRead?: InputMaybe<Scalars['Boolean']['input']>;
+  canUpdate?: InputMaybe<Scalars['Boolean']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type UpdateUserPermissionInput = {
+  accessAll?: InputMaybe<Scalars['Boolean']['input']>;
+  permissions?: InputMaybe<Array<SinglePermissionInput>>;
+  userId: Scalars['ID']['input'];
 };
 
 export type User = {
@@ -330,6 +345,8 @@ export type ResolversTypes = {
   Role: ResolverTypeWrapper<Role>;
   RoleResponse: ResolverTypeWrapper<RoleResponse>;
   RolesResponse: ResolverTypeWrapper<RolesResponse>;
+  SinglePermissionInput: SinglePermissionInput;
+  UpdateUserPermissionInput: UpdateUserPermissionInput;
   User: ResolverTypeWrapper<User>;
   UserLoginResponse: ResolverTypeWrapper<UserLoginResponse>;
   UserProfileUpdateResponse: ResolverTypeWrapper<UserProfileUpdateResponse>;
@@ -353,6 +370,8 @@ export type ResolversParentTypes = {
   Role: Role;
   RoleResponse: RoleResponse;
   RolesResponse: RolesResponse;
+  SinglePermissionInput: SinglePermissionInput;
+  UpdateUserPermissionInput: UpdateUserPermissionInput;
   User: User;
   UserLoginResponse: UserLoginResponse;
   UserProfileUpdateResponse: UserProfileUpdateResponse;
@@ -398,7 +417,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   register?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password'>>;
   resetPassword?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponse'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'id'>>;
-  updateUserPermission?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'id'>>;
+  updateUserPermission?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'roleId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id' | 'name'>>;
 };
