@@ -307,12 +307,14 @@ export const register = async (
             canUpdate = false;
             canDelete = false;
           }
+
           if (name === "Media") {
             canCreate = false;
             canRead = false;
             canUpdate = false;
             canDelete = false;
           }
+
           return permissionRepository.create({
             name,
             description: `Access to ${name} features`,

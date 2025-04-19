@@ -1,21 +1,21 @@
 import { Repository } from "typeorm";
-import { Context } from "../../../../context";
-import { Permission } from "../../../../entities/permission.entity";
-import { Role } from "../../../../entities/user-role.entity";
-import { User } from "../../../../entities/user.entity";
+import { Context } from "../../../context";
+import { Permission } from "../../../entities/permission.entity";
+import { Role } from "../../../entities/user-role.entity";
+import { User } from "../../../entities/user.entity";
 import {
   getSingleUserCacheKey,
   getSingleUserPermissionCacheKey,
   getSingleUserRoleCacheKey,
   getSingleUserRoleNameCacheKey,
   getUserRoleCountAssociateCacheKey,
-} from "../../../../helper/redis/session-keys";
+} from "../../../helper/redis/session-keys";
 import {
   BaseResponse,
   ErrorResponse,
   MutationDeleteUserRoleArgs,
-} from "../../../../types";
-import { idSchema } from "../../../../utils/data-validation/auth/auth";
+} from "../../../types";
+import { idSchema } from "../../../utils/data-validation/auth/auth";
 
 /**
  * Deletes a user role with validation and permission checks.
@@ -185,7 +185,14 @@ export const deleteUserRole = async (
     }
 
     // Check for protected roles
-    const protectedRoles = ["SUPER ADMIN", "ADMIN", "CUSTOMER"];
+    const protectedRoles = [
+      "SUPER ADMIN",
+      "ADMIN",
+      "INVENTORY MANAGER",
+      "CUSTOMER SUPPORT",
+      "CUSTOMER",
+    ];
+
     if (protectedRoles.includes(role.name)) {
       return {
         statusCode: 403,

@@ -199,6 +199,7 @@ export type SinglePermissionInput = {
 
 export type UpdateUserPermissionInput = {
   accessAll?: InputMaybe<Scalars['Boolean']['input']>;
+  deniedAll?: InputMaybe<Scalars['Boolean']['input']>;
   permissions?: InputMaybe<Array<SinglePermissionInput>>;
   userId: Scalars['ID']['input'];
 };

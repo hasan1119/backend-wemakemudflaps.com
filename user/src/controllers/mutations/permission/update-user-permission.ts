@@ -1,19 +1,224 @@
 import { Repository } from "typeorm";
-import { Context } from "../../../../context";
+import { Context } from "../../../context";
 import {
   Permission,
   PermissionName,
-} from "../../../../entities/permission.entity";
-import { Role } from "../../../../entities/user-role.entity";
-import { User } from "../../../../entities/user.entity";
-import { getSingleUserCacheKey } from "../../../../helper/redis/session-keys";
+} from "../../../entities/permission.entity";
+import { User } from "../../../entities/user.entity";
+import {
+  getSingleUserCacheKey,
+  getSingleUserPermissionCacheKey,
+} from "../../../helper/redis/session-keys";
 import {
   BaseResponse,
   ErrorResponse,
   MutationUpdateUserPermissionArgs,
-} from "../../../../types";
-import { updateUserPermissionSchema } from "../../../../utils/data-validation";
-import { getSingleUserPermissionCacheKey } from "./../../../../helper/redis/session-keys";
+} from "../../../types";
+import { updateUserPermissionSchema } from "../../../utils/data-validation";
+
+/**
+ * Helper to check if a user is allowed to modify a target user
+ */
+const isForbiddenTarget = (
+  targetUser: { id: string; role: string },
+  currentUser: { id: string; role: string }
+): string | null => {
+  if (targetUser.role === "SUPER ADMIN") {
+    return "You cannot change permission for super admin";
+  }
+  if (targetUser.id === currentUser.id) {
+    return "You cannot change your own permission";
+  }
+  if (targetUser.role === "ADMIN" && currentUser.role === "ADMIN") {
+    return "Admins are not allowed to change other admins permissions";
+  }
+  return null;
+};
+
+/**
+ * Defines allowed permissions for each role
+ */
+const ROLE_PERMISSIONS: {
+  [key: string]: {
+    read: PermissionName[];
+    create: PermissionName[];
+    update: PermissionName[];
+    delete: PermissionName[];
+  };
+} = {
+  CUSTOMER: {
+    read: [
+      "Brand",
+      "Category",
+      "Product",
+      "Product Review",
+      "Shipping Class",
+      "Sub Category",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+    ],
+    create: ["Order", "Notification"],
+    update: ["Product Review", "Notification"],
+    delete: ["Order", "Product Review", "Notification"],
+  },
+  "INVENTORY MANAGER": {
+    read: [
+      "Brand",
+      "Category",
+      "Product",
+      "Product Review",
+      "Shipping Class",
+      "Sub Category",
+      "Tax Class",
+      "Tax Status",
+    ],
+    create: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+    ],
+    update: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+    ],
+    delete: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+    ],
+  },
+  ADMIN: {
+    read: [
+      "Brand",
+      "Category",
+      "Product",
+      "Product Review",
+      "Shipping Class",
+      "Sub Category",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+      "User",
+      "Permission",
+      "Role",
+    ],
+    create: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+      "User",
+      "Permission",
+      "Role",
+    ],
+    update: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+      "User",
+      "Permission",
+      "Role",
+    ],
+    delete: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+      "User",
+      "Permission",
+      "Role",
+    ],
+  },
+};
+
+/**
+ * Validates permissions for a given role
+ * @param role - The role of the target user (e.g., CUSTOMER, INVENTORY_MANAGER, ADMIN)
+ * @param permissions - The permissions to validate
+ * @returns An object with invalid permissions and an error message, or null if valid
+ */
+const validatePermissionsForRole = (
+  role: string,
+  permissions: MutationUpdateUserPermissionArgs["input"]["permissions"]
+): { invalidPermissions: any[]; message: string } | null => {
+  const allowedPermissions = ROLE_PERMISSIONS[role];
+  if (!allowedPermissions) {
+    return null; // No specific restrictions for this role
+  }
+
+  const invalidPermissions = permissions.filter((perm) => {
+    return (
+      (perm.canRead &&
+        !allowedPermissions.read.includes(perm.name as PermissionName)) ||
+      (perm.canCreate &&
+        !allowedPermissions.create.includes(perm.name as PermissionName)) ||
+      (perm.canUpdate &&
+        !allowedPermissions.update.includes(perm.name as PermissionName)) ||
+      (perm.canDelete &&
+        !allowedPermissions.delete.includes(perm.name as PermissionName))
+    );
+  });
+
+  if (invalidPermissions.length > 0) {
+    return {
+      invalidPermissions,
+      message: `${role.replace(
+        "_",
+        " "
+      )} cannot be granted the following permission(s): ${invalidPermissions
+        .map((p) => p.name)
+        .join(", ")}`,
+    };
+  }
+
+  return null;
+};
 
 /**
  * Allows an authenticated user to change other users permission for crud.
@@ -25,7 +230,7 @@ import { getSingleUserPermissionCacheKey } from "./../../../../helper/redis/sess
  * - Updates the permission of the specified user in the database
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for update permission for crud (accessAll, userId, permissions)
+ * @param args - Arguments for update permission for crud (accessAll, deniedAll, userId, permissions)
  * @param context - GraphQL context with AppDataSource, Redis, and user info
  * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
  */
@@ -34,7 +239,7 @@ export const updateUserPermission = async (
   args: MutationUpdateUserPermissionArgs,
   { AppDataSource, redis, user }: Context
 ): Promise<BaseResponse | ErrorResponse> => {
-  const { userId, accessAll, permissions } = args.input;
+  const { userId, accessAll, deniedAll, permissions } = args.input;
   const { getSession, setSession, deleteSession } = redis;
 
   try {
@@ -48,8 +253,7 @@ export const updateUserPermission = async (
       };
     }
 
-    // Initialize repositories for Role, Permission, and User entities
-    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
+    // Initialize repositories for Permission and User entities
     const permissionRepository: Repository<Permission> =
       AppDataSource.getRepository(Permission);
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
@@ -113,6 +317,7 @@ export const updateUserPermission = async (
     const validationResult = await updateUserPermissionSchema.safeParseAsync({
       userId,
       accessAll,
+      deniedAll,
       permissions,
     });
 
@@ -165,16 +370,43 @@ export const updateUserPermission = async (
       await setSession(getSingleUserCacheKey(userId), targetUser);
     }
 
-    // If the accessAll flag is true, then update the user permission for all permission true
-    if (accessAll) {
+    // Check the permission is block for the target user or not
+    const restrictionReason = isForbiddenTarget(targetUser, user);
+    if (restrictionReason) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: restrictionReason,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // If the accessAll or deniedAll flag is true, then update the user permission for all permission true
+    if (accessAll || deniedAll) {
+      const flag = !deniedAll;
+
+      // Restrict accessAll/deniedAll for CUSTOMER
+      if (targetUser.role === "CUSTOMER") {
+        return {
+          statusCode: 403,
+          success: false,
+          message: `You can't ${
+            flag ? "grant" : "deny"
+          } all permissions for a customer`,
+          __typename: "BaseResponse",
+        };
+      }
+
       await permissionRepository.update(
         { user: { id: userId } },
         {
-          description: "All permissions granted",
-          canRead: true,
-          canCreate: true,
-          canUpdate: true,
-          canDelete: true,
+          description: flag
+            ? "All permissions granted"
+            : "All permissions denied",
+          canRead: flag,
+          canCreate: flag,
+          canUpdate: flag,
+          canDelete: flag,
         }
       );
 
@@ -219,6 +451,19 @@ export const updateUserPermission = async (
         }
       }
 
+      // Validate permissions for CUSTOMER, INVENTORY MANAGER, or ADMIN
+      const validationError = validatePermissionsForRole(
+        targetUser.role,
+        permissions
+      );
+      if (validationError) {
+        return {
+          statusCode: 403,
+          success: false,
+          message: validationError.message,
+          __typename: "BaseResponse",
+        };
+      }
       // Update user permissions based on provided permissions
       await Promise.all(
         permissions.map(async (permission) => {

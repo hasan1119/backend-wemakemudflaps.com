@@ -1,21 +1,21 @@
 import { Repository } from "typeorm";
-import { Context } from "../../../../context";
-import { Permission } from "../../../../entities/permission.entity";
-import { Role } from "../../../../entities/user-role.entity";
-import { User } from "../../../../entities/user.entity";
+import { Context } from "../../../context";
+import { Permission } from "../../../entities/permission.entity";
+import { Role } from "../../../entities/user-role.entity";
+import { User } from "../../../entities/user.entity";
 import {
   getExistKeyWord,
   getSingleUserCacheKey,
   getSingleUserPermissionCacheKey,
   getSingleUserRoleCacheKey,
   getSingleUserRoleNameCacheKey,
-} from "../../../../helper/redis/session-keys";
+} from "../../../helper/redis/session-keys";
 import {
   BaseResponse,
   ErrorResponse,
   MutationCreateUserRoleArgs,
-} from "../../../../types";
-import { userRoleSchema } from "../../../../utils/data-validation/auth/auth";
+} from "../../../types";
+import { userRoleSchema } from "../../../utils/data-validation/auth/auth";
 
 /**
  * Creates a new user role in the system.

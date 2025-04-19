@@ -1,59 +1,59 @@
 const roles = [
   {
-    name: "Super Admin",
+    name: "SUPER ADMIN",
     description:
       "Has full control over all aspects of the eCommerce platform. Can manage users, orders, products, and settings.",
     createdBy: null,
   },
   {
-    name: "Admin",
+    name: "ADMIN",
     description:
       "Has full control over all aspects of the eCommerce platform. Can manage users, orders, products, and settings. But super admin can intercept the access.",
     createdBy: null,
   },
   {
-    name: "Vendor",
+    name: "VENDOR",
     description:
       "Can manage their own products, view and process orders, and manage inventory.",
     createdBy: null,
   },
   {
-    name: "Inventory Manager",
+    name: "INVENTORY MANAGER",
     description:
       "Responsible for managing the inventory, including adding, updating, and tracking stock levels.",
     createdBy: null,
   },
   {
-    name: "Customer Support",
+    name: "CUSTOMER SUPPORT",
     description: "Assists customers with inquiries, order issues, and returns.",
     createdBy: null,
   },
   {
-    name: "Sales Manager",
+    name: "SALES MANAGER",
     description:
       "Manages sales performance, sets pricing, and oversees promotional campaigns.",
     createdBy: null,
   },
   {
-    name: "Marketing Manager",
+    name: "MARKETING MANAGER",
     description:
       "Handles marketing campaigns, promotions, and customer outreach strategies.",
     createdBy: null,
   },
   {
-    name: "Customer",
+    name: "CUSTOMER",
     description:
       "Regular customers who can browse products, place orders, and view their purchase history.",
     createdBy: null,
   },
   {
-    name: "Content Editor",
+    name: "CONTENT EDITOR",
     description:
       "Responsible for editing and managing the content on the site, such as product descriptions, blog posts, and promotional banners.",
     createdBy: null,
   },
   {
-    name: "Shipping Manager",
+    name: "SHIPPING MANAGER",
     description:
       "Manages the shipping process, including order fulfillment and tracking shipments.",
     createdBy: null,

@@ -1,19 +1,19 @@
 import { Repository } from "typeorm";
-import { Context } from "../../../../context";
-import { Permission } from "../../../../entities/permission.entity";
-import { Role } from "../../../../entities/user-role.entity";
-import { User } from "../../../../entities/user.entity";
+import { Context } from "../../../context";
+import { Permission } from "../../../entities/permission.entity";
+import { Role } from "../../../entities/user-role.entity";
+import { User } from "../../../entities/user.entity";
 import {
   getSingleUserCacheKey,
   getSingleUserPermissionCacheKey,
   getSingleUserRoleCacheKey,
-} from "../../../../helper/redis/session-keys";
+} from "../../../helper/redis/session-keys";
 import {
   BaseResponse,
   ErrorResponse,
   MutationUpdateUserRoleArgs,
-} from "../../../../types";
-import { userRoleUpdateSchema } from "../../../../utils/data-validation/auth/auth";
+} from "../../../types";
+import { userRoleUpdateSchema } from "../../../utils/data-validation/auth/auth";
 
 /**
  * Allows an admin to update another user's role.

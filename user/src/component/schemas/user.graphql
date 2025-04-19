@@ -148,5 +148,6 @@ input SinglePermissionInput {
 input UpdateUserPermissionInput {
   userId: ID! # The ID of the user whose permissions are being updated
   accessAll: Boolean # Whether the user has access to all permissions
+  deniedAll: Boolean # Whether the user has denied to all permissions
   permissions: [SinglePermissionInput!] # Optional array of permission settings
 }

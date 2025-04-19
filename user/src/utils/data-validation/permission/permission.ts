@@ -62,6 +62,10 @@ export const updateUserPermissionSchema = z
       .boolean({ message: "accessAll must be a boolean" })
       .default(false)
       .optional(),
+    deniedAll: z
+      .boolean({ message: "deniedAll must be a boolean" })
+      .default(false)
+      .optional(),
     permissions: z
       .array(singlePermissionSchema)
       .optional()
@@ -71,16 +75,24 @@ export const updateUserPermissionSchema = z
       }),
   })
   .refine(
+    (data) => !(data.accessAll && data.deniedAll), // both cannot be true
+    {
+      message: "Only one of accessAll or deniedAll can be true",
+      path: ["accessAll"],
+    }
+  )
+  .refine(
     (data) => {
-      if (data.accessAll) {
+      // If either accessAll or deniedAll is true, permissions must be omitted
+      if (data.accessAll || data.deniedAll) {
         return !data.permissions || data.permissions.length === 0;
-      } else {
-        return Array.isArray(data.permissions) && data.permissions.length > 0;
       }
+      // Otherwise, permissions must be provided
+      return Array.isArray(data.permissions) && data.permissions.length > 0;
     },
     {
       message:
-        "If accessAll is true, permissions must be omitted. Otherwise, provide at least one permission.",
+        "If accessAll or deniedAll is true, permissions must be omitted. Otherwise, provide at least one permission.",
       path: ["permissions"],
     }
   );
