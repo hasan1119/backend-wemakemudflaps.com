@@ -8,7 +8,7 @@ export type UserSession = {
   lastName: string;
   role: string;
 };
-s;
+
 const createContext = async ({ req, res }) => {
   try {
     let user: UserSession | null = null;
