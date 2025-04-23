@@ -179,7 +179,7 @@ const ROLE_PERMISSIONS: {
 
 /**
  * Validates permissions for a given role
- * @param role - The role of the target user (e.g., CUSTOMER, INVENTORY_MANAGER, ADMIN)
+ * @param role - The role of the target user (e.g., CUSTOMER, INVENTORY MANAGER, ADMIN)
  * @param permissions - The permissions to validate
  * @returns An object with invalid permissions and an error message, or null if valid
  */
@@ -385,14 +385,18 @@ export const updateUserPermission = async (
     if (accessAll || deniedAll) {
       const flag = !deniedAll;
 
-      // Restrict accessAll/deniedAll for CUSTOMER
-      if (targetUser.role === "CUSTOMER") {
+      // Restrict accessAll/deniedAll for CUSTOMER, INVENTORY MANAGER, and CUSTOMER SUPPORT
+      if (
+        ["CUSTOMER", "INVENTORY MANAGER", "CUSTOMER SUPPORT"].includes(
+          targetUser.role
+        )
+      ) {
         return {
           statusCode: 403,
           success: false,
           message: `You can't ${
             flag ? "grant" : "deny"
-          } all permissions for a customer`,
+          } all permissions for a ${targetUser.role}`,
           __typename: "BaseResponse",
         };
       }

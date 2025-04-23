@@ -1,6 +1,9 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
-import { Permission } from "../../../entities/permission.entity";
+import {
+  Permission,
+  PermissionName,
+} from "../../../entities/permission.entity";
 import { Role } from "../../../entities/user-role.entity";
 import { User } from "../../../entities/user.entity";
 import {
@@ -14,6 +17,148 @@ import {
   MutationUpdateUserRoleArgs,
 } from "../../../types";
 import { userRoleUpdateSchema } from "../../../utils/data-validation/auth/auth";
+
+/**
+ * Defines allowed permissions for each role
+ */
+const ROLE_PERMISSIONS: {
+  [key: string]: {
+    read: PermissionName[];
+    create: PermissionName[];
+    update: PermissionName[];
+    delete: PermissionName[];
+  };
+} = {
+  CUSTOMER: {
+    read: [
+      "Brand",
+      "Category",
+      "Product",
+      "Product Review",
+      "Shipping Class",
+      "Sub Category",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+    ],
+    create: ["Order", "Notification"],
+    update: ["Product Review", "Notification"],
+    delete: ["Order", "Product Review", "Notification"],
+  },
+  "INVENTORY MANAGER": {
+    read: [
+      "Brand",
+      "Category",
+      "Product",
+      "Product Review",
+      "Shipping Class",
+      "Sub Category",
+      "Tax Class",
+      "Tax Status",
+    ],
+    create: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+    ],
+    update: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+    ],
+    delete: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+    ],
+  },
+  ADMIN: {
+    read: [
+      "Brand",
+      "Category",
+      "Product",
+      "Product Review",
+      "Shipping Class",
+      "Sub Category",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+      "User",
+      "Permission",
+      "Role",
+    ],
+    create: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+      "User",
+      "Permission",
+      "Role",
+    ],
+    update: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+      "User",
+      "Permission",
+      "Role",
+    ],
+    delete: [
+      "Brand",
+      "Category",
+      "Sub Category",
+      "Product",
+      "Tax Class",
+      "Tax Status",
+      "FAQ",
+      "Pop Up Banner",
+      "Privacy & Policy",
+      "Terms & Conditions",
+      "Order",
+      "Notification",
+      "User",
+      "Permission",
+      "Role",
+    ],
+  },
+};
 
 /**
  * Allows an admin to update another user's role.
@@ -209,6 +354,138 @@ export const updateUserRole = async (
       email: targetUser.email,
       role: newRole.name,
     });
+
+    if (["ADMIN", "CUSTOMER", "INVENTORY MANAGER"].includes(newRole.name)) {
+      // Check Redis for cached targeted user permissions
+      let targetUserPermissions;
+
+      targetUserPermissions = await getSession(
+        getSingleUserPermissionCacheKey(userId)
+      );
+
+      if (!targetUserPermissions) {
+        // Cache miss: Fetch permissions from database, selecting only necessary fields
+        targetUserPermissions = await permissionRepository.find({
+          where: { user: { id: userId } },
+        });
+
+        // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
+        await setSession(
+          getSingleUserPermissionCacheKey(userId),
+          targetUserPermissions
+        );
+      }
+
+      // Get allowed permissions for the new role
+      const allowed = ROLE_PERMISSIONS[newRole.name];
+
+      // Create a map of allowed permissions for quick lookup
+      const allowedPermissionMap = new Map<
+        string,
+        {
+          canRead: boolean;
+          canCreate: boolean;
+          canUpdate: boolean;
+          canDelete: boolean;
+        }
+      >();
+      Object.keys(allowed).forEach((action) => {
+        allowed[action as keyof typeof allowed].forEach((name) => {
+          if (!allowedPermissionMap.has(name)) {
+            allowedPermissionMap.set(name, {
+              canRead: false,
+              canCreate: false,
+              canUpdate: false,
+              canDelete: false,
+            });
+          }
+          const perm = allowedPermissionMap.get(name)!;
+          if (action === "read") perm.canRead = true;
+          if (action === "create") perm.canCreate = true;
+          if (action === "update") perm.canUpdate = true;
+          if (action === "delete") perm.canDelete = true;
+        });
+      });
+
+      // Prepare permission entities for update or creation
+      const permissionEntities: Permission[] = [];
+      const allowedNames = Array.from(allowedPermissionMap.keys());
+
+      // Update or create permissions
+      for (const [name, perm] of allowedPermissionMap) {
+        const existingPerm = targetUserPermissions.find(
+          (p: Permission) => p.name === name
+        );
+        if (existingPerm) {
+          // Update existing permission
+          existingPerm.canRead = perm.canRead;
+          existingPerm.canCreate = perm.canCreate;
+          existingPerm.canUpdate = perm.canUpdate;
+          existingPerm.canDelete = perm.canDelete;
+
+          permissionEntities.push(existingPerm);
+        } else {
+          // Create new permission
+          const newPermission = new Permission();
+          newPermission.name = name as PermissionName;
+          newPermission.user = { id: userId } as User;
+          newPermission.canRead = perm.canRead;
+          newPermission.canCreate = perm.canCreate;
+          newPermission.canUpdate = perm.canUpdate;
+          newPermission.canDelete = perm.canDelete;
+          permissionEntities.push(newPermission);
+        }
+      }
+
+      // Update permissions that are not allowed (set flags to false)
+      const nonAllowedPermissions = targetUserPermissions.filter(
+        (p: Permission) => !allowedNames.includes(p.name)
+      );
+      if (nonAllowedPermissions.length > 0) {
+        await permissionRepository
+          .createQueryBuilder()
+          .update(Permission)
+          .set({
+            canRead: false,
+            canCreate: false,
+            canUpdate: false,
+            canDelete: false,
+          })
+          .where("id IN (:...ids)", {
+            ids: nonAllowedPermissions.map((p: Permission) => p.id),
+          })
+          .execute();
+        permissionEntities.push(
+          ...nonAllowedPermissions.map((p: Permission) => ({
+            ...p,
+            canRead: false,
+            canCreate: false,
+            canUpdate: false,
+            canDelete: false,
+            description: `No access to ${p.name} for ${newRole.name} role`,
+          }))
+        );
+      }
+
+      // Save updated and new permissions
+      await AppDataSource.transaction(async (transactionalEntityManager) => {
+        await transactionalEntityManager.save(Permission, permissionEntities);
+      });
+
+      // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(
+        getSingleUserPermissionCacheKey(userId),
+        permissionEntities
+      );
+
+      return {
+        statusCode: 200,
+        success: true,
+        message:
+          "User role updated successfully with co-responding permissions",
+        __typename: "BaseResponse",
+      };
+    }
 
     return {
       statusCode: 200,
