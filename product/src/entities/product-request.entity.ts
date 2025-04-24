@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../../../entities";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class ProductRequest {
@@ -22,9 +21,9 @@ export class ProductRequest {
   })
   status: string;
 
-  // This field stores the user who requested the product, can be null for guest orders
-  @ManyToOne(() => User, (user) => user.productRequests, { nullable: true })
-  requestedBy: User | null;
+  // User ID who user who requested the product (string only for Apollo Federation compatibility)
+  @Column({ nullable: true })
+  requestedBy: string | null;
 
   // Email for guest orders (nullable)
   @Column({ nullable: true })

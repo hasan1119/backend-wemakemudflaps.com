@@ -1,11 +1,5 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { Product, User } from "../../../entities";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Product } from "./product.entity";
 
 @Entity()
 export class ShippingClass {
@@ -28,9 +22,9 @@ export class ShippingClass {
   @OneToMany(() => Product, (product) => product.shippingClass)
   products: Product[];
 
-  // The user who created this shipping class (cannot be null)
-  @ManyToOne(() => User, (user) => user.shippingClass, { nullable: false })
-  createdBy: User;
+  // User ID who created the shipping class (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the shipping class was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

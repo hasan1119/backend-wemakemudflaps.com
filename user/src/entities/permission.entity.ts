@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { User } from "../../../entities";
+import { User } from "./user.entity";
 
 // Define PermissionName as a TypeScript type (union of literals)
 export type PermissionName =
@@ -68,12 +68,12 @@ export class Permission {
   // The user who has this permission
   @ManyToOne(() => User, (user) => user.permissions, { nullable: false })
   @JoinColumn({ name: "userId" })
-  user: User;
+  user: Promise<User>;
 
   // User who created the permission
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: "createdBy" })
-  createdBy: User | null;
+  createdBy: Promise<User> | null;
 
   // CRUD permissions for the user
   @Column()

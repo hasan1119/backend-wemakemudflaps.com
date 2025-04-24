@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ProductPrice } from "../../../entities";
+import { ProductPrice } from "./product-price.entity";
 
 @Entity()
 export class ProductTieredPrice {

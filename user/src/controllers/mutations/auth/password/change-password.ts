@@ -2,8 +2,7 @@ import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
 import {
-  BaseResponse,
-  ErrorResponse,
+  BaseResponseOrError,
   MutationChangePasswordArgs,
 } from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
@@ -23,13 +22,13 @@ import { changePasswordSchema } from "../../../../utils/data-validation/auth/aut
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for change password (oldPassword and newPassword)
  * @param context - GraphQL context with AppDataSource and user info
- * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
+ * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const changePassword = async (
   _: any,
   args: MutationChangePasswordArgs,
   { AppDataSource, user }: Context
-): Promise<BaseResponse | ErrorResponse> => {
+): Promise<BaseResponseOrError> => {
   const { oldPassword, newPassword } = args;
 
   try {

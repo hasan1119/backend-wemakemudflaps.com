@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { DeepPartial, Repository } from "typeorm";
 import { Context } from "../../../../context";
 import {
   Permission,
@@ -14,11 +14,7 @@ import {
   getSingleUserRoleInfoByNameCacheKey,
   getUserEmailCacheKey,
 } from "../../../../helper/redis/session-keys";
-import {
-  BaseResponse,
-  ErrorResponse,
-  MutationRegisterArgs,
-} from "../../../../types";
+import { BaseResponseOrError, MutationRegisterArgs } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
 import { registerSchema } from "../../../../utils/data-validation/auth/auth";
 
@@ -57,13 +53,13 @@ const PermissionNames: PermissionName[] = [
  * @param _ - Unused GraphQL parent argument
  * @param args - Registration arguments (firstName, lastName, email, password, gender)
  * @param context - GraphQL context with AppDataSource
- * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
+ * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const register = async (
   _: any,
   args: MutationRegisterArgs,
   { AppDataSource, redis }: Context
-): Promise<BaseResponse | ErrorResponse> => {
+): Promise<BaseResponseOrError> => {
   const { firstName, lastName, email, password, gender } = args;
   const { getSession, setSession, deleteSession } = redis;
 
@@ -182,9 +178,9 @@ export const register = async (
       const permissions = PermissionNames.map((name: PermissionName) =>
         permissionRepository.create({
           name,
-          description: `Full access to manage ${name}`,
-          user: savedUser,
-          createdBy: savedUser,
+          description: `${name} permission for Super Admin`,
+          user: Promise.resolve(savedUser), // Assign user to each permission
+          createdBy: null, // Since no one created the first user
           canCreate: true,
           canRead: true,
           canUpdate: true,
@@ -324,7 +320,7 @@ export const register = async (
             canRead,
             canUpdate,
             canDelete,
-          });
+          } as DeepPartial<Permission>);
         }
       );
 

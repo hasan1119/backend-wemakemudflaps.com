@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../../../entities";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class PopupBanner {
@@ -26,9 +25,9 @@ export class PopupBanner {
   @Column({ type: "timestamp" })
   endTime: Date;
 
-  // User who created the popup banner (Many banners can be created by one user)
-  @ManyToOne(() => User, (user) => user.popupBanners, { nullable: false })
-  createdBy: User;
+  // User ID who created popup banner (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the popup banner was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

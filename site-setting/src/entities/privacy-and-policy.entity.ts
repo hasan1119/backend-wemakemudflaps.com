@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../../../entities";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class PrivacyPolicy {
@@ -10,9 +9,9 @@ export class PrivacyPolicy {
   @Column()
   content: string;
 
-  // User who created the privacy policy (Many policies can be created by one user)
-  @ManyToOne(() => User, (user) => user.privacyPolicies, { nullable: false })
-  createdBy: User;
+  // User ID who created the privacy policy (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the privacy policy was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

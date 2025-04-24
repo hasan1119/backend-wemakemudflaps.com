@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Order, Product, User } from "../../../entities";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Notification {
@@ -14,21 +13,21 @@ export class Notification {
   @Column()
   message: string;
 
-  // User associated with the notification (nullable for guest notifications)
-  @ManyToOne(() => User, (user) => user.notifications, { nullable: true })
-  user: User | null;
+  // User ID associated with the notification (string only for Apollo Federation compatibility)
+  @Column({ nullable: true })
+  userId: string | null;
 
   // Email of the guest user (nullable for guest notifications)
   @Column({ nullable: true })
   guestEmail: string | null;
 
-  // Order associated with the notification (nullable if not related to an order)
-  @ManyToOne(() => Order, (order) => order.notifications)
-  relatedOrder: Order;
+  // Order associated with the notification (string only for Apollo Federation compatibility)
+  @Column({ nullable: true })
+  relatedOrderId: string | null;
 
-  // Product associated with the notification (nullable if not related to a product)
-  @ManyToOne(() => Product, (product) => product.notifications)
-  relatedProduct: Product;
+  // Product associated with the notification (string only for Apollo Federation compatibility)
+  @Column({ nullable: true })
+  relatedProductId: string | null;
 
   // Timestamp indicating when the notification was read (nullable if unread)
   @Column({ type: "timestamp", nullable: true })

@@ -11,8 +11,7 @@ import {
   getUserRoleCountAssociateCacheKey,
 } from "../../../helper/redis/session-keys";
 import {
-  BaseResponse,
-  ErrorResponse,
+  BaseResponseOrError,
   MutationDeleteUserRoleArgs,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation/auth/auth";
@@ -30,13 +29,13 @@ import { idSchema } from "../../../utils/data-validation/auth/auth";
  * @param _ - Unused parent resolver argument
  * @param args - Contains the role ID to delete
  * @param context - GraphQL context with AppDataSource, Redis, and user info
- * @returns Promise<BaseResponse | ErrorResponse> Response status and message
+ * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const deleteUserRole = async (
   _: any,
   args: MutationDeleteUserRoleArgs,
   { AppDataSource, user, redis }: Context
-): Promise<BaseResponse | ErrorResponse> => {
+): Promise<BaseResponseOrError> => {
   const { id } = args;
   const { getSession, setSession, deleteSession } = redis;
 

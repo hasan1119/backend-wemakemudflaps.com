@@ -2,10 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { User } from "../../../entities";
 
 @Entity()
 export class Newsletter {
@@ -28,9 +26,9 @@ export class Newsletter {
   @Column({ type: "boolean", default: true })
   isActive: boolean;
 
-  // User who created the newsletter (Many newsletters can be created by one user)
-  @ManyToOne(() => User, (user) => user.newsLetters, { nullable: false })
-  createdBy: User;
+  // User ID who created the newsletter (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the newsletter was created (auto-generated)
   @CreateDateColumn({ type: "timestamp" })

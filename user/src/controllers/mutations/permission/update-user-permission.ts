@@ -10,8 +10,7 @@ import {
   getSingleUserPermissionCacheKey,
 } from "../../../helper/redis/session-keys";
 import {
-  BaseResponse,
-  ErrorResponse,
+  BaseResponseOrError,
   MutationUpdateUserPermissionArgs,
 } from "../../../types";
 import { updateUserPermissionSchema } from "../../../utils/data-validation";
@@ -232,13 +231,13 @@ const validatePermissionsForRole = (
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for update permission for crud (accessAll, deniedAll, userId, permissions)
  * @param context - GraphQL context with AppDataSource, Redis, and user info
- * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
+ * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const updateUserPermission = async (
   _,
   args: MutationUpdateUserPermissionArgs,
   { AppDataSource, redis, user }: Context
-): Promise<BaseResponse | ErrorResponse> => {
+): Promise<BaseResponseOrError> => {
   const { userId, accessAll, deniedAll, permissions } = args.input;
   const { getSession, setSession, deleteSession } = redis;
 

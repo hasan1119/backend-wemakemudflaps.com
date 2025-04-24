@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../../../entities";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class FAQ {
@@ -14,9 +13,9 @@ export class FAQ {
   @Column()
   answer: string;
 
-  // User who created the FAQ (Many FAQs can be created by one user)
-  @ManyToOne(() => User, (user) => user.faq, { nullable: false })
-  createdBy: User;
+  // User ID who created the FAQ (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the FAQ was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

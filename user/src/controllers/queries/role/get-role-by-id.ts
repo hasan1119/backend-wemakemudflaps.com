@@ -8,12 +8,7 @@ import {
   getSingleUserPermissionCacheKey,
   getSingleUserRoleCacheKey,
 } from "../../../helper/redis/session-keys";
-import {
-  BaseResponse,
-  ErrorResponse,
-  QueryGetRoleArgs,
-  RoleResponse,
-} from "../../../types";
+import { GetRoleByIdResponseOrError, QueryGetRoleArgs } from "../../../types";
 import { idSchema } from "../../../utils/data-validation/auth/auth";
 
 /**
@@ -27,13 +22,13 @@ import { idSchema } from "../../../utils/data-validation/auth/auth";
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for retrieving the role (id)
  * @param context - Application context containing AppDataSource, user, and redis
- * @returns Promise<RoleResponse | BaseResponse | ErrorResponse> - Result of the get operation
+ * @returns Promise<GetRoleByIDResponseOrError> - Result of the get operation
  */
 export const getRoleById = async (
   _: any,
   args: QueryGetRoleArgs,
   { AppDataSource, user, redis }: Context
-): Promise<RoleResponse | BaseResponse | ErrorResponse> => {
+): Promise<GetRoleByIdResponseOrError> => {
   const { id } = args;
   const { getSession, setSession } = redis;
 

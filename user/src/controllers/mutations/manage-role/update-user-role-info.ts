@@ -11,8 +11,7 @@ import {
   getSingleUserRoleNameCacheKey,
 } from "../../../helper/redis/session-keys";
 import {
-  BaseResponse,
-  ErrorResponse,
+  BaseResponseOrError,
   MutationUpdateUserRoleInfoArgs,
 } from "../../../types";
 import { userRoleSchema } from "../../../utils/data-validation/auth/auth";
@@ -31,13 +30,13 @@ import { userRoleSchema } from "../../../utils/data-validation/auth/auth";
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for updating the role (id, name, description)
  * @param context - GraphQL context with AppDataSource, Redis, and user info
- * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
+ * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const updateUserRoleInfo = async (
   _: any,
   args: MutationUpdateUserRoleInfoArgs,
   { AppDataSource, user, redis }: Context
-): Promise<BaseResponse | ErrorResponse> => {
+): Promise<BaseResponseOrError> => {
   const { id, name, description } = args;
   const { getSession, setSession, deleteSession } = redis;
 

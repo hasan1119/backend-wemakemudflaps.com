@@ -6,7 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { User } from "../../../entities";
+import { User } from "./user.entity";
 
 @Entity()
 export class Role {
@@ -32,7 +32,7 @@ export class Role {
   // User who created the role (Many roles can be created by one user)
   @ManyToOne(() => User, (user) => user.roles, { nullable: true })
   @JoinColumn({ name: "createdBy" })
-  createdBy: User | null;
+  createdBy: Promise<User> | null;
 
   // Timestamp when the role was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

@@ -11,8 +11,7 @@ import {
   getSingleUserRoleNameCacheKey,
 } from "../../../helper/redis/session-keys";
 import {
-  BaseResponse,
-  ErrorResponse,
+  BaseResponseOrError,
   MutationCreateUserRoleArgs,
 } from "../../../types";
 import { userRoleSchema } from "../../../utils/data-validation/auth/auth";
@@ -30,13 +29,13 @@ import { userRoleSchema } from "../../../utils/data-validation/auth/auth";
  * @param _ - Unused GraphQL parent argument
  * @param args - Role creation input (name, description)
  * @param context - GraphQL context with AppDataSource, Redis, and user info
- * @returns BaseResponse | ErrorResponse - Response status and message
+ * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const createUserRole = async (
   _: any,
   args: MutationCreateUserRoleArgs,
   { AppDataSource, user, redis }: Context
-): Promise<BaseResponse | ErrorResponse> => {
+): Promise<BaseResponseOrError> => {
   const { name, description } = args;
   const { getSession, setSession, deleteSession } = redis;
 

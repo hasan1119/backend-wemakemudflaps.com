@@ -5,7 +5,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { ProductVariation, ProductVariationAttribute } from "../../../entities";
+import { ProductVariationAttribute } from "./product-variation-attribute.entity";
+import { ProductVariation } from "./product-variation.entity";
 
 @Entity()
 export class ProductVariationAttributeValue {

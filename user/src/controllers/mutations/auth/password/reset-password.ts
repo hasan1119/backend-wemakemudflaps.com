@@ -2,8 +2,7 @@ import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
 import {
-  BaseResponse,
-  ErrorResponse,
+  BaseResponseOrError,
   MutationResetPasswordArgs,
 } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
@@ -21,13 +20,13 @@ import { resetPasswordSchema } from "../../../../utils/data-validation/auth/auth
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for reset password (token and newPassword)
  * @param context - Application context with AppDataSource
- * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
+ * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const resetPassword = async (
   _: any,
   args: MutationResetPasswordArgs,
   context: Context
-): Promise<BaseResponse | ErrorResponse> => {
+): Promise<BaseResponseOrError> => {
   const { AppDataSource } = context;
   const { token, newPassword } = args;
 

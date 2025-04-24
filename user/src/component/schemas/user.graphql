@@ -151,3 +151,20 @@ input UpdateUserPermissionInput {
   deniedAll: Boolean # Whether the user has denied to all permissions
   permissions: [SinglePermissionInput!] # Optional array of permission settings
 }
+
+# Union types for handling success and error responses.
+
+# Mutation responses can be either a success or an error.
+union BaseResponseOrError = BaseResponse | ErrorResponse
+union UserLoginResponseOrError = UserLoginResponse | ErrorResponse
+union UserProfileUpdateResponseOrError =
+    UserProfileUpdateResponse
+  | ErrorResponse
+
+# Query response can be either a success or an error.
+union GetProfileResponseOrError = BaseResponse | UserResponse
+union GetRoleByIDResponseOrError = BaseResponse | RoleResponse | ErrorResponse
+union GetUserByIDResponseOrError = UserResponse | ErrorResponse
+union GetUsersResponseOrError = UsersResponse | ErrorResponse
+union GetRolesResponseOrError = RolesResponse | ErrorResponse
+union GetRoleResponseOrError = RoleResponse | ErrorResponse

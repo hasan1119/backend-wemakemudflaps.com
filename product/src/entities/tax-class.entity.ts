@@ -1,11 +1,5 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { Product, User } from "../../../entities";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Product } from "./product.entity";
 
 @Entity()
 export class TaxClass {
@@ -29,9 +23,9 @@ export class TaxClass {
   @OneToMany(() => Product, (product) => product.taxClass)
   products: Product[];
 
-  // The user who created this tax class (cannot be null)
-  @ManyToOne(() => User, (user) => user.taxClass, { nullable: false })
-  createdBy: User;
+  // User ID who created the tax class (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the tax class was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

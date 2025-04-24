@@ -9,19 +9,15 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import {
-  Brand,
-  Category,
-  Media,
-  ProductAttribute,
-  ProductPrice,
-  ProductVariation,
-  ShippingClass,
-  SubCategory,
-  TaxClass,
-  TaxStatus,
-  User,
-} from "../../../entities";
+import { Brand } from "./brand.entity";
+import { Category } from "./category.entity";
+import { ProductAttribute } from "./product-attribute.entity";
+import { ProductPrice } from "./product-price.entity";
+import { ProductVariation } from "./product-variation.entity";
+import { ShippingClass } from "./shipping-class.entity";
+import { SubCategory } from "./sub-category.entity";
+import { TaxClass } from "./tax-class.entity";
+import { TaxStatus } from "./tax-status.entity";
 
 @Entity()
 export class Product {
@@ -41,18 +37,17 @@ export class Product {
   @Column()
   name: string;
 
-  // Default thumbnail image for the product
-  @OneToOne(() => Media, { nullable: true, onDelete: "SET NULL" })
-  @JoinColumn()
-  defaultImage: Media | null;
+  // Default thumbnail image for the product (string only for Apollo Federation compatibility)
+  @Column({ nullable: true })
+  defaultImageId: string | null;
 
-  // Additional images related to the product
-  @OneToMany(() => Media, (media) => media.product, { nullable: true })
-  images: Media[] | null;
+  // Additional images related to the product (string only for Apollo Federation compatibility)
+  @Column("text", { array: true, nullable: true })
+  imageIds: string[] | null;
 
-  // Related videos for the product
-  @OneToMany(() => Media, (media) => media.product, { nullable: true })
-  videos: Media[] | null;
+  // Related videos for the product (string only for Apollo Federation compatibility)
+  @Column("text", { array: true, nullable: true })
+  videoIds: string[] | null;
 
   // Associated brand for the product
   @ManyToOne(() => Brand, (brand) => brand.products, {
@@ -359,9 +354,9 @@ export class Product {
   @Column({ type: "boolean", default: false })
   isVisible: boolean;
 
-  // User who created the product
-  @ManyToOne(() => User, (user) => user.products, { nullable: false })
-  createdBy: User;
+  // User ID who created the product (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the user was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

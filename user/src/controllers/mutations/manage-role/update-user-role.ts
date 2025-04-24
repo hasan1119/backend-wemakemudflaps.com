@@ -12,8 +12,7 @@ import {
   getSingleUserRoleCacheKey,
 } from "../../../helper/redis/session-keys";
 import {
-  BaseResponse,
-  ErrorResponse,
+  BaseResponseOrError,
   MutationUpdateUserRoleArgs,
 } from "../../../types";
 import { userRoleUpdateSchema } from "../../../utils/data-validation/auth/auth";
@@ -173,13 +172,13 @@ const ROLE_PERMISSIONS: {
  * @param _ - Unused GraphQL parent argument
  * @param args - Contains userId and newRoleId to be assigned
  * @param context - GraphQL context with AppDataSource, Redis, and user info
- * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
+ * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const updateUserRole = async (
   _: any,
   args: MutationUpdateUserRoleArgs,
   { AppDataSource, user, redis }: Context
-): Promise<BaseResponse | ErrorResponse> => {
+): Promise<BaseResponseOrError> => {
   const { roleId, userId } = args;
   const { getSession, setSession, deleteSession } = redis;
 
@@ -428,7 +427,9 @@ export const updateUserRole = async (
           // Create new permission
           const newPermission = new Permission();
           newPermission.name = name as PermissionName;
-          newPermission.user = { id: userId } as User;
+          newPermission.user = Promise.resolve(
+            userRepository.create({ id: userId })
+          );
           newPermission.canRead = perm.canRead;
           newPermission.canCreate = perm.canCreate;
           newPermission.canUpdate = perm.canUpdate;

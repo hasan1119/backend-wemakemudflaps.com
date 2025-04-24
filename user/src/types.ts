@@ -25,6 +25,8 @@ export type BaseResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export type BaseResponseOrError = BaseResponse | ErrorResponse;
+
 export type CreatedBy = {
   __typename?: 'CreatedBy';
   email?: Maybe<Scalars['String']['output']>;
@@ -47,19 +49,31 @@ export type FieldError = {
   message: Scalars['String']['output'];
 };
 
+export type GetProfileResponseOrError = BaseResponse | UserResponse;
+
+export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
+
+export type GetRoleResponseOrError = ErrorResponse | RoleResponse;
+
+export type GetRolesResponseOrError = ErrorResponse | RolesResponse;
+
+export type GetUserByIdResponseOrError = ErrorResponse | UserResponse;
+
+export type GetUsersResponseOrError = ErrorResponse | UsersResponse;
+
 export type Mutation = {
   __typename?: 'Mutation';
-  changePassword: BaseResponse;
-  createUserRole: BaseResponse;
-  deleteUserRole: BaseResponse;
-  forgetPassword: BaseResponse;
-  login: UserLoginResponse;
-  register: BaseResponse;
-  resetPassword: BaseResponse;
-  updateProfile: UserProfileUpdateResponse;
-  updateUserPermission: BaseResponse;
-  updateUserRole: BaseResponse;
-  updateUserRoleInfo: BaseResponse;
+  changePassword: BaseResponseOrError;
+  createUserRole: BaseResponseOrError;
+  deleteUserRole: BaseResponseOrError;
+  forgetPassword: BaseResponseOrError;
+  login: UserLoginResponseOrError;
+  register: BaseResponseOrError;
+  resetPassword: BaseResponseOrError;
+  updateProfile: UserProfileUpdateResponseOrError;
+  updateUserPermission: BaseResponseOrError;
+  updateUserRole: BaseResponseOrError;
+  updateUserRoleInfo: BaseResponseOrError;
 };
 
 
@@ -145,10 +159,10 @@ export type Permissions = {
 
 export type Query = {
   __typename?: 'Query';
-  getAllUsers: UsersResponse;
-  getProfile: UserResponse;
-  getRole: RoleResponse;
-  getRoles: RolesResponse;
+  getAllUsers: GetUsersResponseOrError;
+  getProfile: GetProfileResponseOrError;
+  getRole: GetRoleByIdResponseOrError;
+  getRoles: GetRolesResponseOrError;
 };
 
 
@@ -223,6 +237,8 @@ export type UserLoginResponse = {
   token: Scalars['String']['output'];
 };
 
+export type UserLoginResponseOrError = ErrorResponse | UserLoginResponse;
+
 export type UserProfileUpdateResponse = {
   __typename?: 'UserProfileUpdateResponse';
   message: Scalars['String']['output'];
@@ -230,6 +246,8 @@ export type UserProfileUpdateResponse = {
   success: Scalars['Boolean']['output'];
   token: Scalars['String']['output'];
 };
+
+export type UserProfileUpdateResponseOrError = ErrorResponse | UserProfileUpdateResponse;
 
 export type UserResponse = {
   __typename?: 'UserResponse';
@@ -328,6 +346,18 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping of union types */
+export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
+  BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  GetProfileResponseOrError: ( BaseResponse ) | ( UserResponse );
+  GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
+  GetRoleResponseOrError: ( ErrorResponse ) | ( RoleResponse );
+  GetRolesResponseOrError: ( ErrorResponse ) | ( RolesResponse );
+  GetUserByIDResponseOrError: ( ErrorResponse ) | ( UserResponse );
+  GetUsersResponseOrError: ( ErrorResponse ) | ( UsersResponse );
+  UserLoginResponseOrError: ( ErrorResponse ) | ( UserLoginResponse );
+  UserProfileUpdateResponseOrError: ( ErrorResponse ) | ( UserProfileUpdateResponse );
+};
 
 
 /** Mapping between all available schema types and the resolvers types */
@@ -336,10 +366,17 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   CreatedBy: ResolverTypeWrapper<CreatedBy>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
   FieldError: ResolverTypeWrapper<FieldError>;
+  GetProfileResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProfileResponseOrError']>;
+  GetRoleByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRoleByIDResponseOrError']>;
+  GetRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRoleResponseOrError']>;
+  GetRolesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRolesResponseOrError']>;
+  GetUserByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUserByIDResponseOrError']>;
+  GetUsersResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUsersResponseOrError']>;
   Mutation: ResolverTypeWrapper<{}>;
   Permissions: ResolverTypeWrapper<Permissions>;
   Query: ResolverTypeWrapper<{}>;
@@ -350,7 +387,9 @@ export type ResolversTypes = {
   UpdateUserPermissionInput: UpdateUserPermissionInput;
   User: ResolverTypeWrapper<User>;
   UserLoginResponse: ResolverTypeWrapper<UserLoginResponse>;
+  UserLoginResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserLoginResponseOrError']>;
   UserProfileUpdateResponse: ResolverTypeWrapper<UserProfileUpdateResponse>;
+  UserProfileUpdateResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserProfileUpdateResponseOrError']>;
   UserResponse: ResolverTypeWrapper<UserResponse>;
   UsersResponse: ResolverTypeWrapper<UsersResponse>;
 };
@@ -361,10 +400,17 @@ export type ResolversParentTypes = {
   String: Scalars['String']['output'];
   Int: Scalars['Int']['output'];
   Boolean: Scalars['Boolean']['output'];
+  BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   CreatedBy: CreatedBy;
   ID: Scalars['ID']['output'];
   ErrorResponse: ErrorResponse;
   FieldError: FieldError;
+  GetProfileResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProfileResponseOrError'];
+  GetRoleByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRoleByIDResponseOrError'];
+  GetRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRoleResponseOrError'];
+  GetRolesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRolesResponseOrError'];
+  GetUserByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUserByIDResponseOrError'];
+  GetUsersResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUsersResponseOrError'];
   Mutation: {};
   Permissions: Permissions;
   Query: {};
@@ -375,7 +421,9 @@ export type ResolversParentTypes = {
   UpdateUserPermissionInput: UpdateUserPermissionInput;
   User: User;
   UserLoginResponse: UserLoginResponse;
+  UserLoginResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UserLoginResponseOrError'];
   UserProfileUpdateResponse: UserProfileUpdateResponse;
+  UserProfileUpdateResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UserProfileUpdateResponseOrError'];
   UserResponse: UserResponse;
   UsersResponse: UsersResponse;
 };
@@ -385,6 +433,10 @@ export type BaseResponseResolvers<ContextType = Context, ParentType extends Reso
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type BaseResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BaseResponseOrError'] = ResolversParentTypes['BaseResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type CreatedByResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatedBy'] = ResolversParentTypes['CreatedBy']> = {
@@ -409,18 +461,42 @@ export type FieldErrorResolvers<ContextType = Context, ParentType extends Resolv
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GetProfileResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProfileResponseOrError'] = ResolversParentTypes['GetProfileResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'UserResponse', ParentType, ContextType>;
+};
+
+export type GetRoleByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleByIDResponseOrError'] = ResolversParentTypes['GetRoleByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
+};
+
+export type GetRoleResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleResponseOrError'] = ResolversParentTypes['GetRoleResponseOrError']> = {
+  __resolveType: TypeResolveFn<'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
+};
+
+export type GetRolesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRolesResponseOrError'] = ResolversParentTypes['GetRolesResponseOrError']> = {
+  __resolveType: TypeResolveFn<'ErrorResponse' | 'RolesResponse', ParentType, ContextType>;
+};
+
+export type GetUserByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetUserByIDResponseOrError'] = ResolversParentTypes['GetUserByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'ErrorResponse' | 'UserResponse', ParentType, ContextType>;
+};
+
+export type GetUsersResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetUsersResponseOrError'] = ResolversParentTypes['GetUsersResponseOrError']> = {
+  __resolveType: TypeResolveFn<'ErrorResponse' | 'UsersResponse', ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  changePassword?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
-  createUserRole?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
-  deleteUserRole?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'id'>>;
-  forgetPassword?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationForgetPasswordArgs, 'email'>>;
-  login?: Resolver<ResolversTypes['UserLoginResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
-  register?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password'>>;
-  resetPassword?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
-  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponse'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'id'>>;
-  updateUserPermission?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
-  updateUserRole?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'roleId'>>;
-  updateUserRoleInfo?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id' | 'name'>>;
+  changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
+  createUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
+  deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'id'>>;
+  forgetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationForgetPasswordArgs, 'email'>>;
+  login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
+  register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password'>>;
+  resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
+  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'id'>>;
+  updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
+  updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'roleId'>>;
+  updateUserRoleInfo?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id' | 'name'>>;
 };
 
 export type PermissionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Permissions'] = ResolversParentTypes['Permissions']> = {
@@ -435,10 +511,10 @@ export type PermissionsResolvers<ContextType = Context, ParentType extends Resol
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getAllUsers?: Resolver<ResolversTypes['UsersResponse'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'pageNo' | 'showPerPage'>>;
-  getProfile?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType>;
-  getRole?: Resolver<ResolversTypes['RoleResponse'], ParentType, ContextType, RequireFields<QueryGetRoleArgs, 'id'>>;
-  getRoles?: Resolver<ResolversTypes['RolesResponse'], ParentType, ContextType>;
+  getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'pageNo' | 'showPerPage'>>;
+  getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
+  getRole?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleArgs, 'id'>>;
+  getRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType>;
 };
 
 export type RoleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Role'] = ResolversParentTypes['Role']> = {
@@ -486,12 +562,20 @@ export type UserLoginResponseResolvers<ContextType = Context, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UserLoginResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserLoginResponseOrError'] = ResolversParentTypes['UserLoginResponseOrError']> = {
+  __resolveType: TypeResolveFn<'ErrorResponse' | 'UserLoginResponse', ParentType, ContextType>;
+};
+
 export type UserProfileUpdateResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserProfileUpdateResponse'] = ResolversParentTypes['UserProfileUpdateResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserProfileUpdateResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserProfileUpdateResponseOrError'] = ResolversParentTypes['UserProfileUpdateResponseOrError']> = {
+  __resolveType: TypeResolveFn<'ErrorResponse' | 'UserProfileUpdateResponse', ParentType, ContextType>;
 };
 
 export type UserResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserResponse'] = ResolversParentTypes['UserResponse']> = {
@@ -515,9 +599,16 @@ export type UsersResponseResolvers<ContextType = Context, ParentType extends Res
 
 export type Resolvers<ContextType = Context> = {
   BaseResponse?: BaseResponseResolvers<ContextType>;
+  BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
   CreatedBy?: CreatedByResolvers<ContextType>;
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
+  GetProfileResponseOrError?: GetProfileResponseOrErrorResolvers<ContextType>;
+  GetRoleByIDResponseOrError?: GetRoleByIdResponseOrErrorResolvers<ContextType>;
+  GetRoleResponseOrError?: GetRoleResponseOrErrorResolvers<ContextType>;
+  GetRolesResponseOrError?: GetRolesResponseOrErrorResolvers<ContextType>;
+  GetUserByIDResponseOrError?: GetUserByIdResponseOrErrorResolvers<ContextType>;
+  GetUsersResponseOrError?: GetUsersResponseOrErrorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Permissions?: PermissionsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
@@ -526,7 +617,9 @@ export type Resolvers<ContextType = Context> = {
   RolesResponse?: RolesResponseResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserLoginResponse?: UserLoginResponseResolvers<ContextType>;
+  UserLoginResponseOrError?: UserLoginResponseOrErrorResolvers<ContextType>;
   UserProfileUpdateResponse?: UserProfileUpdateResponseResolvers<ContextType>;
+  UserProfileUpdateResponseOrError?: UserProfileUpdateResponseOrErrorResolvers<ContextType>;
   UserResponse?: UserResponseResolvers<ContextType>;
   UsersResponse?: UsersResponseResolvers<ContextType>;
 };

@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product, User } from "../../../entities";
+import { Product } from "./product.entity";
 
 @Entity()
 export class ProductReview {
@@ -18,9 +18,9 @@ export class ProductReview {
   @Column({ type: "boolean", default: false })
   isApproved: boolean;
 
-  // This field stores the user who left the review, can be null for guest reviews
-  @ManyToOne(() => User, (user) => user.productReviews, { nullable: true })
-  reviewedBy: User | null;
+  // User ID who left the review (string only for Apollo Federation compatibility)
+  @Column()
+  reviewedBy: string;
 
   // Name of the guest user leaving the review (nullable)
   @Column({ nullable: true })

@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product, User } from "../../../entities";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Media {
@@ -15,18 +14,19 @@ export class Media {
   @Column()
   mediaUrl: string;
 
-  @ManyToOne(() => Product, (product) => product.media, {
-    nullable: true,
-    onDelete: "CASCADE",
-  })
-  product: Product;
+  // Product Id associated with the media (string only for Apollo Federation compatibility)
+  @Column({ nullable: true })
+  productId: string | null;
 
-  @ManyToOne(() => User, (user) => user.media, { nullable: false })
-  createdBy: User;
+  // User ID who created the media (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
+  // Timestamp when the notification was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
+  // Timestamp for soft deletion (null if not deleted)
   @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date | null; // For soft deletion
+  deletedAt: Date | null;
 }

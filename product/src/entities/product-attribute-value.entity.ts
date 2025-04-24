@@ -1,6 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-
-import { ProductAttribute } from "../../../entities";
+import { ProductAttribute } from "./product-attribute.entity";
 
 @Entity()
 export class ProductAttributeValue {

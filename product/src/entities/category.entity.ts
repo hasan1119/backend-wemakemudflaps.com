@@ -1,11 +1,6 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { Product, SubCategory, User } from "../../../entities";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Product } from "./product.entity";
+import { SubCategory } from "./sub-category.entity";
 
 @Entity()
 export class Category {
@@ -26,9 +21,9 @@ export class Category {
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];
 
-  // User who created the category (Many categories can be created by one user)
-  @ManyToOne(() => User, (user) => user.categories, { nullable: false })
-  createdBy: User;
+  // User ID who created the category (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the category was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

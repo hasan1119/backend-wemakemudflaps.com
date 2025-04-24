@@ -7,14 +7,12 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import {
-  Product,
-  ProductPrice,
-  ProductVariationAttributeValue,
-  ShippingClass,
-  TaxClass,
-  TaxStatus,
-} from "../../../entities";
+import { ProductPrice } from "./product-price.entity";
+import { ProductVariationAttributeValue } from "./product-variation-attribute-value.entity";
+import { Product } from "./product.entity";
+import { ShippingClass } from "./shipping-class.entity";
+import { TaxClass } from "./tax-class.entity";
+import { TaxStatus } from "./tax-status.entity";
 
 @Entity()
 export class ProductVariation {

@@ -5,8 +5,7 @@ import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
 import { getUserEmailCacheKey } from "../../../../helper/redis/session-keys";
 import {
-  BaseResponse,
-  ErrorResponse,
+  BaseResponseOrError,
   MutationForgetPasswordArgs,
 } from "../../../../types";
 import { emailSchema } from "../../../../utils/data-validation/auth/auth";
@@ -30,13 +29,13 @@ interface LockoutSession {
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for reset password request (email)
  * @param context - GraphQL context with AppDataSource
- * @returns Promise<BaseResponse | ErrorResponse> - Response status and message
+ * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const forgetPassword = async (
   _,
   args: MutationForgetPasswordArgs,
   context: Context
-): Promise<BaseResponse | ErrorResponse> => {
+): Promise<BaseResponseOrError> => {
   const { AppDataSource, redis } = context;
   const { email } = args;
   const { getSession, setSession, deleteSession } = redis;

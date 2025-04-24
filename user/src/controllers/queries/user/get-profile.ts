@@ -2,7 +2,7 @@ import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import { getSingleUserCacheKey } from "../../../helper/redis/session-keys";
-import { BaseResponse, UserResponse } from "../../../types";
+import { GetProfileResponseOrError } from "../../../types";
 
 /**
  * Retrieves the authenticated user's profile data, including their role name.
@@ -14,13 +14,13 @@ import { BaseResponse, UserResponse } from "../../../types";
  * @param _ - Unused GraphQL parent argument
  * @param __ - Unused GraphQL argument
  * @param context - Application context containing AppDataSource, user, and redis
- * @returns Promise<UserResponse | BaseResponse> - User details with role name or error response
+ * @returns Promise<GetProfileResponseOrError> - User details with role name or error response
  */
 export const getProfile = async (
   _: any,
   __: any,
   { AppDataSource, user, redis }: Context
-): Promise<UserResponse | BaseResponse> => {
+): Promise<GetProfileResponseOrError> => {
   const { getSession, setSession } = redis;
 
   try {

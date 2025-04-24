@@ -1,28 +1,28 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product, User, VariantValue } from "../../../entities";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Wishlist {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => User, (user) => user.wishlistItems, { nullable: true })
-  createdBy: User | null; // Nullable for guest carts
+  // Product Id associated with the cart (string only for Apollo Federation compatibility))
+  @Column()
+  productId: string;
+
+  // TODO: Handle product variations (store variation ID or manage variations separately)
+  // If product variations exist, consider whether each cart item should store a variation ID
+  // You could add a column like `variationId: string` or use another entity to link variations
+
+  // User Id associated with the cart (string only for Apollo Federation compatibility))
+  @Column({ nullable: true })
+  createdBy: string | null;
 
   @Column({ nullable: true })
   guestSessionId: string | null; // For guest carts
-
-  @ManyToOne(() => Product, (product) => product.wishlistItems)
-  product: Product;
-
-  @ManyToOne(() => VariantValue, (variantValue) => variantValue.wishlistItems, {
-    nullable: true,
-  })
-  variant: VariantValue | null;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
   @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date | null; // For soft deletion
+  deletedAt: Date | null;
 }

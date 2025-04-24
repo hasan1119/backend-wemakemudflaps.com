@@ -1,11 +1,5 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { Coupon, OrderItem, User } from "../../../entities";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { OrderItem } from "./order-item.entity";
 
 @Entity()
 export class Order {
@@ -30,9 +24,9 @@ export class Order {
   })
   oderStatus: string;
 
-  // User who placed the order (nullable for guest orders)
-  @ManyToOne(() => User, (user) => user.orders, { nullable: true })
-  orderedBy: User | null;
+  // User ID who placed the order (string only for Apollo Federation compatibility)
+  @Column({ nullable: true })
+  orderedById: string | null;
 
   // Email of the guest user (nullable for guest orders)
   @Column({ nullable: true })
@@ -54,9 +48,9 @@ export class Order {
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   orderItems: OrderItem[];
 
-  // Coupon applied to the order (nullable, one-to-many relationship with Coupon)
-  @ManyToOne(() => Coupon, (coupon) => coupon.order)
-  coupons: Coupon;
+  // Coupon applied to the order (string only for Apollo Federation compatibility)
+  @Column({ nullable: true })
+  couponId: string | null;
 
   // Timestamp indicating when the order was placed
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

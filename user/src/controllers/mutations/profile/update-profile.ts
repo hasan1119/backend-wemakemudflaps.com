@@ -3,10 +3,8 @@ import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import { getSingleUserCacheKey } from "../../../helper/redis/session-keys";
 import {
-  BaseResponse,
-  ErrorResponse,
   MutationUpdateProfileArgs,
-  UserProfileUpdateResponse,
+  UserProfileUpdateResponseOrError,
 } from "../../../types";
 import { updateProfileSchema } from "../../../utils/data-validation/auth/auth";
 import EncodeToken from "../../../utils/jwt/encode-token";
@@ -24,13 +22,13 @@ import EncodeToken from "../../../utils/jwt/encode-token";
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for update user profile ( firstName, lastName, email, gender )
  * @param context - Application context containing AppDataSource, user and redis
- * @returns Promise<UserUpdateResponse | ErrorResponse | BaseResponse> - User profile update result with status and message
+ * @returns Promise<UserProfileUpdateResponseOrError> - User profile update result with status and message
  */
 export const updateProfile = async (
   _: any,
   args: MutationUpdateProfileArgs,
   { AppDataSource, user, redis }: Context
-): Promise<UserProfileUpdateResponse | ErrorResponse | BaseResponse> => {
+): Promise<UserProfileUpdateResponseOrError> => {
   const { firstName, lastName, email, gender } = args;
   const { setSession, getSession } = redis;
 
@@ -41,7 +39,7 @@ export const updateProfile = async (
         statusCode: 401,
         success: false,
         message: "You're not authenticated",
-        __typename: "BaseResponse",
+        __typename: "ErrorResponse",
       };
     }
 
@@ -88,7 +86,7 @@ export const updateProfile = async (
           statusCode: 404,
           success: false,
           message: "Authenticated user not found in database",
-          __typename: "BaseResponse",
+          __typename: "ErrorResponse",
         };
       }
     }
@@ -143,7 +141,7 @@ export const updateProfile = async (
       statusCode: 500,
       success: false,
       message: error.message || "Internal server error",
-      __typename: "BaseResponse",
+      __typename: "ErrorResponse",
     };
   }
 };

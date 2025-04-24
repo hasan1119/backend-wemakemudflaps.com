@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../../../entities";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class TermAndCondition {
@@ -10,9 +9,9 @@ export class TermAndCondition {
   @Column()
   content: string;
 
-  // User who created the terms and conditions (Many terms can be created by one user)
-  @ManyToOne(() => User, (user) => user.termsAndConditions, { nullable: false })
-  createdBy: User;
+  // User ID who created the terms and conditions (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the terms and conditions were created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

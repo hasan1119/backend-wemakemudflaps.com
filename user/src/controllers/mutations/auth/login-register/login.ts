@@ -9,12 +9,7 @@ import {
   getUserEmailCacheKey,
   getUserSessionCacheKey,
 } from "../../../../helper/redis/session-keys";
-import {
-  BaseResponse,
-  ErrorResponse,
-  MutationLoginArgs,
-  UserLoginResponse,
-} from "../../../../types";
+import { MutationLoginArgs, UserLoginResponseOrError } from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import { loginSchema } from "../../../../utils/data-validation/auth/auth";
 import EncodeToken from "../../../../utils/jwt/encode-token";
@@ -37,13 +32,13 @@ interface LockoutSession {
  * @param _ - Unused GraphQL parent argument
  * @param args - Login arguments (email, password)
  * @param context - GraphQL context with AppDataSource and Redis
- * @returns Promise<UserLoginResponse | ErrorResponse | BaseResponse> - Response status and message
+ * @returns Promise<UserLoginResponseOrError> - Response status and message
  */
 export const login = async (
   _: any,
   args: MutationLoginArgs,
   { redis, AppDataSource }: Context
-): Promise<UserLoginResponse | ErrorResponse | BaseResponse> => {
+): Promise<UserLoginResponseOrError> => {
   const { email, password } = args;
   const { getSession, setSession, deleteSession } = redis;
 
@@ -93,7 +88,7 @@ export const login = async (
           statusCode: 400,
           success: false,
           message: `User not found with this email: ${email}`,
-          __typename: "BaseResponse",
+          __typename: "ErrorResponse",
         };
       }
 
@@ -131,7 +126,7 @@ export const login = async (
           statusCode: 400,
           success: false,
           message: `Account locked. Please try again after ${minutes}m ${seconds}s.`,
-          __typename: "BaseResponse",
+          __typename: "ErrorResponse",
         };
       } else {
         // Clear cache and unlock the account if the lock time has expired
@@ -170,7 +165,7 @@ export const login = async (
           statusCode: 400,
           success: false,
           message: "Account locked. Please try again after 15 minutes.",
-          __typename: "BaseResponse",
+          __typename: "ErrorResponse",
         };
       }
 
@@ -178,7 +173,7 @@ export const login = async (
         statusCode: 400,
         success: false,
         message: "Invalid password",
-        __typename: "BaseResponse",
+        __typename: "ErrorResponse",
       };
     }
 
@@ -223,7 +218,7 @@ export const login = async (
       statusCode: 500,
       success: false,
       message: error.message || "Internal server error",
-      __typename: "BaseResponse",
+      __typename: "ErrorResponse",
     };
   }
 };

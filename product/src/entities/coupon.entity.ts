@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Order, Product, User } from "../../../entities";
+import { Product } from "./product.entity";
 
 @Entity()
 export class Coupon {
@@ -43,16 +43,13 @@ export class Coupon {
   })
   product: Product | null;
 
-  // A coupon may be tied to a specific order
-  @ManyToOne(() => Order, (order) => order.coupon, {
-    nullable: true,
-    onDelete: "CASCADE", // Ensures the associated coupon is deleted if the order is deleted
-  })
-  order: Order | null;
+  // A coupon may be tied to a specific order (string only for Apollo Federation compatibility)
+  @Column({ nullable: true })
+  orderId: string | null;
 
-  // User who created the coupon (Many coupons can be created by one user)
-  @ManyToOne(() => User, (user) => user.coupons, { nullable: false })
-  createdBy: User;
+  // User ID who created the coupon (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
 
   // Timestamp when the coupon was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

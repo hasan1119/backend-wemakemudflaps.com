@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product, User, VariantValue } from "../../../entities";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Cart {
@@ -9,16 +8,17 @@ export class Cart {
   @Column()
   quantity: number;
 
-  @ManyToOne(() => Product, (product) => product.cartItems)
-  product: Product;
+  // Product Id associated with the cart (string only for Apollo Federation compatibility))
+  @Column()
+  productId: string;
 
-  @ManyToOne(() => VariantValue, (variantValue) => variantValue.cartItems, {
-    nullable: true,
-  })
-  variant: VariantValue | null;
+  // TODO: Handle product variations (store variation ID or manage variations separately)
+  // If product variations exist, consider whether each cart item should store a variation ID
+  // You could add a column like `variationId: string` or use another entity to link variations
 
-  @ManyToOne(() => User, (user) => user.cartItems, { nullable: true })
-  createdBy: User | null; // Nullable for guest carts
+  // User Id associated with the cart (string only for Apollo Federation compatibility))
+  @Column({ nullable: true })
+  createdBy: string | null;
 
   @Column({ nullable: true })
   guestSessionId: string | null; // For guest carts
@@ -27,5 +27,5 @@ export class Cart {
   createdAt: Date;
 
   @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date | null; // For soft deletion
+  deletedAt: Date | null;
 }

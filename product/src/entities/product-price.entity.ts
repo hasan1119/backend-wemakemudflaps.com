@@ -5,11 +5,9 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import {
-  Product,
-  ProductTieredPrice,
-  ProductVariation,
-} from "../../../entities/";
+import { ProductTieredPrice } from "./product-tiered-pricing";
+import { ProductVariation } from "./product-variation.entity";
+import { Product } from "./product.entity";
 
 @Entity()
 export class ProductPrice {
