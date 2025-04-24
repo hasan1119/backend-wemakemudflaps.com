@@ -14,5 +14,5 @@
     "emitDecoratorMetadata": true,
     "lib": ["ES2017", "ES2018", "DOM"]
   },
-  "include": ["src/**/*", "utils"]
+  "include": ["src/**/*", "src/utils", "utils"]
 }
