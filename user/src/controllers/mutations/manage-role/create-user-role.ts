@@ -14,7 +14,7 @@ import {
   BaseResponseOrError,
   MutationCreateUserRoleArgs,
 } from "../../../types";
-import { userRoleSchema } from "../../../utils/data-validation/auth/auth";
+import { userRoleSchema } from "../../../utils/data-validation";
 
 /**
  * Creates a new user role in the system.

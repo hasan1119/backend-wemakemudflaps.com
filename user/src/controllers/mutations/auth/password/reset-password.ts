@@ -6,7 +6,7 @@ import {
   MutationResetPasswordArgs,
 } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
-import { resetPasswordSchema } from "../../../../utils/data-validation/auth/auth";
+import { resetPasswordSchema } from "../../../../utils/data-validation";
 
 /**
  * Handles resetting the user's password using a token.

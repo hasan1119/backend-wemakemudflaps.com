@@ -2,6 +2,7 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import "reflect-metadata";
+// import { seedRoles } from "./seed-data/user-role";
 import CONFIG from "./src/config/config";
 import { connectDB } from "./src/helper";
 import { resolvers } from "./src/helper/combine/resolver";
@@ -11,6 +12,8 @@ import createContext from "./src/middleware/context";
 async function startApolloServer() {
   // Connect to the database
   await connectDB();
+
+  // await seedRoles();
 
   // Create the Apollo Server instance with subgraph schema
   const server = new ApolloServer({

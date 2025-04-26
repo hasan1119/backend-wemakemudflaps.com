@@ -15,7 +15,7 @@ import {
   BaseResponseOrError,
   MutationUpdateUserRoleArgs,
 } from "../../../types";
-import { userRoleUpdateSchema } from "../../../utils/data-validation/auth/auth";
+import { userRoleUpdateSchema } from "../../../utils/data-validation";
 
 /**
  * Defines allowed permissions for each role

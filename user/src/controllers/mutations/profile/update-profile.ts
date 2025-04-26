@@ -6,7 +6,7 @@ import {
   MutationUpdateProfileArgs,
   UserProfileUpdateResponseOrError,
 } from "../../../types";
-import { updateProfileSchema } from "../../../utils/data-validation/auth/auth";
+import { updateProfileSchema } from "../../../utils/data-validation";
 import EncodeToken from "../../../utils/jwt/encode-token";
 
 /**

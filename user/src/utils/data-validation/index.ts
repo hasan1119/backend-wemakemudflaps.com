@@ -2,15 +2,17 @@
 export {
   changePasswordSchema,
   emailSchema,
-  idSchema,
-  idsSchema,
   loginSchema,
   registerSchema,
   resetPasswordSchema,
   updateProfileSchema,
-  userRoleSchema,
-  userRoleUpdateSchema,
 } from "./auth/auth";
+
+// Common schemas for user
+export { idSchema, idsSchema, paginationSchema } from "./common/common";
+
+// Role schemas for user
+export { userRoleSchema, userRoleUpdateSchema } from "./role/role";
 
 // Permission schemas for user
 export { updateUserPermissionSchema } from "./permission/permission";

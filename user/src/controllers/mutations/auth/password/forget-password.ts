@@ -8,7 +8,7 @@ import {
   BaseResponseOrError,
   MutationForgetPasswordArgs,
 } from "../../../../types";
-import { emailSchema } from "../../../../utils/data-validation/auth/auth";
+import { emailSchema } from "../../../../utils/data-validation";
 import SendEmail from "../../../../utils/email/send-email";
 
 // Define the type for lockout session
