@@ -14,7 +14,7 @@ import {
   BaseResponseOrError,
   MutationDeleteUserRoleArgs,
 } from "../../../types";
-import { idSchema } from "../../../utils/data-validation/auth/auth";
+import { idSchema } from "../../../utils/data-validation";
 
 /**
  * Deletes a user role with validation and permission checks.

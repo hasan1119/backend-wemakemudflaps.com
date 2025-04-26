@@ -7,7 +7,7 @@ import {
 } from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
-import { changePasswordSchema } from "../../../../utils/data-validation/auth/auth";
+import { changePasswordSchema } from "../../../../utils/data-validation";
 
 /**
  * Allows an authenticated user to change their password.

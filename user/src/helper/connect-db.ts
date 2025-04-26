@@ -10,10 +10,10 @@ export const AppDataSource = new DataSource({
   database: config.DB_NAME,
   synchronize: config.DB_SYNCHRONIZE,
   entities: [
-    config.DB_ENTITIES || `${__dirname}../../../entities/**/*.entity.{ts,js}`,
+    config.DB_ENTITIES || `${__dirname}../entities/**/*.entity.{ts,js}`,
   ],
   migrations: [
-    config.DB_MIGRATIONS || `${__dirname}../../../entities/**/*.entity.{ts,js}`,
+    config.DB_MIGRATIONS || `${__dirname}../entities/**/*.entity.{ts,js}`,
   ],
   // Default fallback
   subscribers: [],

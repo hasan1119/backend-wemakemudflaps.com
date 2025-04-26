@@ -96,9 +96,9 @@ type UsersResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  pageNo: Int!
-  showPerPage: Int!
-  searchKeyWord: String
+  page: Int!
+  limit: Int!
+  search: String
   users: [User!]!
 }
 

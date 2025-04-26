@@ -11,7 +11,7 @@ import {
 } from "../../../../helper/redis/session-keys";
 import { MutationLoginArgs, UserLoginResponseOrError } from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
-import { loginSchema } from "../../../../utils/data-validation/auth/auth";
+import { loginSchema } from "../../../../utils/data-validation";
 import EncodeToken from "../../../../utils/jwt/encode-token";
 
 // Define the type for lockout session

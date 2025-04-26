@@ -16,7 +16,7 @@ import {
 } from "../../../../helper/redis/session-keys";
 import { BaseResponseOrError, MutationRegisterArgs } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
-import { registerSchema } from "../../../../utils/data-validation/auth/auth";
+import { registerSchema } from "../../../../utils/data-validation";
 
 // List of all possible permission names for the system
 const PermissionNames: PermissionName[] = [

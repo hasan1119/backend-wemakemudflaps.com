@@ -9,7 +9,7 @@ import {
   getSingleUserRoleCacheKey,
 } from "../../../helper/redis/session-keys";
 import { GetRoleByIdResponseOrError, QueryGetRoleArgs } from "../../../types";
-import { idSchema } from "../../../utils/data-validation/auth/auth";
+import { idSchema } from "../../../utils/data-validation";
 
 /**
  * Retrieves a single user role by ID with validation and permission checks.
