@@ -5,7 +5,8 @@
   "scripts": {
     "con": "concurrently \"bun run devStart\" \"bun run generate\"",
     "dev": "bun --hot index.ts",
-    "gen": "graphql-codegen"
+    "gen": "graphql-codegen",
+    "redis": "redis-cli -h 195.179.193.1 -a password"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.5",

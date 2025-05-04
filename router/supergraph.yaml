@@ -1,6 +1,6 @@
 # Example :
-# subgraphs:
-#   users:
-#     routing_url: http://localhost:4001/
-#     schema:
-#       subgraph_url: http://localhost:4001/
+subgraphs:
+  user:
+    routing_url: http://localhost:4001/
+    schema:
+      subgraph_url: http://localhost:4001/
