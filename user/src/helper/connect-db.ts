@@ -9,13 +9,8 @@ export const AppDataSource = new DataSource({
   password: config.DB_PASSWORD,
   database: config.DB_NAME,
   synchronize: config.DB_SYNCHRONIZE,
-  entities: [
-    config.DB_ENTITIES || `${__dirname}../entities/**/*.entity.{ts,js}`,
-  ],
-  migrations: [
-    config.DB_MIGRATIONS || `${__dirname}../entities/**/*.entity.{ts,js}`,
-  ],
-  // Default fallback
+  entities: [`${__dirname}/../entities/**/*.entity.{ts,js}`],
+  migrations: [`${__dirname}/../migrations/**/*.{ts,js}`],
   subscribers: [],
 });
 
