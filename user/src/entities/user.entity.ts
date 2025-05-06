@@ -5,13 +5,13 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-} from "typeorm";
-import { Permission } from "./permission.entity";
-import { Role } from "./user-role.entity";
+} from 'typeorm';
+import { Permission } from './permission.entity';
+import { Role } from './user-role.entity';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   // First name of the user
@@ -32,8 +32,8 @@ export class User {
 
   // Gender of the user (optional)
   @Column({
-    type: "enum",
-    enum: ["Male", "Female", "Others", "Rather not to say"],
+    type: 'enum',
+    enum: ['Male', 'Female', 'Others', 'Rather not to say'],
     nullable: true,
     default: null,
   })
@@ -41,7 +41,7 @@ export class User {
 
   // Each user has only one role
   @ManyToOne(() => Role, (role) => role.users, { nullable: false })
-  @JoinColumn({ name: "roleId" })
+  @JoinColumn({ name: 'roleId' })
   role: Role;
 
   // forget password token
@@ -52,15 +52,18 @@ export class User {
   @OneToMany(() => Role, (role) => role.createdBy)
   roles: Role[];
 
-  // Permissions specific to each user
-  @OneToMany(() => Permission, (permission) => permission.user)
-  permissions: Permission[];
+  // Permissions specific to each user (can be empty or null)
+  @OneToMany(() => Permission, (permission) => permission.user, {
+    nullable: true, // <-- optional, makes it explicit
+    cascade: true, // <-- optional if you want to persist related permissions automatically
+  })
+  permissions?: Permission[] | null;
 
   // Timestamp when the user was created
-  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   deletedAt: Date | null;
 }

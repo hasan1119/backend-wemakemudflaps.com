@@ -1,11 +1,11 @@
-import { DeepPartial, Repository } from "typeorm";
-import { Context } from "../../../../context";
+import { DeepPartial, Repository } from 'typeorm';
+import { Context } from '../../../../context';
 import {
   Permission,
   PermissionName,
-} from "../../../../entities/permission.entity";
-import { Role } from "../../../../entities/user-role.entity";
-import { User } from "../../../../entities/user.entity";
+} from '../../../../entities/permission.entity';
+import { Role } from '../../../../entities/user-role.entity';
+import { User } from '../../../../entities/user.entity';
 import {
   getRegisterUserCountKeyCacheKey,
   getSingleUserCacheKey,
@@ -13,32 +13,32 @@ import {
   getSingleUserRoleCacheKey,
   getSingleUserRoleInfoByNameCacheKey,
   getUserEmailCacheKey,
-} from "../../../../helper/redis/session-keys";
-import { BaseResponseOrError, MutationRegisterArgs } from "../../../../types";
-import HashInfo from "../../../../utils/bcrypt/hash-info";
-import { registerSchema } from "../../../../utils/data-validation";
+} from '../../../../helper/redis/session-keys';
+import { BaseResponseOrError, MutationRegisterArgs } from '../../../../types';
+import HashInfo from '../../../../utils/bcrypt/hash-info';
+import { registerSchema } from '../../../../utils/data-validation';
 
 // List of all possible permission names for the system
 const PermissionNames: PermissionName[] = [
-  "User",
-  "Brand",
-  "Category",
-  "Permission",
-  "Product",
-  "Product Review",
-  "Shipping Class",
-  "Sub Category",
-  "Tax Class",
-  "Tax Status",
-  "FAQ",
-  "News Letter",
-  "Pop Up Banner",
-  "Privacy & Policy",
-  "Terms & Conditions",
-  "Role",
-  "Order",
-  "Notification",
-  "Media",
+  'User',
+  'Brand',
+  'Category',
+  'Permission',
+  'Product',
+  'Product Review',
+  'Shipping Class',
+  'Sub Category',
+  'Tax Class',
+  'Tax Status',
+  'FAQ',
+  'News Letter',
+  'Pop Up Banner',
+  'Privacy & Policy',
+  'Terms & Conditions',
+  'Role',
+  'Order',
+  'Notification',
+  'Media',
 ];
 
 /**
@@ -75,16 +75,16 @@ export const register = async (
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join('.'),
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed",
+        message: 'Validation failed',
         errors: errorMessages,
-        __typename: "ErrorResponse",
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -103,8 +103,8 @@ export const register = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Email already in use",
-        __typename: "BaseResponse",
+        message: 'Email already in use',
+        __typename: 'BaseResponse',
       };
     } else {
       // Cache miss: Fetch user from database
@@ -113,8 +113,8 @@ export const register = async (
         return {
           statusCode: 400,
           success: false,
-          message: "Email already in use",
-          __typename: "BaseResponse",
+          message: 'Email already in use',
+          __typename: 'BaseResponse',
         };
       }
     }
@@ -137,20 +137,20 @@ export const register = async (
 
     // Check Redis for cached user role info
     const cachedSuperAdminRole = await getSession(
-      getSingleUserRoleInfoByNameCacheKey("super admin")
+      getSingleUserRoleInfoByNameCacheKey('super admin')
     );
 
     if (Number(userCount) === 0 || !cachedSuperAdminRole) {
       // Check if Super Admin role is missing or not
       role = await roleRepository.findOne({
-        where: { name: "SUPER ADMIN" },
+        where: { name: 'SUPER ADMIN' },
       });
 
       if (!role) {
         // Create Super Admin role
         role = roleRepository.create({
-          name: "SUPER ADMIN",
-          description: "Has full control over all aspects of the platform.",
+          name: 'SUPER ADMIN',
+          description: 'Has full control over all aspects of the platform.',
           createdBy: null,
         });
         await roleRepository.save(role);
@@ -158,7 +158,7 @@ export const register = async (
 
       // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(
-        getSingleUserRoleInfoByNameCacheKey("super admin"),
+        getSingleUserRoleInfoByNameCacheKey('super admin'),
         role
       );
 
@@ -179,13 +179,13 @@ export const register = async (
         permissionRepository.create({
           name,
           description: `${name} permission for Super Admin`,
-          user: Promise.resolve(savedUser), // Assign user to each permission
+          user: savedUser, // Assign user to each permission
           createdBy: null, // Since no one created the first user
           canCreate: true,
           canRead: true,
           canUpdate: true,
           canDelete: true,
-        })
+        } as DeepPartial<Permission>)
       );
 
       const fullPermissions = await permissionRepository.save(permissions);
@@ -208,34 +208,34 @@ export const register = async (
       return {
         statusCode: 201,
         success: true,
-        message: "Super Admin registered successfully",
-        __typename: "BaseResponse",
+        message: 'Super Admin registered successfully',
+        __typename: 'BaseResponse',
       };
     } else {
       // Check Redis for cached user role info
       const cachedCustomerRole = await getSession(
-        getSingleUserRoleInfoByNameCacheKey("customer")
+        getSingleUserRoleInfoByNameCacheKey('customer')
       );
 
       if (!cachedCustomerRole) {
         // Cache miss: Fetch user from database
         role = await roleRepository.findOne({
-          where: { name: "CUSTOMER" },
+          where: { name: 'CUSTOMER' },
         });
 
         if (!role) {
           // Create customer role
           role = roleRepository.create({
-            name: "CUSTOMER",
+            name: 'CUSTOMER',
             description:
-              "Regular customers who can browse products, place orders, view their purchase history and other related things.",
+              'Regular customers who can browse products, place orders, view their purchase history and other related things.',
             createdBy: null,
           });
           await roleRepository.save(role);
         }
 
         // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
-        await setSession(getSingleUserRoleInfoByNameCacheKey("customer"), role);
+        await setSession(getSingleUserRoleInfoByNameCacheKey('customer'), role);
       }
 
       // Create Customer user
@@ -257,54 +257,54 @@ export const register = async (
           let canUpdate = false;
           let canDelete = false;
 
-          if (name === "Order") {
+          if (name === 'Order') {
             canCreate = true;
             canRead = true;
             canUpdate = false;
             canDelete = true;
           }
-          if (name === "Permission") {
+          if (name === 'Permission') {
             canCreate = false;
             canRead = false;
             canUpdate = false;
             canDelete = false;
           }
-          if (name === "News Letter") {
+          if (name === 'News Letter') {
             canCreate = false;
             canRead = false;
             canUpdate = false;
             canDelete = false;
           }
 
-          if (name === "Product Review") {
+          if (name === 'Product Review') {
             canCreate = true;
             canRead = true;
             canUpdate = true;
             canDelete = true;
           }
 
-          if (name === "Notification") {
+          if (name === 'Notification') {
             canCreate = false;
             canRead = true;
             canUpdate = true;
             canDelete = true;
           }
 
-          if (name === "User") {
+          if (name === 'User') {
             canCreate = false;
             canRead = false;
             canUpdate = false;
             canDelete = false;
           }
 
-          if (name === "Role") {
+          if (name === 'Role') {
             canCreate = false;
             canRead = false;
             canUpdate = false;
             canDelete = false;
           }
 
-          if (name === "Media") {
+          if (name === 'Media') {
             canCreate = false;
             canRead = false;
             canUpdate = false;
@@ -346,17 +346,17 @@ export const register = async (
       return {
         statusCode: 201,
         success: true,
-        message: "Registration successful",
-        __typename: "BaseResponse",
+        message: 'Registration successful',
+        __typename: 'BaseResponse',
       };
     }
   } catch (error: any) {
-    console.error("Error registering user:", error);
+    console.error('Error registering user:', error);
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
-      __typename: "BaseResponse",
+      message: error.message || 'Internal server error',
+      __typename: 'BaseResponse',
     };
   }
 };

@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -20,8 +20,6 @@ interface Config {
   DB_PASSWORD: string;
   DB_NAME: string;
   DB_SYNCHRONIZE: boolean;
-  DB_ENTITIES: string;
-  DB_MIGRATIONS: string;
 
   /* Bcrypt configurations */
   SALT_ROUNDS: number;
@@ -62,9 +60,7 @@ const CONFIG: Config = {
   DB_PASSWORD: process.env.DB_PASSWORD as string,
   DB_NAME: process.env.DB_NAME as string,
   DB_SYNCHRONIZE:
-    (process.env.DB_SYNCHRONIZE as string) === "true" ? true : false,
-  DB_ENTITIES: process.env.DB_ENTITIES as string,
-  DB_MIGRATIONS: process.env.DB_MIGRATIONS as string,
+    (process.env.DB_SYNCHRONIZE as string) === 'true' ? true : false,
 
   /* Bcrypt configurations */
   SALT_ROUNDS: parseInt(process.env.SALT_ROUNDS as string, 10),
