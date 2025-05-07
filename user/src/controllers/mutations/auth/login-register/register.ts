@@ -13,6 +13,7 @@ import {
   getSingleUserRoleCacheKey,
   getSingleUserRoleInfoByNameCacheKey,
   getUserEmailCacheKey,
+  getUserInfoByEmailCacheKey,
 } from '../../../../helper/redis/session-keys';
 import { BaseResponseOrError, MutationRegisterArgs } from '../../../../types';
 import HashInfo from '../../../../utils/bcrypt/hash-info';
@@ -135,26 +136,14 @@ export const register = async (
     // Initiate the empty variable for the user role & super admin
     let role;
 
-    // Check Redis for cached user role info
-    const cachedSuperAdminRole = await getSession(
-      getSingleUserRoleInfoByNameCacheKey('super admin')
-    );
-
-    if (Number(userCount) === 0 || !cachedSuperAdminRole) {
-      // Check if Super Admin role is missing or not
-      role = await roleRepository.findOne({
-        where: { name: 'SUPER ADMIN' },
+    if (Number(userCount) === 0) {
+      // Create Super Admin role
+      const savedRole = roleRepository.create({
+        name: 'SUPER ADMIN',
+        description: 'Has full control over all aspects of the platform.',
+        createdBy: null,
       });
-
-      if (!role) {
-        // Create Super Admin role
-        role = roleRepository.create({
-          name: 'SUPER ADMIN',
-          description: 'Has full control over all aspects of the platform.',
-          createdBy: null,
-        });
-        await roleRepository.save(role);
-      }
+      role = await roleRepository.save(savedRole);
 
       // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(
@@ -198,6 +187,14 @@ export const register = async (
         lastName: savedUser.lastName,
         role: savedUser.role.name,
       });
+      await setSession(getUserInfoByEmailCacheKey(email), {
+        id: savedUser.id,
+        email: savedUser.email,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        password: savedUser.password,
+        role: savedUser.role.name,
+      });
       await setSession(getUserEmailCacheKey(email), email);
       await setSession(getSingleUserRoleCacheKey(role.id), role);
       await setSession(
@@ -212,12 +209,12 @@ export const register = async (
         __typename: 'BaseResponse',
       };
     } else {
+      // Initiate the empty variable for the user role & customer
+      let role;
       // Check Redis for cached user role info
-      const cachedCustomerRole = await getSession(
-        getSingleUserRoleInfoByNameCacheKey('customer')
-      );
+      role = await getSession(getSingleUserRoleInfoByNameCacheKey('customer'));
 
-      if (!cachedCustomerRole) {
+      if (!role) {
         // Cache miss: Fetch user from database
         role = await roleRepository.findOne({
           where: { name: 'CUSTOMER' },
@@ -225,13 +222,13 @@ export const register = async (
 
         if (!role) {
           // Create customer role
-          role = roleRepository.create({
+          const savedRole = roleRepository.create({
             name: 'CUSTOMER',
             description:
               'Regular customers who can browse products, place orders, view their purchase history and other related things.',
             createdBy: null,
           });
-          await roleRepository.save(role);
+          role = await roleRepository.save(savedRole);
         }
 
         // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
@@ -245,7 +242,7 @@ export const register = async (
         email,
         password: hashedPassword,
         gender: gender || null,
-        role: cachedCustomerRole ? cachedCustomerRole : role, // Assign the Role entity object
+        role, // Assign the Role entity object
       });
       await userRepository.save(savedUser);
 
@@ -334,6 +331,14 @@ export const register = async (
         email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
+        role: savedUser.role.name,
+      });
+      await setSession(getUserInfoByEmailCacheKey(email), {
+        id: savedUser.id,
+        email: savedUser.email,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        password: savedUser.password,
         role: savedUser.role.name,
       });
       await setSession(getUserEmailCacheKey(email), savedUser.email);

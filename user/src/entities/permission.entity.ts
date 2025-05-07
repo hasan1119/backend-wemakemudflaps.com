@@ -68,7 +68,7 @@ export class Permission {
   // The user who has this permission
   @ManyToOne(() => User, (user) => user.permissions, { nullable: false })
   @JoinColumn({ name: 'userId' })
-  user: User;
+  user: Promise<User>;
 
   // User who created the permission
   @ManyToOne(() => User, { nullable: true })

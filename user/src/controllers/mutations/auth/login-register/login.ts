@@ -1,6 +1,6 @@
-import { Repository } from "typeorm";
-import { Context } from "../../../../context";
-import { User } from "../../../../entities/user.entity";
+import { Repository } from 'typeorm';
+import { Context } from '../../../../context';
+import { User } from '../../../../entities/user.entity';
 import {
   getLockoutKeyCacheKey,
   getLoginAttemptsKeyCacheKey,
@@ -8,11 +8,11 @@ import {
   getSingleUserPermissionCacheKey,
   getUserEmailCacheKey,
   getUserSessionCacheKey,
-} from "../../../../helper/redis/session-keys";
-import { MutationLoginArgs, UserLoginResponseOrError } from "../../../../types";
-import CompareInfo from "../../../../utils/bcrypt/compare-info";
-import { loginSchema } from "../../../../utils/data-validation";
-import EncodeToken from "../../../../utils/jwt/encode-token";
+} from '../../../../helper/redis/session-keys';
+import { MutationLoginArgs, UserLoginResponseOrError } from '../../../../types';
+import CompareInfo from '../../../../utils/bcrypt/compare-info';
+import { loginSchema } from '../../../../utils/data-validation';
+import EncodeToken from '../../../../utils/jwt/encode-token';
 
 // Define the type for lockout session
 interface LockoutSession {
@@ -52,16 +52,16 @@ export const login = async (
     // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."), // Converts the path array to a string
+        field: error.path.join('.'), // Converts the path array to a string
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed",
+        message: 'Validation failed',
         errors: errorMessages,
-        __typename: "ErrorResponse",
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -74,13 +74,42 @@ export const login = async (
     let user;
 
     userEmail = await getSession(getUserEmailCacheKey(email));
+    if (userEmail) {
+      // Fetch user from database
+      user = await userRepository.findOne({
+        where: { email: userEmail },
+        relations: ['role', 'permissions'],
+      });
 
-    if (!userEmail) {
-      // Cache miss: Fetch user from database
+      if (!user) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `User not found with this email: ${userEmail}`,
+          __typename: 'ErrorResponse',
+        };
+      }
+
+      // Cache user, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getSingleUserCacheKey(user.id), {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role.name,
+      });
+
+      await setSession(getUserEmailCacheKey(email), user.email);
+
+      await setSession(
+        getSingleUserPermissionCacheKey(user.id),
+        user.permissions
+      );
+    } else {
+      // Cache missed: Fetch user from database
       user = await userRepository.findOne({
         where: { email },
-        select: ["firstName", "lastName", "gender", "email"],
-        relations: ["role", "permissions"],
+        relations: ['role', 'permissions'],
       });
 
       if (!user) {
@@ -88,7 +117,7 @@ export const login = async (
           statusCode: 400,
           success: false,
           message: `User not found with this email: ${email}`,
-          __typename: "ErrorResponse",
+          __typename: 'ErrorResponse',
         };
       }
 
@@ -126,7 +155,7 @@ export const login = async (
           statusCode: 400,
           success: false,
           message: `Account locked. Please try again after ${minutes}m ${seconds}s.`,
-          __typename: "ErrorResponse",
+          __typename: 'ErrorResponse',
         };
       } else {
         // Clear cache and unlock the account if the lock time has expired
@@ -164,16 +193,16 @@ export const login = async (
         return {
           statusCode: 400,
           success: false,
-          message: "Account locked. Please try again after 15 minutes.",
-          __typename: "ErrorResponse",
+          message: 'Account locked. Please try again after 15 minutes.',
+          __typename: 'ErrorResponse',
         };
       }
 
       return {
         statusCode: 400,
         success: false,
-        message: "Invalid password",
-        __typename: "ErrorResponse",
+        message: 'Invalid password',
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -187,7 +216,7 @@ export const login = async (
       user.firstName,
       user.lastName,
       user.role.name,
-      "30d" // Set the token expiration time
+      '30d' // Set the token expiration time
     );
 
     // Create and store session
@@ -205,20 +234,20 @@ export const login = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Login successful",
+      message: 'Login successful',
       token,
-      __typename: "UserLoginResponse",
+      __typename: 'UserLoginResponse',
     };
   } catch (error: any) {
     // Log the error for debugging purposes
-    console.error("Error logging in user:", error);
+    console.error('Error logging in user:', error);
 
     // Return a detailed error message if available, otherwise a generic one
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
-      __typename: "ErrorResponse",
+      message: error.message || 'Internal server error',
+      __typename: 'ErrorResponse',
     };
   }
 };
