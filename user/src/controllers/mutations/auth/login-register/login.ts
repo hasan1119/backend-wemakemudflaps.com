@@ -7,6 +7,7 @@ import {
   getSingleUserCacheKey,
   getSingleUserPermissionCacheKey,
   getUserEmailCacheKey,
+  getUserInfoByEmailCacheKey,
   getUserSessionCacheKey,
 } from '../../../../helper/redis/session-keys';
 import { MutationLoginArgs, UserLoginResponseOrError } from '../../../../types';
@@ -68,47 +69,15 @@ export const login = async (
     // Initialize repositories for User entity
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    // Check Redis for cached user's email
-    let userEmail;
-
+    // Check Redis for cached user's data
     let user;
 
-    userEmail = await getSession(getUserEmailCacheKey(email));
-    if (userEmail) {
+    user = await getSession(getUserInfoByEmailCacheKey(email));
+
+    if (!user) {
       // Fetch user from database
       user = await userRepository.findOne({
-        where: { email: userEmail },
-        relations: ['role', 'permissions'],
-      });
-
-      if (!user) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `User not found with this email: ${userEmail}`,
-          __typename: 'ErrorResponse',
-        };
-      }
-
-      // Cache user, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getSingleUserCacheKey(user.id), {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role.name,
-      });
-
-      await setSession(getUserEmailCacheKey(email), user.email);
-
-      await setSession(
-        getSingleUserPermissionCacheKey(user.id),
-        user.permissions
-      );
-    } else {
-      // Cache missed: Fetch user from database
-      user = await userRepository.findOne({
-        where: { email },
+        where: { email: email },
         relations: ['role', 'permissions'],
       });
 
@@ -120,7 +89,6 @@ export const login = async (
           __typename: 'ErrorResponse',
         };
       }
-
       // Cache user, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(user.id), {
         id: user.id,
@@ -129,9 +97,15 @@ export const login = async (
         lastName: user.lastName,
         role: user.role.name,
       });
-
+      await setSession(getUserInfoByEmailCacheKey(email), {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        password: user.password,
+        role: user.role.name,
+      });
       await setSession(getUserEmailCacheKey(email), user.email);
-
       await setSession(
         getSingleUserPermissionCacheKey(user.id),
         user.permissions

@@ -1,13 +1,16 @@
-import { Repository } from "typeorm";
-import { Context } from "../../../context";
-import { User } from "../../../entities/user.entity";
-import { getSingleUserCacheKey } from "../../../helper/redis/session-keys";
+import { Repository } from 'typeorm';
+import { Context } from '../../../context';
+import { User } from '../../../entities/user.entity';
+import {
+  getSingleUserCacheKey,
+  getUserInfoByEmailCacheKey,
+} from '../../../helper/redis/session-keys';
 import {
   MutationUpdateProfileArgs,
   UserProfileUpdateResponseOrError,
-} from "../../../types";
-import { updateProfileSchema } from "../../../utils/data-validation";
-import EncodeToken from "../../../utils/jwt/encode-token";
+} from '../../../types';
+import { updateProfileSchema } from '../../../utils/data-validation';
+import EncodeToken from '../../../utils/jwt/encode-token';
 
 /**
  * Allows the user to update their account information.
@@ -39,7 +42,7 @@ export const updateProfile = async (
         statusCode: 401,
         success: false,
         message: "You're not authenticated",
-        __typename: "ErrorResponse",
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -54,16 +57,16 @@ export const updateProfile = async (
     // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."), // Converts the path array to a string
+        field: error.path.join('.'), // Converts the path array to a string
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed",
+        message: 'Validation failed',
         errors: errorMessages,
-        __typename: "ErrorResponse",
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -85,8 +88,8 @@ export const updateProfile = async (
         return {
           statusCode: 404,
           success: false,
-          message: "Authenticated user not found in database",
-          __typename: "ErrorResponse",
+          message: 'Authenticated user not found in database',
+          __typename: 'ErrorResponse',
         };
       }
     }
@@ -99,6 +102,16 @@ export const updateProfile = async (
 
     // preserve role for session
     const preservedRole = user.role;
+
+    // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
+    await setSession(getUserInfoByEmailCacheKey(userData.email), {
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      password: userData.password,
+      gender: userData.gender,
+    });
+
     // Delete role from the userData to update the user info properly
     delete userData.role;
 
@@ -112,7 +125,7 @@ export const updateProfile = async (
       userData.firstName,
       userData.lastName,
       preservedRole,
-      "30d" // Set the token expiration time
+      '30d' // Set the token expiration time
     );
 
     // Cache user data in Redis with configurable TTL(default 30 days of redis session because of the env)
@@ -129,19 +142,19 @@ export const updateProfile = async (
       statusCode: 200,
       success: true,
       token,
-      message: "Profile updated successfully",
-      __typename: "UserProfileUpdateResponse",
+      message: 'Profile updated successfully',
+      __typename: 'UserProfileUpdateResponse',
     };
   } catch (error: any) {
     // Log the error for debugging purposes
-    console.error("Error updating user profile:", error);
+    console.error('Error updating user profile:', error);
 
     // Return a detailed error message if available, otherwise a generic one
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
-      __typename: "ErrorResponse",
+      message: error.message || 'Internal server error',
+      __typename: 'ErrorResponse',
     };
   }
 };

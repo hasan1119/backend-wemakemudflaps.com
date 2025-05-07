@@ -1,15 +1,15 @@
-import { Repository } from "typeorm";
-import { v4 as uuidv4 } from "uuid";
-import CONFIG from "../../../../config/config";
-import { Context } from "../../../../context";
-import { User } from "../../../../entities/user.entity";
-import { getUserEmailCacheKey } from "../../../../helper/redis/session-keys";
+import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
+import CONFIG from '../../../../config/config';
+import { Context } from '../../../../context';
+import { User } from '../../../../entities/user.entity';
+import { getUserEmailCacheKey } from '../../../../helper/redis/session-keys';
 import {
   BaseResponseOrError,
   MutationForgetPasswordArgs,
-} from "../../../../types";
-import { emailSchema } from "../../../../utils/data-validation";
-import SendEmail from "../../../../utils/email/send-email";
+} from '../../../../types';
+import { emailSchema } from '../../../../utils/data-validation';
+import SendEmail from '../../../../utils/email/send-email';
 
 // Define the type for lockout session
 interface LockoutSession {
@@ -28,15 +28,14 @@ interface LockoutSession {
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for reset password request (email)
- * @param context - GraphQL context with AppDataSource
+ * @param context - GraphQL context with AppDataSource and Redis
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const forgetPassword = async (
   _,
   args: MutationForgetPasswordArgs,
-  context: Context
+  { AppDataSource, redis }: Context
 ): Promise<BaseResponseOrError> => {
-  const { AppDataSource, redis } = context;
   const { email } = args;
   const { getSession, setSession, deleteSession } = redis;
 
@@ -50,16 +49,16 @@ export const forgetPassword = async (
     // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."), // Converts the path array to a string
+        field: error.path.join('.'), // Converts the path array to a string
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed",
+        message: 'Validation failed',
         errors: errorMessages,
-        __typename: "ErrorResponse",
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -72,7 +71,7 @@ export const forgetPassword = async (
       // Check for existing user with the same email
       user = await userRepository.findOne({
         where: { email },
-        select: ["email", "resetPasswordToken"],
+        select: ['email', 'resetPasswordToken'],
       });
 
       if (!user) {
@@ -80,7 +79,7 @@ export const forgetPassword = async (
           statusCode: 400,
           success: false,
           message: `User not found with this email: ${email}`,
-          __typename: "BaseResponse",
+          __typename: 'BaseResponse',
         };
       }
 
@@ -108,7 +107,7 @@ export const forgetPassword = async (
           statusCode: 400,
           success: false,
           message: `Too many request. Please try again after ${minutes}m ${seconds}s.`,
-          __typename: "BaseResponse",
+          __typename: 'BaseResponse',
         };
       } else {
         // Clear cache and unlock the account if the lock time has expired
@@ -127,7 +126,7 @@ export const forgetPassword = async (
     const resetLink = `${CONFIG.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     // Prepare email contents
-    const subject = "Password Reset Request";
+    const subject = 'Password Reset Request';
     const text = `Please use the following link to reset your password: ${resetLink}`;
     const html = `<p>Please use the following link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`;
 
@@ -144,8 +143,8 @@ export const forgetPassword = async (
       return {
         statusCode: 500,
         success: false,
-        message: "Failed to send password reset email",
-        __typename: "BaseResponse",
+        message: 'Failed to send password reset email',
+        __typename: 'BaseResponse',
       };
     }
 
@@ -173,8 +172,8 @@ export const forgetPassword = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Too many request. Please try again after 1 minutes.",
-        __typename: "BaseResponse",
+        message: 'Too many request. Please try again after 1 minutes.',
+        __typename: 'BaseResponse',
       };
     }
 
@@ -182,17 +181,17 @@ export const forgetPassword = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Password reset email sent successfully",
-      __typename: "BaseResponse",
+      message: 'Password reset email sent successfully',
+      __typename: 'BaseResponse',
     };
   } catch (error: any) {
     // Log and return a generic error response
-    console.error("Forget password error:", error);
+    console.error('Forget password error:', error);
     return {
       statusCode: 500,
       success: false,
-      message: "Failed to process password reset request",
-      __typename: "BaseResponse",
+      message: 'Failed to process password reset request',
+      __typename: 'BaseResponse',
     };
   }
 };

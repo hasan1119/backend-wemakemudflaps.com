@@ -1,12 +1,13 @@
-import { Repository } from "typeorm";
-import { Context } from "../../../../context";
-import { User } from "../../../../entities/user.entity";
+import { Repository } from 'typeorm';
+import { Context } from '../../../../context';
+import { User } from '../../../../entities/user.entity';
 import {
   BaseResponseOrError,
   MutationResetPasswordArgs,
-} from "../../../../types";
-import HashInfo from "../../../../utils/bcrypt/hash-info";
-import { resetPasswordSchema } from "../../../../utils/data-validation";
+} from '../../../../types';
+import HashInfo from '../../../../utils/bcrypt/hash-info';
+import { resetPasswordSchema } from '../../../../utils/data-validation';
+import { getUserInfoByEmailCacheKey } from '../../../../helper/redis/session-keys';
 
 /**
  * Handles resetting the user's password using a token.
@@ -19,16 +20,16 @@ import { resetPasswordSchema } from "../../../../utils/data-validation";
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for reset password (token and newPassword)
- * @param context - Application context with AppDataSource
+ * @param context - Application context with AppDataSource and Redis
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const resetPassword = async (
   _: any,
   args: MutationResetPasswordArgs,
-  context: Context
+  { AppDataSource, redis }: Context
 ): Promise<BaseResponseOrError> => {
-  const { AppDataSource } = context;
   const { token, newPassword } = args;
+  const { getSession, setSession, deleteSession } = redis;
 
   // Get the User repository
   const userRepository: Repository<User> = AppDataSource.getRepository(User);
@@ -43,16 +44,16 @@ export const resetPassword = async (
     // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."), // Converts the path array to a string
+        field: error.path.join('.'), // Converts the path array to a string
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed",
+        message: 'Validation failed',
         errors: errorMessages,
-        __typename: "ErrorResponse",
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -65,8 +66,8 @@ export const resetPassword = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Invalid or expired password reset token",
-        __typename: "BaseResponse",
+        message: 'Invalid or expired password reset token',
+        __typename: 'BaseResponse',
       };
     }
 
@@ -75,21 +76,30 @@ export const resetPassword = async (
     user.password = hashedPassword;
     user.resetPasswordToken = null; // Clear token after successful reset
 
-    await userRepository.save(user);
+    const resetUserPassword = await userRepository.save(user);
+
+    // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
+    await setSession(getUserInfoByEmailCacheKey(resetUserPassword.email), {
+      firstName: resetUserPassword.firstName,
+      lastName: resetUserPassword.lastName,
+      email: resetUserPassword.email,
+      password: resetUserPassword.password,
+      gender: resetUserPassword.gender,
+    });
 
     return {
       statusCode: 200,
       success: true,
-      message: "Password reset successfully",
-      __typename: "BaseResponse",
+      message: 'Password reset successfully',
+      __typename: 'BaseResponse',
     };
   } catch (error: any) {
-    console.error("Reset password error:", error);
+    console.error('Reset password error:', error);
     return {
       statusCode: 500,
       success: false,
-      message: "Failed to reset password",
-      __typename: "BaseResponse",
+      message: 'Failed to reset password',
+      __typename: 'BaseResponse',
     };
   }
 };

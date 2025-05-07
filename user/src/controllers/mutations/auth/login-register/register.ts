@@ -179,7 +179,7 @@ export const register = async (
 
       const fullPermissions = await permissionRepository.save(permissions);
 
-      // Cache newly register user, user email, user role & his/her permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
+      // Cache newly register user, user email, user role & his/her permissions for curd, and update the userCount in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(savedUser.id), {
         id: savedUser.id,
         email: savedUser.email,
@@ -195,6 +195,10 @@ export const register = async (
         password: savedUser.password,
         role: savedUser.role.name,
       });
+      await setSession(
+        getRegisterUserCountKeyCacheKey(),
+        (userCount + 1).toString()
+      );
       await setSession(getUserEmailCacheKey(email), email);
       await setSession(getSingleUserRoleCacheKey(role.id), role);
       await setSession(
@@ -325,7 +329,7 @@ export const register = async (
         customerPermissions
       );
 
-      // Cache newly register user, user email, user role & his/her permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
+      // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(savedUser.id), {
         id: savedUser.id,
         email: savedUser.email,
@@ -341,6 +345,10 @@ export const register = async (
         password: savedUser.password,
         role: savedUser.role.name,
       });
+      await setSession(
+        getRegisterUserCountKeyCacheKey(),
+        (userCount + 1).toString()
+      );
       await setSession(getUserEmailCacheKey(email), savedUser.email);
       await setSession(getSingleUserRoleCacheKey(role.id), role);
       await setSession(
