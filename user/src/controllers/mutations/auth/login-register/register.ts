@@ -193,7 +193,9 @@ export const register = async (
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
         password: savedUser.password,
+        gender: savedUser.gender,
         role: savedUser.role.name,
+        resetPasswordToken: null,
       });
       await setSession(
         getRegisterUserCountKeyCacheKey(),
@@ -343,7 +345,9 @@ export const register = async (
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
         password: savedUser.password,
+        gender: savedUser.gender,
         role: savedUser.role.name,
+        resetPasswordToken: null,
       });
       await setSession(
         getRegisterUserCountKeyCacheKey(),

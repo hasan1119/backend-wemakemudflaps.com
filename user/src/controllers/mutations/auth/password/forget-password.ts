@@ -3,7 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import CONFIG from '../../../../config/config';
 import { Context } from '../../../../context';
 import { User } from '../../../../entities/user.entity';
-import { getUserEmailCacheKey } from '../../../../helper/redis/session-keys';
+import {
+  getUserEmailCacheKey,
+  getUserInfoByEmailCacheKey,
+} from '../../../../helper/redis/session-keys';
 import {
   BaseResponseOrError,
   MutationForgetPasswordArgs,
@@ -65,13 +68,13 @@ export const forgetPassword = async (
     // Check Redis for cached user's email
     let user;
 
-    user = await getSession(getUserEmailCacheKey(email));
+    user = await getSession(getUserInfoByEmailCacheKey(email));
 
     if (!user) {
       // Check for existing user with the same email
       user = await userRepository.findOne({
         where: { email },
-        select: ['email', 'resetPasswordToken'],
+        // select: ['email', 'resetPasswordToken'],
       });
 
       if (!user) {
@@ -83,35 +86,36 @@ export const forgetPassword = async (
         };
       }
 
-      // Cache user email in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getUserEmailCacheKey(email), email);
+      // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getUserInfoByEmailCacheKey(email), {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        password: user.password,
+        gender: user.gender,
+        role: user.role.name,
+        resetPasswordToken: null,
+      });
     }
 
-    // Account lock check using Redis session data
-    const forgetPasswordAttemptsKey = `forget_password_attempts_${email}`;
-    const lockoutKey = `lockout_${email}`;
-
-    const lockoutSession = await getSession(forgetPasswordAttemptsKey);
-
-    // Handle lockout state
-    if (lockoutSession) {
-      const { lockedAt, duration } = lockoutSession as LockoutSession; // Cast to LockoutSession type
-      const timePassed = Math.floor((Date.now() - lockedAt) / 1000); // Time passed in seconds
-      const timeLeft = duration - timePassed;
+    // Cooldown key check: prevent multiple emails in short time
+    const lastSentKey = `forget_password_last_sent_${email}`;
+    const lastSent = await getSession(lastSentKey);
+    if (lastSent) {
+      const timePassed = Math.floor((Date.now() - Number(lastSent)) / 1000);
+      const cooldownTime = 60; // 1 minute cooldown
+      const timeLeft = cooldownTime - timePassed;
 
       if (timeLeft > 0) {
-        // If lock time is remaining, return the time left
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
         return {
           statusCode: 400,
           success: false,
-          message: `Too many request. Please try again after ${minutes}m ${seconds}s.`,
+          message: `Please wait ${minutes}m ${seconds}s before requesting another password reset.`,
           __typename: 'BaseResponse',
         };
-      } else {
-        // Clear cache and unlock the account if the lock time has expired
-        await deleteSession(lockoutKey);
       }
     }
 
@@ -147,36 +151,8 @@ export const forgetPassword = async (
         __typename: 'BaseResponse',
       };
     }
-
-    // Increment login attempt count
-    const sessionData = (await getSession(forgetPasswordAttemptsKey)) as {
-      attempts: number;
-    } | null;
-    const newAttempts = (sessionData?.attempts || 0) + 1;
-
-    // Store updated attempts count in Redis with 1-hour TTL
-    await setSession(
-      forgetPasswordAttemptsKey,
-      { attempts: newAttempts },
-      3600
-    );
-
-    // Lock forget password request after 1 attempt
-    if (newAttempts >= 1) {
-      const lockDuration = 60; // 1 minute in seconds
-      await setSession(
-        lockoutKey,
-        { locked: true, lockedAt: Date.now(), duration: lockDuration },
-        lockDuration
-      );
-      return {
-        statusCode: 400,
-        success: false,
-        message: 'Too many request. Please try again after 1 minutes.',
-        __typename: 'BaseResponse',
-      };
-    }
-
+    // Set last sent time in Redis with 60 seconds TTL
+    await setSession(lastSentKey, Date.now().toString(), 60);
     // Return success response
     return {
       statusCode: 200,

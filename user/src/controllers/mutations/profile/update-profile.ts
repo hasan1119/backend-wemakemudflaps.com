@@ -105,11 +105,14 @@ export const updateProfile = async (
 
     // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
     await setSession(getUserInfoByEmailCacheKey(userData.email), {
+      id: userData.id,
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
       password: userData.password,
       gender: userData.gender,
+      role: userData.role.name,
+      resetPasswordToken: null,
     });
 
     // Delete role from the userData to update the user info properly

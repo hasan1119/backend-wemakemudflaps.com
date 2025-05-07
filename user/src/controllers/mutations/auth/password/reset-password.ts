@@ -80,11 +80,14 @@ export const resetPassword = async (
 
     // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
     await setSession(getUserInfoByEmailCacheKey(resetUserPassword.email), {
+      id: resetUserPassword.id,
       firstName: resetUserPassword.firstName,
       lastName: resetUserPassword.lastName,
       email: resetUserPassword.email,
       password: resetUserPassword.password,
       gender: resetUserPassword.gender,
+      role: resetUserPassword.role.name,
+      resetPasswordToken: null,
     });
 
     return {

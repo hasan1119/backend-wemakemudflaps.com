@@ -103,7 +103,9 @@ export const login = async (
         firstName: user.firstName,
         lastName: user.lastName,
         password: user.password,
+        gender: user.gender,
         role: user.role.name,
+        resetPasswordToken: null,
       });
       await setSession(getUserEmailCacheKey(email), user.email);
       await setSession(

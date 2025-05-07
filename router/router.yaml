@@ -10,8 +10,8 @@ sandbox:
 
 cors:
   allow_credentials: true # ✅ Required to send cookies
-  allow_headers: ["content-type", "authorization"]
-  expose_headers: ["set-cookie"] # ✅ Ensures cookies are accessible
+  allow_headers: ['content-type', 'authorization']
+  expose_headers: ['set-cookie'] # ✅ Ensures cookies are accessible
   origins:
     - https://studio.apollographql.com
 headers:

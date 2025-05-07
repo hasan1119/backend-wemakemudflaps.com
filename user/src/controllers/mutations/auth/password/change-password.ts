@@ -88,11 +88,14 @@ export const changePassword = async (
 
       // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getUserInfoByEmailCacheKey(userData.email), {
+        id: userData.id,
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
         password: userData.password,
         gender: userData.gender,
+        role: userData.role.name,
+        resetPasswordToken: null,
       });
     }
 
@@ -121,11 +124,14 @@ export const changePassword = async (
 
     // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
     await setSession(getUserInfoByEmailCacheKey(updatedUserPassword.email), {
+      id: updatedUserPassword.id,
       firstName: updatedUserPassword.firstName,
       lastName: updatedUserPassword.lastName,
       email: updatedUserPassword.email,
       password: updatedUserPassword.password,
       gender: updatedUserPassword.gender,
+      role: updatedUserPassword.role.name,
+      resetPasswordToken: null,
     });
 
     // Return success response
