@@ -88,6 +88,8 @@ export const resetPassword = async (
       gender: resetUserPassword.gender,
       role: resetUserPassword.role.name,
       resetPasswordToken: null,
+emailVerified: resetUserPassword.emailVerified,
+				  isAccountActivated: resetUserPassword.isAccountActivated
     });
 
     return {
