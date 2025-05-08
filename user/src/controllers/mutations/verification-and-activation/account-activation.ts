@@ -6,6 +6,7 @@ import {
   getUserInfoByEmailCacheKey,
 } from '../../../../helper/redis/session-keys';
 import { BaseResponseOrError, MutationAccountActivationArgs } from '../../../../types';
+import { idSchema } from "../../../utils/data-validation";
 
 /**
  * Activates a user account using the user ID from the activation link.
@@ -31,13 +32,24 @@ export const activateAccount = async (
   const { getSession, setSession, deleteSession } = redis;
 
   try {
-    // Validate userId
-    if (!userId || typeof userId !== 'string') {
+    // Validate input data using Zod schema
+    const validationResult = await idSchema.safeParseAsync({
+      id,
+    });
+
+    // If validation fails, return detailed error messages
+    if (!validationResult.success) {
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."),
+        message: error.message,
+      }));
+
       return {
         statusCode: 400,
         success: false,
-        message: 'Invalid user ID',
-        __typename: 'BaseResponse',
+        message: "Validation failed",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
       };
     }
 
