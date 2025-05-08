@@ -7,6 +7,9 @@ export type UserSession = {
   firstName: string;
   lastName: string;
   role: string;
+  gender: string;
+  emailVerified: boolean;
+  isAccountActivated: boolean;
 };
 
 const createContext = async ({ req, res }) => {
