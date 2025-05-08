@@ -90,17 +90,6 @@ export const login = async (
         };
       }
 
-// Check whether user email and account is activated or not
-			if(!user.emailVerified && 
-!user.isAccountActivated){
-return {
-          statusCode: 400,
-          success: false,
-          message: "Your mail isn't verified and account isn't activated. Please verify your mail to active your account.",
-          __typename: 'ErrorResponse',
-        };
-}
-
     // Account lock check using Redis session data
     const lockoutSession = await getSession(getLockoutKeyCacheKey(user.email));
 
@@ -168,6 +157,17 @@ return {
         __typename: 'ErrorResponse',
       };
     }
+
+// Check whether user email is verified and account is activated or not
+			if(!user.emailVerified && 
+!user.isAccountActivated){
+return {
+          statusCode: 400,
+          success: false,
+          message: "Your mail isn't verified and account isn't activated. Please verify your mail to active your account.",
+          __typename: 'ErrorResponse',
+        };
+}
 
     // Clear cache login attempts after successful password verification
     await deleteSession(getLoginAttemptsKeyCacheKey(user.email));
