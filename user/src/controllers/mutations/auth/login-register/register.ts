@@ -226,9 +226,10 @@ export const register = async (
         password: savedUser.password,
         gender: savedUser.gender,
         role: savedUser.role.name,
-        resetPasswordToken: null,
+        resetPasswordToken: savedUser.resetPasswordToken,
 				  emailVerified: savedUser.emailVerified,
-				  isAccountActivated: savedUser.isAccountActivated
+				  isAccountActivated: savedUser.isAccountActivated,
+resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
       });
       await setSession(
         getRegisterUserCountKeyCacheKey(),
@@ -410,9 +411,10 @@ export const register = async (
         password: savedUser.password,
         gender: savedUser.gender,
         role: savedUser.role.name,
-        resetPasswordToken: null,
+        resetPasswordToken: savedUser.reserPasswordToken,
 				  emailVerified: savedUser.emailVerified,
-				  isAccountActivated: savedUser.isAccountActivated
+				  isAccountActivated: savedUser.isAccountActivated,
+resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
       });
       await setSession(
         getRegisterUserCountKeyCacheKey(),
