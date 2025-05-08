@@ -10,6 +10,9 @@ import config from "../../config/config";
  * @param firstName - The user's first name.
  * @param lastName - The user's last name.
  * @param role - The user's role.
+ * @param gender - The user's gender.
+ * @param emailVerified - The user's email verification status.
+ * @param isAccountActivated - The user's account activation status.
  * @param trackingId - The user's tracking ID.
  * @param expiresIn - Optional. The token expiration time.
  * @returns {Promise<string>} - A promise that resolves to the signed JWT token.
