@@ -11,6 +11,9 @@ interface UserSession {
   firstName: string;
   lastName: string;
   role: string;
+  gender: string;
+  emailVerified: boolean;
+  isAccountActivated: boolean;
 }
 
 export async function authMiddleware(
