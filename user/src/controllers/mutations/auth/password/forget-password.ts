@@ -40,19 +40,16 @@ export const forgetPassword = async (
   { AppDataSource, redis }: Context
 ): Promise<BaseResponseOrError> => {
   const { email } = args;
-  const { getSession, setSession, deleteSession } = redis;
+  const { getSession, setSession } = redis;
 
-  // Get the User repository
   const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
   try {
-    // Validate the provided email using Zod schema
     const validationResult = await emailSchema.safeParseAsync({ email });
 
-    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join('.'), // Converts the path array to a string
+        field: error.path.join('.'),
         message: error.message,
       }));
 
@@ -65,16 +62,11 @@ export const forgetPassword = async (
       };
     }
 
-    // Check Redis for cached user's email
-    let user;
-
-    user = await getSession(getUserInfoByEmailCacheKey(email));
+    let user = await getSession(getUserInfoByEmailCacheKey(email));
 
     if (!user) {
-      // Check for existing user with the same email
       user = await userRepository.findOne({
         where: { email },
-        // select: ['email', 'resetPasswordToken'],
       });
 
       if (!user) {
@@ -87,9 +79,9 @@ export const forgetPassword = async (
       }
     }
 
-    // Cooldown key check: prevent multiple emails in short time
     const lastSentKey = `forget_password_last_sent_${email}`;
     const lastSent = await getSession(lastSentKey);
+
     if (lastSent) {
       const timePassed = Math.floor((Date.now() - Number(lastSent)) / 1000);
       const cooldownTime = 60; // 1 minute cooldown
@@ -107,22 +99,20 @@ export const forgetPassword = async (
       }
     }
 
-    // Generate a unique reset token (UUID)
     const resetToken = uuidv4();
-    user.resetPasswordToken = resetToken;
+    const tokenExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-    // Save the token to the user record
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordTokenExpiry = tokenExpiry;
+
     await userRepository.save(user);
 
-    // Create the reset password link using the token
     const resetLink = `${CONFIG.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
-    // Prepare email contents
     const subject = 'Password Reset Request';
     const text = `Please use the following link to reset your password: ${resetLink}`;
     const html = `<p>Please use the following link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`;
 
-    // Attempt to send the reset email
     const emailSent = await SendEmail({
       to: email,
       subject,
@@ -130,7 +120,6 @@ export const forgetPassword = async (
       html,
     });
 
-    // If email sending fails, return an error
     if (!emailSent) {
       return {
         statusCode: 500,
@@ -139,32 +128,30 @@ export const forgetPassword = async (
         __typename: 'BaseResponse',
       };
     }
-    // Set last sent time in Redis with 60 seconds TTL
-    await setSession(lastSentKey, Date.now().toString(), 60);
 
-// Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getUserInfoByEmailCacheKey(email), {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        password: user.password,
-        gender: user.gender,
-        role: user.role.name,
-        resetPasswordToken: restToken,
-emailVerified: user.emailVerified,
-				  isAccountActivated: user.isAccountActivated
-      });
+    await setSession(lastSentKey, Date.now().toString(), 60); // 1 minute only
 
-    // Return success response
+    await setSession(getUserInfoByEmailCacheKey(email), {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: user.password,
+      gender: user.gender,
+      role: user.role.name,
+      resetPasswordToken: resetToken,
+      resetPasswordTokenExpiry: tokenExpiry.toISOString(),
+      emailVerified: user.emailVerified,
+      isAccountActivated: user.isAccountActivated,
+    });
+
     return {
       statusCode: 200,
       success: true,
-      message: 'Password reset email sent successfully',
+      message: 'Password reset email sent successfully. The link will expire in 5 minutes.',
       __typename: 'BaseResponse',
     };
   } catch (error: any) {
-    // Log and return a generic error response
     console.error('Forget password error:', error);
     return {
       statusCode: 500,
