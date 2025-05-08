@@ -152,6 +152,11 @@ input UpdateUserPermissionInput {
   permissions: [SinglePermissionInput!] # Optional array of permission settings
 }
 
+# Input type for the verifyEmail mutation.
+input EmailVerificationInput {
+  userId: ID! # The unique identifier of the user to verify their email.
+}
+
 # Union types for handling success and error responses.
 
 # Mutation responses can be either a success or an error.
