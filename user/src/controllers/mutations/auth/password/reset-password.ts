@@ -15,12 +15,10 @@ import { getUserInfoByEmailCacheKey } from '../../../../helper/redis/session-key
  * Steps:
  * - Validates input using Zod schema
  * - Finds the user with the given token
+ * - Validates token expiry
  * - Hashes the new password and updates the user's password
- * - Clears the reset token after successful update
+ * - Clears the reset token and expiry after successful update
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for reset password (token and newPassword)
- * @param context - Application context with AppDataSource and Redis
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const resetPassword = async (
@@ -29,22 +27,19 @@ export const resetPassword = async (
   { AppDataSource, redis }: Context
 ): Promise<BaseResponseOrError> => {
   const { token, newPassword } = args;
-  const { getSession, setSession, deleteSession } = redis;
+  const { getSession, setSession } = redis;
 
-  // Get the User repository
   const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
   try {
-    // Validate input using Zod schema
     const validationResult = await resetPasswordSchema.safeParseAsync({
       token,
       newPassword,
     });
 
-    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join('.'), // Converts the path array to a string
+        field: error.path.join('.'),
         message: error.message,
       }));
 
@@ -57,12 +52,11 @@ export const resetPassword = async (
       };
     }
 
-    // Find user by reset password token
     const user = await userRepository.findOne({
       where: { resetPasswordToken: token },
     });
 
-    if (!user) {
+    if (!user || !user.resetPasswordTokenExpiry) {
       return {
         statusCode: 400,
         success: false,
@@ -71,27 +65,42 @@ export const resetPassword = async (
       };
     }
 
-    // Hash the new password before saving
+    const isExpired = new Date(user.resetPasswordTokenExpiry) < new Date();
+
+    if (isExpired) {
+      // Optionally: clear expired token
+      user.resetPasswordToken = null;
+      user.resetPasswordTokenExpiry = null;
+      await userRepository.save(user);
+
+      return {
+        statusCode: 400,
+        success: false,
+        message: 'Password reset token has expired',
+        __typename: 'BaseResponse',
+      };
+    }
+
     const hashedPassword = await HashInfo(newPassword);
+
     user.password = hashedPassword;
-    user.resetPasswordToken = null; // Clear token after successful reset
-user.resetPasswordTokenExpiry = null // Clear the token expiry
+    user.resetPasswordToken = null;
+    user.resetPasswordTokenExpiry = null;
 
-    const resetUserPassword = await userRepository.save(user);
+    const updatedUser = await userRepository.save(user);
 
-    // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(getUserInfoByEmailCacheKey(resetUserPassword.email), {
-      id: resetUserPassword.id,
-      firstName: resetUserPassword.firstName,
-      lastName: resetUserPassword.lastName,
-      email: resetUserPassword.email,
-      password: resetUserPassword.password,
-      gender: resetUserPassword.gender,
-      role: resetUserPassword.role.name,
-      resetPasswordToken: resetUserPassword.resetPasswordToken,
-emailVerified: resetUserPassword.emailVerified,
-				  isAccountActivated: resetUserPassword.isAccountActivated,
-resetPasswordTokenExpiry: resetUserPassword.resetPasswordTokenExpiry
+    await setSession(getUserInfoByEmailCacheKey(updatedUser.email), {
+      id: updatedUser.id,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      email: updatedUser.email,
+      password: updatedUser.password,
+      gender: updatedUser.gender,
+      role: updatedUser.role.name,
+      resetPasswordToken: updatedUser.resetPasswordToken,
+      resetPasswordTokenExpiry: updatedUser.resetPasswordTokenExpiry,
+      emailVerified: updatedUser.emailVerified,
+      isAccountActivated: updatedUser.isAccountActivated,
     });
 
     return {
