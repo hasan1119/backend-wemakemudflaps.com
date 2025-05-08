@@ -96,7 +96,7 @@ export const login = async (
 return {
           statusCode: 400,
           success: false,
-          message: 'Your mail isn't verified and account isn't activated. Please verify your mail to active your account.',
+          message: "Your mail isn't verified and account isn't activated. Please verify your mail to active your account.",
           __typename: 'ErrorResponse',
         };
 }
