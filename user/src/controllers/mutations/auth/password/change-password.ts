@@ -119,9 +119,10 @@ export const changePassword = async (
       password: updatedUserPassword.password,
       gender: updatedUserPassword.gender,
       role: updatedUserPassword.role.name,
-      resetPasswordToken: null,
+      resetPasswordToken: updatedUserPassword.resetPasswordTokenExpiry,
 emailVerified: updatedUserPassword.emailVerified,
-				  isAccountActivated: updatedUserPassword.isAccountActivated
+				  isAccountActivated: updatedUserPassword.isAccountActivated,
+resetPasswordTokenExpiry: updatedUserPassword.resetPasswordTokenExpiry
     });
 
     // Return success response
