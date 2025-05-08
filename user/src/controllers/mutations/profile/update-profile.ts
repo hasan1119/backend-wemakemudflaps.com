@@ -160,6 +160,8 @@ isAccountActivated: email ? false : true
       userData.firstName,
       userData.lastName,
       preservedRole,
+      userData.emailVerified,
+		   userData.isAccountActivated,
       '30d' // Set the token expiration time
     );
 
@@ -169,7 +171,10 @@ isAccountActivated: email ? false : true
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
-      role: preservedRole || null,
+      role: preservedRole,
+      gender: userData.gender,
+		   emailVerified: userData.emailVerified,
+		   isAccountActivated: userData.isAccountActivated 
     });
 
     // Return success response
