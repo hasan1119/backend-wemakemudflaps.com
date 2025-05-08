@@ -97,7 +97,36 @@ export const updateProfile = async (
     // Update user fields only if provided
     if (firstName) userData.firstName = firstName;
     if (lastName) userData.lastName = lastName;
-    if (email) userData.email = email;
+    if (email) {
+
+// Create the email verification link with user id
+    		const verifyEmail = `${CONFIG.FRONTEND_URL}/verify-email/?userId=${userData.id}`;
+
+    // Prepare email contents
+    const subject = 'Verify Email Request';
+    const text = `Please use the following link to verify your email: ${verifyEmail}`;
+    const html = `<p>Please use the following link to active your account: <a href="${verifyEmail}">${verifyEmail}</a></p>`;
+
+    // Attempt to send the reset email
+    const emailSent = await SendEmail({
+      to: email,
+      subject,
+      text,
+      html,
+    });
+
+    // If email sending fails, return an error
+    if (!emailSent) {
+      return {
+        statusCode: 500,
+        success: false,
+        message: 'Failed to send email verification   email',
+        __typename: 'BaseResponse',
+      };
+    }
+
+userData.email = email;
+}
     if (gender) userData.gender = gender;
 
     // preserve role for session
@@ -113,6 +142,8 @@ export const updateProfile = async (
       gender: userData.gender,
       role: userData.role.name,
       resetPasswordToken: null,
+				emailVerified: email ? false : true,
+isAccountActivated: email ? false : true
     });
 
     // Delete role from the userData to update the user info properly
@@ -145,7 +176,7 @@ export const updateProfile = async (
       statusCode: 200,
       success: true,
       token,
-      message: 'Profile updated successfully',
+      message: `${email ? 'Profile updated successfully, but please verify your email before using the account.' : 'Profile updated successfully.'}`,
       __typename: 'UserProfileUpdateResponse',
     };
   } catch (error: any) {
