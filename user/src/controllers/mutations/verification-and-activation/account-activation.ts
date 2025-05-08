@@ -93,6 +93,9 @@ export const activateAccount = async (
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       role: updatedUser.role.name,
+		   gender: updatedUser.gender,
+		   emailVerified: updatedUser.emailVerified,
+		   isAccountActivated: updatedUser.isAccountActivated
     };
 
     const userEmailCacheData = {
