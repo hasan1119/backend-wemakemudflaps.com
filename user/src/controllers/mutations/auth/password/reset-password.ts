@@ -75,6 +75,7 @@ export const resetPassword = async (
     const hashedPassword = await HashInfo(newPassword);
     user.password = hashedPassword;
     user.resetPasswordToken = null; // Clear token after successful reset
+user.resetPasswordTokenExpiry = null // Clear the token expiry 
 
     const resetUserPassword = await userRepository.save(user);
 
