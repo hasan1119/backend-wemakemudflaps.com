@@ -201,9 +201,10 @@ return {
         password: user.password,
         gender: user.gender,
         role: user.role.name,
-        resetPasswordToken: null,
+        resetPasswordToken: user.resetPasswordToken,
 				  emailVerified: user.emailVerified,
-				  isAccountActivated: user.isAccountActivated
+				  isAccountActivated: user.isAccountActivated,
+resetPasswordTokenExpiry: user.resetPasswordTokenExpiry
       });
       await setSession(getUserEmailCacheKey(email), user.email);
       await setSession(
