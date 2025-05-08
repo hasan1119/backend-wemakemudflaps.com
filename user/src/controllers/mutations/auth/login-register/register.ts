@@ -217,6 +217,9 @@ export const register = async (
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
         role: savedUser.role.name,
+				  gender: savedUser.gender,
+        emailVerified: savedUser.emailVerified,
+				  isAccountActivated: savedUser.isAccountActivated
       });
       await setSession(getUserInfoByEmailCacheKey(email), {
         id: savedUser.id,
@@ -402,6 +405,9 @@ resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
         role: savedUser.role.name,
+				  gender: savedUser.gender,
+        emailVerified: savedUser.emailVerified,
+				  isAccountActivated: savedUser.isAccountActivated
       });
       await setSession(getUserInfoByEmailCacheKey(email), {
         id: savedUser.id,
