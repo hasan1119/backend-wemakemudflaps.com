@@ -59,6 +59,14 @@ export class User {
   })
   permissions?: Permission[] | null;
 
+	// Email verified status
+  @Column({ default: false })
+  emailVerified: boolean;
+
+  // Account activation status
+  @Column({ default: false })
+  isAccountActivated: boolean;
+
   // Timestamp when the user was created
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
