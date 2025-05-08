@@ -179,6 +179,9 @@ return {
       user.firstName,
       user.lastName,
       user.role.name,
+      user.gender,
+		   user.emailVerified,
+		   user.isAccountActivated,
       '30d' // Set the token expiration time
     );
 
@@ -189,6 +192,9 @@ return {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role.name,
+gender: user.gender,
+        emailVerified: user.emailVerified,
+				  isAccountActivated: user.isAccountActivated
     };
 
   // Cache user, user session, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
