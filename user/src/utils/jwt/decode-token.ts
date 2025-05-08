@@ -20,7 +20,9 @@ const DecodeToken = async (token: string): Promise<JwtPayload | null> => {
       "username" in decoded &&
       "firstName" in decoded &&
       "lastName" in decoded &&
-      "role" in decoded
+      "role" in decoded &&
+				"emailVerified" in decoded &&
+				"isAccountActivated" in decoded 
     ) {
       return decoded;
     }
