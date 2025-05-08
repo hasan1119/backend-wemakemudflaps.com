@@ -82,4 +82,10 @@ type Mutation {
   updateUserPermission(
     input: UpdateUserPermissionInput! # The input data for updating user permissions (such as permissions to create, read, update, delete).
   ): BaseResponseOrError! # Returns success or failure of permission update.
+# User email verification.
+# This mutation allows a user to verify their email using a user ID from the verification link.
+# The response will include a BaseResponseOrError indicating success or failure of the operation.
+verifyEmail(
+  input: EmailVerificationInput! # The input data for email verification (contains userId).
+): BaseResponseOrError! # Returns success or failure of the operation.
 }
