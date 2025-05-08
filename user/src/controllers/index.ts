@@ -10,8 +10,8 @@ export { updateUserRole } from "./mutations/manage-role/update-user-role";
 export { updateUserRoleInfo } from "./mutations/manage-role/update-user-role-info";
 export { updateUserPermission } from "./mutations/permission/update-user-permission";
 export { updateProfile } from "./mutations/profile/update-profile";
-export { verifyEmail } from "./mutations/verify-email";
-export { activeAccount } from "./mutations/active-account"
+export { verifyEmail } from "./mutations/email-verification";
+export { activeAccount } from "./mutations/account-activation"
 
 // Graphql queries for the auth and user data
 export { getRoleById } from "./queries/role/get-role-by-id";
