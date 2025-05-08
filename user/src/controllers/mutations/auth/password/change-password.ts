@@ -85,18 +85,6 @@ export const changePassword = async (
           __typename: 'BaseResponse',
         };
       }
-
-      // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getUserInfoByEmailCacheKey(userData.email), {
-        id: userData.id,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-        password: userData.password,
-        gender: userData.gender,
-        role: userData.role.name,
-        resetPasswordToken: null,
-      });
     }
 
     // Check if the old password matches the stored hashed password
@@ -132,6 +120,8 @@ export const changePassword = async (
       gender: updatedUserPassword.gender,
       role: updatedUserPassword.role.name,
       resetPasswordToken: null,
+emailVerified: updatedUserPassword.emailVerified,
+				  isAccountActivated: updatedUserPassword.isAccountActivated
     });
 
     // Return success response
