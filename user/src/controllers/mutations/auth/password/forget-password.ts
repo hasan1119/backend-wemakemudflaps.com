@@ -85,18 +85,6 @@ export const forgetPassword = async (
           __typename: 'BaseResponse',
         };
       }
-
-      // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getUserInfoByEmailCacheKey(email), {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        password: user.password,
-        gender: user.gender,
-        role: user.role.name,
-        resetPasswordToken: null,
-      });
     }
 
     // Cooldown key check: prevent multiple emails in short time
@@ -153,6 +141,21 @@ export const forgetPassword = async (
     }
     // Set last sent time in Redis with 60 seconds TTL
     await setSession(lastSentKey, Date.now().toString(), 60);
+
+// Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getUserInfoByEmailCacheKey(email), {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        password: user.password,
+        gender: user.gender,
+        role: user.role.name,
+        resetPasswordToken: restToken,
+emailVerified: user.emailVerified,
+				  isAccountActivated: user.isAccountActivated
+      });
+
     // Return success response
     return {
       statusCode: 200,
