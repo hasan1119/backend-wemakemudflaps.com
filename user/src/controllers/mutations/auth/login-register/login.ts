@@ -89,30 +89,17 @@ export const login = async (
           __typename: 'ErrorResponse',
         };
       }
-      // Cache user, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getSingleUserCacheKey(user.id), {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role.name,
-      });
-      await setSession(getUserInfoByEmailCacheKey(email), {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        password: user.password,
-        gender: user.gender,
-        role: user.role.name,
-        resetPasswordToken: null,
-      });
-      await setSession(getUserEmailCacheKey(email), user.email);
-      await setSession(
-        getSingleUserPermissionCacheKey(user.id),
-        user.permissions
-      );
-    }
+
+// Check whether user email and account is activated or not
+			if(!user.emailVerified && 
+!user.isAccountActivated){
+return {
+          statusCode: 400,
+          success: false,
+          message: 'Your mail isn't verified and account isn't activated. Please verify your mail to active your account.',
+          __typename: 'ErrorResponse',
+        };
+}
 
     // Account lock check using Redis session data
     const lockoutSession = await getSession(getLockoutKeyCacheKey(user.email));
@@ -204,8 +191,26 @@ export const login = async (
       role: user.role.name,
     };
 
-    // Cache session in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(getUserSessionCacheKey(user.id), session);
+  // Cache user, user session, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getSingleUserCacheKey(user.id), session);
+      await setSession(getUserInfoByEmailCacheKey(email), {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        password: user.password,
+        gender: user.gender,
+        role: user.role.name,
+        resetPasswordToken: null,
+				  emailVerified: user.emailVerified,
+				  isAccountActivated: user.isAccountActivated
+      });
+      await setSession(getUserEmailCacheKey(email), user.email);
+      await setSession(
+        getSingleUserPermissionCacheKey(user.id),
+        user.permissions
+      );
+    }
 
     return {
       statusCode: 200,
