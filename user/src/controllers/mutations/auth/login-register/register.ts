@@ -205,7 +205,7 @@ export const register = async (
       return {
         statusCode: 500,
         success: false,
-        message: 'Failed to send account activation email',
+        message: 'Registration failed. Failed to send account activation email.',
         __typename: 'BaseResponse',
       };
     }
@@ -389,7 +389,7 @@ export const register = async (
       return {
         statusCode: 500,
         success: false,
-        message: 'Failed to send account activation email',
+        message: 'Registration failed. Failed to send account activation email.',
         __typename: 'BaseResponse',
       };
     }
