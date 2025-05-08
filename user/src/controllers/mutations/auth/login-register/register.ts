@@ -49,6 +49,7 @@ const PermissionNames: PermissionName[] = [
  * - Validates input using Zod schema
  * - Registers the first user as a Super Admin if no users or Super Admin role exists
  * - Otherwise registers a user with a Customer role and sets default permissions
+ * - Sends a account activation email
  * - Caches the user's data, role, and permissions in Redis
  *
  * @param _ - Unused GraphQL parent argument
@@ -179,6 +180,36 @@ export const register = async (
 
       const fullPermissions = await permissionRepository.save(permissions);
 
+				// Create the account activation link with user id
+    		const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
+
+    // Prepare email contents
+    const subject = 'Account Activation Request';
+    const text = `Please use the following link to active your account: ${resetLink}`;
+    const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
+
+    // Attempt to send the reset email
+    const emailSent = await SendEmail({
+      to: email,
+      subject,
+      text,
+      html,
+    });
+
+    // If email sending fails, return an error
+    if (!emailSent) {
+ 				// Delete the newly created user's permissions & user
+				await permissionRepository.delete({ user: savedUser });
+				await userRepository.delete({ id: savedUser.id });
+
+      return {
+        statusCode: 500,
+        success: false,
+        message: 'Failed to send account activation email',
+        __typename: 'BaseResponse',
+      };
+    }
+
       // Cache newly register user, user email, user role & his/her permissions for curd, and update the userCount in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(savedUser.id), {
         id: savedUser.id,
@@ -196,6 +227,8 @@ export const register = async (
         gender: savedUser.gender,
         role: savedUser.role.name,
         resetPasswordToken: null,
+				  emailVerified: savedUser.emailVerified,
+				  isAccountActivated: savedUser.isAccountActivated
       });
       await setSession(
         getRegisterUserCountKeyCacheKey(),
@@ -211,7 +244,7 @@ export const register = async (
       return {
         statusCode: 201,
         success: true,
-        message: 'Super Admin registered successfully',
+        message: 'Super Admin registered successfully. To active your account check your email.',
         __typename: 'BaseResponse',
       };
     } else {
@@ -331,6 +364,36 @@ export const register = async (
         customerPermissions
       );
 
+// Create the account activation link with user id
+    		const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
+
+    // Prepare email contents
+    const subject = 'Account Activation Request';
+    const text = `Please use the following link to active your account: ${resetLink}`;
+    const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
+
+    // Attempt to send the reset email
+    const emailSent = await SendEmail({
+      to: email,
+      subject,
+      text,
+      html,
+    });
+
+    // If email sending fails, return an error
+    if (!emailSent) {
+ 				// Delete the newly created user's permissions & user
+				await permissionRepository.delete({ user: savedUser });
+				await userRepository.delete({ id: savedUser.id });
+
+      return {
+        statusCode: 500,
+        success: false,
+        message: 'Failed to send account activation email',
+        __typename: 'BaseResponse',
+      };
+    }
+
       // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(savedUser.id), {
         id: savedUser.id,
@@ -348,6 +411,8 @@ export const register = async (
         gender: savedUser.gender,
         role: savedUser.role.name,
         resetPasswordToken: null,
+				  emailVerified: savedUser.emailVerified,
+				  isAccountActivated: savedUser.isAccountActivated
       });
       await setSession(
         getRegisterUserCountKeyCacheKey(),
@@ -363,7 +428,7 @@ export const register = async (
       return {
         statusCode: 201,
         success: true,
-        message: 'Registration successful',
+        message: 'Registration successful. To active your account check your email.',
         __typename: 'BaseResponse',
       };
     }
