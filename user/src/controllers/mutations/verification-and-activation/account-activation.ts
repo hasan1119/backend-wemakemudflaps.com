@@ -34,7 +34,7 @@ export const activateAccount = async (
   try {
     // Validate input data using Zod schema
     const validationResult = await idSchema.safeParseAsync({
-      id,
+      id: userId,
     });
 
     // If validation fails, return detailed error messages
@@ -59,7 +59,7 @@ export const activateAccount = async (
     // Check if user exists
     const user = await userRepository.findOne({
       where: { id: userId },
-      relations: ['role'],
+      relations: ['role']
     });
 
     if (!user) {
