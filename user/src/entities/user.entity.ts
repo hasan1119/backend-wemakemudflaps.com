@@ -44,9 +44,13 @@ export class User {
   @JoinColumn({ name: 'roleId' })
   role: Role;
 
-  // forget password token
+  // Forget password token
   @Column({ nullable: true })
   resetPasswordToken: string | null;
+
+  // Reset password token expiry
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordTokenExpiry: Date | null;
 
   // Roles created by this user
   @OneToMany(() => Role, (role) => role.createdBy)
