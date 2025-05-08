@@ -20,6 +20,9 @@ const EncodeToken = async (
   firstName: string,
   lastName: string,
   role: string,
+  gender: string,
+  emailVerified: boolean,
+  isAccountActivated: boolean,
   expiresIn?: string
 ): Promise<string> => {
   // Payload to include in the token
