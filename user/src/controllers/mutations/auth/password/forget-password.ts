@@ -3,10 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CONFIG from '../../../../config/config';
 import { Context } from '../../../../context';
 import { User } from '../../../../entities/user.entity';
-import {
-  getUserEmailCacheKey,
-  getUserInfoByEmailCacheKey,
-} from '../../../../helper/redis/session-keys';
+import { getUserInfoByEmailCacheKey } from '../../../../helper/redis/session-keys';
 import {
   BaseResponseOrError,
   MutationForgetPasswordArgs,
@@ -62,7 +59,8 @@ export const forgetPassword = async (
       };
     }
 
-    let user = await getSession(getUserInfoByEmailCacheKey(email));
+    let user;
+    user = await getSession(getUserInfoByEmailCacheKey(email));
 
     if (!user) {
       user = await userRepository.findOne({
@@ -148,7 +146,8 @@ export const forgetPassword = async (
     return {
       statusCode: 200,
       success: true,
-      message: 'Password reset email sent successfully. The link will expire in 5 minutes.',
+      message:
+        'Password reset email sent successfully. The link will expire in 5 minutes.',
       __typename: 'BaseResponse',
     };
   } catch (error: any) {

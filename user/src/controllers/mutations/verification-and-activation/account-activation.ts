@@ -1,12 +1,17 @@
 import { Repository } from 'typeorm';
-import { Context } from '../../../../context';
-import { User } from '../../../../entities/user.entity';
+
+import { Context } from '../../../context';
+import { User } from '../../../entities/user.entity';
 import {
   getSingleUserCacheKey,
   getUserInfoByEmailCacheKey,
-} from '../../../../helper/redis/session-keys';
-import { BaseResponseOrError, MutationAccountActivationArgs } from '../../../../types';
-import { idSchema } from "../../../utils/data-validation";
+} from '../../../helper/redis/session-keys';
+import {
+  ActiveAccountResponseOrError,
+  MutationAccountActivationArgs,
+} from '../../../types';
+import { idSchema } from '../../../utils/data-validation';
+import EncodeToken from '../../../utils/jwt/encode-token';
 
 /**
  * Activates a user account using the user ID from the activation link.
@@ -21,13 +26,13 @@ import { idSchema } from "../../../utils/data-validation";
  * @param _ - Unused GraphQL parent argument
  * @param args - Activation arguments (userId)
  * @param context - GraphQL context with AppDataSource and Redis
- * @returns Promise<BaseResponseOrError> - Response status and message
+ * @returns Promise<ActiveAccountResponseOrError> - Response status and message
  */
-export const activateAccount = async (
+export const accountActivation = async (
   _: any,
-  args: MutationAccountActivationAgrs,
+  args: MutationAccountActivationArgs,
   { AppDataSource, redis }: Context
-): Promise<BaseResponseOrError> => {
+): Promise<ActiveAccountResponseOrError> => {
   const { userId } = args;
   const { getSession, setSession, deleteSession } = redis;
 
@@ -40,16 +45,16 @@ export const activateAccount = async (
     // If validation fails, return detailed error messages
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join('.'),
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: "Validation failed",
+        message: 'Validation failed',
         errors: errorMessages,
-        __typename: "ErrorResponse",
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -59,7 +64,7 @@ export const activateAccount = async (
     // Check if user exists
     const user = await userRepository.findOne({
       where: { id: userId },
-      relations: ['role']
+      relations: ['role'],
     });
 
     if (!user) {
@@ -67,7 +72,7 @@ export const activateAccount = async (
         statusCode: 404,
         success: false,
         message: 'User not found',
-        __typename: 'BaseResponse',
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -77,7 +82,7 @@ export const activateAccount = async (
         statusCode: 400,
         success: false,
         message: 'Account is already activated',
-        __typename: 'BaseResponse',
+        __typename: 'ErrorResponse',
       };
     }
 
@@ -93,35 +98,44 @@ export const activateAccount = async (
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       role: updatedUser.role.name,
-		   gender: updatedUser.gender,
-		   emailVerified: updatedUser.emailVerified,
-		   isAccountActivated: updatedUser.isAccountActivated
+      gender: updatedUser.gender,
+      emailVerified: updatedUser.emailVerified,
+      isAccountActivated: updatedUser.isAccountActivated,
     };
 
     const userEmailCacheData = {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
+      ...userCacheData,
       password: updatedUser.password,
-      gender: updatedUser.gender,
-      role: updatedUser.role.name,
       resetPasswordToken: updatedUser.resetPasswordToken,
-      emailVerified: updatedUser.emailVerified,
-      isAccountActivated: updatedUser.isAccountActivated,
       resetPasswordTokenExpiry: updatedUser.resetPasswordTokenExpiry,
     };
 
-   
-  // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
+    // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
     await setSession(getSingleUserCacheKey(updatedUser.id), userCacheData);
-    await setSession(getUserInfoByEmailCacheKey(updatedUser.email), userEmailCacheData);
+    await setSession(
+      getUserInfoByEmailCacheKey(updatedUser.email),
+      userEmailCacheData
+    );
+
+    // Generate JWT token
+    const token = await EncodeToken(
+      updatedUser.id,
+      updatedUser.email,
+      updatedUser.firstName,
+      updatedUser.lastName,
+      updatedUser.role.name,
+      updatedUser.gender,
+      updatedUser.emailVerified,
+      updatedUser.isAccountActivated,
+      '30d' // Set the token expiration time
+    );
 
     return {
       statusCode: 200,
       success: true,
       message: 'Account activated successfully',
-      __typename: 'BaseResponse',
+      token,
+      __typename: 'UserLoginResponse',
     };
   } catch (error: any) {
     console.error('Error activating account:', error);
@@ -129,7 +143,7 @@ export const activateAccount = async (
       statusCode: 500,
       success: false,
       message: error.message || 'Internal server error',
-      __typename: 'BaseResponse',
+      __typename: 'ErrorResponse',
     };
   }
 };

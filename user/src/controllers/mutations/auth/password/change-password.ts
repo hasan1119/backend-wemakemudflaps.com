@@ -74,7 +74,7 @@ export const changePassword = async (
     if (!userData) {
       // Fetch the full User entity for authenticated user
       userData = await userRepository.findOne({
-        where: { id: user.id },
+        where: { email: user.email },
       });
 
       if (!userData) {
@@ -120,9 +120,9 @@ export const changePassword = async (
       gender: updatedUserPassword.gender,
       role: updatedUserPassword.role.name,
       resetPasswordToken: updatedUserPassword.resetPasswordTokenExpiry,
-emailVerified: updatedUserPassword.emailVerified,
-				  isAccountActivated: updatedUserPassword.isAccountActivated,
-resetPasswordTokenExpiry: updatedUserPassword.resetPasswordTokenExpiry
+      emailVerified: updatedUserPassword.emailVerified,
+      isAccountActivated: updatedUserPassword.isAccountActivated,
+      resetPasswordTokenExpiry: updatedUserPassword.resetPasswordTokenExpiry,
     });
 
     // Return success response

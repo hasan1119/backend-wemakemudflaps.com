@@ -18,6 +18,8 @@ import {
 import { BaseResponseOrError, MutationRegisterArgs } from '../../../../types';
 import HashInfo from '../../../../utils/bcrypt/hash-info';
 import { registerSchema } from '../../../../utils/data-validation';
+import SendEmail from '../../../../utils/email/send-email';
+import CONFIG from '../../../../config/config';
 
 // List of all possible permission names for the system
 const PermissionNames: PermissionName[] = [
@@ -180,35 +182,36 @@ export const register = async (
 
       const fullPermissions = await permissionRepository.save(permissions);
 
-				// Create the account activation link with user id
-    		const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
+      // Create the account activation link with user id
+      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
 
-    // Prepare email contents
-    const subject = 'Account Activation Request';
-    const text = `Please use the following link to active your account: ${resetLink}`;
-    const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
+      // Prepare email contents
+      const subject = 'Account Activation Request';
+      const text = `Please use the following link to active your account: ${activationLink}`;
+      const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
 
-    // Attempt to send the reset email
-    const emailSent = await SendEmail({
-      to: email,
-      subject,
-      text,
-      html,
-    });
+      // Attempt to send the reset email
+      const emailSent = await SendEmail({
+        to: email,
+        subject,
+        text,
+        html,
+      });
 
-    // If email sending fails, return an error
-    if (!emailSent) {
- 				// Delete the newly created user's permissions & user
-				await permissionRepository.delete({ user: savedUser });
-				await userRepository.delete({ id: savedUser.id });
+      // If email sending fails, return an error
+      if (!emailSent) {
+        // Delete the newly created user's permissions & user
+        await permissionRepository.delete({ user: savedUser });
+        await userRepository.delete({ id: savedUser.id });
 
-      return {
-        statusCode: 500,
-        success: false,
-        message: 'Registration failed. Failed to send account activation email.',
-        __typename: 'BaseResponse',
-      };
-    }
+        return {
+          statusCode: 500,
+          success: false,
+          message:
+            'Registration failed. Failed to send account activation email.',
+          __typename: 'BaseResponse',
+        };
+      }
 
       // Cache newly register user, user email, user role & his/her permissions for curd, and update the userCount in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(savedUser.id), {
@@ -217,9 +220,9 @@ export const register = async (
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
         role: savedUser.role.name,
-				  gender: savedUser.gender,
+        gender: savedUser.gender,
         emailVerified: savedUser.emailVerified,
-				  isAccountActivated: savedUser.isAccountActivated
+        isAccountActivated: savedUser.isAccountActivated,
       });
       await setSession(getUserInfoByEmailCacheKey(email), {
         id: savedUser.id,
@@ -230,9 +233,9 @@ export const register = async (
         gender: savedUser.gender,
         role: savedUser.role.name,
         resetPasswordToken: savedUser.resetPasswordToken,
-				  emailVerified: savedUser.emailVerified,
-				  isAccountActivated: savedUser.isAccountActivated,
-resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
+        emailVerified: savedUser.emailVerified,
+        isAccountActivated: savedUser.isAccountActivated,
+        resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry,
       });
       await setSession(
         getRegisterUserCountKeyCacheKey(),
@@ -248,7 +251,8 @@ resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
       return {
         statusCode: 201,
         success: true,
-        message: 'Super Admin registered successfully. To active your account check your email.',
+        message:
+          'Super Admin registered successfully. To active your account check your email.',
         __typename: 'BaseResponse',
       };
     } else {
@@ -368,35 +372,36 @@ resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
         customerPermissions
       );
 
-// Create the account activation link with user id
-    		const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
+      // Create the account activation link with user id
+      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
 
-    // Prepare email contents
-    const subject = 'Account Activation Request';
-    const text = `Please use the following link to active your account: ${resetLink}`;
-    const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
+      // Prepare email contents
+      const subject = 'Account Activation Request';
+      const text = `Please use the following link to active your account: ${activationLink}`;
+      const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
 
-    // Attempt to send the reset email
-    const emailSent = await SendEmail({
-      to: email,
-      subject,
-      text,
-      html,
-    });
+      // Attempt to send the reset email
+      const emailSent = await SendEmail({
+        to: email,
+        subject,
+        text,
+        html,
+      });
 
-    // If email sending fails, return an error
-    if (!emailSent) {
- 				// Delete the newly created user's permissions & user
-				await permissionRepository.delete({ user: savedUser });
-				await userRepository.delete({ id: savedUser.id });
+      // If email sending fails, return an error
+      if (!emailSent) {
+        // Delete the newly created user's permissions & user
+        await permissionRepository.delete({ user: savedUser });
+        await userRepository.delete({ id: savedUser.id });
 
-      return {
-        statusCode: 500,
-        success: false,
-        message: 'Registration failed. Failed to send account activation email.',
-        __typename: 'BaseResponse',
-      };
-    }
+        return {
+          statusCode: 500,
+          success: false,
+          message:
+            'Registration failed. Failed to send account activation email.',
+          __typename: 'BaseResponse',
+        };
+      }
 
       // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(savedUser.id), {
@@ -405,9 +410,9 @@ resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
         role: savedUser.role.name,
-				  gender: savedUser.gender,
+        gender: savedUser.gender,
         emailVerified: savedUser.emailVerified,
-				  isAccountActivated: savedUser.isAccountActivated
+        isAccountActivated: savedUser.isAccountActivated,
       });
       await setSession(getUserInfoByEmailCacheKey(email), {
         id: savedUser.id,
@@ -417,10 +422,10 @@ resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
         password: savedUser.password,
         gender: savedUser.gender,
         role: savedUser.role.name,
-        resetPasswordToken: savedUser.reserPasswordToken,
-				  emailVerified: savedUser.emailVerified,
-				  isAccountActivated: savedUser.isAccountActivated,
-resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
+        resetPasswordToken: savedUser.resetPasswordToken,
+        emailVerified: savedUser.emailVerified,
+        isAccountActivated: savedUser.isAccountActivated,
+        resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry,
       });
       await setSession(
         getRegisterUserCountKeyCacheKey(),
@@ -436,7 +441,8 @@ resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry
       return {
         statusCode: 201,
         success: true,
-        message: 'Registration successful. To active your account check your email.',
+        message:
+          'Registration successful. To active your account check your email.',
         __typename: 'BaseResponse',
       };
     }

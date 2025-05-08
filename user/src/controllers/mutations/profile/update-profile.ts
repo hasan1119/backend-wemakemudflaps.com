@@ -11,6 +11,8 @@ import {
 } from '../../../types';
 import { updateProfileSchema } from '../../../utils/data-validation';
 import EncodeToken from '../../../utils/jwt/encode-token';
+import CONFIG from '../../../config/config';
+import SendEmail from '../../../utils/email/send-email';
 
 /**
  * Allows the user to update their account information.
@@ -99,35 +101,34 @@ export const updateProfile = async (
     if (firstName) userData.firstName = firstName;
     if (lastName) userData.lastName = lastName;
     if (email) {
+      // Create the email verification link with user id
+      const verifyEmail = `${CONFIG.FRONTEND_URL}/verify-email/?userId=${userData.id}`;
 
-// Create the email verification link with user id
-    		const verifyEmail = `${CONFIG.FRONTEND_URL}/verify-email/?userId=${userData.id}`;
+      // Prepare email contents
+      const subject = 'Verify Email Request';
+      const text = `Please use the following link to verify your email: ${verifyEmail}`;
+      const html = `<p>Please use the following link to active your account: <a href="${verifyEmail}">${verifyEmail}</a></p>`;
 
-    // Prepare email contents
-    const subject = 'Verify Email Request';
-    const text = `Please use the following link to verify your email: ${verifyEmail}`;
-    const html = `<p>Please use the following link to active your account: <a href="${verifyEmail}">${verifyEmail}</a></p>`;
+      // Attempt to send the reset email
+      const emailSent = await SendEmail({
+        to: email,
+        subject,
+        text,
+        html,
+      });
 
-    // Attempt to send the reset email
-    const emailSent = await SendEmail({
-      to: email,
-      subject,
-      text,
-      html,
-    });
+      // If email sending fails, return an error
+      if (!emailSent) {
+        return {
+          statusCode: 500,
+          success: false,
+          message: 'Failed to send email verification email',
+          __typename: 'ErrorResponse',
+        };
+      }
 
-    // If email sending fails, return an error
-    if (!emailSent) {
-      return {
-        statusCode: 500,
-        success: false,
-        message: 'Failed to send email verification   email',
-        __typename: 'BaseResponse',
-      };
+      userData.email = email;
     }
-
-userData.email = email;
-}
     if (gender) userData.gender = gender;
 
     // preserve role for session
@@ -143,8 +144,8 @@ userData.email = email;
       gender: userData.gender,
       role: userData.role.name,
       resetPasswordToken: null,
-				emailVerified: email ? false : true,
-isAccountActivated: email ? false : true
+      emailVerified: email ? false : true,
+      isAccountActivated: email ? false : true,
     });
 
     // Delete role from the userData to update the user info properly
@@ -159,9 +160,10 @@ isAccountActivated: email ? false : true
       userData.email,
       userData.firstName,
       userData.lastName,
+      userData.gender,
       preservedRole,
       userData.emailVerified,
-		   userData.isAccountActivated,
+      userData.isAccountActivated,
       '30d' // Set the token expiration time
     );
 
@@ -173,8 +175,8 @@ isAccountActivated: email ? false : true
       email: userData.email,
       role: preservedRole,
       gender: userData.gender,
-		   emailVerified: userData.emailVerified,
-		   isAccountActivated: userData.isAccountActivated 
+      emailVerified: userData.emailVerified,
+      isAccountActivated: userData.isAccountActivated,
     });
 
     // Return success response
@@ -182,7 +184,11 @@ isAccountActivated: email ? false : true
       statusCode: 200,
       success: true,
       token,
-      message: `${email ? 'Profile updated successfully, but please verify your email before using the account.' : 'Profile updated successfully.'}`,
+      message: `${
+        email
+          ? 'Profile updated successfully, but please verify your email before using the account.'
+          : 'Profile updated successfully.'
+      }`,
       __typename: 'UserProfileUpdateResponse',
     };
   } catch (error: any) {

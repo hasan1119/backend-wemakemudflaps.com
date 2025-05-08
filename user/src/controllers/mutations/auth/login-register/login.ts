@@ -8,7 +8,6 @@ import {
   getSingleUserPermissionCacheKey,
   getUserEmailCacheKey,
   getUserInfoByEmailCacheKey,
-  getUserSessionCacheKey,
 } from '../../../../helper/redis/session-keys';
 import { MutationLoginArgs, UserLoginResponseOrError } from '../../../../types';
 import CompareInfo from '../../../../utils/bcrypt/compare-info';
@@ -90,114 +89,116 @@ export const login = async (
         };
       }
 
-    // Account lock check using Redis session data
-    const lockoutSession = await getSession(getLockoutKeyCacheKey(user.email));
-
-    // Handle lockout state
-    if (lockoutSession) {
-      const { lockedAt, duration } = lockoutSession as LockoutSession; // Cast to LockoutSession type
-      const timePassed = Math.floor((Date.now() - lockedAt) / 1000); // Time passed in seconds
-      const timeLeft = duration - timePassed;
-
-      if (timeLeft > 0) {
-        // If lock time is remaining, return the time left
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Account locked. Please try again after ${minutes}m ${seconds}s.`,
-          __typename: 'ErrorResponse',
-        };
-      } else {
-        // Clear cache and unlock the account if the lock time has expired
-        await deleteSession(getLockoutKeyCacheKey(user.email));
-      }
-    }
-
-    // Verify password
-    const isPasswordValid = await CompareInfo(password, user.password);
-
-    if (!isPasswordValid) {
-      // Increment login attempt count
-      const sessionData = (await getSession(
-        getLoginAttemptsKeyCacheKey(user.email)
-      )) as {
-        attempts: number;
-      } | null;
-      const newAttempts = (sessionData?.attempts || 0) + 1;
-
-      // Store updated attempts count in Redis with 1-hour TTL
-      await setSession(
-        getLoginAttemptsKeyCacheKey(user.email),
-        { attempts: newAttempts },
-        3600
+      // Account lock check using Redis session data
+      const lockoutSession = await getSession(
+        getLockoutKeyCacheKey(user.email)
       );
 
-      // Lock account after 5 failed attempts
-      if (newAttempts >= 5) {
-        const lockDuration = 900; // 15 minutes in seconds
+      // Handle lockout state
+      if (lockoutSession) {
+        const { lockedAt, duration } = lockoutSession as LockoutSession; // Cast to LockoutSession type
+        const timePassed = Math.floor((Date.now() - lockedAt) / 1000); // Time passed in seconds
+        const timeLeft = duration - timePassed;
+
+        if (timeLeft > 0) {
+          // If lock time is remaining, return the time left
+          const minutes = Math.floor(timeLeft / 60);
+          const seconds = timeLeft % 60;
+          return {
+            statusCode: 400,
+            success: false,
+            message: `Account locked. Please try again after ${minutes}m ${seconds}s.`,
+            __typename: 'ErrorResponse',
+          };
+        } else {
+          // Clear cache and unlock the account if the lock time has expired
+          await deleteSession(getLockoutKeyCacheKey(user.email));
+        }
+      }
+
+      // Verify password
+      const isPasswordValid = await CompareInfo(password, user.password);
+
+      if (!isPasswordValid) {
+        // Increment login attempt count
+        const sessionData = (await getSession(
+          getLoginAttemptsKeyCacheKey(user.email)
+        )) as {
+          attempts: number;
+        } | null;
+        const newAttempts = (sessionData?.attempts || 0) + 1;
+
+        // Store updated attempts count in Redis with 1-hour TTL
         await setSession(
-          getLockoutKeyCacheKey(user.email),
-          { locked: true, lockedAt: Date.now(), duration: lockDuration },
-          lockDuration
+          getLoginAttemptsKeyCacheKey(user.email),
+          { attempts: newAttempts },
+          3600
         );
+
+        // Lock account after 5 failed attempts
+        if (newAttempts >= 5) {
+          const lockDuration = 900; // 15 minutes in seconds
+          await setSession(
+            getLockoutKeyCacheKey(user.email),
+            { locked: true, lockedAt: Date.now(), duration: lockDuration },
+            lockDuration
+          );
+          return {
+            statusCode: 400,
+            success: false,
+            message: 'Account locked. Please try again after 15 minutes.',
+            __typename: 'ErrorResponse',
+          };
+        }
+
         return {
           statusCode: 400,
           success: false,
-          message: 'Account locked. Please try again after 15 minutes.',
+          message: 'Invalid password',
           __typename: 'ErrorResponse',
         };
       }
 
-      return {
-        statusCode: 400,
-        success: false,
-        message: 'Invalid password',
-        __typename: 'ErrorResponse',
-      };
-    }
-
-// Check whether user email is verified and account is activated or not
-			if(!user.emailVerified && 
-!user.isAccountActivated){
-return {
+      // Check whether user email is verified and account is activated or not
+      if (!user.emailVerified && !user.isAccountActivated) {
+        return {
           statusCode: 400,
           success: false,
-          message: "Your mail isn't verified and account isn't activated. Please verify your mail to active your account.",
+          message:
+            "Your mail isn't verified and account isn't activated. Please verify your mail to active your account.",
           __typename: 'ErrorResponse',
         };
-}
+      }
 
-    // Clear cache login attempts after successful password verification
-    await deleteSession(getLoginAttemptsKeyCacheKey(user.email));
+      // Clear cache login attempts after successful password verification
+      await deleteSession(getLoginAttemptsKeyCacheKey(user.email));
 
-    // Generate JWT token
-    const token = await EncodeToken(
-      user.id,
-      user.email,
-      user.firstName,
-      user.lastName,
-      user.role.name,
-      user.gender,
-		   user.emailVerified,
-		   user.isAccountActivated,
-      '30d' // Set the token expiration time
-    );
+      // Generate JWT token
+      const token = await EncodeToken(
+        user.id,
+        user.email,
+        user.firstName,
+        user.lastName,
+        user.role.name,
+        user.gender,
+        user.emailVerified,
+        user.isAccountActivated,
+        '30d' // Set the token expiration time
+      );
 
-    // Create and store session
-    const session = {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role.name,
-gender: user.gender,
+      // Create and store session
+      const session = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role.name,
+        gender: user.gender,
         emailVerified: user.emailVerified,
-				  isAccountActivated: user.isAccountActivated
-    };
+        isAccountActivated: user.isAccountActivated,
+      };
 
-  // Cache user, user session, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
+      // Cache user, user session, user email & permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
       await setSession(getSingleUserCacheKey(user.id), session);
       await setSession(getUserInfoByEmailCacheKey(email), {
         id: user.id,
@@ -208,24 +209,23 @@ gender: user.gender,
         gender: user.gender,
         role: user.role.name,
         resetPasswordToken: user.resetPasswordToken,
-				  emailVerified: user.emailVerified,
-				  isAccountActivated: user.isAccountActivated,
-resetPasswordTokenExpiry: user.resetPasswordTokenExpiry
+        emailVerified: user.emailVerified,
+        isAccountActivated: user.isAccountActivated,
+        resetPasswordTokenExpiry: user.resetPasswordTokenExpiry,
       });
       await setSession(getUserEmailCacheKey(email), user.email);
       await setSession(
         getSingleUserPermissionCacheKey(user.id),
         user.permissions
       );
+      return {
+        statusCode: 200,
+        success: true,
+        message: 'Login successful',
+        token,
+        __typename: 'UserLoginResponse',
+      };
     }
-
-    return {
-      statusCode: 200,
-      success: true,
-      message: 'Login successful',
-      token,
-      __typename: 'UserLoginResponse',
-    };
   } catch (error: any) {
     // Log the error for debugging purposes
     console.error('Error logging in user:', error);

@@ -1,4 +1,5 @@
 import {
+  accountActivation,
   changePassword,
   createUserRole,
   deleteUserRole,
@@ -10,7 +11,8 @@ import {
   updateUserPermission,
   updateUserRole,
   updateUserRoleInfo,
-} from "../../controllers";
+  verifyEmail,
+} from '../../controllers';
 export const userMutationsResolver = {
   Mutation: {
     changePassword,
@@ -24,7 +26,7 @@ export const userMutationsResolver = {
     updateUserPermission,
     updateUserRole,
     updateProfile,
-    activeAccount,
-    verifyEmail
+    accountActivation,
+    verifyEmail,
   },
 };
