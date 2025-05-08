@@ -24,8 +24,7 @@ export const userMutationsResolver = {
     updateUserPermission,
     updateUserRole,
     updateProfile,
-activeAccount,
-verifyEmail
-	  
+    activeAccount,
+    verifyEmail
   },
 };
