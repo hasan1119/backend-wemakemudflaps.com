@@ -52,9 +52,26 @@ export const resetPassword = async (
       };
     }
 
-    const user = await userRepository.findOne({
-      where: { resetPasswordToken: token },
-    });
+    // Check Redis for cached user's data
+    let user;
+
+    user = await getSession(getUserInfoByEmailCacheKey(email));
+
+    if (!user) {
+      // Fetch user from database
+      user = await userRepository.findOne({
+        where: { email: email },
+        relations: ['role', 'permissions'],
+      });
+
+      if (!user) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `User not found with this email: ${email}`,
+          __typename: 'ErrorResponse',
+        };
+    }
 
     if (!user || !user.resetPasswordTokenExpiry) {
       return {
