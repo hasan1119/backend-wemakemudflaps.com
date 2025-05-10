@@ -32,15 +32,15 @@ type Role {
 
 # Type of the user session for access token and redis.
 type UserSession {
-  id: String;
-  email: String;
-  username: String;
-  firstName: String;
-  lastName: String;
-  role: String;
-  gender: String;
-  emailVerified: Boolean;
-  isAccountActivated: Boolean;
+  id: String!
+  email: String!
+  username: String!
+  firstName: String!
+  lastName: String!
+  role: String!
+  gender: String!
+  emailVerified: Boolean!
+  isAccountActivated: Boolean!
 }
 
 # Main User type, which represents the user model in the system.
