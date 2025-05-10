@@ -2,62 +2,7 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@key"])
 
-# Type for the createdBy.
-type CreatedBy {
-  id: ID!
-  name: String
-  email: String
-  role: String
-}
-
-# Type for the permission of user.
-type Permissions {
-  id: ID!
-  name: String!
-  description: String!
-  canCreate: Boolean!
-  canRead: Boolean!
-  canUpdate: Boolean!
-  canDelete: Boolean!
-}
-
-# Type for the user role.
-type Role {
-  id: ID!
-  name: String
-  description: String
-  createdBy: CreatedBy
-  createdAt: String
-  deletedAt: String
-}
-
-# Type of the user session for access token and redis.
-type UserSession {
-  id: String!
-  email: String!
-  username: String!
-  firstName: String!
-  lastName: String!
-  role: String!
-  gender: String!
-  emailVerified: Boolean!
-  isAccountActivated: Boolean!
-}
-
-# Main User type, which represents the user model in the system.
-type User @key(fields: "id") {
-  id: ID!
-  firstName: String
-  lastName: String
-  email: String
-  gender: String
-  role: String
-  emailVerified: Boolean
-  isAccountActivated: Boolean
-  permissions: [Permissions!]
-  createdAt: String
-  deletedAt: String
-}
+# ---------------------- Basic Types ----------------------
 
 # Type representing errors for specific fields
 type FieldError {
@@ -79,6 +24,86 @@ type BaseResponse {
   success: Boolean!
   message: String!
 }
+
+# ---------------------- CreatedBy & Permissions ----------------------
+
+# Type for the createdBy.
+type CreatedBy {
+  id: ID!
+  name: String
+  email: String
+  role: String
+}
+
+# Type for the permission of user.
+type Permissions {
+  id: ID!
+  name: String!
+  description: String!
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+# ---------------------- Role Types ----------------------
+
+# Type for the user role.
+type Role {
+  id: ID!
+  name: String
+  description: String
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# ---------------------- User Types ----------------------
+
+# Type of the user session for access token and redis.
+type UserSession {
+  id: String!
+  email: String!
+  username: String!
+  firstName: String!
+  lastName: String!
+  role: String!
+  gender: String!
+  emailVerified: Boolean!
+  isAccountActivated: Boolean!
+}
+
+# Type for the user cached session stored by email key in Redis.
+type CachedUserSessionByEmailKeyInput {
+  id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+  gender: String
+  role: String!
+  resetPasswordToken: String
+  emailVerified: Boolean!
+  isAccountActivated: Boolean!
+  resetPasswordTokenExpiry: String
+}
+
+# Main User type, which represents the user model in the system.
+type User @key(fields: "id") {
+  id: ID!
+  firstName: String
+  lastName: String
+  email: String
+  gender: String
+  role: String
+  emailVerified: Boolean
+  isAccountActivated: Boolean
+  permissions: [Permissions!]
+  createdAt: String
+  deletedAt: String
+}
+
+# ---------------------- Responses ----------------------
 
 # Type for the response when fetching a single user.
 type UserResponse {
@@ -131,6 +156,8 @@ type RoleResponse {
   role: Role
 }
 
+# ---------------------- Inputs ----------------------
+
 # Input type for a single permission entry
 input SinglePermissionInput {
   name: String! # Name of the permission
@@ -149,7 +176,7 @@ input UpdateUserPermissionInput {
   permissions: [SinglePermissionInput!] # Optional array of permission settings
 }
 
-# Union types for handling success and error responses.
+# ---------------------- Unions ----------------------
 
 # Mutation responses can be either a success or an error.
 union BaseResponseOrError = BaseResponse | ErrorResponse
