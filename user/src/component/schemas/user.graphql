@@ -30,6 +30,19 @@ type Role {
   createdAt: String
 }
 
+# Type of the user session for access token and redis.
+type UserSession {
+  id: String;
+  email: String;
+  username: String;
+  firstName: String;
+  lastName: String;
+  role: String;
+  gender: String;
+  emailVerified: Boolean;
+  isAccountActivated: Boolean;
+}
+
 # Main User type, which represents the user model in the system.
 type User @key(fields: "id") {
   id: ID!
@@ -38,28 +51,10 @@ type User @key(fields: "id") {
   email: String
   gender: String
   role: String
+  emailVerified: Boolean;
+  isAccountActivated: Boolean;
   permissions: [Permissions!]
-  # Relationships to other models.
-  # categories: [Category!] # Categories created by the user.
-  # subCategories: [SubCategory!] # Subcategories created by the user.
-  # products: [Product!] # Products created by the user.
-  # brands: [Brand!] # Brands created by the user.
-  # orders: [Order!] # Orders placed by the user.
-  # cartItems: [Cart!] # Items in the user's cart.
-  # wishlistItems: [Wishlist!] # Items in the user's wishlist.
-  # productReviews: [ProductReview!] # Reviews written by the user.
-  # productRequests: [ProductRequest!] # Product requests made by the user.
-  # notifications: [Notification!] # Notifications related to the user.
-  # media: [Media!] # Media uploaded by the user.
-  # coupons: [Coupon!] # Coupons created by the user.
-  # faq: [FAQ!] # FAQs created by the user.
-  # privacyPolicies: [PrivacyPolicy!] # Privacy policies created by the user.
-  # termsAndConditions: [TermAndCondition!] # Terms & conditions created by the user.
-  # popupBanners: [PopupBanner!] # Popup banners created by the user.
-  # newsLetters: [Newsletter!] # Newsletters created by the user.
-  # shippingClass: [ShippingClass!] # Shipping classes created by the user.
-  # taxClass: [TaxClass!] # Tax classes created by the user.
-  # taxStatus: [TaxStatus!] # Tax statuses created by the user.
+  createdAt : String
 }
 
 # Type for validation and general errors
