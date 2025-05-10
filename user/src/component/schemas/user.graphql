@@ -52,10 +52,11 @@ type User @key(fields: "id") {
   email: String
   gender: String
   role: String
-  emailVerified: Boolean;
-  isAccountActivated: Boolean;
+  emailVerified: Boolean
+  isAccountActivated: Boolean
   permissions: [Permissions!]
-  createdAt : String
+  createdAt: String
+  deletedAt: String
 }
 
 # Type for validation and general errors
