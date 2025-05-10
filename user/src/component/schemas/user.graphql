@@ -62,7 +62,7 @@ type Role {
 
 # Type of the user session for access token and redis.
 type UserSession {
-  id: String!
+  id: ID!
   email: String!
   username: String!
   firstName: String!
