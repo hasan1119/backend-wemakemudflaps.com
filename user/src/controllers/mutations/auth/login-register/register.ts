@@ -7,25 +7,25 @@ import {
 } from "../../../../entities/permission.entity";
 import { Role } from "../../../../entities/user-role.entity";
 import { User } from "../../../../entities/user.entity";
+import { setUserPermissionsInRedis } from "../../../../helper/redis/permissions/permission-session-manage";
 import {
-  getExistKeyWord,
-  getRegisterUserCountKeyCacheKey,
-  getSingleUserCacheKey,
-  getSingleUserRoleInfoByRoleIdCacheKey,
-  getSingleUserRoleInfoByRoleNameCacheKey,
-  getSingleUserRoleInfoExistByRoleNameCacheKey,
-  getUserEmailCacheKey,
-  getUserInfoByEmailCacheKey,
-  getUserPermissionByUserIdCacheKey,
-} from "../../../../helper/redis/session-keys";
+  getRoleInfoByRoleNameFromRedis,
+  setRoleInfoByRoleIdInRedis,
+  setRoleInfoByRoleNameInRedis,
+  setRoleNameExistInRedis,
+} from "../../../../helper/redis/role/role-session-manage";
+import {
+  getUserCountInDBFromRedis,
+  getUserEmailFromRedis,
+  setUserCountInDBInRedis,
+  setUserEmailInRedis,
+  setUserInfoByEmailInRedis,
+  setUserInfoByUserIdInRedis,
+} from "../../../../helper/redis/user/user-session-manage";
 import {
   BaseResponseOrError,
-  CachedRoleInputs,
   CachedUserEmailKeyInputs,
-  CachedUserPermissionsInputs,
-  CachedUserSessionByEmailKeyInputs,
   MutationRegisterArgs,
-  UserSession,
 } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
 import { registerSchema } from "../../../../utils/data-validation";
@@ -72,10 +72,9 @@ const PermissionNames: PermissionName[] = [
 export const register = async (
   _: any,
   args: MutationRegisterArgs,
-  { AppDataSource, redis }: Context
+  { AppDataSource }: Context
 ): Promise<BaseResponseOrError> => {
   const { firstName, lastName, email, password, gender } = args;
-  const { getSession, setSession, deleteSession } = redis;
 
   try {
     // Validate input data using Zod schema
@@ -109,9 +108,7 @@ export const register = async (
       AppDataSource.getRepository(Permission);
 
     // Check Redis for cached user's email
-    let userEmail: CachedUserEmailKeyInputs | null = await getSession(
-      getUserEmailCacheKey(email)
-    );
+    let userEmail = await getUserEmailFromRedis(email);
 
     if (userEmail) {
       return {
@@ -124,13 +121,8 @@ export const register = async (
       // Cache miss: Fetch user from database
       userEmail = await userRepository.findOne({ where: { email } });
       if (userEmail) {
-        // Create a new session for the user email
-        const userEmailSession: CachedUserEmailKeyInputs = {
-          email: userEmail.email,
-        };
-
         // Cache user email in Redis with configurable TTL(default 30 days of redis session because of the env)
-        await setSession(getUserEmailCacheKey(email), userEmailSession);
+        await setUserEmailInRedis(email, { email });
 
         return {
           statusCode: 400,
@@ -145,23 +137,19 @@ export const register = async (
     const hashedPassword = await HashInfo(password);
 
     // Check Redis for cached users count
-    let userCount: string | null = await getSession(
-      getRegisterUserCountKeyCacheKey()
-    );
+    let userCount = await getUserCountInDBFromRedis();
 
     if (!userCount) {
       // Cache miss: Fetch users count from database
-      userCount = (await userRepository.count()).toString();
+      userCount = await userRepository.count();
     }
 
     // Initiate the empty variable for the user role & super admin
     let role;
 
-    if (Number(userCount) === 0) {
+    if (userCount === 0) {
       // Check Redis for for the super admin
-      role = await getSession<CachedRoleInputs | null>(
-        getSingleUserRoleInfoByRoleNameCacheKey("super admin")
-      );
+      role = await getRoleInfoByRoleNameFromRedis("SUPER ADMIN");
 
       if (!role) {
         // Cache miss: Fetch role from database
@@ -180,7 +168,7 @@ export const register = async (
         }
 
         // Create a new session for user role
-        const roleSession: CachedRoleInputs = {
+        const roleSession = {
           id: role.id,
           name: role.name,
           description: role.description,
@@ -190,18 +178,9 @@ export const register = async (
         };
 
         // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
-        await setSession(
-          getSingleUserRoleInfoByRoleNameCacheKey("super admin"),
-          roleSession
-        );
-        await setSession(
-          getSingleUserRoleInfoByRoleIdCacheKey(role.id),
-          roleSession
-        );
-        await setSession(
-          getSingleUserRoleInfoExistByRoleNameCacheKey("super admin"),
-          getExistKeyWord()
-        );
+        await setRoleInfoByRoleNameInRedis(role.name, roleSession);
+        await setRoleInfoByRoleIdInRedis(role.id, roleSession);
+        await setRoleNameExistInRedis(role.name);
       }
 
       // Create Super Admin user
@@ -268,7 +247,7 @@ export const register = async (
         email: savedUser.email,
       };
 
-      const session: UserSession = {
+      const session = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -279,7 +258,7 @@ export const register = async (
         isAccountActivated: savedUser.isAccountActivated,
       };
 
-      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
+      const userSessionByEmail = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -291,29 +270,22 @@ export const register = async (
         password: savedUser.password,
       };
 
-      const userPermissions: CachedUserPermissionsInputs[] =
-        fullPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
+      const userPermissions = fullPermissions.map((permission) => ({
+        id: permission.id,
+        name: permission.name,
+        description: permission.description,
+        canCreate: permission.canCreate,
+        canRead: permission.canRead,
+        canUpdate: permission.canUpdate,
+        canDelete: permission.canDelete,
+      }));
 
       // Cache newly register user, user email, user role & his/her permissions for curd, and update the userCount in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getSingleUserCacheKey(savedUser.id), session);
-      await setSession(getUserInfoByEmailCacheKey(email), userSessionByEmail);
-      await setSession(
-        getRegisterUserCountKeyCacheKey(),
-        (userCount + 1).toString()
-      );
-      await setSession(getUserEmailCacheKey(email), userEmailSession);
-      await setSession(
-        getUserPermissionByUserIdCacheKey(savedUser.id),
-        userPermissions
-      );
+      await setUserInfoByUserIdInRedis(savedUser.id, session);
+      await setUserEmailInRedis(email, { email });
+      await setUserInfoByEmailInRedis(email, userSessionByEmail);
+      await setUserCountInDBInRedis(userCount + 1);
+      await setUserPermissionsInRedis(savedUser.id, userPermissions);
 
       return {
         statusCode: 201,
@@ -324,9 +296,7 @@ export const register = async (
       };
     } else {
       // Check Redis for for the super admin
-      role = await getSession<CachedRoleInputs | null>(
-        getSingleUserRoleInfoByRoleNameCacheKey("customer")
-      );
+      role = await getRoleInfoByRoleNameFromRedis("CUSTOMER");
 
       if (!role) {
         // Cache miss: Fetch user from database
@@ -346,7 +316,7 @@ export const register = async (
         }
 
         // Create a new session for user role
-        const roleSession: CachedRoleInputs = {
+        const roleSession = {
           id: role.id,
           name: role.name,
           description: role.description,
@@ -356,18 +326,9 @@ export const register = async (
         };
 
         // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
-        await setSession(
-          getSingleUserRoleInfoByRoleNameCacheKey("customer"),
-          roleSession
-        );
-        await setSession(
-          getSingleUserRoleInfoByRoleIdCacheKey(role.id),
-          roleSession
-        );
-        await setSession(
-          getSingleUserRoleInfoExistByRoleNameCacheKey("customer"),
-          getExistKeyWord()
-        );
+        await setRoleInfoByRoleNameInRedis(role.name, roleSession);
+        await setRoleInfoByRoleIdInRedis(role.id, roleSession);
+        await setRoleNameExistInRedis(role.name);
       }
 
       // Create Customer user
@@ -491,12 +452,7 @@ export const register = async (
         };
       }
 
-      // Create a new session for the user
-      const userEmailSession: CachedUserEmailKeyInputs = {
-        email: savedUser.email,
-      };
-
-      const session: UserSession = {
+      const session = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -507,7 +463,7 @@ export const register = async (
         isAccountActivated: savedUser.isAccountActivated,
       };
 
-      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
+      const userSessionByEmail = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -519,29 +475,22 @@ export const register = async (
         password: savedUser.password,
       };
 
-      const userPermissions: CachedUserPermissionsInputs[] =
-        customerPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
+      const userPermissions = customerPermissions.map((permission) => ({
+        id: permission.id,
+        name: permission.name,
+        description: permission.description,
+        canCreate: permission.canCreate,
+        canRead: permission.canRead,
+        canUpdate: permission.canUpdate,
+        canDelete: permission.canDelete,
+      }));
 
       // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getSingleUserCacheKey(savedUser.id), session);
-      await setSession(getUserInfoByEmailCacheKey(email), userSessionByEmail);
-      await setSession(
-        getRegisterUserCountKeyCacheKey(),
-        (userCount + 1).toString()
-      );
-      await setSession(getUserEmailCacheKey(email), userEmailSession);
-      await setSession(
-        getUserPermissionByUserIdCacheKey(savedUser.id),
-        userPermissions
-      );
+      await setUserInfoByUserIdInRedis(savedUser.id, session);
+      await setUserEmailInRedis(email, { email });
+      await setUserInfoByEmailInRedis(email, userSessionByEmail);
+      await setUserCountInDBInRedis(userCount + 1);
+      await setUserPermissionsInRedis(savedUser.id, userPermissions);
 
       return {
         statusCode: 201,

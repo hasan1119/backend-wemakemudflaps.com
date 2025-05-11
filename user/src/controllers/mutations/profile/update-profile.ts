@@ -3,11 +3,10 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import {
-  getSingleUserCacheKey,
-  getUserInfoByEmailCacheKey,
-} from "../../../helper/redis/session-keys";
+  getUserInfoByUserIdFromRedis,
+  setUserInfoByUserIdInRedis,
+} from "../../../helper/redis/user/user-session-manage";
 import {
-  CachedUserSessionByEmailKeyInputs,
   MutationUpdateProfileArgs,
   UserProfileUpdateResponseOrError,
 } from "../../../types";
@@ -81,9 +80,7 @@ export const updateProfile = async (
     // Check Redis for cached user's data
     let userData;
 
-    userData = await getSession<UserSession | null>(
-      getSingleUserCacheKey(user.id)
-    );
+    userData = await getUserInfoByUserIdFromRedis(user.id);
 
     if (!userData) {
       // Cache miss: Fetch user from database
@@ -138,7 +135,7 @@ export const updateProfile = async (
     // preserve role for session
     const preservedRole = user.role;
 
-    const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
+    const userEmailCacheData = {
       id: userData.id,
       email: userData.email,
       firstName: userData.firstName,
@@ -151,10 +148,7 @@ export const updateProfile = async (
     };
 
     // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(
-      getUserInfoByEmailCacheKey(userData.email),
-      userEmailCacheData
-    );
+    await setUserInfoByUserIdInRedis(userData.email, userEmailCacheData);
 
     // Delete role from the userData to update the user info properly
     delete userData.role;
@@ -187,7 +181,7 @@ export const updateProfile = async (
     };
 
     // Cache user data in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(getSingleUserCacheKey(userData.id), userSessionById);
+    await setUserInfoByUserIdInRedis(user.id, userSessionById);
 
     // Return success response
     return {

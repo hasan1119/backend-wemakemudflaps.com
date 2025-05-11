@@ -1,10 +1,12 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
-import { getUserInfoByEmailCacheKey } from "../../../../helper/redis/session-keys";
+import {
+  getUserInfoByEmailInRedis,
+  setUserInfoByEmailInRedis,
+} from "../../../../helper/redis/user/user-session-manage";
 import {
   BaseResponseOrError,
-  CachedUserSessionByEmailKeyInputs,
   MutationChangePasswordArgs,
 } from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
@@ -32,7 +34,6 @@ export const changePassword = async (
   { AppDataSource, user, redis }: Context
 ): Promise<BaseResponseOrError> => {
   const { oldPassword, newPassword } = args;
-  const { getSession, setSession, deleteSession } = redis;
 
   try {
     // Validate input data using Zod schema for the change password operation
@@ -71,9 +72,8 @@ export const changePassword = async (
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
     // Check Redis for cached user's data
-    let userData: CachedUserSessionByEmailKeyInputs | null = await getSession(
-      getUserInfoByEmailCacheKey(user.email)
-    );
+    let userData;
+    userData = getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
       // Fetch user from database
@@ -127,7 +127,7 @@ export const changePassword = async (
         ? userData.role
         : (userData.role as { name: string }).name;
 
-    const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
+    const userSessionByEmail = {
       id: userData.id,
       email: userData.email,
       firstName: userData.firstName,
@@ -140,10 +140,7 @@ export const changePassword = async (
     };
 
     // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(
-      getUserInfoByEmailCacheKey(userData.email),
-      userSessionByEmail
-    );
+    await setUserInfoByEmailInRedis(user.email, userSessionByEmail);
 
     // Return success response
     return {

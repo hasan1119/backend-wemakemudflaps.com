@@ -3,14 +3,13 @@ import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import {
-  getSingleUserCacheKey,
-  getUserInfoByEmailCacheKey,
-} from "../../../helper/redis/session-keys";
+  getUserInfoByUserIdFromRedis,
+  setUserInfoByEmailInRedis,
+  setUserInfoByUserIdInRedis,
+} from "../../../helper/redis/user/user-session-manage";
 import {
   ActiveAccountResponseOrError,
-  CachedUserSessionByEmailKeyInputs,
   MutationAccountActivationArgs,
-  UserSession,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
 
@@ -26,16 +25,15 @@ import { idSchema } from "../../../utils/data-validation";
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Activation arguments (userId)
- * @param context - GraphQL context with AppDataSource and Redis
+ * @param context - GraphQL context with AppDataSource
  * @returns Promise<ActiveAccountResponseOrError> - Response status and message
  */
 export const accountActivation = async (
   _: any,
   args: MutationAccountActivationArgs,
-  { AppDataSource, redis }: Context
+  { AppDataSource }: Context
 ): Promise<ActiveAccountResponseOrError> => {
   const { userId } = args;
-  const { getSession, setSession, deleteSession } = redis;
 
   try {
     // Validate input data using Zod schema
@@ -62,19 +60,26 @@ export const accountActivation = async (
     // Initialize user repository
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    // Check if user exists
-    const user = await userRepository.findOne({
-      where: { id: userId },
-      relations: ["role"],
-    });
+    // Check Redis for cached user's data
+    let user;
+
+    user = await getUserInfoByUserIdFromRedis(userId);
 
     if (!user) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: "User not found",
-        __typename: "ErrorResponse",
-      };
+      // Check if user exists
+      user = await userRepository.findOne({
+        where: { id: userId },
+        relations: ["role"],
+      });
+
+      if (!user) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "User not found",
+          __typename: "ErrorResponse",
+        };
+      }
     }
 
     // Check if account is already activated
@@ -102,7 +107,7 @@ export const accountActivation = async (
         : (user.role as { name: string }).name;
 
     // Update Redis cache
-    const userCacheData: UserSession = {
+    const userCacheData = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -113,7 +118,7 @@ export const accountActivation = async (
       isAccountActivated: true,
     };
 
-    const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
+    const userEmailCacheData = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -126,11 +131,8 @@ export const accountActivation = async (
     };
 
     // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(getSingleUserCacheKey(user.id), userCacheData);
-    await setSession(
-      getUserInfoByEmailCacheKey(user.email),
-      userEmailCacheData
-    );
+    await setUserInfoByUserIdInRedis(user.id, userCacheData);
+    await setUserInfoByEmailInRedis(user.email, userEmailCacheData);
 
     return {
       statusCode: 200,

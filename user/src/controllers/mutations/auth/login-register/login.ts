@@ -2,21 +2,20 @@ import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
 import {
+  getUserPermissionsFromRedis,
+  setUserPermissionsInRedis,
+} from "../../../../helper/redis/permissions/permission-session-manage";
+import {
   getLockoutKeyCacheKey,
   getLoginAttemptsKeyCacheKey,
-  getSingleUserCacheKey,
-  getUserEmailCacheKey,
-  getUserInfoByEmailCacheKey,
-  getUserPermissionByUserIdCacheKey,
 } from "../../../../helper/redis/session-keys";
 import {
-  CachedUserEmailKeyInputs,
-  CachedUserPermissionsInputs,
-  CachedUserSessionByEmailKeyInputs,
-  MutationLoginArgs,
-  UserLoginResponseOrError,
-  UserSession,
-} from "../../../../types";
+  getUserInfoByEmailInRedis,
+  setUserEmailInRedis,
+  setUserInfoByEmailInRedis,
+  setUserInfoByUserIdInRedis,
+} from "../../../../helper/redis/user/user-session-manage";
+import { MutationLoginArgs, UserLoginResponseOrError } from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import { loginSchema } from "../../../../utils/data-validation";
 import EncodeToken from "../../../../utils/jwt/encode-token";
@@ -76,11 +75,10 @@ export const login = async (
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
     // Check Redis for cached user's data & permission
-    let user: CachedUserSessionByEmailKeyInputs | null = await getSession(
-      getUserInfoByEmailCacheKey(email)
-    );
+    let user;
+    user = await getUserInfoByEmailInRedis(email);
 
-    let permissions: CachedUserPermissionsInputs[] | null;
+    let permissions;
 
     if (!user) {
       // Fetch user from database
@@ -111,14 +109,12 @@ export const login = async (
         canRead: permission.canRead,
         canUpdate: permission.canUpdate,
         canDelete: permission.canDelete,
-      })) as CachedUserPermissionsInputs[];
+      }));
 
       // Cache user permissions for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getUserPermissionByUserIdCacheKey(user.id), permissions);
+      await setUserPermissionsInRedis(user.id, permissions);
     } else {
-      permissions = await getSession<CachedUserPermissionsInputs[]>(
-        getUserPermissionByUserIdCacheKey(user.id)
-      );
+      permissions = await getUserPermissionsFromRedis(user.id);
     }
 
     // Account lock check using Redis session data
@@ -222,11 +218,8 @@ export const login = async (
     );
 
     // Create and store session
-    const userEmailSession: CachedUserEmailKeyInputs = {
-      email: user.email,
-    };
 
-    const session: UserSession = {
+    const session = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -237,7 +230,7 @@ export const login = async (
       isAccountActivated: user.isAccountActivated,
     };
 
-    const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
+    const userSessionByEmail = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -250,9 +243,9 @@ export const login = async (
     };
 
     // Cache user, user session and user email for curd in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(getSingleUserCacheKey(user.id), session);
-    await setSession(getUserEmailCacheKey(email), userEmailSession);
-    await setSession(getUserInfoByEmailCacheKey(email), userSessionByEmail);
+    await setUserInfoByUserIdInRedis(user.id, session);
+    await setUserEmailInRedis(email, { email });
+    await setUserInfoByEmailInRedis(email, userSessionByEmail);
 
     return {
       statusCode: 200,

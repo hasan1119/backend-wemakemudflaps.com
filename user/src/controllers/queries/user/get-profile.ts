@@ -1,7 +1,10 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
-import { getSingleUserCacheKey } from "../../../helper/redis/session-keys";
+import {
+  getUserInfoByUserIdFromRedis,
+  setUserInfoByUserIdInRedis,
+} from "../../../helper/redis/user/user-session-manage";
 import { GetProfileResponseOrError } from "../../../types";
 
 /**
@@ -13,16 +16,14 @@ import { GetProfileResponseOrError } from "../../../types";
  *
  * @param _ - Unused GraphQL parent argument
  * @param __ - Unused GraphQL argument
- * @param context - Application context containing AppDataSource, user, and redis
+ * @param context - Application context containing AppDataSource and user
  * @returns Promise<GetProfileResponseOrError> - User details with role name or error response
  */
 export const getProfile = async (
   _: any,
   __: any,
-  { AppDataSource, user, redis }: Context
+  { AppDataSource, user }: Context
 ): Promise<GetProfileResponseOrError> => {
-  const { getSession, setSession } = redis;
-
   try {
     if (!user || !user.id) {
       return {
@@ -37,14 +38,13 @@ export const getProfile = async (
     let userExist: any = null;
 
     // Check Redis for cached user data
-    userExist = await getSession(getSingleUserCacheKey(user.id));
+    userExist = await getUserInfoByUserIdFromRedis(user.id);
 
     // Check the user exists or not
     if (!userExist) {
       const dbUser = await userRepository.findOne({
         where: { id: user.id },
         relations: ["role"],
-        select: ["id", "firstName", "lastName", "email", "gender"],
       });
 
       if (!dbUser) {
@@ -61,10 +61,13 @@ export const getProfile = async (
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
         email: dbUser.email,
+        gender: dbUser.gender,
         role: dbUser.role?.name || null,
+        isAccountActivated: dbUser.isAccountActivated,
+        emailVerified: dbUser.emailVerified,
       };
 
-      await setSession(getSingleUserCacheKey(user.id), userData);
+      userExist = await setUserInfoByUserIdInRedis(user.id, userData);
 
       userExist = userData;
     }

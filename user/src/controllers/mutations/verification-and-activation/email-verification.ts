@@ -2,16 +2,11 @@ import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import {
-  getSingleUserCacheKey,
-  getUserInfoByEmailCacheKey,
-  getUserSessionCacheKey,
-} from "../../../helper/redis/session-keys";
-import {
-  BaseResponseOrError,
-  CachedUserSessionByEmailKeyInputs,
-  MutationVerifyEmailArgs,
-  UserSession,
-} from "../../../types";
+  getUserInfoByUserIdFromRedis,
+  setUserInfoByEmailInRedis,
+  setUserInfoByUserIdInRedis,
+} from "../../../helper/redis/user/user-session-manage";
+import { BaseResponseOrError, MutationVerifyEmailArgs } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
 
 /**
@@ -26,16 +21,15 @@ import { idSchema } from "../../../utils/data-validation";
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Verification arguments (userId)
- * @param context - GraphQL context with AppDataSource and Redis
+ * @param context - GraphQL context with AppDataSource
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const verifyEmail = async (
   _: any,
   args: MutationVerifyEmailArgs,
-  { AppDataSource, redis }: Context
+  { AppDataSource }: Context
 ): Promise<BaseResponseOrError> => {
   const { userId } = args;
-  const { getSession, setSession, deleteSession } = redis;
 
   try {
     // Validate input data using Zod schema
@@ -65,7 +59,7 @@ export const verifyEmail = async (
     // Check Redis for cached user's data
     let user;
 
-    user = await getSession(getUserSessionCacheKey(userId));
+    user = await getUserInfoByUserIdFromRedis(userId);
 
     if (!user) {
       // Fetch user from database
@@ -99,7 +93,7 @@ export const verifyEmail = async (
     const updatedUser = await userRepository.save(user);
 
     // Update Redis cache
-    const userCacheData: UserSession = {
+    const userCacheData = {
       id: updatedUser.id,
       email: updatedUser.email,
       firstName: updatedUser.firstName,
@@ -110,7 +104,7 @@ export const verifyEmail = async (
       isAccountActivated: updatedUser.isAccountActivated,
     };
 
-    const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
+    const userEmailCacheData = {
       id: updatedUser.id,
       email: updatedUser.email,
       firstName: updatedUser.firstName,
@@ -123,11 +117,8 @@ export const verifyEmail = async (
     };
 
     // Cache user in Redis with configurable TTL (default 30 days of redis session because of the env)
-    await setSession(getSingleUserCacheKey(updatedUser.id), userCacheData);
-    await setSession(
-      getUserInfoByEmailCacheKey(updatedUser.email),
-      userEmailCacheData
-    );
+    await setUserInfoByUserIdInRedis(userId, userCacheData);
+    await setUserInfoByEmailInRedis(updatedUser.email, userEmailCacheData);
 
     return {
       statusCode: 200,

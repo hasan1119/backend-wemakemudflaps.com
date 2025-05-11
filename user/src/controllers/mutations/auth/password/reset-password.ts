@@ -1,10 +1,9 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
-import { getUserInfoByEmailCacheKey } from "../../../../helper/redis/session-keys";
+import { setUserInfoByEmailInRedis } from "../../../../helper/redis/user/user-session-manage";
 import {
   BaseResponseOrError,
-  CachedUserSessionByEmailKeyInputs,
   MutationResetPasswordArgs,
 } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
@@ -28,7 +27,6 @@ export const resetPassword = async (
   { AppDataSource, redis }: Context
 ): Promise<BaseResponseOrError> => {
   const { token, newPassword } = args;
-  const { getSession, setSession } = redis;
 
   const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
@@ -101,7 +99,7 @@ export const resetPassword = async (
 
     const updatedUser = await userRepository.save(user);
 
-    const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
+    const userSessionByEmail = {
       id: updatedUser.id,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
@@ -113,10 +111,8 @@ export const resetPassword = async (
       isAccountActivated: updatedUser.isAccountActivated,
     };
 
-    await setSession(
-      getUserInfoByEmailCacheKey(updatedUser.email),
-      userSessionByEmail
-    );
+    // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
+    await setUserInfoByEmailInRedis(updatedUser.email, userSessionByEmail);
 
     return {
       statusCode: 200,

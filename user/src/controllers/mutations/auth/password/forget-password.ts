@@ -3,10 +3,12 @@ import { v4 as uuidv4 } from "uuid";
 import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
-import { getUserInfoByEmailCacheKey } from "../../../../helper/redis/session-keys";
+import {
+  getUserInfoByEmailInRedis,
+  setUserInfoByEmailInRedis,
+} from "../../../../helper/redis/user/user-session-manage";
 import {
   BaseResponseOrError,
-  CachedUserSessionByEmailKeyInputs,
   MutationForgetPasswordArgs,
 } from "../../../../types";
 import { emailSchema } from "../../../../utils/data-validation";
@@ -61,9 +63,8 @@ export const forgetPassword = async (
     }
 
     // Check Redis for cached user's data
-    let user: CachedUserSessionByEmailKeyInputs | null = await getSession(
-      getUserInfoByEmailCacheKey(email)
-    );
+    let user;
+    user = getUserInfoByEmailInRedis(email);
 
     if (!user.email) {
       const dbUser = await userRepository.findOne({
@@ -143,7 +144,7 @@ export const forgetPassword = async (
         ? user.role
         : (user.role as { name: string }).name;
 
-    const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
+    const userSessionByEmail = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -156,7 +157,7 @@ export const forgetPassword = async (
     };
 
     // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(getUserInfoByEmailCacheKey(email), userSessionByEmail);
+    await setUserInfoByEmailInRedis(email, userSessionByEmail);
 
     return {
       statusCode: 200,
