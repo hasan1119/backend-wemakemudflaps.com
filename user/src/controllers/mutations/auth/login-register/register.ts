@@ -190,7 +190,7 @@ export const register = async (
         email,
         password: hashedPassword,
         gender: gender || null,
-        role: role.id, // Assign the Role entity object
+        role, // Assign the Role entity object
       });
 
       const savedUser = await userRepository.save(newUser);
@@ -338,7 +338,7 @@ export const register = async (
         email,
         password: hashedPassword,
         gender: gender || null,
-        role: role.id,
+        role,
       });
       await userRepository.save(savedUser);
 
