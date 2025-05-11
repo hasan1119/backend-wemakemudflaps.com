@@ -10,7 +10,7 @@ import config from "../../config/config";
 const DecodeToken = async (token: string): Promise<JwtPayload | null> => {
   try {
     const decoded = jwt.verify(token, config.SECRET_KEY) as JwtPayload;
-    console.log(decoded);
+
     // Ensure the decoded token contains the required fields
     if (
       decoded &&

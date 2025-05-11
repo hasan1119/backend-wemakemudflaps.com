@@ -110,10 +110,13 @@ export const forgetPassword = async (
     const resetToken = uuidv4();
     const tokenExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-    await userRepository.update(user.email, {
-      resetPasswordToken: resetToken,
-      resetPasswordTokenExpiry: tokenExpiry,
-    });
+    await userRepository.update(
+      { email },
+      {
+        resetPasswordToken: resetToken,
+        resetPasswordTokenExpiry: tokenExpiry,
+      }
+    );
 
     const resetLink = `${CONFIG.FRONTEND_URL}/reset-password?token=${resetToken}`;
 

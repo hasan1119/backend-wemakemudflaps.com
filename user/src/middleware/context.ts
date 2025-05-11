@@ -11,8 +11,6 @@ const createContext = async ({ req, res }) => {
 
     if (token) {
       const decoded = await DecodeToken(token);
-
-      console.log(decoded);
       if (decoded) {
         // Fetch the user session from Redis using the decoded user ID
         const userSession = await redis.getSession<UserSession | null>(
