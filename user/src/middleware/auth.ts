@@ -2,19 +2,7 @@ import jwt from "jsonwebtoken";
 import config from "../config/config";
 import { redis } from "../helper";
 import { getUserSessionCacheKey } from "../helper/redis/session-keys";
-
-// User session interface to define the structure of the session object
-interface UserSession {
-  id: string;
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  gender: string;
-  emailVerified: boolean;
-  isAccountActivated: boolean;
-}
+import { UserSession } from "../types";
 
 export async function authMiddleware(
   req: any, // The request object

@@ -1,17 +1,18 @@
-import { Repository } from 'typeorm';
+import { Repository } from "typeorm";
 
-import { Context } from '../../../context';
-import { User } from '../../../entities/user.entity';
+import { Context } from "../../../context";
+import { User } from "../../../entities/user.entity";
 import {
   getSingleUserCacheKey,
   getUserInfoByEmailCacheKey,
-} from '../../../helper/redis/session-keys';
+} from "../../../helper/redis/session-keys";
 import {
   ActiveAccountResponseOrError,
+  CachedUserSessionByEmailKeyInputs,
   MutationAccountActivationArgs,
-} from '../../../types';
-import { idSchema } from '../../../utils/data-validation';
-import EncodeToken from '../../../utils/jwt/encode-token';
+  UserSession,
+} from "../../../types";
+import { idSchema } from "../../../utils/data-validation";
 
 /**
  * Activates a user account using the user ID from the activation link.
@@ -45,16 +46,16 @@ export const accountActivation = async (
     // If validation fails, return detailed error messages
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join('.'),
+        field: error.path.join("."),
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: 'Validation failed',
+        message: "Validation failed",
         errors: errorMessages,
-        __typename: 'ErrorResponse',
+        __typename: "ErrorResponse",
       };
     }
 
@@ -64,15 +65,15 @@ export const accountActivation = async (
     // Check if user exists
     const user = await userRepository.findOne({
       where: { id: userId },
-      relations: ['role'],
+      relations: ["role"],
     });
 
     if (!user) {
       return {
         statusCode: 404,
         success: false,
-        message: 'User not found',
-        __typename: 'ErrorResponse',
+        message: "User not found",
+        __typename: "ErrorResponse",
       };
     }
 
@@ -81,69 +82,69 @@ export const accountActivation = async (
       return {
         statusCode: 400,
         success: false,
-        message: 'Account is already activated',
-        __typename: 'ErrorResponse',
+        message: "Account is already activated",
+        __typename: "ErrorResponse",
       };
     }
 
     // Update user account activation status
-    user.isAccountActivated = true;
-    user.emailVerified = true; // Optionally verify email as part of activation
-    const updatedUser = await userRepository.save(user);
+    await userRepository.update(
+      { id: userId },
+      {
+        isAccountActivated: true,
+        emailVerified: true,
+      }
+    );
+
+    const roleName =
+      typeof user.role === "string"
+        ? user.role
+        : (user.role as { name: string }).name;
 
     // Update Redis cache
-    const userCacheData = {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
-      gender: updatedUser.gender,
-      emailVerified: updatedUser.emailVerified,
-      isAccountActivated: updatedUser.isAccountActivated,
+    const userCacheData: UserSession = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: roleName,
+      gender: user.gender,
+      emailVerified: true,
+      isAccountActivated: true,
     };
 
-    const userEmailCacheData = {
-      ...userCacheData,
-      password: updatedUser.password,
-      resetPasswordToken: updatedUser.resetPasswordToken,
-      resetPasswordTokenExpiry: updatedUser.resetPasswordTokenExpiry,
+    const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      password: user.password,
+      role: roleName,
+      gender: user.gender,
+      emailVerified: true,
+      isAccountActivated: true,
     };
 
     // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setSession(getSingleUserCacheKey(updatedUser.id), userCacheData);
+    await setSession(getSingleUserCacheKey(user.id), userCacheData);
     await setSession(
-      getUserInfoByEmailCacheKey(updatedUser.email),
+      getUserInfoByEmailCacheKey(user.email),
       userEmailCacheData
-    );
-
-    // Generate JWT token
-    const token = await EncodeToken(
-      updatedUser.id,
-      updatedUser.email,
-      updatedUser.firstName,
-      updatedUser.lastName,
-      updatedUser.role.name,
-      updatedUser.gender,
-      updatedUser.emailVerified,
-      updatedUser.isAccountActivated,
-      '30d' // Set the token expiration time
     );
 
     return {
       statusCode: 200,
       success: true,
-      message: 'Account activated successfully',
-      token,
-      __typename: 'UserLoginResponse',
+      message: "Account activated successfully",
+      __typename: "BaseResponse",
     };
   } catch (error: any) {
-    console.error('Error activating account:', error);
+    console.error("Error activating account:", error);
     return {
       statusCode: 500,
       success: false,
-      message: error.message || 'Internal server error',
-      __typename: 'ErrorResponse',
+      message: error.message || "Internal server error",
+      __typename: "ErrorResponse",
     };
   }
 };

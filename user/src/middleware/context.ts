@@ -1,16 +1,6 @@
 import { AppDataSource, redis } from "../helper";
+import { UserSession } from "../types";
 import DecodeToken from "../utils/jwt/decode-token";
-
-export type UserSession = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  gender: string;
-  emailVerified: boolean;
-  isAccountActivated: boolean;
-};
 
 const createContext = async ({ req, res }) => {
   try {
@@ -18,13 +8,17 @@ const createContext = async ({ req, res }) => {
 
     // Extract token from Authorization header
     const token = req.headers.authorization?.replace("Bearer ", "");
+
     if (token) {
       const decoded = await DecodeToken(token);
+
+      console.log(decoded);
       if (decoded) {
         // Fetch the user session from Redis using the decoded user ID
-        const userSession = await redis.getSession<UserSession>(decoded.id);
-
-        user = userSession || null; // Set user only if session exists
+        const userSession = await redis.getSession<UserSession | null>(
+          decoded.id
+        );
+        user = userSession ? userSession : null; // Set user only if session exists
       }
     }
 

@@ -11,7 +11,7 @@ export const getSingleUserCacheKey = (id: string) => {
   return `single-user-${id}`;
 };
 export const getMultipleUsersCacheKey = () => {
-  return 'multiple-users';
+  return "multiple-users";
 };
 export const getUserSessionCacheKey = (id: string) => {
   return `user-session-${id}`;
@@ -23,35 +23,41 @@ export const getUserInfoByEmailCacheKey = (email: string) => {
   return `user-info-by-email-${email}`;
 };
 export const getRegisterUserCountKeyCacheKey = () => {
-  return 'user-count-register';
+  return "user-count-register";
 };
 
 // Functions to generate dynamic Redis session keys for user roles
-export const getSingleUserRoleCacheKey = (id: string) => {
+export const getSingleUserRoleInfoByIdCacheKey = (id: string) => {
   return `single-user-role-${id}`;
 };
-export const getSingleUserRoleNameCacheKey = (name: string) => {
-  return `role-name-${name}`;
+// export const getSingleUserRoleNameCacheKey = (name: string) => {
+//   return `role-name-${name}`;
+// };
+export const getSingleUserRoleInfoByRoleNameCacheKey = (name: string) => {
+  return `role-info-by-${name}`;
 };
-export const getSingleUserRoleInfoByNameCacheKey = (name: string) => {
-  return `role-info-${name}`;
+export const getSingleUserRoleInfoByRoleIdCacheKey = (id: string) => {
+  return `role-info-by-${id}`;
 };
-export const getUserRoleCountAssociateCacheKey = (id: string) => {
-  return `user-role-${id}`;
+export const getSingleUserRoleInfoExistByRoleNameCacheKey = (name: string) => {
+  return `role-info-exist-by-${name}`;
 };
+// export const getUserRoleCountAssociateCacheKey = (id: string) => {
+//   return `user-role-${id}`;
+// };
 export const getMultipleUserRolesCacheKey = () => {
-  return 'multiple-user-roles';
+  return "multiple-user-roles";
 };
 
 // Functions to generate dynamic Redis session keys for user permissions
-export const getSingleUserPermissionCacheKey = (id: string) => {
-  return `single-user-permission-${id}`;
+export const getUserPermissionByUserIdCacheKey = (id: string) => {
+  return `user-permission-${id}`;
 };
 export const getMultipleUserPermissionsCacheKey = () => {
-  return 'multiple-user-permissions';
+  return "multiple-user-permissions";
 };
 
 // Functions to generate dynamic Redis session keys for exist keyword
 export const getExistKeyWord = () => {
-  return 'exists';
+  return "exists";
 };

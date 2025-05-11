@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { DataSource } from "typeorm";
-import { UserSession } from "./middleware/context";
+import { UserSession } from "./types";
 
 export type Context = {
   AppDataSource: DataSource;
-  user: UserSession;
+  user: UserSession | null;
   ip: string;
   acceptLanguage: string;
   languages: [];

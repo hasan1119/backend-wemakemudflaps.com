@@ -35,8 +35,21 @@ type CreatedBy {
   role: String
 }
 
+# ---------------------- Permission Types ----------------------
+
 # Type for the permission of user.
 type Permissions {
+  id: ID!
+  name: String!
+  description: String!
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+# Type for the user cached session stored by email key in Redis.
+type CachedUserPermissionsInputs {
   id: ID!
   name: String!
   description: String!
@@ -58,13 +71,22 @@ type Role {
   deletedAt: String
 }
 
+# Type for the user cached session stored by email key in Redis.
+type CachedRoleInputs {
+  id: ID!
+  name: String!
+  description: String!
+  createdBy: CreatedBy!
+  createdAt: String!
+  deletedAt: String!
+}
+
 # ---------------------- User Types ----------------------
 
 # Type of the user session for access token and redis.
 type UserSession {
   id: ID!
   email: String!
-  username: String!
   firstName: String!
   lastName: String!
   role: String!
@@ -73,19 +95,22 @@ type UserSession {
   isAccountActivated: Boolean!
 }
 
+# Type for the user email cached session in Redis.
+type CachedUserEmailKeyInputs {
+  email: String!
+}
+
 # Type for the user cached session stored by email key in Redis.
-type CachedUserSessionByEmailKeyInput {
+type CachedUserSessionByEmailKeyInputs {
   id: ID!
   email: String!
   firstName: String!
   lastName: String!
   password: String!
-  gender: String
+  gender: String!
   role: String!
-  resetPasswordToken: String
   emailVerified: Boolean!
   isAccountActivated: Boolean!
-  resetPasswordTokenExpiry: String
 }
 
 # Main User type, which represents the user model in the system.
@@ -184,7 +209,7 @@ union UserLoginResponseOrError = UserLoginResponse | ErrorResponse
 union UserProfileUpdateResponseOrError =
     UserProfileUpdateResponse
   | ErrorResponse
-union ActiveAccountResponseOrError = UserLoginResponse | ErrorResponse
+union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 
 # Query response can be either a success or an error.
 union GetProfileResponseOrError = BaseResponse | UserResponse

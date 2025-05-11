@@ -1,47 +1,57 @@
-import { DeepPartial, Repository } from 'typeorm';
-import { Context } from '../../../../context';
+import { DeepPartial, Repository } from "typeorm";
+import CONFIG from "../../../../config/config";
+import { Context } from "../../../../context";
 import {
   Permission,
   PermissionName,
-} from '../../../../entities/permission.entity';
-import { Role } from '../../../../entities/user-role.entity';
-import { User } from '../../../../entities/user.entity';
+} from "../../../../entities/permission.entity";
+import { Role } from "../../../../entities/user-role.entity";
+import { User } from "../../../../entities/user.entity";
 import {
+  getExistKeyWord,
   getRegisterUserCountKeyCacheKey,
   getSingleUserCacheKey,
-  getSingleUserPermissionCacheKey,
-  getSingleUserRoleCacheKey,
-  getSingleUserRoleInfoByNameCacheKey,
+  getSingleUserRoleInfoByRoleIdCacheKey,
+  getSingleUserRoleInfoByRoleNameCacheKey,
+  getSingleUserRoleInfoExistByRoleNameCacheKey,
   getUserEmailCacheKey,
   getUserInfoByEmailCacheKey,
-} from '../../../../helper/redis/session-keys';
-import { BaseResponseOrError, MutationRegisterArgs } from '../../../../types';
-import HashInfo from '../../../../utils/bcrypt/hash-info';
-import { registerSchema } from '../../../../utils/data-validation';
-import SendEmail from '../../../../utils/email/send-email';
-import CONFIG from '../../../../config/config';
+  getUserPermissionByUserIdCacheKey,
+} from "../../../../helper/redis/session-keys";
+import {
+  BaseResponseOrError,
+  CachedRoleInputs,
+  CachedUserEmailKeyInputs,
+  CachedUserPermissionsInputs,
+  CachedUserSessionByEmailKeyInputs,
+  MutationRegisterArgs,
+  UserSession,
+} from "../../../../types";
+import HashInfo from "../../../../utils/bcrypt/hash-info";
+import { registerSchema } from "../../../../utils/data-validation";
+import SendEmail from "../../../../utils/email/send-email";
 
 // List of all possible permission names for the system
 const PermissionNames: PermissionName[] = [
-  'User',
-  'Brand',
-  'Category',
-  'Permission',
-  'Product',
-  'Product Review',
-  'Shipping Class',
-  'Sub Category',
-  'Tax Class',
-  'Tax Status',
-  'FAQ',
-  'News Letter',
-  'Pop Up Banner',
-  'Privacy & Policy',
-  'Terms & Conditions',
-  'Role',
-  'Order',
-  'Notification',
-  'Media',
+  "User",
+  "Brand",
+  "Category",
+  "Permission",
+  "Product",
+  "Product Review",
+  "Shipping Class",
+  "Sub Category",
+  "Tax Class",
+  "Tax Status",
+  "FAQ",
+  "News Letter",
+  "Pop Up Banner",
+  "Privacy & Policy",
+  "Terms & Conditions",
+  "Role",
+  "Order",
+  "Notification",
+  "Media",
 ];
 
 /**
@@ -79,16 +89,16 @@ export const register = async (
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join('.'),
+        field: error.path.join("."),
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: 'Validation failed',
+        message: "Validation failed",
         errors: errorMessages,
-        __typename: 'ErrorResponse',
+        __typename: "ErrorResponse",
       };
     }
 
@@ -99,26 +109,34 @@ export const register = async (
       AppDataSource.getRepository(Permission);
 
     // Check Redis for cached user's email
-    let userEmail;
-
-    userEmail = await getSession(getUserEmailCacheKey(email));
+    let userEmail: CachedUserEmailKeyInputs | null = await getSession(
+      getUserEmailCacheKey(email)
+    );
 
     if (userEmail) {
       return {
         statusCode: 400,
         success: false,
-        message: 'Email already in use',
-        __typename: 'BaseResponse',
+        message: "Email already in use",
+        __typename: "BaseResponse",
       };
     } else {
       // Cache miss: Fetch user from database
       userEmail = await userRepository.findOne({ where: { email } });
       if (userEmail) {
+        // Create a new session for the user email
+        const userEmailSession: CachedUserEmailKeyInputs = {
+          email: userEmail.email,
+        };
+
+        // Cache user email in Redis with configurable TTL(default 30 days of redis session because of the env)
+        await setSession(getUserEmailCacheKey(email), userEmailSession);
+
         return {
           statusCode: 400,
           success: false,
-          message: 'Email already in use',
-          __typename: 'BaseResponse',
+          message: "Email already in use",
+          __typename: "BaseResponse",
         };
       }
     }
@@ -127,32 +145,64 @@ export const register = async (
     const hashedPassword = await HashInfo(password);
 
     // Check Redis for cached users count
-    let userCount;
-
-    userCount = await getSession(getRegisterUserCountKeyCacheKey());
+    let userCount: string | null = await getSession(
+      getRegisterUserCountKeyCacheKey()
+    );
 
     if (!userCount) {
       // Cache miss: Fetch users count from database
-      userCount = await userRepository.count();
+      userCount = (await userRepository.count()).toString();
     }
 
     // Initiate the empty variable for the user role & super admin
     let role;
 
     if (Number(userCount) === 0) {
-      // Create Super Admin role
-      const savedRole = roleRepository.create({
-        name: 'SUPER ADMIN',
-        description: 'Has full control over all aspects of the platform.',
-        createdBy: null,
-      });
-      role = await roleRepository.save(savedRole);
-
-      // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(
-        getSingleUserRoleInfoByNameCacheKey('super admin'),
-        role
+      // Check Redis for for the super admin
+      role = await getSession<CachedRoleInputs | null>(
+        getSingleUserRoleInfoByRoleNameCacheKey("super admin")
       );
+
+      if (!role) {
+        // Cache miss: Fetch role from database
+        role = await roleRepository.findOne({
+          where: { name: "SUPER ADMIN" },
+        });
+
+        if (!role) {
+          // Create Super Admin role
+          const savedRole = roleRepository.create({
+            name: "SUPER ADMIN",
+            description: "Has full control over all aspects of the platform.",
+            createdBy: null,
+          });
+          role = await roleRepository.save(savedRole);
+        }
+
+        // Create a new session for user role
+        const roleSession: CachedRoleInputs = {
+          id: role.id,
+          name: role.name,
+          description: role.description,
+          createdBy: role.createdBy,
+          createdAt: role.createdAt,
+          deletedAt: role.deletedAt,
+        };
+
+        // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
+        await setSession(
+          getSingleUserRoleInfoByRoleNameCacheKey("super admin"),
+          roleSession
+        );
+        await setSession(
+          getSingleUserRoleInfoByRoleIdCacheKey(role.id),
+          roleSession
+        );
+        await setSession(
+          getSingleUserRoleInfoExistByRoleNameCacheKey("super admin"),
+          getExistKeyWord()
+        );
+      }
 
       // Create Super Admin user
       const newUser = userRepository.create({
@@ -161,7 +211,7 @@ export const register = async (
         email,
         password: hashedPassword,
         gender: gender || null,
-        role, // Assign the Role entity object
+        role: role.id, // Assign the Role entity object
       });
 
       const savedUser = await userRepository.save(newUser);
@@ -186,7 +236,7 @@ export const register = async (
       const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
 
       // Prepare email contents
-      const subject = 'Account Activation Request';
+      const subject = "Account Activation Request";
       const text = `Please use the following link to active your account: ${activationLink}`;
       const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
 
@@ -208,13 +258,17 @@ export const register = async (
           statusCode: 500,
           success: false,
           message:
-            'Registration failed. Failed to send account activation email.',
-          __typename: 'BaseResponse',
+            "Registration failed. Failed to send account activation email.",
+          __typename: "BaseResponse",
         };
       }
 
-      // Cache newly register user, user email, user role & his/her permissions for curd, and update the userCount in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getSingleUserCacheKey(savedUser.id), {
+      // Create a new session for the user
+      const userEmailSession: CachedUserEmailKeyInputs = {
+        email: savedUser.email,
+      };
+
+      const session: UserSession = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -223,63 +277,97 @@ export const register = async (
         gender: savedUser.gender,
         emailVerified: savedUser.emailVerified,
         isAccountActivated: savedUser.isAccountActivated,
-      });
-      await setSession(getUserInfoByEmailCacheKey(email), {
+      };
+
+      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
+        role: savedUser.role.name,
+        gender: savedUser.gender,
+        emailVerified: savedUser.emailVerified,
+        isAccountActivated: savedUser.isAccountActivated,
         password: savedUser.password,
-        gender: savedUser.gender,
-        role: savedUser.role.name,
-        resetPasswordToken: savedUser.resetPasswordToken,
-        emailVerified: savedUser.emailVerified,
-        isAccountActivated: savedUser.isAccountActivated,
-        resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry,
-      });
+      };
+
+      const userPermissions: CachedUserPermissionsInputs[] =
+        fullPermissions.map((permission) => ({
+          id: permission.id,
+          name: permission.name,
+          description: permission.description,
+          canCreate: permission.canCreate,
+          canRead: permission.canRead,
+          canUpdate: permission.canUpdate,
+          canDelete: permission.canDelete,
+        }));
+
+      // Cache newly register user, user email, user role & his/her permissions for curd, and update the userCount in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getSingleUserCacheKey(savedUser.id), session);
+      await setSession(getUserInfoByEmailCacheKey(email), userSessionByEmail);
       await setSession(
         getRegisterUserCountKeyCacheKey(),
         (userCount + 1).toString()
       );
-      await setSession(getUserEmailCacheKey(email), email);
-      await setSession(getSingleUserRoleCacheKey(role.id), role);
+      await setSession(getUserEmailCacheKey(email), userEmailSession);
       await setSession(
-        getSingleUserPermissionCacheKey(savedUser.id),
-        fullPermissions
+        getUserPermissionByUserIdCacheKey(savedUser.id),
+        userPermissions
       );
 
       return {
         statusCode: 201,
         success: true,
         message:
-          'Super Admin registered successfully. To active your account check your email.',
-        __typename: 'BaseResponse',
+          "Super Admin registered successfully. To active your account check your email.",
+        __typename: "BaseResponse",
       };
     } else {
-      // Initiate the empty variable for the user role & customer
-      let role;
-      // Check Redis for cached user role info
-      role = await getSession(getSingleUserRoleInfoByNameCacheKey('customer'));
+      // Check Redis for for the super admin
+      role = await getSession<CachedRoleInputs | null>(
+        getSingleUserRoleInfoByRoleNameCacheKey("customer")
+      );
 
       if (!role) {
         // Cache miss: Fetch user from database
         role = await roleRepository.findOne({
-          where: { name: 'CUSTOMER' },
+          where: { name: "CUSTOMER" },
         });
 
         if (!role) {
           // Create customer role
           const savedRole = roleRepository.create({
-            name: 'CUSTOMER',
+            name: "CUSTOMER",
             description:
-              'Regular customers who can browse products, place orders, view their purchase history and other related things.',
+              "Regular customers who can browse products, place orders, view their purchase history and other related things.",
             createdBy: null,
           });
           role = await roleRepository.save(savedRole);
         }
 
+        // Create a new session for user role
+        const roleSession: CachedRoleInputs = {
+          id: role.id,
+          name: role.name,
+          description: role.description,
+          createdBy: role.createdBy,
+          createdAt: role.createdAt,
+          deletedAt: role.deletedAt,
+        };
+
         // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
-        await setSession(getSingleUserRoleInfoByNameCacheKey('customer'), role);
+        await setSession(
+          getSingleUserRoleInfoByRoleNameCacheKey("customer"),
+          roleSession
+        );
+        await setSession(
+          getSingleUserRoleInfoByRoleIdCacheKey(role.id),
+          roleSession
+        );
+        await setSession(
+          getSingleUserRoleInfoExistByRoleNameCacheKey("customer"),
+          getExistKeyWord()
+        );
       }
 
       // Create Customer user
@@ -289,7 +377,7 @@ export const register = async (
         email,
         password: hashedPassword,
         gender: gender || null,
-        role, // Assign the Role entity object
+        role: role.id,
       });
       await userRepository.save(savedUser);
 
@@ -301,54 +389,54 @@ export const register = async (
           let canUpdate = false;
           let canDelete = false;
 
-          if (name === 'Order') {
+          if (name === "Order") {
             canCreate = true;
             canRead = true;
             canUpdate = false;
             canDelete = true;
           }
-          if (name === 'Permission') {
+          if (name === "Permission") {
             canCreate = false;
             canRead = false;
             canUpdate = false;
             canDelete = false;
           }
-          if (name === 'News Letter') {
+          if (name === "News Letter") {
             canCreate = false;
             canRead = false;
             canUpdate = false;
             canDelete = false;
           }
 
-          if (name === 'Product Review') {
+          if (name === "Product Review") {
             canCreate = true;
             canRead = true;
             canUpdate = true;
             canDelete = true;
           }
 
-          if (name === 'Notification') {
+          if (name === "Notification") {
             canCreate = false;
             canRead = true;
             canUpdate = true;
             canDelete = true;
           }
 
-          if (name === 'User') {
+          if (name === "User") {
             canCreate = false;
             canRead = false;
             canUpdate = false;
             canDelete = false;
           }
 
-          if (name === 'Role') {
+          if (name === "Role") {
             canCreate = false;
             canRead = false;
             canUpdate = false;
             canDelete = false;
           }
 
-          if (name === 'Media') {
+          if (name === "Media") {
             canCreate = false;
             canRead = false;
             canUpdate = false;
@@ -376,7 +464,7 @@ export const register = async (
       const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
 
       // Prepare email contents
-      const subject = 'Account Activation Request';
+      const subject = "Account Activation Request";
       const text = `Please use the following link to active your account: ${activationLink}`;
       const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
 
@@ -398,13 +486,17 @@ export const register = async (
           statusCode: 500,
           success: false,
           message:
-            'Registration failed. Failed to send account activation email.',
-          __typename: 'BaseResponse',
+            "Registration failed. Failed to send account activation email.",
+          __typename: "BaseResponse",
         };
       }
 
-      // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis with configurable TTL(default 30 days of redis session because of the env)
-      await setSession(getSingleUserCacheKey(savedUser.id), {
+      // Create a new session for the user
+      const userEmailSession: CachedUserEmailKeyInputs = {
+        email: savedUser.email,
+      };
+
+      const session: UserSession = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -413,46 +505,59 @@ export const register = async (
         gender: savedUser.gender,
         emailVerified: savedUser.emailVerified,
         isAccountActivated: savedUser.isAccountActivated,
-      });
-      await setSession(getUserInfoByEmailCacheKey(email), {
+      };
+
+      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
+        role: savedUser.role.name,
+        gender: savedUser.gender,
+        emailVerified: savedUser.emailVerified,
+        isAccountActivated: savedUser.isAccountActivated,
         password: savedUser.password,
-        gender: savedUser.gender,
-        role: savedUser.role.name,
-        resetPasswordToken: savedUser.resetPasswordToken,
-        emailVerified: savedUser.emailVerified,
-        isAccountActivated: savedUser.isAccountActivated,
-        resetPasswordTokenExpiry: savedUser.resetPasswordTokenExpiry,
-      });
+      };
+
+      const userPermissions: CachedUserPermissionsInputs[] =
+        customerPermissions.map((permission) => ({
+          id: permission.id,
+          name: permission.name,
+          description: permission.description,
+          canCreate: permission.canCreate,
+          canRead: permission.canRead,
+          canUpdate: permission.canUpdate,
+          canDelete: permission.canDelete,
+        }));
+
+      // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis with configurable TTL(default 30 days of redis session because of the env)
+      await setSession(getSingleUserCacheKey(savedUser.id), session);
+      await setSession(getUserInfoByEmailCacheKey(email), userSessionByEmail);
       await setSession(
         getRegisterUserCountKeyCacheKey(),
         (userCount + 1).toString()
       );
-      await setSession(getUserEmailCacheKey(email), savedUser.email);
-      await setSession(getSingleUserRoleCacheKey(role.id), role);
+      await setSession(getUserEmailCacheKey(email), userEmailSession);
       await setSession(
-        getSingleUserPermissionCacheKey(savedUser.id),
-        fullCustomerPermissions
+        getUserPermissionByUserIdCacheKey(savedUser.id),
+        userPermissions
       );
 
       return {
         statusCode: 201,
         success: true,
         message:
-          'Registration successful. To active your account check your email.',
-        __typename: 'BaseResponse',
+          "Registration successful. To active your account check your email.",
+        __typename: "BaseResponse",
       };
     }
   } catch (error: any) {
-    console.error('Error registering user:', error);
+    console.error("Error registering user:", error);
     return {
       statusCode: 500,
       success: false,
-      message: error.message || 'Internal server error',
-      __typename: 'BaseResponse',
+      message: error.message || "Internal server error",
+      __typename: "BaseResponse",
     };
   }
 };

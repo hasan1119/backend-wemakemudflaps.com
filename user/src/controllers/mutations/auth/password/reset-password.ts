@@ -1,13 +1,14 @@
-import { Repository } from 'typeorm';
-import { Context } from '../../../../context';
-import { User } from '../../../../entities/user.entity';
+import { Repository } from "typeorm";
+import { Context } from "../../../../context";
+import { User } from "../../../../entities/user.entity";
+import { getUserInfoByEmailCacheKey } from "../../../../helper/redis/session-keys";
 import {
   BaseResponseOrError,
+  CachedUserSessionByEmailKeyInputs,
   MutationResetPasswordArgs,
-} from '../../../../types';
-import HashInfo from '../../../../utils/bcrypt/hash-info';
-import { resetPasswordSchema } from '../../../../utils/data-validation';
-import { getUserInfoByEmailCacheKey } from '../../../../helper/redis/session-keys';
+} from "../../../../types";
+import HashInfo from "../../../../utils/bcrypt/hash-info";
+import { resetPasswordSchema } from "../../../../utils/data-validation";
 
 /**
  * Handles resetting the user's password using a token.
@@ -39,23 +40,23 @@ export const resetPassword = async (
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join('.'),
+        field: error.path.join("."),
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: 'Validation failed',
+        message: "Validation failed",
         errors: errorMessages,
-        __typename: 'ErrorResponse',
+        __typename: "ErrorResponse",
       };
     }
 
     // Fetch user from database
     const user = await userRepository.findOne({
       where: { resetPasswordToken: token },
-      relations: ['role'],
+      relations: ["role"],
     });
 
     if (!user) {
@@ -63,7 +64,7 @@ export const resetPassword = async (
         statusCode: 400,
         success: false,
         message: `User not found with this token: ${token}`,
-        __typename: 'ErrorResponse',
+        __typename: "ErrorResponse",
       };
     }
 
@@ -71,8 +72,8 @@ export const resetPassword = async (
       return {
         statusCode: 400,
         success: false,
-        message: 'Invalid or expired password reset token',
-        __typename: 'BaseResponse',
+        message: "Invalid or expired password reset token",
+        __typename: "BaseResponse",
       };
     }
 
@@ -87,8 +88,8 @@ export const resetPassword = async (
       return {
         statusCode: 400,
         success: false,
-        message: 'Password reset token has expired',
-        __typename: 'BaseResponse',
+        message: "Password reset token has expired",
+        __typename: "BaseResponse",
       };
     }
 
@@ -100,7 +101,7 @@ export const resetPassword = async (
 
     const updatedUser = await userRepository.save(user);
 
-    await setSession(getUserInfoByEmailCacheKey(updatedUser.email), {
+    const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
       id: updatedUser.id,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
@@ -108,25 +109,28 @@ export const resetPassword = async (
       password: updatedUser.password,
       gender: updatedUser.gender,
       role: updatedUser.role.name,
-      resetPasswordToken: updatedUser.resetPasswordToken,
-      resetPasswordTokenExpiry: updatedUser.resetPasswordTokenExpiry,
       emailVerified: updatedUser.emailVerified,
       isAccountActivated: updatedUser.isAccountActivated,
-    });
+    };
+
+    await setSession(
+      getUserInfoByEmailCacheKey(updatedUser.email),
+      userSessionByEmail
+    );
 
     return {
       statusCode: 200,
       success: true,
-      message: 'Password reset successfully',
-      __typename: 'BaseResponse',
+      message: "Password reset successfully",
+      __typename: "BaseResponse",
     };
   } catch (error: any) {
-    console.error('Reset password error:', error);
+    console.error("Reset password error:", error);
     return {
       statusCode: 500,
       success: false,
-      message: 'Failed to reset password',
-      __typename: 'BaseResponse',
+      message: "Failed to reset password",
+      __typename: "BaseResponse",
     };
   }
 };

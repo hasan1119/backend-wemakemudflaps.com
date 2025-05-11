@@ -1,10 +1,3 @@
-import { Role } from "../src/entities/user-role.entity";
-import { AppDataSource, redis } from "../src/helper";
-import {
-  getSingleUserRoleCacheKey,
-  getSingleUserRoleInfoByNameCacheKey,
-} from "../src/helper/redis/session-keys";
-
 const roles = [
   {
     name: "SUPER ADMIN",
@@ -66,48 +59,3 @@ const roles = [
     createdBy: null,
   },
 ];
-
-export async function seedRoles() {
-  const { setSession, getSession } = redis;
-
-  try {
-    const roleRepository = AppDataSource.getRepository(Role);
-
-    for (const roleData of roles) {
-      const cacheKey = getSingleUserRoleInfoByNameCacheKey(
-        roleData.name.toLowerCase()
-      );
-
-      // First: Try to get from Redis
-      let existingRole = await getSession<Role>(cacheKey);
-
-      if (!existingRole) {
-        // If not found in Redis, check in database
-        existingRole = await roleRepository.findOne({
-          where: { name: roleData.name },
-        });
-
-        if (!existingRole) {
-          // If not found in database, create and save new role
-          const newRole = roleRepository.create(roleData);
-          await roleRepository.save(newRole);
-
-          // Cache newly created user role in Redis with configurable TTL(default 30 days of redis session because of the env)
-          await setSession(cacheKey, newRole);
-          await setSession(getSingleUserRoleCacheKey(newRole.id), newRole);
-
-          console.log(`✅ Seeded role: ${roleData.name}`);
-        } else {
-          // If found in DB but not in Redis, user role in Redis with configurable TTL(default 30 days of redis session because of the env)
-          await setSession(cacheKey, existingRole);
-          await setSession(existingRole.id, existingRole);
-          console.log(`ℹ️ Role already exists in DB: ${roleData.name}`);
-        }
-      }
-    }
-
-    console.log("🌱 Role seeding completed!");
-  } catch (error) {
-    console.error("❌ Error seeding roles:", error);
-  }
-}

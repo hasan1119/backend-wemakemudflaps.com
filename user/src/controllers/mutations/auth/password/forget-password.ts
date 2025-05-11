@@ -1,15 +1,16 @@
-import { Repository } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
-import CONFIG from '../../../../config/config';
-import { Context } from '../../../../context';
-import { User } from '../../../../entities/user.entity';
-import { getUserInfoByEmailCacheKey } from '../../../../helper/redis/session-keys';
+import { Repository } from "typeorm";
+import { v4 as uuidv4 } from "uuid";
+import CONFIG from "../../../../config/config";
+import { Context } from "../../../../context";
+import { User } from "../../../../entities/user.entity";
+import { getUserInfoByEmailCacheKey } from "../../../../helper/redis/session-keys";
 import {
   BaseResponseOrError,
+  CachedUserSessionByEmailKeyInputs,
   MutationForgetPasswordArgs,
-} from '../../../../types';
-import { emailSchema } from '../../../../utils/data-validation';
-import SendEmail from '../../../../utils/email/send-email';
+} from "../../../../types";
+import { emailSchema } from "../../../../utils/data-validation";
+import SendEmail from "../../../../utils/email/send-email";
 
 // Define the type for lockout session
 interface LockoutSession {
@@ -46,35 +47,43 @@ export const forgetPassword = async (
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join('.'),
+        field: error.path.join("."),
         message: error.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
-        message: 'Validation failed',
+        message: "Validation failed",
         errors: errorMessages,
-        __typename: 'ErrorResponse',
+        __typename: "ErrorResponse",
       };
     }
 
-    let user;
-    user = await getSession(getUserInfoByEmailCacheKey(email));
+    // Check Redis for cached user's data
+    let user: CachedUserSessionByEmailKeyInputs | null = await getSession(
+      getUserInfoByEmailCacheKey(email)
+    );
 
-    if (!user) {
-      user = await userRepository.findOne({
+    if (!user.email) {
+      const dbUser = await userRepository.findOne({
         where: { email },
+        relations: ["role"],
       });
 
-      if (!user) {
+      if (!dbUser) {
         return {
           statusCode: 400,
           success: false,
           message: `User not found with this email: ${email}`,
-          __typename: 'BaseResponse',
+          __typename: "BaseResponse",
         };
       }
+
+      user = {
+        ...dbUser,
+        role: dbUser.role.name,
+      };
     }
 
     const lastSentKey = `forget_password_last_sent_${email}`;
@@ -92,7 +101,7 @@ export const forgetPassword = async (
           statusCode: 400,
           success: false,
           message: `Please wait ${minutes}m ${seconds}s before requesting another password reset.`,
-          __typename: 'BaseResponse',
+          __typename: "BaseResponse",
         };
       }
     }
@@ -100,14 +109,14 @@ export const forgetPassword = async (
     const resetToken = uuidv4();
     const tokenExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordTokenExpiry = tokenExpiry;
-
-    await userRepository.save(user);
+    await userRepository.update(user.email, {
+      resetPasswordToken: resetToken,
+      resetPasswordTokenExpiry: tokenExpiry,
+    });
 
     const resetLink = `${CONFIG.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
-    const subject = 'Password Reset Request';
+    const subject = "Password Reset Request";
     const text = `Please use the following link to reset your password: ${resetLink}`;
     const html = `<p>Please use the following link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`;
 
@@ -122,41 +131,47 @@ export const forgetPassword = async (
       return {
         statusCode: 500,
         success: false,
-        message: 'Failed to send password reset email',
-        __typename: 'BaseResponse',
+        message: "Failed to send password reset email",
+        __typename: "BaseResponse",
       };
     }
 
     await setSession(lastSentKey, Date.now().toString(), 60); // 1 minute only
 
-    await setSession(getUserInfoByEmailCacheKey(email), {
+    const roleName =
+      typeof user.role === "string"
+        ? user.role
+        : (user.role as { name: string }).name;
+
+    const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
       id: user.id,
+      email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      email: user.email,
-      password: user.password,
+      role: roleName,
       gender: user.gender,
-      role: user.role.name,
-      resetPasswordToken: resetToken,
-      resetPasswordTokenExpiry: tokenExpiry.toISOString(),
       emailVerified: user.emailVerified,
       isAccountActivated: user.isAccountActivated,
-    });
+      password: user.password,
+    };
+
+    // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
+    await setSession(getUserInfoByEmailCacheKey(email), userSessionByEmail);
 
     return {
       statusCode: 200,
       success: true,
       message:
-        'Password reset email sent successfully. The link will expire in 5 minutes.',
-      __typename: 'BaseResponse',
+        "Password reset email sent successfully. The link will expire in 5 minutes.",
+      __typename: "BaseResponse",
     };
   } catch (error: any) {
-    console.error('Forget password error:', error);
+    console.error("Forget password error:", error);
     return {
       statusCode: 500,
       success: false,
-      message: 'Failed to process password reset request',
-      __typename: 'BaseResponse',
+      message: "Failed to process password reset request",
+      __typename: "BaseResponse",
     };
   }
 };
