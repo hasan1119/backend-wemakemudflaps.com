@@ -30,7 +30,7 @@ import EncodeToken from "../../../../utils/jwt/encode-token";
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Login arguments (email, password)
- * @param context - GraphQL context with AppDataSource and Redis
+ * @param context - GraphQL context with AppDataSource
  * @returns Promise<UserLoginResponseOrError> - Response status and message
  */
 export const login = async (

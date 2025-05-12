@@ -24,7 +24,7 @@ import { resetPasswordSchema } from "../../../../utils/data-validation";
 export const resetPassword = async (
   _: any,
   args: MutationResetPasswordArgs,
-  { AppDataSource, redis }: Context
+  { AppDataSource }: Context
 ): Promise<BaseResponseOrError> => {
   const { token, newPassword } = args;
 

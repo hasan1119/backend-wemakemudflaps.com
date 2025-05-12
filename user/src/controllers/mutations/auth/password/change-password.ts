@@ -25,13 +25,13 @@ import { changePasswordSchema } from "../../../../utils/data-validation";
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for change password (oldPassword and newPassword)
- * @param context - GraphQL context with AppDataSource, user info and redis
+ * @param context - GraphQL context with AppDataSource and user info
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const changePassword = async (
   _: any,
   args: MutationChangePasswordArgs,
-  { AppDataSource, user, redis }: Context
+  { AppDataSource, user }: Context
 ): Promise<BaseResponseOrError> => {
   const { oldPassword, newPassword } = args;
 
