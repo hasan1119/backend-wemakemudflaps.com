@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
-import { setUserInfoByEmailInRedis } from "../../../../helper/redis/utils/user/user-session-manage";
+import { setUserInfoByEmailInRedis } from "../../../../helper/redis";
 import {
   BaseResponseOrError,
   MutationResetPasswordArgs,

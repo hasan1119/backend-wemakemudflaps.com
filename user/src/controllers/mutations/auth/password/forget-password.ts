@@ -5,12 +5,10 @@ import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
 import {
   getLastResetRequestFromRedis,
-  setLastResetRequestInRedis,
-} from "../../../../helper/redis/utils/password/password-session-manage";
-import {
   getUserInfoByEmailInRedis,
+  setLastResetRequestInRedis,
   setUserInfoByEmailInRedis,
-} from "../../../../helper/redis/utils/user/user-session-manage";
+} from "../../../../helper/redis";
 import {
   BaseResponseOrError,
   MutationForgetPasswordArgs,
