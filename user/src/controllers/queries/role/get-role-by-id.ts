@@ -83,7 +83,7 @@
 //         where: { user: { id: user.id } },
 //       });
 
-//       // Cache permissions in Redis (default 30 days of redis session because of the env)
+//       // Cache permissions in Redis
 //       await setSession(
 //         getSingleUserPermissionCacheKey(userData.id),
 //         userPermissions
@@ -176,7 +176,7 @@
 //       },
 //     };
 
-//     // Cache role data in Redis (default 30 days of redis session because of the env)
+//     // Cache role data in Redis
 //     await setSession(getSingleUserRoleCacheKey(id), responseRole);
 
 //     // Return the role data

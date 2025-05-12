@@ -209,9 +209,9 @@ export const updateProfile = async (
     // Cache user, user session and user email for curd in Redis with configurable TTL(30 days = 25920000)
     await setUserTokenByUserIdInRedis(updatedUser.id, session, 25920000);
     await setUserInfoByUserIdInRedis(updatedUser.id, session);
-    await removeUserInfoByEmailFromRedis(user.email);
     await setUserInfoByEmailInRedis(updatedUser.email, userEmailCacheData);
     if (email) {
+      await removeUserInfoByEmailFromRedis(user.email);
       await setUserEmailInRedis(email, email);
     }
 

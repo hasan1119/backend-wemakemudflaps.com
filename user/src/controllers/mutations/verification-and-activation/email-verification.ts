@@ -67,7 +67,7 @@ export const verifyEmail = async (
     user = await getUserInfoByUserIdFromRedis(userId);
 
     if (!user) {
-      // Fetch user from database
+      // Cache miss: Fetch user from database
       user = await userRepository.findOne({
         where: { id: userId },
         relations: ["role"],

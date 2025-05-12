@@ -291,7 +291,7 @@
 //         where: { user: { id: user.id } },
 //       });
 
-//       // Cache permissions in Redis (default 30 days of redis session because of the env)
+//       // Cache permissions in Redis
 //       await setSession(
 //         getSingleUserPermissionCacheKey(userData.id),
 //         userPermissions
@@ -365,7 +365,7 @@
 //         role: fetchedUser.role?.name,
 //       };
 
-//       // Cache target user data in Redis (default 30 days of redis session because of the env)
+//       // Cache target user data in Redis
 //       await setSession(getSingleUserCacheKey(userId), targetUser);
 //     }
 
@@ -418,7 +418,7 @@
 //         where: { user: { id: userId } },
 //       });
 
-//       // Cache updated permissions in Redis (default 30 days of redis session because of the env)
+//       // Cache updated permissions in Redis
 //       await setSession(
 //         getSingleUserPermissionCacheKey(userId),
 //         reFetchedPermissions
@@ -500,7 +500,7 @@
 //         where: { user: { id: userId } },
 //       });
 
-//       // Cache updated permissions in Redis (default 30 days of redis session because of the env)
+//       // Cache updated permissions in Redis
 //       await setSession(
 //         getSingleUserPermissionCacheKey(userId),
 //         reFetchedPermissions

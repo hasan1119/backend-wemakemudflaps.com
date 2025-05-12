@@ -90,7 +90,7 @@
 //         where: { user: { id: user.id } },
 //       });
 
-//       // Cache permissions in Redis (default 30 days of redis session because of the env)
+//       // Cache permissions in Redis
 //       await setSession(
 //         getSingleUserPermissionCacheKey(userData.id),
 //         userPermissions
@@ -156,7 +156,7 @@
 //     const existingRole = await roleRepository.findOne({ where: { name } });
 
 //     if (existingRole) {
-//       // Cache the fact that this role exists in Redis (default 30 days of redis session because of the env)
+//       // Cache the fact that this role exists in Redis
 //       await setSession(
 //         getSingleUserRoleNameCacheKey(normalizedRoleKey),
 //         getExistKeyWord()
@@ -180,7 +180,7 @@
 //     // Save the role to the database
 //     const savedRole = await roleRepository.save(role);
 
-//     // Cache the new role data and name existence in Redis (default 30 days of redis session because of the env)
+//     // Cache the new role data and name existence in Redis
 //     await setSession(getSingleUserRoleCacheKey(savedRole.id), {
 //       id: savedRole.id,
 //       name: savedRole.name,

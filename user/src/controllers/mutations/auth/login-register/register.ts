@@ -117,7 +117,7 @@ export const register = async (
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({ where: { email } });
       if (dbUser) {
-        // Cache user email in Redis (default 30 days of redis session because of the env)
+        // Cache user email in Redis
         await setUserEmailInRedis(email, email);
 
         return {
@@ -173,7 +173,7 @@ export const register = async (
           deletedAt: role.deletedAt,
         };
 
-        // Cache user role info in Redis (default 30 days of redis session because of the env)
+        // Cache user role info in Redis
         await setRoleInfoByRoleNameInRedis(role.name, roleSession);
         await setRoleInfoByRoleIdInRedis(role.id, roleSession);
         await setRoleNameExistInRedis(role.name);
@@ -272,9 +272,8 @@ export const register = async (
         canDelete: permission.canDelete,
       }));
 
-      // Cache newly register user, user email, user role & his/her permissions for curd, and update the userCount in Redis
+      // Cache newly register user, user role & his/her permissions for curd, and update the userCount in Redis
       await setUserInfoByUserIdInRedis(savedUser.id, session);
-      await setUserEmailInRedis(email, email);
       await setUserInfoByEmailInRedis(email, userSessionByEmail);
       await setUserCountInDBInRedis(userCount + 1);
       await setUserPermissionsInRedis(savedUser.id, userPermissions);
@@ -317,7 +316,7 @@ export const register = async (
           deletedAt: role.deletedAt,
         };
 
-        // Cache user role info in Redis (default 30 days of redis session because of the env)
+        // Cache user role info in Redis
         await setRoleInfoByRoleNameInRedis(role.name, roleSession);
         await setRoleInfoByRoleIdInRedis(role.id, roleSession);
         await setRoleNameExistInRedis(role.name);
@@ -409,7 +408,7 @@ export const register = async (
         }
       );
 
-      const fullCustomerPermissions = await permissionRepository.save(
+      const fullPermissions = await permissionRepository.save(
         customerPermissions
       );
 
@@ -468,7 +467,7 @@ export const register = async (
         password: savedUser.password,
       };
 
-      const userPermissions = customerPermissions.map((permission) => ({
+      const userPermissions = fullPermissions.map((permission) => ({
         id: permission.id,
         name: permission.name,
         description: permission.description,
@@ -480,7 +479,6 @@ export const register = async (
 
       // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis
       await setUserInfoByUserIdInRedis(savedUser.id, session);
-      await setUserEmailInRedis(email, email);
       await setUserInfoByEmailInRedis(email, userSessionByEmail);
       await setUserCountInDBInRedis(userCount + 1);
       await setUserPermissionsInRedis(savedUser.id, userPermissions);

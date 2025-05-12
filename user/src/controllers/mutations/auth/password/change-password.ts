@@ -139,7 +139,7 @@ export const changePassword = async (
       password: userData.password,
     };
 
-    // Cache user's info by email in Redis (default 30 days of redis session because of the env)
+    // Cache user's info by email in Redis
     await setUserInfoByEmailInRedis(user.email, userSessionByEmail);
 
     // Return success response

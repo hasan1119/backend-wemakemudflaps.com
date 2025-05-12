@@ -94,6 +94,21 @@ export const login = async (
         ...dbUser,
         role: dbUser.role.name,
       };
+
+      const userSessionByEmail = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: dbUser.role.name,
+        gender: user.gender,
+        emailVerified: user.emailVerified,
+        isAccountActivated: user.isAccountActivated,
+        password: user.password,
+      };
+
+      // Cache user in Redis
+      await setUserInfoByEmailInRedis(email, userSessionByEmail);
     }
 
     // Account lock check using Redis session data
@@ -178,10 +193,13 @@ export const login = async (
     // Clear cache login attempts after successful password verification
     await deleteSession(getLoginAttemptsKeyCacheKey(user.email));
 
-    const roleName =
-      typeof user.role === "string"
-        ? user.role
-        : (user.role as { name: string }).name;
+    let roleName;
+
+    if (typeof user.role !== "string") {
+      roleName = user.role.name; // Safe update
+    } else {
+      roleName = user.role; // Direct assignment
+    }
 
     // Generate JWT token
     const token = await EncodeToken(
@@ -208,22 +226,9 @@ export const login = async (
       isAccountActivated: user.isAccountActivated,
     };
 
-    const userSessionByEmail = {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: roleName,
-      gender: user.gender,
-      emailVerified: user.emailVerified,
-      isAccountActivated: user.isAccountActivated,
-      password: user.password,
-    };
-
     // Cache user, user session for curd in Redis with configurable TTL(30 days = 25920000)
     await setUserTokenByUserIdInRedis(user.id, session, 25920000);
     await setUserInfoByUserIdInRedis(user.id, session);
-    await setUserInfoByEmailInRedis(email, userSessionByEmail);
 
     return {
       statusCode: 200,

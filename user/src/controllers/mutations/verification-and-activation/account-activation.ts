@@ -101,10 +101,13 @@ export const accountActivation = async (
       }
     );
 
-    const roleName =
-      typeof user.role === "string"
-        ? user.role
-        : (user.role as { name: string }).name;
+    let roleName;
+
+    if (typeof user.role !== "string") {
+      roleName = user.role.name; // Safe update
+    } else {
+      roleName = user.role; // Direct assignment
+    }
 
     // Update Redis cache
     const userCacheData = {
