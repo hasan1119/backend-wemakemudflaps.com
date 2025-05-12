@@ -4,7 +4,7 @@ import { User } from "../../../../entities/user.entity";
 import {
   getUserInfoByEmailInRedis,
   setUserInfoByEmailInRedis,
-} from "../../../../helper/redis/user/user-session-manage";
+} from "../../../../helper/redis/utils/user/user-session-manage";
 import {
   BaseResponseOrError,
   MutationChangePasswordArgs,

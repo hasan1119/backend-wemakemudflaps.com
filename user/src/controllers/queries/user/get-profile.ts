@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
-import { getUserInfoByUserIdFromRedis } from "../../../helper/redis/user/user-session-manage";
+import { getUserInfoByUserIdFromRedis } from "../../../helper/redis/utils/user/user-session-manage";
 import { GetProfileResponseOrError } from "../../../types";
 
 /**

@@ -6,7 +6,7 @@ import {
   getUserInfoByUserIdFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-} from "../../../helper/redis/user/user-session-manage";
+} from "../../../helper/redis/utils/user/user-session-manage";
 import {
   ActiveAccountResponseOrError,
   MutationAccountActivationArgs,

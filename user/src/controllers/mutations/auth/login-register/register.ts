@@ -7,13 +7,13 @@ import {
 } from "../../../../entities/permission.entity";
 import { Role } from "../../../../entities/user-role.entity";
 import { User } from "../../../../entities/user.entity";
-import { setUserPermissionsInRedis } from "../../../../helper/redis/permissions/permission-session-manage";
+import { setUserPermissionsInRedis } from "../../../../helper/redis/utils/permissions/permission-session-manage";
 import {
   getRoleInfoByRoleNameFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
-} from "../../../../helper/redis/role/role-session-manage";
+} from "../../../../helper/redis/utils/role/role-session-manage";
 import {
   getUserCountInDBFromRedis,
   getUserEmailFromRedis,
@@ -21,7 +21,7 @@ import {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-} from "../../../../helper/redis/user/user-session-manage";
+} from "../../../../helper/redis/utils/user/user-session-manage";
 import { BaseResponseOrError, MutationRegisterArgs } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
 import { registerSchema } from "../../../../utils/data-validation";

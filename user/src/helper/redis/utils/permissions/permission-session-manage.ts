@@ -1,5 +1,5 @@
-import { CachedUserPermissionsInputs } from "../../../types";
-import { redis } from "../redis";
+import { CachedUserPermissionsInputs } from "../../../../types";
+import { redis } from "../../redis";
 
 // Prefix for Redis keys
 const PREFIX = {
@@ -11,7 +11,7 @@ const PREFIX = {
 //
 
 /**
- * Cache user permissions data in Redis by user ID.
+ * Set user permissions data in Redis by user ID.
  */
 export const setUserPermissionsInRedis = async (
   userId: string,
@@ -25,7 +25,7 @@ export const setUserPermissionsInRedis = async (
 //
 
 /**
- * Retrieve user permissions data from Redis by user ID.
+ * Get user permissions data from Redis by user ID.
  */
 export const getUserPermissionsFromRedis = async (
   userId: string

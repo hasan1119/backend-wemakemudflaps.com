@@ -4,9 +4,13 @@ import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
 import {
+  getLastResetRequestFromRedis,
+  setLastResetRequestInRedis,
+} from "../../../../helper/redis/utils/password/password-session-manage";
+import {
   getUserInfoByEmailInRedis,
   setUserInfoByEmailInRedis,
-} from "../../../../helper/redis/user/user-session-manage";
+} from "../../../../helper/redis/utils/user/user-session-manage";
 import {
   BaseResponseOrError,
   MutationForgetPasswordArgs,
@@ -31,16 +35,15 @@ interface LockoutSession {
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for reset password request (email)
- * @param context - GraphQL context with AppDataSource and Redis
+ * @param context - GraphQL context with AppDataSource
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const forgetPassword = async (
   _,
   args: MutationForgetPasswordArgs,
-  { AppDataSource, redis }: Context
+  { AppDataSource }: Context
 ): Promise<BaseResponseOrError> => {
   const { email } = args;
-  const { getSession, setSession } = redis;
 
   const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
@@ -102,13 +105,12 @@ export const forgetPassword = async (
       await setUserInfoByEmailInRedis(email, userSessionByEmail);
     }
 
-    const lastSentKey = `forget_password_last_sent_${email}`;
-    const lastSent = await getSession(lastSentKey);
+    const lastSent = await getLastResetRequestFromRedis(email);
 
     if (lastSent) {
-      const timePassed = Math.floor((Date.now() - Number(lastSent)) / 1000);
-      const cooldownTime = 60; // 1 minute cooldown
-      const timeLeft = cooldownTime - timePassed;
+      const timePassed = Math.floor((Date.now() - lastSent) / 1000);
+      const coolDownTime = 60; // 1 minute cool down
+      const timeLeft = coolDownTime - timePassed;
 
       if (timeLeft > 0) {
         const minutes = Math.floor(timeLeft / 60);
@@ -155,7 +157,7 @@ export const forgetPassword = async (
       };
     }
 
-    await setSession(lastSentKey, Date.now().toString(), 60); // 1 minute only
+    await setLastResetRequestInRedis(email); // 1 minute only
 
     return {
       statusCode: 200,

@@ -10,7 +10,7 @@ import {
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
   setUserTokenByUserIdInRedis,
-} from "../../../helper/redis/user/user-session-manage";
+} from "../../../helper/redis/utils/user/user-session-manage";
 import {
   MutationUpdateProfileArgs,
   UserProfileUpdateResponseOrError,

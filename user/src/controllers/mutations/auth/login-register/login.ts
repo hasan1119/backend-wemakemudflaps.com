@@ -1,26 +1,23 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
+
 import {
-  getLockoutKeyCacheKey,
-  getLoginAttemptsKeyCacheKey,
-} from "../../../../helper/redis/session-keys";
-import {
+  getLockoutSessionFromRedis,
+  getLoginAttemptsFromRedis,
   getUserInfoByEmailInRedis,
+  removeLockoutSessionFromRedis,
+  removeLoginAttemptsFromRedis,
+  setLockoutSessionInRedis,
+  setLoginAttemptsInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
   setUserTokenByUserIdInRedis,
-} from "../../../../helper/redis/user/user-session-manage";
+} from "../../../../helper/redis";
 import { MutationLoginArgs, UserLoginResponseOrError } from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import { loginSchema } from "../../../../utils/data-validation";
 import EncodeToken from "../../../../utils/jwt/encode-token";
-
-// Define the type for lockout session
-interface LockoutSession {
-  lockedAt: number; // Timestamp when the account was locked
-  duration: number; // Duration in seconds for the lockout
-}
 
 /**
  * Logs a user into the system.
@@ -42,7 +39,6 @@ export const login = async (
   { redis, AppDataSource }: Context
 ): Promise<UserLoginResponseOrError> => {
   const { email, password } = args;
-  const { getSession, setSession, deleteSession } = redis;
 
   try {
     // Validate input data using Zod schema
@@ -112,11 +108,11 @@ export const login = async (
     }
 
     // Account lock check using Redis session data
-    const lockoutSession = await getSession(getLockoutKeyCacheKey(user.email));
+    const lockoutSession = await getLockoutSessionFromRedis(user.email);
 
     // Handle lockout state
     if (lockoutSession) {
-      const { lockedAt, duration } = lockoutSession as LockoutSession; // Cast to LockoutSession type
+      const { lockedAt, duration } = lockoutSession; // Cast to LockoutSession type
       const timePassed = Math.floor((Date.now() - lockedAt) / 1000); // Time passed in seconds
       const timeLeft = duration - timePassed;
 
@@ -132,41 +128,24 @@ export const login = async (
         };
       } else {
         // Clear cache and unlock the account if the lock time has expired
-        await deleteSession(getLockoutKeyCacheKey(user.email));
+        await removeLockoutSessionFromRedis(user.email);
       }
     }
 
     // Verify password
-    const isPasswordValid = await CompareInfo(password, user.password);
+    if (!(await CompareInfo(password, user.password))) {
+      const newAttempts = (await getLoginAttemptsFromRedis(user.email)) + 1;
+      await setLoginAttemptsInRedis(user.email, newAttempts);
 
-    if (!isPasswordValid) {
-      // Increment login attempt count
-      const sessionData = (await getSession(
-        getLoginAttemptsKeyCacheKey(user.email)
-      )) as {
-        attempts: number;
-      } | null;
-      const newAttempts = (sessionData?.attempts || 0) + 1;
-
-      // Store updated attempts count in Redis with 1-hour TTL
-      await setSession(
-        getLoginAttemptsKeyCacheKey(user.email),
-        { attempts: newAttempts },
-        3600
-      );
-
-      // Lock account after 5 failed attempts
       if (newAttempts >= 5) {
-        const lockDuration = 900; // 15 minutes in seconds
-        await setSession(
-          getLockoutKeyCacheKey(user.email),
-          { locked: true, lockedAt: Date.now(), duration: lockDuration },
-          lockDuration
-        );
+        await setLockoutSessionInRedis(user.email, {
+          lockedAt: Date.now(),
+          duration: 900,
+        });
         return {
           statusCode: 400,
           success: false,
-          message: "Account locked. Please try again after 15 minutes.",
+          message: "Account locked. Try again in 15 minutes.",
           __typename: "ErrorResponse",
         };
       }
@@ -191,7 +170,7 @@ export const login = async (
     }
 
     // Clear cache login attempts after successful password verification
-    await deleteSession(getLoginAttemptsKeyCacheKey(user.email));
+    await removeLoginAttemptsFromRedis(user.email);
 
     let roleName;
 

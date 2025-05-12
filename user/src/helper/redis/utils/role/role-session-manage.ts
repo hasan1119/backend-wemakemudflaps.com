@@ -1,5 +1,5 @@
-import { CachedRoleInputs } from "../../../types";
-import { redis } from "../redis";
+import { CachedRoleInputs } from "../../../../types";
+import { redis } from "../../redis";
 
 // Prefix for Redis keys
 const PREFIX = {
@@ -12,7 +12,7 @@ const PREFIX = {
 //
 
 /**
- * Retrieve role info from Redis by role name.
+ * Get role info from Redis by role name.
  */
 export const getRoleInfoByRoleNameFromRedis = async (
   roleName: string
@@ -23,7 +23,7 @@ export const getRoleInfoByRoleNameFromRedis = async (
 };
 
 /**
- * Retrieve role info from Redis by role ID.
+ * Get role info from Redis by role ID.
  */
 export const getRoleInfoByRoleIdFromRedis = async (
   roleId: string
@@ -32,7 +32,7 @@ export const getRoleInfoByRoleIdFromRedis = async (
 };
 
 /**
- * Check if a role name exists in Redis.
+ * Get if a role name exists in Redis.
  */
 export const getRoleNameExistFromRedis = async (
   roleName: string
@@ -48,7 +48,7 @@ export const getRoleNameExistFromRedis = async (
 //
 
 /**
- * Cache role info in Redis by role name.
+ * Set role info in Redis by role name.
  */
 export const setRoleInfoByRoleNameInRedis = async (
   roleName: string,
@@ -61,7 +61,7 @@ export const setRoleInfoByRoleNameInRedis = async (
 };
 
 /**
- * Cache role info in Redis by role ID.
+ * Set role info in Redis by role ID.
  */
 export const setRoleInfoByRoleIdInRedis = async (
   roleId: string,

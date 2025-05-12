@@ -1,5 +1,8 @@
-import { CachedUserSessionByEmailKeyInputs, UserSession } from "../../../types";
-import { redis } from "../redis";
+import {
+  CachedUserSessionByEmailKeyInputs,
+  UserSession,
+} from "../../../../types";
+import { redis } from "../../redis";
 
 // Prefixes for Redis keys
 const PREFIX = {
@@ -14,7 +17,7 @@ const PREFIX = {
 //
 
 /**
- * Retrieve cached user email-related data by email key.
+ * Get cached user email-related data by email key.
  */
 export const getUserEmailFromRedis = async (
   email: string
@@ -23,7 +26,7 @@ export const getUserEmailFromRedis = async (
 };
 
 /**
- * Retrieve total user count stored in Redis.
+ * Get total user count stored in Redis.
  */
 export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
   const count = await redis.getSession<string>(`${PREFIX.COUNT}user`);
@@ -31,7 +34,7 @@ export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
 };
 
 /**
- * Retrieve user token session data by user ID.
+ * Get user token session data by user ID.
  */
 export const getUserTokenInfoByUserIdFromRedis = async (
   userId: string
@@ -42,7 +45,7 @@ export const getUserTokenInfoByUserIdFromRedis = async (
 };
 
 /**
- * Retrieve user session data by user ID.
+ * Get user session data by user ID.
  */
 export const getUserInfoByUserIdFromRedis = async (
   userId: string
@@ -53,7 +56,7 @@ export const getUserInfoByUserIdFromRedis = async (
 };
 
 /**
- * Retrieve user session data by email.
+ * Get user session data by email.
  */
 export const getUserInfoByEmailInRedis = async (
   email: string
@@ -68,7 +71,7 @@ export const getUserInfoByEmailInRedis = async (
 //
 
 /**
- * Cache user email-related data in Redis.
+ * Set user email-related data in Redis.
  */
 export const setUserEmailInRedis = async (
   email: string,
@@ -78,14 +81,14 @@ export const setUserEmailInRedis = async (
 };
 
 /**
- * Cache total user count in Redis.
+ * Set total user count in Redis.
  */
 export const setUserCountInDBInRedis = async (count: number): Promise<void> => {
   await redis.setSession(`${PREFIX.COUNT}user`, count.toString());
 };
 
 /**
- * Cache user session data in Redis by user ID.
+ * Set user session data in Redis by user ID.
  */
 export const setUserInfoByUserIdInRedis = async (
   userId: string,
@@ -95,7 +98,7 @@ export const setUserInfoByUserIdInRedis = async (
 };
 
 /**
- * Cache user token session data in Redis by user ID with optional TTL.
+ * Set user token session data in Redis by user ID with optional TTL.
  */
 export const setUserTokenByUserIdInRedis = async (
   userId: string,
@@ -106,7 +109,7 @@ export const setUserTokenByUserIdInRedis = async (
 };
 
 /**
- * Cache user session data in Redis by email.
+ * Set user session data in Redis by email.
  */
 export const setUserInfoByEmailInRedis = async (
   email: string,
