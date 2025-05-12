@@ -79,7 +79,7 @@ export const changePassword = async (
       // Fetch user from database
       const dbUser = await userRepository.findOne({
         where: { email: user.email },
-        relations: ["role", "permissions"],
+        relations: ["role"],
       });
 
       if (!dbUser) {
@@ -139,7 +139,7 @@ export const changePassword = async (
       password: userData.password,
     };
 
-    // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
+    // Cache user's info by email in Redis (default 30 days of redis session because of the env)
     await setUserInfoByEmailInRedis(user.email, userSessionByEmail);
 
     // Return success response

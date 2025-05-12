@@ -1,12 +1,23 @@
 import jwt from "jsonwebtoken";
 import config from "../../config/config";
 
+// Define the payload type for better type safety
+interface TokenPayload {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  gender: string;
+  emailVerified: boolean;
+  isAccountActivated: boolean;
+}
+
 /**
  * Generates a JWT token for a user based on their details.
  *
  * @param user_id - The user's unique ID.
  * @param email - The user's email.
- * @param username - The user's username.
  * @param firstName - The user's first name.
  * @param lastName - The user's last name.
  * @param role - The user's role.
@@ -28,13 +39,16 @@ const EncodeToken = async (
   isAccountActivated: boolean,
   expiresIn?: string
 ): Promise<string> => {
-  // Payload to include in the token
-  const PAYLOAD = {
+  // Create the token payload
+  const PAYLOAD: TokenPayload = {
     id,
     email,
     firstName,
     lastName,
     role,
+    gender,
+    emailVerified,
+    isAccountActivated,
   };
 
   // Use the provided expiresIn value or the default from config

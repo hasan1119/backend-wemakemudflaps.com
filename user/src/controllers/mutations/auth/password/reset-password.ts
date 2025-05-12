@@ -111,7 +111,7 @@ export const resetPassword = async (
       isAccountActivated: updatedUser.isAccountActivated,
     };
 
-    // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
+    // Cache user in Redis (default 30 days of redis session because of the env)
     await setUserInfoByEmailInRedis(updatedUser.email, userSessionByEmail);
 
     return {

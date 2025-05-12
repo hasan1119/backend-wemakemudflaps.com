@@ -95,11 +95,6 @@ type UserSession {
   isAccountActivated: Boolean!
 }
 
-# Type for the user email cached session in Redis.
-type CachedUserEmailKeyInputs {
-  email: String!
-}
-
 # Type for the user cached session stored by email key in Redis.
 type CachedUserSessionByEmailKeyInputs {
   id: ID!
@@ -165,6 +160,14 @@ type UserProfileUpdateResponse {
   token: String!
 }
 
+# Response type for email verification.
+type EmailVerificationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  token: String
+}
+
 # Response type when fetching the user roles.
 type RolesResponse {
   statusCode: Int!
@@ -208,6 +211,9 @@ union BaseResponseOrError = BaseResponse | ErrorResponse
 union UserLoginResponseOrError = UserLoginResponse | ErrorResponse
 union UserProfileUpdateResponseOrError =
     UserProfileUpdateResponse
+  | ErrorResponse
+union EmailVerificationResponseOrError =
+    EmailVerificationResponse
   | ErrorResponse
 union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 

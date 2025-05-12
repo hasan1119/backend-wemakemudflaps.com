@@ -91,7 +91,7 @@
 //         where: { user: { id: user.id } },
 //       });
 
-//       // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
+//       // Cache permissions in Redis (default 30 days of redis session because of the env)
 //       await setSession(
 //         getSingleUserPermissionCacheKey(userData.id),
 //         userPermissions
@@ -171,7 +171,7 @@
 //         };
 //       }
 
-//       // Cache role data in Redis with configurable TTL(default 30 days of redis session because of the env)
+//       // Cache role data in Redis (default 30 days of redis session because of the env)
 //       await setSession(getSingleUserRoleCacheKey(existingRole.id), {
 //         id: existingRole.id,
 //         name: existingRole.name,
@@ -214,7 +214,7 @@
 //       });
 
 //       if (duplicateRole) {
-//         // Cache duplicate name in Redis with configurable TTL(default 30 days of redis session because of the env)
+//         // Cache duplicate name in Redis (default 30 days of redis session because of the env)
 //         await setSession(
 //           getSingleUserRoleNameCacheKey(normalizedRoleKey),
 //           getExistKeyWord()
@@ -245,7 +245,7 @@
 //     // Save the updated role to the database
 //     const updatedRole = await roleRepository.save(existingRole);
 
-//     // Update caches in Redis with configurable TTL(default 30 days of redis session because of the env)
+//     // Update caches in Redis (default 30 days of redis session because of the env)
 //     await setSession(getSingleUserRoleCacheKey(updatedRole.id), {
 //       id: updatedRole.id,
 //       name: updatedRole.name,

@@ -1,10 +1,7 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
-import {
-  getUserInfoByUserIdFromRedis,
-  setUserInfoByUserIdInRedis,
-} from "../../../helper/redis/user/user-session-manage";
+import { getUserInfoByUserIdFromRedis } from "../../../helper/redis/user/user-session-manage";
 import { GetProfileResponseOrError } from "../../../types";
 
 /**
@@ -66,8 +63,6 @@ export const getProfile = async (
         isAccountActivated: dbUser.isAccountActivated,
         emailVerified: dbUser.emailVerified,
       };
-
-      userExist = await setUserInfoByUserIdInRedis(user.id, userData);
 
       userExist = userData;
     }

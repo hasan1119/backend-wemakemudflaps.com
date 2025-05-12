@@ -85,6 +85,21 @@ export const forgetPassword = async (
         ...dbUser,
         role: dbUser.role.name,
       };
+
+      // Create a new session for the user
+      const userSessionByEmail = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: dbUser.role.name,
+        gender: user.gender,
+        emailVerified: user.emailVerified,
+        isAccountActivated: user.isAccountActivated,
+        password: user.password,
+      };
+
+      await setUserInfoByEmailInRedis(email, userSessionByEmail);
     }
 
     const lastSentKey = `forget_password_last_sent_${email}`;
@@ -141,26 +156,6 @@ export const forgetPassword = async (
     }
 
     await setSession(lastSentKey, Date.now().toString(), 60); // 1 minute only
-
-    const roleName =
-      typeof user.role === "string"
-        ? user.role
-        : (user.role as { name: string }).name;
-
-    const userSessionByEmail = {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: roleName,
-      gender: user.gender,
-      emailVerified: user.emailVerified,
-      isAccountActivated: user.isAccountActivated,
-      password: user.password,
-    };
-
-    // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setUserInfoByEmailInRedis(email, userSessionByEmail);
 
     return {
       statusCode: 200,

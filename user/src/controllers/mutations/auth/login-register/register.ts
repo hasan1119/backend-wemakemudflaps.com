@@ -22,11 +22,7 @@ import {
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
 } from "../../../../helper/redis/user/user-session-manage";
-import {
-  BaseResponseOrError,
-  CachedUserEmailKeyInputs,
-  MutationRegisterArgs,
-} from "../../../../types";
+import { BaseResponseOrError, MutationRegisterArgs } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
 import { registerSchema } from "../../../../utils/data-validation";
 import SendEmail from "../../../../utils/email/send-email";
@@ -119,10 +115,10 @@ export const register = async (
       };
     } else {
       // Cache miss: Fetch user from database
-      userEmail = await userRepository.findOne({ where: { email } });
-      if (userEmail) {
-        // Cache user email in Redis with configurable TTL(default 30 days of redis session because of the env)
-        await setUserEmailInRedis(email, { email });
+      const dbUser = await userRepository.findOne({ where: { email } });
+      if (dbUser) {
+        // Cache user email in Redis (default 30 days of redis session because of the env)
+        await setUserEmailInRedis(email, email);
 
         return {
           statusCode: 400,
@@ -177,7 +173,7 @@ export const register = async (
           deletedAt: role.deletedAt,
         };
 
-        // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
+        // Cache user role info in Redis (default 30 days of redis session because of the env)
         await setRoleInfoByRoleNameInRedis(role.name, roleSession);
         await setRoleInfoByRoleIdInRedis(role.id, roleSession);
         await setRoleNameExistInRedis(role.name);
@@ -243,10 +239,6 @@ export const register = async (
       }
 
       // Create a new session for the user
-      const userEmailSession: CachedUserEmailKeyInputs = {
-        email: savedUser.email,
-      };
-
       const session = {
         id: savedUser.id,
         email: savedUser.email,
@@ -280,9 +272,9 @@ export const register = async (
         canDelete: permission.canDelete,
       }));
 
-      // Cache newly register user, user email, user role & his/her permissions for curd, and update the userCount in Redis with configurable TTL(default 30 days of redis session because of the env)
+      // Cache newly register user, user email, user role & his/her permissions for curd, and update the userCount in Redis
       await setUserInfoByUserIdInRedis(savedUser.id, session);
-      await setUserEmailInRedis(email, { email });
+      await setUserEmailInRedis(email, email);
       await setUserInfoByEmailInRedis(email, userSessionByEmail);
       await setUserCountInDBInRedis(userCount + 1);
       await setUserPermissionsInRedis(savedUser.id, userPermissions);
@@ -325,7 +317,7 @@ export const register = async (
           deletedAt: role.deletedAt,
         };
 
-        // Cache user role info in Redis with configurable TTL(default 30 days of redis session because of the env)
+        // Cache user role info in Redis (default 30 days of redis session because of the env)
         await setRoleInfoByRoleNameInRedis(role.name, roleSession);
         await setRoleInfoByRoleIdInRedis(role.id, roleSession);
         await setRoleNameExistInRedis(role.name);
@@ -452,6 +444,7 @@ export const register = async (
         };
       }
 
+      // Create a new session for the user
       const session = {
         id: savedUser.id,
         email: savedUser.email,
@@ -485,9 +478,9 @@ export const register = async (
         canDelete: permission.canDelete,
       }));
 
-      // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis with configurable TTL(default 30 days of redis session because of the env)
+      // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis
       await setUserInfoByUserIdInRedis(savedUser.id, session);
-      await setUserEmailInRedis(email, { email });
+      await setUserEmailInRedis(email, email);
       await setUserInfoByEmailInRedis(email, userSessionByEmail);
       await setUserCountInDBInRedis(userCount + 1);
       await setUserPermissionsInRedis(savedUser.id, userPermissions);

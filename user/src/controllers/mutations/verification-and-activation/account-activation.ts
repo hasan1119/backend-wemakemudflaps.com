@@ -130,9 +130,9 @@ export const accountActivation = async (
       isAccountActivated: true,
     };
 
-    // Cache user in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setUserInfoByUserIdInRedis(user.id, userCacheData);
+    // Cache user for curd in Redis
     await setUserInfoByEmailInRedis(user.email, userEmailCacheData);
+    await setUserInfoByUserIdInRedis(user.id, userCacheData);
 
     return {
       statusCode: 200,

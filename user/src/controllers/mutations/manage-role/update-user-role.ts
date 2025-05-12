@@ -233,7 +233,7 @@
 //         where: { user: { id: user.id } },
 //       });
 
-//       // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
+//       // Cache permissions in Redis (default 30 days of redis session because of the env)
 //       await setSession(
 //         getSingleUserPermissionCacheKey(userData.id),
 //         userPermissions
@@ -345,7 +345,7 @@
 //     // Update role in DB
 //     await userRepository.update({ id: userId }, { role: newRole });
 
-//     // Update caches in Redis with configurable TTL(default 30 days of redis session because of the env)
+//     // Update caches in Redis (default 30 days of redis session because of the env)
 //     await setSession(getSingleUserCacheKey(userId), {
 //       id: targetUser.id,
 //       firstName: targetUser.firstName,
@@ -368,7 +368,7 @@
 //           where: { user: { id: userId } },
 //         });
 
-//         // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
+//         // Cache permissions in Redis (default 30 days of redis session because of the env)
 //         await setSession(
 //           getSingleUserPermissionCacheKey(userId),
 //           targetUserPermissions
@@ -473,7 +473,7 @@
 //         await transactionalEntityManager.save(Permission, permissionEntities);
 //       });
 
-//       // Cache permissions in Redis with configurable TTL(default 30 days of redis session because of the env)
+//       // Cache permissions in Redis (default 30 days of redis session because of the env)
 //       await setSession(
 //         getSingleUserPermissionCacheKey(userId),
 //         permissionEntities

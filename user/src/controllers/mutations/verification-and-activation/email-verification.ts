@@ -5,9 +5,14 @@ import {
   getUserInfoByUserIdFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
+  setUserTokenByUserIdInRedis,
 } from "../../../helper/redis/user/user-session-manage";
-import { BaseResponseOrError, MutationVerifyEmailArgs } from "../../../types";
+import {
+  EmailVerificationResponseOrError,
+  MutationVerifyEmailArgs,
+} from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
+import EncodeToken from "../../../utils/jwt/encode-token";
 
 /**
  * Verifies a user's email using the user ID from the verification link.
@@ -22,13 +27,13 @@ import { idSchema } from "../../../utils/data-validation";
  * @param _ - Unused GraphQL parent argument
  * @param args - Verification arguments (userId)
  * @param context - GraphQL context with AppDataSource
- * @returns Promise<BaseResponseOrError> - Response status and message
+ * @returns Promise<EmailVerificationResponseOrError> - Response status and message
  */
 export const verifyEmail = async (
   _: any,
   args: MutationVerifyEmailArgs,
   { AppDataSource }: Context
-): Promise<BaseResponseOrError> => {
+): Promise<EmailVerificationResponseOrError> => {
   const { userId } = args;
 
   try {
@@ -84,47 +89,78 @@ export const verifyEmail = async (
         statusCode: 400,
         success: false,
         message: "Email is already verified",
-        __typename: "BaseResponse",
+        __typename: "EmailVerificationResponse",
       };
     }
 
     // Update user email verification status
     user.emailVerified = true;
-    const updatedUser = await userRepository.save(user);
+
+    const updatedUser = await userRepository.update(
+      { id: userId },
+      {
+        emailVerified: true,
+      }
+    );
+
+    // Check if the update affected any rows
+    if (updatedUser.affected !== 1) {
+      return {
+        statusCode: 500,
+        success: false,
+        message: "Failed to update user verification status",
+        __typename: "ErrorResponse",
+      };
+    }
+
+    // Regenerate the JWT token after the update
+    const token = await EncodeToken(
+      user.id,
+      user.email,
+      user.firstName,
+      user.lastName,
+      user.role.name,
+      user.gender,
+      true,
+      user.isAccountActivated,
+      "30d" // Set the token expiration time
+    );
 
     // Update Redis cache
     const userCacheData = {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
-      gender: updatedUser.gender,
-      emailVerified: updatedUser.emailVerified,
-      isAccountActivated: updatedUser.isAccountActivated,
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role.name,
+      gender: user.gender,
+      emailVerified: true,
+      isAccountActivated: user.isAccountActivated,
     };
 
     const userEmailCacheData = {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
-      gender: updatedUser.gender,
-      emailVerified: updatedUser.emailVerified,
-      isAccountActivated: updatedUser.isAccountActivated,
-      password: updatedUser.password,
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role.name,
+      gender: user.gender,
+      emailVerified: true,
+      isAccountActivated: user.isAccountActivated,
+      password: user.password,
     };
 
-    // Cache user in Redis with configurable TTL (default 30 days of redis session because of the env)
+    // Cache user for curd in Redis with configurable TTL(30 days = 25920000)
+    await setUserTokenByUserIdInRedis(userId, userCacheData, 25920000);
     await setUserInfoByUserIdInRedis(userId, userCacheData);
-    await setUserInfoByEmailInRedis(updatedUser.email, userEmailCacheData);
+    await setUserInfoByEmailInRedis(user.email, userEmailCacheData);
 
     return {
       statusCode: 200,
       success: true,
+      token,
       message: "Email verified successfully",
-      __typename: "BaseResponse",
+      __typename: "EmailVerificationResponse",
     };
   } catch (error: any) {
     console.error("Error verifying email:", error);
@@ -132,7 +168,7 @@ export const verifyEmail = async (
       statusCode: 500,
       success: false,
       message: error.message || "Internal server error",
-      __typename: "BaseResponse",
+      __typename: "ErrorResponse",
     };
   }
 };

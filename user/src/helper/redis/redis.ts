@@ -28,20 +28,24 @@ async function getSession<T>(sessionId: string): Promise<T | null> {
  * Set a session in Redis
  * @param id - The ID
  * @param sessionData - The session data to store
- * @param ttl - Time to live in seconds (default: 3600 seconds = 1 hour)
+ * @param ttl - Time to live in seconds
  */
 async function setSession(
   id: string,
   sessionData: object | string,
-  ttl: number = config.REDIS_SESSION_TTL || 3600
+  ttl?: number // TTL is optional with no default value
 ): Promise<void> {
   try {
-    await redisClient.set(
-      `session:${id}`,
-      JSON.stringify(sessionData),
-      "EX",
-      ttl
-    );
+    if (ttl) {
+      await redisClient.set(
+        `session:${id}`,
+        JSON.stringify(sessionData),
+        "EX",
+        ttl
+      );
+    } else {
+      await redisClient.set(`session:${id}`, JSON.stringify(sessionData));
+    }
   } catch (error) {
     console.error("Error setting session in Redis:", error);
   }

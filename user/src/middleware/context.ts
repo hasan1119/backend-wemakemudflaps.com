@@ -1,4 +1,5 @@
 import { AppDataSource, redis } from "../helper";
+import { getUserTokenInfoByUserIdFromRedis } from "../helper/redis/user/user-session-manage";
 import { UserSession } from "../types";
 import DecodeToken from "../utils/jwt/decode-token";
 
@@ -13,9 +14,7 @@ const createContext = async ({ req, res }) => {
       const decoded = await DecodeToken(token);
       if (decoded) {
         // Fetch the user session from Redis using the decoded user ID
-        const userSession = await redis.getSession<UserSession | null>(
-          decoded.id
-        );
+        const userSession = await getUserTokenInfoByUserIdFromRedis(decoded.id);
         user = userSession ? userSession : null; // Set user only if session exists
       }
     }

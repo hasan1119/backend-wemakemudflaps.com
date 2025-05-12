@@ -1,10 +1,15 @@
-import { Repository } from "typeorm";
+import { Not, Repository } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import {
+  getUserEmailFromRedis,
   getUserInfoByUserIdFromRedis,
+  removeUserInfoByEmailFromRedis,
+  setUserEmailInRedis,
+  setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
+  setUserTokenByUserIdInRedis,
 } from "../../../helper/redis/user/user-session-manage";
 import {
   MutationUpdateProfileArgs,
@@ -13,7 +18,6 @@ import {
 import { updateProfileSchema } from "../../../utils/data-validation";
 import SendEmail from "../../../utils/email/send-email";
 import EncodeToken from "../../../utils/jwt/encode-token";
-import { UserSession } from "./../../../types";
 
 /**
  * Allows the user to update their account information.
@@ -37,7 +41,6 @@ export const updateProfile = async (
   { AppDataSource, user, redis }: Context
 ): Promise<UserProfileUpdateResponseOrError> => {
   const { firstName, lastName, email, gender } = args;
-  const { setSession, getSession } = redis;
 
   try {
     // Ensure the user is authenticated
@@ -101,7 +104,32 @@ export const updateProfile = async (
     // Update user fields only if provided
     if (firstName) userData.firstName = firstName;
     if (lastName) userData.lastName = lastName;
-    if (email) {
+    if (email && email !== userData.email) {
+      const emailInUse = await getUserEmailFromRedis(email);
+
+      if (emailInUse) {
+        return {
+          statusCode: 409,
+          success: false,
+          message: "Email is already in use by another account",
+          __typename: "ErrorResponse",
+        };
+      }
+
+      // Cache miss: Fetch user from database while excluding current user ID
+      const existingUser = await userRepository.findOne({
+        where: { email, id: Not(user.id) },
+      });
+
+      if (existingUser) {
+        return {
+          statusCode: 409,
+          success: false,
+          message: "Email is already in use by another account",
+          __typename: "ErrorResponse",
+        };
+      }
+
       // Create the email verification link with user id
       const verifyEmail = `${CONFIG.FRONTEND_URL}/verify-email/?userId=${userData.id}`;
 
@@ -129,59 +157,63 @@ export const updateProfile = async (
       }
 
       userData.email = email;
+      userData.emailVerified = false;
     }
     if (gender) userData.gender = gender;
 
     // preserve role for session
     const preservedRole = user.role;
 
-    const userEmailCacheData = {
-      id: userData.id,
-      email: userData.email,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      role: userData.role.name,
-      gender: userData.gender,
-      emailVerified: email ? false : true,
-      isAccountActivated: email ? false : true,
-      password: userData.password,
-    };
-
-    // Cache user's info by email in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setUserInfoByUserIdInRedis(userData.email, userEmailCacheData);
-
     // Delete role from the userData to update the user info properly
     delete userData.role;
 
     // Save updated user data
-    await userRepository.save(userData);
+    const updatedUser = await userRepository.save(userData);
 
     // Regenerate the JWT token after the update
     const token = await EncodeToken(
-      userData.id,
-      userData.email,
-      userData.firstName,
-      userData.lastName,
-      userData.gender,
+      updatedUser.id,
+      updatedUser.email,
+      updatedUser.firstName,
+      updatedUser.lastName,
       preservedRole,
-      userData.emailVerified,
-      userData.isAccountActivated,
+      updatedUser.gender,
+      updatedUser.emailVerified,
+      updatedUser.isAccountActivated,
       "30d" // Set the token expiration time
     );
 
-    const userSessionById: UserSession = {
-      id: userData.id,
-      email: userData.email,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      role: userData.role.name,
-      gender: userData.gender,
-      emailVerified: email ? false : true,
-      isAccountActivated: email ? false : true,
+    const session = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      role: updatedUser.role.name,
+      gender: updatedUser.gender,
+      emailVerified: updatedUser.email,
+      isAccountActivated: updatedUser.isAccountActivated,
     };
 
-    // Cache user data in Redis with configurable TTL(default 30 days of redis session because of the env)
-    await setUserInfoByUserIdInRedis(user.id, userSessionById);
+    const userEmailCacheData = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      role: updatedUser.role.name,
+      gender: updatedUser.gender,
+      emailVerified: updatedUser.email,
+      isAccountActivated: updatedUser.isAccountActivated,
+      password: updatedUser.password,
+    };
+
+    // Cache user, user session and user email for curd in Redis with configurable TTL(30 days = 25920000)
+    await setUserTokenByUserIdInRedis(updatedUser.id, session, 25920000);
+    await setUserInfoByUserIdInRedis(updatedUser.id, session);
+    await removeUserInfoByEmailFromRedis(user.email);
+    await setUserInfoByEmailInRedis(updatedUser.email, userEmailCacheData);
+    if (email) {
+      await setUserEmailInRedis(email, email);
+    }
 
     // Return success response
     return {

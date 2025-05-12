@@ -39,11 +39,6 @@ export type CachedRoleInputs = {
   name: Scalars['String']['output'];
 };
 
-export type CachedUserEmailKeyInputs = {
-  __typename?: 'CachedUserEmailKeyInputs';
-  email: Scalars['String']['output'];
-};
-
 export type CachedUserPermissionsInputs = {
   __typename?: 'CachedUserPermissionsInputs';
   canCreate: Scalars['Boolean']['output'];
@@ -75,6 +70,16 @@ export type CreatedBy = {
   name?: Maybe<Scalars['String']['output']>;
   role?: Maybe<Scalars['String']['output']>;
 };
+
+export type EmailVerificationResponse = {
+  __typename?: 'EmailVerificationResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  token?: Maybe<Scalars['String']['output']>;
+};
+
+export type EmailVerificationResponseOrError = EmailVerificationResponse | ErrorResponse;
 
 export type ErrorResponse = {
   __typename?: 'ErrorResponse';
@@ -116,7 +121,7 @@ export type Mutation = {
   updateUserPermission: BaseResponseOrError;
   updateUserRole: BaseResponseOrError;
   updateUserRoleInfo: BaseResponseOrError;
-  verifyEmail: BaseResponseOrError;
+  verifyEmail: EmailVerificationResponseOrError;
 };
 
 
@@ -420,6 +425,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   ActiveAccountResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
   GetProfileResponseOrError: ( BaseResponse ) | ( UserResponse );
   GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   GetRoleResponseOrError: ( ErrorResponse ) | ( RoleResponse );
@@ -441,10 +447,11 @@ export type ResolversTypes = {
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   CachedRoleInputs: ResolverTypeWrapper<CachedRoleInputs>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
-  CachedUserEmailKeyInputs: ResolverTypeWrapper<CachedUserEmailKeyInputs>;
   CachedUserPermissionsInputs: ResolverTypeWrapper<CachedUserPermissionsInputs>;
   CachedUserSessionByEmailKeyInputs: ResolverTypeWrapper<CachedUserSessionByEmailKeyInputs>;
   CreatedBy: ResolverTypeWrapper<CreatedBy>;
+  EmailVerificationResponse: ResolverTypeWrapper<EmailVerificationResponse>;
+  EmailVerificationResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EmailVerificationResponseOrError']>;
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
   FieldError: ResolverTypeWrapper<FieldError>;
   GetProfileResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProfileResponseOrError']>;
@@ -481,10 +488,11 @@ export type ResolversParentTypes = {
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   CachedRoleInputs: CachedRoleInputs;
   ID: Scalars['ID']['output'];
-  CachedUserEmailKeyInputs: CachedUserEmailKeyInputs;
   CachedUserPermissionsInputs: CachedUserPermissionsInputs;
   CachedUserSessionByEmailKeyInputs: CachedUserSessionByEmailKeyInputs;
   CreatedBy: CreatedBy;
+  EmailVerificationResponse: EmailVerificationResponse;
+  EmailVerificationResponseOrError: ResolversUnionTypes<ResolversParentTypes>['EmailVerificationResponseOrError'];
   ErrorResponse: ErrorResponse;
   FieldError: FieldError;
   GetProfileResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProfileResponseOrError'];
@@ -536,11 +544,6 @@ export type CachedRoleInputsResolvers<ContextType = Context, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type CachedUserEmailKeyInputsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CachedUserEmailKeyInputs'] = ResolversParentTypes['CachedUserEmailKeyInputs']> = {
-  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type CachedUserPermissionsInputsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CachedUserPermissionsInputs'] = ResolversParentTypes['CachedUserPermissionsInputs']> = {
   canCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canDelete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -571,6 +574,18 @@ export type CreatedByResolvers<ContextType = Context, ParentType extends Resolve
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   role?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type EmailVerificationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EmailVerificationResponse'] = ResolversParentTypes['EmailVerificationResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  token?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type EmailVerificationResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EmailVerificationResponseOrError'] = ResolversParentTypes['EmailVerificationResponseOrError']> = {
+  __resolveType: TypeResolveFn<'EmailVerificationResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type ErrorResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ErrorResponse'] = ResolversParentTypes['ErrorResponse']> = {
@@ -624,7 +639,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'roleId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id' | 'name'>>;
-  verifyEmail?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'userId'>>;
+  verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'userId'>>;
 };
 
 export type PermissionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Permissions'] = ResolversParentTypes['Permissions']> = {
@@ -747,10 +762,11 @@ export type Resolvers<ContextType = Context> = {
   BaseResponse?: BaseResponseResolvers<ContextType>;
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
   CachedRoleInputs?: CachedRoleInputsResolvers<ContextType>;
-  CachedUserEmailKeyInputs?: CachedUserEmailKeyInputsResolvers<ContextType>;
   CachedUserPermissionsInputs?: CachedUserPermissionsInputsResolvers<ContextType>;
   CachedUserSessionByEmailKeyInputs?: CachedUserSessionByEmailKeyInputsResolvers<ContextType>;
   CreatedBy?: CreatedByResolvers<ContextType>;
+  EmailVerificationResponse?: EmailVerificationResponseResolvers<ContextType>;
+  EmailVerificationResponseOrError?: EmailVerificationResponseOrErrorResolvers<ContextType>;
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
   GetProfileResponseOrError?: GetProfileResponseOrErrorResolvers<ContextType>;

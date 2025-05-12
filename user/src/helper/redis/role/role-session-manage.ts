@@ -1,29 +1,34 @@
 import { CachedRoleInputs } from "../../../types";
 import { redis } from "../redis";
 
+// Prefix for Redis keys
+const PREFIX = {
+  ROLE: "role:",
+  EXISTS: "role-exists:",
+};
+
 //
 // ===================== GETTERS =====================
 //
 
 /**
- * Get role info from Redis by role name.
+ * Retrieve role info from Redis by role name.
  */
 export const getRoleInfoByRoleNameFromRedis = async (
   roleName: string
 ): Promise<CachedRoleInputs | null> => {
-  const roleInfo = await redis.getSession<CachedRoleInputs | null>(
-    roleName.toLowerCase().trim()
+  return redis.getSession<CachedRoleInputs | null>(
+    `${PREFIX.ROLE}${roleName.toLowerCase().trim()}`
   );
-  return roleInfo;
 };
 
 /**
- * Get role info in Redis by role ID.
+ * Retrieve role info from Redis by role ID.
  */
 export const getRoleInfoByRoleIdFromRedis = async (
   roleId: string
 ): Promise<CachedRoleInputs | null> => {
-  return await redis.getSession<CachedRoleInputs | null>(roleId);
+  return redis.getSession<CachedRoleInputs | null>(`${PREFIX.ROLE}${roleId}`);
 };
 
 /**
@@ -33,9 +38,8 @@ export const getRoleNameExistFromRedis = async (
   roleName: string
 ): Promise<boolean> => {
   const result = await redis.getSession<string | null>(
-    roleName.toLowerCase().trim()
+    `${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`
   );
-
   return result === "exists";
 };
 
@@ -44,33 +48,36 @@ export const getRoleNameExistFromRedis = async (
 //
 
 /**
- * Set role info in Redis by role name.
+ * Cache role info in Redis by role name.
  */
 export const setRoleInfoByRoleNameInRedis = async (
   roleName: string,
-  data: CachedRoleInputs,
-  ttl?: number
+  data: CachedRoleInputs
 ): Promise<void> => {
-  await redis.setSession(roleName.toLowerCase().trim(), data, ttl);
+  await redis.setSession(
+    `${PREFIX.ROLE}${roleName.toLowerCase().trim()}`,
+    data
+  );
 };
 
 /**
- * Set role info in Redis by role ID.
+ * Cache role info in Redis by role ID.
  */
 export const setRoleInfoByRoleIdInRedis = async (
   roleId: string,
-  data: CachedRoleInputs,
-  ttl?: number
+  data: CachedRoleInputs
 ): Promise<void> => {
-  await redis.setSession(roleId, data, ttl);
+  await redis.setSession(`${PREFIX.ROLE}${roleId}`, data);
 };
 
 /**
  * Set existence flag in Redis for a given role name.
  */
 export const setRoleNameExistInRedis = async (
-  roleName: string,
-  ttl?: number
+  roleName: string
 ): Promise<void> => {
-  await redis.setSession(roleName.toLowerCase().trim(), "exists", ttl);
+  await redis.setSession(
+    `${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`,
+    "exists"
+  );
 };

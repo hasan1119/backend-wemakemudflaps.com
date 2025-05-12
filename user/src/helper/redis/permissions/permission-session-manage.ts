@@ -1,20 +1,9 @@
-// Assuming this exists based on your usage
 import { CachedUserPermissionsInputs } from "../../../types";
 import { redis } from "../redis";
 
-//
-// ===================== GETTERS =====================
-//
-
-/**
- * Set user permission data by user id Redis by userId.
- */
-export const setUserPermissionsInRedis = async (
-  userId: string,
-  permissions: CachedUserPermissionsInputs[],
-  ttl?: number
-): Promise<void> => {
-  await redis.setSession(userId, permissions, ttl);
+// Prefix for Redis keys
+const PREFIX = {
+  PERMISSIONS: "permissions:",
 };
 
 //
@@ -22,13 +11,26 @@ export const setUserPermissionsInRedis = async (
 //
 
 /**
- * Get user permission data by user id Redis by userId.
+ * Cache user permissions data in Redis by user ID.
+ */
+export const setUserPermissionsInRedis = async (
+  userId: string,
+  permissions: CachedUserPermissionsInputs[]
+): Promise<void> => {
+  await redis.setSession(`${PREFIX.PERMISSIONS}${userId}`, permissions);
+};
+
+//
+// ===================== GETTERS =====================
+//
+
+/**
+ * Retrieve user permissions data from Redis by user ID.
  */
 export const getUserPermissionsFromRedis = async (
   userId: string
 ): Promise<CachedUserPermissionsInputs[] | null> => {
-  const permissions = await redis.getSession<
-    CachedUserPermissionsInputs[] | null
-  >(userId);
-  return permissions;
+  return redis.getSession<CachedUserPermissionsInputs[] | null>(
+    `${PREFIX.PERMISSIONS}${userId}`
+  );
 };
