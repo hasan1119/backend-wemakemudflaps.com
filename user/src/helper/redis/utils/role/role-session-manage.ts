@@ -45,7 +45,7 @@ export const getRoleNameExistFromRedis = async (
 };
 
 /**
- * Get total user count for a specific role from Redis.
+ * Get total user count for a specific role from Redis by role id.
  */
 export const getTotalUserCountByRoleIdFromRedis = async (
   roleId: string
@@ -99,7 +99,7 @@ export const setRoleNameExistInRedis = async (
 };
 
 /**
- * Set total user count for a specific role in Redis.
+ * Set total user count for a specific role in Redis by role id.
  */
 export const setTotalUserCountByRoleIdInRedis = async (
   roleId: string,
@@ -137,4 +137,13 @@ export const removeRoleNameExistFromRedis = async (
   roleName: string
 ): Promise<void> => {
   await redis.deleteSession(`${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`);
+};
+
+/**
+ * Remove the cached total user count for a specific role from Redis.
+ */
+export const removeTotalUserCountByRoleIdFromRedis = async (
+  roleId: string
+): Promise<void> => {
+  await redis.deleteSession(`${PREFIX.ROLE_USER_COUNT}${roleId}`);
 };
