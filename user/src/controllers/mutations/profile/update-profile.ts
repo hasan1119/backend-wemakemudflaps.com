@@ -24,11 +24,11 @@ import EncodeToken from "../../../utils/jwt/encode-token";
  *
  * Steps:
  * - Validates input using Zod schema
+ * - Checks Redis for user data to optimize performance via caching
  * - Updates the user's name, email, password, gender, and role
  * - Hashes the password if it is updated
- * - Redis cache for user data after update in database
  * - Sends an email verification email, if email is updated
- * - Update Redis cache with the updated user data
+* - Update necessary user data in redis for future request
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for update user profile ( firstName, lastName, email, gender )
