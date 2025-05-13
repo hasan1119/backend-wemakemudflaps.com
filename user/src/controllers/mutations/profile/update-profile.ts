@@ -223,7 +223,7 @@ export const updateProfile = async (
       message: `${
         email
           ? "Profile updated successfully, but please verify your email before using the account."
-          : "Profile updated successfully."
+          : "Profile updated successfully"
       }`,
       __typename: "UserProfileUpdateResponse",
     };
