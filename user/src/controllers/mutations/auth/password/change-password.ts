@@ -18,9 +18,11 @@ import { changePasswordSchema } from "../../../../utils/data-validation";
  *
  * Steps:
  * - Validates input using Zod schema
+ * - Checks Redis for user data to optimize performance via caching
  * - Ensures the user is authenticated
  * - Verifies the old password
  * - Hashes the new password
+* - Caches the necessary user data in Redis for future request
  * - Updates the password in the database
  *
  * @param _ - Unused GraphQL parent argument
