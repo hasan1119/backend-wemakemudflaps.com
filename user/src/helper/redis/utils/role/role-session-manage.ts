@@ -5,6 +5,7 @@ import { redis } from "../../redis";
 const PREFIX = {
   ROLE: "role:",
   EXISTS: "role-exists:",
+  ROLE_USER_COUNT: "role-user-count:"
 };
 
 //
@@ -43,6 +44,21 @@ export const getRoleNameExistFromRedis = async (
   return result === "exists";
 };
 
+/**
+ * Get total user count for a specific role from Redis.
+ */
+export const getTotalUserCountByRoleIdFromRedis = async (
+  roleId: string
+): Promise<number> => {
+  const result = await redis.getSession<number | null>(
+    `${PREFIX.ROLE_USER_COUNT}${roleId}`
+  );
+
+  const count = Number(result);
+  return isNaN(count) ? 0 : count;
+};
+
+
 //
 // ===================== SETTERS =====================
 //
@@ -80,6 +96,16 @@ export const setRoleNameExistInRedis = async (
     `${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`,
     "exists"
   );
+};
+
+/**
+ * Set total user count for a specific role in Redis.
+ */
+export const setTotalUserCountByRoleIdInRedis = async (
+  roleId: string,
+  count: number
+): Promise<void> => {
+  await redis.setSession(`${PREFIX.ROLE_USER_COUNT}${roleId}`, count);
 };
 
 //
