@@ -33,7 +33,7 @@ import EncodeToken from "../../../utils/jwt/encode-token";
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for update user profile ( firstName, lastName, email, gender )
  * @param context - Application context containing AppDataSource and user
- * @returns Promise<UserProfileUpdateResponseOrError> - User profile update result with status and message
+ * @returns Promise<UserProfileUpdateResponseOrError> - Response status and message
  */
 export const updateProfile = async (
   _: any,
