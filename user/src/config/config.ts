@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -39,7 +39,6 @@ interface Config {
   REDIS_HOST: string;
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
-  REDIS_SESSION_TTL: number;
 }
 
 const CONFIG: Config = {
@@ -60,7 +59,7 @@ const CONFIG: Config = {
   DB_PASSWORD: process.env.DB_PASSWORD as string,
   DB_NAME: process.env.DB_NAME as string,
   DB_SYNCHRONIZE:
-    (process.env.DB_SYNCHRONIZE as string) === 'true' ? true : false,
+    (process.env.DB_SYNCHRONIZE as string) === "true" ? true : false,
 
   /* Bcrypt configurations */
   SALT_ROUNDS: parseInt(process.env.SALT_ROUNDS as string, 10),
@@ -80,7 +79,6 @@ const CONFIG: Config = {
   REDIS_HOST: process.env.REDIS_HOST as string,
   REDIS_PORT: parseInt(process.env.REDIS_PORT as string, 10),
   REDIS_PASSWORD: process.env.REDIS_PASSWORD as string,
-  REDIS_SESSION_TTL: parseInt(process.env.REDIS_SESSION_TTL as string, 10),
 };
 
 export default CONFIG;
