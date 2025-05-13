@@ -18,6 +18,7 @@ import { resetPasswordSchema } from "../../../../utils/data-validation";
  * - Validates token expiry
  * - Hashes the new password and updates the user's password
  * - Clears the reset token and expiry after successful update
+ * - Cache necessary user data in redis for future request
  *
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
