@@ -81,3 +81,34 @@ export const setRoleNameExistInRedis = async (
     "exists"
   );
 };
+
+//
+// ===================== REMOVERS =====================
+//
+
+/**
+ * Remove role info from Redis by role name.
+ */
+export const removeRoleInfoByRoleNameFromRedis = async (
+  roleName: string
+): Promise<void> => {
+  await redis.deleteSession(`${PREFIX.ROLE}${roleName.toLowerCase().trim()}`);
+};
+
+/**
+ * Remove role info from Redis by role ID.
+ */
+export const removeRoleInfoByRoleIdFromRedis = async (
+  roleId: string
+): Promise<void> => {
+  await redis.deleteSession(`${PREFIX.ROLE}${roleId}`);
+};
+
+/**
+ * Remove existence flag in Redis for a given role name.
+ */
+export const removeRoleNameExistFromRedis = async (
+  roleName: string
+): Promise<void> => {
+  await redis.deleteSession(`${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`);
+};

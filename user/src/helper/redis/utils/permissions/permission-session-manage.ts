@@ -34,3 +34,16 @@ export const getUserPermissionsFromRedis = async (
     `${PREFIX.PERMISSIONS}${userId}`
   );
 };
+
+//
+// ===================== REMOVERS =====================
+//
+
+/**
+ * Remove user permissions data from Redis by user ID.
+ */
+export const removeUserPermissionsFromRedis = async (
+  userId: string
+): Promise<void> => {
+  return redis.deleteSession(`${PREFIX.PERMISSIONS}${userId}`);
+};

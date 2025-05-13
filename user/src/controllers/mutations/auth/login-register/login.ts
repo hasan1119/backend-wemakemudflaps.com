@@ -12,7 +12,7 @@ import {
   setLoginAttemptsInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserTokenByUserIdInRedis,
+  setUserTokenInfoByUserIdInRedis,
 } from "../../../../helper/redis";
 import { MutationLoginArgs, UserLoginResponseOrError } from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
@@ -207,7 +207,7 @@ export const login = async (
     };
 
     // Cache user, user session for curd in Redis with configurable TTL(30 days = 25920000)
-    await setUserTokenByUserIdInRedis(user.id, session, 25920000);
+    await setUserTokenInfoByUserIdInRedis(user.id, session, 25920000);
     await setUserInfoByUserIdInRedis(user.id, session);
 
     return {

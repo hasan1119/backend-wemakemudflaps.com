@@ -9,7 +9,7 @@ import {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserTokenByUserIdInRedis,
+  setUserTokenInfoByUserIdInRedis,
 } from "../../../helper/redis";
 import {
   MutationUpdateProfileArgs,
@@ -28,7 +28,7 @@ import EncodeToken from "../../../utils/jwt/encode-token";
  * - Updates the user's name, email, password, gender, and role
  * - Hashes the password if it is updated
  * - Sends an email verification email, if email is updated
-* - Updates necessary user data in redis for future request
+ * - Updates necessary user data in redis for future request
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for update user profile ( firstName, lastName, email, gender )
@@ -207,7 +207,7 @@ export const updateProfile = async (
     };
 
     // Cache user, user session and user email for curd in Redis with configurable TTL(30 days = 25920000)
-    await setUserTokenByUserIdInRedis(updatedUser.id, session, 25920000);
+    await setUserTokenInfoByUserIdInRedis(updatedUser.id, session, 25920000);
     await setUserInfoByUserIdInRedis(updatedUser.id, session);
     await setUserInfoByEmailInRedis(updatedUser.email, userEmailCacheData);
     if (email) {

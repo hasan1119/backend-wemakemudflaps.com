@@ -14,6 +14,7 @@ export {
 
 export {
   getUserPermissionsFromRedis,
+  removeUserPermissionsFromRedis,
   setUserPermissionsInRedis,
 } from "./utils/permissions/permission-session-manage";
 
@@ -21,6 +22,9 @@ export {
   getRoleInfoByRoleIdFromRedis,
   getRoleInfoByRoleNameFromRedis,
   getRoleNameExistFromRedis,
+  removeRoleInfoByRoleIdFromRedis,
+  removeRoleInfoByRoleNameFromRedis,
+  removeRoleNameExistFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
@@ -32,6 +36,8 @@ export {
   getUserInfoByEmailInRedis,
   getUserInfoByUserIdFromRedis,
   getUserTokenInfoByUserIdFromRedis,
+  removeUserCountInDBFromRedis,
+  removeUserEmailFromRedis,
   removeUserInfoByEmailFromRedis,
   removeUserInfoByUserIdInRedis,
   removeUserTokenByUserIdFromRedis,

@@ -148,3 +148,19 @@ export const removeUserInfoByEmailFromRedis = async (
 ): Promise<void> => {
   await redis.deleteSession(`${PREFIX.SESSION}email:${email}`);
 };
+
+/**
+ * Remove cached user email-related data by email key.
+ */
+export const removeUserEmailFromRedis = async (
+  email: string
+): Promise<void> => {
+  await redis.deleteSession(`${PREFIX.EMAIL}${email}`);
+};
+
+/**
+ * Remove total user count stored in Redis.
+ */
+export const removeUserCountInDBFromRedis = async (): Promise<void> => {
+  await redis.deleteSession(`${PREFIX.COUNT}user`);
+};

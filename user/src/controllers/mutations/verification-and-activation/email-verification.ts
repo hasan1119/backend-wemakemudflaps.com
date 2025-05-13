@@ -5,7 +5,7 @@ import {
   getUserInfoByUserIdFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserTokenByUserIdInRedis,
+  setUserTokenInfoByUserIdInRedis,
 } from "../../../helper/redis";
 import {
   EmailVerificationResponseOrError,
@@ -151,7 +151,7 @@ export const verifyEmail = async (
     };
 
     // Cache user for curd in Redis with configurable TTL(30 days = 25920000)
-    await setUserTokenByUserIdInRedis(userId, userCacheData, 25920000);
+    await setUserTokenInfoByUserIdInRedis(userId, userCacheData, 25920000);
     await setUserInfoByUserIdInRedis(userId, userCacheData);
     await setUserInfoByEmailInRedis(user.email, userEmailCacheData);
 
