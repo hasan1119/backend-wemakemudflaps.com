@@ -28,7 +28,7 @@ import EncodeToken from "../../../utils/jwt/encode-token";
  * - Hashes the password if it is updated
  * - Redis cache for user data after update in database
  * - Sends an email verification email, if email is updated
- * - Caches user data in Redis for future requests
+ * - Update Redis cache with the updated user data
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for update user profile ( firstName, lastName, email, gender )
