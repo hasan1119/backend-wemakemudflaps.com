@@ -20,6 +20,9 @@ import { resetPasswordSchema } from "../../../../utils/data-validation";
  * - Clears the reset token and expiry after successful update
  * - Cache necessary user data in redis for future request
  *
+ * @param _ - Unused GraphQL parent argument
+ * @param args - Arguments for reset password request (token and newPassword)
+ * @param context - GraphQL context with AppDataSource
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
 export const resetPassword = async (
