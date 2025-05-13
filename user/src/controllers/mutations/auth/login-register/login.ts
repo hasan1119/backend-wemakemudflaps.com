@@ -26,7 +26,7 @@ import EncodeToken from "../../../../utils/jwt/encode-token";
  * - Validates input using Zod schema
  * - Checks Redis for user data to optimize performance via caching
  * - Verifies the password and handles account lockout logic
- * - Cache necessary user data in redis for future request
+ * - Caches the necessary user data in Redis for future request 
  * - Generates and returns a JWT token upon successful login
  *
  * @param _ - Unused GraphQL parent argument
