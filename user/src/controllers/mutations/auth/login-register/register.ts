@@ -55,8 +55,8 @@ const PermissionNames: PermissionName[] = [
  * - Validates input using Zod schema
  * - Registers the first user as a Super Admin if no users or Super Admin role exists
  * - Otherwise registers a user with a Customer role and sets default permissions
- * - Sends a account activation email
  * - Caches the necessary user's data, role, and permissions in Redis for future request 
+ * - Sends a account activation email 
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Registration arguments (firstName, lastName, email, password, gender)
