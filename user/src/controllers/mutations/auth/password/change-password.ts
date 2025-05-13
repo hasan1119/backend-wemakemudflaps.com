@@ -23,7 +23,7 @@ import { changePasswordSchema } from "../../../../utils/data-validation";
  * - Verifies the old password
  * - Hashes the new password
  * - Updates the password in the database
- * - Cache necessary user data in redis for future request
+ * - Updates necessary user data in redis for future request
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for change password (oldPassword and newPassword)

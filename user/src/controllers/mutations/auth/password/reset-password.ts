@@ -18,7 +18,7 @@ import { resetPasswordSchema } from "../../../../utils/data-validation";
  * - Validates token expiry
  * - Hashes the new password and updates the user's password
  * - Clears the reset token and expiry after successful update
- * - Cache necessary user data in redis for future request
+ * - Updates necessary user data in redis for future request
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for reset password request (token and newPassword)

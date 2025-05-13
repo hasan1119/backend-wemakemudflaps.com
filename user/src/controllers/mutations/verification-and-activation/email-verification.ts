@@ -22,10 +22,10 @@ import EncodeToken from "../../../utils/jwt/encode-token";
  * - Checks if the user exists
  * - Verifies if the email is already verified
  * - Updates the user's emailVerified status
- * - Updates Redis cache with the new user data
+ * - Updates necessary user data in redis for future request
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Verification arguments (userId)
+ * @param args - Arguments for email verification (userId)
  * @param context - GraphQL context with AppDataSource
  * @returns Promise<EmailVerificationResponseOrError> - Response status and message
  */

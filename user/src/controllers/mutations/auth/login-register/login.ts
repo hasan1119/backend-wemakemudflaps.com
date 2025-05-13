@@ -25,12 +25,12 @@ import EncodeToken from "../../../../utils/jwt/encode-token";
  * Steps:
  * - Validates input using Zod schema
  * - Checks Redis for user data to optimize performance via caching
- * - Verifies the account activation status, email verification status, password and handles account lockout logic 
+ * - Verifies the account activation status, email verification status, password and handles account lockout logic
  * - Generates and returns a JWT token upon successful login
  * - Cache necessary user data in redis for future request
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Login arguments (email, password)
+ * @param args - Arguments for login (email, password)
  * @param context - GraphQL context with AppDataSource
  * @returns Promise<UserLoginResponseOrError> - Response status and message
  */

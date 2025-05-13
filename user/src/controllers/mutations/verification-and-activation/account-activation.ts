@@ -25,7 +25,7 @@ import { idSchema } from "../../../utils/data-validation";
  * - Updates necessary user data in redis for future request
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Activation arguments (userId)
+ * @param args - Arguments for account activation (userId)
  * @param context - GraphQL context with AppDataSource
  * @returns Promise<ActiveAccountResponseOrError> - Response status and message
  */
