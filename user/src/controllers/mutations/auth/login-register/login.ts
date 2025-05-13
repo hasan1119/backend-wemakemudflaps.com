@@ -25,7 +25,7 @@ import EncodeToken from "../../../../utils/jwt/encode-token";
  * Steps:
  * - Validates input using Zod schema
  * - Checks Redis for user data to optimize performance via caching
- * - Verifies the password and handles account lockout logic
+ * - Verifies the account activation status, email verification status, password and handles account lockout logic
  * - Caches the necessary user data in Redis for future request 
  * - Generates and returns a JWT token upon successful login
  *
