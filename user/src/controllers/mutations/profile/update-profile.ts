@@ -105,7 +105,9 @@ export const updateProfile = async (
 
     // Update user fields only if provided
     if (firstName) userData.firstName = firstName;
+
     if (lastName) userData.lastName = lastName;
+
     if (email && email !== userData.email) {
       const emailInUse = await getUserEmailFromRedis(email);
 
@@ -159,8 +161,10 @@ export const updateProfile = async (
       }
 
       userData.email = email;
+
       userData.emailVerified = false;
     }
+
     if (gender) userData.gender = gender;
 
     // preserve role for session
@@ -209,13 +213,18 @@ export const updateProfile = async (
     };
 
     // Cache user, user session and user email for curd in Redis with configurable TTL(30 days = 25920000)
-    await setUserTokenInfoByUserIdInRedis(updatedUser.id, session, 25920000);
-    await setUserInfoByUserIdInRedis(updatedUser.id, session);
-    await setUserInfoByEmailInRedis(updatedUser.email, userEmailCacheData);
+    const promises = [
+      setUserTokenInfoByUserIdInRedis(updatedUser.id, session, 25920000),
+      setUserInfoByUserIdInRedis(updatedUser.id, session),
+      setUserInfoByEmailInRedis(updatedUser.email, userEmailCacheData),
+    ];
+
     if (email) {
-      await removeUserInfoByEmailFromRedis(user.email);
-      await setUserEmailInRedis(email, email);
+      promises.push(removeUserInfoByEmailFromRedis(user.email));
+      promises.push(setUserEmailInRedis(email, email));
     }
+
+    await Promise.all(promises);
 
     // Return success response
     return {

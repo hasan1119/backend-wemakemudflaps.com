@@ -203,10 +203,14 @@ export const createUserRole = async (
     // Save the role to the database
     const savedRole = await roleRepository.save(role);
 
-    const roleName =
-      typeof userData.role === "string"
-        ? userData.role
-        : (userData.role as { name: string }).name;
+    // Initiate the empty variable for the user role
+    let roleName;
+
+    if (typeof userData.role !== "string") {
+      roleName = userData.role.name; // Safe update
+    } else {
+      roleName = userData.role; // Direct assignment
+    }
 
     // Create a new session for user role
     const roleSession: CachedRoleInputs = {
@@ -224,8 +228,10 @@ export const createUserRole = async (
     };
 
     // Cache newly user role & name existence in Redis
-    await setRoleInfoByRoleIdInRedis(savedRole.id, roleSession);
-    await setRoleNameExistInRedis(savedRole.name);
+    await Promise.all([
+      await setRoleInfoByRoleIdInRedis(savedRole.id, roleSession),
+      await setRoleNameExistInRedis(savedRole.name),
+    ]);
 
     return {
       statusCode: 201,

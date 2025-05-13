@@ -25,6 +25,7 @@ export const getProfile = async (
   { AppDataSource, user }: Context
 ): Promise<GetProfileResponseOrError> => {
   try {
+    // Ensure the user is authenticated
     if (!user) {
       return {
         statusCode: 401,

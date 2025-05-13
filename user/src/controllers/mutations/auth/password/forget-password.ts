@@ -66,6 +66,7 @@ export const forgetPassword = async (
 
     // Check Redis for cached user's data
     let user;
+
     user = getUserInfoByEmailInRedis(email);
 
     if (!user.email) {
@@ -124,6 +125,7 @@ export const forgetPassword = async (
     }
 
     const resetToken = uuidv4();
+
     const tokenExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
     await userRepository.update(

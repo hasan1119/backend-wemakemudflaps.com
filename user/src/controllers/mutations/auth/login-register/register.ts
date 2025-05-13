@@ -152,8 +152,11 @@ export const register = async (
     let role;
 
     if (userCount === 0) {
-      // Check Redis for for the super admin
+      // Check Redis for the super admin
       role = await getRoleInfoByRoleNameFromRedis("SUPER ADMIN");
+
+      // Initiate the empty variable for the user count for super admin
+      let userCountForRole;
 
       if (!role) {
         // Cache miss: Fetch role from database
@@ -171,20 +174,35 @@ export const register = async (
           role = await roleRepository.save(savedRole);
         }
 
+        // Check Redis for the user count with this role
+        userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
+
+        if (!userCountForRole) {
+          // Cache miss: Count users in database efficiently
+          userCountForRole = await userRepository.count({
+            where: { role: { id: role.id } },
+          });
+
+          // Cache user count with this role in Redis
+          await setTotalUserCountByRoleIdInRedis(role.id, userCountForRole);
+        }
+
         // Create a new session for user role
         const roleSession: CachedRoleInputs = {
           id: role.id,
           name: role.name,
           description: role.description,
-          createdBy: role.CreatedBy,
-          createdAt: role.createdAt,
-          deletedAt: role.deletedAt,
+          createdBy: role.createdBy,
+          createdAt: role.createdAt.toIsoString(),
+          deletedAt: role.deletedAt.toIsoString(),
         };
 
         // Cache user role info in Redis
-        await setRoleInfoByRoleNameInRedis(role.name, roleSession);
-        await setRoleInfoByRoleIdInRedis(role.id, roleSession);
-        await setRoleNameExistInRedis(role.name);
+        await Promise.all([
+          setRoleInfoByRoleNameInRedis(role.name, roleSession),
+          setRoleInfoByRoleIdInRedis(role.id, roleSession),
+          setRoleNameExistInRedis(role.name),
+        ]);
       }
 
       // Create Super Admin user
@@ -234,8 +252,10 @@ export const register = async (
       // If email sending fails, return an error
       if (!emailSent) {
         // Delete the newly created user's permissions & user
-        await permissionRepository.delete({ user: savedUser });
-        await userRepository.delete({ id: savedUser.id });
+        await Promise.all([
+          permissionRepository.delete({ user: savedUser }),
+          userRepository.delete({ id: savedUser.id }),
+        ]);
 
         return {
           statusCode: 500,
@@ -281,11 +301,14 @@ export const register = async (
           canDelete: permission.canDelete,
         }));
 
-      // Cache newly register user, user role & his/her permissions for curd, and update the userCount in Redis
-      await setUserInfoByUserIdInRedis(savedUser.id, session);
-      await setUserInfoByEmailInRedis(email, userSessionByEmail);
-      await setUserCountInDBInRedis(userCount + 1);
-      await setUserPermissionsByUserIdInRedis(savedUser.id, userPermissions);
+      // Cache newly register user, user email, user role & his/her permissions for curd, and update use count and role-based user counts in Redis
+      await Promise.all([
+        setUserInfoByUserIdInRedis(savedUser.id, session),
+        setUserInfoByEmailInRedis(email, userSessionByEmail),
+        setUserCountInDBInRedis(userCount + 1),
+        setUserPermissionsByUserIdInRedis(savedUser.id, userPermissions),
+        setTotalUserCountByRoleIdInRedis(role.id, userCountForRole + 1),
+      ]);
 
       return {
         statusCode: 201,
@@ -297,6 +320,9 @@ export const register = async (
     } else {
       // Check Redis for for the super admin
       role = await getRoleInfoByRoleNameFromRedis("CUSTOMER");
+
+      // Initiate the empty variable for the user count for super admin
+      let userCountForRole;
 
       if (!role) {
         // Cache miss: Fetch user from database
@@ -315,24 +341,39 @@ export const register = async (
           role = await roleRepository.save(savedRole);
         }
 
+        // Check Redis for the user count with this role
+        userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
+
+        if (!userCountForRole) {
+          // Cache miss: Count users in database efficiently
+          userCountForRole = await userRepository.count({
+            where: { role: { id: role.id } },
+          });
+
+          // Cache user count with this role in Redis
+          await setTotalUserCountByRoleIdInRedis(role.id, userCountForRole);
+        }
+
         // Create a new session for user role
         const roleSession: CachedRoleInputs = {
           id: role.id,
           name: role.name,
           description: role.description,
           createdBy: role.createdBy,
-          createdAt: role.createdAt,
-          deletedAt: role.deletedAt,
+          createdAt: role.createdAt.toIsoString(),
+          deletedAt: role.deletedAt.toIsoString(),
         };
 
         // Cache user role info in Redis
-        await setRoleInfoByRoleNameInRedis(role.name, roleSession);
-        await setRoleInfoByRoleIdInRedis(role.id, roleSession);
-        await setRoleNameExistInRedis(role.name);
+        await Promise.all([
+          setRoleInfoByRoleNameInRedis(role.name, roleSession),
+          setRoleInfoByRoleIdInRedis(role.id, roleSession),
+          setRoleNameExistInRedis(role.name),
+        ]);
       }
 
       // Create Customer user
-      const savedUser = userRepository.create({
+      const newUser = userRepository.create({
         firstName,
         lastName,
         email,
@@ -340,7 +381,8 @@ export const register = async (
         gender: gender || null,
         role,
       });
-      await userRepository.save(savedUser);
+
+      const savedUser = await userRepository.save(newUser);
 
       // Assign CUSTOMER permissions
       const customerPermissions = PermissionNames.map(
@@ -440,8 +482,10 @@ export const register = async (
       // If email sending fails, return an error
       if (!emailSent) {
         // Delete the newly created user's permissions & user
-        await permissionRepository.delete({ user: savedUser });
-        await userRepository.delete({ id: savedUser.id });
+        await Promise.all([
+          await permissionRepository.delete({ user: savedUser }),
+          await userRepository.delete({ id: savedUser.id }),
+        ]);
 
         return {
           statusCode: 500,
@@ -487,11 +531,14 @@ export const register = async (
           canDelete: permission.canDelete,
         }));
 
-      // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis
-      await setUserInfoByUserIdInRedis(savedUser.id, session);
-      await setUserInfoByEmailInRedis(email, userSessionByEmail);
-      await setUserCountInDBInRedis(userCount + 1);
-      await setUserPermissionsByUserIdInRedis(savedUser.id, userPermissions);
+      // Cache newly register user, user email, user role & his/her permissions for curd, and update use count and role-based user counts in Redis
+      await Promise.all([
+        setUserInfoByUserIdInRedis(savedUser.id, session),
+        setUserInfoByEmailInRedis(email, userSessionByEmail),
+        setUserCountInDBInRedis(userCount + 1),
+        setUserPermissionsByUserIdInRedis(savedUser.id, userPermissions),
+        setTotalUserCountByRoleIdInRedis(role.id, userCountForRole + 1),
+      ]);
 
       return {
         statusCode: 201,

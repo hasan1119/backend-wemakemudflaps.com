@@ -86,6 +86,7 @@ export const resetPassword = async (
       // Optionally: clear expired token
       user.resetPasswordToken = null;
       user.resetPasswordTokenExpiry = null;
+
       await userRepository.save(user);
 
       return {

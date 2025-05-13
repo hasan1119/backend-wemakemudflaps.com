@@ -76,6 +76,7 @@ export const changePassword = async (
 
     // Check Redis for cached user's data
     let userData;
+
     userData = getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
@@ -125,10 +126,14 @@ export const changePassword = async (
       password: hashedNewPassword,
     });
 
-    const roleName =
-      typeof userData.role === "string"
-        ? userData.role
-        : (userData.role as { name: string }).name;
+    // Initiate the empty variable for the user role
+    let roleName;
+
+    if (typeof userData.role !== "string") {
+      roleName = userData.role.name; // Safe update
+    } else {
+      roleName = userData.role; // Direct assignment
+    }
 
     const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
       id: userData.id,

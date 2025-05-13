@@ -104,6 +104,7 @@ export const accountActivation = async (
       }
     );
 
+    // Initiate the empty variable for the user role
     let roleName;
 
     if (typeof user.role !== "string") {
@@ -137,8 +138,10 @@ export const accountActivation = async (
     };
 
     // Cache user for curd in Redis
-    await setUserInfoByEmailInRedis(user.email, userEmailCacheData);
-    await setUserInfoByUserIdInRedis(user.id, userCacheData);
+    await Promise.all([
+      setUserInfoByEmailInRedis(user.email, userEmailCacheData),
+      setUserInfoByUserIdInRedis(user.id, userCacheData),
+    ]);
 
     return {
       statusCode: 200,

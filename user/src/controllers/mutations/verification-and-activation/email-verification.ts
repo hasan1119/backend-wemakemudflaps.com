@@ -153,9 +153,11 @@ export const verifyEmail = async (
     };
 
     // Cache user for curd in Redis with configurable TTL(30 days = 25920000)
-    await setUserTokenInfoByUserIdInRedis(userId, userCacheData, 25920000);
-    await setUserInfoByUserIdInRedis(userId, userCacheData);
-    await setUserInfoByEmailInRedis(user.email, userEmailCacheData);
+    await Promise.all([
+      await setUserTokenInfoByUserIdInRedis(userId, userCacheData, 25920000),
+      await setUserInfoByUserIdInRedis(userId, userCacheData),
+      await setUserInfoByEmailInRedis(user.email, userEmailCacheData),
+    ]);
 
     return {
       statusCode: 200,

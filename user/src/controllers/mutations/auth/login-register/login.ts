@@ -74,6 +74,7 @@ export const login = async (
 
     // Check Redis for cached user's data
     let user;
+
     user = await getUserInfoByEmailInRedis(email);
 
     if (!user) {
@@ -119,13 +120,17 @@ export const login = async (
     // Handle lockout state
     if (lockoutSession) {
       const { lockedAt, duration } = lockoutSession; // Cast to LockoutSession type
+
       const timePassed = Math.floor((Date.now() - lockedAt) / 1000); // Time passed in seconds
+
       const timeLeft = duration - timePassed;
 
       if (timeLeft > 0) {
         // If lock time is remaining, return the time left
         const minutes = Math.floor(timeLeft / 60);
+
         const seconds = timeLeft % 60;
+
         return {
           statusCode: 400,
           success: false,
@@ -141,6 +146,7 @@ export const login = async (
     // Verify password
     if (!(await CompareInfo(password, user.password))) {
       const newAttempts = (await getLoginAttemptsFromRedis(user.email)) + 1;
+
       await setLoginAttemptsInRedis(user.email, newAttempts);
 
       if (newAttempts >= 5) {
@@ -178,6 +184,7 @@ export const login = async (
     // Clear cache login attempts after successful password verification
     await removeLoginAttemptsFromRedis(user.email);
 
+    // Initiate the empty variable for the user role
     let roleName;
 
     if (typeof user.role !== "string") {
@@ -212,8 +219,10 @@ export const login = async (
     };
 
     // Cache user, user session for curd in Redis with configurable TTL(30 days = 25920000)
-    await setUserTokenInfoByUserIdInRedis(user.id, session, 25920000);
-    await setUserInfoByUserIdInRedis(user.id, session);
+    await Promise.all([
+      await setUserTokenInfoByUserIdInRedis(user.id, session, 25920000),
+      await setUserInfoByUserIdInRedis(user.id, session),
+    ]);
 
     return {
       statusCode: 200,
