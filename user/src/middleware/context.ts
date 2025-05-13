@@ -1,5 +1,5 @@
 import { AppDataSource, redis } from "../helper";
-import { getUserTokenInfoByUserIdFromRedis } from "../helper/redis/utils/user/user-session-manage";
+import { getUserTokenInfoByUserIdFromRedis } from "../helper/redis";
 import { UserSession } from "../types";
 import DecodeToken from "../utils/jwt/decode-token";
 

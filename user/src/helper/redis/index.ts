@@ -39,5 +39,5 @@ export {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserTokenByUserIdInRedis,
+  setUserTokenInfoByUserIdInRedis,
 } from "./utils/user/user-session-manage";

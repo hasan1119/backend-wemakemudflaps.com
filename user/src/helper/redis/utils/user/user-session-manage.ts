@@ -100,7 +100,7 @@ export const setUserInfoByUserIdInRedis = async (
 /**
  * Set user token session data in Redis by user ID with optional TTL.
  */
-export const setUserTokenByUserIdInRedis = async (
+export const setUserTokenInfoByUserIdInRedis = async (
   userId: string,
   data: UserSession,
   ttl: number
