@@ -13,9 +13,9 @@ export {
 } from "./utils/password/password-session-manage";
 
 export {
-  getUserPermissionsFromRedis,
+  getUserPermissionsByUserIdFromRedis,
   removeUserPermissionsFromRedis,
-  setUserPermissionsInRedis,
+  setUserPermissionsByUserIdInRedis,
 } from "./utils/permissions/permission-session-manage";
 
 export {

@@ -9,7 +9,9 @@ import {
 } from "../../../helper/redis";
 import {
   ActiveAccountResponseOrError,
+  CachedUserSessionByEmailKeyInputs,
   MutationAccountActivationArgs,
+  UserSession,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
 
@@ -17,7 +19,7 @@ import { idSchema } from "../../../utils/data-validation";
  * Activates a user account using the user ID from the activation link.
  *
  * Steps:
- * - Validates the user ID
+ * - Validates input using Zod schema
  * - Checks Redis for user data to optimize performance via caching
  * - Checks if the user exists
  * - Verifies if the account is already activated
@@ -111,7 +113,7 @@ export const accountActivation = async (
     }
 
     // Update Redis cache
-    const userCacheData = {
+    const userCacheData: UserSession = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -122,7 +124,7 @@ export const accountActivation = async (
       isAccountActivated: true,
     };
 
-    const userEmailCacheData = {
+    const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,

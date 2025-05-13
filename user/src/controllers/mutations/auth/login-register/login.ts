@@ -14,7 +14,12 @@ import {
   setUserInfoByUserIdInRedis,
   setUserTokenInfoByUserIdInRedis,
 } from "../../../../helper/redis";
-import { MutationLoginArgs, UserLoginResponseOrError } from "../../../../types";
+import {
+  CachedUserSessionByEmailKeyInputs,
+  MutationLoginArgs,
+  UserLoginResponseOrError,
+  UserSession,
+} from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import { loginSchema } from "../../../../utils/data-validation";
 import EncodeToken from "../../../../utils/jwt/encode-token";
@@ -67,7 +72,7 @@ export const login = async (
     // Initialize repositories for User entity
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    // Check Redis for cached user's data & permission
+    // Check Redis for cached user's data
     let user;
     user = await getUserInfoByEmailInRedis(email);
 
@@ -92,7 +97,7 @@ export const login = async (
         role: dbUser.role.name,
       };
 
-      const userSessionByEmail = {
+      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: user.id,
         email: user.email,
         firstName: user.firstName,
@@ -195,7 +200,7 @@ export const login = async (
     );
 
     // Create and store session
-    const session = {
+    const session: UserSession = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -218,10 +223,7 @@ export const login = async (
       __typename: "UserLoginResponse",
     };
   } catch (error: any) {
-    // Log the error for debugging purposes
     console.error("Error logging in user:", error);
-
-    // Return a detailed error message if available, otherwise a generic one
     return {
       statusCode: 500,
       success: false,

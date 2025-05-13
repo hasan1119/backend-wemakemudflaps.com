@@ -5,7 +5,7 @@ import {
   getUserInfoByUserIdFromRedis,
   setUserInfoByUserIdInRedis,
 } from "../../../helper/redis";
-import { GetProfileResponseOrError } from "../../../types";
+import { GetProfileResponseOrError, UserSession } from "../../../types";
 
 /**
  * Retrieves the authenticated user's profile data, including their role name.
@@ -16,7 +16,7 @@ import { GetProfileResponseOrError } from "../../../types";
  *
  * @param _ - Unused GraphQL parent argument
  * @param __ - Unused GraphQL argument
- * @param context - Application context containing AppDataSource and user
+ * @param context - GraphQL context with AppDataSource and user info
  * @returns Promise<GetProfileResponseOrError> - User details with role name or error response
  */
 export const getProfile = async (
@@ -25,7 +25,7 @@ export const getProfile = async (
   { AppDataSource, user }: Context
 ): Promise<GetProfileResponseOrError> => {
   try {
-    if (!user || !user.id) {
+    if (!user) {
       return {
         statusCode: 401,
         success: false,
@@ -56,7 +56,7 @@ export const getProfile = async (
         };
       }
 
-      const userData = {
+      const userData: UserSession = {
         id: dbUser.id,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,

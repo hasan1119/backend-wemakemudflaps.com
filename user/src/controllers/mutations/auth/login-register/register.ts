@@ -18,9 +18,16 @@ import {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserPermissionsInRedis,
+  setUserPermissionsByUserIdInRedis,
 } from "../../../../helper/redis";
-import { BaseResponseOrError, MutationRegisterArgs } from "../../../../types";
+import {
+  BaseResponseOrError,
+  CachedRoleInputs,
+  CachedUserPermissionsInputs,
+  CachedUserSessionByEmailKeyInputs,
+  MutationRegisterArgs,
+  UserSession,
+} from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
 import { registerSchema } from "../../../../utils/data-validation";
 import SendEmail from "../../../../utils/email/send-email";
@@ -163,11 +170,11 @@ export const register = async (
         }
 
         // Create a new session for user role
-        const roleSession = {
+        const roleSession: CachedRoleInputs = {
           id: role.id,
           name: role.name,
           description: role.description,
-          createdBy: role.createdBy,
+          createdBy: role.CreatedBy,
           createdAt: role.createdAt,
           deletedAt: role.deletedAt,
         };
@@ -238,7 +245,7 @@ export const register = async (
       }
 
       // Create a new session for the user
-      const session = {
+      const session: UserSession = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -249,7 +256,7 @@ export const register = async (
         isAccountActivated: savedUser.isAccountActivated,
       };
 
-      const userSessionByEmail = {
+      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -261,21 +268,22 @@ export const register = async (
         password: savedUser.password,
       };
 
-      const userPermissions = fullPermissions.map((permission) => ({
-        id: permission.id,
-        name: permission.name,
-        description: permission.description,
-        canCreate: permission.canCreate,
-        canRead: permission.canRead,
-        canUpdate: permission.canUpdate,
-        canDelete: permission.canDelete,
-      }));
+      const userPermissions: CachedUserPermissionsInputs[] =
+        fullPermissions.map((permission) => ({
+          id: permission.id,
+          name: permission.name,
+          description: permission.description,
+          canCreate: permission.canCreate,
+          canRead: permission.canRead,
+          canUpdate: permission.canUpdate,
+          canDelete: permission.canDelete,
+        }));
 
       // Cache newly register user, user role & his/her permissions for curd, and update the userCount in Redis
       await setUserInfoByUserIdInRedis(savedUser.id, session);
       await setUserInfoByEmailInRedis(email, userSessionByEmail);
       await setUserCountInDBInRedis(userCount + 1);
-      await setUserPermissionsInRedis(savedUser.id, userPermissions);
+      await setUserPermissionsByUserIdInRedis(savedUser.id, userPermissions);
 
       return {
         statusCode: 201,
@@ -306,7 +314,7 @@ export const register = async (
         }
 
         // Create a new session for user role
-        const roleSession = {
+        const roleSession: CachedRoleInputs = {
           id: role.id,
           name: role.name,
           description: role.description,
@@ -443,7 +451,7 @@ export const register = async (
       }
 
       // Create a new session for the user
-      const session = {
+      const session: UserSession = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -454,7 +462,7 @@ export const register = async (
         isAccountActivated: savedUser.isAccountActivated,
       };
 
-      const userSessionByEmail = {
+      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
         email: savedUser.email,
         firstName: savedUser.firstName,
@@ -466,21 +474,22 @@ export const register = async (
         password: savedUser.password,
       };
 
-      const userPermissions = fullPermissions.map((permission) => ({
-        id: permission.id,
-        name: permission.name,
-        description: permission.description,
-        canCreate: permission.canCreate,
-        canRead: permission.canRead,
-        canUpdate: permission.canUpdate,
-        canDelete: permission.canDelete,
-      }));
+      const userPermissions: CachedUserPermissionsInputs[] =
+        fullPermissions.map((permission) => ({
+          id: permission.id,
+          name: permission.name,
+          description: permission.description,
+          canCreate: permission.canCreate,
+          canRead: permission.canRead,
+          canUpdate: permission.canUpdate,
+          canDelete: permission.canDelete,
+        }));
 
       // Cache newly register user, user email, user role & his/her permissions for curd, and update useCount in Redis
       await setUserInfoByUserIdInRedis(savedUser.id, session);
       await setUserInfoByEmailInRedis(email, userSessionByEmail);
       await setUserCountInDBInRedis(userCount + 1);
-      await setUserPermissionsInRedis(savedUser.id, userPermissions);
+      await setUserPermissionsByUserIdInRedis(savedUser.id, userPermissions);
 
       return {
         statusCode: 201,

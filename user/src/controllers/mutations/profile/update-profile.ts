@@ -12,8 +12,10 @@ import {
   setUserTokenInfoByUserIdInRedis,
 } from "../../../helper/redis";
 import {
+  CachedUserSessionByEmailKeyInputs,
   MutationUpdateProfileArgs,
   UserProfileUpdateResponseOrError,
+  UserSession,
 } from "../../../types";
 import { updateProfileSchema } from "../../../utils/data-validation";
 import SendEmail from "../../../utils/email/send-email";
@@ -32,7 +34,7 @@ import EncodeToken from "../../../utils/jwt/encode-token";
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Arguments for update user profile ( firstName, lastName, email, gender )
- * @param context - Application context containing AppDataSource and user
+ * @param context - GraphQL context with AppDataSource and user info
  * @returns Promise<UserProfileUpdateResponseOrError> - Response status and message
  */
 export const updateProfile = async (
@@ -183,7 +185,7 @@ export const updateProfile = async (
       "30d" // Set the token expiration time
     );
 
-    const session = {
+    const session: UserSession = {
       id: updatedUser.id,
       email: updatedUser.email,
       firstName: updatedUser.firstName,
@@ -194,7 +196,7 @@ export const updateProfile = async (
       isAccountActivated: updatedUser.isAccountActivated,
     };
 
-    const userEmailCacheData = {
+    const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
       id: updatedUser.id,
       email: updatedUser.email,
       firstName: updatedUser.firstName,
@@ -228,10 +230,7 @@ export const updateProfile = async (
       __typename: "UserProfileUpdateResponse",
     };
   } catch (error: any) {
-    // Log the error for debugging purposes
     console.error("Error updating user profile:", error);
-
-    // Return a detailed error message if available, otherwise a generic one
     return {
       statusCode: 500,
       success: false,

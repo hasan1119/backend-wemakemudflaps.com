@@ -67,8 +67,8 @@ export type CreatedBy = {
   __typename?: 'CreatedBy';
   email?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  name?: Maybe<Scalars['String']['output']>;
-  role?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  role: Scalars['String']['output'];
 };
 
 export type EmailVerificationResponse = {
@@ -571,8 +571,8 @@ export type CachedUserSessionByEmailKeyInputsResolvers<ContextType = Context, Pa
 export type CreatedByResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatedBy'] = ResolversParentTypes['CreatedBy']> = {
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  role?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

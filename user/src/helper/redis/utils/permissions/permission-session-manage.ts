@@ -13,7 +13,7 @@ const PREFIX = {
 /**
  * Set user permissions data in Redis by user ID.
  */
-export const setUserPermissionsInRedis = async (
+export const setUserPermissionsByUserIdInRedis = async (
   userId: string,
   permissions: CachedUserPermissionsInputs[]
 ): Promise<void> => {
@@ -27,7 +27,7 @@ export const setUserPermissionsInRedis = async (
 /**
  * Get user permissions data from Redis by user ID.
  */
-export const getUserPermissionsFromRedis = async (
+export const getUserPermissionsByUserIdFromRedis = async (
   userId: string
 ): Promise<CachedUserPermissionsInputs[] | null> => {
   return redis.getSession<CachedUserPermissionsInputs[] | null>(

@@ -8,8 +8,10 @@ import {
   setUserTokenInfoByUserIdInRedis,
 } from "../../../helper/redis";
 import {
+  CachedUserSessionByEmailKeyInputs,
   EmailVerificationResponseOrError,
   MutationVerifyEmailArgs,
+  UserSession,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
 import EncodeToken from "../../../utils/jwt/encode-token";
@@ -18,7 +20,7 @@ import EncodeToken from "../../../utils/jwt/encode-token";
  * Verifies a user's email using the user ID from the verification link.
  *
  * Steps:
- * - Validates the user ID
+ * - Validates input using Zod schema
  * - Checks if the user exists
  * - Verifies if the email is already verified
  * - Updates the user's emailVerified status
@@ -127,7 +129,7 @@ export const verifyEmail = async (
     );
 
     // Update Redis cache
-    const userCacheData = {
+    const userCacheData: UserSession = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
@@ -138,7 +140,7 @@ export const verifyEmail = async (
       isAccountActivated: user.isAccountActivated,
     };
 
-    const userEmailCacheData = {
+    const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,

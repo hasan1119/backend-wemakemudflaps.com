@@ -4,6 +4,7 @@ import { User } from "../../../../entities/user.entity";
 import { setUserInfoByEmailInRedis } from "../../../../helper/redis";
 import {
   BaseResponseOrError,
+  CachedUserSessionByEmailKeyInputs,
   MutationResetPasswordArgs,
 } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
@@ -103,7 +104,7 @@ export const resetPassword = async (
 
     const updatedUser = await userRepository.save(user);
 
-    const userSessionByEmail = {
+    const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
       id: updatedUser.id,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,

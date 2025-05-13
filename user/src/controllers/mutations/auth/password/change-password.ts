@@ -7,6 +7,7 @@ import {
 } from "../../../../helper/redis";
 import {
   BaseResponseOrError,
+  CachedUserSessionByEmailKeyInputs,
   MutationChangePasswordArgs,
 } from "../../../../types";
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
@@ -38,6 +39,16 @@ export const changePassword = async (
   const { oldPassword, newPassword } = args;
 
   try {
+    // Check if user is authenticated
+    if (!user) {
+      return {
+        statusCode: 401,
+        success: false,
+        message: "You're not authenticated",
+        __typename: "BaseResponse",
+      };
+    }
+
     // Validate input data using Zod schema for the change password operation
     const validationResult = await changePasswordSchema.safeParseAsync({
       oldPassword,
@@ -57,16 +68,6 @@ export const changePassword = async (
         message: "Validation failed",
         errors: errorMessages,
         __typename: "ErrorResponse",
-      };
-    }
-
-    // Use the user from the context (already authenticated user)
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
       };
     }
 
@@ -129,7 +130,7 @@ export const changePassword = async (
         ? userData.role
         : (userData.role as { name: string }).name;
 
-    const userSessionByEmail = {
+    const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
       id: userData.id,
       email: userData.email,
       firstName: userData.firstName,
@@ -152,10 +153,7 @@ export const changePassword = async (
       __typename: "BaseResponse",
     };
   } catch (error: any) {
-    // Log the error for debugging purposes
     console.error("Error changing password:", error);
-
-    // Return a detailed error message if available, otherwise a generic one
     return {
       statusCode: 500,
       success: false,

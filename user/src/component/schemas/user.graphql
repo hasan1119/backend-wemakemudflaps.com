@@ -30,9 +30,9 @@ type BaseResponse {
 # Type for the createdBy.
 type CreatedBy {
   id: ID!
-  name: String
+  name: String!
   email: String
-  role: String
+  role: String!
 }
 
 # ---------------------- Permission Types ----------------------
