@@ -18,10 +18,11 @@ import { idSchema } from "../../../utils/data-validation";
  *
  * Steps:
  * - Validates the user ID
+ * - Checks Redis for user data to optimize performance via caching
  * - Checks if the user exists
  * - Verifies if the account is already activated
  * - Updates the user's isAccountActivated status
- * - Updates Redis cache with the new user data
+ * - Updates necessary user data in redis for future request
  *
  * @param _ - Unused GraphQL parent argument
  * @param args - Activation arguments (userId)
