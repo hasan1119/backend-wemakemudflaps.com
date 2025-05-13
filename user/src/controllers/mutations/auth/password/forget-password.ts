@@ -27,6 +27,7 @@ interface LockoutSession {
  *
  * Steps:
  * - Validates input using Zod schema
+ * - Checks Redis for user data to optimize performance via caching
  * - Checks if the user exists
  * - Generates a password reset token and saves it to the user
  * - Sends a password reset email with a reset link
