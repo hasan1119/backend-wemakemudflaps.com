@@ -105,7 +105,7 @@ export const setTotalUserCountByRoleIdInRedis = async (
   roleId: string,
   count: number
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.ROLE_USER_COUNT}${roleId}`, count);
+  await redis.setSession(`${PREFIX.ROLE_USER_COUNT}${roleId}`, count.toString());
 };
 
 //
