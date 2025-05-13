@@ -9,11 +9,13 @@ import { Role } from "../../../../entities/user-role.entity";
 import { User } from "../../../../entities/user.entity";
 import {
   getRoleInfoByRoleNameFromRedis,
+  getTotalUserCountByRoleIdFromRedis,
   getUserCountInDBFromRedis,
   getUserEmailFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
+  setTotalUserCountByRoleIdInRedis,
   setUserCountInDBInRedis,
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
