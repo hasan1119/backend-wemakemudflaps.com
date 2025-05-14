@@ -55,7 +55,7 @@ export const updateProfile = async (
       };
     }
 
-    // Validate input data using Zod schema for update profile
+    // Validate input data using Zod
     const validationResult = await updateProfileSchema.safeParseAsync({
       firstName,
       lastName,

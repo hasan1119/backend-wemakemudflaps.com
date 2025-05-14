@@ -49,7 +49,7 @@ export const changePassword = async (
       };
     }
 
-    // Validate input data using Zod schema for the change password operation
+    // Validate input data using Zod schema
     const validationResult = await changePasswordSchema.safeParseAsync({
       oldPassword,
       newPassword,
@@ -82,7 +82,7 @@ export const changePassword = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { email: user.email },
+        where: { id: user.id, email: user.email },
         relations: ["role"],
       });
 

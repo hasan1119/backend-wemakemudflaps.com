@@ -36,9 +36,10 @@ export const getProfile = async (
     }
 
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    let userExist: any = null;
 
     // Check Redis for cached user data
+    let userExist;
+
     userExist = await getUserInfoByUserIdFromRedis(user.id);
 
     // Check the user exists or not

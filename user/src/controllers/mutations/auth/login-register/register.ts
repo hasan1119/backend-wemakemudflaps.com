@@ -90,6 +90,7 @@ export const register = async (
       gender,
     });
 
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
         field: error.path.join("."),

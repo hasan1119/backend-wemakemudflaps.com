@@ -91,14 +91,14 @@ export const deleteUserRoleFromTrash = async (
       };
 
       const userSession: UserSession = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: dbUser.role.name,
-        gender: user.gender,
-        emailVerified: user.emailVerified,
-        isAccountActivated: user.isAccountActivated,
+        id: userData.id,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        role: userData.role.name,
+        gender: userData.gender,
+        emailVerified: userData.emailVerified,
+        isAccountActivated: userData.isAccountActivated,
       };
 
       // Cache user in Redis
@@ -155,6 +155,7 @@ export const deleteUserRoleFromTrash = async (
     // Validate input data using Zod schema
     const idsResult = await idsSchema.safeParseAsync({ ids });
 
+    // If validation fails, return detailed error messages with field names
     if (!idsResult.success) {
       const errors = idsResult.error.errors.map((e) => ({
         field: e.path.join("."),
