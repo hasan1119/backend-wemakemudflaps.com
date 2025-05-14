@@ -207,7 +207,10 @@ input UpdateUserPermissionInput {
 
 # Mutation responses can be either a success or an error.
 union BaseResponseOrError = BaseResponse | ErrorResponse
-union UserLoginResponseOrError = UserLoginResponse | ErrorResponse
+union UserLoginResponseOrError =
+    BaseResponse
+  | UserLoginResponse
+  | ErrorResponse
 union UserProfileUpdateResponseOrError =
     UserProfileUpdateResponse
   | ErrorResponse

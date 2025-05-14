@@ -13,6 +13,7 @@ import {
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
 import { changePasswordSchema } from "../../../../utils/data-validation";
+import { checkUserAuth } from "../../../../utils/session-check/session-check";
 
 /**
  * Allows an authenticated user to change their password.
@@ -39,15 +40,9 @@ export const changePassword = async (
   const { oldPassword, newPassword } = args;
 
   try {
-    // Check if user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
-      };
-    }
+    // Check user authentication
+    const authResponse = checkUserAuth(user);
+    if (authResponse) return authResponse;
 
     // Validate input data using Zod schema
     const validationResult = await changePasswordSchema.safeParseAsync({

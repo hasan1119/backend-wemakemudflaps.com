@@ -316,7 +316,7 @@ export type UserLoginResponse = {
   token: Scalars['String']['output'];
 };
 
-export type UserLoginResponseOrError = ErrorResponse | UserLoginResponse;
+export type UserLoginResponseOrError = BaseResponse | ErrorResponse | UserLoginResponse;
 
 export type UserProfileUpdateResponse = {
   __typename?: 'UserProfileUpdateResponse';
@@ -448,7 +448,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   GetRolesResponseOrError: ( ErrorResponse ) | ( RolesResponse );
   GetUserByIDResponseOrError: ( ErrorResponse ) | ( UserResponse );
   GetUsersResponseOrError: ( ErrorResponse ) | ( UsersResponse );
-  UserLoginResponseOrError: ( ErrorResponse ) | ( UserLoginResponse );
+  UserLoginResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserLoginResponse );
   UserProfileUpdateResponseOrError: ( ErrorResponse ) | ( UserProfileUpdateResponse );
 };
 
@@ -728,7 +728,7 @@ export type UserLoginResponseResolvers<ContextType = Context, ParentType extends
 };
 
 export type UserLoginResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserLoginResponseOrError'] = ResolversParentTypes['UserLoginResponseOrError']> = {
-  __resolveType: TypeResolveFn<'ErrorResponse' | 'UserLoginResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserLoginResponse', ParentType, ContextType>;
 };
 
 export type UserProfileUpdateResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserProfileUpdateResponse'] = ResolversParentTypes['UserProfileUpdateResponse']> = {

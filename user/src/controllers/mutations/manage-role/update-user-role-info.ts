@@ -20,6 +20,7 @@ import {
 } from "../../../types";
 import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { userRoleSchema } from "../../../utils/data-validation";
+import { checkUserAuth } from "../../../utils/session-check/session-check";
 import { CachedRoleInputs } from "./../../../types";
 
 /**
@@ -47,15 +48,9 @@ export const updateUserRoleInfo = async (
   const { id, name, description, password } = args;
 
   try {
-    // Check if user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
-      };
-    }
+    // Check user authentication
+    const authResponse = checkUserAuth(user);
+    if (authResponse) return authResponse;
 
     // Initialize repositories for Role, User, and Permission entities
     const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);

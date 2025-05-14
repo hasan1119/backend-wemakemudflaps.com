@@ -30,6 +30,7 @@ import {
 import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { idsSchema } from "../../../utils/data-validation";
 import { skipTrashSchema } from "../../../utils/data-validation/common/common";
+import { checkUserAuth } from "../../../utils/session-check/session-check";
 import { CachedRoleInputs } from "./../../../types";
 
 /**
@@ -56,15 +57,9 @@ export const deleteUserRole = async (
   const { ids, skipTrash, password } = args;
 
   try {
-    // Check if user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
-      };
-    }
+    // Check user authentication
+    const authResponse = checkUserAuth(user);
+    if (authResponse) return authResponse;
 
     // Initialize repositories for Role, User, and Permission entities
     const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);

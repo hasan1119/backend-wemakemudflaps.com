@@ -20,6 +20,7 @@ import {
   UserSession,
 } from "../../../types";
 import { userRoleSchema } from "../../../utils/data-validation";
+import { checkUserAuth } from "../../../utils/session-check/session-check";
 
 /**
  * Creates a new user role in the system.
@@ -45,15 +46,9 @@ export const createUserRole = async (
   const { name, description } = args;
 
   try {
-    // Check if user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
-      };
-    }
+    // Check user authentication
+    const authResponse = checkUserAuth(user);
+    if (authResponse) return authResponse;
 
     // Initialize repositories for Role, Permission, and User entities
     const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
