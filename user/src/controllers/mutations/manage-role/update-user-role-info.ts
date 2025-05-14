@@ -11,6 +11,7 @@ import {
   setUserInfoByEmailInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
+import { removeUserTokenInfoByUserFromRedis } from "../../../helper/redis/utils/user/user-session-manage";
 import {
   BaseResponseOrError,
   CachedUserPermissionsInputs,
@@ -305,8 +306,17 @@ export const updateUserRoleInfo = async (
       },
     };
 
-    // Cache updated role in Redis
-    await setRoleInfoByRoleIdInRedis(id, updatedRoleSession);
+    // Fetch users with this role to invalidate their tokens
+    const users = await userRepository.find({
+      where: { role: { id }, deletedAt: null },
+      select: { id: true },
+    });
+
+    // Cache updated role and remove user tokens concurrently
+    await Promise.all([
+      ...users.map((user) => removeUserTokenInfoByUserFromRedis(user.id)),
+      setRoleInfoByRoleIdInRedis(id, updatedRoleSession),
+    ]);
 
     return {
       statusCode: 200,

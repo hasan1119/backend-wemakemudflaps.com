@@ -16,6 +16,7 @@ import {
   setUserInfoByUserIdInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
+import { removeUserTokenInfoByUserFromRedis } from "../../../helper/redis/utils/user/user-session-manage";
 import {
   BaseResponseOrError,
   CachedUserPermissionsInputs,
@@ -515,8 +516,11 @@ export const updateUserRole = async (
           canDelete: permission.canDelete,
         }));
 
-      // Cache updated permissions in Redis
-      await setUserPermissionsByUserIdInRedis(userId, cachedPermissions);
+      // Cache updated for user permission and remove user token from the Redis
+      await Promise.all([
+        await setUserPermissionsByUserIdInRedis(userId, cachedPermissions),
+        await removeUserTokenInfoByUserFromRedis(userId),
+      ]);
     }
 
     // Fetch the updated user with required relations
