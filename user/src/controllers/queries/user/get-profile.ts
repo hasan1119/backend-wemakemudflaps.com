@@ -6,6 +6,7 @@ import {
   setUserInfoByUserIdInRedis,
 } from "../../../helper/redis";
 import { GetProfileResponseOrError, UserSession } from "../../../types";
+import { checkUserAuth } from "../../../utils/session-check/session-check";
 
 /**
  * Retrieves the authenticated user's profile data, including their role name.
@@ -25,20 +26,15 @@ export const getProfile = async (
   { AppDataSource, user }: Context
 ): Promise<GetProfileResponseOrError> => {
   try {
-    // Ensure the user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
-      };
-    }
+    // Check user authentication
+    const authResponse = checkUserAuth(user);
+    if (authResponse) return authResponse;
 
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    let userExist: any = null;
 
     // Check Redis for cached user data
+    let userExist;
+
     userExist = await getUserInfoByUserIdFromRedis(user.id);
 
     // Check the user exists or not
@@ -84,6 +80,7 @@ export const getProfile = async (
     };
   } catch (error: any) {
     console.error("Error to get profile:", error);
+
     return {
       statusCode: 500,
       success: false,

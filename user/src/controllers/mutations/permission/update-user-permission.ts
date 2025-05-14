@@ -242,7 +242,7 @@
 //   const { getSession, setSession, deleteSession } = redis;
 
 //   try {
-//     // Check if user is authenticated
+//
 //     if (!user) {
 //       return {
 //         statusCode: 401,
@@ -289,6 +289,15 @@
 //       // Cache miss: Fetch permissions from database, selecting only necessary fields
 //       userPermissions = await permissionRepository.find({
 //         where: { user: { id: user.id } },
+//           select: {
+//             id: true,
+//             name: true,
+//             description: true,
+//             canCreate: true,
+//             canRead: true,
+//             canUpdate: true,
+//             canDelete: true,
+//           },
 //       });
 
 //       // Cache permissions in Redis
@@ -514,6 +523,7 @@
 //       };
 //     }
 //   } catch (error: any) {
+
 //     console.error("Update user permissions error:", error);
 //     return {
 //       statusCode: 500,

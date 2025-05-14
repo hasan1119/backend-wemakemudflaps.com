@@ -42,7 +42,7 @@ import EncodeToken from "../../../../utils/jwt/encode-token";
 export const login = async (
   _: any,
   args: MutationLoginArgs,
-  { redis, AppDataSource }: Context
+  { AppDataSource }: Context
 ): Promise<UserLoginResponseOrError> => {
   const { email, password } = args;
 
@@ -80,7 +80,7 @@ export const login = async (
     console.log("object", user);
 
     if (!user) {
-      // Fetch user from database
+      // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
         where: { email },
         relations: ["role"],
@@ -105,7 +105,7 @@ export const login = async (
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: dbUser.role.name,
+        role: user.role.name,
         gender: user.gender,
         emailVerified: user.emailVerified,
         isAccountActivated: user.isAccountActivated,
@@ -238,6 +238,7 @@ export const login = async (
     };
   } catch (error: any) {
     console.error("Error logging in user:", error);
+
     return {
       statusCode: 500,
       success: false,

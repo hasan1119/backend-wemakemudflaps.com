@@ -47,8 +47,10 @@ export const forgetPassword = async (
   const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
   try {
+    // Validate input data using Zod schema
     const validationResult = await emailSchema.safeParseAsync({ email });
 
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
         field: error.path.join("."),
@@ -95,7 +97,7 @@ export const forgetPassword = async (
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: dbUser.role.name,
+        role: user.role.name,
         gender: user.gender,
         emailVerified: user.emailVerified,
         isAccountActivated: user.isAccountActivated,
@@ -169,6 +171,7 @@ export const forgetPassword = async (
     };
   } catch (error: any) {
     console.error("Forget password error:", error);
+
     return {
       statusCode: 500,
       success: false,

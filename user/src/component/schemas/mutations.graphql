@@ -53,13 +53,29 @@ type Mutation {
   # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
   updateUserRole(
     roleId: String! # The ID of the new role to assign.
-    userId: String # The unique ID of the user whose role is to be updated.
+    userId: String! # The unique ID of the user whose role is to be updated.
+    password: String # Password required for non-SUPER ADMIN users.
   ): BaseResponseOrError! # Returns success or failure of the role update.
-  # Delete a user role by ID.
+  # Soft delete a user role by ID.
   # This mutation allows authorized users (admins or super admins) to delete a user role by providing the unique ID.
   # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
   deleteUserRole(
-    id: ID! # The unique ID of the user role to be deleted.
+    ids: [ID!]! # The unique IDs of the user roles to be soft-deleted.
+    skipTrash: Boolean! # If true, permanently deletes instead of soft deleting
+    password: String # Password required for non-SUPER ADMIN users.
+  ): BaseResponseOrError! # Returns success or failure of the role deletion.
+  # Restore a soft-deleted user role by ID.
+  # This mutation allows authorized users (admins or super admins) to restore a soft-deleted user role by providing the unique IDs.
+  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+  restoreUserRole(
+    ids: [ID!]! # The unique IDs of the user roles to be restored.
+  ): BaseResponseOrError! # Returns success or failure of the role restoration.
+  # Permanently delete a soft-deleted user role from the trash by ID.
+  # This mutation allows authorized users (admins or super admins) to permanently delete a soft-deleted user role by providing the unique IDs.
+  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+  deleteUserRoleFromTrash(
+    ids: [ID!]! # The unique IDs of the soft-deleted user roles to be permanently deleted.
+    password: String # Password required for non-SUPER ADMIN users.
   ): BaseResponseOrError! # Returns success or failure of the role deletion.
   # Create a new user role.
   # This mutation allows authorized users (admins or super admins) to create new roles for other users.
@@ -75,6 +91,7 @@ type Mutation {
     id: ID! # The unique ID of the user role to be updated.
     name: String! # The name of the new user role.
     description: String # The description associated with the role (optional).
+    password: String # Password required for non-SUPER ADMIN users.
   ): BaseResponseOrError! # Returns success or failure of role update.
   # Update existing user permissions for CRUD operations.
   # This mutation allows authorized users (admins or super admins) to update existing permissions for other users.

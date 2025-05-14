@@ -90,6 +90,7 @@ export const register = async (
       gender,
     });
 
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
         field: error.path.join("."),
@@ -194,7 +195,7 @@ export const register = async (
           description: role.description,
           createdBy: role.createdBy,
           createdAt: role.createdAt.toIsoString(),
-          deletedAt: role.deletedAt.toIsoString(),
+          deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
         };
 
         // Cache user role info in Redis
@@ -360,8 +361,8 @@ export const register = async (
           name: role.name,
           description: role.description,
           createdBy: role.createdBy,
-          createdAt: role?.createdAt instanceof Date ? role.createdAt.toISOString() : new Date().toISOString(),
-          deletedAt: role?.deletedAt instanceof Date ? role.deletedAt.toISOString() : new Date().toISOString(),
+          createdAt: role.createdAt.toIsoString(),
+          deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
         };
 
         // Cache user role info in Redis
@@ -550,6 +551,7 @@ export const register = async (
     }
   } catch (error: any) {
     console.error("Error registering user:", error);
+
     return {
       statusCode: 500,
       success: false,

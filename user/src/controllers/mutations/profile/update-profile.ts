@@ -20,6 +20,7 @@ import {
 import { updateProfileSchema } from "../../../utils/data-validation";
 import SendEmail from "../../../utils/email/send-email";
 import EncodeToken from "../../../utils/jwt/encode-token";
+import { checkUserAuth } from "../../../utils/session-check/session-check";
 
 /**
  * Allows the user to update their account information.
@@ -45,17 +46,11 @@ export const updateProfile = async (
   const { firstName, lastName, email, gender } = args;
 
   try {
-    // Ensure the user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "ErrorResponse",
-      };
-    }
+    // Check user authentication
+    const authResponse = checkUserAuth(user);
+    if (authResponse) return authResponse;
 
-    // Validate input data using Zod schema for update profile
+    // Validate input data using Zod
     const validationResult = await updateProfileSchema.safeParseAsync({
       firstName,
       lastName,
@@ -240,6 +235,7 @@ export const updateProfile = async (
     };
   } catch (error: any) {
     console.error("Error updating user profile:", error);
+
     return {
       statusCode: 500,
       success: false,

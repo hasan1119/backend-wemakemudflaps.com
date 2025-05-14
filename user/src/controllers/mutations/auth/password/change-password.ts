@@ -13,6 +13,7 @@ import {
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
 import { changePasswordSchema } from "../../../../utils/data-validation";
+import { checkUserAuth } from "../../../../utils/session-check/session-check";
 
 /**
  * Allows an authenticated user to change their password.
@@ -39,17 +40,11 @@ export const changePassword = async (
   const { oldPassword, newPassword } = args;
 
   try {
-    // Check if user is authenticated
-    if (!user) {
-      return {
-        statusCode: 401,
-        success: false,
-        message: "You're not authenticated",
-        __typename: "BaseResponse",
-      };
-    }
+    // Check user authentication
+    const authResponse = checkUserAuth(user);
+    if (authResponse) return authResponse;
 
-    // Validate input data using Zod schema for the change password operation
+    // Validate input data using Zod schema
     const validationResult = await changePasswordSchema.safeParseAsync({
       oldPassword,
       newPassword,
@@ -80,9 +75,9 @@ export const changePassword = async (
     userData = getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
-      // Fetch user from database
+      // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { email: user.email },
+        where: { id: user.id, email: user.email },
         relations: ["role"],
       });
 
@@ -159,6 +154,7 @@ export const changePassword = async (
     };
   } catch (error: any) {
     console.error("Error changing password:", error);
+
     return {
       statusCode: 500,
       success: false,

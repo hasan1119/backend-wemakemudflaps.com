@@ -33,7 +33,7 @@
 //   const { getSession, setSession } = redis;
 
 //   try {
-//     // Check if user is authenticated
+//
 //     if (!user) {
 //       return {
 //         statusCode: 401,
@@ -81,6 +81,15 @@
 //       // Cache miss: Fetch permissions from database, selecting only necessary fields
 //       userPermissions = await permissionRepository.find({
 //         where: { user: { id: user.id } },
+//           select: {
+//             id: true,
+//             name: true,
+//             description: true,
+//             canCreate: true,
+//             canRead: true,
+//             canUpdate: true,
+//             canDelete: true,
+//           },
 //       });
 
 //       // Cache permissions in Redis
@@ -107,7 +116,7 @@
 //     // Validate input data using Zod schema
 //     const validationResult = await idSchema.safeParseAsync({ id });
 
-//     // If validation fails, return detailed error messages
+//     // If validation fails, return detailed error messages with field names
 //     if (!validationResult.success) {
 //       const errorMessages = validationResult.error.errors.map((error) => ({
 //         field: error.path.join("."),

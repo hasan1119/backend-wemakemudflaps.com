@@ -36,11 +36,13 @@ export const resetPassword = async (
   const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
   try {
+    // Validate input data using Zod schema
     const validationResult = await resetPasswordSchema.safeParseAsync({
       token,
       newPassword,
     });
 
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
         field: error.path.join("."),
@@ -128,6 +130,7 @@ export const resetPassword = async (
     };
   } catch (error: any) {
     console.error("Reset password error:", error);
+
     return {
       statusCode: 500,
       success: false,

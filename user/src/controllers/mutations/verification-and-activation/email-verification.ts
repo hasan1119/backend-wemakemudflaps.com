@@ -44,7 +44,7 @@ export const verifyEmail = async (
       id: userId,
     });
 
-    // If validation fails, return detailed error messages
+    // If validation fails, return detailed error messages with field names
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
         field: error.path.join("."),
@@ -168,6 +168,7 @@ export const verifyEmail = async (
     };
   } catch (error: any) {
     console.error("Error verifying email:", error);
+
     return {
       statusCode: 500,
       success: false,

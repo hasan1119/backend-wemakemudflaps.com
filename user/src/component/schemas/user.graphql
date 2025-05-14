@@ -31,7 +31,6 @@ type BaseResponse {
 type CreatedBy {
   id: ID!
   name: String!
-  email: String
   role: String!
 }
 
@@ -208,9 +207,13 @@ input UpdateUserPermissionInput {
 
 # Mutation responses can be either a success or an error.
 union BaseResponseOrError = BaseResponse | ErrorResponse
-union UserLoginResponseOrError = UserLoginResponse | ErrorResponse
+union UserLoginResponseOrError =
+    BaseResponse
+  | UserLoginResponse
+  | ErrorResponse
 union UserProfileUpdateResponseOrError =
-    UserProfileUpdateResponse
+    BaseResponse
+  | UserProfileUpdateResponse
   | ErrorResponse
 union EmailVerificationResponseOrError =
     EmailVerificationResponse
@@ -218,8 +221,8 @@ union EmailVerificationResponseOrError =
 union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 
 # Query response can be either a success or an error.
-union GetProfileResponseOrError = BaseResponse | UserResponse
-union GetRoleByIDResponseOrError = BaseResponse | RoleResponse | ErrorResponse
+union GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse
+union GetRoleByIDResponseOrError = BaseResponse | ErrorResponse | RoleResponse
 union GetUserByIDResponseOrError = UserResponse | ErrorResponse
 union GetUsersResponseOrError = UsersResponse | ErrorResponse
 union GetRolesResponseOrError = RolesResponse | ErrorResponse
