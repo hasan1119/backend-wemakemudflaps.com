@@ -231,6 +231,15 @@
 //       // Cache miss: Fetch permissions from database, selecting only necessary fields
 //       userPermissions = await permissionRepository.find({
 //         where: { user: { id: user.id } },
+//         select: {
+//           id: true,
+//           name: true,
+//           description: true,
+//           canCreate: true,
+//           canRead: true,
+//           canUpdate: true,
+//           canDelete: true,
+//         },
 //       });
 
 //       // Cache permissions in Redis
@@ -366,6 +375,15 @@
 //         // Cache miss: Fetch permissions from database, selecting only necessary fields
 //         targetUserPermissions = await permissionRepository.find({
 //           where: { user: { id: userId } },
+//           select: {
+//             id: true,
+//             name: true,
+//             description: true,
+//             canCreate: true,
+//             canRead: true,
+//             canUpdate: true,
+//             canDelete: true,
+//           },
 //         });
 
 //         // Cache permissions in Redis

@@ -1,262 +1,327 @@
-// import { Repository } from "typeorm";
-// import { Context } from "../../../context";
-// import { Permission } from "../../../entities/permission.entity";
-// import { Role } from "../../../entities/user-role.entity";
-// import { User } from "../../../entities/user.entity";
-// import {
-//   getSingleUserCacheKey,
-//   getSingleUserPermissionCacheKey,
-//   getSingleUserRoleCacheKey,
-//   getSingleUserRoleNameCacheKey,
-//   getUserRoleCountAssociateCacheKey,
-// } from "../../../helper/redis/session-keys";
-// import {
-//   BaseResponseOrError,
-//   MutationDeleteUserRoleArgs,
-// } from "../../../types";
-// import { idSchema } from "../../../utils/data-validation";
+import { Repository } from "typeorm";
+import { Context } from "../../../context";
+import { Permission } from "../../../entities/permission.entity";
+import { Role } from "../../../entities/user-role.entity";
+import { User } from "../../../entities/user.entity";
+import {
+  getRoleInfoByRoleIdFromRedis,
+  getTotalUserCountByRoleIdFromRedis,
+  getUserPermissionsByUserIdFromRedis,
+  removeRoleInfoByRoleIdFromRedis,
+  removeRoleInfoByRoleNameFromRedis,
+  removeRoleNameExistFromRedis,
+  setRoleInfoByRoleIdInRedis,
+  setRoleNameExistInRedis,
+  setTotalUserCountByRoleIdInRedis,
+  setUserInfoByUserIdInRedis,
+  setUserPermissionsByUserIdInRedis,
+} from "../../../helper/redis";
+import { removeTotalUserCountByRoleIdFromRedis } from "../../../helper/redis/utils/role/role-session-manage";
+import {
+  BaseResponseOrError,
+  CachedUserPermissionsInputs,
+  MutationDeleteUserRoleArgs,
+  UserSession,
+} from "../../../types";
+import { idsSchema } from "../../../utils/data-validation";
+import { skipTrashSchema } from "../../../utils/data-validation/common/common";
+import { CachedRoleInputs } from "./../../../types";
 
-// /**
-//  * Deletes a user role with validation and permission checks.
-//  *
-//  * Steps:
-//  * - Validates input using Zod
-//  * - Authenticates user and checks role delete permission
-//  * - Confirms the role exists and is not protected or in use
-//  * - Performs a soft delete on the role
-//  * - Clears related cache entries
-//  *
-//  * @param _ - Unused parent resolver argument
-//  * @param args - Contains the role ID to delete
-//  * @param context - GraphQL context with AppDataSource, Redis, and user info
-//  * @returns Promise<BaseResponseOrError> - Response status and message
-//  */
-// export const deleteUserRole = async (
-//   _: any,
-//   args: MutationDeleteUserRoleArgs,
-//   { AppDataSource, user, redis }: Context
-// ): Promise<BaseResponseOrError> => {
-//   const { id } = args;
-//   const { getSession, setSession, deleteSession } = redis;
+/**
+ * Deletes a user roles with validation and permission checks.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Authenticates user and checks role creation permission
+ * - Checks Redis for roles data to optimize performance via caching
+ * - Confirms the roles are exists and is not protected or in use
+ * - Performs a soft delete/permanently delete on the role depending on the skipTrash
+ * - Clears related cache entries
+ *
+ * @param _ - Unused parent resolver argument
+ * @param args - Arguments for the roles delete input (ids, skipTrash)
+ * @param context - GraphQL context with AppDataSource and user info
+ * @returns Promise<BaseResponseOrError> - Response status and message
+ */
+export const deleteUserRole = async (
+  _: any,
+  args: MutationDeleteUserRoleArgs,
+  { AppDataSource, user }: Context
+): Promise<BaseResponseOrError> => {
+  const { ids, skipTrash } = args;
 
-//   try {
-//     // Check if user is authenticated
-//     if (!user) {
-//       return {
-//         statusCode: 401,
-//         success: false,
-//         message: "You're not authenticated",
-//         __typename: "BaseResponse",
-//       };
-//     }
+  try {
+    // Check if user is authenticated
+    if (!user) {
+      return {
+        statusCode: 401,
+        success: false,
+        message: "You're not authenticated",
+        __typename: "BaseResponse",
+      };
+    }
 
-//     // Initialize repositories for Role, User, and Permission entities
-//     const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
-//     const userRepository: Repository<User> = AppDataSource.getRepository(User);
-//     const permissionRepository: Repository<Permission> =
-//       AppDataSource.getRepository(Permission);
+    // Initialize repositories for Role, User, and Permission entities
+    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
+    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+    const permissionRepository: Repository<Permission> =
+      AppDataSource.getRepository(Permission);
 
-//     // Check Redis for cached user's data
-//     let userData;
+    // Check Redis for cached user's data
+    let userData;
 
-//     userData = await getSession(getSingleUserCacheKey(user.id));
+    if (!userData) {
+      // Cache miss: Fetch user from database
+      const dbUser = await userRepository.findOne({
+        where: { id: user.id },
+        relations: ["role"],
+      });
 
-//     if (!userData) {
-//       // Cache miss: Fetch user from database
-//       userData = await userRepository.findOne({
-//         where: { id: user.id },
-//       });
+      if (!dbUser) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "Authenticated user not found in database",
+          __typename: "ErrorResponse",
+        };
+      }
 
-//       if (!userData) {
-//         return {
-//           statusCode: 404,
-//           success: false,
-//           message: "Authenticated user not found in database",
-//           __typename: "BaseResponse",
-//         };
-//       }
-//     }
+      userData = {
+        ...dbUser,
+        role: dbUser.role.name,
+      };
 
-//     // Check Redis for cached user permissions
-//     let userPermissions;
+      const userSession: UserSession = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: dbUser.role.name,
+        gender: user.gender,
+        emailVerified: user.emailVerified,
+        isAccountActivated: user.isAccountActivated,
+      };
 
-//     userPermissions = await getSession(
-//       getSingleUserPermissionCacheKey(userData.id)
-//     );
+      // Cache user in Redis
+      await setUserInfoByUserIdInRedis(user.id, userSession);
+    }
 
-//     if (!userPermissions) {
-//       // Cache miss: Fetch permissions from database, selecting only necessary fields
-//       userPermissions = await permissionRepository.find({
-//         where: { user: { id: user.id } },
-//       });
+    // Check Redis for cached user permissions
+    let userPermissions;
 
-//       // Cache permissions in Redis
-//       await setSession(
-//         getSingleUserPermissionCacheKey(userData.id),
-//         userPermissions
-//       );
-//     }
+    userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
 
-//     // Check if the user has the "canDelete" permission for roles
-//     const canDeleteRole = userPermissions.some(
-//       (permission) => permission.name === "Role" && permission.canDelete
-//     );
+    if (!userPermissions) {
+      // Cache miss: Fetch permissions from database, selecting only necessary fields
+      userPermissions = await permissionRepository.find({
+        where: { user: { id: user.id } },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+        },
+      });
 
-//     if (!canDeleteRole) {
-//       return {
-//         statusCode: 403,
-//         success: false,
-//         message: "You do not have permission to delete roles",
-//         __typename: "BaseResponse",
-//       };
-//     }
+      const fullPermissions: CachedUserPermissionsInputs[] =
+        userPermissions.map((permission) => ({
+          id: permission.id,
+          name: permission.name,
+          description: permission.description,
+          canCreate: permission.canCreate,
+          canRead: permission.canRead,
+          canUpdate: permission.canUpdate,
+          canDelete: permission.canDelete,
+        }));
 
-//     // Validate input data using Zod schema
-//     const validationResult = await idSchema.safeParseAsync({
-//       id,
-//     });
+      // Cache permissions in Redis
+      await setUserPermissionsByUserIdInRedis(userData.id, fullPermissions);
+    }
 
-//     // If validation fails, return detailed error messages
-//     if (!validationResult.success) {
-//       const errorMessages = validationResult.error.errors.map((error) => ({
-//         field: error.path.join("."),
-//         message: error.message,
-//       }));
+    // Check if the user has the "canDelete" permission for roles
+    const canDeleteRole = userPermissions.some(
+      (permission) => permission.name === "Role" && permission.canDelete
+    );
 
-//       return {
-//         statusCode: 400,
-//         success: false,
-//         message: "Validation failed",
-//         errors: errorMessages,
-//         __typename: "ErrorResponse",
-//       };
-//     }
+    if (!canDeleteRole) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "You do not have permission to delete roles",
+        __typename: "BaseResponse",
+      };
+    }
 
-//     // Check Redis for role existence
-//     let role;
+    // Validate input data using Zod schema
+    const [idsResult, skipTrashResult] = await Promise.all([
+      idsSchema.safeParseAsync({ ids }),
+      skipTrashSchema.safeParseAsync({ skipTrash }),
+    ]);
 
-//     role = await getSession(getSingleUserRoleCacheKey(id));
+    if (!idsResult.success || !skipTrashResult.success) {
+      const errors = [
+        ...(idsResult.error?.errors || []),
+        ...(skipTrashResult.error?.errors || []),
+      ].map((e) => ({
+        field: e.path.join("."),
+        message: e.message,
+      }));
 
-//     if (!role) {
-//       // Cache miss: Fetch role from database
-//       role = await roleRepository.findOne({
-//         where: { id },
-//         relations: ["createdBy", "createdBy.role"],
-//         select: {
-//           id: true,
-//           name: true,
-//           description: true,
-//           createdAt: true,
-//           createdBy: {
-//             id: true,
-//             firstName: true,
-//             lastName: true,
-//             email: true,
-//             role: {
-//               name: true,
-//             },
-//           },
-//         },
-//       });
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Validation failed",
+        errors,
+        __typename: "ErrorResponse",
+      };
+    }
 
-//       if (!role) {
-//         return {
-//           statusCode: 404,
-//           success: false,
-//           message: "Role not found",
-//           __typename: "BaseResponse",
-//         };
-//       }
+    // Check for protected roles
+    const protectedRoles = [
+      "SUPER ADMIN",
+      "ADMIN",
+      "INVENTORY MANAGER",
+      "CUSTOMER SUPPORT",
+      "CUSTOMER",
+    ];
 
-//       // Cache role data in Redis
-//       await setSession(getSingleUserRoleCacheKey(role.id), {
-//         id: role.id,
-//         name: role.name,
-//         description: role.description,
-//         createdAt: role.createdAt.toISOString(),
-//         createdBy: {
-//           id: userData.id,
-//           name: `${userData.firstName + " " + userData.lastName}`,
-//           email: userData.email,
-//           role: userData.role,
-//         },
-//       });
-//     }
+    for (const id of ids) {
+      // Check Redis for cached role's data
+      let roleData = await getRoleInfoByRoleIdFromRedis(id);
 
-//     // Check for protected roles
-//     const protectedRoles = [
-//       "SUPER ADMIN",
-//       "ADMIN",
-//       "INVENTORY MANAGER",
-//       "CUSTOMER SUPPORT",
-//       "CUSTOMER",
-//     ];
+      if (!roleData) {
+        // Cache miss: Fetch role from database
+        const dbRole = await roleRepository.findOne({
+          where: { id },
+          relations: ["createdBy", "createdBy.role"],
+        });
 
-//     if (protectedRoles.includes(role.name)) {
-//       return {
-//         statusCode: 403,
-//         success: false,
-//         message: `The role "${role.name}" is protected and cannot be deleted`,
-//         __typename: "BaseResponse",
-//       };
-//     }
+        if (!dbRole) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: `Role with ID ${id} not found`,
+            __typename: "BaseResponse",
+          };
+        }
 
-//     // Check Redis for cached user-role association count
-//     let userCount: number | null = null;
+        const roleSession: CachedRoleInputs = {
+          id: dbRole.id,
+          name: dbRole.name,
+          description: dbRole.description,
+          createdAt: dbRole.createdAt.toISOString(),
+          deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
+          createdBy: {
+            id: (await dbRole.createdBy).id,
+            name:
+              (await dbRole.createdBy).firstName +
+              " " +
+              (await dbRole.createdBy).lastName,
+            role: (await dbRole.createdBy).role.name,
+          },
+        };
 
-//     const cachedUserCount = await getSession<string>(
-//       getUserRoleCountAssociateCacheKey(role.id)
-//     );
-//     userCount = cachedUserCount ? parseInt(cachedUserCount, 10) : null;
+        roleData = roleSession;
 
-//     if (userCount === null) {
-//       // Cache miss: Count users in database efficiently
-//       userCount = await userRepository.count({
-//         where: { role: { id } },
-//         select: [], // Optimize by not selecting fields
-//       });
+        // Cache user role & name existence in Redis
+        await Promise.all([
+          await setRoleInfoByRoleIdInRedis(roleData.id, roleSession),
+          await setRoleNameExistInRedis(roleData.name),
+        ]);
+      }
 
-//       // Cache user count in Redis
-//       await setSession(
-//         getUserRoleCountAssociateCacheKey(role.id),
-//         userCount.toString()
-//       );
-//     }
+      if (protectedRoles.includes(roleData.name)) {
+        return {
+          statusCode: 403,
+          success: false,
+          message: `The role "${roleData.name}" is protected and cannot be deleted`,
+          __typename: "BaseResponse",
+        };
+      }
 
-//     if (userCount > 0) {
-//       return {
-//         statusCode: 400,
-//         success: false,
-//         message: "Role is associated with existing users and cannot be deleted",
-//         __typename: "BaseResponse",
-//       };
-//     }
+      // Check Redis for cached user permissions
+      let userCountForRole;
 
-//     // Soft-delete the role to respect the deletedAt column
-//     await roleRepository.softRemove(role);
+      // Check Redis for the user count with this role
+      userCountForRole = await getTotalUserCountByRoleIdFromRedis(roleData.id);
 
-//     // Invalidate related Redis caches
-//     const normalizedRoleKey = role.name.trim().toLowerCase();
+      if (!userCountForRole) {
+        // Cache miss: Count users in database efficiently
+        userCountForRole = await userRepository.count({
+          where: { role: { id: roleData.id } },
+        });
 
-//     // Clear cache in Redis with configurable
-//     await deleteSession(getSingleUserRoleCacheKey(role.id));
-//     await deleteSession(getUserRoleCountAssociateCacheKey(role.id));
-//     await deleteSession(getSingleUserRoleNameCacheKey(normalizedRoleKey));
+        // Cache user count with this role in Redis
+        await setTotalUserCountByRoleIdInRedis(roleData.id, userCountForRole);
+      }
 
-//     return {
-//       statusCode: 200,
-//       success: true,
-//       message: "Role deleted successfully",
-//       __typename: "BaseResponse",
-//     };
-//   } catch (error: any) {
-//     console.error("Error deleting role:", error);
-//     return {
-//       statusCode: 500,
-//       success: false,
-//       message: error.message || "Internal server error",
-//       __typename: "BaseResponse",
-//     };
-//   }
-// };
-export const deleteUserRole = () => {};
+      if (userCountForRole) {
+        return {
+          statusCode: 400,
+          success: false,
+          message:
+            "Role is associated with existing users and cannot be deleted",
+          __typename: "BaseResponse",
+        };
+      }
+
+      if (skipTrash) {
+        // Delete the record permanently
+        await roleRepository.delete(id);
+
+        // Clear cache in Redis with configurable
+        await Promise.all([
+          removeRoleInfoByRoleIdFromRedis(roleData.id),
+          removeRoleInfoByRoleNameFromRedis(roleData.name),
+          removeRoleNameExistFromRedis(roleData.name),
+          removeTotalUserCountByRoleIdFromRedis(roleData.id),
+        ]);
+      } else {
+        // Mark the role as soft-deleted by setting deletedAt timestamp manually
+        await roleRepository.update(id, { deletedAt: new Date() });
+
+        // Fetch the updated role with required relations
+        const softDeletedRole = await roleRepository.findOneOrFail({
+          where: { id },
+          relations: { createdBy: { role: true } },
+        });
+
+        const roleSession: CachedRoleInputs = {
+          id: softDeletedRole.id,
+          name: softDeletedRole.name,
+          description: softDeletedRole.description,
+          createdAt: softDeletedRole.createdAt.toISOString(),
+          deletedAt: softDeletedRole.deletedAt?.toISOString(),
+          createdBy: {
+            id: (await softDeletedRole.createdBy).id,
+            name: `${(await softDeletedRole.createdBy).firstName} ${
+              (await softDeletedRole.createdBy).lastName
+            }`,
+            role: (await softDeletedRole.createdBy).role.name,
+          },
+        };
+
+        // Cache newly soft-deleted role
+        await setRoleInfoByRoleIdInRedis(id, roleSession);
+      }
+
+      return {
+        statusCode: 200,
+        success: true,
+        message: "Role deleted successfully",
+        __typename: "BaseResponse",
+      };
+    }
+  } catch (error: any) {
+    console.error("Error deleting role:", error);
+    return {
+      statusCode: 500,
+      success: false,
+      message: error.message || "Internal server error",
+      __typename: "BaseResponse",
+    };
+  }
+};

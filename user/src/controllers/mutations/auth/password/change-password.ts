@@ -80,7 +80,7 @@ export const changePassword = async (
     userData = getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
-      // Fetch user from database
+      // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
         where: { email: user.email },
         relations: ["role"],

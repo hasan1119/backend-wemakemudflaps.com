@@ -194,7 +194,7 @@ export const register = async (
           description: role.description,
           createdBy: role.createdBy,
           createdAt: role.createdAt.toIsoString(),
-          deletedAt: role.deletedAt.toIsoString(),
+          deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
         };
 
         // Cache user role info in Redis
@@ -361,7 +361,7 @@ export const register = async (
           description: role.description,
           createdBy: role.createdBy,
           createdAt: role.createdAt.toIsoString(),
-          deletedAt: role.deletedAt.toIsoString(),
+          deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
         };
 
         // Cache user role info in Redis

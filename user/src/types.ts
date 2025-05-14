@@ -65,7 +65,6 @@ export type CachedUserSessionByEmailKeyInputs = {
 
 export type CreatedBy = {
   __typename?: 'CreatedBy';
-  email?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   role: Scalars['String']['output'];
@@ -143,7 +142,8 @@ export type MutationCreateUserRoleArgs = {
 
 
 export type MutationDeleteUserRoleArgs = {
-  id: Scalars['ID']['input'];
+  ids: Array<Scalars['ID']['input']>;
+  skipTrash: Scalars['Boolean']['input'];
 };
 
 
@@ -569,7 +569,6 @@ export type CachedUserSessionByEmailKeyInputsResolvers<ContextType = Context, Pa
 };
 
 export type CreatedByResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatedBy'] = ResolversParentTypes['CreatedBy']> = {
-  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -630,7 +629,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'userId'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
   createUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
-  deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'id'>>;
+  deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'ids' | 'skipTrash'>>;
   forgetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationForgetPasswordArgs, 'email'>>;
   login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password'>>;

@@ -12,6 +12,13 @@ export const idsSchema = z.object({
     .min(1, { message: "At least one UUID is required" }),
 });
 
+// IDs Schema (Array of UUIDs)
+export const skipTrashSchema = z.object({
+  skipTrash: z.boolean().refine((val) => typeof val === "boolean", {
+    message: "skipTrash must be a boolean value",
+  }),
+});
+
 // Pagination Schema
 export const paginationSchema = z.object({
   page: z.number().min(1, { message: "Page number must be at least 1" }),

@@ -55,11 +55,12 @@ type Mutation {
     roleId: String! # The ID of the new role to assign.
     userId: String # The unique ID of the user whose role is to be updated.
   ): BaseResponseOrError! # Returns success or failure of the role update.
-  # Delete a user role by ID.
+  # Soft deleted a user role by ID.
   # This mutation allows authorized users (admins or super admins) to delete a user role by providing the unique ID.
   # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
   deleteUserRole(
-    id: ID! # The unique ID of the user role to be deleted.
+    ids: [ID!]! # The unique IDs of the user roles to be soft-deleted.
+    skipTrash: Boolean! # If true, permanently deletes instead of soft deleting
   ): BaseResponseOrError! # Returns success or failure of the role deletion.
   # Create a new user role.
   # This mutation allows authorized users (admins or super admins) to create new roles for other users.

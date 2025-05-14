@@ -31,7 +31,6 @@ type BaseResponse {
 type CreatedBy {
   id: ID!
   name: String!
-  email: String
   role: String!
 }
 

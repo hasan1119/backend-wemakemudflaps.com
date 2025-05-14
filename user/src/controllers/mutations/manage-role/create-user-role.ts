@@ -33,7 +33,7 @@ import { userRoleSchema } from "../../../utils/data-validation";
  * - Caches created role and updates role name existence in Redis for future request
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Role creation input (name, description)
+ * @param args - Arguments for role creation input (name, description)
  * @param context - GraphQL context with AppDataSource, Redis, and user info
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
@@ -111,6 +111,15 @@ export const createUserRole = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -221,10 +230,9 @@ export const createUserRole = async (
         id: userData.id,
         name: userData.firstName + " " + userData.lastName,
         role: roleName,
-        email: userData.email,
       },
       createdAt: savedRole.createdAt.toISOString(),
-      deletedAt: savedRole.deletedAt.toISOString(),
+      deletedAt: savedRole.deletedAt ? savedRole.deletedAt.toISOString() : null,
     };
 
     // Cache newly user role & name existence in Redis
