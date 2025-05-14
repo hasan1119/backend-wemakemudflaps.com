@@ -26,10 +26,11 @@ export {
   removeRoleInfoByRoleIdFromRedis,
   removeRoleInfoByRoleNameFromRedis,
   removeRoleNameExistFromRedis,
+  removeTotalUserCountByRoleIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
-  setTotalUserCountByRoleIdInRedis
+  setTotalUserCountByRoleIdInRedis,
 } from "./utils/role/role-session-manage";
 
 export {
