@@ -348,16 +348,16 @@ export type UsersResponse = {
 export type ResolverTypeWrapper<T> = Promise<T> | T;
 
 export type ReferenceResolver<TResult, TReference, TContext> = (
-      reference: TReference,
-      context: TContext,
-      info: GraphQLResolveInfo
-    ) => Promise<TResult> | TResult;
+  reference: TReference,
+  context: TContext,
+  info: GraphQLResolveInfo
+) => Promise<TResult> | TResult;
 
-      type ScalarCheck<T, S> = S extends true ? T : NullableCheck<T, S>;
-      type NullableCheck<T, S> = Maybe<T> extends T ? Maybe<ListCheck<NonNullable<T>, S>> : ListCheck<T, S>;
-      type ListCheck<T, S> = T extends (infer U)[] ? NullableCheck<U, S>[] : GraphQLRecursivePick<T, S>;
-      export type GraphQLRecursivePick<T, S> = { [K in keyof T & keyof S]: ScalarCheck<T[K], S[K]> };
-    
+type ScalarCheck<T, S> = S extends true ? T : NullableCheck<T, S>;
+type NullableCheck<T, S> = Maybe<T> extends T ? Maybe<ListCheck<NonNullable<T>, S>> : ListCheck<T, S>;
+type ListCheck<T, S> = T extends (infer U)[] ? NullableCheck<U, S>[] : GraphQLRecursivePick<T, S>;
+export type GraphQLRecursivePick<T, S> = { [K in keyof T & keyof S]: ScalarCheck<T[K], S[K]> };
+
 
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
@@ -423,17 +423,17 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
-  ActiveAccountResponseOrError: ( BaseResponse ) | ( ErrorResponse );
-  BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
-  EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
-  GetProfileResponseOrError: ( BaseResponse ) | ( UserResponse );
-  GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
-  GetRoleResponseOrError: ( ErrorResponse ) | ( RoleResponse );
-  GetRolesResponseOrError: ( ErrorResponse ) | ( RolesResponse );
-  GetUserByIDResponseOrError: ( ErrorResponse ) | ( UserResponse );
-  GetUsersResponseOrError: ( ErrorResponse ) | ( UsersResponse );
-  UserLoginResponseOrError: ( ErrorResponse ) | ( UserLoginResponse );
-  UserProfileUpdateResponseOrError: ( ErrorResponse ) | ( UserProfileUpdateResponse );
+  ActiveAccountResponseOrError: (BaseResponse) | (ErrorResponse);
+  BaseResponseOrError: (BaseResponse) | (ErrorResponse);
+  EmailVerificationResponseOrError: (EmailVerificationResponse) | (ErrorResponse);
+  GetProfileResponseOrError: (BaseResponse) | (UserResponse);
+  GetRoleByIDResponseOrError: (BaseResponse) | (ErrorResponse) | (RoleResponse);
+  GetRoleResponseOrError: (ErrorResponse) | (RoleResponse);
+  GetRolesResponseOrError: (ErrorResponse) | (RolesResponse);
+  GetUserByIDResponseOrError: (ErrorResponse) | (UserResponse);
+  GetUsersResponseOrError: (ErrorResponse) | (UsersResponse);
+  UserLoginResponseOrError: (ErrorResponse) | (UserLoginResponse);
+  UserProfileUpdateResponseOrError: (ErrorResponse) | (UserProfileUpdateResponse);
 };
 
 
@@ -687,7 +687,7 @@ export type RolesResponseResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
-  __resolveReference?: ReferenceResolver<Maybe<ResolversTypes['User']>, { __typename: 'User' } & GraphQLRecursivePick<ParentType, {"id":true}>, ContextType>;
+  __resolveReference?: ReferenceResolver<Maybe<ResolversTypes['User']>, { __typename: 'User' } & GraphQLRecursivePick<ParentType, { "id": true }>, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

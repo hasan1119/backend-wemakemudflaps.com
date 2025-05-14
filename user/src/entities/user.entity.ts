@@ -63,7 +63,7 @@ export class User {
   })
   permissions?: Permission[] | null;
 
-	// Email verified status
+  // Email verified status
   @Column({ default: false })
   emailVerified: boolean;
 

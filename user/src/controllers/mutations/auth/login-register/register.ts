@@ -360,8 +360,8 @@ export const register = async (
           name: role.name,
           description: role.description,
           createdBy: role.createdBy,
-          createdAt: role.createdAt.toIsoString(),
-          deletedAt: role.deletedAt.toIsoString(),
+          createdAt: role?.createdAt instanceof Date ? role.createdAt.toISOString() : new Date().toISOString(),
+          deletedAt: role?.deletedAt instanceof Date ? role.deletedAt.toISOString() : new Date().toISOString(),
         };
 
         // Cache user role info in Redis

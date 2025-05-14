@@ -1,4 +1,5 @@
-const roles = [
+// seeds/role.seed.ts
+export const roleSeedData = [
   {
     name: "SUPER ADMIN",
     description:
