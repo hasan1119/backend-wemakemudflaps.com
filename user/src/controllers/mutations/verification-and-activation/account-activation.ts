@@ -151,6 +151,7 @@ export const accountActivation = async (
     };
   } catch (error: any) {
     console.error("Error activating account:", error);
+
     return {
       statusCode: 500,
       success: false,

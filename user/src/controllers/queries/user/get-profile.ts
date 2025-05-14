@@ -84,6 +84,7 @@ export const getProfile = async (
     };
   } catch (error: any) {
     console.error("Error to get profile:", error);
+
     return {
       statusCode: 500,
       success: false,

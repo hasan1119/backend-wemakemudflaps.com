@@ -253,6 +253,7 @@ export const restoreUserRole = async (
     };
   } catch (error: any) {
     console.error("Error restoring role:", error);
+
     return {
       statusCode: 500,
       success: false,

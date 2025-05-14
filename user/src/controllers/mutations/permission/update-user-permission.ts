@@ -523,6 +523,7 @@
 //       };
 //     }
 //   } catch (error: any) {
+
 //     console.error("Update user permissions error:", error);
 //     return {
 //       statusCode: 500,

@@ -240,6 +240,7 @@ export const updateProfile = async (
     };
   } catch (error: any) {
     console.error("Error updating user profile:", error);
+
     return {
       statusCode: 500,
       success: false,

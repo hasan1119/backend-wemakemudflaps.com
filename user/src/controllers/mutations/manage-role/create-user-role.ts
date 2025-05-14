@@ -249,6 +249,7 @@ export const createUserRole = async (
     };
   } catch (error: any) {
     console.error("Error creating role:", error);
+
     return {
       statusCode: 500,
       success: false,

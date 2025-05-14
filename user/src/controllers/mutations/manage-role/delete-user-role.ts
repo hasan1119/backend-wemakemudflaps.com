@@ -325,6 +325,7 @@ export const deleteUserRole = async (
     }
   } catch (error: any) {
     console.error("Error deleting role:", error);
+
     return {
       statusCode: 500,
       success: false,

@@ -159,6 +159,7 @@ export const changePassword = async (
     };
   } catch (error: any) {
     console.error("Error changing password:", error);
+
     return {
       statusCode: 500,
       success: false,

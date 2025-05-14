@@ -550,6 +550,7 @@ export const register = async (
     }
   } catch (error: any) {
     console.error("Error registering user:", error);
+
     return {
       statusCode: 500,
       success: false,

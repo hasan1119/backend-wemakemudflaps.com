@@ -168,6 +168,7 @@ export const verifyEmail = async (
     };
   } catch (error: any) {
     console.error("Error verifying email:", error);
+
     return {
       statusCode: 500,
       success: false,

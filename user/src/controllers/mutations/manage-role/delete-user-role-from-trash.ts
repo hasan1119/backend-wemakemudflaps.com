@@ -260,6 +260,7 @@ export const deleteUserRoleFromTrash = async (
     };
   } catch (error: any) {
     console.error("Error deleting role from trash:", error);
+
     return {
       statusCode: 500,
       success: false,

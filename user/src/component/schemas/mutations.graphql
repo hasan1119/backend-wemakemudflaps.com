@@ -53,7 +53,7 @@ type Mutation {
   # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
   updateUserRole(
     roleId: String! # The ID of the new role to assign.
-    userId: String # The unique ID of the user whose role is to be updated.
+    userId: String! # The unique ID of the user whose role is to be updated.
   ): BaseResponseOrError! # Returns success or failure of the role update.
   # Soft delete a user role by ID.
   # This mutation allows authorized users (admins or super admins) to delete a user role by providing the unique ID.

@@ -233,6 +233,7 @@ export const login = async (
     };
   } catch (error: any) {
     console.error("Error logging in user:", error);
+
     return {
       statusCode: 500,
       success: false,

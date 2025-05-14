@@ -523,4 +523,289 @@
 //   }
 // };
 
-export const updateUserRole = () => {};
+import { Repository } from "typeorm";
+import { Context } from "../../../context";
+import { Permission } from "../../../entities/permission.entity";
+import { Role } from "../../../entities/user-role.entity";
+import { User } from "../../../entities/user.entity";
+import {
+  getRoleInfoByRoleIdFromRedis,
+  getUserInfoByUserIdFromRedis,
+  getUserPermissionsByUserIdFromRedis,
+  setRoleInfoByRoleIdInRedis,
+  setUserInfoByUserIdInRedis,
+  setUserPermissionsByUserIdInRedis,
+} from "../../../helper/redis";
+import {
+  BaseResponseOrError,
+  CachedUserPermissionsInputs,
+  MutationUpdateUserRoleArgs,
+  UserSession,
+} from "../../../types";
+import { userRoleUpdateSchema } from "../../../utils/data-validation";
+import { CachedRoleInputs } from "./../../../types";
+
+/**
+ * Updates an existing user's role with validation and permission checks.
+ *
+ * Steps:
+ * - Validates input using Zod schema
+ * - Authenticates user and checks role update permission
+ * - Checks Redis for user and role data to optimize performance via caching
+ * - Confirms the user and role exist and are not protected
+ * - Updates the user's role in the database
+ * - Updates related cache entries
+ *
+ * @param _ - Unused parent resolver argument
+ * @param args - Arguments for the role update input (roleId, userId)
+ * @param context - GraphQL context with AppDataSource and user info
+ * @returns Promise<BaseResponseOrError> - Response status and message
+ */
+export const updateUserRole = async (
+  _: any,
+  args: MutationUpdateUserRoleArgs,
+  { AppDataSource, user }: Context
+): Promise<BaseResponseOrError> => {
+  const { roleId, userId } = args;
+
+  try {
+    // Check if user is authenticated
+    if (!user) {
+      return {
+        statusCode: 401,
+        success: false,
+        message: "You're not authenticated",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Initialize repositories for Role, User, and Permission entities
+    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
+    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+    const permissionRepository: Repository<Permission> =
+      AppDataSource.getRepository(Permission);
+
+    // Check Redis for cached user's data
+    let userData;
+
+    userData = await getUserInfoByUserIdFromRedis(user.id);
+
+    if (!userData) {
+      // Cache miss: Fetch user from database
+      const dbUser = await userRepository.findOne({
+        where: { id: user.id },
+        relations: ["role"],
+      });
+
+      if (!dbUser) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "Authenticated user not found in database",
+          __typename: "ErrorResponse",
+        };
+      }
+
+      userData = {
+        ...dbUser,
+        role: dbUser.role.name,
+      };
+
+      const userSession: UserSession = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: dbUser.role.name,
+        gender: user.gender,
+        emailVerified: user.emailVerified,
+        isAccountActivated: user.isAccountActivated,
+      };
+
+      // Cache user in Redis
+      await setUserInfoByUserIdInRedis(user.id, userSession);
+    }
+
+    // Check Redis for cached user permissions
+    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
+
+    if (!userPermissions) {
+      // Cache miss: Fetch permissions from database, selecting only necessary fields
+      userPermissions = await permissionRepository.find({
+        where: { user: { id: user.id } },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+        },
+      });
+
+      const fullPermissions: CachedUserPermissionsInputs[] =
+        userPermissions.map((permission) => ({
+          id: permission.id,
+          name: permission.name,
+          description: permission.description,
+          canCreate: permission.canCreate,
+          canRead: permission.canRead,
+          canUpdate: permission.canUpdate,
+          canDelete: permission.canDelete,
+        }));
+
+      // Cache permissions in Redis
+      await setUserPermissionsByUserIdInRedis(userData.id, fullPermissions);
+    }
+
+    // Check if the user has the "canUpdate" permission for roles
+    const canUpdateRole = userPermissions.some(
+      (permission) => permission.name === "Role" && permission.canUpdate
+    );
+
+    if (!canUpdateRole) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "You do not have permission to update roles",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Validate input data using Zod schema
+    const validationResult = await userRoleUpdateSchema.safeParseAsync({
+      userId,
+      roleId,
+    });
+
+    if (!validationResult.success) {
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."),
+        message: error.message,
+      }));
+
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Validation failed",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
+      };
+    }
+
+    // Check Redis for cached role's data
+    let roleData = await getRoleInfoByRoleIdFromRedis(roleId);
+
+    if (!roleData) {
+      // Cache miss: Fetch role from database
+      const dbRole = await roleRepository.findOne({
+        where: { id: roleId },
+        relations: ["createdBy", "createdBy.role"],
+      });
+
+      if (!dbRole) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: `Role with ID ${roleId} not found`,
+          __typename: "BaseResponse",
+        };
+      }
+
+      const roleSession: CachedRoleInputs = {
+        id: dbRole.id,
+        name: dbRole.name,
+        description: dbRole.description,
+        createdAt: dbRole.createdAt.toISOString(),
+        deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
+        createdBy: {
+          id: (await dbRole.createdBy).id,
+          name: `${(await dbRole.createdBy).firstName} ${
+            (await dbRole.createdBy).lastName
+          }`,
+          role: (await dbRole.createdBy).role.name,
+        },
+      };
+
+      roleData = roleSession;
+
+      // Cache role in Redis
+      await setRoleInfoByRoleIdInRedis(roleData.id, roleSession);
+    }
+
+    // Check if the role is soft-deleted
+    if (roleData.deletedAt) {
+      return {
+        statusCode: 400,
+        success: false,
+        message: `Role with ID ${roleId} is in the trash and cannot be assigned`,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Fetch the target user from the database
+    const targetUser = await userRepository.findOne({
+      where: { id: userId },
+      relations: ["role"],
+    });
+
+    if (!targetUser) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: `User with ID ${userId} not found`,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Check if the user's current role is protected
+    if (protectedRoles.includes(targetUser.role.name)) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: `The user's current role "${targetUser.role.name}" is protected and cannot be changed`,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Update the user's role
+    await userRepository.update(userId, { role: { id: roleId } });
+
+    // Fetch the updated user with required relations
+    const updatedUser = await userRepository.findOneOrFail({
+      where: { id: userId },
+      relations: ["role"],
+    });
+
+    const updatedUserSession: UserSession = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      role: updatedUser.role.name,
+      gender: updatedUser.gender,
+      emailVerified: updatedUser.emailVerified,
+      isAccountActivated: updatedUser.isAccountActivated,
+    };
+
+    // Cache updated user in Redis
+    await setUserInfoByUserIdInRedis(userId, updatedUserSession);
+
+    return {
+      statusCode: 200,
+      success: true,
+      message: "User role updated successfully",
+      __typename: "BaseResponse",
+    };
+  } catch (error: any) {
+    console.error("Error updating user role:", error);
+
+    return {
+      statusCode: 500,
+      success: false,
+      message: error.message || "Internal server error",
+      __typename: "BaseResponse",
+    };
+  }
+};

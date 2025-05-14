@@ -169,6 +169,7 @@ export const forgetPassword = async (
     };
   } catch (error: any) {
     console.error("Forget password error:", error);
+
     return {
       statusCode: 500,
       success: false,

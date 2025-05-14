@@ -128,6 +128,7 @@ export const resetPassword = async (
     };
   } catch (error: any) {
     console.error("Reset password error:", error);
+
     return {
       statusCode: 500,
       success: false,
