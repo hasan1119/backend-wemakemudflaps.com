@@ -194,7 +194,7 @@ export const register = async (
           name: role.name,
           description: role.description,
           createdBy: role.createdBy,
-          createdAt: role.createdAt.toIsoString(),
+          createdAt: role.createdAt.toISOString(),
           deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
         };
 
@@ -288,7 +288,7 @@ export const register = async (
         gender: savedUser.gender,
         emailVerified: savedUser.emailVerified,
         isAccountActivated: savedUser.isAccountActivated,
-        password: savedUser.password,
+        password: hashedPassword,
       };
 
       const userPermissions: CachedUserPermissionsInputs[] =
@@ -361,7 +361,7 @@ export const register = async (
           name: role.name,
           description: role.description,
           createdBy: role.createdBy,
-          createdAt: role.createdAt.toIsoString(),
+          createdAt: role.createdAt.toISOString(),
           deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
         };
 
@@ -518,7 +518,7 @@ export const register = async (
         gender: savedUser.gender,
         emailVerified: savedUser.emailVerified,
         isAccountActivated: savedUser.isAccountActivated,
-        password: savedUser.password,
+        password: hashedPassword,
       };
 
       const userPermissions: CachedUserPermissionsInputs[] =

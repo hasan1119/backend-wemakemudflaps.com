@@ -77,8 +77,6 @@ export const login = async (
 
     user = await getUserInfoByEmailInRedis(email);
 
-    console.log("object", user);
-
     if (!user) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
@@ -144,9 +142,6 @@ export const login = async (
         await removeLockoutSessionFromRedis(user.email);
       }
     }
-
-    console.log(user, "user");
-    console.log("password", password, "user.pass", user.password);
 
     // Verify password
     if (!(await CompareInfo(password, user.password))) {

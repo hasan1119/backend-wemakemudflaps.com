@@ -16,8 +16,10 @@ redisClient.on("error", (err) => console.error("Redis connection error:", err));
  */
 async function getSession<T>(sessionId: string): Promise<T | null> {
   try {
-    const session = await redisClient.get(`session:${sessionId}`);
-    return session ? (JSON.parse(session) as T) : null;
+    const session = await redisClient.get(`${sessionId}`);
+    const parseData = session ? (JSON.parse(session) as T) : null;
+    console.log(parseData, "parseData");
+    return parseData;
   } catch (error) {
     console.error("Error retrieving session from Redis:", error);
     return null;
@@ -38,13 +40,13 @@ async function setSession(
   try {
     if (ttl) {
       await redisClient.set(
-        `session:${id}`,
+        `${id}`,
         JSON.stringify(sessionData),
         "EX",
         ttl
       );
     } else {
-      await redisClient.set(`session:${id}`, JSON.stringify(sessionData));
+      await redisClient.set(`${id}`, JSON.stringify(sessionData));
     }
   } catch (error) {
     console.error("Error setting session in Redis:", error);
@@ -57,7 +59,7 @@ async function setSession(
  */
 async function deleteSession(id: string): Promise<void> {
   try {
-    await redisClient.del(`session:${id}`);
+    await redisClient.del(`${id}`);
   } catch (error) {
     console.error("Error deleting session from Redis:", error);
   }

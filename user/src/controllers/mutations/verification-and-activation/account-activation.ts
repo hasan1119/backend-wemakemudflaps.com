@@ -3,9 +3,8 @@ import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import {
-  getUserInfoByUserIdFromRedis,
   setUserInfoByEmailInRedis,
-  setUserInfoByUserIdInRedis,
+  setUserInfoByUserIdInRedis
 } from "../../../helper/redis";
 import {
   ActiveAccountResponseOrError,
@@ -63,27 +62,21 @@ export const accountActivation = async (
     // Initialize user repository
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
-    // Check Redis for cached user's data
-    let user;
-
-    user = await getUserInfoByUserIdFromRedis(userId);
+    // Check user if exists.
+    const user = await userRepository.findOne({
+      where: { id: userId },
+      relations: ["role"],
+    });
 
     if (!user) {
-      // Check if user exists
-      user = await userRepository.findOne({
-        where: { id: userId },
-        relations: ["role"],
-      });
-
-      if (!user) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "User not found",
-          __typename: "ErrorResponse",
-        };
-      }
+      return {
+        statusCode: 404,
+        success: false,
+        message: "User not found",
+        __typename: "ErrorResponse",
+      };
     }
+
 
     // Check if account is already activated
     if (user.isAccountActivated) {
