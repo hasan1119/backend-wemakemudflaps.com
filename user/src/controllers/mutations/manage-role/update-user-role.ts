@@ -198,7 +198,6 @@ export const updateUserRole = async (
   const { roleId, userId, password } = args;
 
   try {
-    // Check if user is authenticated
     // Check user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;

@@ -212,7 +212,8 @@ union UserLoginResponseOrError =
   | UserLoginResponse
   | ErrorResponse
 union UserProfileUpdateResponseOrError =
-    UserProfileUpdateResponse
+    BaseResponse
+  | UserProfileUpdateResponse
   | ErrorResponse
 union EmailVerificationResponseOrError =
     EmailVerificationResponse
@@ -220,8 +221,8 @@ union EmailVerificationResponseOrError =
 union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 
 # Query response can be either a success or an error.
-union GetProfileResponseOrError = BaseResponse | UserResponse
-union GetRoleByIDResponseOrError = BaseResponse | RoleResponse | ErrorResponse
+union GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse
+union GetRoleByIDResponseOrError = BaseResponse | ErrorResponse | RoleResponse
 union GetUserByIDResponseOrError = UserResponse | ErrorResponse
 union GetUsersResponseOrError = UsersResponse | ErrorResponse
 union GetRolesResponseOrError = RolesResponse | ErrorResponse

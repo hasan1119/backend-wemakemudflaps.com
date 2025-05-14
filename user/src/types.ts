@@ -94,7 +94,7 @@ export type FieldError = {
   message: Scalars['String']['output'];
 };
 
-export type GetProfileResponseOrError = BaseResponse | UserResponse;
+export type GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse;
 
 export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
 
@@ -326,7 +326,7 @@ export type UserProfileUpdateResponse = {
   token: Scalars['String']['output'];
 };
 
-export type UserProfileUpdateResponseOrError = ErrorResponse | UserProfileUpdateResponse;
+export type UserProfileUpdateResponseOrError = BaseResponse | ErrorResponse | UserProfileUpdateResponse;
 
 export type UserResponse = {
   __typename?: 'UserResponse';
@@ -442,14 +442,14 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   ActiveAccountResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
-  GetProfileResponseOrError: ( BaseResponse ) | ( UserResponse );
+  GetProfileResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
   GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   GetRoleResponseOrError: ( ErrorResponse ) | ( RoleResponse );
   GetRolesResponseOrError: ( ErrorResponse ) | ( RolesResponse );
   GetUserByIDResponseOrError: ( ErrorResponse ) | ( UserResponse );
   GetUsersResponseOrError: ( ErrorResponse ) | ( UsersResponse );
   UserLoginResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserLoginResponse );
-  UserProfileUpdateResponseOrError: ( ErrorResponse ) | ( UserProfileUpdateResponse );
+  UserProfileUpdateResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserProfileUpdateResponse );
 };
 
 
@@ -618,7 +618,7 @@ export type FieldErrorResolvers<ContextType = Context, ParentType extends Resolv
 };
 
 export type GetProfileResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProfileResponseOrError'] = ResolversParentTypes['GetProfileResponseOrError']> = {
-  __resolveType: TypeResolveFn<'BaseResponse' | 'UserResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserResponse', ParentType, ContextType>;
 };
 
 export type GetRoleByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleByIDResponseOrError'] = ResolversParentTypes['GetRoleByIDResponseOrError']> = {
@@ -740,7 +740,7 @@ export type UserProfileUpdateResponseResolvers<ContextType = Context, ParentType
 };
 
 export type UserProfileUpdateResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserProfileUpdateResponseOrError'] = ResolversParentTypes['UserProfileUpdateResponseOrError']> = {
-  __resolveType: TypeResolveFn<'ErrorResponse' | 'UserProfileUpdateResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserProfileUpdateResponse', ParentType, ContextType>;
 };
 
 export type UserResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserResponse'] = ResolversParentTypes['UserResponse']> = {

@@ -33,7 +33,7 @@
 //   const { getSession, setSession } = redis;
 
 //   try {
-//     // Check if user is authenticated
+//
 //     if (!user) {
 //       return {
 //         statusCode: 401,

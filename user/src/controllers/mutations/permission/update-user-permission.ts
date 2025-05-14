@@ -242,7 +242,7 @@
 //   const { getSession, setSession, deleteSession } = redis;
 
 //   try {
-//     // Check if user is authenticated
+//
 //     if (!user) {
 //       return {
 //         statusCode: 401,
