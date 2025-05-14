@@ -1,4 +1,3 @@
-import * as bcrypt from "bcryptjs";
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import {
@@ -221,7 +220,7 @@ export const updateUserRole = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, email: user.email },
         relations: ["role"],
         select: {
           id: true,
@@ -314,29 +313,6 @@ export const updateUserRole = async (
       };
     }
 
-    // Password validation for non-SUPER ADMIN users
-    if (userData.role !== "SUPER ADMIN") {
-      if (!password) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: "Password is required for non-SUPER ADMIN users",
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Verify password
-      const isPasswordValid = await bcrypt.compare(password, userData.password);
-      if (!isPasswordValid) {
-        return {
-          statusCode: 403,
-          success: false,
-          message: "Invalid password",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
     // Validate input data using Zod schema
     const validationResult = await userRoleUpdateSchema.safeParseAsync({
       roleId,
@@ -370,12 +346,6 @@ export const updateUserRole = async (
           __typename: "BaseResponse",
         };
       }
-
-      // Fetch user with password from database
-      const dbUser = await userRepository.findOne({
-        where: { id: user.id },
-        select: { password: true },
-      });
 
       // Verify password
       const isPasswordValid = await CompareInfo(password, userData.password);

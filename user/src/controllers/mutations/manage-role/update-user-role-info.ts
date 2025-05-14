@@ -70,7 +70,7 @@ export const updateUserRoleInfo = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, email: user.email },
         relations: ["role"],
         select: {
           id: true,
@@ -196,14 +196,8 @@ export const updateUserRoleInfo = async (
         };
       }
 
-      // Fetch user with password from database
-      const dbUser = await userRepository.findOne({
-        where: { id: user.id },
-        select: { password: true },
-      });
-
       // Verify password
-      const isPasswordValid = await CompareInfo(password, dbUser.password);
+      const isPasswordValid = await CompareInfo(password, userData.password);
       if (!isPasswordValid) {
         return {
           statusCode: 403,

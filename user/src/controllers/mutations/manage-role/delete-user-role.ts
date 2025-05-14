@@ -6,6 +6,7 @@ import { User } from "../../../entities/user.entity";
 import {
   getRoleInfoByRoleIdFromRedis,
   getTotalUserCountByRoleIdFromRedis,
+  getUserInfoByEmailInRedis,
   getUserPermissionsByUserIdFromRedis,
   removeRoleInfoByRoleIdFromRedis,
   removeRoleInfoByRoleNameFromRedis,
@@ -13,7 +14,7 @@ import {
   setRoleInfoByRoleIdInRedis,
   setRoleNameExistInRedis,
   setTotalUserCountByRoleIdInRedis,
-  setUserInfoByUserIdInRedis,
+  setUserInfoByEmailInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
 import {
@@ -23,9 +24,10 @@ import {
 import {
   BaseResponseOrError,
   CachedUserPermissionsInputs,
+  CachedUserSessionByEmailKeyInputs,
   MutationDeleteUserRoleArgs,
-  UserSession,
 } from "../../../types";
+import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { idsSchema } from "../../../utils/data-validation";
 import { skipTrashSchema } from "../../../utils/data-validation/common/common";
 import { CachedRoleInputs } from "./../../../types";
@@ -51,7 +53,7 @@ export const deleteUserRole = async (
   args: MutationDeleteUserRoleArgs,
   { AppDataSource, user }: Context
 ): Promise<BaseResponseOrError> => {
-  const { ids, skipTrash } = args;
+  const { ids, skipTrash, password } = args;
 
   try {
     // Check if user is authenticated
@@ -73,11 +75,24 @@ export const deleteUserRole = async (
     // Check Redis for cached user's data
     let userData;
 
+    userData = await getUserInfoByEmailInRedis(user.email);
+
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, email: user.email },
         relations: ["role"],
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          password: true,
+          role: { name: true },
+        },
       });
 
       if (!dbUser) {
@@ -89,24 +104,22 @@ export const deleteUserRole = async (
         };
       }
 
-      userData = {
-        ...dbUser,
+      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
+        id: dbUser.id,
+        email: dbUser.email,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
         role: dbUser.role.name,
+        gender: dbUser.gender,
+        password: dbUser.password,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
-      const userSession: UserSession = {
-        id: userData.id,
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        role: userData.role.name,
-        gender: userData.gender,
-        emailVerified: userData.emailVerified,
-        isAccountActivated: userData.isAccountActivated,
-      };
+      userData = userSessionByEmail;
 
       // Cache user in Redis
-      await setUserInfoByUserIdInRedis(userData.id, userSession);
+      await setUserInfoByEmailInRedis(user.email, userSessionByEmail);
     }
 
     // Check Redis for cached user permissions
@@ -180,6 +193,29 @@ export const deleteUserRole = async (
         errors,
         __typename: "ErrorResponse",
       };
+    }
+
+    // Password validation for non-SUPER ADMIN users
+    if (userData.role !== "SUPER ADMIN") {
+      if (!password) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Password is required for non-SUPER ADMIN users",
+          __typename: "BaseResponse",
+        };
+      }
+
+      // Verify password
+      const isPasswordValid = await CompareInfo(password, userData.password);
+      if (!isPasswordValid) {
+        return {
+          statusCode: 403,
+          success: false,
+          message: "Invalid password",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Check for protected roles
