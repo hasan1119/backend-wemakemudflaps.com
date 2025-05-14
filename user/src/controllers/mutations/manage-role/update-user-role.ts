@@ -1,3 +1,4 @@
+import * as bcrypt from "bcryptjs";
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import {
@@ -8,18 +9,22 @@ import { Role } from "../../../entities/user-role.entity";
 import { User } from "../../../entities/user.entity";
 import {
   getRoleInfoByRoleIdFromRedis,
+  getUserInfoByEmailInRedis,
   getUserInfoByUserIdFromRedis,
   getUserPermissionsByUserIdFromRedis,
   setRoleInfoByRoleIdInRedis,
+  setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
 import {
   BaseResponseOrError,
   CachedUserPermissionsInputs,
+  CachedUserSessionByEmailKeyInputs,
   MutationUpdateUserRoleArgs,
   UserSession,
 } from "../../../types";
+import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { userRoleUpdateSchema } from "../../../utils/data-validation";
 import { CachedRoleInputs } from "./../../../types";
 
@@ -171,14 +176,16 @@ const ROLE_PERMISSIONS: {
  * Steps:
  * - Validates input using Zod schema
  * - Authenticates user and checks role update permission
+ * - Requires password for non-SUPER ADMIN users and validates it
  * - Checks Redis for user and role data to optimize performance via caching
  * - Confirms the user and role exist and the role is not soft-deleted
+ * - Prevents self-role changes and SUPER ADMIN role modifications
  * - Updates the user's role in the database
  * - Synchronizes user permissions if the new role is defined in ROLE_PERMISSIONS
  * - Updates related cache entries
  *
  * @param _ - Unused parent resolver argument
- * @param args - Arguments for the role update input (roleId, userId)
+ * @param args - Arguments for the role update input (roleId, userId, password)
  * @param context - GraphQL context with AppDataSource and user info
  * @returns Promise<BaseResponseOrError> - Response status and message
  */
@@ -187,7 +194,7 @@ export const updateUserRole = async (
   args: MutationUpdateUserRoleArgs,
   { AppDataSource, user }: Context
 ): Promise<BaseResponseOrError> => {
-  const { roleId, userId } = args;
+  const { roleId, userId, password } = args;
 
   try {
     // Check if user is authenticated
@@ -209,13 +216,24 @@ export const updateUserRole = async (
     // Check Redis for cached user's data
     let userData;
 
-    userData = await getUserInfoByUserIdFromRedis(user.id);
+    userData = await getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
         where: { id: user.id },
         relations: ["role"],
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          password: true,
+          role: { name: true },
+        },
       });
 
       if (!dbUser) {
@@ -227,31 +245,29 @@ export const updateUserRole = async (
         };
       }
 
-      userData = {
-        ...dbUser,
+      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
+        id: dbUser.id,
+        email: dbUser.email,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
         role: dbUser.role.name,
+        gender: dbUser.gender,
+        password: dbUser.password,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
-      const userSession: UserSession = {
-        id: userData.id,
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        role: userData.role.name,
-        gender: userData.gender,
-        emailVerified: userData.emailVerified,
-        isAccountActivated: userData.isAccountActivated,
-      };
+      userData = userSessionByEmail;
 
       // Cache user in Redis
-      await setUserInfoByUserIdInRedis(user.id, userSession);
+      await setUserInfoByEmailInRedis(user.email, userSessionByEmail);
     }
 
     // Check Redis for cached user permissions
     let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
 
     if (!userPermissions) {
-      // Cache miss: Fetch permissions from database, selecting only necessary fields
+      // Cache miss: Fetch permissions from database
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
         select: {
@@ -298,13 +314,37 @@ export const updateUserRole = async (
       };
     }
 
+    // Password validation for non-SUPER ADMIN users
+    if (userData.role !== "SUPER ADMIN") {
+      if (!password) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Password is required for non-SUPER ADMIN users",
+          __typename: "BaseResponse",
+        };
+      }
+
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, userData.password);
+      if (!isPasswordValid) {
+        return {
+          statusCode: 403,
+          success: false,
+          message: "Invalid password",
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
     // Validate input data using Zod schema
     const validationResult = await userRoleUpdateSchema.safeParseAsync({
       roleId,
       userId,
+      password,
     });
 
-    // If validation fails, return detailed error messages with field names
+    // If validation fails, return detailed error messages
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
         field: error.path.join("."),
@@ -318,6 +358,35 @@ export const updateUserRole = async (
         errors: errorMessages,
         __typename: "ErrorResponse",
       };
+    }
+
+    // Password validation for non-SUPER ADMIN users
+    if (userData.role !== "SUPER ADMIN") {
+      if (!password) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Password is required for non-SUPER ADMIN users",
+          __typename: "BaseResponse",
+        };
+      }
+
+      // Fetch user with password from database
+      const dbUser = await userRepository.findOne({
+        where: { id: user.id },
+        select: { password: true },
+      });
+
+      // Verify password
+      const isPasswordValid = await CompareInfo(password, userData.password);
+      if (!isPasswordValid) {
+        return {
+          statusCode: 403,
+          success: false,
+          message: "Invalid password",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Check Redis for cached role's data
@@ -370,19 +439,17 @@ export const updateUserRole = async (
       };
     }
 
-    // Check Redis for cached user's data
-    let targetUser;
-
-    targetUser = await getUserInfoByUserIdFromRedis(userId);
+    // Check Redis for cached target user's data
+    let targetUser = await getUserInfoByUserIdFromRedis(userId);
 
     if (!targetUser) {
       // Cache miss: Fetch the target user from the database
-      targetUser = await userRepository.findOne({
+      const dbUser = await userRepository.findOne({
         where: { id: userId },
         relations: ["role"],
       });
 
-      if (!targetUser) {
+      if (!dbUser) {
         return {
           statusCode: 404,
           success: false,
@@ -390,6 +457,31 @@ export const updateUserRole = async (
           __typename: "BaseResponse",
         };
       }
+
+      targetUser = {
+        ...dbUser,
+        role: dbUser.role.name,
+      };
+    }
+
+    // Prevent self-role changes
+    if (targetUser.id === user.id) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "You can't change your own role",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Prevent modifying SUPER ADMIN roles
+    if (targetUser.role === "SUPER ADMIN") {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "You are not allowed to modify a SUPER ADMIN role",
+        __typename: "BaseResponse",
+      };
     }
 
     // Update the user's role
@@ -414,10 +506,8 @@ export const updateUserRole = async (
         permissionsToCreate.push({
           name: name as PermissionName,
           description: `Permission for ${name}`,
-          user: Promise.resolve(targetUser),
-          createdBy: Promise.resolve(
-            await userRepository.findOneOrFail({ where: { id: user.id } })
-          ),
+          user: userRepository.findOneOrFail({ where: { id: userId } }),
+          createdBy: userRepository.findOneOrFail({ where: { id: user.id } }),
           canCreate: newRolePermissions.create.includes(name),
           canRead: newRolePermissions.read.includes(name),
           canUpdate: newRolePermissions.update.includes(name),
@@ -481,7 +571,7 @@ export const updateUserRole = async (
 
     return {
       statusCode: 200,
-      success: false,
+      success: true,
       message: newRolePermissions
         ? "User role and permissions updated successfully. To see the changes user have to logout and then login again."
         : "User role updated successfully, permissions unchanged. To see the changes user have to logout and then login again.",

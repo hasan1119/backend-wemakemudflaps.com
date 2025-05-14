@@ -145,12 +145,14 @@ export type MutationCreateUserRoleArgs = {
 
 export type MutationDeleteUserRoleArgs = {
   ids: Array<Scalars['ID']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
   skipTrash: Scalars['Boolean']['input'];
 };
 
 
 export type MutationDeleteUserRoleFromTrashArgs = {
   ids: Array<Scalars['ID']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -200,6 +202,7 @@ export type MutationUpdateUserPermissionArgs = {
 
 
 export type MutationUpdateUserRoleArgs = {
+  password?: InputMaybe<Scalars['String']['input']>;
   roleId: Scalars['String']['input'];
   userId: Scalars['String']['input'];
 };
@@ -209,6 +212,7 @@ export type MutationUpdateUserRoleInfoArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name: Scalars['String']['input'];
+  password?: InputMaybe<Scalars['String']['input']>;
 };
 
 

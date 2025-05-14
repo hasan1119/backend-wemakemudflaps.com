@@ -171,15 +171,6 @@ export const deleteUserRoleFromTrash = async (
       };
     }
 
-    // Check for protected roles
-    const protectedRoles = [
-      "SUPER ADMIN",
-      "ADMIN",
-      "INVENTORY MANAGER",
-      "CUSTOMER SUPPORT",
-      "CUSTOMER",
-    ];
-
     for (const id of ids) {
       // Check Redis for cached role's data
       let roleData = await getRoleInfoByRoleIdFromRedis(id);
@@ -227,16 +218,6 @@ export const deleteUserRoleFromTrash = async (
           statusCode: 400,
           success: false,
           message: `Role with ID ${id} is not in the trash`,
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Check if the role is protected
-      if (protectedRoles.includes(roleData.name)) {
-        return {
-          statusCode: 403,
-          success: false,
-          message: `The role "${roleData.name}" is protected and cannot be deleted`,
           __typename: "BaseResponse",
         };
       }
