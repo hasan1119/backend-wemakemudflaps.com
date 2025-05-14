@@ -311,7 +311,11 @@ export const deleteUserRole = async (
       return {
         statusCode: 200,
         success: true,
-        message: "Role deleted successfully",
+        message: `${
+          skipTrash
+            ? "Role(s) permanently deleted successfully"
+            : "Role(s) moved to trash successfully"
+        }`,
         __typename: "BaseResponse",
       };
     }
