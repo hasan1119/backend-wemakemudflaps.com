@@ -443,6 +443,17 @@ export const updateUserRole = async (
     // Prevent modifying SUPER ADMIN roles
     if (targetUser.role === "SUPER ADMIN") {
       return {
+        statusCode: 400,
+        success: false,
+        message:
+          "You can't assign SUPER ADMIN role to any other user in this platform",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Prevent to assign SUPER ADMIN role to any other user
+    if (roleData.name === "SUPER ADMIN") {
+      return {
         statusCode: 403,
         success: false,
         message: "You are not allowed to modify a SUPER ADMIN role",
