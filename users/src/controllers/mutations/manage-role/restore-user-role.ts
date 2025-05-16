@@ -1,10 +1,9 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
 import { Role } from "../../../entities/user-role.entity";
 import { User } from "../../../entities/user.entity";
 import {
-  getRoleInfoByRoleIdFromRedis,
   getUserInfoByUserIdFromRedis,
   getUserPermissionsByUserIdFromRedis,
   setRoleInfoByRoleIdInRedis,
@@ -65,6 +64,18 @@ export const restoreUserRole = async (
       const dbUser = await userRepository.findOne({
         where: { id: user.id },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!dbUser) {
@@ -103,6 +114,15 @@ export const restoreUserRole = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -152,76 +172,85 @@ export const restoreUserRole = async (
       };
     }
 
-    for (const id of ids) {
-      // Check Redis for cached role's data
-      let roleData;
+    // Fetch roles to ensure they exist and are soft-deleted
+    const roles = await roleRepository.find({
+      where: { id: In(ids) },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        createdAt: true,
+        deletedAt: true,
+        createdBy: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          role: { name: true },
+        },
+      },
+      relations: ["createdBy"],
+    });
 
-      roleData = await getRoleInfoByRoleIdFromRedis(id);
-
-      if (!roleData) {
-        // Cache miss: Fetch role from database
-        const dbRole = await roleRepository.findOne({
-          where: { id },
-        });
-
-        if (!dbRole) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: `Role with ID ${id} not found`,
-            __typename: "BaseResponse",
-          };
-        }
-
-        // Check if the role is soft-deleted
-        if (!roleData.deletedAt) {
-          return {
-            statusCode: 400,
-            success: false,
-            message: `Role with ID ${id} is not in the trash`,
-            __typename: "BaseResponse",
-          };
-        }
-
-        roleData = dbRole;
-
-        // Restore the role by clearing deletedAt
-        await roleRepository.update(id, { deletedAt: null });
-
-        // Fetch the updated role with required relations
-        const restoredRole = await roleRepository.findOneOrFail({
-          where: { id },
-          relations: ["CreatedBy"],
-        });
-
-        const createdBy = await roleData.createdBy;
-
-        const roleSession: CachedRoleInputs = {
-          id: restoredRole.id,
-          name: restoredRole.name,
-          description: restoredRole.description,
-          createdAt: restoredRole.createdAt.toISOString(),
-          deletedAt: null,
-          createdBy: createdBy
-            ? {
-                id: createdBy.id,
-                name: createdBy.firstName + " " + createdBy.lastName,
-                role: createdBy.role.name,
-              }
-            : null,
-        };
-
-        // Update cache with restored role
-        await setRoleInfoByRoleIdInRedis(id, roleSession);
-      }
-
+    if (roles.length !== ids.length) {
+      const foundIds = new Set(roles.map((role) => role.id));
+      const missingIds = ids.filter((id) => !foundIds.has(id));
       return {
-        statusCode: 200,
-        success: true,
-        message: "Role(s) restored successfully",
+        statusCode: 404,
+        success: false,
+        message: `Roles with IDs ${missingIds.join(", ")} not found`,
         __typename: "BaseResponse",
       };
     }
+
+    // Check if all roles are soft-deleted
+    const nonDeletedRoles = roles.filter((role) => !role.deletedAt);
+    if (nonDeletedRoles.length > 0) {
+      const nonDeletedIds = nonDeletedRoles.map((role) => role.id);
+      return {
+        statusCode: 400,
+        success: false,
+        message: `Roles with IDs ${nonDeletedIds.join(
+          ", "
+        )} are not in the trash`,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Restore roles by clearing deletedAt
+    await roleRepository.update({ id: In(ids) }, { deletedAt: null });
+
+    // Update Redis cache for all restored roles
+    const cacheUpdates: Promise<void>[] = [];
+
+    for (const role of roles) {
+      const createdBy = await role.createdBy;
+
+      const roleSession: CachedRoleInputs = {
+        id: role.id,
+        name: role.name,
+        description: role.description || "",
+        createdAt: role.createdAt.toISOString(),
+        deletedAt: "",
+        createdBy: createdBy
+          ? {
+              id: createdBy.id,
+              name: createdBy.firstName + " " + createdBy.lastName,
+              role: createdBy.role.name || "",
+            }
+          : null,
+      };
+
+      cacheUpdates.push(setRoleInfoByRoleIdInRedis(role.id, roleSession));
+    }
+
+    await Promise.all(cacheUpdates);
+
+    return {
+      statusCode: 200,
+      success: true,
+      message: `Role(s) restored successfully`,
+      __typename: "BaseResponse",
+    };
   } catch (error: any) {
     console.error("Error restoring role:", error);
 

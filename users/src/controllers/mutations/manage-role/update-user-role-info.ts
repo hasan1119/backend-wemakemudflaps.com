@@ -66,8 +66,21 @@ export const updateUserRoleInfo = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id, email: user.email },
+        where: { email: user.email },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          password: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!dbUser) {
@@ -106,6 +119,15 @@ export const updateUserRoleInfo = async (
       // Cache miss: Fetch permissions from database
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -191,6 +213,22 @@ export const updateUserRoleInfo = async (
       // Cache miss: Fetch role from database
       const dbRole = await roleRepository.findOne({
         where: { id },
+        relations: ["createdBy", "createdBy.role"],
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          createdAt: true,
+          deletedAt: true,
+          createdBy: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            role: {
+              name: true,
+            },
+          },
+        },
       });
 
       if (!dbRole) {
@@ -262,6 +300,22 @@ export const updateUserRoleInfo = async (
     // Update Redis cache for the role
     const updatedRole = await roleRepository.findOneOrFail({
       where: { id },
+      relations: ["createdBy", "createdBy.role"],
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        createdAt: true,
+        deletedAt: true,
+        createdBy: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          role: {
+            name: true,
+          },
+        },
+      },
     });
 
     const createdBy = await updatedRole.createdBy;
@@ -274,11 +328,13 @@ export const updateUserRoleInfo = async (
       deletedAt: updatedRole.deletedAt
         ? updatedRole.deletedAt.toISOString()
         : null,
-      createdBy: {
-        id: createdBy.id,
-        name: createdBy.firstName + " " + createdBy.lastName,
-        role: createdBy.role.name,
-      },
+      createdBy: createdBy
+        ? {
+            id: createdBy.id,
+            name: createdBy.firstName + " " + createdBy.lastName,
+            role: createdBy.role.name,
+          }
+        : null,
     };
 
     // Fetch users with this role to invalidate their tokens

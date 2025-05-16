@@ -126,7 +126,7 @@ export const getUserById = async (
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
         where: { id },
-        relations: ["role", "permissions"],
+        relations: ["role"],
         select: {
           id: true,
           firstName: true,
@@ -135,18 +135,7 @@ export const getUserById = async (
           gender: true,
           emailVerified: true,
           isAccountActivated: true,
-          createdAt: true,
-          deletedAt: true,
           role: { name: true },
-          permissions: {
-            id: true,
-            name: true,
-            description: true,
-            canCreate: true,
-            canRead: true,
-            canUpdate: true,
-            canDelete: true,
-          },
         },
       });
 
@@ -174,20 +163,6 @@ export const getUserById = async (
 
       // Cache user in Redis
       await setUserInfoByUserIdInRedis(id, userSession);
-
-      // Map permissions to CachedUserPermissionsInputs
-      permissions = dbUser.permissions.map((permission) => ({
-        id: permission.id,
-        name: permission.name,
-        description: permission.description || "",
-        canCreate: permission.canCreate,
-        canRead: permission.canRead,
-        canUpdate: permission.canUpdate,
-        canDelete: permission.canDelete,
-      }));
-
-      // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(id, permissions);
     } else if (!permissions) {
       // Cache miss: Fetch permissions from database
       permissions = await permissionRepository.find({
@@ -215,9 +190,10 @@ export const getUserById = async (
         })
       );
 
+      permissions = cachedPermissions;
+
       // Cache permissions in Redis
       await setUserPermissionsByUserIdInRedis(id, cachedPermissions);
-      permissions = cachedPermissions;
     }
 
     // Construct response user object matching User type

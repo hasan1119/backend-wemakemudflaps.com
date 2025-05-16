@@ -11,6 +11,7 @@ import {
 } from "../../../../helper/redis";
 import {
   BaseResponseOrError,
+  CachedUserSessionByEmailKeyInputs,
   MutationForgetPasswordArgs,
 } from "../../../../types";
 import { emailSchema } from "../../../../utils/data-validation";
@@ -76,6 +77,19 @@ export const forgetPassword = async (
       const dbUser = await userRepository.findOne({
         where: { email },
         relations: ["role"],
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          password: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!dbUser) {
@@ -93,7 +107,7 @@ export const forgetPassword = async (
       };
 
       // Create a new session for the user
-      const userSessionByEmail = {
+      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: user.id,
         email: user.email,
         firstName: user.firstName,
@@ -105,6 +119,7 @@ export const forgetPassword = async (
         password: user.password,
       };
 
+      // Cache user's info by email in Redis
       await setUserInfoByEmailInRedis(email, userSessionByEmail);
     }
 

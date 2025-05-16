@@ -63,6 +63,21 @@ export const resetPassword = async (
     const user = await userRepository.findOne({
       where: { resetPasswordToken: token },
       relations: ["role"],
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        password: true,
+        gender: true,
+        emailVerified: true,
+        isAccountActivated: true,
+        resetPasswordToken: true,
+        resetPasswordTokenExpiry: true,
+        role: {
+          name: true,
+        },
+      },
     });
 
     if (!user) {

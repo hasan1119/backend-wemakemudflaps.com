@@ -73,6 +73,18 @@ export const verifyEmail = async (
       user = await userRepository.findOne({
         where: { id: userId },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!user) {

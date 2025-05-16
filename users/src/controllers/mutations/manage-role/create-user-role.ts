@@ -66,6 +66,18 @@ export const createUserRole = async (
       const dbUser = await userRepository.findOne({
         where: { id: user.id },
         relations: ["role"],
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!dbUser) {
@@ -77,35 +89,39 @@ export const createUserRole = async (
         };
       }
 
-      userData = {
-        ...dbUser,
+      const userSession: UserSession = {
+        id: dbUser.id,
+        email: dbUser.email,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
         role: dbUser.role.name,
+        gender: dbUser.gender,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
-      const userSession: UserSession = {
-        id: userData.id,
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        role: userData.role.name,
-        gender: userData.gender,
-        emailVerified: userData.emailVerified,
-        isAccountActivated: userData.isAccountActivated,
-      };
+      userData = userSession;
 
       // Cache user in Redis
-      await setUserInfoByUserIdInRedis(user.id, userSession);
+      await setUserInfoByUserIdInRedis(user.email, userSession);
     }
 
     // Check Redis for cached user permissions
-    let userPermissions;
-
-    userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
+    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =

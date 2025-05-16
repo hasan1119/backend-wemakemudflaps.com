@@ -77,6 +77,19 @@ export const deleteUserRole = async (
       const dbUser = await userRepository.findOne({
         where: { id: user.id },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          password: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!dbUser) {
@@ -115,6 +128,15 @@ export const deleteUserRole = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -221,6 +243,21 @@ export const deleteUserRole = async (
         const dbRole = await roleRepository.findOne({
           where: { id },
           relations: ["createdBy", "createdBy.role"],
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            deletedAt: true,
+            createdBy: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              role: {
+                name: true,
+              },
+            },
+          },
         });
 
         if (!dbRole) {
@@ -309,6 +346,22 @@ export const deleteUserRole = async (
         // Fetch the updated role with required relations
         const softDeletedRole = await roleRepository.findOneOrFail({
           where: { id },
+          relations: ["createdBy", "createdBy.role"],
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            deletedAt: true,
+            createdBy: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              role: {
+                name: true,
+              },
+            },
+          },
         });
 
         const createdBy = await softDeletedRole.createdBy;

@@ -77,8 +77,21 @@ export const changePassword = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id, email: user.email },
+        where: { email: user.email },
         relations: ["role"],
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          password: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!dbUser) {

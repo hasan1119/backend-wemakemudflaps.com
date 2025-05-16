@@ -8,10 +8,12 @@ import { Role } from "../../../entities/user-role.entity";
 import { User } from "../../../entities/user.entity";
 import {
   getRoleInfoByRoleIdFromRedis,
+  getTotalUserCountByRoleIdFromRedis,
   getUserInfoByEmailInRedis,
   getUserInfoByUserIdFromRedis,
   getUserPermissionsByUserIdFromRedis,
   setRoleInfoByRoleIdInRedis,
+  setTotalUserCountByRoleIdInRedis,
   setUserInfoByUserIdInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
@@ -176,6 +178,7 @@ const ROLE_PERMISSIONS: {
 
 /**
  * Updates an existing user's role with validation, permission checks, and permission synchronization for defined roles.
+ * Updates the user count for old and new roles in Redis.
  *
  * Steps:
  * - Validates input using Zod schema
@@ -186,6 +189,7 @@ const ROLE_PERMISSIONS: {
  * - Prevents self-role changes and SUPER ADMIN role modifications
  * - Updates the user's role in the database
  * - Synchronizes user permissions if the new role is defined in ROLE_PERMISSIONS
+ * - Updates role user counts in Redis (decrement old role, increment new role)
  * - Updates related cache entries
  *
  * @param _ - Unused parent resolver argument
@@ -221,6 +225,19 @@ export const updateUserRole = async (
       const dbUser = await userRepository.findOne({
         where: { id: user.id },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          password: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!dbUser) {
@@ -257,6 +274,15 @@ export const updateUserRole = async (
       // Cache miss: Fetch permissions from database
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -348,6 +374,21 @@ export const updateUserRole = async (
       const dbRole = await roleRepository.findOne({
         where: { id: roleId },
         relations: ["createdBy", "createdBy.role"],
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          createdAt: true,
+          deletedAt: true,
+          createdBy: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            role: {
+              name: true,
+            },
+          },
+        },
       });
 
       if (!dbRole) {
@@ -359,19 +400,21 @@ export const updateUserRole = async (
         };
       }
 
+      const createdBy = await dbRole.createdBy;
+
       const roleSession: CachedRoleInputs = {
         id: dbRole.id,
         name: dbRole.name,
         description: dbRole.description,
         createdAt: dbRole.createdAt.toISOString(),
         deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
-        createdBy: {
-          id: (await dbRole.createdBy).id,
-          name: `${(await dbRole.createdBy).firstName} ${
-            (await dbRole.createdBy).lastName
-          }`,
-          role: (await dbRole.createdBy).role.name,
-        },
+        createdBy: createdBy
+          ? {
+              id: createdBy.id,
+              name: createdBy.firstName + " " + createdBy.lastName,
+              role: createdBy.role.name,
+            }
+          : null,
       };
 
       roleData = roleSession;
@@ -401,14 +444,25 @@ export const updateUserRole = async (
       };
     }
 
-    // Check Redis for cached target user's data
-    let targetUser = await getUserInfoByUserIdFromRedis(userId);
+    // Check Redis for cached target user's data and his role
+    let targetUser;
+
+    targetUser = await getUserInfoByUserIdFromRedis(userId);
+
+    let oldRoleId: string | null = null;
 
     if (!targetUser) {
       // Cache miss: Fetch the target user from the database
       const dbUser = await userRepository.findOne({
         where: { id: userId },
         relations: ["role"],
+        select: {
+          id: true,
+          role: {
+            id: true,
+            name: true,
+          },
+        },
       });
 
       if (!dbUser) {
@@ -421,9 +475,29 @@ export const updateUserRole = async (
       }
 
       targetUser = {
-        ...dbUser,
+        id: dbUser.id,
+        email: dbUser.email,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
         role: dbUser.role.name,
+        gender: dbUser.gender,
+        password: dbUser.password,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
+
+      oldRoleId = dbUser.role.id;
+    } else {
+      // Fetch old role ID from database if not in Redis
+      const dbUser = await userRepository.findOne({
+        where: { id: userId },
+        relations: ["role"],
+        select: { role: { id: true } },
+      });
+
+      if (dbUser && dbUser.role) {
+        oldRoleId = dbUser.role.id;
+      }
     }
 
     // Prevent self-role changes
@@ -496,6 +570,15 @@ export const updateUserRole = async (
       // Fetch updated permissions for caching
       const updatedPermissions = await permissionRepository.find({
         where: { user: { id: userId } },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+        },
       });
 
       const cachedPermissions: CachedUserPermissionsInputs[] =
@@ -521,6 +604,19 @@ export const updateUserRole = async (
     const updatedUser = await userRepository.findOneOrFail({
       where: { id: userId },
       relations: ["role"],
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        password: true,
+        gender: true,
+        emailVerified: true,
+        isAccountActivated: true,
+        role: {
+          name: true,
+        },
+      },
     });
 
     const updatedUserSession: UserSession = {
@@ -546,8 +642,28 @@ export const updateUserRole = async (
       password: updatedUser.password,
     };
 
-    // Cache updated user in Redis
+    // Update role user counts in Redis
+    const roleCountUpdates: Promise<void>[] = [];
+
+    if (oldRoleId && oldRoleId !== roleId) {
+      // Decrement old role's user count
+      const oldCount = await getTotalUserCountByRoleIdFromRedis(oldRoleId);
+      if (oldCount > 0) {
+        roleCountUpdates.push(
+          setTotalUserCountByRoleIdInRedis(oldRoleId, oldCount - 1)
+        );
+      }
+    }
+
+    // Increment new role's user count
+    const newCount = await getTotalUserCountByRoleIdFromRedis(roleId);
+    roleCountUpdates.push(
+      setTotalUserCountByRoleIdInRedis(roleId, newCount + 1)
+    );
+
+    // Cache updated user and role in Redis
     await Promise.all([
+      ...roleCountUpdates,
       setUserInfoByUserIdInRedis(userId, updatedUserSession),
       setUserInfoByEmailInRedis(targetUser.email, userSessionByEmail),
       removeUserTokenByUserIdFromRedis(userId),
@@ -563,6 +679,7 @@ export const updateUserRole = async (
     };
   } catch (error: any) {
     console.error("Error updating user role:", error);
+
     return {
       statusCode: 500,
       success: false,
