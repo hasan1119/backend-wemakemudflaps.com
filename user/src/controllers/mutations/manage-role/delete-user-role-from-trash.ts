@@ -165,13 +165,14 @@ export const deleteUserRoleFromTrash = async (
 
     for (const id of ids) {
       // Check Redis for cached role's data
-      let roleData = await getRoleInfoByRoleIdFromRedis(id);
+      let roleData 
+
+				roleData = await getRoleInfoByRoleIdFromRedis(id);
 
       if (!roleData) {
         // Cache miss: Fetch role from database
         const dbRole = await roleRepository.findOne({
-          where: { id },
-          relations: ["createdBy", "createdBy.role"],
+          where: { id }
         });
 
         if (!dbRole) {
@@ -183,21 +184,7 @@ export const deleteUserRoleFromTrash = async (
           };
         }
 
-        roleData = {
-          id: dbRole.id,
-          name: dbRole.name,
-          description: dbRole.description,
-          createdAt: dbRole.createdAt.toISOString(),
-          deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
-          createdBy: {
-            id: (await dbRole.createdBy).id,
-            name: `${(await dbRole.createdBy).firstName} ${
-              (await dbRole.createdBy).lastName
-            }`,
-            role: (await dbRole.createdBy).role.name,
-          },
-        };
-      }
+        roleData = dbRole;
 
       // Check if the role is soft-deleted
       if (!roleData.deletedAt) {
