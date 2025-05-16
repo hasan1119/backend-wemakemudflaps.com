@@ -230,11 +230,7 @@ union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 
 # Query response can be either a success or an error.
 union GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse
-union GetRoleByIDResponseOrError =
-    BaseResponse
-  | RoleResponse
-  | ErrorResponse
-  | RoleResponse
+union GetRoleByIDResponseOrError = BaseResponse | RoleResponse | ErrorResponse
 union GetUserByIDResponseOrError = UserResponse | ErrorResponse
 union GetUsersResponseOrError = UsersResponse | ErrorResponse
 union GetRolesResponseOrError = RolesResponse | ErrorResponse
