@@ -232,6 +232,8 @@ export const deleteUserRole = async (
           };
         }
 
+        const createdBy = await dbRole.createdBy;
+
         const roleSession: CachedRoleInputs = {
           id: dbRole.id,
           name: dbRole.name,
@@ -239,12 +241,10 @@ export const deleteUserRole = async (
           createdAt: dbRole.createdAt.toISOString(),
           deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
           createdBy: {
-            id: (await dbRole.createdBy).id,
-            name:
-              (await dbRole.createdBy).firstName +
-              " " +
-              (await dbRole.createdBy).lastName,
-            role: (await dbRole.createdBy).role.name,
+            id: createdBy.id,
+            name: createdBy.firstName +
+              " " createdBy.lastName,
+            role: createdBy.role.name,
           },
         };
 
