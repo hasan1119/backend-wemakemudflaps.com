@@ -63,7 +63,7 @@ type CachedUserPermissionsInputs {
 # Type for the user role.
 type Role {
   id: ID!
-  name: String
+  name: String!
   description: String
   createdBy: CreatedBy
   createdAt: String
@@ -78,6 +78,13 @@ type CachedRoleInputs {
   createdBy: CreatedBy!
   createdAt: String!
   deletedAt: String!
+}
+
+type RoleResponse {
+  statusCode: Int!
+  role: Role!
+  success: Boolean!
+  message: String!
 }
 
 # ---------------------- User Types ----------------------
@@ -172,7 +179,7 @@ type RolesResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  role: [Role!]!
+  roles: [Role!]!
 }
 
 # Response type when fetching the single role info.
@@ -223,7 +230,11 @@ union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 
 # Query response can be either a success or an error.
 union GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse
-union GetRoleByIDResponseOrError = BaseResponse | ErrorResponse | RoleResponse
+union GetRoleByIDResponseOrError =
+    BaseResponse
+  | RoleResponse
+  | ErrorResponse
+  | RoleResponse
 union GetUserByIDResponseOrError = UserResponse | ErrorResponse
 union GetUsersResponseOrError = UsersResponse | ErrorResponse
 union GetRolesResponseOrError = RolesResponse | ErrorResponse

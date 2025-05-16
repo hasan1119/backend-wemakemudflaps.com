@@ -96,7 +96,7 @@ export type FieldError = {
 
 export type GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse;
 
-export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
+export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse | RoleResponse;
 
 export type GetRoleResponseOrError = ErrorResponse | RoleResponse;
 
@@ -263,7 +263,7 @@ export type Role = {
 export type RoleResponse = {
   __typename?: 'RoleResponse';
   message: Scalars['String']['output'];
-  role?: Maybe<Role>;
+  role: Role;
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
 };
@@ -271,7 +271,7 @@ export type RoleResponse = {
 export type RolesResponse = {
   __typename?: 'RolesResponse';
   message: Scalars['String']['output'];
-  role: Array<Role>;
+  roles: Array<Role>;
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
 };
@@ -443,7 +443,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
   GetProfileResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
-  GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
+  GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse ) | ( RoleResponse );
   GetRoleResponseOrError: ( ErrorResponse ) | ( RoleResponse );
   GetRolesResponseOrError: ( ErrorResponse ) | ( RolesResponse );
   GetUserByIDResponseOrError: ( ErrorResponse ) | ( UserResponse );
@@ -622,7 +622,7 @@ export type GetProfileResponseOrErrorResolvers<ContextType = Context, ParentType
 };
 
 export type GetRoleByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleByIDResponseOrError'] = ResolversParentTypes['GetRoleByIDResponseOrError']> = {
-  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse' | 'RoleResponse', ParentType, ContextType>;
 };
 
 export type GetRoleResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleResponseOrError'] = ResolversParentTypes['GetRoleResponseOrError']> = {
@@ -689,7 +689,7 @@ export type RoleResolvers<ContextType = Context, ParentType extends ResolversPar
 
 export type RoleResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RoleResponse'] = ResolversParentTypes['RoleResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  role?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -697,7 +697,7 @@ export type RoleResponseResolvers<ContextType = Context, ParentType extends Reso
 
 export type RolesResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RolesResponse'] = ResolversParentTypes['RolesResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  role?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
