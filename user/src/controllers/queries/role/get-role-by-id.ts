@@ -53,7 +53,9 @@ export const getRoleById = async (
     const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
     // Check Redis for cached user data
-    let userData = await getUserInfoByUserIdFromRedis(user.id);
+    let userData;
+
+    userData = await getUserInfoByUserIdFromRedis(user.id);
 
     if (!userData) {
       // Cache miss: Fetch user from database
@@ -87,7 +89,9 @@ export const getRoleById = async (
     }
 
     // Check Redis for cached user permissions
-    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
+    let userPermissions;
+
+    userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database
@@ -193,7 +197,6 @@ export const getRoleById = async (
       await setRoleInfoByRoleIdInRedis(id, cachedRole);
     }
 
-    // Return the role data
     return {
       statusCode: 200,
       success: true,
@@ -211,8 +214,8 @@ export const getRoleById = async (
   } catch (error: any) {
     console.error("Error retrieving role:", {
       message: error.message,
-      stack: error.stack,
     });
+
     return {
       statusCode: 500,
       success: false,

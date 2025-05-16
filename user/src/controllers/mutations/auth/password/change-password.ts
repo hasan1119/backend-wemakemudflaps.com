@@ -145,7 +145,6 @@ export const changePassword = async (
     // Cache user's info by email in Redis
     await setUserInfoByEmailInRedis(user.email, userSessionByEmail);
 
-    // Return success response
     return {
       statusCode: 200,
       success: true,

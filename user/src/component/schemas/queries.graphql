@@ -5,6 +5,11 @@ type Query {
   # The response will include a `GetProfileResponseOrError` containing user data, and status.
   getProfile: GetProfileResponseOrError!
 
+  # Fetch user details by user id.
+  # This query allows you to retrieve the details of requested user's data.
+  # The response will include a `GetUserByIDResponseOrError` containing user data, and status.
+  getUserById(id: String!): GetUserByIDResponseOrError!
+
   # Fetch all users with pagination and optional search.
   # This query allows you to fetch a list of all users.
   # You can paginate the results by specifying the `pageNo` and `showPerPage`.

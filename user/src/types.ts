@@ -96,13 +96,13 @@ export type FieldError = {
 
 export type GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse;
 
-export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse | RoleResponse;
+export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
 
 export type GetRoleResponseOrError = ErrorResponse | RoleResponse;
 
 export type GetRolesResponseOrError = ErrorResponse | RolesResponse;
 
-export type GetUserByIdResponseOrError = ErrorResponse | UserResponse;
+export type GetUserByIdResponseOrError = BaseResponse | ErrorResponse | UserResponse;
 
 export type GetUsersResponseOrError = ErrorResponse | UsersResponse;
 
@@ -236,6 +236,7 @@ export type Query = {
   getProfile: GetProfileResponseOrError;
   getRole: GetRoleByIdResponseOrError;
   getRoles: GetRolesResponseOrError;
+  getUserById: GetUserByIdResponseOrError;
 };
 
 
@@ -250,6 +251,11 @@ export type QueryGetRoleArgs = {
   id: Scalars['String']['input'];
 };
 
+
+export type QueryGetUserByIdArgs = {
+  id: Scalars['String']['input'];
+};
+
 export type Role = {
   __typename?: 'Role';
   createdAt?: Maybe<Scalars['String']['output']>;
@@ -257,7 +263,7 @@ export type Role = {
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  name?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
 };
 
 export type RoleResponse = {
@@ -443,10 +449,10 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
   GetProfileResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
-  GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse ) | ( RoleResponse );
+  GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   GetRoleResponseOrError: ( ErrorResponse ) | ( RoleResponse );
   GetRolesResponseOrError: ( ErrorResponse ) | ( RolesResponse );
-  GetUserByIDResponseOrError: ( ErrorResponse ) | ( UserResponse );
+  GetUserByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
   GetUsersResponseOrError: ( ErrorResponse ) | ( UsersResponse );
   UserLoginResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserLoginResponse );
   UserProfileUpdateResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserProfileUpdateResponse );
@@ -622,7 +628,7 @@ export type GetProfileResponseOrErrorResolvers<ContextType = Context, ParentType
 };
 
 export type GetRoleByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleByIDResponseOrError'] = ResolversParentTypes['GetRoleByIDResponseOrError']> = {
-  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse' | 'RoleResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
 };
 
 export type GetRoleResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleResponseOrError'] = ResolversParentTypes['GetRoleResponseOrError']> = {
@@ -634,7 +640,7 @@ export type GetRolesResponseOrErrorResolvers<ContextType = Context, ParentType e
 };
 
 export type GetUserByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetUserByIDResponseOrError'] = ResolversParentTypes['GetUserByIDResponseOrError']> = {
-  __resolveType: TypeResolveFn<'ErrorResponse' | 'UserResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserResponse', ParentType, ContextType>;
 };
 
 export type GetUsersResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetUsersResponseOrError'] = ResolversParentTypes['GetUsersResponseOrError']> = {
@@ -675,6 +681,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
   getRole?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleArgs, 'id'>>;
   getRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType>;
+  getUserById?: Resolver<ResolversTypes['GetUserByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetUserByIdArgs, 'id'>>;
 };
 
 export type RoleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Role'] = ResolversParentTypes['Role']> = {
@@ -683,7 +690,7 @@ export type RoleResolvers<ContextType = Context, ParentType extends ResolversPar
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
