@@ -313,6 +313,8 @@ export const deleteUserRole = async (
           relations: { createdBy: { role: true } },
         });
 
+        const createdBy = await softDeletedRole.createdBy;
+
         const roleSession: CachedRoleInputs = {
           id: softDeletedRole.id,
           name: softDeletedRole.name,
@@ -320,11 +322,9 @@ export const deleteUserRole = async (
           createdAt: softDeletedRole.createdAt.toISOString(),
           deletedAt: softDeletedRole.deletedAt?.toISOString(),
           createdBy: {
-            id: (await softDeletedRole.createdBy).id,
-            name: `${(await softDeletedRole.createdBy).firstName} ${
-              (await softDeletedRole.createdBy).lastName
-            }`,
-            role: (await softDeletedRole.createdBy).role.name,
+            id: createdBy.id,
+            name: createdBy.firstName + " " + createdBy.lastName,
+            role: createdBy.role.name,
           },
         };
 
