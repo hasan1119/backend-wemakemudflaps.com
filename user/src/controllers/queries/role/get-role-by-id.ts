@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
-import { Role } from "../../../entities/role.entity";
+import { Role } from "../../../entities/user-role.entity";
 import { User } from "../../../entities/user.entity";
 import {
   getRoleInfoByRoleIdFromRedis,
