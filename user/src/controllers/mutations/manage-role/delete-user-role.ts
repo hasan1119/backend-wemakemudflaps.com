@@ -242,8 +242,7 @@ export const deleteUserRole = async (
           deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
           createdBy: {
             id: createdBy.id,
-            name: createdBy.firstName +
-              " " createdBy.lastName,
+            name: createdBy.firstName + " " + createdBy.lastName,
             role: createdBy.role.name,
           },
         };
@@ -310,7 +309,6 @@ export const deleteUserRole = async (
         // Fetch the updated role with required relations
         const softDeletedRole = await roleRepository.findOneOrFail({
           where: { id },
-          relations: { createdBy: { role: true } },
         });
 
         const createdBy = await softDeletedRole.createdBy;

@@ -165,14 +165,14 @@ export const deleteUserRoleFromTrash = async (
 
     for (const id of ids) {
       // Check Redis for cached role's data
-      let roleData 
+      let roleData;
 
-				roleData = await getRoleInfoByRoleIdFromRedis(id);
+      roleData = await getRoleInfoByRoleIdFromRedis(id);
 
       if (!roleData) {
         // Cache miss: Fetch role from database
         const dbRole = await roleRepository.findOne({
-          where: { id }
+          where: { id },
         });
 
         if (!dbRole) {
@@ -186,34 +186,35 @@ export const deleteUserRoleFromTrash = async (
 
         roleData = dbRole;
 
-      // Check if the role is soft-deleted
-      if (!roleData.deletedAt) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Role with ID ${id} is not in the trash`,
-          __typename: "BaseResponse",
-        };
+        // Check if the role is soft-deleted
+        if (!roleData.deletedAt) {
+          return {
+            statusCode: 400,
+            success: false,
+            message: `Role with ID ${id} is not in the trash`,
+            __typename: "BaseResponse",
+          };
+        }
+
+        // Permanently delete the role
+        await roleRepository.delete(id);
+
+        // Clear cache in Redis
+        await Promise.all([
+          removeRoleInfoByRoleIdFromRedis(roleData.id),
+          removeRoleInfoByRoleNameFromRedis(roleData.name),
+          removeRoleNameExistFromRedis(roleData.name),
+          removeTotalUserCountByRoleIdFromRedis(roleData.id),
+        ]);
       }
 
-      // Permanently delete the role
-      await roleRepository.delete(id);
-
-      // Clear cache in Redis
-      await Promise.all([
-        removeRoleInfoByRoleIdFromRedis(roleData.id),
-        removeRoleInfoByRoleNameFromRedis(roleData.name),
-        removeRoleNameExistFromRedis(roleData.name),
-        removeTotalUserCountByRoleIdFromRedis(roleData.id),
-      ]);
+      return {
+        statusCode: 200,
+        success: true,
+        message: "Role(s) permanently deleted from trash successfully",
+        __typename: "BaseResponse",
+      };
     }
-
-    return {
-      statusCode: 200,
-      success: true,
-      message: "Role(s) permanently deleted from trash successfully",
-      __typename: "BaseResponse",
-    };
   } catch (error: any) {
     console.error("Error deleting role from trash:", error);
 

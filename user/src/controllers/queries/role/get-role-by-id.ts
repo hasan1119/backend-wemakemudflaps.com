@@ -149,7 +149,6 @@ export const getRoleById = async (
       // Cache miss: Fetch role from database
       const dbRole = await roleRepository.findOne({
         where: { id },
-        relations: ["createdBy"],
       });
 
       if (!dbRole) {
@@ -174,8 +173,8 @@ export const getRoleById = async (
         createdBy: createdBy
           ? {
               id: createdBy.id,
-              name: `${createdBy.firstName} ${createdBy.lastName}`.trim(),
-              role: (await createdBy.role).name,
+              name: createdBy.firstName + " " + createdBy.lastName,
+              role: createdBy.role.name,
             }
           : null,
       };

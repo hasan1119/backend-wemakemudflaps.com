@@ -440,8 +440,6 @@ export const updateUserPermission = async (
           canRead: false,
           canUpdate: false,
           canDelete: false,
-          createdAt: new Date(),
-          deletedAt: null,
         });
       }
     } else if (validationResult.data.permissions) {
@@ -469,8 +467,6 @@ export const updateUserPermission = async (
               (rolePerms.delete.includes(perm.name) &&
                 (perm.canDelete ?? false)) ||
               false,
-            createdAt: new Date(),
-            deletedAt: null,
           });
         } else {
           // Apply permissions as provided for other roles
@@ -483,8 +479,6 @@ export const updateUserPermission = async (
             canRead: perm.canRead ?? false,
             canUpdate: perm.canUpdate ?? false,
             canDelete: perm.canDelete ?? false,
-            createdAt: new Date(),
-            deletedAt: null,
           });
         }
       }
