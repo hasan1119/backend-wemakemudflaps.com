@@ -7,11 +7,11 @@ import {
   getRoleInfoByRoleIdFromRedis,
   getUserInfoByEmailInRedis,
   getUserPermissionsByUserIdFromRedis,
+  removeUserTokenByUserIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setUserInfoByEmailInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
-import { removeUserTokenInfoByUserFromRedis } from "../../../helper/redis/utils/user/user-session-manage";
 import {
   BaseResponseOrError,
   CachedUserPermissionsInputs,
@@ -68,17 +68,6 @@ export const updateUserRoleInfo = async (
       const dbUser = await userRepository.findOne({
         where: { id: user.id, email: user.email },
         relations: ["role"],
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          gender: true,
-          emailVerified: true,
-          isAccountActivated: true,
-          password: true,
-          role: { name: true },
-        },
       });
 
       if (!dbUser) {
@@ -117,15 +106,6 @@ export const updateUserRoleInfo = async (
       // Cache miss: Fetch permissions from database
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -211,7 +191,6 @@ export const updateUserRoleInfo = async (
       // Cache miss: Fetch role from database
       const dbRole = await roleRepository.findOne({
         where: { id },
-        relations: ["createdBy", "createdBy.role"],
       });
 
       if (!dbRole) {
@@ -223,19 +202,21 @@ export const updateUserRoleInfo = async (
         };
       }
 
+      const createdBy = await dbRole.createdBy;
+
       const roleSession: CachedRoleInputs = {
         id: dbRole.id,
         name: dbRole.name,
         description: dbRole.description,
         createdAt: dbRole.createdAt.toISOString(),
-        deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
-        createdBy: {
-          id: (await dbRole.createdBy).id,
-          name: `${(await dbRole.createdBy).firstName} ${
-            (await dbRole.createdBy).lastName
-          }`,
-          role: (await dbRole.createdBy).role.name,
-        },
+        deletedAt: null,
+        createdBy: createdBy
+          ? {
+              id: createdBy.id,
+              name: createdBy.firstName + " " + createdBy.lastName,
+              role: createdBy.role.name,
+            }
+          : null,
       };
 
       roleData = roleSession;
@@ -281,8 +262,9 @@ export const updateUserRoleInfo = async (
     // Update Redis cache for the role
     const updatedRole = await roleRepository.findOneOrFail({
       where: { id },
-      relations: ["createdBy", "createdBy.role"],
     });
+
+    const createdBy = await updatedRole.createdBy;
 
     const updatedRoleSession: CachedRoleInputs = {
       id: updatedRole.id,
@@ -293,11 +275,9 @@ export const updateUserRoleInfo = async (
         ? updatedRole.deletedAt.toISOString()
         : null,
       createdBy: {
-        id: (await updatedRole.createdBy).id,
-        name: `${(await updatedRole.createdBy).firstName} ${
-          (await updatedRole.createdBy).lastName
-        }`,
-        role: (await updatedRole.createdBy).role.name,
+        id: createdBy.id,
+        name: createdBy.firstName + " " + createdBy.lastName,
+        role: createdBy.role.name,
       },
     };
 
@@ -309,7 +289,7 @@ export const updateUserRoleInfo = async (
 
     // Cache updated role and remove user tokens concurrently
     await Promise.all([
-      ...users.map((user) => removeUserTokenInfoByUserFromRedis(user.id)),
+      ...users.map((user) => removeUserTokenByUserIdFromRedis(user.id)),
       setRoleInfoByRoleIdInRedis(id, updatedRoleSession),
     ]);
 

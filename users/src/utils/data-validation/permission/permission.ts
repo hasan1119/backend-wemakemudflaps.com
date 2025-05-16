@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Define the Permission enum as per your GraphQL schema
-const PermissionEnum = z.enum(
+export const PermissionEnum = z.enum(
   [
     "User",
     "Brand",

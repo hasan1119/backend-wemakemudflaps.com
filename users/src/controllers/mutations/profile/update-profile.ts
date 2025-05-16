@@ -221,7 +221,6 @@ export const updateProfile = async (
 
     await Promise.all(promises);
 
-    // Return success response
     return {
       statusCode: 200,
       success: true,

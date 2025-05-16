@@ -103,15 +103,6 @@ export const restoreUserRole = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -163,13 +154,14 @@ export const restoreUserRole = async (
 
     for (const id of ids) {
       // Check Redis for cached role's data
-      let roleData = await getRoleInfoByRoleIdFromRedis(id);
+      let roleData;
+
+      roleData = await getRoleInfoByRoleIdFromRedis(id);
 
       if (!roleData) {
         // Cache miss: Fetch role from database
         const dbRole = await roleRepository.findOne({
           where: { id },
-          relations: ["createdBy", "createdBy.role"],
         });
 
         if (!dbRole) {
@@ -181,71 +173,55 @@ export const restoreUserRole = async (
           };
         }
 
+        // Check if the role is soft-deleted
+        if (!roleData.deletedAt) {
+          return {
+            statusCode: 400,
+            success: false,
+            message: `Role with ID ${id} is not in the trash`,
+            __typename: "BaseResponse",
+          };
+        }
+
+        roleData = dbRole;
+
+        // Restore the role by clearing deletedAt
+        await roleRepository.update(id, { deletedAt: null });
+
+        // Fetch the updated role with required relations
+        const restoredRole = await roleRepository.findOneOrFail({
+          where: { id },
+          relations: ["CreatedBy"],
+        });
+
+        const createdBy = await roleData.createdBy;
+
         const roleSession: CachedRoleInputs = {
-          id: dbRole.id,
-          name: dbRole.name,
-          description: dbRole.description,
-          createdAt: dbRole.createdAt.toISOString(),
-          deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
-          createdBy: {
-            id: (await dbRole.createdBy).id,
-            name: `${(await dbRole.createdBy).firstName} ${
-              (await dbRole.createdBy).lastName
-            }`,
-            role: (await dbRole.createdBy).role.name,
-          },
+          id: restoredRole.id,
+          name: restoredRole.name,
+          description: restoredRole.description,
+          createdAt: restoredRole.createdAt.toISOString(),
+          deletedAt: null,
+          createdBy: createdBy
+            ? {
+                id: createdBy.id,
+                name: createdBy.firstName + " " + createdBy.lastName,
+                role: createdBy.role.name,
+              }
+            : null,
         };
 
-        roleData = roleSession;
-
-        // Cache role in Redis
-        await setRoleInfoByRoleIdInRedis(roleData.id, roleSession);
+        // Update cache with restored role
+        await setRoleInfoByRoleIdInRedis(id, roleSession);
       }
 
-      // Check if the role is soft-deleted
-      if (!roleData.deletedAt) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Role with ID ${id} is not in the trash`,
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Restore the role by clearing deletedAt
-      await roleRepository.update(id, { deletedAt: null });
-
-      // Fetch the updated role with required relations
-      const restoredRole = await roleRepository.findOneOrFail({
-        where: { id },
-        relations: { createdBy: { role: true } },
-      });
-
-      const roleSession: CachedRoleInputs = {
-        id: restoredRole.id,
-        name: restoredRole.name,
-        description: restoredRole.description,
-        createdAt: restoredRole.createdAt.toISOString(),
-        deletedAt: null,
-        createdBy: {
-          id: (await restoredRole.createdBy).id,
-          name: `${(await restoredRole.createdBy).firstName} ${
-            (await restoredRole.createdBy).lastName
-          }`,
-          role: (await restoredRole.createdBy).role.name,
-        },
+      return {
+        statusCode: 200,
+        success: true,
+        message: "Role(s) restored successfully",
+        __typename: "BaseResponse",
       };
-
-      // Update cache with restored role
-      await setRoleInfoByRoleIdInRedis(id, roleSession);
     }
-
-    return {
-      statusCode: 200,
-      success: true,
-      message: "Role(s) restored successfully",
-      __typename: "BaseResponse",
-    };
   } catch (error: any) {
     console.error("Error restoring role:", error);
 

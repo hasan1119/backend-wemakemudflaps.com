@@ -7,7 +7,8 @@
     "dev": "bun --hot index.ts",
     "gen": "graphql-codegen",
     "redis": "redis-cli -h 195.179.193.1",
-    "redis-flush": "redis-cli -h 195.179.193.1 -p 6379 FLUSHALL"
+    "redis-flush": "redis-cli -h 195.179.193.1 -p 6379 FLUSHALL",
+    "reset:db": "bun run resetDbAndRedis.ts"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.5",

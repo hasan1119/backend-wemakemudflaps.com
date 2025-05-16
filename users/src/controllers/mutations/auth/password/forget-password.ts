@@ -44,8 +44,6 @@ export const forgetPassword = async (
 ): Promise<BaseResponseOrError> => {
   const { email } = args;
 
-  const userRepository: Repository<User> = AppDataSource.getRepository(User);
-
   try {
     // Validate input data using Zod schema
     const validationResult = await emailSchema.safeParseAsync({ email });
@@ -65,6 +63,9 @@ export const forgetPassword = async (
         __typename: "ErrorResponse",
       };
     }
+
+    // Initialize repositories
+    const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
     // Check Redis for cached user's data
     let user;
