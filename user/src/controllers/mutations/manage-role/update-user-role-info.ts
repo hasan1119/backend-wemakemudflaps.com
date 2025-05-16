@@ -7,11 +7,11 @@ import {
   getRoleInfoByRoleIdFromRedis,
   getUserInfoByEmailInRedis,
   getUserPermissionsByUserIdFromRedis,
+  removeUserTokenByUserIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setUserInfoByEmailInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
-import { removeUserTokenInfoByUserFromRedis } from "../../../helper/redis/utils/user/user-session-manage";
 import {
   BaseResponseOrError,
   CachedUserPermissionsInputs,
@@ -68,17 +68,6 @@ export const updateUserRoleInfo = async (
       const dbUser = await userRepository.findOne({
         where: { id: user.id, email: user.email },
         relations: ["role"],
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          gender: true,
-          emailVerified: true,
-          isAccountActivated: true,
-          password: true,
-          role: { name: true },
-        },
       });
 
       if (!dbUser) {
@@ -117,15 +106,6 @@ export const updateUserRoleInfo = async (
       // Cache miss: Fetch permissions from database
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -309,7 +289,7 @@ export const updateUserRoleInfo = async (
 
     // Cache updated role and remove user tokens concurrently
     await Promise.all([
-      ...users.map((user) => removeUserTokenInfoByUserFromRedis(user.id)),
+      ...users.map((user) => removeUserTokenByUserIdFromRedis(user.id)),
       setRoleInfoByRoleIdInRedis(id, updatedRoleSession),
     ]);
 

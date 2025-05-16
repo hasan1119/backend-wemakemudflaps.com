@@ -201,6 +201,7 @@ input UpdateUserPermissionInput {
   accessAll: Boolean # Whether the user has access to all permissions
   deniedAll: Boolean # Whether the user has denied to all permissions
   permissions: [SinglePermissionInput!] # Optional array of permission settings
+  password: String # Password required for non-SUPER ADMIN users.
 }
 
 # ---------------------- Unions ----------------------

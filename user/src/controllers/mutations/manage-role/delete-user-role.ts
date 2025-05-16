@@ -75,19 +75,8 @@ export const deleteUserRole = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id, email: user.email },
+        where: { id: user.id },
         relations: ["role"],
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          gender: true,
-          emailVerified: true,
-          isAccountActivated: true,
-          password: true,
-          role: { name: true },
-        },
       });
 
       if (!dbUser) {
@@ -126,15 +115,6 @@ export const deleteUserRole = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -213,6 +193,16 @@ export const deleteUserRole = async (
       }
     }
 
+    if (userData.role !== "SUPER ADMIN" && skipTrash) {
+      return {
+        statusCode: 400,
+        success: false,
+        message:
+          "Only SUPER ADMIN can permanently delete a user role. Please remove the skip to trash.",
+        __typename: "BaseResponse",
+      };
+    }
+
     // Check for protected roles
     const protectedRoles = [
       "SUPER ADMIN",
@@ -262,8 +252,8 @@ export const deleteUserRole = async (
 
         // Cache user role & name existence in Redis
         await Promise.all([
-          await setRoleInfoByRoleIdInRedis(roleData.id, roleSession),
-          await setRoleNameExistInRedis(roleData.name),
+          setRoleInfoByRoleIdInRedis(roleData.id, roleSession),
+          setRoleNameExistInRedis(roleData.name),
         ]);
       }
 
@@ -339,8 +329,10 @@ export const deleteUserRole = async (
         };
 
         // Cache newly soft-deleted role
-        await setRoleInfoByRoleIdInRedis(id, roleSession);
-        await setRoleInfoByRoleNameInRedis(id, roleSession);
+        await Promise.all([
+          setRoleInfoByRoleIdInRedis(id, roleSession),
+          setRoleInfoByRoleNameInRedis(id, roleSession),
+        ]);
       }
 
       return {

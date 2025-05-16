@@ -5,13 +5,12 @@ import { Role } from "../../../entities/user-role.entity";
 import { User } from "../../../entities/user.entity";
 import {
   getRoleInfoByRoleIdFromRedis,
-  getUserInfoByEmailInRedis,
+  getUserInfoByUserIdFromRedis,
   getUserPermissionsByUserIdFromRedis,
   removeRoleInfoByRoleIdFromRedis,
   removeRoleInfoByRoleNameFromRedis,
   removeRoleNameExistFromRedis,
   removeTotalUserCountByRoleIdFromRedis,
-  setRoleInfoByRoleIdInRedis,
   setUserInfoByEmailInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
@@ -21,10 +20,8 @@ import {
   CachedUserSessionByEmailKeyInputs,
   MutationDeleteUserRoleFromTrashArgs,
 } from "../../../types";
-import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { idsSchema } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
-import { CachedRoleInputs } from "./../../../types";
 
 /**
  * Permanently deletes a soft-deleted user role from the trash with validation and permission checks.
@@ -47,7 +44,7 @@ export const deleteUserRoleFromTrash = async (
   args: MutationDeleteUserRoleFromTrashArgs,
   { AppDataSource, user }: Context
 ): Promise<BaseResponseOrError> => {
-  const { ids, password } = args;
+  const { ids } = args;
 
   try {
     // Check user authentication
@@ -63,24 +60,13 @@ export const deleteUserRoleFromTrash = async (
     // Check Redis for cached user's data
     let userData;
 
-    userData = await getUserInfoByEmailInRedis(user.email);
+    userData = await getUserInfoByUserIdFromRedis(user.id);
 
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id, email: user.email },
+        where: { id: user.id },
         relations: ["role"],
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          gender: true,
-          emailVerified: true,
-          isAccountActivated: true,
-          password: true,
-          role: { name: true },
-        },
       });
 
       if (!dbUser) {
@@ -117,15 +103,6 @@ export const deleteUserRoleFromTrash = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -178,25 +155,12 @@ export const deleteUserRoleFromTrash = async (
 
     // Password validation for non-SUPER ADMIN users
     if (userData.role !== "SUPER ADMIN") {
-      if (!password) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: "Password is required for non-SUPER ADMIN users",
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Verify password
-      const isPasswordValid = await CompareInfo(password, userData.password);
-      if (!isPasswordValid) {
-        return {
-          statusCode: 403,
-          success: false,
-          message: "Invalid password",
-          __typename: "BaseResponse",
-        };
-      }
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Only SUPER ADMIN can permanently delete a user role.",
+        __typename: "BaseResponse",
+      };
     }
 
     for (const id of ids) {
@@ -219,7 +183,7 @@ export const deleteUserRoleFromTrash = async (
           };
         }
 
-        const roleSession: CachedRoleInputs = {
+        roleData = {
           id: dbRole.id,
           name: dbRole.name,
           description: dbRole.description,
@@ -233,11 +197,6 @@ export const deleteUserRoleFromTrash = async (
             role: (await dbRole.createdBy).role.name,
           },
         };
-
-        roleData = roleSession;
-
-        // Cache role in Redis
-        await setRoleInfoByRoleIdInRedis(roleData.id, roleSession);
       }
 
       // Check if the role is soft-deleted

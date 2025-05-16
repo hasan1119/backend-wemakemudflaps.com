@@ -103,15 +103,6 @@ export const restoreUserRole = async (
       // Cache miss: Fetch permissions from database, selecting only necessary fields
       userPermissions = await permissionRepository.find({
         where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
       });
 
       const fullPermissions: CachedUserPermissionsInputs[] =
@@ -181,7 +172,7 @@ export const restoreUserRole = async (
           };
         }
 
-        const roleSession: CachedRoleInputs = {
+        roleData = {
           id: dbRole.id,
           name: dbRole.name,
           description: dbRole.description,
@@ -195,11 +186,6 @@ export const restoreUserRole = async (
             role: (await dbRole.createdBy).role.name,
           },
         };
-
-        roleData = roleSession;
-
-        // Cache role in Redis
-        await setRoleInfoByRoleIdInRedis(roleData.id, roleSession);
       }
 
       // Check if the role is soft-deleted
@@ -218,7 +204,7 @@ export const restoreUserRole = async (
       // Fetch the updated role with required relations
       const restoredRole = await roleRepository.findOneOrFail({
         where: { id },
-        relations: { createdBy: { role: true } },
+        relations: ["CreatedBy"],
       });
 
       const roleSession: CachedRoleInputs = {

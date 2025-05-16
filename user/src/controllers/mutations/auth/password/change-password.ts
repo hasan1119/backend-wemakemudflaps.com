@@ -72,7 +72,7 @@ export const changePassword = async (
     // Check Redis for cached user's data
     let userData;
 
-    userData = getUserInfoByEmailInRedis(user.email);
+    userData = await getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
       // Cache miss: Fetch user from database

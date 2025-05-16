@@ -152,7 +152,6 @@ export type MutationDeleteUserRoleArgs = {
 
 export type MutationDeleteUserRoleFromTrashArgs = {
   ids: Array<Scalars['ID']['input']>;
-  password?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -289,6 +288,7 @@ export type SinglePermissionInput = {
 export type UpdateUserPermissionInput = {
   accessAll?: InputMaybe<Scalars['Boolean']['input']>;
   deniedAll?: InputMaybe<Scalars['Boolean']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
   permissions?: InputMaybe<Array<SinglePermissionInput>>;
   userId: Scalars['ID']['input'];
 };
