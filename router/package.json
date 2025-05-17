@@ -2,7 +2,8 @@
   "name": "marketing-door-2-door",
   "scripts": {
     "gen:sg": "rover supergraph compose --config supergraph.yaml > supergraph.graphql",
-    "start": "rover supergraph compose --config supergraph.yaml > supergraph.graphql && ./router --dev --config router.yaml --supergraph supergraph.graphql",
-    "dev": "rover dev --supergraph-config ./supergraph.yaml --router-config ./router.yaml"
+    "start": "rover supergraph compose --config supergraph.yaml > supergraph.graphql && router --dev --config router.yaml --supergraph supergraph.graphql",
+    "dev": "rover dev --supergraph-config ./supergraph.yaml --router-config ./router.yaml",
+    "server": "pm2 start rover --name steven_router -- dev --supergraph-config ./supergraph.yaml --router-config ./router.yaml"
   }
 }
