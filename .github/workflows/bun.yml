@@ -15,7 +15,7 @@ jobs:
           - name: users
             path: users
             port: 4001
-            pm2: 1
+            pm2: steven_users_subgraph
             
           # - name: products
           #   path: products
@@ -66,24 +66,55 @@ jobs:
         run: bun install
         working-directory: ${{ matrix.subgraph.path }}
 
-      - name: Restart all subgraph servers
-        run: pm2 restart ${{ matrix.subgraph.pm2 }}
+      - name: Delete process if it exists
+        run: |
+          if pm2 list | grep -q "${{ matrix.subgraph.pm2 }}"; then
+            echo "Deleting existing PM2 process"
+            pm2 delete ${{ matrix.subgraph.pm2 }}
+          else
+            echo "No existing process to delete"
+          fi
+
+      - name: Restart subgraph with PM2
+        run: pm2 start bun --name ${{ matrix.subgraph.pm2 }} -- start
         working-directory: ${{ matrix.subgraph.path }}
 
-  router:
-    runs-on: self-hosted
-    needs: subgraphs
-    defaults:
-      run:
-        working-directory: router
+      # - name: Start Apollo Router
+      #   run: pm2 restart rover_dev
+      #   working-directory: router
 
-    steps:
-      - uses: actions/checkout@v3
+  # router:
+  #   runs-on: self-hosted
+  #   needs: subgraphs
+  #   defaults:
+  #     run:
+  #       working-directory: router
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 24
-          
-      - name: Restart Apollo Router
-        run: pm2 restart 2
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 20
+
+  #     - name: Install Rover if not present
+  #       run: |
+  #         if ! command -v rover &> /dev/null; then
+  #           echo "Installing rover..."
+  #           curl -sSL https://rover.apollo.dev/nix/latest | sh -s -- --force
+  #           echo "$HOME/.rover/bin" >> $GITHUB_PATH
+  #           export PATH="$HOME/.rover/bin:$PATH"
+  #         else
+  #           echo "Rover already installed. Skipping."
+  #         fi
+
+  #     - name: Ensure Apollo Router binary is executable
+  #       run: chmod +x ./router
+
+  #     - name: Start Apollo Router
+  #       run: |
+  #         if pm2 list | grep -q "steven_router"; then
+  #           pm2 delete steven_router
+  #         fi
+  #         pm2 start npm --name steven_router -- start
