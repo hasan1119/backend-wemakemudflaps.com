@@ -66,9 +66,16 @@ jobs:
         run: bun install
         working-directory: ${{ matrix.subgraph.path }}
 
-      - name: Deleting all existing processes
-        run: pm2 delete ${{ matrix.subgraph.pm2 }}
-      - name: restarting all processes
+      - name: Delete process if it exists
+        run: |
+          if pm2 list | grep -q "${{ matrix.subgraph.pm2 }}"; then
+            echo "Deleting existing PM2 process"
+            pm2 delete ${{ matrix.subgraph.pm2 }}
+          else
+            echo "No existing process to delete"
+          fi
+
+      - name: Restart subgraph with PM2
         run: pm2 start bun --name ${{ matrix.subgraph.pm2 }} -- start
         working-directory: ${{ matrix.subgraph.path }}
 
@@ -85,7 +92,21 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 24
-          
-      - name: Restart Apollo Router
-        run: pm2 restart steven_router
+          node-version: 20
+
+      - name: Install Rover if needed
+        run: |
+          if ! command -v rover &> /dev/null; then
+            curl -sSL https://rover.apollo.dev/nix/latest | sh
+            echo "$HOME/.rover/bin" >> $GITHUB_PATH
+          fi
+
+      - name: Ensure Apollo Router binary is executable
+        run: chmod +x ./router
+
+      - name: Start Apollo Router
+        run: |
+          if pm2 list | grep -q "steven_router"; then
+            pm2 delete steven_router
+          fi
+          pm2 start bun --name steven_router -- start
