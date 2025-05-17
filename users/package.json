@@ -9,7 +9,8 @@
     "gen": "graphql-codegen",
     "redis": "redis-cli -h techanalyzen.com -p 6379 -a password",
     "redis-flush": "redis-cli -h techanalyzen.com -p 6379 -a password FLUSHALL",
-    "reset:db": "bun run resetDbAndRedis.ts"
+    "reset:db": "bun run resetDbAndRedis.ts",
+    "pm2": "pm2 start bun --name 'steven_users_subgraph' -- start --watch"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.5",
