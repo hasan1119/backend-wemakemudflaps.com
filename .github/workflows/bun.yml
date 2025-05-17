@@ -84,19 +84,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 24
-
-      - name: Install Rover CLI
-        run: |
-          curl -sSL https://rover.apollo.dev/nix/latest | sh
-          echo "$HOME/.rover/bin" >> $GITHUB_PATH
-          export PATH="$HOME/.rover/bin:$PATH"
-          rover --version
-
-      - name: Install Apollo Router
-        run: |
-          curl -sSL https://router.apollo.dev/download/nix/latest | sh
-          chmod +x ./router
-          ./router --version
-
+          
       - name: Restart Apollo Router
         run: pm2 restart 2
