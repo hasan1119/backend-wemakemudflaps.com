@@ -6,16 +6,18 @@ import {
 } from "../../../entities/permission.entity";
 import { User } from "../../../entities/user.entity";
 import {
+  getUserInfoByEmailInRedis,
   getUserInfoByUserIdFromRedis,
   getUserPermissionsByUserIdFromRedis,
+  setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
 import {
   BaseResponseOrError,
   CachedUserPermissionsInputs,
+  CachedUserSessionByEmailKeyInputs,
   MutationUpdateUserPermissionArgs,
-  UserSession,
 } from "../../../types";
 import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { updateUserPermissionSchema } from "../../../utils/data-validation";
@@ -201,7 +203,7 @@ export const updateUserPermission = async (
     // Check Redis for cached user's data
     let userData;
 
-    userData = await getUserInfoByUserIdFromRedis(user.id);
+    userData = await getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
       // Cache miss: Fetch user from database
@@ -213,6 +215,7 @@ export const updateUserPermission = async (
           firstName: true,
           lastName: true,
           email: true,
+          password: true,
           gender: true,
           emailVerified: true,
           isAccountActivated: true,
@@ -231,24 +234,22 @@ export const updateUserPermission = async (
         };
       }
 
-      userData = {
-        ...dbUser,
+      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
+        id: dbUser.id,
+        email: dbUser.email,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
         role: dbUser.role.name,
+        gender: dbUser.gender,
+        password: dbUser.password,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
-      const userSession: UserSession = {
-        id: userData.id,
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        role: userData.role.name,
-        gender: userData.gender,
-        emailVerified: userData.emailVerified,
-        isAccountActivated: userData.isAccountActivated,
-      };
+      userData = userSessionByEmail;
 
       // Cache user in Redis
-      await setUserInfoByUserIdInRedis(user.id, userSession);
+      await setUserInfoByEmailInRedis(user.email, userSessionByEmail);
     }
 
     // Check Redis for cached user permissions
@@ -367,6 +368,9 @@ export const updateUserPermission = async (
         ...dbUser,
         role: dbUser.role.name,
       };
+
+      // Cache target user in Redis
+      await setUserInfoByUserIdInRedis(userId, targetUser);
     }
 
     // Prevent changes to SUPER ADMIN permissions
@@ -394,7 +398,7 @@ export const updateUserPermission = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You can't change your own role",
+        message: "You can't change your own permissions",
         __typename: "BaseResponse",
       };
     }
@@ -421,24 +425,28 @@ export const updateUserPermission = async (
             name,
             description: `Access for ${name}`,
             user: userRepository.findOneOrFail({ where: { id: userId } }),
-            createdBy: userRepository.findOneOrFail({ where: { id: user.id } }),
-            canCreate: rolePerms.create.includes(name) || false,
-            canRead: rolePerms.read.includes(name) || false,
-            canUpdate: rolePerms.update.includes(name) || false,
-            canDelete: rolePerms.delete.includes(name) || false,
+            createdBy: userRepository.findOneOrFail({
+              where: { id: user.id },
+            }),
+            canCreate: rolePerms.create.includes(name),
+            canRead: rolePerms.read.includes(name),
+            canUpdate: rolePerms.update.includes(name),
+            canDelete: rolePerms.delete.includes(name),
           });
         }
       } else {
-        // For other roles, grant full permissions
+        // For other rolled user, grant full permissions
         const allPermissionNames = Object.values(
           PermissionEnum
         ) as PermissionName[];
         for (const name of allPermissionNames) {
           permissionsToCreate.push({
             name,
-            description: `Full access for ${name}`,
+            description: `Access for ${name}`,
             user: userRepository.findOneOrFail({ where: { id: userId } }),
-            createdBy: userRepository.findOneOrFail({ where: { id: user.id } }),
+            createdBy: userRepository.findOneOrFail({
+              where: { id: user.id },
+            }),
             canCreate: true,
             canRead: true,
             canUpdate: true,
@@ -447,16 +455,18 @@ export const updateUserPermission = async (
         }
       }
     } else if (validationResult.data.deniedAll) {
-      // Set all permissions to false for all roles
+      // Set all permissions to false for all rolled users
       const allPermissionNames = Object.values(
         PermissionEnum
       ) as PermissionName[];
       for (const name of allPermissionNames) {
         permissionsToCreate.push({
           name,
-          description: `Denied access for ${name}`,
+          description: `Access for ${name}`,
           user: userRepository.findOneOrFail({ where: { id: userId } }),
-          createdBy: userRepository.findOneOrFail({ where: { id: user.id } }),
+          createdBy: userRepository.findOneOrFail({
+            where: { id: user.id },
+          }),
           canCreate: false,
           canRead: false,
           canUpdate: false,
@@ -464,38 +474,52 @@ export const updateUserPermission = async (
         });
       }
     } else if (validationResult.data.permissions) {
-      // Apply custom permissions, restricted for CUSTOMER and INVENTORY MANAGER
+      const allPermissionNames = Object.values(
+        PermissionEnum
+      ) as PermissionName[];
+      const providedNames = new Set(
+        validationResult.data.permissions.map((p) => p.name)
+      );
+
+      // Handle provided permissions
       for (const perm of validationResult.data.permissions) {
         if (isRestrictedRole && rolePerms) {
-          // Only allow permissions defined in ROLE_PERMISSIONS
-          permissionsToCreate.push({
-            name: perm.name,
-            description: perm.description || `Permission for ${perm.name}`,
-            user: userRepository.findOneOrFail({ where: { id: userId } }),
-            createdBy: userRepository.findOneOrFail({ where: { id: user.id } }),
-            canCreate:
-              (rolePerms.create.includes(perm.name) &&
-                (perm.canCreate ?? false)) ||
-              false,
-            canRead:
-              (rolePerms.read.includes(perm.name) && (perm.canRead ?? false)) ||
-              false,
-            canUpdate:
-              (rolePerms.update.includes(perm.name) &&
-                (perm.canUpdate ?? false)) ||
-              false,
-            canDelete:
-              (rolePerms.delete.includes(perm.name) &&
-                (perm.canDelete ?? false)) ||
-              false,
-          });
+          // For restricted roles, only allow permissions defined in ROLE_PERMISSIONS
+          if (
+            rolePerms.read.includes(perm.name) ||
+            rolePerms.create.includes(perm.name) ||
+            rolePerms.update.includes(perm.name) ||
+            rolePerms.delete.includes(perm.name)
+          ) {
+            permissionsToCreate.push({
+              name: perm.name,
+              description: perm.description || `Access for ${perm.name}`,
+              user: userRepository.findOneOrFail({ where: { id: userId } }),
+              createdBy: userRepository.findOneOrFail({
+                where: { id: user.id },
+              }),
+              canCreate:
+                rolePerms.create.includes(perm.name) &&
+                (perm.canCreate ?? false),
+              canRead:
+                rolePerms.read.includes(perm.name) && (perm.canRead ?? false),
+              canUpdate:
+                rolePerms.update.includes(perm.name) &&
+                (perm.canUpdate ?? false),
+              canDelete:
+                rolePerms.delete.includes(perm.name) &&
+                (perm.canDelete ?? false),
+            });
+          }
         } else {
-          // Apply permissions as provided for other roles
+          // For non-restricted roles, apply permissions as provided
           permissionsToCreate.push({
             name: perm.name,
-            description: perm.description || `Permission for ${perm.name}`,
+            description: perm.description || `Access for ${perm.name}`,
             user: userRepository.findOneOrFail({ where: { id: userId } }),
-            createdBy: userRepository.findOneOrFail({ where: { id: user.id } }),
+            createdBy: userRepository.findOneOrFail({
+              where: { id: user.id },
+            }),
             canCreate: perm.canCreate ?? false,
             canRead: perm.canRead ?? false,
             canUpdate: perm.canUpdate ?? false,
@@ -504,29 +528,21 @@ export const updateUserPermission = async (
         }
       }
 
-      // For CUSTOMER and INVENTORY MANAGER, ensure all other permissions are false
-      if (isRestrictedRole && rolePerms) {
-        const providedNames = new Set(
-          validationResult.data.permissions.map((p) => p.name)
-        );
-        const allPermissionNames = Object.values(
-          PermissionEnum
-        ) as PermissionName[];
-        for (const name of allPermissionNames) {
-          if (!providedNames.has(name)) {
-            permissionsToCreate.push({
-              name,
-              description: `Denied access for ${name}`,
-              user: userRepository.findOneOrFail({ where: { id: userId } }),
-              createdBy: userRepository.findOneOrFail({
-                where: { id: user.id },
-              }),
-              canCreate: false,
-              canRead: false,
-              canUpdate: false,
-              canDelete: false,
-            });
-          }
+      // Add all missing permissions from PermissionEnum with all actions set to false
+      for (const name of allPermissionNames) {
+        if (!providedNames.has(name)) {
+          permissionsToCreate.push({
+            name,
+            description: `Access for ${name}`,
+            user: userRepository.findOneOrFail({ where: { id: userId } }),
+            createdBy: userRepository.findOneOrFail({
+              where: { id: user.id },
+            }),
+            canCreate: false,
+            canRead: false,
+            canUpdate: false,
+            canDelete: false,
+          });
         }
       }
     }
@@ -562,15 +578,12 @@ export const updateUserPermission = async (
       }));
 
     // Cache updated permissions
-    await Promise.all([
-      setUserPermissionsByUserIdInRedis(userId, cachedPermissions),
-    ]);
+    await setUserPermissionsByUserIdInRedis(userId, cachedPermissions);
 
     return {
       statusCode: 200,
       success: true,
-      message:
-        "User permissions updated successfully. To see the changes, the user must log out and log in again.",
+      message: "User permissions updated successfully.",
       __typename: "BaseResponse",
     };
   } catch (error: any) {

@@ -449,7 +449,7 @@ export const register = async (
 
           return permissionRepository.create({
             name,
-            description: `Access to ${name} features`,
+            description: `Access for ${name}`,
             user: savedUser,
             createdBy: null,
             canCreate,

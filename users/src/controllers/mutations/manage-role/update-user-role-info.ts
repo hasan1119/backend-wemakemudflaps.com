@@ -66,7 +66,7 @@ export const updateUserRoleInfo = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { email: user.email },
+        where: { id: user.id },
         relations: ["role"],
         select: {
           id: true,

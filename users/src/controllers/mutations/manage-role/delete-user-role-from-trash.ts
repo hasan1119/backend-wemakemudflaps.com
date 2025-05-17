@@ -177,7 +177,7 @@ export const deleteUserRoleFromTrash = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Only SUPER ADMIN can permanently delete a user role.",
+        message: "Only SUPER ADMIN can permanently delete a user role",
         __typename: "BaseResponse",
       };
     }
@@ -209,20 +209,6 @@ export const deleteUserRoleFromTrash = async (
         message: `Roles with IDs ${nonDeletedIds.join(
           ", "
         )} are not in the trash`,
-        __typename: "BaseResponse",
-      };
-    }
-
-    // Check if any users are assigned to the roles
-    const userCount = await userRepository.count({
-      where: { role: { id: In(ids) } },
-    });
-
-    if (userCount > 0) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: "Cannot delete roles with assigned users",
         __typename: "BaseResponse",
       };
     }

@@ -526,7 +526,7 @@ export const updateUserRole = async (
       return {
         statusCode: 400,
         success: false,
-        message: "Only SUPER ADMIN can modify users with the ADMIN role.",
+        message: "Only SUPER ADMIN can modify users with the ADMIN role",
         __typename: "BaseResponse",
       };
     }
@@ -552,15 +552,13 @@ export const updateUserRole = async (
       for (const name of allPermissionNames) {
         permissionsToCreate.push({
           name: name as PermissionName,
-          description: `Permission for ${name}`,
+          description: `Access for ${name}`,
           user: userRepository.findOneOrFail({ where: { id: userId } }),
           createdBy: userRepository.findOneOrFail({ where: { id: user.id } }),
           canCreate: newRolePermissions.create.includes(name),
           canRead: newRolePermissions.read.includes(name),
           canUpdate: newRolePermissions.update.includes(name),
           canDelete: newRolePermissions.delete.includes(name),
-          createdAt: new Date(),
-          deletedAt: null,
         });
       }
 
