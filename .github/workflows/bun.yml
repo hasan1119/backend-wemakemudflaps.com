@@ -94,11 +94,15 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Rover if needed
+      - name: Install Rover if not present
         run: |
           if ! command -v rover &> /dev/null; then
-            curl -sSL https://rover.apollo.dev/nix/latest | sh
+            echo "Installing rover..."
+            curl -sSL https://rover.apollo.dev/nix/latest | sh -s -- --force
             echo "$HOME/.rover/bin" >> $GITHUB_PATH
+            export PATH="$HOME/.rover/bin:$PATH"
+          else
+            echo "Rover already installed. Skipping."
           fi
 
       - name: Ensure Apollo Router binary is executable
