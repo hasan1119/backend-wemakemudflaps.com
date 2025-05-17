@@ -16,6 +16,8 @@ jobs:
             path: users
             port: 4001
             pm2: steven_users_subgraph
+        router: 
+          path: router
             
           # - name: products
           #   path: products
@@ -78,6 +80,14 @@ jobs:
       - name: Restart subgraph with PM2
         run: pm2 start bun --name ${{ matrix.subgraph.pm2 }} -- start
         working-directory: ${{ matrix.subgraph.path }}
+
+      - name: Start Apollo Router
+        run: |
+          if pm2 list | grep -q "steven_router"; then
+            pm2 delete steven_router
+          fi
+          pm2 start npm --name steven_router -- start
+        working-directory: ${{ matrix.router.path }}
 
   # router:
   #   runs-on: self-hosted
