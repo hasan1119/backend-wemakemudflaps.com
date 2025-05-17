@@ -79,38 +79,38 @@ jobs:
         run: pm2 start bun --name ${{ matrix.subgraph.pm2 }} -- start
         working-directory: ${{ matrix.subgraph.path }}
 
-  router:
-    runs-on: self-hosted
-    needs: subgraphs
-    defaults:
-      run:
-        working-directory: router
+  # router:
+  #   runs-on: self-hosted
+  #   needs: subgraphs
+  #   defaults:
+  #     run:
+  #       working-directory: router
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 20
 
-      - name: Install Rover if not present
-        run: |
-          if ! command -v rover &> /dev/null; then
-            echo "Installing rover..."
-            curl -sSL https://rover.apollo.dev/nix/latest | sh -s -- --force
-            echo "$HOME/.rover/bin" >> $GITHUB_PATH
-            export PATH="$HOME/.rover/bin:$PATH"
-          else
-            echo "Rover already installed. Skipping."
-          fi
+  #     - name: Install Rover if not present
+  #       run: |
+  #         if ! command -v rover &> /dev/null; then
+  #           echo "Installing rover..."
+  #           curl -sSL https://rover.apollo.dev/nix/latest | sh -s -- --force
+  #           echo "$HOME/.rover/bin" >> $GITHUB_PATH
+  #           export PATH="$HOME/.rover/bin:$PATH"
+  #         else
+  #           echo "Rover already installed. Skipping."
+  #         fi
 
-      - name: Ensure Apollo Router binary is executable
-        run: chmod +x ./router
+  #     - name: Ensure Apollo Router binary is executable
+  #       run: chmod +x ./router
 
-      - name: Start Apollo Router
-        run: |
-          if pm2 list | grep -q "steven_router"; then
-            pm2 delete steven_router
-          fi
-          pm2 start npm --name steven_router -- start
+  #     - name: Start Apollo Router
+  #       run: |
+  #         if pm2 list | grep -q "steven_router"; then
+  #           pm2 delete steven_router
+  #         fi
+  #         pm2 start npm --name steven_router -- start
