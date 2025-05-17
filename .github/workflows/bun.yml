@@ -15,7 +15,7 @@ jobs:
           - name: users
             path: users
             port: 4001
-            pm2: 1
+            pm2: steven_users_subgraph
             
           # - name: products
           #   path: products
@@ -67,7 +67,7 @@ jobs:
         working-directory: ${{ matrix.subgraph.path }}
 
       - name: Restart all subgraph servers
-        run: pm2 restart steven_${{ matrix.subgraph.pm2 }}_subgraph
+        run: pm2 restart ${{ matrix.subgraph.pm2 }}
         working-directory: ${{ matrix.subgraph.path }}
 
   router:
