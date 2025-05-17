@@ -67,7 +67,7 @@ jobs:
         working-directory: ${{ matrix.subgraph.path }}
 
       - name: Restart all subgraph servers
-        run: pm2 restart ${{ matrix.subgraph.pm2 }}
+        run: pm2 restart steven_${{ matrix.subgraph.pm2 }}_subgraph
         working-directory: ${{ matrix.subgraph.path }}
 
   router:
@@ -86,4 +86,4 @@ jobs:
           node-version: 24
           
       - name: Restart Apollo Router
-        run: pm2 restart 2
+        run: pm2 restart steven_router
