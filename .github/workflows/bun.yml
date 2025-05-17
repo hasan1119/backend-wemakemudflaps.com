@@ -16,8 +16,6 @@ jobs:
             path: users
             port: 4001
             pm2: steven_users_subgraph
-        router: 
-          path: router
             
           # - name: products
           #   path: products
@@ -87,7 +85,7 @@ jobs:
             pm2 delete steven_router
           fi
           pm2 start npm --name steven_router -- start
-        working-directory: ${{ matrix.router.path }}
+        working-directory: router
 
   # router:
   #   runs-on: self-hosted
