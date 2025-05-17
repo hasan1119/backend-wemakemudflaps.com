@@ -79,13 +79,9 @@ jobs:
         run: pm2 start bun --name ${{ matrix.subgraph.pm2 }} -- start
         working-directory: ${{ matrix.subgraph.path }}
 
-      # - name: Start Apollo Router
-      #   run: |
-      #     if pm2 list | grep -q "steven_router"; then
-      #       pm2 delete steven_router
-      #     fi
-      #     pm2 start npm --name steven_router -- start
-      #   working-directory: router
+      - name: Start Apollo Router
+        run: pm2 restart rover_dev
+        working-directory: router
 
   # router:
   #   runs-on: self-hosted
