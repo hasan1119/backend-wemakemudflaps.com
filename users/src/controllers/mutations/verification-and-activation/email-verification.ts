@@ -73,6 +73,18 @@ export const verifyEmail = async (
       user = await userRepository.findOne({
         where: { id: userId },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!user) {
@@ -154,9 +166,9 @@ export const verifyEmail = async (
 
     // Cache user for curd in Redis with configurable TTL(30 days = 25920000)
     await Promise.all([
-      await setUserTokenInfoByUserIdInRedis(userId, userCacheData, 25920000),
-      await setUserInfoByUserIdInRedis(userId, userCacheData),
-      await setUserInfoByEmailInRedis(user.email, userEmailCacheData),
+      setUserTokenInfoByUserIdInRedis(userId, userCacheData, 25920000),
+      setUserInfoByUserIdInRedis(userId, userCacheData),
+      setUserInfoByEmailInRedis(user.email, userEmailCacheData),
     ]);
 
     return {

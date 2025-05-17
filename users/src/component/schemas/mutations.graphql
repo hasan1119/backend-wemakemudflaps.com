@@ -75,7 +75,6 @@ type Mutation {
   # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
   deleteUserRoleFromTrash(
     ids: [ID!]! # The unique IDs of the soft-deleted user roles to be permanently deleted.
-    password: String # Password required for non-SUPER ADMIN users.
   ): BaseResponseOrError! # Returns success or failure of the role deletion.
   # Create a new user role.
   # This mutation allows authorized users (admins or super admins) to create new roles for other users.

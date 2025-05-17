@@ -75,18 +75,20 @@ export const deleteUserRole = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id, email: user.email },
+        where: { id: user.id },
         relations: ["role"],
         select: {
           id: true,
-          email: true,
           firstName: true,
           lastName: true,
+          email: true,
+          password: true,
           gender: true,
           emailVerified: true,
           isAccountActivated: true,
-          password: true,
-          role: { name: true },
+          role: {
+            name: true,
+          },
         },
       });
 
@@ -213,6 +215,16 @@ export const deleteUserRole = async (
       }
     }
 
+    if (userData.role !== "SUPER ADMIN" && skipTrash) {
+      return {
+        statusCode: 400,
+        success: false,
+        message:
+          "Only SUPER ADMIN can permanently delete a user role. Please remove the skip to trash.",
+        __typename: "BaseResponse",
+      };
+    }
+
     // Check for protected roles
     const protectedRoles = [
       "SUPER ADMIN",
@@ -231,6 +243,21 @@ export const deleteUserRole = async (
         const dbRole = await roleRepository.findOne({
           where: { id },
           relations: ["createdBy", "createdBy.role"],
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            deletedAt: true,
+            createdBy: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              role: {
+                name: true,
+              },
+            },
+          },
         });
 
         if (!dbRole) {
@@ -242,6 +269,8 @@ export const deleteUserRole = async (
           };
         }
 
+        const createdBy = await dbRole.createdBy;
+
         const roleSession: CachedRoleInputs = {
           id: dbRole.id,
           name: dbRole.name,
@@ -249,12 +278,9 @@ export const deleteUserRole = async (
           createdAt: dbRole.createdAt.toISOString(),
           deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
           createdBy: {
-            id: (await dbRole.createdBy).id,
-            name:
-              (await dbRole.createdBy).firstName +
-              " " +
-              (await dbRole.createdBy).lastName,
-            role: (await dbRole.createdBy).role.name,
+            id: createdBy.id,
+            name: createdBy.firstName + " " + createdBy.lastName,
+            role: createdBy.role.name,
           },
         };
 
@@ -262,8 +288,8 @@ export const deleteUserRole = async (
 
         // Cache user role & name existence in Redis
         await Promise.all([
-          await setRoleInfoByRoleIdInRedis(roleData.id, roleSession),
-          await setRoleNameExistInRedis(roleData.name),
+          setRoleInfoByRoleIdInRedis(roleData.id, roleSession),
+          setRoleNameExistInRedis(roleData.name),
         ]);
       }
 
@@ -320,8 +346,25 @@ export const deleteUserRole = async (
         // Fetch the updated role with required relations
         const softDeletedRole = await roleRepository.findOneOrFail({
           where: { id },
-          relations: { createdBy: { role: true } },
+          relations: ["createdBy", "createdBy.role"],
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            deletedAt: true,
+            createdBy: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              role: {
+                name: true,
+              },
+            },
+          },
         });
+
+        const createdBy = await softDeletedRole.createdBy;
 
         const roleSession: CachedRoleInputs = {
           id: softDeletedRole.id,
@@ -330,17 +373,17 @@ export const deleteUserRole = async (
           createdAt: softDeletedRole.createdAt.toISOString(),
           deletedAt: softDeletedRole.deletedAt?.toISOString(),
           createdBy: {
-            id: (await softDeletedRole.createdBy).id,
-            name: `${(await softDeletedRole.createdBy).firstName} ${
-              (await softDeletedRole.createdBy).lastName
-            }`,
-            role: (await softDeletedRole.createdBy).role.name,
+            id: createdBy.id,
+            name: createdBy.firstName + " " + createdBy.lastName,
+            role: createdBy.role.name,
           },
         };
 
         // Cache newly soft-deleted role
-        await setRoleInfoByRoleIdInRedis(id, roleSession);
-        await setRoleInfoByRoleNameInRedis(id, roleSession);
+        await Promise.all([
+          setRoleInfoByRoleIdInRedis(id, roleSession),
+          setRoleInfoByRoleNameInRedis(id, roleSession),
+        ]);
       }
 
       return {

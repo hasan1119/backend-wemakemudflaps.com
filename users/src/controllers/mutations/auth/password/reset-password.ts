@@ -33,8 +33,6 @@ export const resetPassword = async (
 ): Promise<BaseResponseOrError> => {
   const { token, newPassword } = args;
 
-  const userRepository: Repository<User> = AppDataSource.getRepository(User);
-
   try {
     // Validate input data using Zod schema
     const validationResult = await resetPasswordSchema.safeParseAsync({
@@ -58,10 +56,28 @@ export const resetPassword = async (
       };
     }
 
+    // Initialize repositories
+    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+
     // Fetch user from database
     const user = await userRepository.findOne({
       where: { resetPasswordToken: token },
       relations: ["role"],
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        password: true,
+        gender: true,
+        emailVerified: true,
+        isAccountActivated: true,
+        resetPasswordToken: true,
+        resetPasswordTokenExpiry: true,
+        role: {
+          name: true,
+        },
+      },
     });
 
     if (!user) {

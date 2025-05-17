@@ -220,8 +220,8 @@ export const login = async (
 
     // Cache user, user session for curd in Redis with configurable TTL(30 days = 25920000)
     await Promise.all([
-      await setUserTokenInfoByUserIdInRedis(user.id, session, 25920000),
-      await setUserInfoByUserIdInRedis(user.id, session),
+      setUserTokenInfoByUserIdInRedis(user.id, session, 25920000),
+      setUserInfoByUserIdInRedis(user.id, session),
     ]);
 
     return {

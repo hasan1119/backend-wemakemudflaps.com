@@ -86,6 +86,15 @@ export const updateProfile = async (
       // Cache miss: Fetch user from database
       userData = await userRepository.findOne({
         where: { id: user.id },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+        },
       });
 
       if (!userData) {
@@ -221,7 +230,6 @@ export const updateProfile = async (
 
     await Promise.all(promises);
 
-    // Return success response
     return {
       statusCode: 200,
       success: true,

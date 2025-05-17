@@ -72,13 +72,26 @@ export const changePassword = async (
     // Check Redis for cached user's data
     let userData;
 
-    userData = getUserInfoByEmailInRedis(user.email);
+    userData = await getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id, email: user.email },
+        where: { email: user.email },
         relations: ["role"],
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          gender: true,
+          emailVerified: true,
+          isAccountActivated: true,
+          password: true,
+          role: {
+            name: true,
+          },
+        },
       });
 
       if (!dbUser) {
@@ -145,7 +158,6 @@ export const changePassword = async (
     // Cache user's info by email in Redis
     await setUserInfoByEmailInRedis(user.email, userSessionByEmail);
 
-    // Return success response
     return {
       statusCode: 200,
       success: true,

@@ -18,7 +18,6 @@ async function getSession<T>(sessionId: string): Promise<T | null> {
   try {
     const session = await redisClient.get(`${sessionId}`);
     const parseData = session ? (JSON.parse(session) as T) : null;
-    console.log(parseData, "parseData");
     return parseData;
   } catch (error) {
     console.error("Error retrieving session from Redis:", error);
@@ -39,12 +38,7 @@ async function setSession(
 ): Promise<void> {
   try {
     if (ttl) {
-      await redisClient.set(
-        `${id}`,
-        JSON.stringify(sessionData),
-        "EX",
-        ttl
-      );
+      await redisClient.set(`${id}`, JSON.stringify(sessionData), "EX", ttl);
     } else {
       await redisClient.set(`${id}`, JSON.stringify(sessionData));
     }

@@ -164,12 +164,3 @@ export const removeUserEmailFromRedis = async (
 export const removeUserCountInDBFromRedis = async (): Promise<void> => {
   await redis.deleteSession(`${PREFIX.COUNT}user`);
 };
-
-/**
- * Remove user token session data from Redis by user ID.
- */
-export const removeUserTokenInfoByUserFromRedis = async (
-  userId: string
-): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.SESSION}token:${userId}`);
-};

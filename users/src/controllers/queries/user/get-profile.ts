@@ -70,7 +70,6 @@ export const getProfile = async (
       userExist = userData;
     }
 
-    // Return the user profile with role name
     return {
       statusCode: 200,
       success: true,

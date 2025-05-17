@@ -449,7 +449,7 @@ export const register = async (
 
           return permissionRepository.create({
             name,
-            description: `Access to ${name} features`,
+            description: `Access for ${name}`,
             user: savedUser,
             createdBy: null,
             canCreate,
@@ -484,8 +484,8 @@ export const register = async (
       if (!emailSent) {
         // Delete the newly created user's permissions & user
         await Promise.all([
-          await permissionRepository.delete({ user: savedUser }),
-          await userRepository.delete({ id: savedUser.id }),
+          permissionRepository.delete({ user: savedUser }),
+          userRepository.delete({ id: savedUser.id }),
         ]);
 
         return {
