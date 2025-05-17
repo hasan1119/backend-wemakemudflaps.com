@@ -15,12 +15,17 @@ jobs:
           - name: users
             path: users
             port: 4001
+            pm2: 1
+            
           # - name: products
           #   path: products
           #   port: 4002
+          #   pm2: 2
+          
           # - name: orders
           #   path: orders
           #   port: 4003
+          #   pm2: 3
 
     steps:
       - uses: actions/checkout@v3
@@ -61,6 +66,24 @@ jobs:
         run: bun install
         working-directory: ${{ matrix.subgraph.path }}
 
-      - name: Run all subgraph servers
-        run: bun start
+      - name: Restart all subgraph servers
+        run: pm2 restart ${{ matrix.subgraph.pm2 }}
         working-directory: ${{ matrix.subgraph.path }}
+
+  router:
+    runs-on: self-hosted
+    needs: subgraphs
+    defaults:
+      run:
+        working-directory: router
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+          
+      - name: Restart Apollo Router
+        run: pm2 restart 2
