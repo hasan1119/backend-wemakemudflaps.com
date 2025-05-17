@@ -1,22 +1,66 @@
-name: Bun CI
+name: Apollo Federation CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
 
 jobs:
-  test:
+  subgraphs:
     runs-on: self-hosted
+    strategy:
+      matrix:
+        subgraph:
+          - name: users
+            path: users
+            port: 4001
+          # - name: products
+          #   path: products
+          #   port: 4002
+          # - name: orders
+          #   path: orders
+          #   port: 4003
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Install Bun
+      - name: Set subgraph-specific and shared environment
         run: |
-          curl -fsSL https://bun.sh/install | bash
-          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+          echo "SUB_GRAPH_NAME=${{ matrix.subgraph.name }}" >> $GITHUB_ENV
+          echo "PORT=${{ matrix.subgraph.port }}" >> $GITHUB_ENV
+          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $GITHUB_ENV
+          echo "DB_TYPE=${{ secrets.DB_TYPE }}" >> $GITHUB_ENV
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+          echo "DB_SYNCHRONIZE=${{ secrets.DB_SYNCHRONIZE }}" >> $GITHUB_ENV
+          echo "DB_ENTITIES=${{ secrets.DB_ENTITIES }}" >> $GITHUB_ENV
+          echo "DB_MIGRATIONS=${{ secrets.DB_MIGRATIONS }}" >> $GITHUB_ENV
+          echo "SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}" >> $GITHUB_ENV
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "EXPIRE=${{ secrets.EXPIRE }}" >> $GITHUB_ENV
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> $GITHUB_ENV
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
+          echo "REDIS_SESSION_TTL=${{ secrets.REDIS_SESSION_TTL }}" >> $GITHUB_ENV
+          echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> $GITHUB_ENV
+          echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> $GITHUB_ENV
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> $GITHUB_ENV
+          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> $GITHUB_ENV
+          echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install dependencies
         run: bun install
+        working-directory: ${{ matrix.subgraph.path }}
 
-      - name: Run tests
-        run: bun test
+      - name: Run all subgraph servers
+        run: bun start
+        working-directory: ${{ matrix.subgraph.path }}
