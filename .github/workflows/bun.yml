@@ -70,20 +70,20 @@ jobs:
         run: pm2 restart ${{ matrix.subgraph.pm2 }}
         working-directory: ${{ matrix.subgraph.path }}
 
-  # router:
-  #   runs-on: self-hosted
-  #   needs: subgraphs
-  #   defaults:
-  #     run:
-  #       working-directory: router
+  router:
+    runs-on: self-hosted
+    needs: subgraphs
+    defaults:
+      run:
+        working-directory: router
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 24
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
           
-  #     - name: Restart Apollo Router
-  #       run: pm2 restart steven_router
+      - name: Restart Apollo Router
+        run: pm2 restart steven_router
