@@ -66,24 +66,26 @@ jobs:
         run: bun install
         working-directory: ${{ matrix.subgraph.path }}
 
-      - name: Restart all subgraph servers
-        run: pm2 restart ${{ matrix.subgraph.pm2 }}
+      - name: Deleting all existing processes
+        run: pm2 delete ${{ matrix.subgraph.pm2 }}
+      - name: restarting all processes
+        run: pm2 start bun --name ${{ matrix.subgraph.pm2 }} -- start
         working-directory: ${{ matrix.subgraph.path }}
 
-  # router:
-  #   runs-on: self-hosted
-  #   needs: subgraphs
-  #   defaults:
-  #     run:
-  #       working-directory: router
+  router:
+    runs-on: self-hosted
+    needs: subgraphs
+    defaults:
+      run:
+        working-directory: router
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 24
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
           
-  #     - name: Restart Apollo Router
-  #       run: pm2 restart steven_router
+      - name: Restart Apollo Router
+        run: pm2 restart steven_router
