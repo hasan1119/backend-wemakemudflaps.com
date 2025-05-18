@@ -85,15 +85,15 @@ export const accountActivation = async (
             firstName: true,
             lastName: true,
             email: true,
-            tempUpdatedEmail: true,
-            tempEmailVerified: true,
-            password: true,
-            gender: true,
             emailVerified: true,
-            isAccountActivated: true,
+            gender: true,
             role: {
               name: true,
             },
+            password: true,
+            isAccountActivated: true,
+            tempUpdatedEmail: true,
+            tempEmailVerified: true,
           },
         });
 
@@ -139,27 +139,27 @@ export const accountActivation = async (
     // Update Redis cache
     const userCacheData: UserSession = {
       id: user.id,
-      email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: roleName,
+      email: user.email,
       gender: user.gender,
-      emailVerified: true,
-      isAccountActivated: true,
+      role: roleName,
+      emailVerified: user.emailVerified,
+      isAccountActivated: user.isAccountActivated,
     };
 
     const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
       id: user.id,
-      email: user.email,
-      tempUpdatedEmail: user.tempUpdatedEmail,
-      tempEmailVerified: user.tempEmailVerified,
       firstName: user.firstName,
       lastName: user.lastName,
-      password: user.password,
-      role: roleName,
+      email: user.email,
+      emailVerified: user.emailVerified,
       gender: user.gender,
-      emailVerified: true,
-      isAccountActivated: true,
+      role: roleName,
+      password: user.password,
+      isAccountActivated: user.isAccountActivated,
+      tempUpdatedEmail: user.tempUpdatedEmail,
+      tempEmailVerified: user.tempEmailVerified,
     };
 
     // Cache user for curd in Redis

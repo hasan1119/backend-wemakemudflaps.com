@@ -68,17 +68,17 @@ export const resetPassword = async (
         firstName: true,
         lastName: true,
         email: true,
-        password: true,
-        gender: true,
         emailVerified: true,
-        tempUpdatedEmail: true,
-        tempEmailVerified: true,
-        isAccountActivated: true,
-        resetPasswordToken: true,
-        resetPasswordTokenExpiry: true,
+        gender: true,
         role: {
           name: true,
         },
+        password: true,
+        resetPasswordToken: true,
+        resetPasswordTokenExpiry: true,
+        isAccountActivated: true,
+        tempUpdatedEmail: true,
+        tempEmailVerified: true,
       },
     });
 
@@ -130,13 +130,13 @@ export const resetPassword = async (
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       email: updatedUser.email,
-      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
-      tempEmailVerified: updatedUser.tempEmailVerified,
-      password: updatedUser.password,
+      emailVerified: updatedUser.emailVerified,
       gender: updatedUser.gender,
       role: updatedUser.role.name,
-      emailVerified: updatedUser.emailVerified,
+      password: updatedUser.password,
       isAccountActivated: updatedUser.isAccountActivated,
+      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
+      tempEmailVerified: updatedUser.tempEmailVerified,
     };
 
     // Cache user in Redis

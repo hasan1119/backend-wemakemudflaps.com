@@ -83,15 +83,15 @@ export const verifyEmail = async (
           firstName: true,
           lastName: true,
           email: true,
-          tempUpdatedEmail: true,
-          tempEmailVerified: true,
-          password: true,
-          gender: true,
           emailVerified: true,
-          isAccountActivated: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -109,13 +109,11 @@ export const verifyEmail = async (
     const oldEmail = user.email;
 
     // Check if there’s a pending email to verify
-    if (!user.tempUpdatedEmail || user.tempEmailVerified) {
+    if (!user.tempUpdatedEmail) {
       return {
         statusCode: 400,
         success: false,
-        message: user.tempEmailVerified
-          ? "Email is already verified"
-          : "No pending email update",
+        message: "Invalid email to verify",
         __typename: "EmailVerificationResponse",
       };
     }
@@ -149,24 +147,26 @@ export const verifyEmail = async (
         firstName: true,
         lastName: true,
         email: true,
-        gender: true,
         emailVerified: true,
+        gender: true,
+        role: {
+          name: true,
+        },
         password: true,
-        tempEmailVerified: true,
-        tempUpdatedEmail: true,
         isAccountActivated: true,
-        role: { name: true },
+        tempUpdatedEmail: true,
+        tempEmailVerified: true,
       },
     });
 
     // Regenerate JWT token with updated email
     const token = await EncodeToken(
       updatedUser.id,
-      updatedUser.email,
       updatedUser.firstName,
       updatedUser.lastName,
-      updatedUser.role.name,
+      updatedUser.email,
       updatedUser.gender,
+      updatedUser.role.name,
       updatedUser.emailVerified,
       updatedUser.isAccountActivated,
       "30d"
@@ -175,27 +175,27 @@ export const verifyEmail = async (
     // Create session and cache data
     const userSession: UserSession = {
       id: updatedUser.id,
-      email: updatedUser.email,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
+      email: updatedUser.email,
       gender: updatedUser.gender,
+      role: updatedUser.role.name,
       emailVerified: updatedUser.emailVerified,
       isAccountActivated: updatedUser.isAccountActivated,
     };
 
     const userEmailSession: CachedUserSessionByEmailKeyInputs = {
       id: updatedUser.id,
-      email: updatedUser.email,
-      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
-      tempEmailVerified: updatedUser.tempEmailVerified,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
-      gender: updatedUser.gender,
+      email: updatedUser.email,
       emailVerified: updatedUser.emailVerified,
+      gender: updatedUser.gender,
+      role: updatedUser.role.name,
+      password: updatedUser.password,
       isAccountActivated: updatedUser.isAccountActivated,
-      password: user.password,
+      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
+      tempEmailVerified: updatedUser.tempEmailVerified,
     };
 
     // Update cache with new email and remove old email in Redis with configurable TTL(30 days = 25920000)

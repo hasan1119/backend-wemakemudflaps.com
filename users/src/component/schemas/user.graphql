@@ -93,11 +93,11 @@ type RoleResponse {
 # Type of the user session for access token and redis.
 type UserSession {
   id: ID!
-  email: String!
   firstName: String!
   lastName: String!
-  role: String!
+  email: String!
   gender: String!
+  role: String!
   emailVerified: Boolean!
   isAccountActivated: Boolean!
 }
@@ -105,16 +105,16 @@ type UserSession {
 # Type for the user cached session stored by email key in Redis.
 type CachedUserSessionByEmailKeyInputs {
   id: ID!
-  email: String!
-  tempUpdatedEmail: String!
-  tempEmailVerified: Boolean!
   firstName: String!
   lastName: String!
-  password: String!
+  email: String!
+  emailVerified: Boolean!
   gender: String!
   role: String!
-  emailVerified: Boolean!
+  password: String!
   isAccountActivated: Boolean!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
 }
 
 # Main User type, which represents the user model in the system.
@@ -123,9 +123,9 @@ type User @key(fields: "id") {
   firstName: String
   lastName: String
   email: String
+  emailVerified: Boolean
   gender: String
   role: String
-  emailVerified: Boolean
   isAccountActivated: Boolean
   permissions: [Permissions!]
   createdAt: String
@@ -147,9 +147,6 @@ type UsersResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  page: Int!
-  limit: Int!
-  search: String
   users: [User!]!
 }
 

@@ -70,11 +70,11 @@ export const restoreUserRole = async (
           lastName: true,
           email: true,
           gender: true,
-          emailVerified: true,
-          isAccountActivated: true,
           role: {
             name: true,
           },
+          emailVerified: true,
+          isAccountActivated: true,
         },
       });
 
@@ -94,11 +94,11 @@ export const restoreUserRole = async (
 
       const userSession: UserSession = {
         id: userData.id,
-        email: userData.email,
         firstName: userData.firstName,
         lastName: userData.lastName,
-        role: userData.role.name,
+        email: userData.email,
         gender: userData.gender,
+        role: userData.role.name,
         emailVerified: userData.emailVerified,
         isAccountActivated: userData.isAccountActivated,
       };

@@ -18,6 +18,7 @@ import {
   CachedUserPermissionsInputs,
   CachedUserSessionByEmailKeyInputs,
   MutationUpdateUserPermissionArgs,
+  UserSession,
 } from "../../../types";
 import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { updateUserPermissionSchema } from "../../../utils/data-validation";
@@ -215,15 +216,15 @@ export const updateUserPermission = async (
           firstName: true,
           lastName: true,
           email: true,
-          tempUpdatedEmail: true,
-          tempEmailVerified: true,
-          password: true,
-          gender: true,
           emailVerified: true,
-          isAccountActivated: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -238,16 +239,16 @@ export const updateUserPermission = async (
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: dbUser.id,
-        email: dbUser.email,
-        tempUpdatedEmail: dbUser.tempUpdatedEmail,
-        tempEmailVerified: dbUser.tempEmailVerified,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        role: dbUser.role.name,
-        gender: dbUser.gender,
-        password: dbUser.password,
+        email: dbUser.email,
         emailVerified: dbUser.emailVerified,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        password: dbUser.password,
         isAccountActivated: dbUser.isAccountActivated,
+        tempUpdatedEmail: dbUser.tempUpdatedEmail,
+        tempEmailVerified: dbUser.tempEmailVerified,
       };
 
       userData = userSessionByEmail;
@@ -357,6 +358,18 @@ export const updateUserPermission = async (
       const dbUser = await userRepository.findOne({
         where: { id: userId },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          gender: true,
+          role: {
+            name: true,
+          },
+          emailVerified: true,
+          isAccountActivated: true,
+        },
       });
 
       if (!dbUser) {
@@ -373,8 +386,19 @@ export const updateUserPermission = async (
         role: dbUser.role.name,
       };
 
+      const userSession: UserSession = {
+        id: dbUser.id,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
+        email: dbUser.email,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
+      };
+
       // Cache target user in Redis
-      await setUserInfoByUserIdInRedis(userId, targetUser);
+      await setUserInfoByUserIdInRedis(userId, userSession);
     }
 
     // Prevent changes to SUPER ADMIN permissions

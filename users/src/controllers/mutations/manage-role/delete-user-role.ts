@@ -82,15 +82,15 @@ export const deleteUserRole = async (
           firstName: true,
           lastName: true,
           email: true,
-          tempUpdatedEmail: true,
-          tempEmailVerified: true,
-          password: true,
-          gender: true,
           emailVerified: true,
-          isAccountActivated: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -105,16 +105,16 @@ export const deleteUserRole = async (
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: dbUser.id,
-        email: dbUser.email,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
+        email: dbUser.email,
+        emailVerified: dbUser.emailVerified,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        password: dbUser.password,
+        isAccountActivated: dbUser.isAccountActivated,
         tempUpdatedEmail: dbUser.tempUpdatedEmail,
         tempEmailVerified: dbUser.tempEmailVerified,
-        role: dbUser.role.name,
-        gender: dbUser.gender,
-        password: dbUser.password,
-        emailVerified: dbUser.emailVerified,
-        isAccountActivated: dbUser.isAccountActivated,
       };
 
       userData = userSessionByEmail;

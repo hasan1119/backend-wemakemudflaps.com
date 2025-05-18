@@ -230,15 +230,15 @@ export const updateUserRole = async (
           firstName: true,
           lastName: true,
           email: true,
-          tempUpdatedEmail: true,
-          tempEmailVerified: true,
-          password: true,
-          gender: true,
           emailVerified: true,
-          isAccountActivated: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -253,16 +253,16 @@ export const updateUserRole = async (
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: dbUser.id,
-        email: dbUser.email,
-        tempUpdatedEmail: dbUser.tempUpdatedEmail,
-        tempEmailVerified: dbUser.tempEmailVerified,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        role: dbUser.role.name,
-        gender: dbUser.gender,
-        password: dbUser.password,
+        email: dbUser.email,
         emailVerified: dbUser.emailVerified,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        password: dbUser.password,
         isAccountActivated: dbUser.isAccountActivated,
+        tempUpdatedEmail: dbUser.tempUpdatedEmail,
+        tempEmailVerified: dbUser.tempEmailVerified,
       };
 
       userData = userSessionByEmail;
@@ -623,25 +623,27 @@ export const updateUserRole = async (
 
     const updatedUserSession: UserSession = {
       id: updatedUser.id,
-      email: updatedUser.email,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
+      email: updatedUser.email,
       gender: updatedUser.gender,
+      role: updatedUser.role.name,
       emailVerified: updatedUser.emailVerified,
       isAccountActivated: updatedUser.isAccountActivated,
     };
 
     const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
       id: updatedUser.id,
-      email: updatedUser.email,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
-      gender: updatedUser.gender,
+      email: updatedUser.email,
       emailVerified: updatedUser.emailVerified,
-      isAccountActivated: updatedUser.isAccountActivated,
+      gender: updatedUser.gender,
+      role: updatedUser.role.name,
       password: updatedUser.password,
+      isAccountActivated: updatedUser.isAccountActivated,
+      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
+      tempEmailVerified: updatedUser.tempEmailVerified,
     };
 
     // Update role user counts in Redis

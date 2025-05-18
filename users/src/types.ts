@@ -129,7 +129,7 @@ export type Mutation = {
 
 
 export type MutationAccountActivationArgs = {
-  email?: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
   userId: Scalars['ID']['input'];
 };
 
@@ -219,7 +219,7 @@ export type MutationUpdateUserRoleInfoArgs = {
 
 
 export type MutationVerifyEmailArgs = {
-  email?: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
   userId: Scalars['ID']['input'];
 };
 
@@ -368,10 +368,7 @@ export type UserSession = {
 
 export type UsersResponse = {
   __typename?: 'UsersResponse';
-  limit: Scalars['Int']['output'];
   message: Scalars['String']['output'];
-  page: Scalars['Int']['output'];
-  search?: Maybe<Scalars['String']['output']>;
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
   users: Array<User>;
@@ -662,7 +659,7 @@ export type GetUsersResponseOrErrorResolvers<ContextType = Context, ParentType e
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'userId'>>;
+  accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
   createUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
   deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'ids' | 'skipTrash'>>;
@@ -676,7 +673,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'roleId' | 'userId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id' | 'name'>>;
-  verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'userId'>>;
+  verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email' | 'userId'>>;
 };
 
 export type PermissionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Permissions'] = ResolversParentTypes['Permissions']> = {
@@ -786,10 +783,7 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
 };
 
 export type UsersResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UsersResponse'] = ResolversParentTypes['UsersResponse']> = {
-  limit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  page?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  search?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;

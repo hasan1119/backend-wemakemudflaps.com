@@ -133,9 +133,11 @@ export const getUserById = async (
           lastName: true,
           email: true,
           gender: true,
+          role: {
+            name: true,
+          },
           emailVerified: true,
           isAccountActivated: true,
-          role: { name: true },
         },
       });
 
@@ -152,13 +154,13 @@ export const getUserById = async (
 
       const userSession: UserSession = {
         id: dbUser.id,
-        firstName: dbUser.firstName || "",
-        lastName: dbUser.lastName || "",
-        email: dbUser.email || "",
-        gender: dbUser.gender || "",
-        role: dbUser.role?.name || "",
-        emailVerified: dbUser.emailVerified || false,
-        isAccountActivated: dbUser.isAccountActivated || false,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
+        email: dbUser.email,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
       // Cache user in Redis
@@ -199,11 +201,11 @@ export const getUserById = async (
     // Construct response user object matching User type
     const responseUser = {
       id: userData.id,
-      firstName: userData.firstName || null,
-      lastName: userData.lastName || null,
-      email: userData.email || null,
-      gender: userData.gender || null,
-      role: userData.role || null,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      gender: userData.gender,
+      role: userData.role,
       emailVerified: userData.emailVerified,
       isAccountActivated: userData.isAccountActivated,
       permissions: permissions.map((perm) => ({

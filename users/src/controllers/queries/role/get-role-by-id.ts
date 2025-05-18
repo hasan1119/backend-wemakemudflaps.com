@@ -15,7 +15,7 @@ import {
   CachedRoleInputs,
   CachedUserPermissionsInputs,
   GetRoleByIdResponseOrError,
-  QueryGetRoleArgs,
+  QueryGetRoleByIdArgs,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
@@ -36,7 +36,7 @@ import { checkUserAuth } from "../../../utils/session-check/session-check";
  */
 export const getRoleById = async (
   _: any,
-  args: QueryGetRoleArgs,
+  args: QueryGetRoleByIdArgs,
   { AppDataSource, user }: Context
 ): Promise<GetRoleByIdResponseOrError> => {
   const { id } = args;
@@ -64,11 +64,13 @@ export const getRoleById = async (
         relations: ["role"],
         select: {
           id: true,
-          email: true,
           firstName: true,
           lastName: true,
-          role: true,
+          email: true,
           gender: true,
+          role: {
+            name: true,
+          },
           emailVerified: true,
           isAccountActivated: true,
         },

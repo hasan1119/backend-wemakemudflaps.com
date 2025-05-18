@@ -79,18 +79,18 @@ export const forgetPassword = async (
         relations: ["role"],
         select: {
           id: true,
-          email: true,
           firstName: true,
           lastName: true,
-          gender: true,
+          email: true,
           emailVerified: true,
-          tempUpdatedEmail: true,
-          tempEmailVerified: true,
-          isAccountActivated: true,
-          password: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -111,16 +111,16 @@ export const forgetPassword = async (
       // Create a new session for the user
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: user.id,
-        email: user.email,
-        tempUpdatedEmail: user.tempUpdatedEmail,
-        tempEmailVerified: user.tempEmailVerified,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role.name,
-        gender: user.gender,
+        email: user.email,
         emailVerified: user.emailVerified,
-        isAccountActivated: user.isAccountActivated,
+        gender: user.gender,
+        role: user.role.name,
         password: user.password,
+        isAccountActivated: user.isAccountActivated,
+        tempUpdatedEmail: user.tempUpdatedEmail,
+        tempEmailVerified: user.tempEmailVerified,
       };
 
       // Cache user's info by email in Redis

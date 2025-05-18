@@ -91,6 +91,9 @@ export const updateProfile = async (
           lastName: true,
           email: true,
           gender: true,
+          role: {
+            name: true,
+          },
           emailVerified: true,
           isAccountActivated: true,
         },
@@ -167,7 +170,6 @@ export const updateProfile = async (
       // Update temp email fields for verification
       userData.tempUpdatedEmail = email;
       userData.tempEmailVerified = false;
-      userData.emailVerified = false;
     }
 
     if (gender) userData.gender = gender;
@@ -181,14 +183,14 @@ export const updateProfile = async (
     // Save updated user data
     const updatedUser = await userRepository.save(userData);
 
-    // Regenerate the JWT token after the update
+    // Generate JWT token
     const token = await EncodeToken(
       updatedUser.id,
-      updatedUser.email,
       updatedUser.firstName,
       updatedUser.lastName,
-      preservedRole,
+      updatedUser.email,
       updatedUser.gender,
+      preservedRole,
       updatedUser.emailVerified,
       updatedUser.isAccountActivated,
       "30d" // Set the token expiration time
@@ -196,27 +198,27 @@ export const updateProfile = async (
 
     const session: UserSession = {
       id: updatedUser.id,
-      email: updatedUser.email,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
+      email: updatedUser.email,
       gender: updatedUser.gender,
-      emailVerified: updatedUser.email,
+      role: updatedUser.role.name,
+      emailVerified: updatedUser.emailVerified,
       isAccountActivated: updatedUser.isAccountActivated,
     };
 
     const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
       id: updatedUser.id,
-      email: updatedUser.email,
-      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
-      tempEmailVerified: updatedUser.tempEmailVerified,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
+      email: updatedUser.email,
+      emailVerified: updatedUser.emailVerified,
       gender: updatedUser.gender,
-      emailVerified: updatedUser.email,
-      isAccountActivated: updatedUser.isAccountActivated,
+      role: updatedUser.role.name,
       password: updatedUser.password,
+      isAccountActivated: updatedUser.isAccountActivated,
+      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
+      tempEmailVerified: updatedUser.tempEmailVerified,
     };
 
     // Cache user, user session and user email for curd in Redis with configurable TTL(30 days = 25920000)
@@ -227,7 +229,10 @@ export const updateProfile = async (
     ];
 
     if (email) {
-      promises.push(setUserEmailInRedis(email, email));
+      promises.push(
+        setUserEmailInRedis(email, email),
+        setUserInfoByEmailInRedis(email, userEmailCacheData)
+      );
     }
 
     await Promise.all(promises);
@@ -238,7 +243,7 @@ export const updateProfile = async (
       token,
       message: `${
         email
-          ? "Profile updated successfully, but please verify your email before using the account."
+          ? "Profile updated successfully, but please verify your updated email before using it as main email."
           : "Profile updated successfully"
       }`,
       __typename: "UserProfileUpdateResponse",

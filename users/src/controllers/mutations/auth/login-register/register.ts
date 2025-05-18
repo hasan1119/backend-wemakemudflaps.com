@@ -270,27 +270,27 @@ export const register = async (
       // Create a new session for the user
       const session: UserSession = {
         id: savedUser.id,
-        email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        role: savedUser.role.name,
+        email: savedUser.email,
         gender: savedUser.gender,
+        role: savedUser.role.name,
         emailVerified: savedUser.emailVerified,
         isAccountActivated: savedUser.isAccountActivated,
       };
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
-        email: savedUser.email,
-        tempUpdatedEmail: savedUser.tempUpdatedEmail,
-        tempEmailVerified: savedUser.tempEmailVerified,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        role: savedUser.role.name,
-        gender: savedUser.gender,
+        email: savedUser.email,
         emailVerified: savedUser.emailVerified,
+        gender: savedUser.gender,
+        role: savedUser.role.name,
+        password: savedUser.password,
         isAccountActivated: savedUser.isAccountActivated,
-        password: hashedPassword,
+        tempUpdatedEmail: savedUser.tempUpdatedEmail,
+        tempEmailVerified: savedUser.tempEmailVerified,
       };
 
       const userPermissions: CachedUserPermissionsInputs[] =
@@ -501,27 +501,27 @@ export const register = async (
       // Create a new session for the user
       const session: UserSession = {
         id: savedUser.id,
-        email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        role: savedUser.role.name,
+        email: savedUser.email,
         gender: savedUser.gender,
+        role: savedUser.role.name,
         emailVerified: savedUser.emailVerified,
         isAccountActivated: savedUser.isAccountActivated,
       };
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
-        email: savedUser.email,
-        tempUpdatedEmail: savedUser.tempUpdatedEmail,
-        tempEmailVerified: savedUser.tempEmailVerified,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        role: savedUser.role.name,
-        gender: savedUser.gender,
+        email: savedUser.email,
         emailVerified: savedUser.emailVerified,
+        gender: savedUser.gender,
+        role: savedUser.role.name,
+        password: savedUser.password,
         isAccountActivated: savedUser.isAccountActivated,
-        password: hashedPassword,
+        tempUpdatedEmail: savedUser.tempUpdatedEmail,
+        tempEmailVerified: savedUser.tempEmailVerified,
       };
 
       const userPermissions: CachedUserPermissionsInputs[] =

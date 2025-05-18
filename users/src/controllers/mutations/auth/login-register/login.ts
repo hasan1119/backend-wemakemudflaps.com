@@ -82,6 +82,19 @@ export const login = async (
       const dbUser = await userRepository.findOne({
         where: { email },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          emailVerified: true,
+          gender: true,
+          role: {
+            name: true,
+          },
+          password: true,
+          isAccountActivated: true,
+        },
       });
 
       if (!dbUser) {
@@ -100,16 +113,16 @@ export const login = async (
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: user.id,
-        email: user.email,
-        tempUpdatedEmail: user.tempUpdatedEmail,
-        tempEmailVerified: user.tempEmailVerified,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role.name,
-        gender: user.gender,
+        email: user.email,
         emailVerified: user.emailVerified,
-        isAccountActivated: user.isAccountActivated,
+        gender: user.gender,
+        role: user.role.name,
         password: user.password,
+        isAccountActivated: user.isAccountActivated,
+        tempUpdatedEmail: user.tempUpdatedEmail,
+        tempEmailVerified: user.tempEmailVerified,
       };
 
       // Cache user in Redis
@@ -198,11 +211,11 @@ export const login = async (
     // Generate JWT token
     const token = await EncodeToken(
       user.id,
-      user.email,
       user.firstName,
       user.lastName,
-      roleName,
+      user.email,
       user.gender,
+      roleName,
       user.emailVerified,
       user.isAccountActivated,
       "30d" // Set the token expiration time
@@ -211,11 +224,11 @@ export const login = async (
     // Create and store session
     const session: UserSession = {
       id: user.id,
-      email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: roleName,
+      email: user.email,
       gender: user.gender,
+      role: roleName,
       emailVerified: user.emailVerified,
       isAccountActivated: user.isAccountActivated,
     };

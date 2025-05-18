@@ -73,15 +73,15 @@ export const updateUserRoleInfo = async (
           firstName: true,
           lastName: true,
           email: true,
-          tempUpdatedEmail: true,
-          tempEmailVerified: true,
-          password: true,
-          gender: true,
           emailVerified: true,
-          isAccountActivated: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -96,16 +96,16 @@ export const updateUserRoleInfo = async (
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: dbUser.id,
-        email: dbUser.email,
-        tempUpdatedEmail: dbUser.tempUpdatedEmail,
-        tempEmailVerified: dbUser.tempEmailVerified,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        role: dbUser.role.name,
-        gender: dbUser.gender,
-        password: dbUser.password,
+        email: dbUser.email,
         emailVerified: dbUser.emailVerified,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        password: dbUser.password,
         isAccountActivated: dbUser.isAccountActivated,
+        tempUpdatedEmail: dbUser.tempUpdatedEmail,
+        tempEmailVerified: dbUser.tempEmailVerified,
       };
 
       userData = userSessionByEmail;
