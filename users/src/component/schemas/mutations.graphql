@@ -103,12 +103,13 @@ type Mutation {
   # The response will include a EmailVerificationResponseOrError indicating success or failure of the operation.
   verifyEmail(
     userId: ID! # The unique identifier of the user to verify their email.
+    email: String! # The email of the user to verify.
   ): EmailVerificationResponseOrError! # Returns success or failure of the operation.
   # User account activation.
   # This mutation allows a user to verify their account using a user ID from the verification link.
   # The response will include a BaseResponseOrError indicating success or failure of the operation.
   accountActivation(
     userId: ID! # The unique identifier of the user to verify their account.
-    email: String # The email of the user to verify their account.
+    email: String! # The email of the user to verify their account.
   ): ActiveAccountResponseOrError! # Returns success or failure of the operation.
 }

@@ -84,6 +84,8 @@ export const forgetPassword = async (
           lastName: true,
           gender: true,
           emailVerified: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
           isAccountActivated: true,
           password: true,
           role: {
@@ -110,6 +112,8 @@ export const forgetPassword = async (
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: user.id,
         email: user.email,
+        tempUpdatedEmail: user.tempUpdatedEmail,
+        tempEmailVerified: user.tempEmailVerified,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role.name,

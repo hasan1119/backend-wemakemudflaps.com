@@ -219,6 +219,7 @@ export type MutationUpdateUserRoleInfoArgs = {
 
 
 export type MutationVerifyEmailArgs = {
+  email?: InputMaybe<Scalars['String']['input']>;
   userId: Scalars['ID']['input'];
 };
 

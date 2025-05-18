@@ -7,11 +7,13 @@ export const userRoleSchema = z.object({
     .string()
     .min(3, "Role name must be at least 3 characters long")
     .max(50, "Role name must not exceed 50 characters")
+    .trim()
     .transform((val) => val.toUpperCase()),
   description: z
     .string()
     .min(3, "Role description must be at least 3 characters long")
     .max(50, "Role description must not exceed 50 characters")
+    .trim()
     .optional(),
   password: z.string().optional(),
 });

@@ -28,7 +28,7 @@ export class User {
 
   // User's unique temp email address during profile update
   @Column({ unique: true, nullable: true })
-  tempUpdateEmail: string | null;
+  tempUpdatedEmail: string | null;
 
   // Hashed password of the user
   @Column()

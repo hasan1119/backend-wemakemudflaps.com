@@ -235,7 +235,7 @@ export const register = async (
       const fullPermissions = await permissionRepository.save(permissions);
 
       // Create the account activation link with user id
-      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
+      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}&email=${email}`;
 
       // Prepare email contents
       const subject = "Account Activation Request";
@@ -282,6 +282,8 @@ export const register = async (
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
         email: savedUser.email,
+        tempUpdatedEmail: savedUser.tempUpdatedEmail,
+        tempEmailVerified: savedUser.tempEmailVerified,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
         role: savedUser.role.name,
@@ -460,12 +462,11 @@ export const register = async (
         }
       );
 
-      const fullPermissions = await permissionRepository.save(
-        customerPermissions
-      );
+      const fullPermissions =
+        await permissionRepository.save(customerPermissions);
 
       // Create the account activation link with user id
-      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
+      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}&email=${email}`;
 
       // Prepare email contents
       const subject = "Account Activation Request";
@@ -512,6 +513,8 @@ export const register = async (
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
         email: savedUser.email,
+        tempUpdatedEmail: savedUser.tempUpdatedEmail,
+        tempEmailVerified: savedUser.tempEmailVerified,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
         role: savedUser.role.name,

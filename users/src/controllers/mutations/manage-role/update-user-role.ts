@@ -230,6 +230,8 @@ export const updateUserRole = async (
           firstName: true,
           lastName: true,
           email: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
           password: true,
           gender: true,
           emailVerified: true,
@@ -252,6 +254,8 @@ export const updateUserRole = async (
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: dbUser.id,
         email: dbUser.email,
+        tempUpdatedEmail: dbUser.tempUpdatedEmail,
+        tempEmailVerified: dbUser.tempEmailVerified,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
         role: dbUser.role.name,

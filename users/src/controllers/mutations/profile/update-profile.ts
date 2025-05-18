@@ -5,7 +5,6 @@ import { User } from "../../../entities/user.entity";
 import {
   getUserEmailFromRedis,
   getUserInfoByUserIdFromRedis,
-  removeUserInfoByEmailFromRedis,
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
@@ -113,9 +112,8 @@ export const updateProfile = async (
     if (lastName) userData.lastName = lastName;
 
     if (email && email !== userData.email) {
-      const emailInUse = await getUserEmailFromRedis(email);
-
-      if (emailInUse) {
+      // Check if the new email is already in use
+      if (await getUserEmailFromRedis(email)) {
         return {
           statusCode: 409,
           success: false,
@@ -124,9 +122,11 @@ export const updateProfile = async (
         };
       }
 
-      // Cache miss: Fetch user from database while excluding current user ID
       const existingUser = await userRepository.findOne({
-        where: { email, id: Not(user.id) },
+        where: [
+          { email, id: Not(user.id) },
+          { tempUpdatedEmail: email, id: Not(user.id) },
+        ],
       });
 
       if (existingUser) {
@@ -139,12 +139,12 @@ export const updateProfile = async (
       }
 
       // Create the email verification link with user id
-      const verifyEmail = `${CONFIG.FRONTEND_URL}/verify-email/?userId=${userData.id}`;
+      const verifyEmail = `${CONFIG.FRONTEND_URL}/verify-email/?userId=${userData.id}&email=${email}`;
 
       // Prepare email contents
       const subject = "Verify Email Request";
       const text = `Please use the following link to verify your email: ${verifyEmail}`;
-      const html = `<p>Please use the following link to active your account: <a href="${verifyEmail}">${verifyEmail}</a></p>`;
+      const html = `<p>Please use the following link to verify your email to use it as main email: <a href="${verifyEmail}">${verifyEmail}</a></p>`;
 
       // Attempt to send the reset email
       const emailSent = await SendEmail({
@@ -164,8 +164,9 @@ export const updateProfile = async (
         };
       }
 
-      userData.email = email;
-
+      // Update temp email fields for verification
+      userData.tempUpdatedEmail = email;
+      userData.tempEmailVerified = false;
       userData.emailVerified = false;
     }
 
@@ -207,6 +208,8 @@ export const updateProfile = async (
     const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
       id: updatedUser.id,
       email: updatedUser.email,
+      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
+      tempEmailVerified: updatedUser.tempEmailVerified,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       role: updatedUser.role.name,
@@ -224,7 +227,6 @@ export const updateProfile = async (
     ];
 
     if (email) {
-      promises.push(removeUserInfoByEmailFromRedis(user.email));
       promises.push(setUserEmailInRedis(email, email));
     }
 

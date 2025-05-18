@@ -86,6 +86,8 @@ export const changePassword = async (
           lastName: true,
           gender: true,
           emailVerified: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
           isAccountActivated: true,
           password: true,
           role: {
@@ -146,6 +148,8 @@ export const changePassword = async (
     const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
       id: userData.id,
       email: userData.email,
+      tempUpdatedEmail: userData.tempUpdatedEmail,
+      tempEmailVerified: userData.tempEmailVerified,
       firstName: userData.firstName,
       lastName: userData.lastName,
       role: roleName,

@@ -101,6 +101,8 @@ export const login = async (
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: user.id,
         email: user.email,
+        tempUpdatedEmail: user.tempUpdatedEmail,
+        tempEmailVerified: user.tempEmailVerified,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role.name,
