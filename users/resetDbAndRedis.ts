@@ -4,7 +4,7 @@ import { Pool } from "pg";
 // PostgreSQL configuration
 const pgConfig = {
   user: "postgres",
-  host: "195.179.193.1",
+  host: "techanalyzen.com",
   password: "password",
   port: 5432,
   database: "steven", // Connect directly to the steven database
@@ -12,7 +12,7 @@ const pgConfig = {
 
 // Redis configuration
 const redisConfig = {
-  host: "195.179.193.1",
+  host: "techanalyzen.com",
   port: 6379,
   password: "password",
 };
