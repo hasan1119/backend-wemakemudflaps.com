@@ -5,13 +5,13 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Permission } from './permission.entity';
-import { Role } from './user-role.entity';
+} from "typeorm";
+import { Permission } from "./permission.entity";
+import { Role } from "./user-role.entity";
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   // First name of the user
@@ -26,14 +26,18 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  // User's unique temp email address during profile update
+  @Column({ unique: true, nullable: true })
+  tempUpdateEmail: string | null;
+
   // Hashed password of the user
   @Column()
   password: string;
 
   // Gender of the user (optional)
   @Column({
-    type: 'enum',
-    enum: ['Male', 'Female', 'Others', 'Rather not to say'],
+    type: "enum",
+    enum: ["Male", "Female", "Others", "Rather not to say"],
     nullable: true,
     default: null,
   })
@@ -41,7 +45,7 @@ export class User {
 
   // Each user has only one role
   @ManyToOne(() => Role, (role) => role.users, { nullable: false })
-  @JoinColumn({ name: 'roleId' })
+  @JoinColumn({ name: "roleId" })
   role: Role;
 
   // Forget password token
@@ -49,7 +53,7 @@ export class User {
   resetPasswordToken: string | null;
 
   // Reset password token expiry
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   resetPasswordTokenExpiry: Date | null;
 
   // Roles created by this user
@@ -67,15 +71,19 @@ export class User {
   @Column({ default: false })
   emailVerified: boolean;
 
+  // User's unique temp email address verification status during profile update
+  @Column({ default: false, nullable: true })
+  tempEmailVerified: boolean | null;
+
   // Account activation status
   @Column({ default: false })
   isAccountActivated: boolean;
 
   // Timestamp when the user was created
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   deletedAt: Date | null;
 }

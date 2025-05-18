@@ -25,10 +25,17 @@ type Query {
   # Fetch all user role info.
   # This query allows you to retrieve all the user roles.
   # The response will include a `GetRoleByIDResponseOrError` containing a single user role info, and status.
-  getRole(id: String!): GetRoleByIDResponseOrError!
+  getRoleById(id: String!): GetRoleByIDResponseOrError!
 
-  # Fetch all user roles.
-  # This query allows you to retrieve all the user roles.
-  # The response will include a `GetRolesResponseOrError` containing user roles info, and status.
-  getRoles: GetRolesResponseOrError!
+  # Fetch all users roles with pagination and optional search.
+  # This query allows you to fetch a list of all user roles.
+  # You can paginate the results by specifying the `pageNo` and `showPerPage`.
+  # You can also filter the users by a `searchKeyWord` (e.g., searching by name or description).
+  # If no `searchKeyWord` is provided, it returns all user roles.
+  # The response will include a `GetRolesResponseOrError` containing users data, and status.
+  getAllRoles(
+    pageNo: Int! # The page number to fetch (for pagination).
+    showPerPage: Int! # The number of users to display per page (for pagination).
+    searchKeyWord: String # Optional search term to filter users (can be by name, description, etc.).
+  ): GetRolesResponseOrError!
 }

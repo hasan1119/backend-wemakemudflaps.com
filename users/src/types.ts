@@ -61,6 +61,8 @@ export type CachedUserSessionByEmailKeyInputs = {
   lastName: Scalars['String']['output'];
   password: Scalars['String']['output'];
   role: Scalars['String']['output'];
+  tempEmailVerified: Scalars['Boolean']['output'];
+  tempUpdatedEmail: Scalars['String']['output'];
 };
 
 export type CreatedBy = {
@@ -98,13 +100,13 @@ export type GetProfileResponseOrError = BaseResponse | ErrorResponse | UserRespo
 
 export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
 
-export type GetRoleResponseOrError = ErrorResponse | RoleResponse;
+export type GetRoleResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
 
-export type GetRolesResponseOrError = ErrorResponse | RolesResponse;
+export type GetRolesResponseOrError = BaseResponse | ErrorResponse | RolesResponse;
 
 export type GetUserByIdResponseOrError = BaseResponse | ErrorResponse | UserResponse;
 
-export type GetUsersResponseOrError = ErrorResponse | UsersResponse;
+export type GetUsersResponseOrError = BaseResponse | ErrorResponse | UsersResponse;
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -127,6 +129,7 @@ export type Mutation = {
 
 
 export type MutationAccountActivationArgs = {
+  email?: InputMaybe<Scalars['String']['input']>;
   userId: Scalars['ID']['input'];
 };
 
@@ -232,11 +235,18 @@ export type Permissions = {
 
 export type Query = {
   __typename?: 'Query';
+  getAllRoles: GetRolesResponseOrError;
   getAllUsers: GetUsersResponseOrError;
   getProfile: GetProfileResponseOrError;
-  getRole: GetRoleByIdResponseOrError;
-  getRoles: GetRolesResponseOrError;
+  getRoleById: GetRoleByIdResponseOrError;
   getUserById: GetUserByIdResponseOrError;
+};
+
+
+export type QueryGetAllRolesArgs = {
+  pageNo: Scalars['Int']['input'];
+  searchKeyWord?: InputMaybe<Scalars['String']['input']>;
+  showPerPage: Scalars['Int']['input'];
 };
 
 
@@ -247,7 +257,7 @@ export type QueryGetAllUsersArgs = {
 };
 
 
-export type QueryGetRoleArgs = {
+export type QueryGetRoleByIdArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -264,6 +274,7 @@ export type Role = {
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  totalUserCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type RoleResponse = {
@@ -450,10 +461,10 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
   GetProfileResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
   GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
-  GetRoleResponseOrError: ( ErrorResponse ) | ( RoleResponse );
-  GetRolesResponseOrError: ( ErrorResponse ) | ( RolesResponse );
+  GetRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
+  GetRolesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RolesResponse );
   GetUserByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
-  GetUsersResponseOrError: ( ErrorResponse ) | ( UsersResponse );
+  GetUsersResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UsersResponse );
   UserLoginResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserLoginResponse );
   UserProfileUpdateResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserProfileUpdateResponse );
 };
@@ -587,6 +598,8 @@ export type CachedUserSessionByEmailKeyInputsResolvers<ContextType = Context, Pa
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -632,11 +645,11 @@ export type GetRoleByIdResponseOrErrorResolvers<ContextType = Context, ParentTyp
 };
 
 export type GetRoleResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleResponseOrError'] = ResolversParentTypes['GetRoleResponseOrError']> = {
-  __resolveType: TypeResolveFn<'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
 };
 
 export type GetRolesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRolesResponseOrError'] = ResolversParentTypes['GetRolesResponseOrError']> = {
-  __resolveType: TypeResolveFn<'ErrorResponse' | 'RolesResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RolesResponse', ParentType, ContextType>;
 };
 
 export type GetUserByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetUserByIDResponseOrError'] = ResolversParentTypes['GetUserByIDResponseOrError']> = {
@@ -644,7 +657,7 @@ export type GetUserByIdResponseOrErrorResolvers<ContextType = Context, ParentTyp
 };
 
 export type GetUsersResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetUsersResponseOrError'] = ResolversParentTypes['GetUsersResponseOrError']> = {
-  __resolveType: TypeResolveFn<'ErrorResponse' | 'UsersResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UsersResponse', ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
@@ -677,10 +690,10 @@ export type PermissionsResolvers<ContextType = Context, ParentType extends Resol
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'pageNo' | 'showPerPage'>>;
   getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'pageNo' | 'showPerPage'>>;
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
-  getRole?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleArgs, 'id'>>;
-  getRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType>;
+  getRoleById?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleByIdArgs, 'id'>>;
   getUserById?: Resolver<ResolversTypes['GetUserByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetUserByIdArgs, 'id'>>;
 };
 
@@ -691,6 +704,7 @@ export type RoleResolvers<ContextType = Context, ParentType extends ResolversPar
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  totalUserCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

@@ -65,6 +65,7 @@ type Role {
   id: ID!
   name: String!
   description: String
+  totalUserCount: Int
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String
@@ -105,6 +106,8 @@ type UserSession {
 type CachedUserSessionByEmailKeyInputs {
   id: ID!
   email: String!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
   firstName: String!
   lastName: String!
   password: String!
@@ -216,15 +219,15 @@ input UpdateUserPermissionInput {
 # Mutation responses can be either a success or an error.
 union BaseResponseOrError = BaseResponse | ErrorResponse
 union UserLoginResponseOrError =
-    BaseResponse
+  | BaseResponse
   | UserLoginResponse
   | ErrorResponse
 union UserProfileUpdateResponseOrError =
-    BaseResponse
+  | BaseResponse
   | UserProfileUpdateResponse
   | ErrorResponse
 union EmailVerificationResponseOrError =
-    EmailVerificationResponse
+  | EmailVerificationResponse
   | ErrorResponse
 union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 
@@ -232,6 +235,6 @@ union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 union GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse
 union GetRoleByIDResponseOrError = BaseResponse | RoleResponse | ErrorResponse
 union GetUserByIDResponseOrError = BaseResponse | UserResponse | ErrorResponse
-union GetUsersResponseOrError = UsersResponse | ErrorResponse
-union GetRolesResponseOrError = RolesResponse | ErrorResponse
-union GetRoleResponseOrError = RoleResponse | ErrorResponse
+union GetUsersResponseOrError = BaseResponse | UsersResponse | ErrorResponse
+union GetRolesResponseOrError = BaseResponse | RolesResponse | ErrorResponse
+union GetRoleResponseOrError = BaseResponse | RoleResponse | ErrorResponse
