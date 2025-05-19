@@ -61,7 +61,7 @@ export const resetPassword = async (
 
     // Fetch user from database
     const user = await userRepository.findOne({
-      where: { resetPasswordToken: token },
+      where: { resetPasswordToken: token, deletedAt: null },
       relations: ["role"],
       select: {
         id: true,
@@ -86,7 +86,7 @@ export const resetPassword = async (
       return {
         statusCode: 400,
         success: false,
-        message: `User not found with this token: ${token}`,
+        message: `User not found with this token: ${token} or has been deleted`,
         __typename: "ErrorResponse",
       };
     }

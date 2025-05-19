@@ -64,7 +64,7 @@ export const createUserRole = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,

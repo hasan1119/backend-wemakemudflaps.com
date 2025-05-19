@@ -223,7 +223,7 @@ export const updateUserRole = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
@@ -458,7 +458,7 @@ export const updateUserRole = async (
     if (!targetUser) {
       // Cache miss: Fetch the target user from the database
       const dbUser = await userRepository.findOne({
-        where: { id: userId },
+        where: { id: userId, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
@@ -473,7 +473,7 @@ export const updateUserRole = async (
         return {
           statusCode: 404,
           success: false,
-          message: `User with ID ${userId} not found`,
+          message: `User with ID ${userId} not found or has been deleted`,
           __typename: "BaseResponse",
         };
       }
@@ -494,10 +494,19 @@ export const updateUserRole = async (
     } else {
       // Fetch old role ID from database if not in Redis
       const dbUser = await userRepository.findOne({
-        where: { id: userId },
+        where: { id: userId, deletedAt: null },
         relations: ["role"],
         select: { role: { id: true } },
       });
+
+      if (!dbUser) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: `User with ID ${userId} not found or has been deleted`,
+          __typename: "BaseResponse",
+        };
+      }
 
       if (dbUser && dbUser.role) {
         oldRoleId = dbUser.role.id;

@@ -76,7 +76,7 @@ export const verifyEmail = async (
     if (!user) {
       // Cache miss: Fetch user from database
       user = await userRepository.findOne({
-        where: { id: userId, tempUpdatedEmail: email },
+        where: { id: userId, tempUpdatedEmail: email, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
@@ -120,7 +120,7 @@ export const verifyEmail = async (
 
     // Update user with verified email
     const updateResult = await userRepository.update(
-      { id: userId, tempUpdatedEmail: user.tempUpdatedEmail },
+      { id: userId, tempUpdatedEmail: user.tempUpdatedEmail, deletedAt: null },
       {
         email: user.tempUpdatedEmail,
         tempUpdatedEmail: null,
@@ -140,7 +140,7 @@ export const verifyEmail = async (
 
     // Fetch updated user to ensure correct data
     const updatedUser = await userRepository.findOne({
-      where: { id: userId },
+      where: { id: userId, deletedAt: null },
       relations: ["role"],
       select: {
         id: true,

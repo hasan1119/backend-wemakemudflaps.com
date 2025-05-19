@@ -125,7 +125,7 @@ export const getUserById = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id },
+        where: { id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
@@ -145,7 +145,7 @@ export const getUserById = async (
         return {
           statusCode: 404,
           success: false,
-          message: "User not found",
+          message: `User not found with this id: ${id} or has been deleted`,
           __typename: "BaseResponse",
         };
       }

@@ -84,7 +84,7 @@ export const updateProfile = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       userData = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         select: {
           id: true,
           firstName: true,
@@ -127,8 +127,8 @@ export const updateProfile = async (
 
       const existingUser = await userRepository.findOne({
         where: [
-          { email, id: Not(user.id) },
-          { tempUpdatedEmail: email, id: Not(user.id) },
+          { email, id: Not(user.id), deletedAt: null },
+          { tempUpdatedEmail: email, id: Not(user.id), deletedAt: null },
         ],
       });
 

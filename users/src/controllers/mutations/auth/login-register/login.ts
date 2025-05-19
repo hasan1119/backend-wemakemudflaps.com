@@ -80,7 +80,7 @@ export const login = async (
     if (!user) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { email },
+        where: { email, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
@@ -101,7 +101,7 @@ export const login = async (
         return {
           statusCode: 400,
           success: false,
-          message: `User not found with this email: ${email}`,
+          message: `User not found with this email: ${email} or has been deleted`,
           __typename: "ErrorResponse",
         };
       }

@@ -1,4 +1,4 @@
-import { IsNull, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
 import { User } from "../../../entities/user.entity";
@@ -45,7 +45,7 @@ export const getOwnPermissions = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id, deletedAt: IsNull() },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,

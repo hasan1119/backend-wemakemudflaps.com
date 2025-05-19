@@ -78,7 +78,7 @@ export const accountActivation = async (
       if (!user) {
         // Cache miss: Fetch user from database
         user = await userRepository.findOne({
-          where: { id: user.id, email },
+          where: { id: user.id, email, deletedAt: null },
           relations: ["role"],
           select: {
             id: true,

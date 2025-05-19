@@ -40,7 +40,7 @@ export const getProfile = async (
     // Check the user exists or not
     if (!userExist) {
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
