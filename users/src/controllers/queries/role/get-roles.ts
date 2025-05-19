@@ -5,10 +5,12 @@ import { Permission } from "../../../entities/permission.entity";
 import { Role } from "../../../entities/user-role.entity";
 import { User } from "../../../entities/user.entity";
 import {
+  getRolesCountFromRedis,
   getRolesFromRedis,
   getTotalUserCountByRoleIdFromRedis,
   getUserInfoByUserIdFromRedis,
   getUserPermissionsByUserIdFromRedis,
+  setRolesCountInRedis,
   setRolesInRedis,
   setTotalUserCountByRoleIdInRedis,
   setUserInfoByUserIdInRedis,
@@ -23,12 +25,12 @@ import {
 } from "../../../types";
 import {
   paginationSchema,
-  sortingSchema,
+  roleSortingSchema,
 } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
 
 // Combine pagination and sorting schemas
-const combinedSchema = z.intersection(paginationSchema, sortingSchema);
+const combinedSchema = z.intersection(paginationSchema, roleSortingSchema);
 
 // Map GraphQL args to combined schema fields
 const mapArgsToPagination = (args: QueryGetAllRolesArgs) => ({
@@ -41,7 +43,7 @@ const mapArgsToPagination = (args: QueryGetAllRolesArgs) => ({
 
 /**
  * Fetches a paginated list of roles with optional search and sorting.
- * - Validates input using combined paginationSchema and sortingSchema (Zod).
+ * - Validates input using combined paginationSchema and roleroleSortingSchema (Zod).
  * - Restricts sortBy to id, name, description, createdAt, deletedAt.
  * - Authenticates user and checks read permission for Role.
  * - Checks Redis cache for role data and totalUserCount before querying the database.
@@ -118,7 +120,9 @@ export const getAllRoles = async (
     }
 
     // Check Redis for cached user permissions
-    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
+    let userPermissions;
+
+    userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database
@@ -186,10 +190,14 @@ export const getAllRoles = async (
 
     const { page, limit, search, sortBy, sortOrder } = mappedArgs;
 
-    // Check Redis for cached roles
+    // Check Redis for cached roles and total count
     let rolesData;
 
     rolesData = await getRolesFromRedis(page, limit, search, sortBy, sortOrder);
+
+    let total;
+
+    total = await getRolesCountFromRedis();
 
     if (!rolesData) {
       // Cache miss: Fetch roles from database
@@ -204,7 +212,7 @@ export const getAllRoles = async (
         ];
       }
 
-      const dbRoles = await roleRepository.find({
+      const [dbRoles, queryTotal] = await roleRepository.findAndCount({
         where,
         relations: ["createdBy", "createdBy.role"],
         select: {
@@ -247,17 +255,22 @@ export const getAllRoles = async (
         })
       );
 
+      total = queryTotal;
+
       const cachedRoleInputs: CachedRoleInputs[] = rolesData;
 
-      // Cache roles in Redis (without totalUserCount)
-      await setRolesInRedis(
-        page,
-        limit,
-        search,
-        sortBy,
-        sortOrder,
-        cachedRoleInputs
-      );
+      // Cache roles and roles count in Redis (without totalUserCount)
+      await Promise.all([
+        setRolesInRedis(
+          page,
+          limit,
+          search,
+          sortBy,
+          sortOrder,
+          cachedRoleInputs
+        ),
+        setRolesCountInRedis(total),
+      ]);
     }
 
     // Calculate totalUserCount for each role, using Redis cache when available
@@ -295,6 +308,7 @@ export const getAllRoles = async (
       success: true,
       message: "Roles fetched successfully",
       roles: responseRoles,
+      total,
       __typename: "RolesResponse",
     };
   } catch (error: any) {

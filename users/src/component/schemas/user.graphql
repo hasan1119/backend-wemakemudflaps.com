@@ -148,6 +148,7 @@ type UsersResponse {
   success: Boolean!
   message: String!
   users: [User!]!
+  total: Int! # Total number of users matching the query
 }
 
 # Response type when a user logs in.
@@ -180,6 +181,7 @@ type RolesResponse {
   success: Boolean!
   message: String!
   roles: [Role!]!
+  total: Int! # Total number of users matching the query
 }
 
 # Response type when fetching the single role info.

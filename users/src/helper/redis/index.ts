@@ -22,7 +22,6 @@ export {
   getRoleInfoByRoleIdFromRedis,
   getRoleInfoByRoleNameFromRedis,
   getRoleNameExistFromRedis,
-  getRolesFromRedis,
   getTotalUserCountByRoleIdFromRedis,
   removeRoleInfoByRoleIdFromRedis,
   removeRoleInfoByRoleNameFromRedis,
@@ -31,9 +30,15 @@ export {
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
-  setRolesInRedis,
   setTotalUserCountByRoleIdInRedis,
 } from "./utils/role/role-session-manage";
+
+export {
+  getRolesCountFromRedis,
+  getRolesFromRedis,
+  setRolesCountInRedis,
+  setRolesInRedis,
+} from "./utils/role/role";
 
 export {
   getUserCountInDBFromRedis,
@@ -52,3 +57,10 @@ export {
   setUserInfoByUserIdInRedis,
   setUserTokenInfoByUserIdInRedis,
 } from "./utils/user/user-session-manage";
+
+export {
+  getUsersCountFromRedis,
+  getUsersFromRedis,
+  setUsersCountInRedis,
+  setUsersInRedis,
+} from "./utils/user/users";

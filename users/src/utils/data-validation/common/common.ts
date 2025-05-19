@@ -34,12 +34,39 @@ export const paginationSchema = z.object({
 });
 
 // Roles Sorting Schema
-export const sortingSchema = z.object({
+export const roleSortingSchema = z.object({
   sortBy: z
     .enum(["id", "name", "description", "createdAt", "deletedAt"], {
       message:
         "Sort field must be one of: id, name, description, createdAt, deletedAt",
     })
+    .optional(),
+  sortOrder: z
+    .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
+    .optional(),
+});
+
+// Users Sorting Schema
+export const usersSortingSchema = z.object({
+  sortBy: z
+    .enum(
+      [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "emailVerified",
+        "gender",
+        "role",
+        "isAccountActivated",
+        "createdAt",
+        "deletedAt",
+      ],
+      {
+        message:
+          "Sort field must be one of: id, firstName, lastName, email, emailVerified, gender, role, isAccountActivated, createdAt, deletedAt",
+      }
+    )
     .optional(),
   sortOrder: z
     .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
