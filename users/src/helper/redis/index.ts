@@ -27,7 +27,6 @@ export {
   removeRoleInfoByRoleIdFromRedis,
   removeRoleInfoByRoleNameFromRedis,
   removeRoleNameExistFromRedis,
-  removeRolesFromRedis,
   removeTotalUserCountByRoleIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,

@@ -1,7 +1,7 @@
 import {
+  getAllRoles,
   getProfile,
   getRoleById,
-  getRoles,
   getUserById,
   getUsers,
 } from "../../controllers";
@@ -12,6 +12,6 @@ export const userQueriesResolver = {
     getUserById,
     getProfile,
     getRoleById,
-    getRoles,
+    getAllRoles,
   },
 };
