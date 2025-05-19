@@ -22,7 +22,7 @@ export class Role {
   name: string;
 
   // Description for the user role
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   description: string | null;
 
   // Users associated with this role
@@ -39,6 +39,10 @@ export class Role {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({
+    type: "timestamp",
+    nullable: true,
+    default: null,
+  })
   deletedAt: Date | null;
 }

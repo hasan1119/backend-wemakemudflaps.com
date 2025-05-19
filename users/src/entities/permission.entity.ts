@@ -62,7 +62,7 @@ export class Permission {
   name: PermissionName;
 
   // Description for the permission
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   description: string | null;
 
   // The user who has this permission

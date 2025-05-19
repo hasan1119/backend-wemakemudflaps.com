@@ -27,7 +27,7 @@ export class User {
   email: string;
 
   // User's unique temp email address during profile update
-  @Column({ unique: true, nullable: true })
+  @Column({ unique: true, nullable: true, default: null })
   tempUpdatedEmail: string | null;
 
   // Hashed password of the user
@@ -49,11 +49,11 @@ export class User {
   role: Role;
 
   // Forget password token
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   resetPasswordToken: string | null;
 
   // Reset password token expiry
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   resetPasswordTokenExpiry: Date | null;
 
   // Roles created by this user
@@ -84,6 +84,6 @@ export class User {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }
