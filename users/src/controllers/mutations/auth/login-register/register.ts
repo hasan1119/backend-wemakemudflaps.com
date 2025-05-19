@@ -178,7 +178,7 @@ export const register = async (
         // Check Redis for the user count with this role
         userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
 
-        if (!userCountForRole) {
+        if (userCountForRole === 0) {
           // Cache miss: Count users in database efficiently
           userCountForRole = await userRepository.count({
             where: { role: { id: role.id } },
@@ -347,7 +347,7 @@ export const register = async (
         // Check Redis for the user count with this role
         userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
 
-        if (!userCountForRole) {
+        if (userCountForRole === 0) {
           // Cache miss: Count users in database efficiently
           userCountForRole = await userRepository.count({
             where: { role: { id: role.id } },

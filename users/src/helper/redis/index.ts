@@ -22,14 +22,17 @@ export {
   getRoleInfoByRoleIdFromRedis,
   getRoleInfoByRoleNameFromRedis,
   getRoleNameExistFromRedis,
+  getRolesFromRedis,
   getTotalUserCountByRoleIdFromRedis,
   removeRoleInfoByRoleIdFromRedis,
   removeRoleInfoByRoleNameFromRedis,
   removeRoleNameExistFromRedis,
+  removeRolesFromRedis,
   removeTotalUserCountByRoleIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
+  setRolesInRedis,
   setTotalUserCountByRoleIdInRedis,
 } from "./utils/role/role-session-manage";
 

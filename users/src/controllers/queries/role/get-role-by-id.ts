@@ -16,6 +16,7 @@ import {
   CachedUserPermissionsInputs,
   GetRoleByIdResponseOrError,
   QueryGetRoleByIdArgs,
+  UserSession,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
@@ -85,7 +86,7 @@ export const getRoleById = async (
         };
       }
 
-      userData = {
+      const userSession: UserSession = {
         id: dbUser.id,
         email: dbUser.email,
         firstName: dbUser.firstName,
@@ -96,8 +97,10 @@ export const getRoleById = async (
         isAccountActivated: dbUser.isAccountActivated,
       };
 
+      userData = userSession;
+
       // Cache user in Redis
-      await setUserInfoByUserIdInRedis(user.id, userData);
+      await setUserInfoByUserIdInRedis(user.id, userSession);
     }
 
     // Check Redis for cached user permissions

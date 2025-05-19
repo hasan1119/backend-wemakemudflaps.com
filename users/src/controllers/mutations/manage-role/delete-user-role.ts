@@ -28,8 +28,7 @@ import {
   MutationDeleteUserRoleArgs,
 } from "../../../types";
 import CompareInfo from "../../../utils/bcrypt/compare-info";
-import { idsSchema } from "../../../utils/data-validation";
-import { skipTrashSchema } from "../../../utils/data-validation/common/common";
+import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
 import { CachedRoleInputs } from "./../../../types";
 
@@ -312,7 +311,7 @@ export const deleteUserRole = async (
       // Check Redis for the user count with this role
       userCountForRole = await getTotalUserCountByRoleIdFromRedis(roleData.id);
 
-      if (!userCountForRole) {
+      if (userCountForRole === 0) {
         // Cache miss: Count users in database efficiently
         userCountForRole = await userRepository.count({
           where: { role: { id: roleData.id } },
