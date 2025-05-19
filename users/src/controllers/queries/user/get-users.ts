@@ -99,12 +99,12 @@ export const getAllUsers = async (
       const userSession: UserSession = {
         id: dbUser.id,
         email: dbUser.email,
-        firstName: dbUser.firstName || "",
-        lastName: dbUser.lastName || "",
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
         role: dbUser.role.name,
-        gender: dbUser.gender || "",
-        emailVerified: dbUser.emailVerified || false,
-        isAccountActivated: dbUser.isAccountActivated || false,
+        gender: dbUser.gender,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
       userData = userSession;
