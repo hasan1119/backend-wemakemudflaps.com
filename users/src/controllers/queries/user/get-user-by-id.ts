@@ -165,7 +165,9 @@ export const getUserById = async (
 
       // Cache user in Redis
       await setUserInfoByUserIdInRedis(id, userSession);
-    } else if (!permissions) {
+    }
+
+    if (!permissions) {
       // Cache miss: Fetch permissions from database
       permissions = await permissionRepository.find({
         where: { user: { id } },
