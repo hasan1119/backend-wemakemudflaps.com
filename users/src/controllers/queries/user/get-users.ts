@@ -135,7 +135,7 @@ export const getAllUsers = async (
         userPermissions.map((permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description || "",
+          description: permission.description,
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
