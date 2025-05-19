@@ -259,7 +259,7 @@ export const getAllUsers = async (
         gender: user.gender,
         role: user.role.name,
         isAccountActivated: user.isAccountActivated || false,
-        permissions: (user.permissions || []).map((permission) => ({
+        permissions: user.permissions.map((permission) => ({
           id: permission.id,
           name: permission.name,
           description: permission.description,
@@ -280,7 +280,7 @@ export const getAllUsers = async (
     }
 
     // Calculate total if not cached
-    if (total === null) {
+    if (total === 0) {
       const where: any = { deletedAt: IsNull() };
       if (search) {
         const searchTerm = `%${search.toLowerCase().trim()}%`;
