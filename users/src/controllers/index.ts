@@ -23,3 +23,4 @@ export { getAllUsers } from "./queries/user/get-users";
 
 // Graphql queries for the permission data
 export { getAllPermissionsByUserId } from "./queries/permission/getAllPermissionsByUserId";
+export { getOwnPermissions } from "./queries/permission/getOwnPermissions";

@@ -2,6 +2,7 @@ import {
   getAllPermissionsByUserId,
   getAllRoles,
   getAllUsers,
+  getOwnPermissions,
   getProfile,
   getRoleById,
   getUserById,
@@ -15,5 +16,6 @@ export const userQueriesResolver = {
     getRoleById,
     getAllRoles,
     getAllPermissionsByUserId,
+    getOwnPermissions,
   },
 };
