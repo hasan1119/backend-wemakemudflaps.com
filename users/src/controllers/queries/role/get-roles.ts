@@ -1,4 +1,4 @@
-import { IsNull, Like, Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 import { z } from "zod";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
@@ -47,7 +47,7 @@ const mapArgsToPagination = (args: QueryGetAllRolesArgs) => ({
  * - Restricts sortBy to id, name, description, createdAt, deletedAt.
  * - Authenticates user and checks read permission for Role.
  * - Checks Redis cache for role data and totalUserCount before querying the database.
- * - Fetches non-deleted roles with pagination, search, and sorting.
+ * - Fetches non-deleted roles with pagination, search (on name, description), and sorting.
  * - Calculates totalUserCount per role dynamically, caching in Redis.
  * - Caches role data in Redis for common queries (excluding totalUserCount).
  * - Returns a RolesResponse with role details or an error response.
@@ -105,12 +105,12 @@ export const getAllRoles = async (
       const userSession: UserSession = {
         id: dbUser.id,
         email: dbUser.email,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
+        firstName: dbUser.firstName || "",
+        lastName: dbUser.lastName || "",
         role: dbUser.role.name,
-        gender: dbUser.gender,
-        emailVerified: dbUser.emailVerified,
-        isAccountActivated: dbUser.isAccountActivated,
+        gender: dbUser.gender || "",
+        emailVerified: dbUser.emailVerified || false,
+        isAccountActivated: dbUser.isAccountActivated || false,
       };
 
       userData = userSession;
@@ -120,9 +120,7 @@ export const getAllRoles = async (
     }
 
     // Check Redis for cached user permissions
-    let userPermissions;
-
-    userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
+    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
 
     if (!userPermissions) {
       // Cache miss: Fetch permissions from database
@@ -143,7 +141,7 @@ export const getAllRoles = async (
         userPermissions.map((permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description,
+          description: permission.description || "",
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
@@ -197,18 +195,19 @@ export const getAllRoles = async (
 
     let total;
 
-    total = await getRolesCountFromRedis();
+    total = await getRolesCountFromRedis(search, sortBy, sortOrder);
 
     if (!rolesData) {
       // Cache miss: Fetch roles from database
       const skip = (page - 1) * limit;
-      const where: any = { deletedAt: IsNull() };
+      const where: any = { deletedAt: null };
 
       if (search) {
-        const searchTerm = `%${search.toLowerCase().trim()}%`;
+        const searchTerm = `%${search.toUpperCase().trim()}%`;
+        const descSearchTerm = `%${search.toLowerCase().trim()}%`;
         where[Symbol.for("or")] = [
           { name: Like(searchTerm) },
-          { description: Like(searchTerm) },
+          { description: Like(descSearchTerm) },
         ];
       }
 
@@ -233,6 +232,8 @@ export const getAllRoles = async (
         take: limit,
       });
 
+      total = queryTotal;
+
       // Map roles to CachedRoleInputs
       rolesData = await Promise.all(
         dbRoles.map(async (role) => {
@@ -241,21 +242,19 @@ export const getAllRoles = async (
           return {
             id: role.id,
             name: role.name,
-            description: role.description,
+            description: role.description || "",
             createdAt: role.createdAt.toISOString(),
-            deletedAt: role.deletedAt ? role.createdAt.toISOString() : null,
+            deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
             createdBy: createdBy
               ? {
                   id: createdBy.id,
-                  name: `${createdBy.firstName} ${createdBy.lastName}`.trim(),
+                  name: createdBy.firstName + " " + createdBy.lastName,
                   role: createdBy.role.name,
                 }
               : null,
           };
         })
       );
-
-      total = queryTotal;
 
       const cachedRoleInputs: CachedRoleInputs[] = rolesData;
 
@@ -269,8 +268,26 @@ export const getAllRoles = async (
           sortOrder,
           cachedRoleInputs
         ),
-        setRolesCountInRedis(total),
+        setRolesCountInRedis(search, sortBy, sortOrder, total),
       ]);
+    }
+
+    // Calculate total if not cached
+    if (total === 0) {
+      const where: any = { deletedAt: null };
+      if (search) {
+        const searchTerm = `%${search.toUpperCase().trim()}%`;
+        const descSearchTerm = `%${search.toLowerCase().trim()}%`;
+        where[Symbol.for("or")] = [
+          { name: Like(searchTerm) },
+          { description: Like(descSearchTerm) },
+        ];
+      }
+
+      total = await roleRepository.count({ where });
+
+      // Cache total roles count in Redis
+      await setRolesCountInRedis(search, sortBy, sortOrder, total);
     }
 
     // Calculate totalUserCount for each role, using Redis cache when available
@@ -283,7 +300,7 @@ export const getAllRoles = async (
         if (totalUserCount === 0) {
           // Cache miss: Fetch count from database
           totalUserCount = await userRepository.count({
-            where: { role: { id: role.id } },
+            where: { role: { id: role.id }, deletedAt: null },
           });
 
           // Cache count in Redis

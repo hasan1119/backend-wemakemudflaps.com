@@ -27,10 +27,22 @@ export const getRolesFromRedis = async (
 };
 
 /**
- * Get cached total roles count from Redis.
+ * Get cached total roles count from Redis for a specific query.
+ * Returns null if the count is not cached, allowing the caller to query the database.
  */
-export const getRolesCountFromRedis = async (): Promise<number> => {
-  const result = await redis.getSession<number | null>(`${PREFIX.ROLES}`);
+export const getRolesCountFromRedis = async (
+  search: string | null,
+  sortBy: string = "createdAt",
+  sortOrder: string = "desc"
+): Promise<number | null> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const key = `${PREFIX.ROLES_COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  const result = await redis.getSession<string | null>(key);
+
+  if (result === null) {
+    return null;
+  }
 
   const count = Number(result);
   return isNaN(count) ? 0 : count;
@@ -59,13 +71,17 @@ export const setRolesInRedis = async (
 };
 
 /**
- * Set total roles count in Redis.
+ * Set total roles count in Redis for a specific query.
  * @param ttl - Time to live in seconds (default: 5 minutes)
  */
 export const setRolesCountInRedis = async (
+  search: string | null,
+  sortBy: string = "createdAt",
+  sortOrder: string = "desc",
   total: number,
   ttl: number = 300
 ): Promise<void> => {
-  const key = `${PREFIX.ROLES}`;
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const key = `${PREFIX.ROLES_COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
   await redis.setSession(key, total.toString(), ttl);
 };

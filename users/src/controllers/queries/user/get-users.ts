@@ -1,4 +1,4 @@
-import { IsNull, Like, Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 import { z } from "zod";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
@@ -73,7 +73,7 @@ export const getAllUsers = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id, deletedAt: IsNull() },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
@@ -198,7 +198,7 @@ export const getAllUsers = async (
     if (!usersData) {
       // Cache miss: Fetch users from database
       const skip = (page - 1) * limit;
-      const where: any = { deletedAt: IsNull() };
+      const where: any = { deletedAt: null };
 
       if (search) {
         const searchTerm = `%${search.toLowerCase().trim()}%`;
@@ -281,7 +281,7 @@ export const getAllUsers = async (
 
     // Calculate total if not cached
     if (total === 0) {
-      const where: any = { deletedAt: IsNull() };
+      const where: any = { deletedAt: null };
       if (search) {
         const searchTerm = `%${search.toLowerCase().trim()}%`;
         const roleSearchTerm = `%${search.toUpperCase().trim()}%`;

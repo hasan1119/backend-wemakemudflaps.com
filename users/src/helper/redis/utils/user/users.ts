@@ -44,7 +44,7 @@ export const getUsersCountFromRedis = async (
   }
 
   const count = Number(result);
-  return isNaN(count) ? null : count;
+  return isNaN(count) ? 0 : count;
 };
 
 //
