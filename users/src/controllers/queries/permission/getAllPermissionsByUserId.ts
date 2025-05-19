@@ -211,12 +211,22 @@ export const getAllPermissionsByUserId = async (
       await setUserPermissionsByUserIdInRedis(id, permissionsData);
     }
 
+    const responseData = permissionsData.map((permission) => ({
+      id: permission.id,
+      name: permission.name,
+      description: permission.description || "",
+      canCreate: permission.canCreate,
+      canRead: permission.canRead,
+      canUpdate: permission.canUpdate,
+      canDelete: permission.canDelete,
+    }));
+
     // Return PermissionsResponse
     return {
       statusCode: 200,
       success: true,
       message: "Permissions fetched successfully",
-      permissions: permissionsData,
+      permissions: responseData,
       __typename: "PermissionsResponse",
     };
   } catch (error: any) {
