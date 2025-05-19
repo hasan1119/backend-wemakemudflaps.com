@@ -34,7 +34,7 @@ export const paginationSchema = z.object({
 });
 
 // Roles Sorting Schema
-export const roleSortingSchema = z.object({
+export const rolesSortingSchema = z.object({
   sortBy: z
     .enum(["id", "name", "description", "createdAt", "deletedAt"], {
       message:

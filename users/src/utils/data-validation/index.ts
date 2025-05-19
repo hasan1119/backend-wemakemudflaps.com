@@ -13,8 +13,9 @@ export {
   idSchema,
   idsSchema,
   paginationSchema,
-  roleSortingSchema,
+  rolesSortingSchema,
   skipTrashSchema,
+  usersSortingSchema,
 } from "./common/common";
 
 // Role schemas for user

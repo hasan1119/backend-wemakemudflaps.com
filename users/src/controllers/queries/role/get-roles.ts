@@ -25,12 +25,12 @@ import {
 } from "../../../types";
 import {
   paginationSchema,
-  roleSortingSchema,
+  rolesSortingSchema,
 } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
 
 // Combine pagination and sorting schemas
-const combinedSchema = z.intersection(paginationSchema, roleSortingSchema);
+const combinedSchema = z.intersection(paginationSchema, rolesSortingSchema);
 
 // Map GraphQL args to combined schema fields
 const mapArgsToPagination = (args: QueryGetAllRolesArgs) => ({
@@ -43,7 +43,7 @@ const mapArgsToPagination = (args: QueryGetAllRolesArgs) => ({
 
 /**
  * Fetches a paginated list of roles with optional search and sorting.
- * - Validates input using combined paginationSchema and roleroleSortingSchema (Zod).
+ * - Validates input using combined paginationSchema and rolesSortingSchema (Zod).
  * - Restricts sortBy to id, name, description, createdAt, deletedAt.
  * - Authenticates user and checks read permission for Role.
  * - Checks Redis cache for role data and totalUserCount before querying the database.

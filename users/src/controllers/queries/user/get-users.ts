@@ -19,8 +19,10 @@ import {
   QueryGetAllUsersArgs,
   UserSession,
 } from "../../../types";
-import { paginationSchema } from "../../../utils/data-validation";
-import { usersSortingSchema } from "../../../utils/data-validation/common/common";
+import {
+  paginationSchema,
+  usersSortingSchema,
+} from "../../../utils/data-validation";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
 
 // Combine pagination and sorting schemas
