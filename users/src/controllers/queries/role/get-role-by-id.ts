@@ -227,10 +227,10 @@ export const getRoleById = async (
       const cachedRole: CachedRoleInputs = {
         id: roleData.id,
         name: roleData.name,
-        description: roleData.description || "",
-        createdAt: roleData.createdAt ? roleData.createdAt : null,
-        deletedAt: roleData.deletedAt ? roleData.deletedAt : null,
-        createdBy: roleData.createdBy || null,
+        description: roleData.description,
+        createdAt: roleData.createdAt,
+        deletedAt: roleData.deletedAt,
+        createdBy: roleData.createdBy,
       };
 
       // Cache user role info in Redis
