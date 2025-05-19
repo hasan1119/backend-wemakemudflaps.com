@@ -99,12 +99,12 @@ export const getAllUsers = async (
       const userSession: UserSession = {
         id: dbUser.id,
         email: dbUser.email,
-        firstName: dbUser.firstName || "",
-        lastName: dbUser.lastName || "",
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
         role: dbUser.role.name,
-        gender: dbUser.gender || "",
-        emailVerified: dbUser.emailVerified || false,
-        isAccountActivated: dbUser.isAccountActivated || false,
+        gender: dbUser.gender,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
       userData = userSession;
@@ -255,10 +255,10 @@ export const getAllUsers = async (
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        emailVerified: user.emailVerified || false,
+        emailVerified: user.emailVerified,
         gender: user.gender,
         role: user.role.name,
-        isAccountActivated: user.isAccountActivated || false,
+        isAccountActivated: user.isAccountActivated,
         permissions: user.permissions.map((permission) => ({
           id: permission.id,
           name: permission.name,
