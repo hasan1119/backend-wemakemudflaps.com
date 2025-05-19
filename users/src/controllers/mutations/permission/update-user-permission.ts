@@ -294,8 +294,13 @@ export const updateUserPermission = async (
     const canUpdatePermission = userPermissions.some(
       (permission) => permission.name === "Permission" && permission.canUpdate
     );
+    const canCreatePermission = userPermissions.some(
+      (permission) => permission.name === "Permission" && permission.canCreate
+    );
 
-    if (!canUpdatePermission) {
+    const canUpdatePermissions = canUpdatePermission && canCreatePermission;
+
+    if (!canUpdatePermissions) {
       return {
         statusCode: 403,
         success: false,
