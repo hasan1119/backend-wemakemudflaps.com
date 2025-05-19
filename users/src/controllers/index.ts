@@ -20,3 +20,6 @@ export { getAllRoles } from "./queries/role/get-roles";
 export { getProfile } from "./queries/user/get-profile";
 export { getUserById } from "./queries/user/get-user-by-id";
 export { getAllUsers } from "./queries/user/get-users";
+
+// Graphql queries for the permission data
+export { getAllPermissionsByUserId } from "./queries/permission/getAllPermissionsByUserId";

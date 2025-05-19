@@ -96,6 +96,8 @@ export type FieldError = {
   message: Scalars['String']['output'];
 };
 
+export type GetPermissionsResponseOrError = BaseResponse | ErrorResponse | PermissionsResponse;
+
 export type GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse;
 
 export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
@@ -234,13 +236,27 @@ export type Permissions = {
   name: Scalars['String']['output'];
 };
 
+export type PermissionsResponse = {
+  __typename?: 'PermissionsResponse';
+  message: Scalars['String']['output'];
+  permissions: Array<Permissions>;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  getAllPermissionsByUserId: GetPermissionsResponseOrError;
   getAllRoles: GetRolesResponseOrError;
   getAllUsers: GetUsersResponseOrError;
   getProfile: GetProfileResponseOrError;
   getRoleById: GetRoleByIdResponseOrError;
   getUserById: GetUserByIdResponseOrError;
+};
+
+
+export type QueryGetAllPermissionsByUserIdArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -463,6 +479,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   ActiveAccountResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
+  GetPermissionsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( PermissionsResponse );
   GetProfileResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
   GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   GetRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
@@ -491,6 +508,7 @@ export type ResolversTypes = {
   EmailVerificationResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EmailVerificationResponseOrError']>;
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
   FieldError: ResolverTypeWrapper<FieldError>;
+  GetPermissionsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetPermissionsResponseOrError']>;
   GetProfileResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProfileResponseOrError']>;
   GetRoleByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRoleByIDResponseOrError']>;
   GetRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRoleResponseOrError']>;
@@ -499,6 +517,7 @@ export type ResolversTypes = {
   GetUsersResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUsersResponseOrError']>;
   Mutation: ResolverTypeWrapper<{}>;
   Permissions: ResolverTypeWrapper<Permissions>;
+  PermissionsResponse: ResolverTypeWrapper<PermissionsResponse>;
   Query: ResolverTypeWrapper<{}>;
   Role: ResolverTypeWrapper<Role>;
   RoleResponse: ResolverTypeWrapper<RoleResponse>;
@@ -532,6 +551,7 @@ export type ResolversParentTypes = {
   EmailVerificationResponseOrError: ResolversUnionTypes<ResolversParentTypes>['EmailVerificationResponseOrError'];
   ErrorResponse: ErrorResponse;
   FieldError: FieldError;
+  GetPermissionsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetPermissionsResponseOrError'];
   GetProfileResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProfileResponseOrError'];
   GetRoleByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRoleByIDResponseOrError'];
   GetRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRoleResponseOrError'];
@@ -540,6 +560,7 @@ export type ResolversParentTypes = {
   GetUsersResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUsersResponseOrError'];
   Mutation: {};
   Permissions: Permissions;
+  PermissionsResponse: PermissionsResponse;
   Query: {};
   Role: Role;
   RoleResponse: RoleResponse;
@@ -640,6 +661,10 @@ export type FieldErrorResolvers<ContextType = Context, ParentType extends Resolv
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GetPermissionsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetPermissionsResponseOrError'] = ResolversParentTypes['GetPermissionsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'PermissionsResponse', ParentType, ContextType>;
+};
+
 export type GetProfileResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProfileResponseOrError'] = ResolversParentTypes['GetProfileResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserResponse', ParentType, ContextType>;
 };
@@ -693,7 +718,16 @@ export type PermissionsResolvers<ContextType = Context, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type PermissionsResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PermissionsResponse'] = ResolversParentTypes['PermissionsResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  permissions?: Resolver<Array<ResolversTypes['Permissions']>, ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
   getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'limit' | 'page'>>;
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
@@ -810,6 +844,7 @@ export type Resolvers<ContextType = Context> = {
   EmailVerificationResponseOrError?: EmailVerificationResponseOrErrorResolvers<ContextType>;
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
+  GetPermissionsResponseOrError?: GetPermissionsResponseOrErrorResolvers<ContextType>;
   GetProfileResponseOrError?: GetProfileResponseOrErrorResolvers<ContextType>;
   GetRoleByIDResponseOrError?: GetRoleByIdResponseOrErrorResolvers<ContextType>;
   GetRoleResponseOrError?: GetRoleResponseOrErrorResolvers<ContextType>;
@@ -818,6 +853,7 @@ export type Resolvers<ContextType = Context> = {
   GetUsersResponseOrError?: GetUsersResponseOrErrorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Permissions?: PermissionsResolvers<ContextType>;
+  PermissionsResponse?: PermissionsResponseResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;
   RoleResponse?: RoleResponseResolvers<ContextType>;

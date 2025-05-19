@@ -1,4 +1,5 @@
 import {
+  getAllPermissionsByUserId,
   getAllRoles,
   getAllUsers,
   getProfile,
@@ -13,5 +14,6 @@ export const userQueriesResolver = {
     getProfile,
     getRoleById,
     getAllRoles,
+    getAllPermissionsByUserId,
   },
 };

@@ -44,4 +44,9 @@ type Query {
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort order (asc or desc).
   ): GetRolesResponseOrError!
+
+  # Fetch all permissions for a user by user ID.
+  # This query allows you to retrieve all permissions assigned to a specific user.
+  # The response will include a `GetPermissionsResponseOrError` containing permissions data and status.
+  getAllPermissionsByUserId(id: ID!): GetPermissionsResponseOrError!
 }

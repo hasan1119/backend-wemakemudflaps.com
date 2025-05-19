@@ -151,6 +151,14 @@ type UsersResponse {
   total: Int! # Total number of users matching the query
 }
 
+# Type for the response when fetching permissions for a user.
+type PermissionsResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  permissions: [Permissions!]!
+}
+
 # Response type when a user logs in.
 type UserLoginResponse {
   statusCode: Int!
@@ -237,3 +245,7 @@ union GetUserByIDResponseOrError = BaseResponse | UserResponse | ErrorResponse
 union GetUsersResponseOrError = BaseResponse | UsersResponse | ErrorResponse
 union GetRolesResponseOrError = BaseResponse | RolesResponse | ErrorResponse
 union GetRoleResponseOrError = BaseResponse | RoleResponse | ErrorResponse
+union GetPermissionsResponseOrError =
+  | BaseResponse
+  | PermissionsResponse
+  | ErrorResponse
