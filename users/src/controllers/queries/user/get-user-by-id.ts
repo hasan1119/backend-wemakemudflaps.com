@@ -69,7 +69,7 @@ export const getUserById = async (
         userPermissions.map((permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description || "",
+          description: permission.description,
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
@@ -186,7 +186,7 @@ export const getUserById = async (
         (permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description || "",
+          description: permission.description,
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,

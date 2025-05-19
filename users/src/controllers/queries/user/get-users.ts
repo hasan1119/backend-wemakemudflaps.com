@@ -43,12 +43,12 @@ const mapArgsToPagination = (args: QueryGetAllUsersArgs) => ({
  * - Restricts sortBy to id, firstName, lastName, email, emailVerified, gender, role, isAccountActivated, createdAt, deletedAt.
  * - Authenticates user and checks read permission for User.
  * - Checks Redis cache for user data before querying the database.
- * - Fetches non-deleted users with pagination, search (on firstName, lastName, email), and sorting.
+ * - Fetches non-deleted users with pagination, search (on firstName, lastName, email, role.name), and sorting.
  * - Caches user data in Redis for common queries.
  * - Returns a UsersResponse with user details or an error response.
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Arguments containing pageNo, showPerPage, searchKeyWord, sortBy, sortOrder
+ * @param args - Arguments containing page, limit, search, sortBy, sortOrder
  * @param context - GraphQL context with AppDataSource and user info
  * @returns Promise<GetUsersResponseOrError> - List of users or error response
  */
@@ -73,7 +73,7 @@ export const getAllUsers = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id, deletedAt: null },
+        where: { id: user.id, deletedAt: IsNull() },
         relations: ["role"],
         select: {
           id: true,
@@ -99,12 +99,12 @@ export const getAllUsers = async (
       const userSession: UserSession = {
         id: dbUser.id,
         email: dbUser.email,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
+        firstName: dbUser.firstName || "",
+        lastName: dbUser.lastName || "",
         role: dbUser.role.name,
-        gender: dbUser.gender,
-        emailVerified: dbUser.emailVerified,
-        isAccountActivated: dbUser.isAccountActivated,
+        gender: dbUser.gender || "",
+        emailVerified: dbUser.emailVerified || false,
+        isAccountActivated: dbUser.isAccountActivated || false,
       };
 
       userData = userSession;
@@ -135,7 +135,7 @@ export const getAllUsers = async (
         userPermissions.map((permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description,
+          description: permission.description || "",
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
@@ -183,13 +183,17 @@ export const getAllUsers = async (
     const { page, limit, search, sortBy, sortOrder } = mappedArgs;
 
     // Check Redis for cached users and total count
-    let usersData;
-
-    usersData = await getUsersFromRedis(page, limit, search, sortBy, sortOrder);
+    let usersData = await getUsersFromRedis(
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder
+    );
 
     let total;
 
-    total = await getUsersCountFromRedis();
+    total = await getUsersCountFromRedis(search, sortBy, sortOrder);
 
     if (!usersData) {
       // Cache miss: Fetch users from database
@@ -198,10 +202,12 @@ export const getAllUsers = async (
 
       if (search) {
         const searchTerm = `%${search.toLowerCase().trim()}%`;
+        const roleSearchTerm = `%${search.toUpperCase().trim()}%`;
         where[Symbol.for("or")] = [
           { firstName: Like(searchTerm) },
           { lastName: Like(searchTerm) },
           { email: Like(searchTerm) },
+          { role: { name: Like(roleSearchTerm) } },
         ];
       }
 
@@ -222,9 +228,7 @@ export const getAllUsers = async (
           email: true,
           emailVerified: true,
           gender: true,
-          role: {
-            name: true,
-          },
+          role: { name: true },
           isAccountActivated: true,
           permissions: {
             id: true,
@@ -243,20 +247,22 @@ export const getAllUsers = async (
         take: limit,
       });
 
+      total = queryTotal;
+
       // Map users to CachedUserInputs
       usersData = users.map((user) => ({
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        emailVerified: user.emailVerified,
+        emailVerified: user.emailVerified || false,
         gender: user.gender,
         role: user.role.name,
-        isAccountActivated: user.isAccountActivated,
+        isAccountActivated: user.isAccountActivated || false,
         permissions: (user.permissions || []).map((permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description || "",
+          description: permission.description,
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
@@ -266,13 +272,31 @@ export const getAllUsers = async (
         deletedAt: user.deletedAt ? user.deletedAt.toISOString() : null,
       }));
 
-      total = queryTotal;
-
       // Cache users and users count in Redis
       await Promise.all([
         setUsersInRedis(page, limit, search, sortBy, sortOrder, usersData),
-        setUsersCountInRedis(total),
+        setUsersCountInRedis(search, sortBy, sortOrder, total),
       ]);
+    }
+
+    // Calculate total if not cached
+    if (total === null) {
+      const where: any = { deletedAt: IsNull() };
+      if (search) {
+        const searchTerm = `%${search.toLowerCase().trim()}%`;
+        const roleSearchTerm = `%${search.toUpperCase().trim()}%`;
+        where[Symbol.for("or")] = [
+          { firstName: Like(searchTerm) },
+          { lastName: Like(searchTerm) },
+          { email: Like(searchTerm) },
+          { role: { name: Like(roleSearchTerm) } },
+        ];
+      }
+
+      total = await userRepository.count({ where });
+
+      // Cache users count in Redis
+      await setUsersCountInRedis(search, sortBy, sortOrder, total);
     }
 
     // Map cached users to User response
@@ -285,17 +309,17 @@ export const getAllUsers = async (
       gender: user.gender,
       role: user.role,
       isAccountActivated: user.isAccountActivated,
-      permissions: (user.permissions || []).map((permission) => ({
+      permissions: user.permissions.map((permission) => ({
         id: permission.id,
         name: permission.name,
-        description: permission.description || "",
+        description: permission.description,
         canCreate: permission.canCreate,
         canRead: permission.canRead,
         canUpdate: permission.canUpdate,
         canDelete: permission.canDelete,
       })),
       createdAt: user.createdAt,
-      deletedAt: user.deletedAt || null,
+      deletedAt: user.deletedAt,
     }));
 
     // Return UsersResponse

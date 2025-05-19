@@ -26,13 +26,25 @@ export const getUsersFromRedis = async (
 };
 
 /**
- * Get cached total users count from Redis.
+ * Get cached total users count for users query from Redis.
+ * Returns null if the count is not cached, allowing the caller to query the database.
  */
-export const getUsersCountFromRedis = async (): Promise<number> => {
-  const result = await redis.getSession<number | null>(`${PREFIX.USERS}count}`);
+export const getUsersCountFromRedis = async (
+  search: string | null,
+  sortBy: string = "createdAt",
+  sortOrder: string = "desc"
+): Promise<number | null> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const key = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  const result = await redis.getSession<string | null>(key);
+
+  if (result === null) {
+    return null;
+  }
 
   const count = Number(result);
-  return isNaN(count) ? 0 : count;
+  return isNaN(count) ? null : count;
 };
 
 //
@@ -58,13 +70,17 @@ export const setUsersInRedis = async (
 };
 
 /**
- * Set total users count in Redis.
+ * Set total users count for users query in Redis.
  * @param ttl - Time to live in seconds (default: 5 minutes)
  */
 export const setUsersCountInRedis = async (
+  search: string | null,
+  sortBy: string = "createdAt",
+  sortOrder: string = "desc",
   total: number,
   ttl: number = 300
 ): Promise<void> => {
-  const key = `${PREFIX.USERS}count`;
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const key = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
   await redis.setSession(key, total.toString(), ttl);
 };

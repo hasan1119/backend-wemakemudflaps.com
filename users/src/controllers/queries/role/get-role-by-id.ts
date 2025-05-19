@@ -127,7 +127,7 @@ export const getRoleById = async (
         userPermissions.map((permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description || "",
+          description: permission.description,
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
@@ -211,7 +211,7 @@ export const getRoleById = async (
       roleData = {
         id: dbRole.id,
         name: dbRole.name,
-        description: dbRole.description || null,
+        description: dbRole.description,
         createdAt: dbRole.createdAt.toISOString(),
         deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
         createdBy: createdBy

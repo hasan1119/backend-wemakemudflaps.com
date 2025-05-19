@@ -105,12 +105,12 @@ export const getAllRoles = async (
       const userSession: UserSession = {
         id: dbUser.id,
         email: dbUser.email,
-        firstName: dbUser.firstName || "",
-        lastName: dbUser.lastName || "",
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
         role: dbUser.role.name,
-        gender: dbUser.gender || "",
-        emailVerified: dbUser.emailVerified || false,
-        isAccountActivated: dbUser.isAccountActivated || false,
+        gender: dbUser.gender,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
       userData = userSession;
@@ -143,7 +143,7 @@ export const getAllRoles = async (
         userPermissions.map((permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description || "",
+          description: permission.description,
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
@@ -293,11 +293,11 @@ export const getAllRoles = async (
         return {
           id: role.id,
           name: role.name,
-          description: role.description || null,
+          description: role.description,
           totalUserCount,
           createdBy: role.createdBy,
           createdAt: role.createdAt,
-          deletedAt: role.deletedAt || null,
+          deletedAt: role.deletedAt,
         };
       })
     );

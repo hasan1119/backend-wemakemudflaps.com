@@ -71,12 +71,12 @@ export const getOwnPermissions = async (
       const userSession: UserSession = {
         id: dbUser.id,
         email: dbUser.email,
-        firstName: dbUser.firstName || "",
-        lastName: dbUser.lastName || "",
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
         role: dbUser.role.name,
-        gender: dbUser.gender || "",
-        emailVerified: dbUser.emailVerified || false,
-        isAccountActivated: dbUser.isAccountActivated || false,
+        gender: dbUser.gender,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
       userData = userSession;
@@ -106,7 +106,7 @@ export const getOwnPermissions = async (
       permissionsData = permissions.map((permission) => ({
         id: permission.id,
         name: permission.name,
-        description: permission.description || "",
+        description: permission.description,
         canCreate: permission.canCreate,
         canRead: permission.canRead,
         canUpdate: permission.canUpdate,

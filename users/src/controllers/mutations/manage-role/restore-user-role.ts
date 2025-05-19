@@ -228,14 +228,14 @@ export const restoreUserRole = async (
       const roleSession: CachedRoleInputs = {
         id: role.id,
         name: role.name,
-        description: role.description || "",
+        description: role.description,
         createdAt: role.createdAt.toISOString(),
         deletedAt: "",
         createdBy: createdBy
           ? {
               id: createdBy.id,
               name: createdBy.firstName + " " + createdBy.lastName,
-              role: createdBy.role.name || "",
+              role: createdBy.role.name,
             }
           : null,
       };
