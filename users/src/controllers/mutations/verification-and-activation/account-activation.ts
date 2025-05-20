@@ -4,7 +4,6 @@ import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import {
   getUserInfoByEmailInRedis,
-  getUserInfoByUserIdFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
 } from "../../../helper/redis";
@@ -70,41 +69,37 @@ export const accountActivation = async (
     // Check Redis for cached user's data
     let user;
 
-    user = await getUserInfoByUserIdFromRedis(userId);
+    user = await getUserInfoByEmailInRedis(email);
 
     if (!user) {
-      user = await getUserInfoByEmailInRedis(email);
+      // Cache miss: Fetch user from database
+      user = await userRepository.findOne({
+        where: { id: userId, email, deletedAt: null },
+        relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          emailVerified: true,
+          gender: true,
+          role: {
+            name: true,
+          },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
+        },
+      });
 
       if (!user) {
-        // Cache miss: Fetch user from database
-        user = await userRepository.findOne({
-          where: { id: user.id, email, deletedAt: null },
-          relations: ["role"],
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            emailVerified: true,
-            gender: true,
-            role: {
-              name: true,
-            },
-            password: true,
-            isAccountActivated: true,
-            tempUpdatedEmail: true,
-            tempEmailVerified: true,
-          },
-        });
-
-        if (!user) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "Authenticated user not found in database",
-            __typename: "ErrorResponse",
-          };
-        }
+        return {
+          statusCode: 404,
+          success: false,
+          message: "Authenticated user not found in database",
+          __typename: "ErrorResponse",
+        };
       }
     }
 
@@ -120,11 +115,8 @@ export const accountActivation = async (
 
     // Update user account activation status
     await userRepository.update(
-      { id: userId },
-      {
-        isAccountActivated: true,
-        emailVerified: true,
-      }
+      { id: user.id },
+      { isAccountActivated: true, emailVerified: true }
     );
 
     // Initiate the empty variable for the user role
@@ -144,8 +136,8 @@ export const accountActivation = async (
       email: user.email,
       gender: user.gender,
       role: roleName,
-      emailVerified: user.emailVerified,
-      isAccountActivated: user.isAccountActivated,
+      emailVerified: true,
+      isAccountActivated: true,
     };
 
     const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
@@ -153,11 +145,11 @@ export const accountActivation = async (
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      emailVerified: user.emailVerified,
+      emailVerified: true,
       gender: user.gender,
       role: roleName,
       password: user.password,
-      isAccountActivated: user.isAccountActivated,
+      isAccountActivated: true,
       tempUpdatedEmail: user.tempUpdatedEmail,
       tempEmailVerified: user.tempEmailVerified,
     };

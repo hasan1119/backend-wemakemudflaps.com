@@ -1,4 +1,4 @@
-import { Like, Repository } from "typeorm";
+import { ILike, Repository } from "typeorm";
 import { z } from "zod";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
@@ -200,15 +200,13 @@ export const getAllRoles = async (
     if (!rolesData) {
       // Cache miss: Fetch roles from database
       const skip = (page - 1) * limit;
-      const where: any = { deletedAt: null };
-
+      const where: any[] = [{ deletedAt: null }];
       if (search) {
-        const searchTerm = `%${search.toUpperCase().trim()}%`;
-        const descSearchTerm = `%${search.toLowerCase().trim()}%`;
-        where[Symbol.for("or")] = [
-          { name: Like(searchTerm) },
-          { description: Like(descSearchTerm) },
-        ];
+        const searchTerm = `%${search.trim()}%`;
+        where.push(
+          { name: ILike(searchTerm) },
+          { description: ILike(searchTerm) }
+        );
       }
 
       const [dbRoles, queryTotal] = await roleRepository.findAndCount({
@@ -274,14 +272,13 @@ export const getAllRoles = async (
 
     // Calculate total if not cached
     if (total === 0) {
-      const where: any = { deletedAt: null };
+      const where: any[] = [{ deletedAt: null }];
       if (search) {
-        const searchTerm = `%${search.toUpperCase().trim()}%`;
-        const descSearchTerm = `%${search.toLowerCase().trim()}%`;
-        where[Symbol.for("or")] = [
-          { name: Like(searchTerm) },
-          { description: Like(descSearchTerm) },
-        ];
+        const searchTerm = `%${search.trim()}%`;
+        where.push(
+          { name: ILike(searchTerm) },
+          { description: ILike(searchTerm) }
+        );
       }
 
       total = await roleRepository.count({ where });
