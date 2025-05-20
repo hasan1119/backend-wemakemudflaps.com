@@ -12,7 +12,7 @@ export class Media {
   mediaType: string;
 
   @Column()
-  mediaUrl: string;
+  url: string;
 
   // Product Id associated with the media (string only for Apollo Federation compatibility)
   @Column({ nullable: true })

@@ -7,7 +7,7 @@ const pgConfig = {
   host: "techanalyzen.com",
   password: "password",
   port: 5432,
-  database: "steven", // Connect directly to the steven database
+  database: "steven",
 };
 
 // Redis configuration
@@ -36,13 +36,19 @@ async function resetTablesAndRedis() {
     if (tables.length === 0) {
       console.log("No tables found in steven database.");
     } else {
-      // Drop each table with CASCADE
-      console.log(`Dropping ${tables.length} table(s)...`);
-      for (const table of tables) {
-        await pgClient.query(`DROP TABLE IF EXISTS "${table}" CASCADE;`);
-        console.log(`Dropped table ${table}`);
+      // Define the specific order
+      const ordered = ["permission", "user", "role"];
+      const orderedTables = ordered.filter(t => tables.includes(t));
+      const otherTables = tables.filter(t => !ordered.includes(t));
+      const deletionOrder = [...orderedTables, ...otherTables];
+
+      // Delete all rows from each table in the specified order
+      console.log(`Deleting all rows from ${deletionOrder.length} table(s)...`);
+      for (const table of deletionOrder) {
+        await pgClient.query(`DELETE FROM "${table}";`);
+        console.log(`Deleted all rows from table ${table}`);
       }
-      console.log("All tables dropped successfully.");
+      console.log("All table rows deleted successfully.");
     }
 
     // Initialize Redis client
