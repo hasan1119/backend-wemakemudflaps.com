@@ -66,20 +66,22 @@ export const updateUserRoleInfo = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
           firstName: true,
           lastName: true,
           email: true,
-          password: true,
-          gender: true,
           emailVerified: true,
-          isAccountActivated: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -94,14 +96,16 @@ export const updateUserRoleInfo = async (
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: dbUser.id,
-        email: dbUser.email,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        role: dbUser.role.name,
-        gender: dbUser.gender,
-        password: dbUser.password,
+        email: dbUser.email,
         emailVerified: dbUser.emailVerified,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        password: dbUser.password,
         isAccountActivated: dbUser.isAccountActivated,
+        tempUpdatedEmail: dbUser.tempUpdatedEmail,
+        tempEmailVerified: dbUser.tempEmailVerified,
       };
 
       userData = userSessionByEmail;

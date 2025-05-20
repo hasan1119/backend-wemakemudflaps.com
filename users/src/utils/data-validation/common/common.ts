@@ -31,10 +31,42 @@ export const paginationSchema = z.object({
     .min(1, { message: "Search term is required" })
     .max(100, { message: "Search term is too long" })
     .optional(),
+});
+
+// Roles Sorting Schema
+export const rolesSortingSchema = z.object({
   sortBy: z
-    .string()
-    .min(1, { message: "Sort field is required" })
-    .max(50, { message: "Sort field is too long" })
+    .enum(["id", "name", "description", "createdAt", "deletedAt"], {
+      message:
+        "Sort field must be one of: id, name, description, createdAt, deletedAt",
+    })
+    .optional(),
+  sortOrder: z
+    .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
+    .optional(),
+});
+
+// Users Sorting Schema
+export const usersSortingSchema = z.object({
+  sortBy: z
+    .enum(
+      [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "emailVerified",
+        "gender",
+        "role",
+        "isAccountActivated",
+        "createdAt",
+        "deletedAt",
+      ],
+      {
+        message:
+          "Sort field must be one of: id, firstName, lastName, email, emailVerified, gender, role, isAccountActivated, createdAt, deletedAt",
+      }
+    )
     .optional(),
   sortOrder: z
     .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })

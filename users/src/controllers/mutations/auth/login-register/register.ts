@@ -178,7 +178,7 @@ export const register = async (
         // Check Redis for the user count with this role
         userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
 
-        if (!userCountForRole) {
+        if (userCountForRole === 0) {
           // Cache miss: Count users in database efficiently
           userCountForRole = await userRepository.count({
             where: { role: { id: role.id } },
@@ -235,7 +235,7 @@ export const register = async (
       const fullPermissions = await permissionRepository.save(permissions);
 
       // Create the account activation link with user id
-      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
+      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}&email=${email}`;
 
       // Prepare email contents
       const subject = "Account Activation Request";
@@ -270,25 +270,27 @@ export const register = async (
       // Create a new session for the user
       const session: UserSession = {
         id: savedUser.id,
-        email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        role: savedUser.role.name,
+        email: savedUser.email,
         gender: savedUser.gender,
+        role: savedUser.role.name,
         emailVerified: savedUser.emailVerified,
         isAccountActivated: savedUser.isAccountActivated,
       };
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
-        email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        role: savedUser.role.name,
-        gender: savedUser.gender,
+        email: savedUser.email,
         emailVerified: savedUser.emailVerified,
+        gender: savedUser.gender,
+        role: savedUser.role.name,
+        password: savedUser.password,
         isAccountActivated: savedUser.isAccountActivated,
-        password: hashedPassword,
+        tempUpdatedEmail: savedUser.tempUpdatedEmail,
+        tempEmailVerified: savedUser.tempEmailVerified,
       };
 
       const userPermissions: CachedUserPermissionsInputs[] =
@@ -345,7 +347,7 @@ export const register = async (
         // Check Redis for the user count with this role
         userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
 
-        if (!userCountForRole) {
+        if (userCountForRole === 0) {
           // Cache miss: Count users in database efficiently
           userCountForRole = await userRepository.count({
             where: { role: { id: role.id } },
@@ -460,12 +462,11 @@ export const register = async (
         }
       );
 
-      const fullPermissions = await permissionRepository.save(
-        customerPermissions
-      );
+      const fullPermissions =
+        await permissionRepository.save(customerPermissions);
 
       // Create the account activation link with user id
-      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}`;
+      const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}&email=${email}`;
 
       // Prepare email contents
       const subject = "Account Activation Request";
@@ -500,25 +501,27 @@ export const register = async (
       // Create a new session for the user
       const session: UserSession = {
         id: savedUser.id,
-        email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        role: savedUser.role.name,
+        email: savedUser.email,
         gender: savedUser.gender,
+        role: savedUser.role.name,
         emailVerified: savedUser.emailVerified,
         isAccountActivated: savedUser.isAccountActivated,
       };
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: savedUser.id,
-        email: savedUser.email,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        role: savedUser.role.name,
-        gender: savedUser.gender,
+        email: savedUser.email,
         emailVerified: savedUser.emailVerified,
+        gender: savedUser.gender,
+        role: savedUser.role.name,
+        password: savedUser.password,
         isAccountActivated: savedUser.isAccountActivated,
-        password: hashedPassword,
+        tempUpdatedEmail: savedUser.tempUpdatedEmail,
+        tempEmailVerified: savedUser.tempEmailVerified,
       };
 
       const userPermissions: CachedUserPermissionsInputs[] =

@@ -77,20 +77,22 @@ export const changePassword = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { email: user.email },
+        where: { email: user.email, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
-          email: true,
           firstName: true,
           lastName: true,
-          gender: true,
+          email: true,
           emailVerified: true,
-          isAccountActivated: true,
-          password: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -145,14 +147,16 @@ export const changePassword = async (
 
     const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
       id: userData.id,
-      email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,
-      role: roleName,
-      gender: userData.gender,
+      email: userData.email,
       emailVerified: userData.emailVerified,
-      isAccountActivated: userData.isAccountActivated,
+      gender: userData.gender,
+      role: roleName,
       password: userData.password,
+      isAccountActivated: userData.isAccountActivated,
+      tempUpdatedEmail: userData.tempUpdatedEmail,
+      tempEmailVerified: userData.tempEmailVerified,
     };
 
     // Cache user's info by email in Redis

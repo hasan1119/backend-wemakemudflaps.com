@@ -51,7 +51,10 @@ const singlePermissionSchema = z.object({
       message: "canDelete must be a boolean",
     })
     .optional(),
-  description: z.string({ message: "Description must be a string" }).optional(),
+  description: z
+    .string({ message: "Description must be a string" })
+    .trim()
+    .optional(),
 });
 
 // Define the Zod schema for the update user's permission input

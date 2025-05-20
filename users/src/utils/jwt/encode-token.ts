@@ -16,25 +16,24 @@ interface TokenPayload {
 /**
  * Generates a JWT token for a user based on their details.
  *
- * @param user_id - The user's unique ID.
- * @param email - The user's email.
+ * @param id - The user's unique ID.
  * @param firstName - The user's first name.
  * @param lastName - The user's last name.
- * @param role - The user's role.
+ * @param email - The user's email.
  * @param gender - The user's gender.
+ * @param role - The user's role.
  * @param emailVerified - The user's email verification status.
  * @param isAccountActivated - The user's account activation status.
- * @param trackingId - The user's tracking ID.
  * @param expiresIn - Optional. The token expiration time.
  * @returns {Promise<string>} - A promise that resolves to the signed JWT token.
  */
 const EncodeToken = async (
   id: string,
-  email: string,
   firstName: string,
   lastName: string,
-  role: string,
+  email: string,
   gender: string,
+  role: string,
   emailVerified: boolean,
   isAccountActivated: boolean,
   expiresIn?: string
@@ -42,11 +41,11 @@ const EncodeToken = async (
   // Create the token payload
   const PAYLOAD: TokenPayload = {
     id,
-    email,
     firstName,
     lastName,
-    role,
+    email,
     gender,
+    role,
     emailVerified,
     isAccountActivated,
   };

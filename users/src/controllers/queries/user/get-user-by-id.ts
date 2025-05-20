@@ -69,7 +69,7 @@ export const getUserById = async (
         userPermissions.map((permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description || "",
+          description: permission.description,
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
@@ -125,7 +125,7 @@ export const getUserById = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id },
+        where: { id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
@@ -133,9 +133,11 @@ export const getUserById = async (
           lastName: true,
           email: true,
           gender: true,
+          role: {
+            name: true,
+          },
           emailVerified: true,
           isAccountActivated: true,
-          role: { name: true },
         },
       });
 
@@ -143,7 +145,7 @@ export const getUserById = async (
         return {
           statusCode: 404,
           success: false,
-          message: "User not found",
+          message: `User not found with this id: ${id} or has been deleted`,
           __typename: "BaseResponse",
         };
       }
@@ -152,18 +154,20 @@ export const getUserById = async (
 
       const userSession: UserSession = {
         id: dbUser.id,
-        firstName: dbUser.firstName || "",
-        lastName: dbUser.lastName || "",
-        email: dbUser.email || "",
-        gender: dbUser.gender || "",
-        role: dbUser.role?.name || "",
-        emailVerified: dbUser.emailVerified || false,
-        isAccountActivated: dbUser.isAccountActivated || false,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
+        email: dbUser.email,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
       // Cache user in Redis
       await setUserInfoByUserIdInRedis(id, userSession);
-    } else if (!permissions) {
+    }
+
+    if (!permissions) {
       // Cache miss: Fetch permissions from database
       permissions = await permissionRepository.find({
         where: { user: { id } },
@@ -182,7 +186,7 @@ export const getUserById = async (
         (permission) => ({
           id: permission.id,
           name: permission.name,
-          description: permission.description || "",
+          description: permission.description,
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
@@ -199,11 +203,11 @@ export const getUserById = async (
     // Construct response user object matching User type
     const responseUser = {
       id: userData.id,
-      firstName: userData.firstName || null,
-      lastName: userData.lastName || null,
-      email: userData.email || null,
-      gender: userData.gender || null,
-      role: userData.role || null,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      gender: userData.gender,
+      role: userData.role,
       emailVerified: userData.emailVerified,
       isAccountActivated: userData.isAccountActivated,
       permissions: permissions.map((perm) => ({

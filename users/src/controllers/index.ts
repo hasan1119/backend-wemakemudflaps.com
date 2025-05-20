@@ -16,7 +16,11 @@ export { verifyEmail } from "./mutations/verification-and-activation/email-verif
 
 // Graphql queries for the auth and user data
 export { getRoleById } from "./queries/role/get-role-by-id";
-export { getRoles } from "./queries/role/get-roles";
+export { getAllRoles } from "./queries/role/get-roles";
 export { getProfile } from "./queries/user/get-profile";
 export { getUserById } from "./queries/user/get-user-by-id";
-export { getUsers } from "./queries/user/get-users";
+export { getAllUsers } from "./queries/user/get-users";
+
+// Graphql queries for the permission data
+export { getAllPermissionsByUserId } from "./queries/permission/getAllPermissionsByUserId";
+export { getOwnPermissions } from "./queries/permission/getOwnPermissions";

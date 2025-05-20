@@ -223,20 +223,22 @@ export const updateUserRole = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
           firstName: true,
           lastName: true,
           email: true,
-          password: true,
-          gender: true,
           emailVerified: true,
-          isAccountActivated: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -251,14 +253,16 @@ export const updateUserRole = async (
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: dbUser.id,
-        email: dbUser.email,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        role: dbUser.role.name,
-        gender: dbUser.gender,
-        password: dbUser.password,
+        email: dbUser.email,
         emailVerified: dbUser.emailVerified,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        password: dbUser.password,
         isAccountActivated: dbUser.isAccountActivated,
+        tempUpdatedEmail: dbUser.tempUpdatedEmail,
+        tempEmailVerified: dbUser.tempEmailVerified,
       };
 
       userData = userSessionByEmail;
@@ -454,7 +458,7 @@ export const updateUserRole = async (
     if (!targetUser) {
       // Cache miss: Fetch the target user from the database
       const dbUser = await userRepository.findOne({
-        where: { id: userId },
+        where: { id: userId, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
@@ -469,7 +473,7 @@ export const updateUserRole = async (
         return {
           statusCode: 404,
           success: false,
-          message: `User with ID ${userId} not found`,
+          message: `User with ID ${userId} not found or has been deleted`,
           __typename: "BaseResponse",
         };
       }
@@ -490,10 +494,19 @@ export const updateUserRole = async (
     } else {
       // Fetch old role ID from database if not in Redis
       const dbUser = await userRepository.findOne({
-        where: { id: userId },
+        where: { id: userId, deletedAt: null },
         relations: ["role"],
         select: { role: { id: true } },
       });
+
+      if (!dbUser) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: `User with ID ${userId} not found or has been deleted`,
+          __typename: "BaseResponse",
+        };
+      }
 
       if (dbUser && dbUser.role) {
         oldRoleId = dbUser.role.id;
@@ -619,25 +632,27 @@ export const updateUserRole = async (
 
     const updatedUserSession: UserSession = {
       id: updatedUser.id,
-      email: updatedUser.email,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
+      email: updatedUser.email,
       gender: updatedUser.gender,
+      role: updatedUser.role.name,
       emailVerified: updatedUser.emailVerified,
       isAccountActivated: updatedUser.isAccountActivated,
     };
 
     const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
       id: updatedUser.id,
-      email: updatedUser.email,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
-      role: updatedUser.role.name,
-      gender: updatedUser.gender,
+      email: updatedUser.email,
       emailVerified: updatedUser.emailVerified,
-      isAccountActivated: updatedUser.isAccountActivated,
+      gender: updatedUser.gender,
+      role: updatedUser.role.name,
       password: updatedUser.password,
+      isAccountActivated: updatedUser.isAccountActivated,
+      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
+      tempEmailVerified: updatedUser.tempEmailVerified,
     };
 
     // Update role user counts in Redis

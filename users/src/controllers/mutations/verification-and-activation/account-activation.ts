@@ -3,6 +3,7 @@ import { Repository } from "typeorm";
 import { Context } from "../../../context";
 import { User } from "../../../entities/user.entity";
 import {
+  getUserInfoByEmailInRedis,
   getUserInfoByUserIdFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
@@ -13,7 +14,7 @@ import {
   MutationAccountActivationArgs,
   UserSession,
 } from "../../../types";
-import { idSchema } from "../../../utils/data-validation";
+import { emailSchema, idSchema } from "../../../utils/data-validation";
 
 /**
  * Activates a user account using the user ID from the activation link.
@@ -36,26 +37,29 @@ export const accountActivation = async (
   args: MutationAccountActivationArgs,
   { AppDataSource }: Context
 ): Promise<ActiveAccountResponseOrError> => {
-  const { userId } = args;
+  const { userId, email } = args;
 
   try {
     // Validate input data using Zod schema
-    const validationResult = await idSchema.safeParseAsync({
-      id: userId,
-    });
+    const [idResult, emailResult] = await Promise.all([
+      idSchema.safeParseAsync({ id: userId }),
+      emailSchema.safeParseAsync({ email }),
+    ]);
 
-    // If validation fails, return detailed error messages with field names
-    if (!validationResult.success) {
-      const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
-        message: error.message,
+    if (!idResult.success || !emailResult.success) {
+      const errors = [
+        ...(idResult.error?.errors || []),
+        ...(emailResult.error?.errors || []),
+      ].map((e) => ({
+        field: e.path.join("."),
+        message: e.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
         message: "Validation failed",
-        errors: errorMessages,
+        errors,
         __typename: "ErrorResponse",
       };
     }
@@ -66,35 +70,41 @@ export const accountActivation = async (
     // Check Redis for cached user's data
     let user;
 
-    user = await getUserInfoByUserIdFromRedis(user.id);
+    user = await getUserInfoByUserIdFromRedis(userId);
 
     if (!user) {
-      // Cache miss: Fetch user from database
-      user = await userRepository.findOne({
-        where: { id: user.id },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          password: true,
-          gender: true,
-          emailVerified: true,
-          isAccountActivated: true,
-          role: {
-            name: true,
-          },
-        },
-      });
+      user = await getUserInfoByEmailInRedis(email);
 
       if (!user) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Authenticated user not found in database",
-          __typename: "ErrorResponse",
-        };
+        // Cache miss: Fetch user from database
+        user = await userRepository.findOne({
+          where: { id: user.id, email, deletedAt: null },
+          relations: ["role"],
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            emailVerified: true,
+            gender: true,
+            role: {
+              name: true,
+            },
+            password: true,
+            isAccountActivated: true,
+            tempUpdatedEmail: true,
+            tempEmailVerified: true,
+          },
+        });
+
+        if (!user) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "Authenticated user not found in database",
+            __typename: "ErrorResponse",
+          };
+        }
       }
     }
 
@@ -129,25 +139,27 @@ export const accountActivation = async (
     // Update Redis cache
     const userCacheData: UserSession = {
       id: user.id,
-      email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: roleName,
+      email: user.email,
       gender: user.gender,
-      emailVerified: true,
-      isAccountActivated: true,
+      role: roleName,
+      emailVerified: user.emailVerified,
+      isAccountActivated: user.isAccountActivated,
     };
 
     const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
       id: user.id,
-      email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      password: user.password,
-      role: roleName,
+      email: user.email,
+      emailVerified: user.emailVerified,
       gender: user.gender,
-      emailVerified: true,
-      isAccountActivated: true,
+      role: roleName,
+      password: user.password,
+      isAccountActivated: user.isAccountActivated,
+      tempUpdatedEmail: user.tempUpdatedEmail,
+      tempEmailVerified: user.tempEmailVerified,
     };
 
     // Cache user for curd in Redis

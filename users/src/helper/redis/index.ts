@@ -34,6 +34,13 @@ export {
 } from "./utils/role/role-session-manage";
 
 export {
+  getRolesCountFromRedis,
+  getRolesFromRedis,
+  setRolesCountInRedis,
+  setRolesInRedis,
+} from "./utils/role/role";
+
+export {
   getUserCountInDBFromRedis,
   getUserEmailFromRedis,
   getUserInfoByEmailInRedis,
@@ -50,3 +57,10 @@ export {
   setUserInfoByUserIdInRedis,
   setUserTokenInfoByUserIdInRedis,
 } from "./utils/user/user-session-manage";
+
+export {
+  getUsersCountFromRedis,
+  getUsersFromRedis,
+  setUsersCountInRedis,
+  setUsersInRedis,
+} from "./utils/user/users";

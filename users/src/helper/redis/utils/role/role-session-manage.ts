@@ -5,7 +5,7 @@ import { redis } from "../../redis";
 const PREFIX = {
   ROLE: "role:",
   EXISTS: "role-exists:",
-  ROLE_USER_COUNT: "role-user-count:"
+  ROLE_USER_COUNT: "role-user-count:",
 };
 
 //
@@ -58,7 +58,6 @@ export const getTotalUserCountByRoleIdFromRedis = async (
   return isNaN(count) ? 0 : count;
 };
 
-
 //
 // ===================== SETTERS =====================
 //
@@ -105,7 +104,10 @@ export const setTotalUserCountByRoleIdInRedis = async (
   roleId: string,
   count: number
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.ROLE_USER_COUNT}${roleId}`, count.toString());
+  await redis.setSession(
+    `${PREFIX.ROLE_USER_COUNT}${roleId}`,
+    count.toString()
+  );
 };
 
 //

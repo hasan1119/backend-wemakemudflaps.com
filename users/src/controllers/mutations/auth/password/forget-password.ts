@@ -75,20 +75,22 @@ export const forgetPassword = async (
 
     if (!user.email) {
       const dbUser = await userRepository.findOne({
-        where: { email },
+        where: { email, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
-          email: true,
           firstName: true,
           lastName: true,
-          gender: true,
+          email: true,
           emailVerified: true,
-          isAccountActivated: true,
-          password: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -96,7 +98,7 @@ export const forgetPassword = async (
         return {
           statusCode: 400,
           success: false,
-          message: `User not found with this email: ${email}`,
+          message: `User not found with this email: ${email} or has been deleted`,
           __typename: "BaseResponse",
         };
       }
@@ -109,14 +111,16 @@ export const forgetPassword = async (
       // Create a new session for the user
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: user.id,
-        email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role.name,
-        gender: user.gender,
+        email: user.email,
         emailVerified: user.emailVerified,
-        isAccountActivated: user.isAccountActivated,
+        gender: user.gender,
+        role: user.role.name,
         password: user.password,
+        isAccountActivated: user.isAccountActivated,
+        tempUpdatedEmail: user.tempUpdatedEmail,
+        tempEmailVerified: user.tempEmailVerified,
       };
 
       // Cache user's info by email in Redis

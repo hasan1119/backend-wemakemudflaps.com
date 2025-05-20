@@ -71,7 +71,6 @@ export class Product {
 
   // Primary category for the product
   @ManyToOne(() => Category, (category) => category.products, {
-    nullable: true,
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "category_id" })

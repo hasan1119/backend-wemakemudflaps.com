@@ -17,18 +17,41 @@ type Query {
   # If no `searchKeyWord` is provided, it returns all users.
   # The response will include a `GetUsersResponseOrError` containing users data, and status.
   getAllUsers(
-    pageNo: Int! # The page number to fetch (for pagination).
-    showPerPage: Int! # The number of users to display per page (for pagination).
-    searchKeyWord: String # Optional search term to filter users (can be by name, email, etc.).
+    page: Int! # The page number to fetch (for pagination).
+    limit: Int! # The number of users to display per page (for pagination).
+    search: String # Optional search term to filter users (can be by name, email, etc.).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort order (asc or desc).
   ): GetUsersResponseOrError!
 
   # Fetch all user role info.
   # This query allows you to retrieve all the user roles.
   # The response will include a `GetRoleByIDResponseOrError` containing a single user role info, and status.
-  getRole(id: String!): GetRoleByIDResponseOrError!
+  getRoleById(id: String!): GetRoleByIDResponseOrError!
 
-  # Fetch all user roles.
-  # This query allows you to retrieve all the user roles.
-  # The response will include a `GetRolesResponseOrError` containing user roles info, and status.
-  getRoles: GetRolesResponseOrError!
+  # Fetch all user roles with pagination, optional search, and sorting.
+  # This query allows you to fetch a list of all user roles.
+  # You can paginate the results by specifying the `page` and `limit`.
+  # You can filter roles by a `search` term (case-insensitive, matching name or description).
+  # You can sort results by `sortBy` (e.g., name, createdAt) and `sortOrder` (asc or desc).
+  # If no `search` is provided, it returns all non-deleted roles.
+  # If no `sortBy` or `sortOrder` is provided, it defaults to sorting by createdAt in descending order.
+  # The response will include a `GetRolesResponseOrError` containing role data and status.
+  getAllRoles(
+    page: Int! # The page number to fetch (1-based, for pagination).
+    limit: Int! # The number of roles to display per page (for pagination).
+    search: String # Optional search term to filter roles (by name or description).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort order (asc or desc).
+  ): GetRolesResponseOrError!
+
+  # Fetch all permissions for a user by user ID.
+  # This query allows you to retrieve all permissions assigned to a specific user.
+  # The response will include a `GetPermissionsResponseOrError` containing permissions data and status.
+  getAllPermissionsByUserId(id: ID!): GetPermissionsResponseOrError!
+
+  # Fetch own permissions.
+  # This query allows the authenticated user to retrieve their own permissions.
+  # The response will include a `GetPermissionsResponseOrError` containing permissions data and status.
+  getOwnPermissions: GetPermissionsResponseOrError!
 }

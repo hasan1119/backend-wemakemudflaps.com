@@ -61,22 +61,24 @@ export const resetPassword = async (
 
     // Fetch user from database
     const user = await userRepository.findOne({
-      where: { resetPasswordToken: token },
+      where: { resetPasswordToken: token, deletedAt: null },
       relations: ["role"],
       select: {
         id: true,
         firstName: true,
         lastName: true,
         email: true,
-        password: true,
-        gender: true,
         emailVerified: true,
-        isAccountActivated: true,
-        resetPasswordToken: true,
-        resetPasswordTokenExpiry: true,
+        gender: true,
         role: {
           name: true,
         },
+        password: true,
+        resetPasswordToken: true,
+        resetPasswordTokenExpiry: true,
+        isAccountActivated: true,
+        tempUpdatedEmail: true,
+        tempEmailVerified: true,
       },
     });
 
@@ -84,7 +86,7 @@ export const resetPassword = async (
       return {
         statusCode: 400,
         success: false,
-        message: `User not found with this token: ${token}`,
+        message: `User not found with this token: ${token} or has been deleted`,
         __typename: "ErrorResponse",
       };
     }
@@ -128,11 +130,13 @@ export const resetPassword = async (
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       email: updatedUser.email,
-      password: updatedUser.password,
+      emailVerified: updatedUser.emailVerified,
       gender: updatedUser.gender,
       role: updatedUser.role.name,
-      emailVerified: updatedUser.emailVerified,
+      password: updatedUser.password,
       isAccountActivated: updatedUser.isAccountActivated,
+      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
+      tempEmailVerified: updatedUser.tempEmailVerified,
     };
 
     // Cache user in Redis

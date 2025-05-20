@@ -11,18 +11,21 @@ export const registerSchema = z.object({
     .max(50, { message: "First name must not exceed 50 characters" })
     .regex(/^[a-zA-Z\s-]+$/, {
       message: "First name must contain only letters, spaces, or hyphens",
-    }),
+    })
+    .trim(),
   lastName: z
     .string()
     .min(1, { message: "Last name is required" })
     .max(50, { message: "Last name must not exceed 50 characters" })
     .regex(/^[a-zA-Z\s-]+$/, {
       message: "Last name must contain only letters, spaces, or hyphens",
-    }),
+    })
+    .trim(),
   email: z
     .string()
     .min(1, { message: "Email is required" })
-    .email({ message: "Invalid email address" }),
+    .email({ message: "Invalid email address" })
+    .trim(),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters long" })
@@ -42,7 +45,8 @@ export const loginSchema = z.object({
   email: z
     .string()
     .min(1, { message: "Email is required" })
-    .email({ message: "Invalid email address" }),
+    .email({ message: "Invalid email address" })
+    .trim(),
 
   password: z.string().min(1, { message: "Password is required" }),
 });
@@ -102,15 +106,19 @@ export const updateProfileSchema = z.object({
     .string()
     .min(1, { message: "First name is required" })
     .max(50, { message: "First name is too long" })
+    .trim()
     .optional(),
-
   lastName: z
     .string()
     .min(1, { message: "Last name is required" })
     .max(50, { message: "Last name is too long" })
+    .trim()
     .optional(),
-
-  email: z.string().email({ message: "Invalid email format" }).optional(),
+  email: z
+    .string()
+    .email({ message: "Invalid email format" })
+    .trim()
+    .optional(),
 
   gender: GenderEnum.nullable().optional(), // Gender is optional and can be null
 });

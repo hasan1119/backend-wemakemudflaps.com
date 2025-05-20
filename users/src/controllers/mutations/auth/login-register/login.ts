@@ -80,15 +80,28 @@ export const login = async (
     if (!user) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { email },
+        where: { email, deletedAt: null },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          emailVerified: true,
+          gender: true,
+          role: {
+            name: true,
+          },
+          password: true,
+          isAccountActivated: true,
+        },
       });
 
       if (!dbUser) {
         return {
           statusCode: 400,
           success: false,
-          message: `User not found with this email: ${email}`,
+          message: `User not found with this email: ${email} or has been deleted`,
           __typename: "ErrorResponse",
         };
       }
@@ -100,14 +113,16 @@ export const login = async (
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: user.id,
-        email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role.name,
-        gender: user.gender,
+        email: user.email,
         emailVerified: user.emailVerified,
-        isAccountActivated: user.isAccountActivated,
+        gender: user.gender,
+        role: user.role.name,
         password: user.password,
+        isAccountActivated: user.isAccountActivated,
+        tempUpdatedEmail: user.tempUpdatedEmail,
+        tempEmailVerified: user.tempEmailVerified,
       };
 
       // Cache user in Redis
@@ -196,11 +211,11 @@ export const login = async (
     // Generate JWT token
     const token = await EncodeToken(
       user.id,
-      user.email,
       user.firstName,
       user.lastName,
-      roleName,
+      user.email,
       user.gender,
+      roleName,
       user.emailVerified,
       user.isAccountActivated,
       "30d" // Set the token expiration time
@@ -209,11 +224,11 @@ export const login = async (
     // Create and store session
     const session: UserSession = {
       id: user.id,
-      email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: roleName,
+      email: user.email,
       gender: user.gender,
+      role: roleName,
       emailVerified: user.emailVerified,
       isAccountActivated: user.isAccountActivated,
     };

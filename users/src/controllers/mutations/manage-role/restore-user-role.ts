@@ -62,7 +62,7 @@ export const restoreUserRole = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
@@ -70,11 +70,11 @@ export const restoreUserRole = async (
           lastName: true,
           email: true,
           gender: true,
-          emailVerified: true,
-          isAccountActivated: true,
           role: {
             name: true,
           },
+          emailVerified: true,
+          isAccountActivated: true,
         },
       });
 
@@ -94,11 +94,11 @@ export const restoreUserRole = async (
 
       const userSession: UserSession = {
         id: userData.id,
-        email: userData.email,
         firstName: userData.firstName,
         lastName: userData.lastName,
-        role: userData.role.name,
+        email: userData.email,
         gender: userData.gender,
+        role: userData.role.name,
         emailVerified: userData.emailVerified,
         isAccountActivated: userData.isAccountActivated,
       };
@@ -228,14 +228,14 @@ export const restoreUserRole = async (
       const roleSession: CachedRoleInputs = {
         id: role.id,
         name: role.name,
-        description: role.description || "",
+        description: role.description,
         createdAt: role.createdAt.toISOString(),
         deletedAt: "",
         createdBy: createdBy
           ? {
               id: createdBy.id,
               name: createdBy.firstName + " " + createdBy.lastName,
-              role: createdBy.role.name || "",
+              role: createdBy.role.name,
             }
           : null,
       };

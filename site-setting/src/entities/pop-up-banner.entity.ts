@@ -7,19 +7,19 @@ export class PopupBanner {
 
   // Optional image URL for the popup banner
   @Column({ type: "text", nullable: true })
-  imageUrl: string;
+  imageUrl: string | null;
 
   // Optional message to be displayed on the popup banner
   @Column({ type: "text", nullable: true })
-  message: string;
+  message: string | null;
 
   // Indicates whether the popup banner is active
   @Column({ type: "boolean", nullable: true })
-  isActive: boolean;
+  isActive: boolean | null;
 
   // Start time when the popup banner should be displayed (optional)
   @Column({ type: "timestamp", nullable: true })
-  startTime: Date;
+  startTime: Date | null;
 
   // End time when the popup banner should be removed
   @Column({ type: "timestamp" })
@@ -35,5 +35,5 @@ export class PopupBanner {
 
   // Timestamp for soft deletion (null if not deleted)
   @Column({ type: "timestamp", nullable: true })
-  deletedAt: Date;
+  deletedAt: Date | null;
 }

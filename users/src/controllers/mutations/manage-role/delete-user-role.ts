@@ -28,8 +28,7 @@ import {
   MutationDeleteUserRoleArgs,
 } from "../../../types";
 import CompareInfo from "../../../utils/bcrypt/compare-info";
-import { idsSchema } from "../../../utils/data-validation";
-import { skipTrashSchema } from "../../../utils/data-validation/common/common";
+import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
 import { CachedRoleInputs } from "./../../../types";
 
@@ -75,20 +74,22 @@ export const deleteUserRole = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
           firstName: true,
           lastName: true,
           email: true,
-          password: true,
-          gender: true,
           emailVerified: true,
-          isAccountActivated: true,
+          gender: true,
           role: {
             name: true,
           },
+          password: true,
+          isAccountActivated: true,
+          tempUpdatedEmail: true,
+          tempEmailVerified: true,
         },
       });
 
@@ -103,14 +104,16 @@ export const deleteUserRole = async (
 
       const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
         id: dbUser.id,
-        email: dbUser.email,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        role: dbUser.role.name,
-        gender: dbUser.gender,
-        password: dbUser.password,
+        email: dbUser.email,
         emailVerified: dbUser.emailVerified,
+        gender: dbUser.gender,
+        role: dbUser.role.name,
+        password: dbUser.password,
         isAccountActivated: dbUser.isAccountActivated,
+        tempUpdatedEmail: dbUser.tempUpdatedEmail,
+        tempEmailVerified: dbUser.tempEmailVerified,
       };
 
       userData = userSessionByEmail;
@@ -308,7 +311,7 @@ export const deleteUserRole = async (
       // Check Redis for the user count with this role
       userCountForRole = await getTotalUserCountByRoleIdFromRedis(roleData.id);
 
-      if (!userCountForRole) {
+      if (userCountForRole === 0) {
         // Cache miss: Count users in database efficiently
         userCountForRole = await userRepository.count({
           where: { role: { id: roleData.id } },

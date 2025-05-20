@@ -34,7 +34,7 @@ export class Coupon {
 
   // Maximum number of times the coupon can be used (optional)
   @Column({ nullable: true })
-  maxUsage: number;
+  maxUsage: number | null;
 
   // A coupon may be tied to a specific product
   @ManyToOne(() => Product, (product) => product.coupons, {

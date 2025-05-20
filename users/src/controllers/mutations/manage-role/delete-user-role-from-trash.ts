@@ -64,19 +64,19 @@ export const deleteUserRoleFromTrash = async (
     if (!userData) {
       // Cache miss: Fetch user from database
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
         select: {
           id: true,
-          email: true,
           firstName: true,
           lastName: true,
+          email: true,
           gender: true,
-          emailVerified: true,
-          isAccountActivated: true,
           role: {
             name: true,
           },
+          emailVerified: true,
+          isAccountActivated: true,
         },
       });
 
@@ -91,11 +91,11 @@ export const deleteUserRoleFromTrash = async (
 
       const userSession: UserSession = {
         id: dbUser.id,
-        email: dbUser.email,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        role: dbUser.role.name,
+        email: dbUser.email,
         gender: dbUser.gender,
+        role: dbUser.role.name,
         emailVerified: dbUser.emailVerified,
         isAccountActivated: dbUser.isAccountActivated,
       };

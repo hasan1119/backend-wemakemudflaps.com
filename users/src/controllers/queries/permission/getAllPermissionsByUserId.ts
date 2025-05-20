@@ -1,45 +1,41 @@
-import { Repository } from "typeorm";
+import { IsNull, Repository } from "typeorm";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
-import { Role } from "../../../entities/user-role.entity";
 import { User } from "../../../entities/user.entity";
 import {
-  getRoleInfoByRoleIdFromRedis,
   getUserInfoByUserIdFromRedis,
   getUserPermissionsByUserIdFromRedis,
-  setRoleInfoByRoleIdInRedis,
   setUserInfoByUserIdInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
 import {
-  CachedRoleInputs,
   CachedUserPermissionsInputs,
-  GetRoleByIdResponseOrError,
-  QueryGetRoleByIdArgs,
+  GetPermissionsResponseOrError,
+  QueryGetAllPermissionsByUserIdArgs,
   UserSession,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
 
 /**
- * Retrieves a single user role by ID with validation and permission checks.
- *
- * Steps:
- * - Validates input using Zod schema
- * - Authenticates user and checks role view permission
- * - Checks Redis cache for role data before querying the database
- * - Returns the role data with combined firstName and lastName for createdBy, including the creator's role name
+ * Fetches all permissions for a specific user by their ID.
+ * - Validates input using idSchema (Zod).
+ * - Authenticates user and checks read permission for Permission.
+ * - Checks Redis cache for permissions data before querying the database.
+ * - Fetches permissions for the specified user.
+ * - Caches permissions in Redis for common queries.
+ * - Returns a PermissionsResponse with permissions or an error response.
  *
  * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for retrieving the role (id)
- * @param context - Application context containing AppDataSource and user
- * @returns Promise<GetRoleByIdResponseOrError> - Result of the get operation
+ * @param args - Arguments containing the user ID
+ * @param context - GraphQL context with AppDataSource and user info
+ * @returns Promise<GetPermissionsResponseOrError> - List of permissions or error response
  */
-export const getRoleById = async (
+export const getAllPermissionsByUserId = async (
   _: any,
-  args: QueryGetRoleByIdArgs,
+  args: QueryGetAllPermissionsByUserIdArgs,
   { AppDataSource, user }: Context
-): Promise<GetRoleByIdResponseOrError> => {
+): Promise<GetPermissionsResponseOrError> => {
   const { id } = args;
 
   try {
@@ -48,10 +44,9 @@ export const getRoleById = async (
     if (authResponse) return authResponse;
 
     // Initialize repositories
-    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
+    const userRepository: Repository<User> = AppDataSource.getRepository(User);
     const permissionRepository: Repository<Permission> =
       AppDataSource.getRepository(Permission);
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
     // Check Redis for cached user data
     let userData;
@@ -69,9 +64,7 @@ export const getRoleById = async (
           lastName: true,
           email: true,
           gender: true,
-          role: {
-            name: true,
-          },
+          role: { id: true, name: true },
           emailVerified: true,
           isAccountActivated: true,
         },
@@ -136,24 +129,25 @@ export const getRoleById = async (
 
       // Cache permissions in Redis
       await setUserPermissionsByUserIdInRedis(user.id, cachedPermissions);
+      userPermissions = cachedPermissions;
     }
 
-    // Check if the user has "canRead" permission for Role
-    const canReadRole = userPermissions.some(
-      (permission) => permission.name === "Role" && permission.canRead
+    // Check if the user has "canRead" permission for Permission
+    const canReadPermission = userPermissions.some(
+      (permission) => permission.name === "Permission" && permission.canRead
     );
 
-    if (!canReadRole) {
+    if (!canReadPermission) {
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to view role info",
+        message: "You do not have permission to view permissions",
         __typename: "BaseResponse",
       };
     }
 
-    // Validate input data using Zod schema
-    const validationResult = await idSchema.safeParseAsync({ id });
+    // Validate input
+    const validationResult = await idSchema.safeParseAsync(id);
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
@@ -170,89 +164,73 @@ export const getRoleById = async (
       };
     }
 
-    // Check Redis for cached role data
-    let roleData = await getRoleInfoByRoleIdFromRedis(id);
+    // Verify user exists
+    const targetUser = await userRepository.findOne({
+      where: { id, deletedAt: IsNull() },
+      select: { id: true },
+    });
 
-    if (!roleData) {
-      // Cache miss: Fetch role from database
-      const dbRole = await roleRepository.findOne({
-        where: { id },
-        relations: ["createdBy", "createdBy.role"],
+    if (!targetUser) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: "User not found or has been deleted",
+        __typename: "ErrorResponse",
+      };
+    }
+
+    // Check Redis for cached permissions
+    let permissionsData = await getUserPermissionsByUserIdFromRedis(id);
+
+    if (!permissionsData) {
+      // Cache miss: Fetch permissions from database
+      const permissions = await permissionRepository.find({
+        where: { user: { id } },
         select: {
           id: true,
           name: true,
           description: true,
-          createdAt: true,
-          deletedAt: true,
-          createdBy: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            role: {
-              name: true,
-            },
-          },
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
         },
       });
 
-      if (!dbRole) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Role not found",
-          __typename: "BaseResponse",
-        };
-      }
+      permissionsData = permissions.map((permission) => ({
+        id: permission.id,
+        name: permission.name,
+        description: permission.description,
+        canCreate: permission.canCreate,
+        canRead: permission.canRead,
+        canUpdate: permission.canUpdate,
+        canDelete: permission.canDelete,
+      }));
 
-      // Resolve lazy-loaded createdBy
-      const createdBy = await dbRole.createdBy;
-
-      // Create role data for response and caching
-      roleData = {
-        id: dbRole.id,
-        name: dbRole.name,
-        description: dbRole.description,
-        createdAt: dbRole.createdAt.toISOString(),
-        deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
-        createdBy: createdBy
-          ? {
-              id: createdBy.id,
-              name: createdBy.firstName + " " + createdBy.lastName,
-              role: createdBy.role.name,
-            }
-          : null,
-      };
-
-      // Create a new session for user role
-      const cachedRole: CachedRoleInputs = {
-        id: roleData.id,
-        name: roleData.name,
-        description: roleData.description,
-        createdAt: roleData.createdAt,
-        deletedAt: roleData.deletedAt,
-        createdBy: roleData.createdBy,
-      };
-
-      // Cache user role info in Redis
-      await setRoleInfoByRoleIdInRedis(id, cachedRole);
+      // Cache permissions in Redis
+      await setUserPermissionsByUserIdInRedis(id, permissionsData);
     }
 
+    const responseData = permissionsData.map((permission) => ({
+      id: permission.id,
+      name: permission.name,
+      description: permission.description,
+      canCreate: permission.canCreate,
+      canRead: permission.canRead,
+      canUpdate: permission.canUpdate,
+      canDelete: permission.canDelete,
+    }));
+
+    // Return PermissionsResponse
     return {
       statusCode: 200,
       success: true,
-      message: "Role retrieved successfully",
-      role: {
-        id: roleData.id,
-        name: roleData.name,
-        description: roleData.description,
-        createdAt: roleData.createdAt,
-        deletedAt: roleData.deletedAt,
-        createdBy: roleData.createdBy,
-      },
-      __typename: "RoleResponse",
+      message: "Permissions fetched successfully",
+      permissions: responseData,
+      __typename: "PermissionsResponse",
     };
   } catch (error: any) {
-    console.error("Error retrieving role:", {
+    console.error("Error fetching permissions:", {
       message: error.message,
     });
 

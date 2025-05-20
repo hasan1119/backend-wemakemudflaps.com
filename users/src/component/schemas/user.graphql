@@ -65,6 +65,7 @@ type Role {
   id: ID!
   name: String!
   description: String
+  totalUserCount: Int
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String
@@ -92,11 +93,11 @@ type RoleResponse {
 # Type of the user session for access token and redis.
 type UserSession {
   id: ID!
-  email: String!
   firstName: String!
   lastName: String!
-  role: String!
+  email: String!
   gender: String!
+  role: String!
   emailVerified: Boolean!
   isAccountActivated: Boolean!
 }
@@ -104,14 +105,16 @@ type UserSession {
 # Type for the user cached session stored by email key in Redis.
 type CachedUserSessionByEmailKeyInputs {
   id: ID!
-  email: String!
   firstName: String!
   lastName: String!
-  password: String!
+  email: String!
+  emailVerified: Boolean!
   gender: String!
   role: String!
-  emailVerified: Boolean!
+  password: String!
   isAccountActivated: Boolean!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
 }
 
 # Main User type, which represents the user model in the system.
@@ -120,9 +123,9 @@ type User @key(fields: "id") {
   firstName: String
   lastName: String
   email: String
+  emailVerified: Boolean
   gender: String
   role: String
-  emailVerified: Boolean
   isAccountActivated: Boolean
   permissions: [Permissions!]
   createdAt: String
@@ -144,10 +147,16 @@ type UsersResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  page: Int!
-  limit: Int!
-  search: String
   users: [User!]!
+  total: Int! # Total number of users matching the query
+}
+
+# Type for the response when fetching permissions for a user.
+type PermissionsResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  permissions: [Permissions!]!
 }
 
 # Response type when a user logs in.
@@ -180,6 +189,7 @@ type RolesResponse {
   success: Boolean!
   message: String!
   roles: [Role!]!
+  total: Int! # Total number of users matching the query
 }
 
 # Response type when fetching the single role info.
@@ -216,15 +226,15 @@ input UpdateUserPermissionInput {
 # Mutation responses can be either a success or an error.
 union BaseResponseOrError = BaseResponse | ErrorResponse
 union UserLoginResponseOrError =
-    BaseResponse
+  | BaseResponse
   | UserLoginResponse
   | ErrorResponse
 union UserProfileUpdateResponseOrError =
-    BaseResponse
+  | BaseResponse
   | UserProfileUpdateResponse
   | ErrorResponse
 union EmailVerificationResponseOrError =
-    EmailVerificationResponse
+  | EmailVerificationResponse
   | ErrorResponse
 union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 
@@ -232,6 +242,10 @@ union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 union GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse
 union GetRoleByIDResponseOrError = BaseResponse | RoleResponse | ErrorResponse
 union GetUserByIDResponseOrError = BaseResponse | UserResponse | ErrorResponse
-union GetUsersResponseOrError = UsersResponse | ErrorResponse
-union GetRolesResponseOrError = RolesResponse | ErrorResponse
-union GetRoleResponseOrError = RoleResponse | ErrorResponse
+union GetUsersResponseOrError = BaseResponse | UsersResponse | ErrorResponse
+union GetRolesResponseOrError = BaseResponse | RolesResponse | ErrorResponse
+union GetRoleResponseOrError = BaseResponse | RoleResponse | ErrorResponse
+union GetPermissionsResponseOrError =
+  | BaseResponse
+  | PermissionsResponse
+  | ErrorResponse

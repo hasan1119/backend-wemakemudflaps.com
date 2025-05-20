@@ -40,8 +40,20 @@ export const getProfile = async (
     // Check the user exists or not
     if (!userExist) {
       const dbUser = await userRepository.findOne({
-        where: { id: user.id },
+        where: { id: user.id, deletedAt: null },
         relations: ["role"],
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          gender: true,
+          role: {
+            name: true,
+          },
+          emailVerified: true,
+          isAccountActivated: true,
+        },
       });
 
       if (!dbUser) {
@@ -59,9 +71,9 @@ export const getProfile = async (
         lastName: dbUser.lastName,
         email: dbUser.email,
         gender: dbUser.gender,
-        role: dbUser.role?.name || null,
-        isAccountActivated: dbUser.isAccountActivated,
+        role: dbUser.role.name,
         emailVerified: dbUser.emailVerified,
+        isAccountActivated: dbUser.isAccountActivated,
       };
 
       // Cache user in Redis
