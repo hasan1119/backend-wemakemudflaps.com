@@ -447,12 +447,12 @@ export const updateUserPermission = async (
       targetUser.role === "CUSTOMER" || targetUser.role === "INVENTORY MANAGER";
     const rolePerms = ROLE_PERMISSIONS[targetUser.role];
 
+    // Get permission names directly from PermissionEnum.options
+    const allPermissionNames = PermissionEnum.options as PermissionName[];
+
     if (validationResult.data.accessAll) {
       // For CUSTOMER and INVENTORY MANAGER, grant only ROLE_PERMISSIONS; others false
       if (isRestrictedRole && rolePerms) {
-        const allPermissionNames = Object.values(
-          PermissionEnum
-        ) as PermissionName[];
         for (const name of allPermissionNames) {
           permissionsToCreate.push({
             name,
@@ -469,9 +469,6 @@ export const updateUserPermission = async (
         }
       } else {
         // For other rolled user, grant full permissions
-        const allPermissionNames = Object.values(
-          PermissionEnum
-        ) as PermissionName[];
         for (const name of allPermissionNames) {
           permissionsToCreate.push({
             name,
@@ -488,10 +485,6 @@ export const updateUserPermission = async (
         }
       }
     } else if (validationResult.data.deniedAll) {
-      // Set all permissions to false for all rolled users
-      const allPermissionNames = Object.values(
-        PermissionEnum
-      ) as PermissionName[];
       for (const name of allPermissionNames) {
         permissionsToCreate.push({
           name,
@@ -507,9 +500,6 @@ export const updateUserPermission = async (
         });
       }
     } else if (validationResult.data.permissions) {
-      const allPermissionNames = Object.values(
-        PermissionEnum
-      ) as PermissionName[];
       const providedNames = new Set(
         validationResult.data.permissions.map((p) => p.name)
       );

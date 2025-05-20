@@ -147,7 +147,7 @@ export const getAllPermissionsByUserId = async (
     }
 
     // Validate input
-    const validationResult = await idSchema.safeParseAsync(id);
+    const validationResult = await idSchema.safeParseAsync({ id });
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
