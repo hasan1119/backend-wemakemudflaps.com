@@ -438,18 +438,6 @@ export const updateUserRole = async (
       };
     }
 
-    // Fetch target user and authenticated user entities
-    const [targetUserEntity, authUserEntity] = await Promise.all([
-      userRepository.findOne({
-        where: { id: userId, deletedAt: null },
-        select: { id: true },
-      }),
-      userRepository.findOne({
-        where: { id: user.id, deletedAt: null },
-        select: { id: true },
-      }),
-    ]);
-
     // Check Redis for cached target user's data and role
     let targetUser = await getUserInfoByUserIdFromRedis(userId);
     let oldRoleId: string | null = null;
@@ -551,6 +539,18 @@ export const updateUserRole = async (
     // Synchronize permissions only if the new role is defined in ROLE_PERMISSIONS
     const newRolePermissions = ROLE_PERMISSIONS[roleData.name];
     if (newRolePermissions) {
+      // Fetch target user and authenticated user entities
+      const [targetUserEntity, authUserEntity] = await Promise.all([
+        userRepository.findOne({
+          where: { id: userId, deletedAt: null },
+          select: { id: true },
+        }),
+        userRepository.findOne({
+          where: { id: user.id, deletedAt: null },
+          select: { id: true },
+        }),
+      ]);
+
       // Fetch existing permissions for the user
       const existingPermissions = await permissionRepository.find({
         where: { user: { id: userId } },
