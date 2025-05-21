@@ -176,7 +176,8 @@ const ROLE_PERMISSIONS: {
  * - Prevents changes to SUPER ADMIN permissions
  * - Prevents ADMIN from changing another ADMIN's permissions
  * - Allows SUPER ADMIN to change any permissions without password
- * - Updates permissions based on accessAll, deniedAll, or custom permissions
+ * - Updates existing permissions or creates new ones based on accessAll, deniedAll, or custom permissions
+ * - Preserves user, createdBy, createdAt, and deletedAt for existing permissions
  * - Invalidates user session and updates Redis caches
  *
  * @param _ - Unused parent resolver argument
@@ -201,10 +202,8 @@ export const updateUserPermission = async (
     const permissionRepository: Repository<Permission> =
       AppDataSource.getRepository(Permission);
 
-    // Check Redis for cached user's data
-    let userData;
-
-    userData = await getUserInfoByEmailInRedis(user.email);
+    // Check Redis for cached authenticated user's data
+    let userData = await getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
       // Cache miss: Fetch user from database
@@ -218,9 +217,7 @@ export const updateUserPermission = async (
           email: true,
           emailVerified: true,
           gender: true,
-          role: {
-            name: true,
-          },
+          role: { name: true },
           password: true,
           isAccountActivated: true,
           tempUpdatedEmail: true,
@@ -287,10 +284,10 @@ export const updateUserPermission = async (
         }));
 
       // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(userData.id, fullPermissions);
+      await setUserPermissionsByUserIdInRedis(user.id, fullPermissions);
     }
 
-    // Check if the user has "canUpdate" permission for Permission
+    // Check if the user has "canUpdate" and "canCreate" permission for Permission
     const canUpdatePermission = userPermissions.some(
       (permission) => permission.name === "Permission" && permission.canUpdate
     );
@@ -355,59 +352,50 @@ export const updateUserPermission = async (
       };
     }
 
-    // Check Redis for cached target user's data
-    let targetUser = await getUserInfoByUserIdFromRedis(userId);
-
-    if (!targetUser) {
-      // Cache miss: Fetch the target user from the database
-      const dbUser = await userRepository.findOne({
+    // Fetch authenticated user and target user entities
+    const [authUserEntity, targetUserEntity] = await Promise.all([
+      userRepository.findOne({ where: { id: user.id } }),
+      userRepository.findOne({
         where: { id: userId, deletedAt: null },
         relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          gender: true,
-          role: {
-            name: true,
-          },
-          emailVerified: true,
-          isAccountActivated: true,
-        },
-      });
+      }),
+    ]);
 
-      if (!dbUser) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `User with ID ${userId} not found or has been deleted`,
-          __typename: "BaseResponse",
-        };
-      }
-
-      targetUser = {
-        ...dbUser,
-        role: dbUser.role.name,
+    if (!authUserEntity) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: "Authenticated user not found",
+        __typename: "BaseResponse",
       };
+    }
 
+    if (!targetUserEntity) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: `User with ID ${userId} not found or has been deleted`,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Cache target user in Redis if not already cached
+    if (!(await getUserInfoByUserIdFromRedis(userId))) {
       const userSession: UserSession = {
-        id: dbUser.id,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        email: dbUser.email,
-        gender: dbUser.gender,
-        role: dbUser.role.name,
-        emailVerified: dbUser.emailVerified,
-        isAccountActivated: dbUser.isAccountActivated,
+        id: targetUserEntity.id,
+        firstName: targetUserEntity.firstName,
+        lastName: targetUserEntity.lastName,
+        email: targetUserEntity.email,
+        gender: targetUserEntity.gender,
+        role: targetUserEntity.role.name,
+        emailVerified: targetUserEntity.emailVerified,
+        isAccountActivated: targetUserEntity.isAccountActivated,
       };
-
-      // Cache target user in Redis
       await setUserInfoByUserIdInRedis(userId, userSession);
     }
 
     // Prevent changes to SUPER ADMIN permissions
-    if (targetUser.role === "SUPER ADMIN") {
+    if (targetUserEntity.role.name === "SUPER ADMIN") {
       return {
         statusCode: 403,
         success: false,
@@ -417,7 +405,7 @@ export const updateUserPermission = async (
     }
 
     // Prevent ADMIN from changing another ADMIN's permissions
-    if (userData.role === "ADMIN" && targetUser.role === "ADMIN") {
+    if (userData.role === "ADMIN" && targetUserEntity.role.name === "ADMIN") {
       return {
         statusCode: 403,
         success: false,
@@ -427,7 +415,7 @@ export const updateUserPermission = async (
     }
 
     // Prevent self permissions changes
-    if (targetUser.id === user.id) {
+    if (targetUserEntity.id === user.id) {
       return {
         statusCode: 403,
         success: false,
@@ -436,16 +424,25 @@ export const updateUserPermission = async (
       };
     }
 
-    // Remove existing permissions for the user
-    await permissionRepository.delete({ user: { id: userId } });
+    // Fetch existing permissions for the user
+    const existingPermissions = await permissionRepository.find({
+      where: { user: { id: userId } },
+      relations: ["user", "createdBy"],
+    });
 
-    // Initialize permissions to create
-    const permissionsToCreate: Partial<Permission>[] = [];
+    // Map existing permissions by name for quick lookup
+    const permissionMap = new Map(
+      existingPermissions.map((perm) => [perm.name, perm])
+    );
+
+    // Initialize permissions to upsert (update existing or create new)
+    const permissionsToUpsert: Partial<Permission>[] = [];
 
     // Handle permissions based on target user's role
     const isRestrictedRole =
-      targetUser.role === "CUSTOMER" || targetUser.role === "INVENTORY MANAGER";
-    const rolePerms = ROLE_PERMISSIONS[targetUser.role];
+      targetUserEntity.role.name === "CUSTOMER" ||
+      targetUserEntity.role.name === "INVENTORY MANAGER";
+    const rolePerms = ROLE_PERMISSIONS[targetUserEntity.role.name];
 
     // Get permission names directly from PermissionEnum.options
     const allPermissionNames = PermissionEnum.options as PermissionName[];
@@ -454,49 +451,68 @@ export const updateUserPermission = async (
       // For CUSTOMER and INVENTORY MANAGER, grant only ROLE_PERMISSIONS; others false
       if (isRestrictedRole && rolePerms) {
         for (const name of allPermissionNames) {
-          permissionsToCreate.push({
+          const existingPerm = permissionMap.get(name);
+          permissionsToUpsert.push({
+            id: existingPerm?.id, // Preserve ID for updates
             name,
             description: `Access for ${name}`,
-            user: userRepository.findOneOrFail({ where: { id: userId } }),
-            createdBy: userRepository.findOneOrFail({
-              where: { id: user.id },
-            }),
+            user: existingPerm
+              ? existingPerm.user
+              : Promise.resolve(targetUserEntity),
+            createdBy: existingPerm
+              ? existingPerm.createdBy
+              : Promise.resolve(authUserEntity),
             canCreate: rolePerms.create.includes(name),
             canRead: rolePerms.read.includes(name),
             canUpdate: rolePerms.update.includes(name),
             canDelete: rolePerms.delete.includes(name),
+            createdAt: existingPerm?.createdAt, // Preserve createdAt
+            deletedAt: existingPerm?.deletedAt, // Preserve deletedAt
           });
         }
       } else {
-        // For other rolled user, grant full permissions
+        // For other roles, grant full permissions
         for (const name of allPermissionNames) {
-          permissionsToCreate.push({
+          const existingPerm = permissionMap.get(name);
+          permissionsToUpsert.push({
+            id: existingPerm?.id,
             name,
             description: `Access for ${name}`,
-            user: userRepository.findOneOrFail({ where: { id: userId } }),
-            createdBy: userRepository.findOneOrFail({
-              where: { id: user.id },
-            }),
+            user: existingPerm
+              ? existingPerm.user
+              : Promise.resolve(targetUserEntity),
+            createdBy: existingPerm
+              ? existingPerm.createdBy
+              : Promise.resolve(authUserEntity),
             canCreate: true,
             canRead: true,
             canUpdate: true,
             canDelete: true,
+            createdAt: existingPerm?.createdAt,
+            deletedAt: existingPerm?.deletedAt,
           });
         }
       }
     } else if (validationResult.data.deniedAll) {
+      // Set all permissions to false for all roles
       for (const name of allPermissionNames) {
-        permissionsToCreate.push({
+        const existingPerm = permissionMap.get(name);
+        permissionsToUpsert.push({
+          id: existingPerm?.id,
           name,
           description: `Access for ${name}`,
-          user: userRepository.findOneOrFail({ where: { id: userId } }),
-          createdBy: userRepository.findOneOrFail({
-            where: { id: user.id },
-          }),
+          user: existingPerm
+            ? existingPerm.user
+            : Promise.resolve(targetUserEntity),
+          createdBy: existingPerm
+            ? existingPerm.createdBy
+            : Promise.resolve(authUserEntity),
           canCreate: false,
           canRead: false,
           canUpdate: false,
           canDelete: false,
+          createdAt: existingPerm?.createdAt,
+          deletedAt: existingPerm?.deletedAt,
         });
       }
     } else if (validationResult.data.permissions) {
@@ -514,13 +530,17 @@ export const updateUserPermission = async (
             rolePerms.update.includes(perm.name) ||
             rolePerms.delete.includes(perm.name)
           ) {
-            permissionsToCreate.push({
+            const existingPerm = permissionMap.get(perm.name);
+            permissionsToUpsert.push({
+              id: existingPerm?.id,
               name: perm.name,
               description: perm.description || `Access for ${perm.name}`,
-              user: userRepository.findOneOrFail({ where: { id: userId } }),
-              createdBy: userRepository.findOneOrFail({
-                where: { id: user.id },
-              }),
+              user: existingPerm
+                ? existingPerm.user
+                : Promise.resolve(targetUserEntity),
+              createdBy: existingPerm
+                ? existingPerm.createdBy
+                : Promise.resolve(authUserEntity),
               canCreate:
                 rolePerms.create.includes(perm.name) &&
                 (perm.canCreate ?? false),
@@ -532,21 +552,29 @@ export const updateUserPermission = async (
               canDelete:
                 rolePerms.delete.includes(perm.name) &&
                 (perm.canDelete ?? false),
+              createdAt: existingPerm?.createdAt,
+              deletedAt: existingPerm?.deletedAt,
             });
           }
         } else {
           // For non-restricted roles, apply permissions as provided
-          permissionsToCreate.push({
+          const existingPerm = permissionMap.get(perm.name);
+          permissionsToUpsert.push({
+            id: existingPerm?.id,
             name: perm.name,
             description: perm.description || `Access for ${perm.name}`,
-            user: userRepository.findOneOrFail({ where: { id: userId } }),
-            createdBy: userRepository.findOneOrFail({
-              where: { id: user.id },
-            }),
+            user: existingPerm
+              ? existingPerm.user
+              : Promise.resolve(targetUserEntity),
+            createdBy: existingPerm
+              ? existingPerm.createdBy
+              : Promise.resolve(authUserEntity),
             canCreate: perm.canCreate ?? false,
             canRead: perm.canRead ?? false,
             canUpdate: perm.canUpdate ?? false,
             canDelete: perm.canDelete ?? false,
+            createdAt: existingPerm?.createdAt,
+            deletedAt: existingPerm?.deletedAt,
           });
         }
       }
@@ -554,25 +582,31 @@ export const updateUserPermission = async (
       // Add all missing permissions from PermissionEnum with all actions set to false
       for (const name of allPermissionNames) {
         if (!providedNames.has(name)) {
-          permissionsToCreate.push({
+          const existingPerm = permissionMap.get(name);
+          permissionsToUpsert.push({
+            id: existingPerm?.id,
             name,
             description: `Access for ${name}`,
-            user: userRepository.findOneOrFail({ where: { id: userId } }),
-            createdBy: userRepository.findOneOrFail({
-              where: { id: user.id },
-            }),
+            user: existingPerm
+              ? existingPerm.user
+              : Promise.resolve(targetUserEntity),
+            createdBy: existingPerm
+              ? existingPerm.createdBy
+              : Promise.resolve(authUserEntity),
             canCreate: false,
             canRead: false,
             canUpdate: false,
             canDelete: false,
+            createdAt: existingPerm?.createdAt,
+            deletedAt: existingPerm?.deletedAt,
           });
         }
       }
     }
 
-    // Insert new permissions (if any)
-    if (permissionsToCreate.length > 0) {
-      await permissionRepository.save(permissionsToCreate);
+    // Upsert permissions (update existing or insert new)
+    if (permissionsToUpsert.length > 0) {
+      await permissionRepository.save(permissionsToUpsert);
     }
 
     // Fetch updated permissions for caching
@@ -606,11 +640,14 @@ export const updateUserPermission = async (
     return {
       statusCode: 200,
       success: true,
-      message: "User permissions updated successfully.",
+      message: "User permissions updated successfully",
       __typename: "BaseResponse",
     };
   } catch (error: any) {
-    console.error("Error updating user permissions:", error);
+    console.error("Error updating user permissions:", {
+      message: error.message,
+    });
+
     return {
       statusCode: 500,
       success: false,

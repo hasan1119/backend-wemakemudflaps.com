@@ -8,6 +8,7 @@ import {
   getUserInfoByUserIdFromRedis,
   getUserPermissionsByUserIdFromRedis,
   setRoleInfoByRoleIdInRedis,
+  setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
   setUserInfoByUserIdInRedis,
   setUserPermissionsByUserIdInRedis,
@@ -176,26 +177,26 @@ export const createUserRole = async (
     }
 
     // Check Redis for cached role
-    let cachedRoleExists;
+    let roleExists;
 
-    cachedRoleExists = await getRoleNameExistFromRedis(name);
+    roleExists = await getRoleNameExistFromRedis(name);
 
-    if (cachedRoleExists) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: "Role with this name already exists",
-        __typename: "BaseResponse",
-      };
-    }
+    if (!roleExists) {
+      // Cache miss: Check database for role existence
+      await roleRepository.findOne({ where: { name: name.toUpperCase() } });
 
-    // Double-check role existence in database to avoid race conditions
-    const existingRole = await roleRepository.findOne({ where: { name } });
+      if (roleExists) {
+        // Cache the fact that this role exists in Redis
+        await setRoleNameExistInRedis(name);
 
-    if (existingRole) {
-      // Cache the fact that this role exists in Redis
-      await setRoleNameExistInRedis(name);
-
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Role with this name already exists",
+          __typename: "BaseResponse",
+        };
+      }
+    } else {
       return {
         statusCode: 400,
         success: false,
@@ -206,7 +207,7 @@ export const createUserRole = async (
 
     // Create the new role with the full User entity as createdBy
     const role = roleRepository.create({
-      name,
+      name: name.toUpperCase(),
       description: description || null,
       createdBy: userData,
     });
@@ -240,6 +241,7 @@ export const createUserRole = async (
     // Cache newly user role & name existence in Redis
     await Promise.all([
       setRoleInfoByRoleIdInRedis(savedRole.id, roleSession),
+      setRoleInfoByRoleNameInRedis(savedRole.name, roleSession),
       setRoleNameExistInRedis(savedRole.name),
     ]);
 

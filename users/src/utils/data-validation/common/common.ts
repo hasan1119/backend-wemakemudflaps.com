@@ -28,7 +28,7 @@ export const paginationSchema = z.object({
     .max(100, { message: "Limit must not exceed 100" }),
   search: z
     .string()
-    .min(1, { message: "Search term is required" })
+    .min(0, { message: "Search term is required" })
     .max(100, { message: "Search term is too long" })
     .optional(),
 });

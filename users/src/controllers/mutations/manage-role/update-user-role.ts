@@ -30,13 +30,12 @@ import {
 } from "../../../types";
 import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { userRoleUpdateSchema } from "../../../utils/data-validation";
+import { PermissionEnum } from "../../../utils/data-validation/permission/permission";
 import { checkUserAuth } from "../../../utils/session-check/session-check";
 import { setUserInfoByEmailInRedis } from "./../../../helper/redis/utils/user/user-session-manage";
 import { CachedRoleInputs } from "./../../../types";
 
-/**
- * Defines allowed permissions for each role
- */
+// Define allowed permissions
 const ROLE_PERMISSIONS: {
   [key: string]: {
     read: PermissionName[];
@@ -215,10 +214,8 @@ export const updateUserRole = async (
     const permissionRepository: Repository<Permission> =
       AppDataSource.getRepository(Permission);
 
-    // Check Redis for cached user's data
-    let userData;
-
-    userData = await getUserInfoByEmailInRedis(user.email);
+    // Check Redis for cached authenticated user's data
+    let userData = await getUserInfoByEmailInRedis(user.email);
 
     if (!userData) {
       // Cache miss: Fetch user from database
@@ -232,9 +229,7 @@ export const updateUserRole = async (
           email: true,
           emailVerified: true,
           gender: true,
-          role: {
-            name: true,
-          },
+          role: { name: true },
           password: true,
           isAccountActivated: true,
           tempUpdatedEmail: true,
@@ -301,7 +296,7 @@ export const updateUserRole = async (
         }));
 
       // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(userData.id, fullPermissions);
+      await setUserPermissionsByUserIdInRedis(user.id, fullPermissions);
     }
 
     // Check if the user has the "canUpdate" permission for both User and Permission
@@ -369,9 +364,7 @@ export const updateUserRole = async (
     }
 
     // Check Redis for cached role's data
-    let roleData;
-
-    roleData = await getRoleInfoByRoleIdFromRedis(roleId);
+    let roleData = await getRoleInfoByRoleIdFromRedis(roleId);
 
     if (!roleData) {
       // Cache miss: Fetch role from database
@@ -388,9 +381,7 @@ export const updateUserRole = async (
             id: true,
             firstName: true,
             lastName: true,
-            role: {
-              name: true,
-            },
+            role: { name: true },
           },
         },
       });
@@ -415,7 +406,7 @@ export const updateUserRole = async (
         createdBy: createdBy
           ? {
               id: createdBy.id,
-              name: createdBy.firstName + " " + createdBy.lastName,
+              name: `${createdBy.firstName} ${createdBy.lastName}`,
               role: createdBy.role.name,
             }
           : null,
@@ -437,22 +428,30 @@ export const updateUserRole = async (
       };
     }
 
-    // Prevent to assign SUPER ADMIN role to any other user
+    // Prevent assigning SUPER ADMIN role
     if (roleData.name === "SUPER ADMIN") {
       return {
         statusCode: 403,
         success: false,
-        message:
-          "You can't assign SUPER ADMIN role to any other user in this platform",
+        message: "Cannot assign SUPER ADMIN role to any user",
         __typename: "BaseResponse",
       };
     }
 
-    // Check Redis for cached target user's data and his role
-    let targetUser;
+    // Fetch target user and authenticated user entities
+    const [targetUserEntity, authUserEntity] = await Promise.all([
+      userRepository.findOne({
+        where: { id: userId, deletedAt: null },
+        select: { id: true },
+      }),
+      userRepository.findOne({
+        where: { id: user.id, deletedAt: null },
+        select: { id: true },
+      }),
+    ]);
 
-    targetUser = await getUserInfoByUserIdFromRedis(userId);
-
+    // Check Redis for cached target user's data and role
+    let targetUser = await getUserInfoByUserIdFromRedis(userId);
     let oldRoleId: string | null = null;
 
     if (!targetUser) {
@@ -462,10 +461,14 @@ export const updateUserRole = async (
         relations: ["role"],
         select: {
           id: true,
-          role: {
-            id: true,
-            name: true,
-          },
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: { id: true, name: true },
+          gender: true,
+          password: true,
+          emailVerified: true,
+          isAccountActivated: true,
         },
       });
 
@@ -485,7 +488,6 @@ export const updateUserRole = async (
         lastName: dbUser.lastName,
         role: dbUser.role.name,
         gender: dbUser.gender,
-        password: dbUser.password,
         emailVerified: dbUser.emailVerified,
         isAccountActivated: dbUser.isAccountActivated,
       };
@@ -518,7 +520,7 @@ export const updateUserRole = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You can't change your own role",
+        message: "You cannot change your own role",
         __typename: "BaseResponse",
       };
     }
@@ -526,18 +528,17 @@ export const updateUserRole = async (
     // Prevent modifying SUPER ADMIN roles
     if (targetUser.role === "SUPER ADMIN") {
       return {
-        statusCode: 400,
+        statusCode: 403,
         success: false,
-        message:
-          "You can't change SUPER ADMIN role to any other user role in this platform",
+        message: "Cannot change the role of a SUPER ADMIN",
         __typename: "BaseResponse",
       };
     }
 
-    // Prevent modifying ADMIN roles except SUPER ADMIN
+    // Prevent modifying ADMIN roles except by SUPER ADMIN
     if (targetUser.role === "ADMIN" && userData.role !== "SUPER ADMIN") {
       return {
-        statusCode: 400,
+        statusCode: 403,
         success: false,
         message: "Only SUPER ADMIN can modify users with the ADMIN role",
         __typename: "BaseResponse",
@@ -550,33 +551,63 @@ export const updateUserRole = async (
     // Synchronize permissions only if the new role is defined in ROLE_PERMISSIONS
     const newRolePermissions = ROLE_PERMISSIONS[roleData.name];
     if (newRolePermissions) {
-      // Remove existing permissions for the user
-      await permissionRepository.delete({ user: { id: userId } });
+      // Fetch existing permissions for the user
+      const existingPermissions = await permissionRepository.find({
+        where: { user: { id: userId } },
+        relations: ["user", "createdBy"],
+      });
 
-      // Create new permissions based on ROLE_PERMISSIONS
-      const permissionsToCreate: Partial<Permission>[] = [];
-      const allPermissionNames = new Set([
-        ...newRolePermissions.read,
-        ...newRolePermissions.create,
-        ...newRolePermissions.update,
-        ...newRolePermissions.delete,
-      ]);
+      // Map existing permissions by name for quick lookup
+      const permissionMap = new Map(
+        existingPermissions.map((perm) => [perm.name, perm])
+      );
 
+      // Initialize permissions to upsert (update existing or create new)
+      const permissionsToUpsert: Partial<Permission>[] = [];
+
+      // Get all permission names from PermissionEnum.options
+      const allPermissionNames = PermissionEnum.options as PermissionName[];
+
+      // Handle permissions for the new role
       for (const name of allPermissionNames) {
-        permissionsToCreate.push({
-          name: name as PermissionName,
+        const existingPerm = permissionMap.get(name);
+        const isRolePermission =
+          newRolePermissions.read.includes(name) ||
+          newRolePermissions.create.includes(name) ||
+          newRolePermissions.update.includes(name) ||
+          newRolePermissions.delete.includes(name);
+
+        permissionsToUpsert.push({
+          id: existingPerm?.id, // Preserve ID for updates
+          name,
           description: `Access for ${name}`,
-          user: userRepository.findOneOrFail({ where: { id: userId } }),
-          createdBy: userRepository.findOneOrFail({ where: { id: user.id } }),
-          canCreate: newRolePermissions.create.includes(name),
-          canRead: newRolePermissions.read.includes(name),
-          canUpdate: newRolePermissions.update.includes(name),
-          canDelete: newRolePermissions.delete.includes(name),
+          user: existingPerm
+            ? existingPerm.user
+            : Promise.resolve(targetUserEntity),
+          createdBy: existingPerm
+            ? existingPerm.createdBy
+            : Promise.resolve(authUserEntity),
+          canCreate: isRolePermission
+            ? newRolePermissions.create.includes(name)
+            : false,
+          canRead: isRolePermission
+            ? newRolePermissions.read.includes(name)
+            : false,
+          canUpdate: isRolePermission
+            ? newRolePermissions.update.includes(name)
+            : false,
+          canDelete: isRolePermission
+            ? newRolePermissions.delete.includes(name)
+            : false,
+          createdAt: existingPerm?.createdAt, // Preserve createdAt
+          deletedAt: existingPerm?.deletedAt, // Preserve deletedAt
         });
       }
 
-      // Insert new permissions
-      await permissionRepository.save(permissionsToCreate);
+      // Upsert permissions (update existing or insert new)
+      if (permissionsToUpsert.length > 0) {
+        await permissionRepository.save(permissionsToUpsert);
+      }
 
       // Fetch updated permissions for caching
       const updatedPermissions = await permissionRepository.find({
@@ -603,7 +634,7 @@ export const updateUserRole = async (
           canDelete: permission.canDelete,
         }));
 
-      // Cache updated for user permission and remove user token from the Redis
+      // Cache updated permissions and remove user token from Redis
       await Promise.all([
         setUserPermissionsByUserIdInRedis(userId, cachedPermissions),
         removeUserInfoByEmailFromRedis(userId),
@@ -624,9 +655,9 @@ export const updateUserRole = async (
         gender: true,
         emailVerified: true,
         isAccountActivated: true,
-        role: {
-          name: true,
-        },
+        tempUpdatedEmail: true,
+        tempEmailVerified: true,
+        role: { name: true },
       },
     });
 
@@ -678,7 +709,7 @@ export const updateUserRole = async (
     await Promise.all([
       ...roleCountUpdates,
       setUserInfoByUserIdInRedis(userId, updatedUserSession),
-      setUserInfoByEmailInRedis(targetUser.email, userSessionByEmail),
+      setUserInfoByEmailInRedis(updatedUser.email, userSessionByEmail),
       removeUserTokenByUserIdFromRedis(userId),
     ]);
 
@@ -686,12 +717,14 @@ export const updateUserRole = async (
       statusCode: 200,
       success: true,
       message: newRolePermissions
-        ? "User role and permissions updated successfully. To see the changes user have to logout and then login again."
-        : "User role updated successfully, permissions unchanged. To see the changes user have to logout and then login again.",
+        ? "User role and permissions updated successfully. User must log out and log in again to see changes."
+        : "User role updated successfully, permissions unchanged. User must log out and log in again to see changes.",
       __typename: "BaseResponse",
     };
   } catch (error: any) {
-    console.error("Error updating user role:", error);
+    console.error("Error updating user role:", {
+      message: error.message,
+    });
 
     return {
       statusCode: 500,
