@@ -469,7 +469,7 @@ export const updateUserRole = async (
         };
       }
 
-      targetUser = {
+      const userSession: UserSession = {
         id: dbUser.id,
         email: dbUser.email,
         firstName: dbUser.firstName,
@@ -481,6 +481,11 @@ export const updateUserRole = async (
       };
 
       oldRoleId = dbUser.role.id;
+
+      targetUser = userSession;
+
+      // Cache target user in Redis
+      await setUserInfoByUserIdInRedis(dbUser.id, userSession);
     } else {
       // Fetch old role ID from database if not in Redis
       const dbUser = await userRepository.findOne({
