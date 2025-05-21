@@ -1,0 +1,90 @@
+# Importing the Apollo Federation specs for linking services.
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@key"])
+
+# ---------------------- Basic Types ----------------------
+
+# Type representing errors for specific fields
+type FieldError {
+  field: String! # Name of the field that caused the error
+  message: String! # Error message associated with the field
+}
+
+# Type for validation and general errors
+type ErrorResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  errors: [FieldError!] # Array of field-specific errors
+}
+
+# Common interface to return status and message.
+type BaseResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+}
+
+# ---------------------- Media ----------------------
+type Media {
+  id: ID!
+  mediaType: String!
+  url: String!
+  useCase: String!
+}
+
+# ---------------------- CreatedBy ----------------------
+
+# Type for the createdBy.
+type CreatedBy {
+  id: ID!
+  name: String!
+  role: String!
+}
+
+# ---------------------- Permission Types ----------------------
+
+# Type for the user cached session stored by email key in Redis.
+type CachedUserPermissionsInputs {
+  id: ID!
+  name: String!
+  description: String!
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+# ---------------------- User Types ----------------------
+
+# Type of the user session for access token and redis.
+type UserSession {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  gender: String!
+  role: String!
+  emailVerified: Boolean!
+  isAccountActivated: Boolean!
+}
+
+# Type for the user cached session stored by email key in Redis.
+type CachedUserSessionByEmailKeyInputs {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  emailVerified: Boolean!
+  gender: String!
+  role: String!
+  password: String!
+  isAccountActivated: Boolean!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
+}
+
+# ---------------------- Unions ----------------------
+
+# Mutation responses can be either a success or an error.
+union BaseResponseOrError = BaseResponse | ErrorResponse

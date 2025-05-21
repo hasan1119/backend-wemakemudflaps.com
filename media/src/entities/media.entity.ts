@@ -1,5 +1,25 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
+// Define Media use case as a TypeScript type (union of literals)
+export type UseCase =
+  | "Profile"
+  | "Product"
+  | "Product Review"
+  | "Product Return"
+  | "Order"
+  | "Complain"
+  | "Banner"
+  | "Site Logo"
+  | "Site Favicon"
+  | "Carousel"
+  | "Category"
+  | "Sub Category"
+  | "Brand"
+  | "Promotion"
+  | "Invoice"
+  | "Shipping Label"
+  | "Site Settings";
+
 @Entity()
 export class Media {
   @PrimaryGeneratedColumn("uuid")
@@ -14,9 +34,30 @@ export class Media {
   @Column()
   url: string;
 
-  // Product Id associated with the media (string only for Apollo Federation compatibility)
-  @Column({ nullable: true })
-  productId: string | null;
+  // Media use case type (e.g., "profile", "product", "product review", etc.)
+  @Column({
+    type: "enum",
+    enum: [
+      "Profile",
+      "Product",
+      "Product Review",
+      "Product Return",
+      "Order",
+      "Complain",
+      "Banner",
+      "Site Logo",
+      "Site Favicon",
+      "Carousel",
+      "Category",
+      "Sub Category",
+      "Brand",
+      "Promotion",
+      "Invoice",
+      "Shipping Label",
+      "Site Settings",
+    ],
+  })
+  useCase: UseCase;
 
   // User ID who created the media (string only for Apollo Federation compatibility)
   @Column()

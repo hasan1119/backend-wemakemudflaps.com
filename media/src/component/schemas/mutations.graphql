@@ -1,0 +1,9 @@
+type Mutation {
+  # Dummy change media mutation.
+  changeMedia(
+    id: ID!
+    mediaType: String!
+    url: String!
+    useCase: String!
+  ): Media!
+}
