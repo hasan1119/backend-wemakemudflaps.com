@@ -1,0 +1,78 @@
+import CONFIG from "../../../config/config";
+import { Context } from "../../../context";
+import {
+  GetMediaByIdResponseOrError,
+  QueryGetRoleByIdArgs,
+} from "../../../types";
+import { idSchema } from "../../../utils/data-validation";
+import { checkUserAuth } from "../../services";
+import { getMediaById as getMedia } from "./../../services/get-media/get-media";
+
+export const getMediaById = async (
+  _: any,
+  args: QueryGetRoleByIdArgs,
+  { user }: Context
+): Promise<GetMediaByIdResponseOrError> => {
+  const { id } = args;
+
+  try {
+    // Check user authentication
+    const authResponse = checkUserAuth(user);
+    if (authResponse) return authResponse;
+
+    // Validate input data using Zod schema
+    const validationResult = await idSchema.safeParseAsync({ id });
+
+    if (!validationResult.success) {
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."),
+        message: error.message,
+      }));
+
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Validation failed",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
+      };
+    }
+
+    // Retrieve media by ID
+    let media = await getMedia(id);
+
+    if (!media) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: `Media not found with this id: ${id} or has been deleted`,
+        __typename: "ErrorResponse",
+      };
+    }
+
+    return {
+      statusCode: 200,
+      success: true,
+      message: "Media file retrieved successfully",
+      media: {
+        ...media,
+        createdAt: media.createdAt.toISOString(),
+        deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
+      },
+      __typename: "MediaResponse",
+    };
+  } catch (error: any) {
+    console.error("Error retrieving media by ID:", error);
+
+    return {
+      statusCode: 500,
+      success: false,
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
+      __typename: "ErrorResponse",
+    };
+  }
+};

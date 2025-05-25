@@ -2,15 +2,15 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   BaseResponseOrError,
-  MutationUpdateMediaFilesInfoArgs,
+  MutationUpdateMediaFileInfoArgs,
 } from "../../../types";
-import { UpdateMediaFilesSchema } from "../../../utils/data-validation/upload-media-files/upload-media-files";
+import { UpdateMediaFilesSchema } from "../../../utils/data-validation";
 import { checkUserAuth, getMediaById } from "../../services";
 import { updateMediaFileInfo as updateMedia } from "../../services/update-media-file-info/update-media-file-info";
 
 export const updateMediaFileInfo = async (
   _: any,
-  args: MutationUpdateMediaFilesInfoArgs,
+  args: MutationUpdateMediaFileInfoArgs,
   { user }: Context
 ): Promise<BaseResponseOrError> => {
   const { inputs } = args;
@@ -51,8 +51,8 @@ export const updateMediaFileInfo = async (
       return {
         statusCode: 404,
         success: false,
-        message: `Media with ID ${id} not found`,
-        __typename: "BaseResponse",
+        message: `Media not found with this id: ${id} or has been deleted`,
+        __typename: "ErrorResponse",
       };
     }
 

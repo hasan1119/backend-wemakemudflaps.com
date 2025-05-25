@@ -106,6 +106,10 @@ export class Media {
   })
   mediaType: MimeType;
 
+  // Media file remote url
+  @Column()
+  url: string;
+
   // Media file name (e.g., "image-one", "video-one", etc.)
   @Column()
   fileName: string;

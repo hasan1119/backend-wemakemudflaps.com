@@ -20,10 +20,7 @@ export const getMediaById = async (id: string): Promise<Media | null> => {
  * @param ids - Array of media IDs (UUIDs).
  * @returns Array of found media entities (empty if none found).
  */
-export const getMediaByIds = async (
-  ids: string[],
-  userId?: string
-): Promise<Media[]> => {
+export const getMediaByIds = async (ids: string[]): Promise<Media[]> => {
   // Retrieve media files
   return await mediaRepository.find({
     where: { id: In(ids), deletedAt: null },

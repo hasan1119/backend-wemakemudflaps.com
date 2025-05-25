@@ -128,12 +128,20 @@ type User @key(fields: "id", resolvable: false) {
 # ---------------------- Media ----------------------
 type Media @key(fields: "id") {
   id: ID!
-  mediaType: MediaMimeType!
-  url: String!
-  category: MediaCategory!
-  createdBy: String!
-  createdAt: String!
-  deletedAt: String!
+  mediaType: String
+  url: String
+  fileName: String
+  title: String
+  description: String
+  altText: String
+  dimension: String
+  length: Int
+  category: String
+  size: Int
+  bucketName: String
+  createdBy: String
+  createdAt: String
+  deletedAt: String
 }
 
 type MediaResponse {
@@ -141,6 +149,13 @@ type MediaResponse {
   success: Boolean!
   message: String!
   media: Media!
+}
+
+type MediasResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  media: [Media!]!
 }
 
 input UploadMediaInput {
@@ -172,3 +187,7 @@ input UpdateMediaInput {
 union BaseResponseOrError = BaseResponse | ErrorResponse
 
 union GetMediaByIdResponseOrError = BaseResponse | MediaResponse | ErrorResponse
+union GetMediaByIdsResponseOrError =
+    BaseResponse
+  | MediasResponse
+  | ErrorResponse

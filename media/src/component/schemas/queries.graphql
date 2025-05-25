@@ -1,4 +1,15 @@
 # Queries to fetch medias from the system.
 type Query {
-  getMediaById(id: ID!): GetMediaByIdResponseOrError
+  # Retrieve a media file by its ID.
+  # This query allows an authenticated user to fetch a single media file by its unique ID.
+  # The response includes the media entity or an error if not found.
+  getMediaById(
+    id: ID! # The unique ID of the media file.
+  ): GetMediaByIdResponseOrError! # Returns success or error response with media data.
+  # Retrieve multiple media files by their IDs.
+  # This query allows an authenticated user to fetch multiple media files by providing an array of unique IDs.
+  # The response includes an array of found media entities or an error.
+  getMediaByIds(
+    ids: [ID!]! # Array of unique IDs of the media files.
+  ): GetMediaByIdsResponseOrError! # Returns success or error response with media data.
 }
