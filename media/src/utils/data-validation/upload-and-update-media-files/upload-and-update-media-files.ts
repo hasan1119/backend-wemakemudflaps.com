@@ -145,6 +145,20 @@ export const uploadMediaInputSchema = z.object({
 
 export const UploadMediaFilesSchema = z.array(uploadMediaInputSchema);
 
+// Custom schema factory to validate userId against context user.id
+export const createUploadMediaFilesSchema = (contextUserId: string) =>
+  z
+    .array(uploadMediaInputSchema)
+    .refine(
+      (mediaFiles) =>
+        mediaFiles.every((media) => media.createdBy === contextUserId),
+      {
+        message:
+          "One or more media files have a userId that does not match the authenticated user.",
+        path: ["userId"],
+      }
+    );
+
 // Schema for updating a single media file's info
 export const UpdateMediaFilesSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
@@ -177,17 +191,3 @@ export const UpdateMediaFilesSchema = z.object({
     }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]]))
     .optional(),
 });
-
-// Custom schema factory to validate userId against context user.id
-export const createUploadMediaFilesSchema = (contextUserId: string) =>
-  z
-    .array(uploadMediaInputSchema)
-    .refine(
-      (mediaFiles) =>
-        mediaFiles.every((media) => media.createdBy === contextUserId),
-      {
-        message:
-          "One or more media files have a userId that does not match the authenticated user.",
-        path: ["userId"],
-      }
-    );

@@ -5,7 +5,7 @@ export {
   UpdateMediaFilesSchema,
   UploadMediaFilesSchema,
   uploadMediaInputSchema,
-} from "./upload-media-files/upload-media-files";
+} from "./upload-and-update-media-files/upload-and-update-media-files";
 
 export {
   idSchema,
