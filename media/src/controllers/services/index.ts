@@ -5,4 +5,8 @@ export {
   uploadMediaFiles,
 } from "./upload-and-delete/upload-and-media-files";
 
-export { getMediaById, getMediaByIds } from "./get-media/get-media";
+export {
+  getAllMedias,
+  getMediaById,
+  getMediaByIds,
+} from "./get-media/get-media";

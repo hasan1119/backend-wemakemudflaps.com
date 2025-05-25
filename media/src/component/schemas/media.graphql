@@ -98,6 +98,19 @@ enum MediaMimeType {
   application_vnd_visio
 }
 
+enum SortBy {
+  title
+  description
+  category
+  createdBy
+  createdAt
+}
+
+enum SortOrder {
+  asc
+  desc
+}
+
 # ---------------------- Basic Types ----------------------
 
 # Type representing errors for specific fields
@@ -155,7 +168,8 @@ type MediasResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  media: [Media!]!
+  medias: [Media!]!
+  total: Int! # Total number of medias matching the query
 }
 
 input UploadMediaInput {
@@ -187,7 +201,5 @@ input UpdateMediaInput {
 union BaseResponseOrError = BaseResponse | ErrorResponse
 
 union GetMediaByIdResponseOrError = BaseResponse | MediaResponse | ErrorResponse
-union GetMediaByIdsResponseOrError =
-    BaseResponse
-  | MediasResponse
-  | ErrorResponse
+
+union GetMediasResponseOrError = BaseResponse | MediasResponse | ErrorResponse

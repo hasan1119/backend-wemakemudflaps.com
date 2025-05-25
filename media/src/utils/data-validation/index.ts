@@ -10,6 +10,8 @@ export {
 export {
   idSchema,
   idsSchema,
+  mediaCombinedSchema,
+  mediaSortingSchema,
   paginationSchema,
   skipTrashSchema,
 } from "./common/common";

@@ -98,7 +98,7 @@ export type FieldError = {
 
 export type GetMediaByIdResponseOrError = BaseResponse | ErrorResponse | MediaResponse;
 
-export type GetMediaByIdsResponseOrError = BaseResponse | ErrorResponse | MediasResponse;
+export type GetMediasResponseOrError = BaseResponse | ErrorResponse | MediasResponse;
 
 export type GetPermissionsResponseOrError = BaseResponse | ErrorResponse | PermissionsResponse;
 
@@ -235,10 +235,11 @@ export type MediaResponse = {
 
 export type MediasResponse = {
   __typename?: 'MediasResponse';
-  media: Array<Media>;
+  medias: Array<Media>;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
 };
 
 export type Mutation = {
@@ -396,15 +397,24 @@ export type PermissionsResponse = {
 
 export type Query = {
   __typename?: 'Query';
+  getAllMedias: GetMediasResponseOrError;
   getAllPermissionsByUserId: GetPermissionsResponseOrError;
   getAllRoles: GetRolesResponseOrError;
   getAllUsers: GetUsersResponseOrError;
   getMediaById: GetMediaByIdResponseOrError;
-  getMediaByIds: GetMediaByIdsResponseOrError;
   getOwnPermissions: GetPermissionsResponseOrError;
   getProfile: GetProfileResponseOrError;
   getRoleById: GetRoleByIdResponseOrError;
   getUserById: GetUserByIdResponseOrError;
+};
+
+
+export type QueryGetAllMediasArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<SortBy>;
+  sortOrder?: InputMaybe<SortOrder>;
 };
 
 
@@ -433,13 +443,6 @@ export type QueryGetAllUsersArgs = {
 
 export type QueryGetMediaByIdArgs = {
   id: Scalars['ID']['input'];
-  userId: Scalars['String']['input'];
-};
-
-
-export type QueryGetMediaByIdsArgs = {
-  ids: Array<Scalars['ID']['input']>;
-  userId: Scalars['String']['input'];
 };
 
 
@@ -488,6 +491,19 @@ export type SinglePermissionInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
 };
+
+export enum SortBy {
+  Category = 'category',
+  CreatedAt = 'createdAt',
+  CreatedBy = 'createdBy',
+  Description = 'description',
+  Title = 'title'
+}
+
+export enum SortOrder {
+  Asc = 'asc',
+  Desc = 'desc'
+}
 
 export type UpdateMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
@@ -660,7 +676,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
   GetMediaByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
-  GetMediaByIdsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediasResponse );
+  GetMediasResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediasResponse );
   GetPermissionsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( PermissionsResponse );
   GetProfileResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
   GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
@@ -691,7 +707,7 @@ export type ResolversTypes = {
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
   FieldError: ResolverTypeWrapper<FieldError>;
   GetMediaByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediaByIdResponseOrError']>;
-  GetMediaByIdsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediaByIdsResponseOrError']>;
+  GetMediasResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediasResponseOrError']>;
   GetPermissionsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetPermissionsResponseOrError']>;
   GetProfileResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProfileResponseOrError']>;
   GetRoleByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRoleByIDResponseOrError']>;
@@ -712,6 +728,8 @@ export type ResolversTypes = {
   RoleResponse: ResolverTypeWrapper<RoleResponse>;
   RolesResponse: ResolverTypeWrapper<RolesResponse>;
   SinglePermissionInput: SinglePermissionInput;
+  SortBy: SortBy;
+  SortOrder: SortOrder;
   UpdateMediaInput: UpdateMediaInput;
   UpdateUserPermissionInput: UpdateUserPermissionInput;
   UploadMediaInput: UploadMediaInput;
@@ -743,7 +761,7 @@ export type ResolversParentTypes = {
   ErrorResponse: ErrorResponse;
   FieldError: FieldError;
   GetMediaByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediaByIdResponseOrError'];
-  GetMediaByIdsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediaByIdsResponseOrError'];
+  GetMediasResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediasResponseOrError'];
   GetPermissionsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetPermissionsResponseOrError'];
   GetProfileResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProfileResponseOrError'];
   GetRoleByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRoleByIDResponseOrError'];
@@ -870,7 +888,7 @@ export type GetMediaByIdResponseOrErrorResolvers<ContextType = Context, ParentTy
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'MediaResponse', ParentType, ContextType>;
 };
 
-export type GetMediaByIdsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetMediaByIdsResponseOrError'] = ResolversParentTypes['GetMediaByIdsResponseOrError']> = {
+export type GetMediasResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetMediasResponseOrError'] = ResolversParentTypes['GetMediasResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'MediasResponse', ParentType, ContextType>;
 };
 
@@ -930,10 +948,11 @@ export type MediaResponseResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type MediasResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MediasResponse'] = ResolversParentTypes['MediasResponse']> = {
-  media?: Resolver<Array<ResolversTypes['Media']>, ParentType, ContextType>;
+  medias?: Resolver<Array<ResolversTypes['Media']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -978,11 +997,11 @@ export type PermissionsResponseResolvers<ContextType = Context, ParentType exten
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
   getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
   getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'limit' | 'page'>>;
-  getMediaById?: Resolver<ResolversTypes['GetMediaByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetMediaByIdArgs, 'id' | 'userId'>>;
-  getMediaByIds?: Resolver<ResolversTypes['GetMediaByIdsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetMediaByIdsArgs, 'ids' | 'userId'>>;
+  getMediaById?: Resolver<ResolversTypes['GetMediaByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetMediaByIdArgs, 'id'>>;
   getOwnPermissions?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType>;
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
   getRoleById?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleByIdArgs, 'id'>>;
@@ -1099,7 +1118,7 @@ export type Resolvers<ContextType = Context> = {
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
   GetMediaByIdResponseOrError?: GetMediaByIdResponseOrErrorResolvers<ContextType>;
-  GetMediaByIdsResponseOrError?: GetMediaByIdsResponseOrErrorResolvers<ContextType>;
+  GetMediasResponseOrError?: GetMediasResponseOrErrorResolvers<ContextType>;
   GetPermissionsResponseOrError?: GetPermissionsResponseOrErrorResolvers<ContextType>;
   GetProfileResponseOrError?: GetProfileResponseOrErrorResolvers<ContextType>;
   GetRoleByIDResponseOrError?: GetRoleByIdResponseOrErrorResolvers<ContextType>;

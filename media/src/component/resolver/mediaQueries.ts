@@ -1,9 +1,9 @@
-import { getMediaById, getMediaByIds } from "../../controllers";
+import { getAllMedias, getMediaById } from "../../controllers";
 
 export const mediaQueriesResolver = {
   Query: {
     getMediaById,
-    getMediaByIds,
+    getAllMedias,
   },
 
   // BaseResponseOrError: {

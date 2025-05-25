@@ -33,42 +33,23 @@ export const paginationSchema = z.object({
     .optional(),
 });
 
-// Roles Sorting Schema
-export const rolesSortingSchema = z.object({
+// Sorting Schema for Media
+export const mediaSortingSchema = z.object({
   sortBy: z
-    .enum(["id", "name", "description", "createdAt", "deletedAt"], {
+    .enum(["title", "description", "category", "createdBy", "createdAt"], {
       message:
-        "Sort field must be one of: id, name, description, createdAt, deletedAt",
+        "Sort field must be one of: title, description, category, createdBy, createdAt",
     })
+    .nullable()
     .optional(),
   sortOrder: z
     .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
+    .nullable()
     .optional(),
 });
 
-// Users Sorting Schema
-export const usersSortingSchema = z.object({
-  sortBy: z
-    .enum(
-      [
-        "id",
-        "firstName",
-        "lastName",
-        "email",
-        "emailVerified",
-        "gender",
-        "role",
-        "isAccountActivated",
-        "createdAt",
-        "deletedAt",
-      ],
-      {
-        message:
-          "Sort field must be one of: id, firstName, lastName, email, emailVerified, gender, role, isAccountActivated, createdAt, deletedAt",
-      }
-    )
-    .optional(),
-  sortOrder: z
-    .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
-    .optional(),
-});
+// Combined Schema for Media Pagination and Sorting
+export const mediaCombinedSchema = z.intersection(
+  paginationSchema,
+  mediaSortingSchema
+);
