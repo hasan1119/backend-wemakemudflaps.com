@@ -18,6 +18,8 @@ export type Scalars = {
   _FieldSet: { input: any; output: any; }
 };
 
+export type ActiveAccountResponseOrError = BaseResponse | ErrorResponse;
+
 export type BaseResponse = {
   __typename?: 'BaseResponse';
   message: Scalars['String']['output'];
@@ -26,6 +28,16 @@ export type BaseResponse = {
 };
 
 export type BaseResponseOrError = BaseResponse | ErrorResponse;
+
+export type CachedRoleInputs = {
+  __typename?: 'CachedRoleInputs';
+  createdAt: Scalars['String']['output'];
+  createdBy: CreatedBy;
+  deletedAt: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
 
 export type CachedUserPermissionsInputs = {
   __typename?: 'CachedUserPermissionsInputs';
@@ -60,6 +72,16 @@ export type CreatedBy = {
   role: Scalars['String']['output'];
 };
 
+export type EmailVerificationResponse = {
+  __typename?: 'EmailVerificationResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  token?: Maybe<Scalars['String']['output']>;
+};
+
+export type EmailVerificationResponseOrError = EmailVerificationResponse | ErrorResponse;
+
 export type ErrorResponse = {
   __typename?: 'ErrorResponse';
   errors?: Maybe<Array<FieldError>>;
@@ -74,30 +96,448 @@ export type FieldError = {
   message: Scalars['String']['output'];
 };
 
+export type GetMediaByIdResponseOrError = BaseResponse | ErrorResponse | MediaResponse;
+
+export type GetPermissionsResponseOrError = BaseResponse | ErrorResponse | PermissionsResponse;
+
+export type GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse;
+
+export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
+
+export type GetRoleResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
+
+export type GetRolesResponseOrError = BaseResponse | ErrorResponse | RolesResponse;
+
+export type GetUserByIdResponseOrError = BaseResponse | ErrorResponse | UserResponse;
+
+export type GetUsersResponseOrError = BaseResponse | ErrorResponse | UsersResponse;
+
 export type Media = {
   __typename?: 'Media';
+  category: MediaCategory;
+  createdAt: Scalars['String']['output'];
+  createdBy: Scalars['String']['output'];
+  deletedAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  mediaType: Scalars['String']['output'];
+  mediaType: MediaMimeType;
   url: Scalars['String']['output'];
-  useCase: Scalars['String']['output'];
+};
+
+export enum MediaCategory {
+  Banner = 'Banner',
+  Brand = 'Brand',
+  Carousel = 'Carousel',
+  Category = 'Category',
+  Complain = 'Complain',
+  Invoice = 'Invoice',
+  Order = 'Order',
+  Product = 'Product',
+  ProductReturn = 'Product_Return',
+  ProductReview = 'Product_Review',
+  Profile = 'Profile',
+  Promotion = 'Promotion',
+  ShippingLabel = 'Shipping_Label',
+  SiteFavicon = 'Site_Favicon',
+  SiteLogo = 'Site_Logo',
+  SiteSettings = 'Site_Settings',
+  SubCategory = 'Sub_Category'
+}
+
+export enum MediaMimeType {
+  ApplicationMsword = 'application_msword',
+  ApplicationPdf = 'application_pdf',
+  ApplicationRtf = 'application_rtf',
+  ApplicationVndLotus_1_2_3 = 'application_vnd_lotus_1_2_3',
+  ApplicationVndLotusApproach = 'application_vnd_lotus_approach',
+  ApplicationVndLotusFreelance = 'application_vnd_lotus_freelance',
+  ApplicationVndLotusOrganizer = 'application_vnd_lotus_organizer',
+  ApplicationVndLotusScreencam = 'application_vnd_lotus_screencam',
+  ApplicationVndLotusWordpro = 'application_vnd_lotus_wordpro',
+  ApplicationVndMsExcel = 'application_vnd_ms_excel',
+  ApplicationVndMsPowerpoint = 'application_vnd_ms_powerpoint',
+  ApplicationVndOasisOpendocumentChart = 'application_vnd_oasis_opendocument_chart',
+  ApplicationVndOasisOpendocumentFormula = 'application_vnd_oasis_opendocument_formula',
+  ApplicationVndOasisOpendocumentGraphics = 'application_vnd_oasis_opendocument_graphics',
+  ApplicationVndOasisOpendocumentImage = 'application_vnd_oasis_opendocument_image',
+  ApplicationVndOasisOpendocumentPresentation = 'application_vnd_oasis_opendocument_presentation',
+  ApplicationVndOasisOpendocumentSpreadsheet = 'application_vnd_oasis_opendocument_spreadsheet',
+  ApplicationVndOasisOpendocumentText = 'application_vnd_oasis_opendocument_text',
+  ApplicationVndOpenxmlformatsOfficedocumentPresentationmlPresentation = 'application_vnd_openxmlformats_officedocument_presentationml_presentation',
+  ApplicationVndOpenxmlformatsOfficedocumentSpreadsheetmlSheet = 'application_vnd_openxmlformats_officedocument_spreadsheetml_sheet',
+  ApplicationVndOpenxmlformatsOfficedocumentWordprocessingmlDocument = 'application_vnd_openxmlformats_officedocument_wordprocessingml_document',
+  ApplicationVndVisio = 'application_vnd_visio',
+  ApplicationXAbiword = 'application_x_abiword',
+  ImageAvif = 'image_avif',
+  ImageBmp = 'image_bmp',
+  ImageGif = 'image_gif',
+  ImageHeic = 'image_heic',
+  ImageHeif = 'image_heif',
+  ImageJp2 = 'image_jp2',
+  ImageJpeg = 'image_jpeg',
+  ImageJpm = 'image_jpm',
+  ImageJpx = 'image_jpx',
+  ImagePng = 'image_png',
+  ImageSvgXml = 'image_svg_xml',
+  ImageTiff = 'image_tiff',
+  ImageWebp = 'image_webp',
+  ImageXIcon = 'image_x_icon',
+  ImageXPortableAnymap = 'image_x_portable_anymap',
+  ImageXPortableBitmap = 'image_x_portable_bitmap',
+  ImageXPortableGraymap = 'image_x_portable_graymap',
+  ImageXPortablePixmap = 'image_x_portable_pixmap',
+  ImageXRgb = 'image_x_rgb',
+  ImageXXbitmap = 'image_x_xbitmap',
+  ImageXXpixmap = 'image_x_xpixmap',
+  ImageXXwindowdump = 'image_x_xwindowdump',
+  Video_3gpp = 'video_3gpp',
+  Video_3gpp2 = 'video_3gpp2',
+  VideoH261 = 'video_h261',
+  VideoH263 = 'video_h263',
+  VideoH264 = 'video_h264',
+  VideoJpeg = 'video_jpeg',
+  VideoJpm = 'video_jpm',
+  VideoMj2 = 'video_mj2',
+  VideoMp2t = 'video_mp2t',
+  VideoMp4 = 'video_mp4',
+  VideoMpeg = 'video_mpeg',
+  VideoOgg = 'video_ogg',
+  VideoQuicktime = 'video_quicktime',
+  VideoWebm = 'video_webm',
+  VideoXF4v = 'video_x_f4v',
+  VideoXFli = 'video_x_fli',
+  VideoXFlv = 'video_x_flv',
+  VideoXM4v = 'video_x_m4v',
+  VideoXMatroska = 'video_x_matroska',
+  VideoXMng = 'video_x_mng',
+  VideoXMsAsf = 'video_x_ms_asf',
+  VideoXMsWmv = 'video_x_ms_wmv',
+  VideoXMsvideo = 'video_x_msvideo',
+  VideoXSmv = 'video_x_smv'
+}
+
+export type MediaResponse = {
+  __typename?: 'MediaResponse';
+  media: Media;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  changeMedia: Media;
+  accountActivation: ActiveAccountResponseOrError;
+  changePassword: BaseResponseOrError;
+  createUserRole: BaseResponseOrError;
+  deleteMediaFiles: BaseResponseOrError;
+  deleteUserRole: BaseResponseOrError;
+  deleteUserRoleFromTrash: BaseResponseOrError;
+  forgetPassword: BaseResponseOrError;
+  login: UserLoginResponseOrError;
+  register: BaseResponseOrError;
+  resetPassword: BaseResponseOrError;
+  restoreUserRole: BaseResponseOrError;
+  updateMediaFilesInfo: BaseResponseOrError;
+  updateProfile: UserProfileUpdateResponseOrError;
+  updateUserPermission: BaseResponseOrError;
+  updateUserRole: BaseResponseOrError;
+  updateUserRoleInfo: BaseResponseOrError;
+  uploadMediaFiles: BaseResponseOrError;
+  verifyEmail: EmailVerificationResponseOrError;
 };
 
 
-export type MutationChangeMediaArgs = {
+export type MutationAccountActivationArgs = {
+  email: Scalars['String']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type MutationChangePasswordArgs = {
+  newPassword: Scalars['String']['input'];
+  oldPassword: Scalars['String']['input'];
+};
+
+
+export type MutationCreateUserRoleArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteMediaFilesArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationDeleteUserRoleArgs = {
+  ids: Array<Scalars['ID']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
+  skipTrash: Scalars['Boolean']['input'];
+};
+
+
+export type MutationDeleteUserRoleFromTrashArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationForgetPasswordArgs = {
+  email: Scalars['String']['input'];
+};
+
+
+export type MutationLoginArgs = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
+
+export type MutationRegisterArgs = {
+  email: Scalars['String']['input'];
+  firstName: Scalars['String']['input'];
+  gender?: InputMaybe<Scalars['String']['input']>;
+  lastName: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
+
+export type MutationResetPasswordArgs = {
+  newPassword: Scalars['String']['input'];
+  token: Scalars['String']['input'];
+};
+
+
+export type MutationRestoreUserRoleArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationUpdateMediaFilesInfoArgs = {
+  inputs: UpdateMediaInput;
+};
+
+
+export type MutationUpdateProfileArgs = {
+  email?: InputMaybe<Scalars['String']['input']>;
+  firstName?: InputMaybe<Scalars['String']['input']>;
+  gender?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-  mediaType: Scalars['String']['input'];
-  url: Scalars['String']['input'];
-  useCase: Scalars['String']['input'];
+  lastName?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateUserPermissionArgs = {
+  input: UpdateUserPermissionInput;
+};
+
+
+export type MutationUpdateUserRoleArgs = {
+  password?: InputMaybe<Scalars['String']['input']>;
+  roleId: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateUserRoleInfoArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name: Scalars['String']['input'];
+  password?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUploadMediaFilesArgs = {
+  inputs: Array<InputMaybe<UploadMediaInput>>;
+  userId: Scalars['String']['input'];
+};
+
+
+export type MutationVerifyEmailArgs = {
+  email: Scalars['String']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+export type Permissions = {
+  __typename?: 'Permissions';
+  canCreate: Scalars['Boolean']['output'];
+  canDelete: Scalars['Boolean']['output'];
+  canRead: Scalars['Boolean']['output'];
+  canUpdate: Scalars['Boolean']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type PermissionsResponse = {
+  __typename?: 'PermissionsResponse';
+  message: Scalars['String']['output'];
+  permissions: Array<Permissions>;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type Query = {
   __typename?: 'Query';
-  getMedia: Media;
+  getAllPermissionsByUserId: GetPermissionsResponseOrError;
+  getAllRoles: GetRolesResponseOrError;
+  getAllUsers: GetUsersResponseOrError;
+  getMediaById?: Maybe<GetMediaByIdResponseOrError>;
+  getOwnPermissions: GetPermissionsResponseOrError;
+  getProfile: GetProfileResponseOrError;
+  getRoleById: GetRoleByIdResponseOrError;
+  getUserById: GetUserByIdResponseOrError;
+};
+
+
+export type QueryGetAllPermissionsByUserIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAllRolesArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllUsersArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetMediaByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetRoleByIdArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryGetUserByIdArgs = {
+  id: Scalars['String']['input'];
+};
+
+export type Role = {
+  __typename?: 'Role';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  totalUserCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type RoleResponse = {
+  __typename?: 'RoleResponse';
+  message: Scalars['String']['output'];
+  role: Role;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type RolesResponse = {
+  __typename?: 'RolesResponse';
+  message: Scalars['String']['output'];
+  roles: Array<Role>;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type SinglePermissionInput = {
+  canCreate?: InputMaybe<Scalars['Boolean']['input']>;
+  canDelete?: InputMaybe<Scalars['Boolean']['input']>;
+  canRead?: InputMaybe<Scalars['Boolean']['input']>;
+  canUpdate?: InputMaybe<Scalars['Boolean']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type UpdateMediaInput = {
+  altText?: InputMaybe<Scalars['String']['input']>;
+  category: MediaCategory;
+  description?: InputMaybe<Scalars['String']['input']>;
+  dimension?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  length?: InputMaybe<Scalars['Int']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateUserPermissionInput = {
+  accessAll?: InputMaybe<Scalars['Boolean']['input']>;
+  deniedAll?: InputMaybe<Scalars['Boolean']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
+  permissions?: InputMaybe<Array<SinglePermissionInput>>;
+  userId: Scalars['ID']['input'];
+};
+
+export type UploadMediaInput = {
+  altText?: InputMaybe<Scalars['String']['input']>;
+  bucketName: Scalars['String']['input'];
+  category: MediaCategory;
+  createdBy: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  dimension?: InputMaybe<Scalars['String']['input']>;
+  fileName: Scalars['String']['input'];
+  length?: InputMaybe<Scalars['Int']['input']>;
+  mediaType: MediaMimeType;
+  size: Scalars['Int']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
+};
+
+export type User = {
+  __typename?: 'User';
+  avatar?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  emailVerified?: Maybe<Scalars['Boolean']['output']>;
+  firstName?: Maybe<Scalars['String']['output']>;
+  gender?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isAccountActivated?: Maybe<Scalars['Boolean']['output']>;
+  lastName?: Maybe<Scalars['String']['output']>;
+  permissions?: Maybe<Array<Permissions>>;
+  role?: Maybe<Scalars['String']['output']>;
+};
+
+export type UserLoginResponse = {
+  __typename?: 'UserLoginResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type UserLoginResponseOrError = BaseResponse | ErrorResponse | UserLoginResponse;
+
+export type UserProfileUpdateResponse = {
+  __typename?: 'UserProfileUpdateResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type UserProfileUpdateResponseOrError = BaseResponse | ErrorResponse | UserProfileUpdateResponse;
+
+export type UserResponse = {
+  __typename?: 'UserResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  user: User;
 };
 
 export type UserSession = {
@@ -110,6 +550,15 @@ export type UserSession = {
   isAccountActivated: Scalars['Boolean']['output'];
   lastName: Scalars['String']['output'];
   role: Scalars['String']['output'];
+};
+
+export type UsersResponse = {
+  __typename?: 'UsersResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+  users: Array<User>;
 };
 
 
@@ -181,46 +630,129 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
+  ActiveAccountResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
+  GetMediaByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
+  GetPermissionsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( PermissionsResponse );
+  GetProfileResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
+  GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
+  GetRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
+  GetRolesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RolesResponse );
+  GetUserByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
+  GetUsersResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UsersResponse );
+  UserLoginResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserLoginResponse );
+  UserProfileUpdateResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserProfileUpdateResponse );
 };
 
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  ActiveAccountResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ActiveAccountResponseOrError']>;
   BaseResponse: ResolverTypeWrapper<BaseResponse>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
-  CachedUserPermissionsInputs: ResolverTypeWrapper<CachedUserPermissionsInputs>;
+  CachedRoleInputs: ResolverTypeWrapper<CachedRoleInputs>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  CachedUserPermissionsInputs: ResolverTypeWrapper<CachedUserPermissionsInputs>;
   CachedUserSessionByEmailKeyInputs: ResolverTypeWrapper<CachedUserSessionByEmailKeyInputs>;
   CreatedBy: ResolverTypeWrapper<CreatedBy>;
+  EmailVerificationResponse: ResolverTypeWrapper<EmailVerificationResponse>;
+  EmailVerificationResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EmailVerificationResponseOrError']>;
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
   FieldError: ResolverTypeWrapper<FieldError>;
+  GetMediaByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediaByIdResponseOrError']>;
+  GetPermissionsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetPermissionsResponseOrError']>;
+  GetProfileResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProfileResponseOrError']>;
+  GetRoleByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRoleByIDResponseOrError']>;
+  GetRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRoleResponseOrError']>;
+  GetRolesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRolesResponseOrError']>;
+  GetUserByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUserByIDResponseOrError']>;
+  GetUsersResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUsersResponseOrError']>;
   Media: ResolverTypeWrapper<Media>;
+  MediaCategory: MediaCategory;
+  MediaMimeType: MediaMimeType;
+  MediaResponse: ResolverTypeWrapper<MediaResponse>;
   Mutation: ResolverTypeWrapper<{}>;
+  Permissions: ResolverTypeWrapper<Permissions>;
+  PermissionsResponse: ResolverTypeWrapper<PermissionsResponse>;
   Query: ResolverTypeWrapper<{}>;
+  Role: ResolverTypeWrapper<Role>;
+  RoleResponse: ResolverTypeWrapper<RoleResponse>;
+  RolesResponse: ResolverTypeWrapper<RolesResponse>;
+  SinglePermissionInput: SinglePermissionInput;
+  UpdateMediaInput: UpdateMediaInput;
+  UpdateUserPermissionInput: UpdateUserPermissionInput;
+  UploadMediaInput: UploadMediaInput;
+  User: ResolverTypeWrapper<User>;
+  UserLoginResponse: ResolverTypeWrapper<UserLoginResponse>;
+  UserLoginResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserLoginResponseOrError']>;
+  UserProfileUpdateResponse: ResolverTypeWrapper<UserProfileUpdateResponse>;
+  UserProfileUpdateResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserProfileUpdateResponseOrError']>;
+  UserResponse: ResolverTypeWrapper<UserResponse>;
   UserSession: ResolverTypeWrapper<UserSession>;
+  UsersResponse: ResolverTypeWrapper<UsersResponse>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  ActiveAccountResponseOrError: ResolversUnionTypes<ResolversParentTypes>['ActiveAccountResponseOrError'];
   BaseResponse: BaseResponse;
   String: Scalars['String']['output'];
   Int: Scalars['Int']['output'];
   Boolean: Scalars['Boolean']['output'];
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
-  CachedUserPermissionsInputs: CachedUserPermissionsInputs;
+  CachedRoleInputs: CachedRoleInputs;
   ID: Scalars['ID']['output'];
+  CachedUserPermissionsInputs: CachedUserPermissionsInputs;
   CachedUserSessionByEmailKeyInputs: CachedUserSessionByEmailKeyInputs;
   CreatedBy: CreatedBy;
+  EmailVerificationResponse: EmailVerificationResponse;
+  EmailVerificationResponseOrError: ResolversUnionTypes<ResolversParentTypes>['EmailVerificationResponseOrError'];
   ErrorResponse: ErrorResponse;
   FieldError: FieldError;
+  GetMediaByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediaByIdResponseOrError'];
+  GetPermissionsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetPermissionsResponseOrError'];
+  GetProfileResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProfileResponseOrError'];
+  GetRoleByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRoleByIDResponseOrError'];
+  GetRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRoleResponseOrError'];
+  GetRolesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRolesResponseOrError'];
+  GetUserByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUserByIDResponseOrError'];
+  GetUsersResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUsersResponseOrError'];
   Media: Media;
+  MediaResponse: MediaResponse;
   Mutation: {};
+  Permissions: Permissions;
+  PermissionsResponse: PermissionsResponse;
   Query: {};
+  Role: Role;
+  RoleResponse: RoleResponse;
+  RolesResponse: RolesResponse;
+  SinglePermissionInput: SinglePermissionInput;
+  UpdateMediaInput: UpdateMediaInput;
+  UpdateUserPermissionInput: UpdateUserPermissionInput;
+  UploadMediaInput: UploadMediaInput;
+  User: User;
+  UserLoginResponse: UserLoginResponse;
+  UserLoginResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UserLoginResponseOrError'];
+  UserProfileUpdateResponse: UserProfileUpdateResponse;
+  UserProfileUpdateResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UserProfileUpdateResponseOrError'];
+  UserResponse: UserResponse;
   UserSession: UserSession;
+  UsersResponse: UsersResponse;
+};
+
+export type DeferDirectiveArgs = {
+  if?: Scalars['Boolean']['input'];
+  label?: Maybe<Scalars['String']['input']>;
+};
+
+export type DeferDirectiveResolver<Result, Parent, ContextType = Context, Args = DeferDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type ActiveAccountResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ActiveAccountResponseOrError'] = ResolversParentTypes['ActiveAccountResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type BaseResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BaseResponse'] = ResolversParentTypes['BaseResponse']> = {
@@ -232,6 +764,16 @@ export type BaseResponseResolvers<ContextType = Context, ParentType extends Reso
 
 export type BaseResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BaseResponseOrError'] = ResolversParentTypes['BaseResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type CachedRoleInputsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CachedRoleInputs'] = ResolversParentTypes['CachedRoleInputs']> = {
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  deletedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type CachedUserPermissionsInputsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CachedUserPermissionsInputs'] = ResolversParentTypes['CachedUserPermissionsInputs']> = {
@@ -267,6 +809,18 @@ export type CreatedByResolvers<ContextType = Context, ParentType extends Resolve
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type EmailVerificationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EmailVerificationResponse'] = ResolversParentTypes['EmailVerificationResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  token?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type EmailVerificationResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EmailVerificationResponseOrError'] = ResolversParentTypes['EmailVerificationResponseOrError']> = {
+  __resolveType: TypeResolveFn<'EmailVerificationResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
 export type ErrorResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ErrorResponse'] = ResolversParentTypes['ErrorResponse']> = {
   errors?: Resolver<Maybe<Array<ResolversTypes['FieldError']>>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -281,20 +835,182 @@ export type FieldErrorResolvers<ContextType = Context, ParentType extends Resolv
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GetMediaByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetMediaByIdResponseOrError'] = ResolversParentTypes['GetMediaByIdResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'MediaResponse', ParentType, ContextType>;
+};
+
+export type GetPermissionsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetPermissionsResponseOrError'] = ResolversParentTypes['GetPermissionsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'PermissionsResponse', ParentType, ContextType>;
+};
+
+export type GetProfileResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProfileResponseOrError'] = ResolversParentTypes['GetProfileResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserResponse', ParentType, ContextType>;
+};
+
+export type GetRoleByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleByIDResponseOrError'] = ResolversParentTypes['GetRoleByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
+};
+
+export type GetRoleResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRoleResponseOrError'] = ResolversParentTypes['GetRoleResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
+};
+
+export type GetRolesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRolesResponseOrError'] = ResolversParentTypes['GetRolesResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RolesResponse', ParentType, ContextType>;
+};
+
+export type GetUserByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetUserByIDResponseOrError'] = ResolversParentTypes['GetUserByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserResponse', ParentType, ContextType>;
+};
+
+export type GetUsersResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetUsersResponseOrError'] = ResolversParentTypes['GetUsersResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UsersResponse', ParentType, ContextType>;
+};
+
 export type MediaResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Media'] = ResolversParentTypes['Media']> = {
+  category?: Resolver<ResolversTypes['MediaCategory'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  mediaType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mediaType?: Resolver<ResolversTypes['MediaMimeType'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  useCase?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MediaResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MediaResponse'] = ResolversParentTypes['MediaResponse']> = {
+  media?: Resolver<ResolversTypes['Media'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  changeMedia?: Resolver<ResolversTypes['Media'], ParentType, ContextType, RequireFields<MutationChangeMediaArgs, 'id' | 'mediaType' | 'url' | 'useCase'>>;
+  accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
+  changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
+  createUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
+  deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids'>>;
+  deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'ids' | 'skipTrash'>>;
+  deleteUserRoleFromTrash?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleFromTrashArgs, 'ids'>>;
+  forgetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationForgetPasswordArgs, 'email'>>;
+  login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
+  register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password'>>;
+  resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
+  restoreUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreUserRoleArgs, 'ids'>>;
+  updateMediaFilesInfo?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFilesInfoArgs, 'inputs'>>;
+  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'id'>>;
+  updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
+  updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'roleId' | 'userId'>>;
+  updateUserRoleInfo?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id' | 'name'>>;
+  uploadMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadMediaFilesArgs, 'inputs' | 'userId'>>;
+  verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email' | 'userId'>>;
+};
+
+export type PermissionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Permissions'] = ResolversParentTypes['Permissions']> = {
+  canCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  canDelete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  canRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  canUpdate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PermissionsResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PermissionsResponse'] = ResolversParentTypes['PermissionsResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  permissions?: Resolver<Array<ResolversTypes['Permissions']>, ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getMedia?: Resolver<ResolversTypes['Media'], ParentType, ContextType>;
+  getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
+  getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
+  getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'limit' | 'page'>>;
+  getMediaById?: Resolver<Maybe<ResolversTypes['GetMediaByIdResponseOrError']>, ParentType, ContextType, RequireFields<QueryGetMediaByIdArgs, 'id'>>;
+  getOwnPermissions?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType>;
+  getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
+  getRoleById?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleByIdArgs, 'id'>>;
+  getUserById?: Resolver<ResolversTypes['GetUserByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetUserByIdArgs, 'id'>>;
+};
+
+export type RoleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Role'] = ResolversParentTypes['Role']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  totalUserCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RoleResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RoleResponse'] = ResolversParentTypes['RoleResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RolesResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RolesResponse'] = ResolversParentTypes['RolesResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  emailVerified?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  gender?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isAccountActivated?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  permissions?: Resolver<Maybe<Array<ResolversTypes['Permissions']>>, ParentType, ContextType>;
+  role?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserLoginResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserLoginResponse'] = ResolversParentTypes['UserLoginResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserLoginResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserLoginResponseOrError'] = ResolversParentTypes['UserLoginResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserLoginResponse', ParentType, ContextType>;
+};
+
+export type UserProfileUpdateResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserProfileUpdateResponse'] = ResolversParentTypes['UserProfileUpdateResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserProfileUpdateResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserProfileUpdateResponseOrError'] = ResolversParentTypes['UserProfileUpdateResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserProfileUpdateResponse', ParentType, ContextType>;
+};
+
+export type UserResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserResponse'] = ResolversParentTypes['UserResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSession'] = ResolversParentTypes['UserSession']> = {
@@ -309,17 +1025,54 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UsersResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UsersResponse'] = ResolversParentTypes['UsersResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = Context> = {
+  ActiveAccountResponseOrError?: ActiveAccountResponseOrErrorResolvers<ContextType>;
   BaseResponse?: BaseResponseResolvers<ContextType>;
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
+  CachedRoleInputs?: CachedRoleInputsResolvers<ContextType>;
   CachedUserPermissionsInputs?: CachedUserPermissionsInputsResolvers<ContextType>;
   CachedUserSessionByEmailKeyInputs?: CachedUserSessionByEmailKeyInputsResolvers<ContextType>;
   CreatedBy?: CreatedByResolvers<ContextType>;
+  EmailVerificationResponse?: EmailVerificationResponseResolvers<ContextType>;
+  EmailVerificationResponseOrError?: EmailVerificationResponseOrErrorResolvers<ContextType>;
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
+  GetMediaByIdResponseOrError?: GetMediaByIdResponseOrErrorResolvers<ContextType>;
+  GetPermissionsResponseOrError?: GetPermissionsResponseOrErrorResolvers<ContextType>;
+  GetProfileResponseOrError?: GetProfileResponseOrErrorResolvers<ContextType>;
+  GetRoleByIDResponseOrError?: GetRoleByIdResponseOrErrorResolvers<ContextType>;
+  GetRoleResponseOrError?: GetRoleResponseOrErrorResolvers<ContextType>;
+  GetRolesResponseOrError?: GetRolesResponseOrErrorResolvers<ContextType>;
+  GetUserByIDResponseOrError?: GetUserByIdResponseOrErrorResolvers<ContextType>;
+  GetUsersResponseOrError?: GetUsersResponseOrErrorResolvers<ContextType>;
   Media?: MediaResolvers<ContextType>;
+  MediaResponse?: MediaResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Permissions?: PermissionsResolvers<ContextType>;
+  PermissionsResponse?: PermissionsResponseResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Role?: RoleResolvers<ContextType>;
+  RoleResponse?: RoleResponseResolvers<ContextType>;
+  RolesResponse?: RolesResponseResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
+  UserLoginResponse?: UserLoginResponseResolvers<ContextType>;
+  UserLoginResponseOrError?: UserLoginResponseOrErrorResolvers<ContextType>;
+  UserProfileUpdateResponse?: UserProfileUpdateResponseResolvers<ContextType>;
+  UserProfileUpdateResponseOrError?: UserProfileUpdateResponseOrErrorResolvers<ContextType>;
+  UserResponse?: UserResponseResolvers<ContextType>;
   UserSession?: UserSessionResolvers<ContextType>;
+  UsersResponse?: UsersResponseResolvers<ContextType>;
 };
 
+export type DirectiveResolvers<ContextType = Context> = {
+  defer?: DeferDirectiveResolver<any, any, ContextType>;
+};

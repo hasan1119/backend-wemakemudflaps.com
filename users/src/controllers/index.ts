@@ -13,6 +13,7 @@ export { updateUserPermission } from "./mutations/permission/update-user-permiss
 export { updateProfile } from "./mutations/profile/update-profile";
 export { accountActivation } from "./mutations/verification-and-activation/account-activation";
 export { verifyEmail } from "./mutations/verification-and-activation/email-verification";
+export { checkUserAuth } from "./session-check/session-check";
 
 // Graphql queries for the auth and user data
 export { getRoleById } from "./queries/role/get-role-by-id";

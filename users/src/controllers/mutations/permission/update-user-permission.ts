@@ -1,4 +1,5 @@
 import { Repository } from "typeorm";
+import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   Permission,
@@ -23,7 +24,7 @@ import {
 import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { updateUserPermissionSchema } from "../../../utils/data-validation";
 import { PermissionEnum } from "../../../utils/data-validation/permission/permission";
-import { checkUserAuth } from "../../../utils/session-check/session-check";
+import { checkUserAuth } from "../../session-check/session-check";
 
 // Define allowed permissions
 const ROLE_PERMISSIONS: {
@@ -651,7 +652,11 @@ export const updateUserPermission = async (
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "BaseResponse",
     };
   }

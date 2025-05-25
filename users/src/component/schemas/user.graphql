@@ -1,17 +1,20 @@
 # Importing the Apollo Federation specs for linking services.
 extend schema
-  @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@key"])
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.7"
+    import: ["@key", "@shareable"]
+  )
 
 # ---------------------- Basic Types ----------------------
 
 # Type representing errors for specific fields
-type FieldError {
+type FieldError @shareable {
   field: String! # Name of the field that caused the error
   message: String! # Error message associated with the field
 }
 
 # Type for validation and general errors
-type ErrorResponse {
+type ErrorResponse @shareable {
   statusCode: Int!
   success: Boolean!
   message: String!
@@ -19,7 +22,7 @@ type ErrorResponse {
 }
 
 # Common interface to return status and message.
-type BaseResponse {
+type BaseResponse @shareable {
   statusCode: Int!
   success: Boolean!
   message: String!
@@ -28,7 +31,7 @@ type BaseResponse {
 # ---------------------- CreatedBy & Permissions ----------------------
 
 # Type for the createdBy.
-type CreatedBy {
+type CreatedBy @shareable {
   id: ID!
   name: String!
   role: String!
@@ -48,7 +51,7 @@ type Permissions {
 }
 
 # Type for the user cached session stored by email key in Redis.
-type CachedUserPermissionsInputs {
+type CachedUserPermissionsInputs @shareable {
   id: ID!
   name: String!
   description: String!
@@ -91,7 +94,7 @@ type RoleResponse {
 # ---------------------- User Types ----------------------
 
 # Type of the user session for access token and redis.
-type UserSession {
+type UserSession @shareable {
   id: ID!
   firstName: String!
   lastName: String!
@@ -103,7 +106,7 @@ type UserSession {
 }
 
 # Type for the user cached session stored by email key in Redis.
-type CachedUserSessionByEmailKeyInputs {
+type CachedUserSessionByEmailKeyInputs @shareable {
   id: ID!
   firstName: String!
   lastName: String!
@@ -123,6 +126,7 @@ type User @key(fields: "id") {
   firstName: String
   lastName: String
   email: String
+  avatar: String
   emailVerified: Boolean
   gender: String
   role: String
@@ -226,15 +230,15 @@ input UpdateUserPermissionInput {
 # Mutation responses can be either a success or an error.
 union BaseResponseOrError = BaseResponse | ErrorResponse
 union UserLoginResponseOrError =
-  | BaseResponse
+    BaseResponse
   | UserLoginResponse
   | ErrorResponse
 union UserProfileUpdateResponseOrError =
-  | BaseResponse
+    BaseResponse
   | UserProfileUpdateResponse
   | ErrorResponse
 union EmailVerificationResponseOrError =
-  | EmailVerificationResponse
+    EmailVerificationResponse
   | ErrorResponse
 union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
 
@@ -246,6 +250,6 @@ union GetUsersResponseOrError = BaseResponse | UsersResponse | ErrorResponse
 union GetRolesResponseOrError = BaseResponse | RolesResponse | ErrorResponse
 union GetRoleResponseOrError = BaseResponse | RoleResponse | ErrorResponse
 union GetPermissionsResponseOrError =
-  | BaseResponse
+    BaseResponse
   | PermissionsResponse
   | ErrorResponse

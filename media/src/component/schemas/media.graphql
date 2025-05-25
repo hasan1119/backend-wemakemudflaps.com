@@ -1,17 +1,113 @@
 # Importing the Apollo Federation specs for linking services.
 extend schema
-  @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@key"])
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.7"
+    import: ["@key", "@shareable"]
+  )
+
+# ENUMS
+enum MediaCategory {
+  Profile
+  Product
+  Product_Review
+  Product_Return
+  Order
+  Complain
+  Banner
+  Site_Logo
+  Site_Favicon
+  Carousel
+  Category
+  Sub_Category
+  Brand
+  Promotion
+  Invoice
+  Shipping_Label
+  Site_Settings
+}
+
+enum MediaMimeType {
+  image_jpeg
+  image_png
+  image_gif
+  image_bmp
+  image_webp
+  image_svg_xml
+  image_tiff
+  image_x_icon
+  image_heic
+  image_heif
+  image_jp2
+  image_jpx
+  image_jpm
+  image_avif
+  image_x_portable_anymap
+  image_x_portable_bitmap
+  image_x_portable_graymap
+  image_x_portable_pixmap
+  image_x_rgb
+  image_x_xbitmap
+  image_x_xpixmap
+  image_x_xwindowdump
+  video_mp4
+  video_mpeg
+  video_ogg
+  video_webm
+  video_x_msvideo
+  video_x_flv
+  video_x_m4v
+  video_x_ms_wmv
+  video_x_ms_asf
+  video_x_matroska
+  video_quicktime
+  video_3gpp
+  video_3gpp2
+  video_h261
+  video_h263
+  video_h264
+  video_jpeg
+  video_jpm
+  video_mj2
+  video_mp2t
+  video_x_f4v
+  video_x_fli
+  video_x_mng
+  video_x_smv
+  application_pdf
+  application_msword
+  application_vnd_ms_excel
+  application_vnd_ms_powerpoint
+  application_vnd_openxmlformats_officedocument_wordprocessingml_document
+  application_vnd_openxmlformats_officedocument_spreadsheetml_sheet
+  application_vnd_openxmlformats_officedocument_presentationml_presentation
+  application_vnd_oasis_opendocument_text
+  application_vnd_oasis_opendocument_spreadsheet
+  application_vnd_oasis_opendocument_presentation
+  application_vnd_oasis_opendocument_graphics
+  application_vnd_oasis_opendocument_chart
+  application_vnd_oasis_opendocument_formula
+  application_vnd_oasis_opendocument_image
+  application_rtf
+  application_x_abiword
+  application_vnd_lotus_1_2_3
+  application_vnd_lotus_approach
+  application_vnd_lotus_freelance
+  application_vnd_lotus_organizer
+  application_vnd_lotus_screencam
+  application_vnd_lotus_wordpro
+  application_vnd_visio
+}
 
 # ---------------------- Basic Types ----------------------
 
 # Type representing errors for specific fields
-type FieldError {
+type FieldError @shareable {
   field: String! # Name of the field that caused the error
   message: String! # Error message associated with the field
 }
 
 # Type for validation and general errors
-type ErrorResponse {
+type ErrorResponse @shareable {
   statusCode: Int!
   success: Boolean!
   message: String!
@@ -19,72 +115,60 @@ type ErrorResponse {
 }
 
 # Common interface to return status and message.
-type BaseResponse {
+type BaseResponse @shareable {
   statusCode: Int!
   success: Boolean!
   message: String!
 }
 
+type User @key(fields: "id", resolvable: false) {
+  id: ID!
+}
+
 # ---------------------- Media ----------------------
-type Media {
+type Media @key(fields: "id") {
   id: ID!
-  mediaType: String!
+  mediaType: MediaMimeType!
   url: String!
-  useCase: String!
+  category: MediaCategory!
+  createdBy: String!
+  createdAt: String!
+  deletedAt: String!
 }
 
-# ---------------------- CreatedBy ----------------------
+type MediaResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  media: Media!
+}
 
-# Type for the createdBy.
-type CreatedBy {
+input UploadMediaInput {
+  mediaType: MediaMimeType!
+  fileName: String!
+  title: String
+  description: String
+  altText: String
+  dimension: String
+  length: Int
+  category: MediaCategory!
+  size: Int!
+  url: String!
+  bucketName: String!
+  createdBy: String!
+}
+
+input UpdateMediaInput {
   id: ID!
-  name: String!
-  role: String!
+  title: String
+  description: String
+  altText: String
+  dimension: String
+  length: Int
+  category: MediaCategory!
 }
-
-# ---------------------- Permission Types ----------------------
-
-# Type for the user cached session stored by email key in Redis.
-type CachedUserPermissionsInputs {
-  id: ID!
-  name: String!
-  description: String!
-  canCreate: Boolean!
-  canRead: Boolean!
-  canUpdate: Boolean!
-  canDelete: Boolean!
-}
-
-# ---------------------- User Types ----------------------
-
-# Type of the user session for access token and redis.
-type UserSession {
-  id: ID!
-  firstName: String!
-  lastName: String!
-  email: String!
-  gender: String!
-  role: String!
-  emailVerified: Boolean!
-  isAccountActivated: Boolean!
-}
-
-# Type for the user cached session stored by email key in Redis.
-type CachedUserSessionByEmailKeyInputs {
-  id: ID!
-  firstName: String!
-  lastName: String!
-  email: String!
-  emailVerified: Boolean!
-  gender: String!
-  role: String!
-  password: String!
-  isAccountActivated: Boolean!
-  tempUpdatedEmail: String!
-  tempEmailVerified: Boolean!
-}
-
-# ---------------------- Unions ----------------------
 
 # Mutation responses can be either a success or an error.
 union BaseResponseOrError = BaseResponse | ErrorResponse
+
+union GetMediaByIdResponseOrError = BaseResponse | MediaResponse | ErrorResponse

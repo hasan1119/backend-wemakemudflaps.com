@@ -26,6 +26,10 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  // User's avatar URL (Optional)
+  @Column({ unique: true, nullable: true, default: null })
+  avatar: string | null;
+
   // User's unique temp email address during profile update
   @Column({ unique: true, nullable: true, default: null })
   tempUpdatedEmail: string | null;

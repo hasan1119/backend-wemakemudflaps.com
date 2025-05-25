@@ -1,4 +1,4 @@
-import { BaseResponseOrError, UserSession } from "../../types";
+import { BaseResponseOrError, UserSession } from "../../../types";
 
 /**
  * Checks if the user is authenticated and returns a BaseResponse if not

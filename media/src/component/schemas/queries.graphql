@@ -1,5 +1,4 @@
 # Queries to fetch medias from the system.
 type Query {
-  #  Dummy query to fetch media.
-  getMedia: Media!
+  getMediaById(id: ID!): GetMediaByIdResponseOrError
 }

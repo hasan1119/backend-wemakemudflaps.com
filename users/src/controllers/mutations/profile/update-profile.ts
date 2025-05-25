@@ -19,7 +19,7 @@ import {
 import { updateProfileSchema } from "../../../utils/data-validation";
 import SendEmail from "../../../utils/email/send-email";
 import EncodeToken from "../../../utils/jwt/encode-token";
-import { checkUserAuth } from "../../../utils/session-check/session-check";
+import { checkUserAuth } from "../../session-check/session-check";
 
 /**
  * Allows the user to update their account information.
@@ -254,7 +254,11 @@ export const updateProfile = async (
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "ErrorResponse",
     };
   }

@@ -1,10 +1,7 @@
-import {
-  CachedUserSessionByEmailKeyInputs,
-  UserSession,
-} from "../../../../types";
+import { UserSession } from "../../../../types";
 import { redis } from "../../redis";
 
-// Prefixes for Redis keys
+// Prefixes for Redis keys used for user session, email, and count caching.
 const PREFIX = {
   SESSION: "session:",
   USER: "user:",
@@ -12,12 +9,13 @@ const PREFIX = {
   COUNT: "count:",
 };
 
-//
 // ===================== GETTERS =====================
-//
 
 /**
- * Get cached user email-related data by email key.
+ * Retrieves cached user email-related data by email key from Redis.
+ *
+ * @param {string} email - The user's email address.
+ * @returns {Promise<string | null>} - The cached email data or null if not found.
  */
 export const getUserEmailFromRedis = async (
   email: string
@@ -26,7 +24,9 @@ export const getUserEmailFromRedis = async (
 };
 
 /**
- * Get total user count stored in Redis.
+ * Retrieves the total user count stored in Redis.
+ *
+ * @returns {Promise<number | null>} - The cached user count or null if not found.
  */
 export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
   const count = await redis.getSession<string>(`${PREFIX.COUNT}user`);
@@ -34,7 +34,10 @@ export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
 };
 
 /**
- * Get user token session data by user ID.
+ * Retrieves user token session data by user ID from Redis.
+ *
+ * @param {string} userId - The user's ID.
+ * @returns {Promise<UserSession | null>} - The cached user session or null if not found.
  */
 export const getUserTokenInfoByUserIdFromRedis = async (
   userId: string
@@ -45,33 +48,41 @@ export const getUserTokenInfoByUserIdFromRedis = async (
 };
 
 /**
- * Get user session data by user ID.
+ * Retrieves user session data by user ID from Redis.
+ *
+ * @param {string} userId - The user's ID.
+ * @returns {Promise<UserSessionById | null>} - The cached user session or null if not found.
  */
-export const getUserInfoByUserIdFromRedis = async (
-  userId: string
-): Promise<UserSession | null> => {
-  return redis.getSession<UserSession | null>(
-    `${PREFIX.SESSION}user:${userId}`
-  );
-};
+// export const getUserInfoByUserIdFromRedis = async (
+//   userId: string
+// ): Promise<UserSessionById | null> => {
+//   return redis.getSession<UserSessionById | null>(
+//     `${PREFIX.SESSION}user:${userId}`
+//   );
+// };
 
 /**
- * Get user session data by email.
+ * Retrieves user session data by email from Redis.
+ *
+ * @param {string} email - The user's email address.
+ * @returns {Promise<UserSessionByEmail | null>} - The cached user session or null if not found.
  */
-export const getUserInfoByEmailInRedis = async (
-  email: string
-): Promise<CachedUserSessionByEmailKeyInputs | null> => {
-  return redis.getSession<CachedUserSessionByEmailKeyInputs | null>(
-    `${PREFIX.SESSION}email:${email}`
-  );
-};
+// export const getUserInfoByEmailFromRedis = async (
+//   email: string
+// ): Promise<UserSessionByEmail | null> => {
+//   return redis.getSession<UserSessionByEmail | null>(
+//     `${PREFIX.SESSION}email:${email}`
+//   );
+// };
 
-//
 // ===================== SETTERS =====================
-//
 
 /**
- * Set user email-related data in Redis.
+ * Caches user email-related data in Redis.
+ *
+ * @param {string} email - The user's email address.
+ * @param {string} data - The data to cache.
+ * @returns {Promise<void>}
  */
 export const setUserEmailInRedis = async (
   email: string,
@@ -81,24 +92,36 @@ export const setUserEmailInRedis = async (
 };
 
 /**
- * Set total user count in Redis.
+ * Caches the total user count in Redis.
+ *
+ * @param {number} count - The user count to cache.
+ * @returns {Promise<void>}
  */
 export const setUserCountInDBInRedis = async (count: number): Promise<void> => {
   await redis.setSession(`${PREFIX.COUNT}user`, count.toString());
 };
 
 /**
- * Set user session data in Redis by user ID.
+ * Caches user session data in Redis by user ID.
+ *
+ * @param {string} userId - The user's ID.
+ * @param {UserSessionById} data - The session data to cache.
+ * @returns {Promise<void>}
  */
-export const setUserInfoByUserIdInRedis = async (
-  userId: string,
-  data: UserSession
-): Promise<void> => {
-  await redis.setSession(`${PREFIX.SESSION}user:${userId}`, data);
-};
+// export const setUserInfoByUserIdInRedis = async (
+//   userId: string,
+//   data: UserSessionById
+// ): Promise<void> => {
+//   await redis.setSession(`${PREFIX.SESSION}user:${userId}`, data);
+// };
 
 /**
- * Set user token session data in Redis by user ID with optional TTL.
+ * Caches user token session data in Redis by user ID with optional TTL.
+ *
+ * @param {string} userId - The user's ID.
+ * @param {UserSession} data - The session data to cache.
+ * @param {number} ttl - Time to live in seconds.
+ * @returns {Promise<void>}
  */
 export const setUserTokenInfoByUserIdInRedis = async (
   userId: string,
@@ -109,21 +132,26 @@ export const setUserTokenInfoByUserIdInRedis = async (
 };
 
 /**
- * Set user session data in Redis by email.
+ * Caches user session data in Redis by email.
+ *
+ * @param {string} email - The user's email address.
+ * @param {UserSessionByEmail} data - The session data to cache.
+ * @returns {Promise<void>}
  */
-export const setUserInfoByEmailInRedis = async (
-  email: string,
-  data: CachedUserSessionByEmailKeyInputs
-): Promise<void> => {
-  await redis.setSession(`${PREFIX.SESSION}email:${email}`, data);
-};
+// export const setUserInfoByEmailInRedis = async (
+//   email: string,
+//   data: UserSessionByEmail
+// ): Promise<void> => {
+//   await redis.setSession(`${PREFIX.SESSION}email:${email}`, data);
+// };
 
-//
 // ===================== REMOVERS =====================
-//
 
 /**
- * Remove user info from Redis by user ID.
+ * Removes user info from Redis by user ID.
+ *
+ * @param {string} userId - The user's ID.
+ * @returns {Promise<void>}
  */
 export const removeUserInfoByUserIdInRedis = async (
   userId: string
@@ -132,7 +160,10 @@ export const removeUserInfoByUserIdInRedis = async (
 };
 
 /**
- * Remove user token session data from Redis by user ID.
+ * Removes user token session data from Redis by user ID.
+ *
+ * @param {string} userId - The user's ID.
+ * @returns {Promise<void>}
  */
 export const removeUserTokenByUserIdFromRedis = async (
   userId: string
@@ -141,7 +172,10 @@ export const removeUserTokenByUserIdFromRedis = async (
 };
 
 /**
- * Remove user session data in Redis by email.
+ * Removes user session data in Redis by email.
+ *
+ * @param {string} email - The user's email address.
+ * @returns {Promise<void>}
  */
 export const removeUserInfoByEmailFromRedis = async (
   email: string
@@ -150,7 +184,10 @@ export const removeUserInfoByEmailFromRedis = async (
 };
 
 /**
- * Remove cached user email-related data by email key.
+ * Removes cached user email-related data by email key from Redis.
+ *
+ * @param {string} email - The user's email address.
+ * @returns {Promise<void>}
  */
 export const removeUserEmailFromRedis = async (
   email: string
@@ -159,7 +196,9 @@ export const removeUserEmailFromRedis = async (
 };
 
 /**
- * Remove total user count stored in Redis.
+ * Removes the total user count stored in Redis.
+ *
+ * @returns {Promise<void>}
  */
 export const removeUserCountInDBFromRedis = async (): Promise<void> => {
   await redis.deleteSession(`${PREFIX.COUNT}user`);

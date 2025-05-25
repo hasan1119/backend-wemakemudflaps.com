@@ -1,4 +1,5 @@
 import { Repository } from "typeorm";
+import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
 import { User } from "../../../entities/user.entity";
@@ -9,7 +10,7 @@ import {
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
 import { GetPermissionsResponseOrError, UserSession } from "../../../types";
-import { checkUserAuth } from "../../../utils/session-check/session-check";
+import { checkUserAuth } from "../../session-check/session-check";
 
 /**
  * Fetches the permissions of the authenticated user.
@@ -144,7 +145,11 @@ export const getOwnPermissions = async (
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "BaseResponse",
     };
   }

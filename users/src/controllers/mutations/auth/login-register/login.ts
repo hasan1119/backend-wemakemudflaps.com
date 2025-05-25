@@ -2,6 +2,7 @@ import { Repository } from "typeorm";
 import { Context } from "../../../../context";
 import { User } from "../../../../entities/user.entity";
 
+import CONFIG from "../../../../config/config";
 import {
   getLockoutSessionFromRedis,
   getLoginAttemptsFromRedis,
@@ -252,7 +253,11 @@ export const login = async (
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "ErrorResponse",
     };
   }

@@ -6,6 +6,9 @@ interface Config {
   /* Application port */
   PORT: number;
 
+  /* Node environment */
+  NODE_ENV: string;
+
   /* Application Frontend Url */
   FRONTEND_URL: string;
 
@@ -44,6 +47,8 @@ interface Config {
 const CONFIG: Config = {
   /* Application port*/
   PORT: parseInt(process.env.PORT as string, 10),
+
+  NODE_ENV: process.env.NODE_ENV.toLowerCase() as string,
 
   /* Application Frontend Url */
   FRONTEND_URL: process.env.FRONTEND_URL as string,

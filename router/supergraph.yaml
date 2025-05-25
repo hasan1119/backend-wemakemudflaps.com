@@ -4,3 +4,7 @@ subgraphs:
     routing_url: http://localhost:4001/
     schema:
       subgraph_url: http://localhost:4001/
+  media:
+    routing_url: http://localhost:4002/
+    schema:
+      subgraph_url: http://localhost:4002/

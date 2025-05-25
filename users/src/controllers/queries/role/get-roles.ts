@@ -1,5 +1,6 @@
 import { ILike, Repository } from "typeorm";
 import { z } from "zod";
+import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
 import { Role } from "../../../entities/user-role.entity";
@@ -27,7 +28,7 @@ import {
   paginationSchema,
   rolesSortingSchema,
 } from "../../../utils/data-validation";
-import { checkUserAuth } from "../../../utils/session-check/session-check";
+import { checkUserAuth } from "../../session-check/session-check";
 
 // Combine pagination and sorting schemas
 const combinedSchema = z.intersection(paginationSchema, rolesSortingSchema);
@@ -333,7 +334,11 @@ export const getAllRoles = async (
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "BaseResponse",
     };
   }

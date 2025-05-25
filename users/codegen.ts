@@ -1,9 +1,8 @@
 import { CodegenConfig } from "@graphql-codegen/cli";
-import { print } from "graphql";
-import { typeDefs } from "./src/helper/combine/schema";
 
 const config: CodegenConfig = {
-  schema: print(typeDefs),
+  // schema: print(typeDefs),
+  schema: "http://localhost:4000/",
   generates: {
     "./src/types.ts": {
       plugins: ["typescript", "typescript-resolvers"],

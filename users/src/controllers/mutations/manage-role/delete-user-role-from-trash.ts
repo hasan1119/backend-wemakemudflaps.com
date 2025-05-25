@@ -1,4 +1,5 @@
 import { In, Repository } from "typeorm";
+import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities/permission.entity";
 import { Role } from "../../../entities/user-role.entity";
@@ -20,7 +21,7 @@ import {
   UserSession,
 } from "../../../types";
 import { idsSchema } from "../../../utils/data-validation";
-import { checkUserAuth } from "../../../utils/session-check/session-check";
+import { checkUserAuth } from "../../session-check/session-check";
 
 /**
  * Permanently deletes a soft-deleted user role from the trash with validation and permission checks.
@@ -241,7 +242,11 @@ export const deleteUserRoleFromTrash = async (
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "BaseResponse",
     };
   }

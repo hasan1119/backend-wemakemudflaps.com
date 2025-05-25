@@ -462,8 +462,9 @@ export const register = async (
         }
       );
 
-      const fullPermissions =
-        await permissionRepository.save(customerPermissions);
+      const fullPermissions = await permissionRepository.save(
+        customerPermissions
+      );
 
       // Create the account activation link with user id
       const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}&email=${email}`;
@@ -558,7 +559,11 @@ export const register = async (
     return {
       statusCode: 500,
       success: false,
-      message: error.message || "Internal server error",
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "BaseResponse",
     };
   }

@@ -195,7 +195,11 @@ export const forgetPassword = async (
     return {
       statusCode: 500,
       success: false,
-      message: "Failed to process password reset request",
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "BaseResponse",
     };
   }

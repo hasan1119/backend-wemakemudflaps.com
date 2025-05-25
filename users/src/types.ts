@@ -401,17 +401,6 @@ export type UsersResponse = {
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
 
-export type ReferenceResolver<TResult, TReference, TContext> = (
-      reference: TReference,
-      context: TContext,
-      info: GraphQLResolveInfo
-    ) => Promise<TResult> | TResult;
-
-      type ScalarCheck<T, S> = S extends true ? T : NullableCheck<T, S>;
-      type NullableCheck<T, S> = Maybe<T> extends T ? Maybe<ListCheck<NonNullable<T>, S>> : ListCheck<T, S>;
-      type ListCheck<T, S> = T extends (infer U)[] ? NullableCheck<U, S>[] : GraphQLRecursivePick<T, S>;
-      export type GraphQLRecursivePick<T, S> = { [K in keyof T & keyof S]: ScalarCheck<T[K], S[K]> };
-    
 
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
@@ -577,6 +566,13 @@ export type ResolversParentTypes = {
   UserSession: UserSession;
   UsersResponse: UsersResponse;
 };
+
+export type DeferDirectiveArgs = {
+  if?: Scalars['Boolean']['input'];
+  label?: Maybe<Scalars['String']['input']>;
+};
+
+export type DeferDirectiveResolver<Result, Parent, ContextType = Context, Args = DeferDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type ActiveAccountResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ActiveAccountResponseOrError'] = ResolversParentTypes['ActiveAccountResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
@@ -766,7 +762,6 @@ export type RolesResponseResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
-  __resolveReference?: ReferenceResolver<Maybe<ResolversTypes['User']>, { __typename: 'User' } & GraphQLRecursivePick<ParentType, {"id":true}>, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -870,3 +865,6 @@ export type Resolvers<ContextType = Context> = {
   UsersResponse?: UsersResponseResolvers<ContextType>;
 };
 
+export type DirectiveResolvers<ContextType = Context> = {
+  defer?: DeferDirectiveResolver<any, any, ContextType>;
+};
