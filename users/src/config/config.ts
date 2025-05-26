@@ -48,7 +48,7 @@ const CONFIG: Config = {
   /* Application port*/
   PORT: parseInt(process.env.PORT as string, 10),
 
-  NODE_ENV: process.env.NODE_ENV.toLowerCase() as string,
+  NODE_ENV: process.env?.NODE_ENV?.toLowerCase() as string || "development",
 
   /* Application Frontend Url */
   FRONTEND_URL: process.env.FRONTEND_URL as string,
