@@ -17,10 +17,10 @@ jobs:
             port: 4001
             pm2: steven_users_subgraph
             
-          # - name: products
-          #   path: products
-          #   port: 4002
-          #   pm2: 2
+          - name: media
+            path: media
+            port: 4002
+            pm2: steven_media_subgraph
           
           # - name: orders
           #   path: orders

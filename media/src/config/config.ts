@@ -70,7 +70,7 @@ interface Config {
 const CONFIG: Config = {
   // ===================== Server Configurations =====================
   PORT: parseInt(process.env.PORT as string, 10),
-  NODE_ENV: process.env.NODE_ENV.toLowerCase() as string,
+  NODE_ENV: process.env.NODE_ENV.toLowerCase() as string || 'development',
   FRONTEND_URL: process.env.FRONTEND_URL as string,
   SUB_GRAPH_NAME: process.env.SUB_GRAPH_NAME as string,
 

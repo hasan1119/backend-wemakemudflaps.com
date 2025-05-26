@@ -37,7 +37,7 @@ async function resetTablesAndRedis() {
       console.log("No tables found in steven database.");
     } else {
       // Define the specific order
-      const ordered = ["permission", "user", "role"];
+      const ordered = ["permission", "user", "role_permission", "media", 'user_role', "role"];
       const orderedTables = ordered.filter(t => tables.includes(t));
       const otherTables = tables.filter(t => !ordered.includes(t));
       const deletionOrder = [...orderedTables, ...otherTables];
