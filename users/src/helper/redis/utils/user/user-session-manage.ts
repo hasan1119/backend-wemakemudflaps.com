@@ -1,10 +1,17 @@
+import { User } from "../../../../entities";
 import {
-  CachedUserSessionByEmailKeyInputs,
   UserSession,
+  UserSessionByEmail,
+  UserSessionById,
 } from "../../../../types";
+import {
+  mapUserToResponseByEmail,
+  mapUserToResponseById,
+  mapUserToTokenData,
+} from "../../../../utils/mapper";
 import { redis } from "../../redis";
 
-// Prefixes for Redis keys
+// Defines prefixes for Redis keys used for user session, email, and count caching
 const PREFIX = {
   SESSION: "session:",
   USER: "user:",
@@ -12,12 +19,15 @@ const PREFIX = {
   COUNT: "count:",
 };
 
-//
-// ===================== GETTERS =====================
-//
-
 /**
- * Get cached user email-related data by email key.
+ * Handles retrieval of cached user email data from Redis.
+ *
+ * Workflow:
+ * 1. Queries Redis using the email prefix and user email.
+ * 2. Returns the cached email data or null if not found.
+ *
+ * @param email - The email address of the user.
+ * @returns A promise resolving to the cached email data or null if not found.
  */
 export const getUserEmailFromRedis = async (
   email: string
@@ -26,7 +36,13 @@ export const getUserEmailFromRedis = async (
 };
 
 /**
- * Get total user count stored in Redis.
+ * Handles retrieval of the total user count from Redis.
+ *
+ * Workflow:
+ * 1. Queries Redis using the count prefix for users.
+ * 2. Converts the result to a number or returns null if not found.
+ *
+ * @returns A promise resolving to the user count or null if not found.
  */
 export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
   const count = await redis.getSession<string>(`${PREFIX.COUNT}user`);
@@ -34,7 +50,14 @@ export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
 };
 
 /**
- * Get user token session data by user ID.
+ * Handles retrieval of user token session data from Redis by user ID.
+ *
+ * Workflow:
+ * 1. Queries Redis using the session token prefix and user ID.
+ * 2. Returns the parsed UserSession or null if not found.
+ *
+ * @param userId - The ID of the user.
+ * @returns A promise resolving to the UserSession or null if not found.
  */
 export const getUserTokenInfoByUserIdFromRedis = async (
   userId: string
@@ -45,33 +68,50 @@ export const getUserTokenInfoByUserIdFromRedis = async (
 };
 
 /**
- * Get user session data by user ID.
+ * Handles retrieval of user session data from Redis by user ID.
+ *
+ * Workflow:
+ * 1. Queries Redis using the session user prefix and user ID.
+ * 2. Returns the parsed UserSessionById or null if not found.
+ *
+ * @param userId - The ID of the user.
+ * @returns A promise resolving to the UserSessionById or null if not found.
  */
 export const getUserInfoByUserIdFromRedis = async (
   userId: string
-): Promise<UserSession | null> => {
-  return redis.getSession<UserSession | null>(
+): Promise<UserSessionById | null> => {
+  return redis.getSession<UserSessionById | null>(
     `${PREFIX.SESSION}user:${userId}`
   );
 };
 
 /**
- * Get user session data by email.
+ * Handles retrieval of user session data from Redis by email.
+ *
+ * Workflow:
+ * 1. Queries Redis using the session email prefix and user email.
+ * 2. Returns the parsed UserSessionByEmail or null if not found.
+ *
+ * @param email - The email address of the user.
+ * @returns A promise resolving to the UserSessionByEmail or null if not found.
  */
-export const getUserInfoByEmailInRedis = async (
+export const getUserInfoByEmailFromRedis = async (
   email: string
-): Promise<CachedUserSessionByEmailKeyInputs | null> => {
-  return redis.getSession<CachedUserSessionByEmailKeyInputs | null>(
+): Promise<UserSessionByEmail | null> => {
+  return redis.getSession<UserSessionByEmail | null>(
     `${PREFIX.SESSION}email:${email}`
   );
 };
 
-//
-// ===================== SETTERS =====================
-//
-
 /**
- * Set user email-related data in Redis.
+ * Handles caching user email data in Redis.
+ *
+ * Workflow:
+ * 1. Stores the provided email data in Redis with the email prefix and user email.
+ *
+ * @param email - The email address of the user.
+ * @param data - The email data to cache.
+ * @returns A promise resolving when the email data is cached.
  */
 export const setUserEmailInRedis = async (
   email: string,
@@ -81,49 +121,85 @@ export const setUserEmailInRedis = async (
 };
 
 /**
- * Set total user count in Redis.
+ * Handles caching the total user count in Redis.
+ *
+ * Workflow:
+ * 1. Stores the user count as a string in Redis with the count prefix for users.
+ *
+ * @param count - The user count to cache.
+ * @returns A promise resolving when the count is cached.
  */
 export const setUserCountInDBInRedis = async (count: number): Promise<void> => {
   await redis.setSession(`${PREFIX.COUNT}user`, count.toString());
 };
 
 /**
- * Set user session data in Redis by user ID.
+ * Handles caching user session data in Redis by user ID.
+ *
+ * Workflow:
+ * 1. Maps the provided user data to a response format using mapUserToResponseById.
+ * 2. Stores the mapped data in Redis with the session user prefix and user ID.
+ *
+ * @param userId - The ID of the user.
+ * @param data - The User entity to cache.
+ * @returns A promise resolving when the session data is cached.
  */
 export const setUserInfoByUserIdInRedis = async (
   userId: string,
-  data: UserSession
+  data: User
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.SESSION}user:${userId}`, data);
+  const sessionData = await mapUserToResponseById(data);
+  await redis.setSession(`${PREFIX.SESSION}user:${userId}`, sessionData);
 };
 
 /**
- * Set user token session data in Redis by user ID with optional TTL.
+ * Handles caching user token session data in Redis by user ID.
+ *
+ * Workflow:
+ * 1. Maps the provided user session data to a token format using mapUserToTokenData.
+ * 2. Stores the mapped data in Redis with the session token prefix, user ID, and specified TTL.
+ *
+ * @param userId - The ID of the user.
+ * @param data - The UserSession data to cache.
+ * @param ttl - Time-to-live in seconds.
+ * @returns A promise resolving when the token data is cached.
  */
 export const setUserTokenInfoByUserIdInRedis = async (
   userId: string,
   data: UserSession,
   ttl: number
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.SESSION}token:${userId}`, data, ttl);
+  const sessionData = await mapUserToTokenData(data);
+  await redis.setSession(`${PREFIX.SESSION}token:${userId}`, sessionData, ttl);
 };
 
 /**
- * Set user session data in Redis by email.
+ * Handles caching user session data in Redis by email.
+ *
+ * Workflow:
+ * 1. Maps the provided user data to a response format using mapUserToResponseByEmail.
+ * 2. Stores the mapped data in Redis with the session email prefix and user email.
+ *
+ * @param email - The email address of the user.
+ * @param data - The User entity to cache.
+ * @returns A promise resolving when the session data is cached.
  */
 export const setUserInfoByEmailInRedis = async (
   email: string,
-  data: CachedUserSessionByEmailKeyInputs
+  data: User
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.SESSION}email:${email}`, data);
+  const sessionData = await mapUserToResponseByEmail(data);
+  await redis.setSession(`${PREFIX.SESSION}email:${email}`, sessionData);
 };
 
-//
-// ===================== REMOVERS =====================
-//
-
 /**
- * Remove user info from Redis by user ID.
+ * Handles removal of user session data from Redis by user ID.
+ *
+ * Workflow:
+ * 1. Deletes the user session data from Redis using the session user prefix and user ID.
+ *
+ * @param userId - The ID of the user.
+ * @returns A promise resolving when the session data is removed.
  */
 export const removeUserInfoByUserIdInRedis = async (
   userId: string
@@ -132,7 +208,13 @@ export const removeUserInfoByUserIdInRedis = async (
 };
 
 /**
- * Remove user token session data from Redis by user ID.
+ * Handles removal of user token session data from Redis by user ID.
+ *
+ * Workflow:
+ * 1. Deletes the token session data from Redis using the session token prefix and user ID.
+ *
+ * @param userId - The ID of the user.
+ * @returns A promise resolving when the token data is removed.
  */
 export const removeUserTokenByUserIdFromRedis = async (
   userId: string
@@ -141,7 +223,13 @@ export const removeUserTokenByUserIdFromRedis = async (
 };
 
 /**
- * Remove user session data in Redis by email.
+ * Handles removal of user session data from Redis by email.
+ *
+ * Workflow:
+ * 1. Deletes the user session data from Redis using the session email prefix and user email.
+ *
+ * @param email - The email address of the user.
+ * @returns A promise resolving when the session data is removed.
  */
 export const removeUserInfoByEmailFromRedis = async (
   email: string
@@ -150,7 +238,13 @@ export const removeUserInfoByEmailFromRedis = async (
 };
 
 /**
- * Remove cached user email-related data by email key.
+ * Handles removal of cached user email data from Redis.
+ *
+ * Workflow:
+ * 1. Deletes the email data from Redis using the email prefix and user email.
+ *
+ * @param email - The email address of the user.
+ * @returns A promise resolving when the email data is removed.
  */
 export const removeUserEmailFromRedis = async (
   email: string
@@ -159,7 +253,12 @@ export const removeUserEmailFromRedis = async (
 };
 
 /**
- * Remove total user count stored in Redis.
+ * Handles removal of the cached total user count from Redis.
+ *
+ * Workflow:
+ * 1. Deletes the user count from Redis using the count prefix for users.
+ *
+ * @returns A promise resolving when the count is removed.
  */
 export const removeUserCountInDBFromRedis = async (): Promise<void> => {
   await redis.deleteSession(`${PREFIX.COUNT}user`);

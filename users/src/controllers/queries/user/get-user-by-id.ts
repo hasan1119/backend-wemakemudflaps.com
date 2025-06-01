@@ -1,92 +1,54 @@
-import { Repository } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Permission } from "../../../entities/permission.entity";
-import { User } from "../../../entities/user.entity";
 import {
   getUserInfoByUserIdFromRedis,
-  getUserPermissionsByUserIdFromRedis,
   setUserInfoByUserIdInRedis,
-  setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
-import {
-  CachedUserPermissionsInputs,
-  QueryGetUserByIdArgs,
-} from "../../../types";
+import { QueryGetUserByIdArgs } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
-import { checkUserAuth } from "../../session-check/session-check";
-import { GetUserByIdResponseOrError, UserSession } from "./../../../types";
+import { mapUserToResponseById } from "../../../utils/mapper";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  getUserById as getUserWithId,
+} from "../../services";
+import { GetUserByIdResponseOrError } from "./../../../types";
 
 /**
- * Retrieves a user's profile data by ID, including their role name and permissions.
- * - Validates input ID using Zod schema.
- * - Authenticates user and checks permission to read user data.
- * - Checks Redis cache for user data and permissions before querying the database.
- * - Fetches the user by ID, including role and permissions relations.
- * - Caches user and permissions data in Redis for future requests.
- * - Returns the user profile with role name and permissions or an error response.
+ * Handles retrieval of a user's profile data by their ID, including role and permissions.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments containing the user ID
- * @param context - GraphQL context with AppDataSource and user info
- * @returns Promise<GetUserByIDResponseOrError> - User details with role and permissions or error response
+ * Workflow:
+ * 1. Verifies user authentication and checks read permission for user data.
+ * 2. Validates input user ID using Zod schema.
+ * 3. Attempts to retrieve user data from Redis for performance optimization.
+ * 4. On cache miss, fetches user data from the database by ID.
+ * 5. Maps user data to response format, including role and permissions.
+ * 6. Caches user data in Redis for future requests.
+ * 7. Returns a success response with user profile or an error if validation, permission, or retrieval fails.
+ *
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing the user ID.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a GetUserByIdResponseOrError object containing status, message, user data, and errors if applicable.
  */
 export const getUserById = async (
   _: any,
   args: QueryGetUserByIdArgs,
-  { AppDataSource, user }: Context
+  { user }: Context
 ): Promise<GetUserByIdResponseOrError> => {
-  const { id } = args;
-
   try {
-    // Check user authentication
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Initialize repositories
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    const permissionRepository: Repository<Permission> =
-      AppDataSource.getRepository(Permission);
+    // Check if user has permission to view user data
+    const canRead = await checkUserPermission({
+      action: "canRead",
+      entity: "user",
+      user,
+    });
 
-    // Check Redis for cached authenticated user's permissions
-    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
-
-    if (!userPermissions) {
-      // Cache miss: Fetch permissions from database
-      userPermissions = await permissionRepository.find({
-        where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
-      });
-
-      const cachedPermissions: CachedUserPermissionsInputs[] =
-        userPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
-
-      // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(user.id, cachedPermissions);
-    }
-
-    // Check if the user has "canRead" permission for User
-    const canReadUser = userPermissions.some(
-      (permission) => permission.name === "User" && permission.canRead
-    );
-
-    if (!canReadUser) {
+    if (!canRead) {
       return {
         statusCode: 403,
         success: false,
@@ -95,12 +57,13 @@ export const getUserById = async (
       };
     }
 
-    // Validate input ID
-    const validationResult = await idSchema.safeParseAsync({ id });
+    // Validate input user ID with Zod schema
+    const validationResult = await idSchema.safeParseAsync(args);
 
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join("."), // Join path array to string for field identification
         message: error.message,
       }));
 
@@ -113,120 +76,39 @@ export const getUserById = async (
       };
     }
 
-    // Check Redis for cached target user data
+    const { id } = args;
+
+    // Attempt to retrieve cached user data from Redis
     let userData;
 
     userData = await getUserInfoByUserIdFromRedis(id);
 
-    // Check Redis for cached user permissions
-    let permissions;
-
-    permissions = await getUserPermissionsByUserIdFromRedis(user.id);
-
+    // Check if user exists
     if (!userData) {
-      // Cache miss: Fetch user from database
-      const dbUser = await userRepository.findOne({
-        where: { id, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          gender: true,
-          role: {
-            name: true,
-          },
-          emailVerified: true,
-          isAccountActivated: true,
-        },
-      });
+      // On cache miss, fetch user data from database
+      userData = await getUserWithId(id);
 
-      if (!dbUser) {
+      if (!userData) {
         return {
           statusCode: 404,
           success: false,
-          message: `User not found with this id: ${id} or has been deleted`,
+          message: "User not found",
           __typename: "BaseResponse",
         };
       }
 
-      userData = dbUser;
+      // Map user data to response format
+      userData = mapUserToResponseById(userData.id);
 
-      const userSession: UserSession = {
-        id: dbUser.id,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        email: dbUser.email,
-        gender: dbUser.gender,
-        role: dbUser.role.name,
-        emailVerified: dbUser.emailVerified,
-        isAccountActivated: dbUser.isAccountActivated,
-      };
-
-      // Cache user in Redis
-      await setUserInfoByUserIdInRedis(id, userSession);
+      // Cache user data in Redis
+      await setUserInfoByUserIdInRedis(userData.id, userData);
     }
-
-    if (!permissions) {
-      // Cache miss: Fetch permissions from database
-      permissions = await permissionRepository.find({
-        where: { user: { id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
-      });
-
-      const cachedPermissions: CachedUserPermissionsInputs[] = permissions.map(
-        (permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        })
-      );
-
-      permissions = cachedPermissions;
-
-      // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(id, cachedPermissions);
-    }
-
-    // Construct response user object matching User type
-    const responseUser = {
-      id: userData.id,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      email: userData.email,
-      gender: userData.gender,
-      role: userData.role,
-      emailVerified: userData.emailVerified,
-      isAccountActivated: userData.isAccountActivated,
-      permissions: permissions.map((perm) => ({
-        id: perm.id,
-        name: perm.name,
-        description: perm.description,
-        canCreate: perm.canCreate,
-        canRead: perm.canRead,
-        canUpdate: perm.canUpdate,
-        canDelete: perm.canDelete,
-      })),
-    };
 
     return {
       statusCode: 200,
       success: true,
       message: "User fetched successfully",
-      user: responseUser,
+      user: userData,
       __typename: "UserResponse",
     };
   } catch (error: any) {

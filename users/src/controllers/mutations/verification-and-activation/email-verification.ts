@@ -1,9 +1,7 @@
-import { Repository } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { User } from "../../../entities/user.entity";
 import {
-  getUserInfoByEmailInRedis,
+  getUserInfoByEmailFromRedis,
   removeUserEmailFromRedis,
   removeUserInfoByEmailFromRedis,
   setUserInfoByEmailInRedis,
@@ -11,43 +9,47 @@ import {
   setUserTokenInfoByUserIdInRedis,
 } from "../../../helper/redis";
 import {
-  CachedUserSessionByEmailKeyInputs,
   EmailVerificationResponseOrError,
   MutationVerifyEmailArgs,
   UserSession,
 } from "../../../types";
 import { emailSchema, idSchema } from "../../../utils/data-validation";
 import EncodeToken from "../../../utils/jwt/encode-token";
+import { updateUser } from "../../services";
 
 /**
- * Verifies a user's email using the user ID from the verification link.
+ * Handles the verification of a user's email address using a verification link.
  *
- * Steps:
- * - Validates input using Zod schema
- * - Checks if the user exists
- * - Verifies if the email is already verified
- * - Updates the user's emailVerified status
- * - Updates necessary user data in redis for future request
+ * Workflow:
+ * 1. Validates input (userId and email) using Zod schemas.
+ * 2. Retrieves user data from Redis for performance optimization.
+ * 3. Verifies the existence of a pending email to be verified.
+ * 4. Updates the user's email to the verified one in the database, clearing temporary fields.
+ * 5. Prepares user session data with updated information.
+ * 6. Updates Redis caches with new user data, removing old email data.
+ * 7. Generates a new JWT token for the updated user session.
+ * 8. Returns a success response with the token or error if validation or verification fails.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for email verification (userId)
- * @param context - GraphQL context with AppDataSource
- * @returns Promise<EmailVerificationResponseOrError> - Response status and message
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing userId and email for email verification.
+ * @param __ - GraphQL context (unused here).
+ * @returns A promise resolving to an EmailVerificationResponseOrError object containing status, message, token, and errors if applicable.
  */
 export const verifyEmail = async (
   _: any,
   args: MutationVerifyEmailArgs,
-  { AppDataSource }: Context
+  __: Context
 ): Promise<EmailVerificationResponseOrError> => {
-  const { userId, email } = args;
-
   try {
-    // Validate input data using Zod schema
+    const { userId, email } = args;
+
+    // Validate input data with Zod schema
     const [idResult, emailResult] = await Promise.all([
       idSchema.safeParseAsync({ id: userId }),
       emailSchema.safeParseAsync({ email }),
     ]);
 
+    // Return detailed validation errors if input is invalid
     if (!idResult.success || !emailResult.success) {
       const errors = [
         ...(idResult.error?.errors || []),
@@ -66,50 +68,15 @@ export const verifyEmail = async (
       };
     }
 
-    // Initialize user repository
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
-
-    // Check Redis for cached user's data
+    // Attempt to retrieve cached user data from Redis
     let user;
 
-    user = await getUserInfoByEmailInRedis(email);
-
-    if (!user) {
-      // Cache miss: Fetch user from database
-      user = await userRepository.findOne({
-        where: { id: userId, tempUpdatedEmail: email, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          emailVerified: true,
-          gender: true,
-          role: {
-            name: true,
-          },
-          password: true,
-          isAccountActivated: true,
-          tempUpdatedEmail: true,
-          tempEmailVerified: true,
-        },
-      });
-
-      if (!user) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Authenticated user not found in database",
-          __typename: "ErrorResponse",
-        };
-      }
-    }
+    user = await getUserInfoByEmailFromRedis(email);
 
     // Store the old email for Redis cleanup
     const oldEmail = user.email;
 
-    // Check if there’s a pending email to verify
+    // Verify the presence of a pending email to verify
     if (!user.tempUpdatedEmail) {
       return {
         statusCode: 400,
@@ -119,101 +86,47 @@ export const verifyEmail = async (
       };
     }
 
-    // Update user with verified email
-    const updateResult = await userRepository.update(
-      { id: userId, tempUpdatedEmail: user.tempUpdatedEmail, deletedAt: null },
-      {
-        email: user.tempUpdatedEmail,
-        tempUpdatedEmail: null,
-        tempEmailVerified: null,
-      }
-    );
-
-    // Check if the update was successful
-    if (updateResult.affected !== 1) {
-      return {
-        statusCode: 500,
-        success: false,
-        message: "Failed to update email verification status",
-        __typename: "ErrorResponse",
-      };
-    }
-
-    // Fetch updated user to ensure correct data
-    const updatedUser = await userRepository.findOne({
-      where: { id: userId, deletedAt: null },
-      relations: ["role"],
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        emailVerified: true,
-        gender: true,
-        role: {
-          name: true,
-        },
-        password: true,
-        isAccountActivated: true,
-        tempUpdatedEmail: true,
-        tempEmailVerified: true,
-      },
+    // Update user with verified email in the database
+    const updateResult = await updateUser({
+      ...user,
+      email: user.tempUpdatedEmail,
+      tempUpdatedEmail: null,
+      tempEmailVerified: null,
     });
 
-    // Regenerate JWT token with updated email
-    const token = await EncodeToken(
-      updatedUser.id,
-      updatedUser.firstName,
-      updatedUser.lastName,
-      updatedUser.email,
-      updatedUser.gender,
-      updatedUser.role.name,
-      updatedUser.emailVerified,
-      updatedUser.isAccountActivated,
-      "30d"
-    );
-
-    // Create session and cache data
-    const userSession: UserSession = {
-      id: updatedUser.id,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      email: updatedUser.email,
-      gender: updatedUser.gender,
-      role: updatedUser.role.name,
-      emailVerified: updatedUser.emailVerified,
-      isAccountActivated: updatedUser.isAccountActivated,
+    // Prepare user session data
+    const userSessionData: UserSession = {
+      id: updateResult.id,
+      avatar: updateResult.avatar,
+      firstName: updateResult.firstName,
+      lastName: updateResult.lastName,
+      email: updateResult.email,
+      gender: updateResult.gender,
+      roles: updateResult.roles.map((role) => role.name.toUpperCase()),
+      emailVerified: updateResult.emailVerified,
+      isAccountActivated: updateResult.isAccountActivated,
     };
 
-    const userEmailSession: CachedUserSessionByEmailKeyInputs = {
-      id: updatedUser.id,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      email: updatedUser.email,
-      emailVerified: updatedUser.emailVerified,
-      gender: updatedUser.gender,
-      role: updatedUser.role.name,
-      password: updatedUser.password,
-      isAccountActivated: updatedUser.isAccountActivated,
-      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
-      tempEmailVerified: updatedUser.tempEmailVerified,
-    };
-
-    // Update cache with new email and remove old email in Redis with configurable TTL(30 days = 25920000)
+    // Update Redis caches with new email and remove old email data
     await Promise.all([
-      setUserTokenInfoByUserIdInRedis(userId, userSession, 2592000),
-      setUserInfoByUserIdInRedis(userId, userSession),
-      setUserInfoByEmailInRedis(updatedUser.email, userEmailSession),
-
+      setUserTokenInfoByUserIdInRedis(userId, userSessionData, 2592000),
+      setUserInfoByUserIdInRedis(userId, updateResult),
+      setUserInfoByEmailInRedis(updateResult.email, updateResult),
       removeUserInfoByEmailFromRedis(oldEmail),
       removeUserEmailFromRedis(oldEmail),
     ]);
 
+    // Generate new JWT token
+    const token = await EncodeToken(
+      userSessionData,
+      "30d" // Set token expiration to 30 days
+    );
+
     return {
       statusCode: 200,
       success: true,
-      token,
       message: "Email verified successfully",
+      token,
       __typename: "EmailVerificationResponse",
     };
   } catch (error: any) {

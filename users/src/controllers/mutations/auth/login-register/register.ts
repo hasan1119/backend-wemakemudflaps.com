@@ -1,17 +1,12 @@
-import { DeepPartial, Repository } from "typeorm";
 import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
-import {
-  Permission,
-  PermissionName,
-} from "../../../../entities/permission.entity";
-import { Role } from "../../../../entities/user-role.entity";
-import { User } from "../../../../entities/user.entity";
+import { Role, User } from "../../../../entities";
 import {
   getRoleInfoByRoleNameFromRedis,
   getTotalUserCountByRoleIdFromRedis,
   getUserCountInDBFromRedis,
   getUserEmailFromRedis,
+  setPermissionAgainstRoleInRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
@@ -20,80 +15,61 @@ import {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserPermissionsByUserIdInRedis,
 } from "../../../../helper/redis";
 import {
   BaseResponseOrError,
-  CachedRoleInputs,
-  CachedUserPermissionsInputs,
-  CachedUserSessionByEmailKeyInputs,
   MutationRegisterArgs,
-  UserSession,
+  PermissionAgainstRoleInput,
+  RoleSession,
 } from "../../../../types";
 import HashInfo from "../../../../utils/bcrypt/hash-info";
-import { registerSchema } from "../../../../utils/data-validation";
+import type { PermissionName } from "../../../../utils/data-validation";
+import { PERMISSIONS, registerSchema } from "../../../../utils/data-validation";
 import SendEmail from "../../../../utils/email/send-email";
-
-// List of all possible permission names for the system
-const PermissionNames: PermissionName[] = [
-  "User",
-  "Brand",
-  "Category",
-  "Permission",
-  "Product",
-  "Product Review",
-  "Shipping Class",
-  "Sub Category",
-  "Tax Class",
-  "Tax Status",
-  "FAQ",
-  "News Letter",
-  "Pop Up Banner",
-  "Privacy & Policy",
-  "Terms & Conditions",
-  "Role",
-  "Order",
-  "Notification",
-  "Media",
-];
+import { mapRoleToResponse } from "../../../../utils/mapper";
+import {
+  countUsersWithRole,
+  createRole,
+  createUser,
+  deleteUser,
+  findRoleByName,
+  getUserCount,
+  getUserEmailOnly,
+} from "../../../services";
 
 /**
- * Registers a new user in the system.
+ * Handles user registration functionality.
  *
- * Steps:
- * - Validates input using Zod schema
- * - Checks Redis for user email, total user, count and user roles data to optimize performance via caching
- * - Registers the first user as a Super Admin if no users or Super Admin role exists
- * - Otherwise registers a user with a Customer role and sets default permissions
- * - Sends a account activation email
- * - Caches the necessary user's data, role, and permissions in Redis for future request
+ * Workflow:
+ * 1. Validates the registration input (firstName, lastName, email, password, gender) using Zod schema.
+ * 2. Checks Redis for cached user email to prevent duplicate registrations.
+ * 3. Hashes the password using bcrypt for secure storage.
+ * 4. Retrieves total user count from Redis or database to determine if this is the first user.
+ * 5. Assigns Super Admin role with full permissions for the first user, or Customer role with limited permissions for others.
+ * 6. Creates and caches the appropriate role (Super Admin or Customer) in Redis if it doesn't exist.
+ * 7. Creates the user with the assigned role and caches user data in Redis.
+ * 8. Generates and sends an account activation email with a unique link.
+ * 9. Updates user count and role-based user counts in Redis.
+ * 10. Returns a success response or deletes the user and returns an error if email sending fails.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for registration (firstName, lastName, email, password, gender)
- * @param context - GraphQL context with AppDataSource
- * @returns Promise<BaseResponseOrError> - Response status and message
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing firstName, lastName, email, password, and gender.
+ * @param __ - GraphQL context (unused here).
+ * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
  */
 export const register = async (
   _: any,
   args: MutationRegisterArgs,
-  { AppDataSource }: Context
+  __: Context
 ): Promise<BaseResponseOrError> => {
-  const { firstName, lastName, email, password, gender } = args;
-
   try {
-    // Validate input data using Zod schema
-    const validationResult = await registerSchema.safeParseAsync({
-      firstName,
-      lastName,
-      email,
-      password,
-      gender,
-    });
+    // Validate input data with Zod schema
+    const validationResult = await registerSchema.safeParseAsync(args);
 
-    // If validation fails, return detailed error messages with field names
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join("."), // Join path array to string for field identification
         message: error.message,
       }));
 
@@ -106,14 +82,13 @@ export const register = async (
       };
     }
 
-    // Initialize repositories
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
-    const permissionRepository: Repository<Permission> =
-      AppDataSource.getRepository(Permission);
+    const { firstName, lastName, email, password, gender } =
+      validationResult.data;
 
-    // Check Redis for cached user's email
-    let userEmail = await getUserEmailFromRedis(email);
+    // Attempt to retrieve cached user email from Redis
+    let userEmail;
+
+    userEmail = await getUserEmailFromRedis(email);
 
     if (userEmail) {
       return {
@@ -123,8 +98,9 @@ export const register = async (
         __typename: "BaseResponse",
       };
     } else {
-      // Cache miss: Fetch user from database
-      const dbUser = await userRepository.findOne({ where: { email } });
+      // On cache miss, query user email from database
+      const dbUser = await getUserEmailOnly(email);
+
       if (dbUser) {
         // Cache user email in Redis
         await setUserEmailInRedis(email, email);
@@ -138,111 +114,104 @@ export const register = async (
       }
     }
 
-    // Hash the password
+    // Hash the password using bcrypt
     const hashedPassword = await HashInfo(password);
 
-    // Check Redis for cached users count
-    let userCount = await getUserCountInDBFromRedis();
+    // Attempt to retrieve cached user count from Redis
+    let userCount;
+
+    userCount = await getUserCountInDBFromRedis();
 
     if (!userCount) {
-      // Cache miss: Fetch users count from database
-      userCount = await userRepository.count();
+      // On cache miss, fetch user count from database
+      userCount = await getUserCount();
     }
 
-    // Initiate the empty variable for the user role & super admin
+    // Initialize role variable
     let role;
 
     if (userCount === 0) {
-      // Check Redis for the super admin
+      // Attempt to retrieve Super Admin role from Redis
       role = await getRoleInfoByRoleNameFromRedis("SUPER ADMIN");
 
-      // Initiate the empty variable for the user count for super admin
+      // Initialize user count for Super Admin role
       let userCountForRole;
 
       if (!role) {
-        // Cache miss: Fetch role from database
-        role = await roleRepository.findOne({
-          where: { name: "SUPER ADMIN" },
-        });
+        // On cache miss, fetch Super Admin role from database
+        role = await findRoleByName("SUPER ADMIN");
 
         if (!role) {
-          // Create Super Admin role
-          const savedRole = roleRepository.create({
+          // Define full permissions for Super Admin
+          const superAdminPermissions = PERMISSIONS.map((name) => ({
+            name: name as PermissionName,
+            description: `${name} permission for Super Admin`,
+            canCreate: true,
+            canRead: true,
+            canUpdate: true,
+            canDelete: true,
+          }));
+
+          // Create Super Admin role with full permissions
+          const savedRole = await createRole({
             name: "SUPER ADMIN",
             description: "Has full control over all aspects of the platform.",
-            createdBy: null,
-          });
-          role = await roleRepository.save(savedRole);
+            defaultPermissions: superAdminPermissions,
+            systemDeleteProtection: true,
+            systemUpdateProtection: true,
+            systemPermanentDeleteProtection: true,
+            systemPermanentUpdateProtection: true,
+          } as Role);
+
+          role = savedRole;
+
+          // Cache role permissions in Redis
+          await setPermissionAgainstRoleInRedis(
+            role.id,
+            role.defaultPermissions
+          );
         }
 
-        // Check Redis for the user count with this role
-        userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
-
-        if (userCountForRole === 0) {
-          // Cache miss: Count users in database efficiently
-          userCountForRole = await userRepository.count({
-            where: { role: { id: role.id } },
-          });
-
-          // Cache user count with this role in Redis
-          await setTotalUserCountByRoleIdInRedis(role.id, userCountForRole);
-        }
-
-        // Create a new session for user role
-        const roleSession: CachedRoleInputs = {
-          id: role.id,
-          name: role.name,
-          description: role.description,
-          createdBy: role.createdBy,
-          createdAt: role.createdAt.toISOString(),
-          deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
-        };
-
-        // Cache user role info in Redis
+        // Cache Super Admin role data in Redis
         await Promise.all([
-          setRoleInfoByRoleNameInRedis(role.name, roleSession),
-          setRoleInfoByRoleIdInRedis(role.id, roleSession),
+          setRoleInfoByRoleNameInRedis(role.name, role),
+          setRoleInfoByRoleIdInRedis(role.id, role),
           setRoleNameExistInRedis(role.name),
         ]);
       }
 
+      // Retrieve user count for Super Admin role from Redis
+      userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
+
+      if (userCountForRole === 0) {
+        // On cache miss, count users with Super Admin role in database
+        userCountForRole = await countUsersWithRole(role.id);
+
+        // Cache user count for Super Admin role in Redis
+        await setTotalUserCountByRoleIdInRedis(role.id, userCountForRole);
+      }
+
       // Create Super Admin user
-      const newUser = userRepository.create({
+      const savedUser = (await createUser({
         firstName,
         lastName,
         email,
         password: hashedPassword,
         gender: gender || null,
-        role, // Assign the Role entity object
-      });
+        roles: [role], // expects an array of Role entities
+        canUpdatePermissions: false,
+        canUpdateRole: false,
+      })) as User;
 
-      const savedUser = await userRepository.save(newUser);
-
-      // Create permissions for Super Admin
-      const permissions = PermissionNames.map((name: PermissionName) =>
-        permissionRepository.create({
-          name,
-          description: `${name} permission for Super Admin`,
-          user: savedUser, // Assign user to each permission
-          createdBy: null, // Since no one created the first user
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        } as DeepPartial<Permission>)
-      );
-
-      const fullPermissions = await permissionRepository.save(permissions);
-
-      // Create the account activation link with user id
+      // Generate account activation link
       const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}&email=${email}`;
 
-      // Prepare email contents
+      // Prepare email content for activation
       const subject = "Account Activation Request";
       const text = `Please use the following link to active your account: ${activationLink}`;
       const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
 
-      // Attempt to send the reset email
+      // Attempt to send account activation email
       const emailSent = await SendEmail({
         to: email,
         subject,
@@ -250,66 +219,24 @@ export const register = async (
         html,
       });
 
-      // If email sending fails, return an error
+      // If email sending fails, delete the user and return error
       if (!emailSent) {
-        // Delete the newly created user's permissions & user
-        await Promise.all([
-          permissionRepository.delete({ user: savedUser }),
-          userRepository.delete({ id: savedUser.id }),
-        ]);
+        await Promise.all([deleteUser(savedUser.id)]);
 
         return {
           statusCode: 500,
           success: false,
-          message:
-            "Registration failed. Failed to send account activation email.",
+          message: "Registration failed. Failed to register account.",
           __typename: "BaseResponse",
         };
       }
 
-      // Create a new session for the user
-      const session: UserSession = {
-        id: savedUser.id,
-        firstName: savedUser.firstName,
-        lastName: savedUser.lastName,
-        email: savedUser.email,
-        gender: savedUser.gender,
-        role: savedUser.role.name,
-        emailVerified: savedUser.emailVerified,
-        isAccountActivated: savedUser.isAccountActivated,
-      };
-
-      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
-        id: savedUser.id,
-        firstName: savedUser.firstName,
-        lastName: savedUser.lastName,
-        email: savedUser.email,
-        emailVerified: savedUser.emailVerified,
-        gender: savedUser.gender,
-        role: savedUser.role.name,
-        password: savedUser.password,
-        isAccountActivated: savedUser.isAccountActivated,
-        tempUpdatedEmail: savedUser.tempUpdatedEmail,
-        tempEmailVerified: savedUser.tempEmailVerified,
-      };
-
-      const userPermissions: CachedUserPermissionsInputs[] =
-        fullPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
-
-      // Cache newly register user, user email, user role & his/her permissions for curd, and update use count and role-based user counts in Redis
+      // Cache user data, email, and update counts in Redis
       await Promise.all([
-        setUserInfoByUserIdInRedis(savedUser.id, session),
-        setUserInfoByEmailInRedis(email, userSessionByEmail),
+        setUserEmailInRedis(email, email),
+        setUserInfoByUserIdInRedis(savedUser.id, savedUser),
+        setUserInfoByEmailInRedis(email, savedUser),
         setUserCountInDBInRedis(userCount + 1),
-        setUserPermissionsByUserIdInRedis(savedUser.id, userPermissions),
         setTotalUserCountByRoleIdInRedis(role.id, userCountForRole + 1),
       ]);
 
@@ -321,160 +248,132 @@ export const register = async (
         __typename: "BaseResponse",
       };
     } else {
-      // Check Redis for for the super admin
+      // Attempt to retrieve Customer role from Redis
       role = await getRoleInfoByRoleNameFromRedis("CUSTOMER");
 
-      // Initiate the empty variable for the user count for super admin
+      // Initialize user count for Customer role
       let userCountForRole;
 
       if (!role) {
-        // Cache miss: Fetch user from database
-        role = await roleRepository.findOne({
-          where: { name: "CUSTOMER" },
-        });
+        // On cache miss, fetch Customer role from database
+        role = await findRoleByName("CUSTOMER");
+
+        const permissionAgainstRole: PermissionAgainstRoleInput[] =
+          PERMISSIONS.map((name: string) => {
+            let canCreate = false;
+            let canRead = true;
+            let canUpdate = false;
+            let canDelete = false;
+
+            switch (name) {
+              case "order":
+                canCreate = true;
+                canRead = true;
+                canDelete = true;
+                break;
+              case "product-review":
+                canCreate = true;
+                canRead = true;
+                canUpdate = true;
+                canDelete = true;
+                break;
+              case "notification":
+                canCreate = false;
+                canRead = true;
+                canUpdate = true;
+                canDelete = true;
+                break;
+              case "coupon":
+                canRead = true;
+                break;
+              case "permission":
+              case "news-letter":
+              case "user":
+              case "role":
+              case "media":
+                canRead = false;
+                break;
+              default:
+                break;
+            }
+
+            return {
+              name: name as PermissionName,
+              description: `${name} permission for Customer`,
+              canCreate,
+              canRead,
+              canUpdate,
+              canDelete,
+            };
+          });
 
         if (!role) {
-          // Create customer role
-          const savedRole = roleRepository.create({
+          // Create Customer role with default permissions
+          const savedRole = await createRole({
             name: "CUSTOMER",
             description:
               "Regular customers who can browse products, place orders, view their purchase history and other related things.",
-            createdBy: null,
-          });
-          role = await roleRepository.save(savedRole);
+            defaultPermissions: permissionAgainstRole,
+            systemDeleteProtection: true,
+            systemUpdateProtection: true,
+            systemPermanentDeleteProtection: true,
+            systemPermanentUpdateProtection: true,
+          } as Role);
+
+          role = savedRole;
+
+          // Cache Customer role permissions in Redis
+          await setPermissionAgainstRoleInRedis(
+            role.id,
+            role.defaultPermissions
+          );
         }
 
-        // Check Redis for the user count with this role
-        userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
+        // Create a new session for Customer role
+        const roleSession: RoleSession = await mapRoleToResponse(role);
 
-        if (userCountForRole === 0) {
-          // Cache miss: Count users in database efficiently
-          userCountForRole = await userRepository.count({
-            where: { role: { id: role.id } },
-          });
+        role = roleSession;
 
-          // Cache user count with this role in Redis
-          await setTotalUserCountByRoleIdInRedis(role.id, userCountForRole);
-        }
-
-        // Create a new session for user role
-        const roleSession: CachedRoleInputs = {
-          id: role.id,
-          name: role.name,
-          description: role.description,
-          createdBy: role.createdBy,
-          createdAt: role.createdAt.toISOString(),
-          deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
-        };
-
-        // Cache user role info in Redis
+        // Cache Customer role data in Redis
         await Promise.all([
-          setRoleInfoByRoleNameInRedis(role.name, roleSession),
-          setRoleInfoByRoleIdInRedis(role.id, roleSession),
+          setRoleInfoByRoleNameInRedis(role.name, role),
+          setRoleInfoByRoleIdInRedis(role.id, role),
           setRoleNameExistInRedis(role.name),
         ]);
       }
 
+      // Retrieve user count for Customer role from Redis
+      userCountForRole = await getTotalUserCountByRoleIdFromRedis(role.id);
+
+      if (userCountForRole === 0) {
+        // On cache miss, count users with Customer role in database
+        userCountForRole = await countUsersWithRole(role.id);
+
+        // Cache user count for Customer role in Redis
+        await setTotalUserCountByRoleIdInRedis(role.id, userCountForRole);
+      }
+
       // Create Customer user
-      const newUser = userRepository.create({
+      const savedUser = (await createUser({
         firstName,
         lastName,
         email,
         password: hashedPassword,
         gender: gender || null,
-        role,
-      });
+        roles: [role], // expects an array of Role entities
+        canUpdatePermissions: true,
+        canUpdateRole: true,
+      })) as User;
 
-      const savedUser = await userRepository.save(newUser);
-
-      // Assign CUSTOMER permissions
-      const customerPermissions = PermissionNames.map(
-        (name: PermissionName) => {
-          let canCreate = false;
-          let canRead = true;
-          let canUpdate = false;
-          let canDelete = false;
-
-          if (name === "Order") {
-            canCreate = true;
-            canRead = true;
-            canUpdate = false;
-            canDelete = true;
-          }
-          if (name === "Permission") {
-            canCreate = false;
-            canRead = false;
-            canUpdate = false;
-            canDelete = false;
-          }
-          if (name === "News Letter") {
-            canCreate = false;
-            canRead = false;
-            canUpdate = false;
-            canDelete = false;
-          }
-
-          if (name === "Product Review") {
-            canCreate = true;
-            canRead = true;
-            canUpdate = true;
-            canDelete = true;
-          }
-
-          if (name === "Notification") {
-            canCreate = false;
-            canRead = true;
-            canUpdate = true;
-            canDelete = true;
-          }
-
-          if (name === "User") {
-            canCreate = false;
-            canRead = false;
-            canUpdate = false;
-            canDelete = false;
-          }
-
-          if (name === "Role") {
-            canCreate = false;
-            canRead = false;
-            canUpdate = false;
-            canDelete = false;
-          }
-
-          if (name === "Media") {
-            canCreate = false;
-            canRead = false;
-            canUpdate = false;
-            canDelete = false;
-          }
-
-          return permissionRepository.create({
-            name,
-            description: `Access for ${name}`,
-            user: savedUser,
-            createdBy: null,
-            canCreate,
-            canRead,
-            canUpdate,
-            canDelete,
-          } as DeepPartial<Permission>);
-        }
-      );
-
-      const fullPermissions = await permissionRepository.save(
-        customerPermissions
-      );
-
-      // Create the account activation link with user id
+      // Generate account activation link
       const activationLink = `${CONFIG.FRONTEND_URL}/active-account/?userId=${savedUser.id}&email=${email}`;
 
-      // Prepare email contents
+      // Prepare email content for activation
       const subject = "Account Activation Request";
       const text = `Please use the following link to active your account: ${activationLink}`;
       const html = `<p>Please use the following link to active your account: <a href="${activationLink}">${activationLink}</a></p>`;
 
-      // Attempt to send the reset email
+      // Attempt to send account activation email
       const emailSent = await SendEmail({
         to: email,
         subject,
@@ -482,13 +381,9 @@ export const register = async (
         html,
       });
 
-      // If email sending fails, return an error
+      // If email sending fails, delete the user and return error
       if (!emailSent) {
-        // Delete the newly created user's permissions & user
-        await Promise.all([
-          permissionRepository.delete({ user: savedUser }),
-          userRepository.delete({ id: savedUser.id }),
-        ]);
+        await Promise.all([deleteUser(savedUser.id)]);
 
         return {
           statusCode: 500,
@@ -499,49 +394,12 @@ export const register = async (
         };
       }
 
-      // Create a new session for the user
-      const session: UserSession = {
-        id: savedUser.id,
-        firstName: savedUser.firstName,
-        lastName: savedUser.lastName,
-        email: savedUser.email,
-        gender: savedUser.gender,
-        role: savedUser.role.name,
-        emailVerified: savedUser.emailVerified,
-        isAccountActivated: savedUser.isAccountActivated,
-      };
-
-      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
-        id: savedUser.id,
-        firstName: savedUser.firstName,
-        lastName: savedUser.lastName,
-        email: savedUser.email,
-        emailVerified: savedUser.emailVerified,
-        gender: savedUser.gender,
-        role: savedUser.role.name,
-        password: savedUser.password,
-        isAccountActivated: savedUser.isAccountActivated,
-        tempUpdatedEmail: savedUser.tempUpdatedEmail,
-        tempEmailVerified: savedUser.tempEmailVerified,
-      };
-
-      const userPermissions: CachedUserPermissionsInputs[] =
-        fullPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
-
-      // Cache newly register user, user email, user role & his/her permissions for curd, and update use count and role-based user counts in Redis
+      // Cache user data, email, and update counts in Redis
       await Promise.all([
-        setUserInfoByUserIdInRedis(savedUser.id, session),
-        setUserInfoByEmailInRedis(email, userSessionByEmail),
+        setUserEmailInRedis(email, email),
+        setUserInfoByUserIdInRedis(savedUser.id, savedUser),
+        setUserInfoByEmailInRedis(email, savedUser),
         setUserCountInDBInRedis(userCount + 1),
-        setUserPermissionsByUserIdInRedis(savedUser.id, userPermissions),
         setTotalUserCountByRoleIdInRedis(role.id, userCountForRole + 1),
       ]);
 

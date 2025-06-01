@@ -2,19 +2,31 @@ import Redis from "ioredis";
 import { Pool } from "pg";
 
 // PostgreSQL configuration
+// const pgConfig = {
+//   user: "postgres",
+//   host: "techanalyzen.com",
+//   password: "password",
+//   port: 5432,
+//   database: "steven",
+// };
 const pgConfig = {
   user: "postgres",
-  host: "techanalyzen.com",
-  password: "password",
+  host: "127.0.0.1",
+  password: "Joy112233",
   port: 5432,
-  database: "steven",
+  database: "postgres",
 };
 
 // Redis configuration
+// const redisConfig = {
+//   host: "techanalyzen.com",
+//   port: 6379,
+//   password: "password",
+// };
 const redisConfig = {
-  host: "techanalyzen.com",
+  host: "127.0.0.1",
   port: 6379,
-  password: "password",
+  password: "",
 };
 
 async function resetTablesAndRedis() {
@@ -37,9 +49,15 @@ async function resetTablesAndRedis() {
       console.log("No tables found in steven database.");
     } else {
       // Define the specific order
-      const ordered = ["permission", "user", "role"];
-      const orderedTables = ordered.filter(t => tables.includes(t));
-      const otherTables = tables.filter(t => !ordered.includes(t));
+      const ordered = [
+        "permission",
+        "user_roles",
+        "role_permission",
+        "role",
+        "user",
+      ];
+      const orderedTables = ordered.filter((t) => tables.includes(t));
+      const otherTables = tables.filter((t) => !ordered.includes(t));
       const deletionOrder = [...orderedTables, ...otherTables];
 
       // Delete all rows from each table in the specified order

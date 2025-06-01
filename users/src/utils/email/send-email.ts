@@ -1,7 +1,7 @@
 import nodemailer, { Transporter } from "nodemailer";
 import config from "../../config/config";
 
-// Define the function's parameter types
+// Defines the structure for email options
 interface EmailOptions {
   to: string;
   text: string;
@@ -10,13 +10,19 @@ interface EmailOptions {
 }
 
 /**
- * Sends an email using nodemailer.
+ * Sends an email using nodemailer with configured SMTP settings.
  *
- * @param to - The recipient's email address.
- * @param text - The plain text content of the email.
- * @param subject - The subject of the email.
- * @param html - The HTML content of the email.
- * @returns {Promise<boolean>} - A promise that resolves to true if the email is sent successfully, or false if an error occurs.
+ * Workflow:
+ * 1. Creates a nodemailer transporter with SMTP host, port, and authentication details from config.
+ * 2. Constructs the email with provided options (to, subject, text, html).
+ * 3. Attempts to send the email and returns true on success or false on failure.
+ *
+ * @param options - Object containing email details.
+ * @param options.to - Recipient's email address.
+ * @param options.text - Plain text content of the email.
+ * @param options.subject - Subject of the email.
+ * @param options.html - HTML content of the email.
+ * @returns A promise resolving to true if the email is sent successfully, false otherwise.
  */
 const SendEmail = async ({
   to,

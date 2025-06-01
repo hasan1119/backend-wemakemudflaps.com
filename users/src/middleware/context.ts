@@ -3,6 +3,20 @@ import { getUserTokenInfoByUserIdFromRedis } from "../helper/redis";
 import { UserSession } from "../types";
 import DecodeToken from "../utils/jwt/decode-token";
 
+/**
+ * Generates the GraphQL context for each incoming request.
+ *
+ * Workflow:
+ * 1. Extracts the JWT token from the Authorization header and decodes it.
+ * 2. Retrieves the user session from Redis if a valid token is provided.
+ * 3. Constructs the context object with database, user, IP, Redis, and HTTP request/response details.
+ * 4. Ensures a valid context object is returned even if an error occurs.
+ *
+ * @param param0 - Object containing HTTP request and response objects.
+ * @param param0.req - The HTTP request object.
+ * @param param0.res - The HTTP response object.
+ * @returns A promise resolving to the context object for Apollo Server.
+ */
 const createContext = async ({ req, res }) => {
   try {
     let user: UserSession | null = null;
@@ -33,7 +47,7 @@ const createContext = async ({ req, res }) => {
   } catch (error) {
     console.error("Context error: ", error.message);
 
-    // ✅ Always return a valid object, even in case of an error
+    // Ensures a valid context object is returned on error
     return {
       AppDataSource,
       user: null,

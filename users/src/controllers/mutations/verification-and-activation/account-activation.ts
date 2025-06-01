@@ -1,57 +1,55 @@
-import { Repository } from "typeorm";
-
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { User } from "../../../entities/user.entity";
 import {
-  getUserInfoByEmailInRedis,
+  getUserInfoByEmailFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
 } from "../../../helper/redis";
 import {
   ActiveAccountResponseOrError,
-  CachedUserSessionByEmailKeyInputs,
   MutationAccountActivationArgs,
-  UserSession,
 } from "../../../types";
 import { emailSchema, idSchema } from "../../../utils/data-validation";
+import { activateUserAccount, getUserByEmail } from "../../services";
 
 /**
- * Activates a user account using the user ID from the activation link.
+ * Handles the activation of a user account using a provided user ID and email.
  *
- * Steps:
- * - Validates input using Zod schema
- * - Checks Redis for user data to optimize performance via caching
- * - Checks if the user exists
- * - Verifies if the account is already activated
- * - Updates the user's isAccountActivated status
- * - Updates necessary user data in redis for future request
+ * Workflow:
+ * 1. Validates input (userId and email) using Zod schemas.
+ * 2. Retrieves user data from Redis for performance optimization.
+ * 3. Fetches user data from the database if not found in Redis.
+ * 4. Verifies user existence and checks if the account is already activated.
+ * 5. Updates the user's account activation status in the database.
+ * 6. Caches updated user data in Redis for future requests.
+ * 7. Returns a success response or error if validation, user lookup, or activation fails.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for account activation (userId)
- * @param context - GraphQL context with AppDataSource
- * @returns Promise<ActiveAccountResponseOrError> - Response status and message
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing userId and email for account activation.
+ * @param __ - GraphQL context (unused here).
+ * @returns A promise resolving to an ActiveAccountResponseOrError object containing status, message, and errors if applicable.
  */
 export const accountActivation = async (
   _: any,
   args: MutationAccountActivationArgs,
-  { AppDataSource }: Context
+  __: Context
 ): Promise<ActiveAccountResponseOrError> => {
-  const { userId, email } = args;
-
   try {
-    // Validate input data using Zod schema
+    const { userId, email } = args;
+
+    // Validate input data with Zod schemas
     const [idResult, emailResult] = await Promise.all([
       idSchema.safeParseAsync({ id: userId }),
       emailSchema.safeParseAsync({ email }),
     ]);
 
+    // Return detailed validation errors if input is invalid
     if (!idResult.success || !emailResult.success) {
       const errors = [
         ...(idResult.error?.errors || []),
         ...(emailResult.error?.errors || []),
       ].map((e) => ({
-        field: e.path.join("."),
+        field: e.path.join("."), // Join path array to string for field identification
         message: e.message,
       }));
 
@@ -64,47 +62,27 @@ export const accountActivation = async (
       };
     }
 
-    // Initialize user repository
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
-
-    // Check Redis for cached user's data
+    // Attempt to retrieve cached user data from Redis
     let user;
 
-    user = await getUserInfoByEmailInRedis(email);
+    user = await getUserInfoByEmailFromRedis(email);
 
     if (!user) {
-      // Cache miss: Fetch user from database
-      user = await userRepository.findOne({
-        where: { id: userId, email, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          emailVerified: true,
-          gender: true,
-          role: {
-            name: true,
-          },
-          password: true,
-          isAccountActivated: true,
-          tempUpdatedEmail: true,
-          tempEmailVerified: true,
-        },
-      });
+      // On cache miss, fetch user data from database
+      user = await getUserByEmail(email);
 
       if (!user) {
         return {
           statusCode: 404,
           success: false,
-          message: "Authenticated user not found in database",
+          message:
+            "User not found in database with this associate with this activation link",
           __typename: "ErrorResponse",
         };
       }
     }
 
-    // Check if account is already activated
+    // Verify if account is already activated
     if (user.isAccountActivated) {
       return {
         statusCode: 400,
@@ -114,51 +92,13 @@ export const accountActivation = async (
       };
     }
 
-    // Update user account activation status
-    await userRepository.update(
-      { id: user.id },
-      { isAccountActivated: true, emailVerified: true }
-    );
+    // Activate user account in the database
+    const updatedUser = await activateUserAccount(user.id);
 
-    // Initiate the empty variable for the user role
-    let roleName;
-
-    if (typeof user.role !== "string") {
-      roleName = user.role.name; // Safe update
-    } else {
-      roleName = user.role; // Direct assignment
-    }
-
-    // Update Redis cache
-    const userCacheData: UserSession = {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      gender: user.gender,
-      role: roleName,
-      emailVerified: true,
-      isAccountActivated: true,
-    };
-
-    const userEmailCacheData: CachedUserSessionByEmailKeyInputs = {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      emailVerified: true,
-      gender: user.gender,
-      role: roleName,
-      password: user.password,
-      isAccountActivated: true,
-      tempUpdatedEmail: user.tempUpdatedEmail,
-      tempEmailVerified: user.tempEmailVerified,
-    };
-
-    // Cache user for curd in Redis
+    // Cache updated user data in Redis
     await Promise.all([
-      setUserInfoByEmailInRedis(user.email, userEmailCacheData),
-      setUserInfoByUserIdInRedis(user.id, userCacheData),
+      setUserInfoByUserIdInRedis(user.id, updatedUser),
+      setUserInfoByEmailInRedis(user.email, updatedUser),
     ]);
 
     return {

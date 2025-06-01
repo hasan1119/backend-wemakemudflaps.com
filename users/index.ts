@@ -2,20 +2,26 @@ import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import "reflect-metadata";
-// import { seedRoles } from "./seed-data/user-role";
 import CONFIG from "./src/config/config";
 import { connectDB } from "./src/helper";
 import { resolvers } from "./src/helper/combine/resolver";
 import { typeDefs } from "./src/helper/combine/schema";
 import createContext from "./src/middleware/context";
 
+/**
+ * Initializes and starts the Apollo GraphQL Subgraph server.
+ *
+ * Workflow:
+ * 1. Establishes a connection to the database.
+ * 2. Creates an ApolloServer instance with a subgraph schema built from typeDefs and resolvers.
+ * 3. Starts the server on the configured port with the provided context function.
+ * 4. Logs the subgraph URL on successful startup or errors if startup fails.
+ */
 async function startApolloServer() {
-  // Connect to the database
+  // Initialize database connection
   await connectDB();
 
-  // await seedRoles();
-
-  // Create the Apollo Server instance with subgraph schema
+  // Create Apollo Server instance
   const server = new ApolloServer({
     schema: buildSubgraphSchema([{ typeDefs, resolvers }]),
   });
@@ -24,6 +30,7 @@ async function startApolloServer() {
   const subgraphName = CONFIG.SUB_GRAPH_NAME;
 
   try {
+    // Start server and log URL
     const { url } = await startStandaloneServer(server, {
       context: createContext,
       listen: { port },

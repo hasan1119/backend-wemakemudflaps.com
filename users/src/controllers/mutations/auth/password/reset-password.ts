@@ -1,50 +1,46 @@
-import { Repository } from "typeorm";
 import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
-import { User } from "../../../../entities/user.entity";
 import { setUserInfoByEmailInRedis } from "../../../../helper/redis";
 import {
   BaseResponseOrError,
-  CachedUserSessionByEmailKeyInputs,
   MutationResetPasswordArgs,
 } from "../../../../types";
-import HashInfo from "../../../../utils/bcrypt/hash-info";
 import { resetPasswordSchema } from "../../../../utils/data-validation";
+import {
+  clearResetToken,
+  getUserByPasswordResetToken,
+  updateUserPasswordAndClearToken,
+} from "../../../services";
 
 /**
- * Handles resetting the user's password using a token.
+ * Handles user password reset using a provided token.
  *
- * Steps:
- * - Validates input using Zod schema
- * - Finds the user with the given token
- * - Validates token expiry
- * - Hashes the new password and updates the user's password
- * - Clears the reset token and expiry after successful update
- * - Updates necessary user data in redis for future request
+ * Workflow:
+ * 1. Validates input (token and newPassword) using Zod schema.
+ * 2. Retrieves user data from the database using the provided reset token.
+ * 3. Checks if the reset token is valid and not expired.
+ * 4. Updates the user's password and clears the reset token and expiry.
+ * 5. Caches updated user data in Redis for future requests.
+ * 6. Returns a success response or error if validation, token, or update fails.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for reset password request (token and newPassword)
- * @param context - GraphQL context with AppDataSource
- * @returns Promise<BaseResponseOrError> - Response status and message
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing the reset token and new password.
+ * @param __ - GraphQL context (unused here).
+ * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
  */
 export const resetPassword = async (
   _: any,
   args: MutationResetPasswordArgs,
-  { AppDataSource }: Context
+  __: Context
 ): Promise<BaseResponseOrError> => {
-  const { token, newPassword } = args;
-
   try {
-    // Validate input data using Zod schema
-    const validationResult = await resetPasswordSchema.safeParseAsync({
-      token,
-      newPassword,
-    });
+    // Validate input data with Zod schema
+    const validationResult = await resetPasswordSchema.safeParseAsync(args);
 
-    // If validation fails, return detailed error messages with field names
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join("."), // Join path array to string for field identification
         message: error.message,
       }));
 
@@ -57,31 +53,10 @@ export const resetPassword = async (
       };
     }
 
-    // Initialize repositories
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+    const { token, newPassword } = validationResult.data;
 
-    // Fetch user from database
-    const user = await userRepository.findOne({
-      where: { resetPasswordToken: token, deletedAt: null },
-      relations: ["role"],
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        emailVerified: true,
-        gender: true,
-        role: {
-          name: true,
-        },
-        password: true,
-        resetPasswordToken: true,
-        resetPasswordTokenExpiry: true,
-        isAccountActivated: true,
-        tempUpdatedEmail: true,
-        tempEmailVerified: true,
-      },
-    });
+    // Fetch user from database using the reset token
+    const user = await getUserByPasswordResetToken(token);
 
     if (!user) {
       return {
@@ -92,56 +67,27 @@ export const resetPassword = async (
       };
     }
 
-    if (!user || !user.resetPasswordTokenExpiry) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: "Invalid or expired password reset token",
-        __typename: "BaseResponse",
-      };
-    }
-
-    const isExpired = new Date(user.resetPasswordTokenExpiry) < new Date();
-
-    if (isExpired) {
-      // Optionally: clear expired token
-      user.resetPasswordToken = null;
-      user.resetPasswordTokenExpiry = null;
-
-      await userRepository.save(user);
+    // Verify if the reset token is still valid and not expired
+    if (new Date(user.resetPasswordTokenExpiry) < new Date()) {
+      // Clear expired token and related data
+      await clearResetToken(user);
 
       return {
         statusCode: 400,
         success: false,
-        message: "Password reset token has expired",
+        message: "Password reset token has expired. Please try again.",
         __typename: "BaseResponse",
       };
     }
 
-    const hashedPassword = await HashInfo(newPassword);
+    // Update user's password and clear reset token
+    const updatedUser = await updateUserPasswordAndClearToken(
+      user,
+      newPassword
+    );
 
-    user.password = hashedPassword;
-    user.resetPasswordToken = null;
-    user.resetPasswordTokenExpiry = null;
-
-    const updatedUser = await userRepository.save(user);
-
-    const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
-      id: updatedUser.id,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      email: updatedUser.email,
-      emailVerified: updatedUser.emailVerified,
-      gender: updatedUser.gender,
-      role: updatedUser.role.name,
-      password: updatedUser.password,
-      isAccountActivated: updatedUser.isAccountActivated,
-      tempUpdatedEmail: updatedUser.tempUpdatedEmail,
-      tempEmailVerified: updatedUser.tempEmailVerified,
-    };
-
-    // Cache user in Redis
-    await setUserInfoByEmailInRedis(updatedUser.email, userSessionByEmail);
+    // Cache updated user data in Redis
+    await setUserInfoByEmailInRedis(updatedUser.email, updatedUser);
 
     return {
       statusCode: 200,

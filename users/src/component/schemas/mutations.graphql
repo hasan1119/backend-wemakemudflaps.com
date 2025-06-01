@@ -1,115 +1,128 @@
-# Mutations to modify user data.
+# Root Mutation type defining all user-related operations.
 type Mutation {
   # Register a new user.
-  # This mutation allows the creation of a new user by providing necessary details like first name, last name, email, password, and optional gender.
-  # The response will include a `BaseResponseOrError` containing the success or failure of the operation.
+  # Allows a new user to create an account by submitting their personal details.
+  # Input includes user's first name, last name, unique email, and a secure password.
+  # Gender is optional. The password is securely hashed server-side before storage.
+  # Response returns a status indicating success or failure of registration.
   register(
-    firstName: String! # The first name of the user.
-    lastName: String! # The last name of the user.
-    email: String! # The email address of the user. Must be unique.
-    password: String! # The password for the user (hashed on the server).
-    gender: String # The gender of the user (optional, default could be null or unspecified).
-  ): BaseResponseOrError! # Returns success or error response with status.
-  # Log in an existing user.
-  # This mutation allows users to log in by providing their email and password.
-  # The response will include a `UserLoginResponseOrError` containing an authentication token and user data.
+    firstName: String! # User's first name (required).
+    lastName: String! # User's last name (required).
+    email: String! # Unique email address of the user (required).
+    password: String! # User's raw password to be hashed by server (required).
+    gender: Gender # Optional gender of the user.
+  ): BaseResponseOrError!
+
+  # Authenticate and log in an existing user.
+  # Accepts the user's registered email and password to generate a login session.
+  # On success, returns a token along with the user's profile details.
   login(
-    email: String! # The email address of the user.
-    password: String! # The user's password.
-  ): UserLoginResponseOrError! # Returns a token and user data on successful login.
-  # Update an existing user's information.
-  # This mutation allows modification of an existing user's data such as name, email, or gender.
-  # The user must be identified by their unique `id`.
-  # The response will contain a `UserProfileUpdateResponse` indicating the success or failure of the operation.
+    email: String! # Registered email address of the user.
+    password: String! # User's login password.
+  ): UserLoginResponseOrError!
+
+  # Update the profile of the currently authenticated user.
+  # Allows partial updates to fields like first name, last name, email, or gender.
+  # Returns a response with the updated profile or error if operation fails.
   updateProfile(
-    id: ID! # The unique ID of the user to be updated.
-    firstName: String # The updated first name of the user (optional).
-    lastName: String # The updated last name of the user (optional).
-    email: String # The updated email of the user (optional).
-    gender: String # The updated gender of the user (optional).
-  ): UserProfileUpdateResponseOrError! # Returns updated user info or error message.
-  # Change a user's password.
-  # This mutation allows a user to change their password by providing their current and new password.
-  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+    firstName: String # New first name of the user.
+    lastName: String # New last name of the user.
+    email: String # New email address of the user.
+    gender: Gender # New gender value.
+  ): UserProfileUpdateResponseOrError!
+
+  # Change the currently authenticated user's password.
+  # Requires old (current) password and new password for verification.
+  # Validates old password and applies new password after hashing.
   changePassword(
-    oldPassword: String! # The current password of the user.
-    newPassword: String! # The new password to replace the old one.
-  ): BaseResponseOrError! # Returns success or failure of password change.
-  # Request a password reset email.
-  # This mutation sends a password reset email to the user’s registered email address if it exists in the system.
-  # The response will include a `BaseResponseOrError` indicating success or failure.
+    oldPassword: String! # User's current password (required for verification).
+    newPassword: String! # New password to replace the old one.
+  ): BaseResponseOrError!
+
+  # Initiate password reset flow via email.
+  # Sends a password reset link to the user's registered email if valid.
   forgetPassword(
-    email: String! # The email address of the user requesting password reset.
-  ): BaseResponseOrError! # Returns success or failure of password reset request.
-  # Reset password using token.
-  # This mutation allows a user to reset their password by providing a valid reset token and the new password.
-  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+    email: String! # Registered email address to send reset link.
+  ): BaseResponseOrError!
+
+  # Complete password reset using a secure token.
+  # The user provides a token received in email and the new password.
+  # If token is valid and not expired, the password is updated.
   resetPassword(
-    token: String! # The token received in the password reset email.
-    newPassword: String! # The new password to set.
-  ): BaseResponseOrError! # Returns success or failure of password reset.
-  # Update user role by authorized user.
-  # This mutation allows authorized users (admins or super admins) to update other users' roles.
-  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+    token: String! # Token from password reset email.
+    newPassword: String! # New password to set for the user.
+  ): BaseResponseOrError!
+
+  # Update the roles assigned to a specific user.
+  # Only accessible by authorized users (admin/super admin).
+  # Can add or remove multiple roles. May require password for non-super admin.
   updateUserRole(
-    roleId: String! # The ID of the new role to assign.
-    userId: String! # The unique ID of the user whose role is to be updated.
-    password: String # Password required for non-SUPER ADMIN users.
-  ): BaseResponseOrError! # Returns success or failure of the role update.
-  # Soft delete a user role by ID.
-  # This mutation allows authorized users (admins or super admins) to delete a user role by providing the unique ID.
-  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+    roleAddIds: [String] # List of Role IDs to be added to the user.
+    roleRemoveIds: [String] # List of Role IDs to be removed from the user.
+    userId: String! # Target user's ID whose roles are being updated.
+    password: String # Optional: password confirmation for non-super admins.
+  ): BaseResponseOrError!
+
+  # Soft delete one or more user roles.
+  # Only accessible by admin or super admin.
+  # If `skipTrash` is true, deletes permanently unless protected.
   deleteUserRole(
-    ids: [ID!]! # The unique IDs of the user roles to be soft-deleted.
-    skipTrash: Boolean! # If true, permanently deletes instead of soft deleting
-    password: String # Password required for non-SUPER ADMIN users.
-  ): BaseResponseOrError! # Returns success or failure of the role deletion.
-  # Restore a soft-deleted user role by ID.
-  # This mutation allows authorized users (admins or super admins) to restore a soft-deleted user role by providing the unique IDs.
-  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+    ids: [ID!]! # List of Role IDs to be deleted.
+    skipTrash: Boolean! # If true, permanently deletes instead of soft-deleting.
+    password: String # Optional: required for non-super admins.
+  ): BaseResponseOrError!
+
+  # Restore previously soft-deleted user roles.
+  # Only accessible by authorized users.
   restoreUserRole(
-    ids: [ID!]! # The unique IDs of the user roles to be restored.
-  ): BaseResponseOrError! # Returns success or failure of the role restoration.
-  # Permanently delete a soft-deleted user role from the trash by ID.
-  # This mutation allows authorized users (admins or super admins) to permanently delete a soft-deleted user role by providing the unique IDs.
-  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
-  deleteUserRoleFromTrash(
-    ids: [ID!]! # The unique IDs of the soft-deleted user roles to be permanently deleted.
-  ): BaseResponseOrError! # Returns success or failure of the role deletion.
-  # Create a new user role.
-  # This mutation allows authorized users (admins or super admins) to create new roles for other users.
-  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+    ids: [ID!]! # List of soft-deleted role IDs to be restored.
+  ): BaseResponseOrError!
+
+  # Create a new role for users.
+  # Admins or super admins can define custom roles with associated permissions.
+  # Optional system-level protection flags restrict updates/deletion.
   createUserRole(
-    name: String! # The name of the new user role to be created.
-    description: String # The description associated with the role (optional).
-  ): BaseResponseOrError! # Returns success or failure of role creation.
-  # Update existing user role info.
-  # This mutation allows authorized users (admins or super admins) to update existing roles for other users.
-  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+    name: String! # Name of the role to create (must be unique).
+    description: String # Optional description for the role.
+    defaultPermissions: [RolePermissionInput!] # Permissions assigned by default.
+    systemDeleteProtection: Boolean # If true, prevents soft delete except by Super Admin.
+    systemUpdateProtection: Boolean # If true, prevents update except by Super Admin.
+    systemPermanentDeleteProtection: Boolean # If true, prevents permanent deletion.
+    systemPermanentUpdateProtection: Boolean # If true, prevents permanent update.
+  ): BaseResponseOrError!
+
+  # Update an existing user role's information.
+  # Allows updating role name, description, permissions, or system-level flags.
+  # Requires the role ID and may require password for non-super admins.
   updateUserRoleInfo(
-    id: ID! # The unique ID of the user role to be updated.
-    name: String! # The name of the new user role.
-    description: String # The description associated with the role (optional).
-    password: String # Password required for non-SUPER ADMIN users.
-  ): BaseResponseOrError! # Returns success or failure of role update.
-  # Update existing user permissions for CRUD operations.
-  # This mutation allows authorized users (admins or super admins) to update existing permissions for other users.
-  # The response will include a `BaseResponseOrError` indicating success or failure of the operation.
+    id: ID! # Unique ID of the role to update.
+    name: String # New name for the role.
+    description: String # New description for the role.
+    defaultPermissions: [RolePermissionInput!] # Updated list of default permissions.
+    systemDeleteProtection: Boolean # Update soft delete protection flag.
+    systemUpdateProtection: Boolean # Update edit protection flag.
+    systemPermanentDeleteProtection: Boolean # Update permanent delete protection flag.
+    systemPermanentUpdateProtection: Boolean # Update permanent update protection flag.
+    password: String # Optional: required for non-super admins.
+  ): BaseResponseOrError!
+
+  # Update a user's permissions manually.
+  # Only available to admins or super admins to override role-based access control.
   updateUserPermission(
-    input: UpdateUserPermissionInput! # The input data for updating user permissions (such as permissions to create, read, update, delete).
-  ): BaseResponseOrError! # Returns success or failure of permission update.
-  # User email verification.
-  # This mutation allows a user to verify their email using a user ID from the verification link.
-  # The response will include a EmailVerificationResponseOrError indicating success or failure of the operation.
+    input: UpdateUserPermissionInput! # Input object containing permission updates.
+  ): BaseResponseOrError!
+
+  # Verify user's email using a verification link.
+  # Usually triggered from an email sent during registration.
   verifyEmail(
-    userId: ID! # The unique identifier of the user to verify their email.
-    email: String! # The email of the user to verify.
-  ): EmailVerificationResponseOrError! # Returns success or failure of the operation.
-  # User account activation.
-  # This mutation allows a user to verify their account using a user ID from the verification link.
-  # The response will include a BaseResponseOrError indicating success or failure of the operation.
+    userId: ID! # User ID provided in verification email.
+    email: String! # User's email to verify.
+  ): EmailVerificationResponseOrError!
+
+  # Activate a user account via email verification.
+  # This is similar to verifyEmail, but may include additional checks or updates.
   accountActivation(
-    userId: ID! # The unique identifier of the user to verify their account.
-    email: String! # The email of the user to verify their account.
-  ): ActiveAccountResponseOrError! # Returns success or failure of the operation.
+    userId: ID! # User ID provided in activation email.
+    email: String! # User's email associated with account.
+  ): ActiveAccountResponseOrError!
 }

@@ -1,170 +1,75 @@
-import { Repository } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Permission } from "../../../entities/permission.entity";
-import { Role } from "../../../entities/user-role.entity";
-import { User } from "../../../entities/user.entity";
+import { RolePermission } from "../../../entities";
 import {
   getRoleNameExistFromRedis,
-  getUserInfoByUserIdFromRedis,
-  getUserPermissionsByUserIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
-  setUserInfoByUserIdInRedis,
-  setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
 import {
   BaseResponseOrError,
-  CachedRoleInputs,
-  CachedUserPermissionsInputs,
   MutationCreateUserRoleArgs,
-  UserSession,
 } from "../../../types";
-import { userRoleSchema } from "../../../utils/data-validation";
-import { checkUserAuth } from "../../session-check/session-check";
+import { PERMISSIONS, userRoleSchema } from "../../../utils/data-validation";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  createRole,
+  findRoleByName,
+} from "../../services";
 
 /**
- * Creates a new user role in the system.
+ * Handles the creation of a new user role in the system.
  *
- * Steps:
- * - Validates input using Zod schema
- * - Authenticates user and checks role creation permission
- * - Checks Redis for role data to optimize performance via caching
- * - Prevents duplicate role creation using Redis and DB checks
- * - Saves role to the database with audit information
- * - Caches created role and updates role name existence in Redis for future request
+ * Workflow:
+ * 1. Verifies user authentication and permission to create roles.
+ * 2. Validates input (name, description, defaultPermissions, system protections) using Zod schema.
+ * 3. Checks Redis for existing role name to prevent duplicates.
+ * 4. Queries the database for role existence if not found in Redis.
+ * 5. Normalizes provided permissions to include all required permissions with defaults.
+ * 6. Creates the role in the database with audit information from the authenticated user.
+ * 7. Caches the new role and its name existence in Redis for future requests.
+ * 8. Returns a success response or error if validation, permission, or creation fails.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for role creation input (name, description)
- * @param context - GraphQL context with AppDataSource, Redis, and user info
- * @returns Promise<BaseResponseOrError> - Response status and message
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing role name, description, permissions, and system protections.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
  */
 export const createUserRole = async (
   _: any,
   args: MutationCreateUserRoleArgs,
-  { AppDataSource, user }: Context
+  { user }: Context
 ): Promise<BaseResponseOrError> => {
-  const { name, description } = args;
-
   try {
-    // Check user authentication
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Initialize repositories for Role, Permission, and User entities
-    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
-    const permissionRepository: Repository<Permission> =
-      AppDataSource.getRepository(Permission);
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+    // Check if user has permission to create a role
+    const canCreate = await checkUserPermission({
+      action: "canCreate",
+      entity: "role",
+      user,
+    });
 
-    // Check Redis for cached user's data
-    let userData;
-
-    userData = await getUserInfoByUserIdFromRedis(user.id);
-
-    if (!userData) {
-      // Cache miss: Fetch user from database
-      const dbUser = await userRepository.findOne({
-        where: { id: user.id, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          gender: true,
-          role: {
-            name: true,
-          },
-          emailVerified: true,
-          isAccountActivated: true,
-        },
-      });
-
-      if (!dbUser) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Authenticated user not found in database",
-          __typename: "ErrorResponse",
-        };
-      }
-
-      const userSession: UserSession = {
-        id: dbUser.id,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        email: dbUser.email,
-        gender: dbUser.gender,
-        role: dbUser.role.name,
-        emailVerified: dbUser.emailVerified,
-        isAccountActivated: dbUser.isAccountActivated,
-      };
-
-      userData = userSession;
-
-      // Cache user in Redis
-      await setUserInfoByUserIdInRedis(user.email, userSession);
-    }
-
-    // Check Redis for cached user permissions
-    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
-
-    if (!userPermissions) {
-      // Cache miss: Fetch permissions from database, selecting only necessary fields
-      userPermissions = await permissionRepository.find({
-        where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
-      });
-
-      const fullPermissions: CachedUserPermissionsInputs[] =
-        userPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
-
-      // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(userData.id, fullPermissions);
-    }
-
-    // Check if the user has the "canCreate" permission for roles
-    const canCreateRole = userPermissions.some(
-      (permission) => permission.name === "Role" && permission.canCreate
-    );
-
-    if (!canCreateRole) {
+    if (!canCreate) {
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to create roles",
+        message: "You do not have permission to create role",
         __typename: "BaseResponse",
       };
     }
 
-    // Validate input data using Zod schema
-    const validationResult = await userRoleSchema.safeParseAsync({
-      name,
-      description,
-    });
+    // Validate input data with Zod schema
+    const validationResult = await userRoleSchema.safeParseAsync(args);
 
-    // If validation fails, return detailed error messages
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join("."), // Join path array to string for field identification
         message: error.message,
       }));
 
@@ -177,17 +82,27 @@ export const createUserRole = async (
       };
     }
 
-    // Check Redis for cached role
+    const {
+      name,
+      description,
+      defaultPermissions,
+      systemDeleteProtection,
+      systemUpdateProtection,
+      systemPermanentDeleteProtection,
+      systemPermanentUpdateProtection,
+    } = validationResult.data;
+
+    // Attempt to check for existing role in Redis
     let roleExists;
 
     roleExists = await getRoleNameExistFromRedis(name);
 
     if (!roleExists) {
-      // Cache miss: Check database for role existence
-      await roleRepository.findOne({ where: { name: name.toUpperCase() } });
+      // On cache miss, check database for role existence
+      roleExists = await findRoleByName(name);
 
       if (roleExists) {
-        // Cache the fact that this role exists in Redis
+        // Cache role existence in Redis
         await setRoleNameExistInRedis(name);
 
         return {
@@ -206,44 +121,62 @@ export const createUserRole = async (
       };
     }
 
-    // Create the new role with the full User entity as createdBy
-    const role = roleRepository.create({
-      name: name.toUpperCase(),
-      description: description || null,
-      createdBy: userData,
+    // Normalize permissions by ensuring all required permissions are included
+    const incomingPermissionsMap = new Map<string, RolePermission>();
+
+    defaultPermissions?.forEach((perm: any) => {
+      if (PERMISSIONS.includes(perm.name as PermissionName)) {
+        incomingPermissionsMap.set(perm.name, {
+          name: perm.name,
+          description:
+            perm.description ??
+            `${perm.name.toLowerCase()} permission for ${name}`,
+          canCreate: perm.canCreate ?? false,
+          canRead: perm.canRead ?? false,
+          canUpdate: perm.canUpdate ?? false,
+          canDelete: perm.canDelete ?? false,
+        } as RolePermission);
+      }
     });
 
-    // Save the role to the database
-    const savedRole = await roleRepository.save(role);
+    // Create complete permissions array with defaults for missing permissions
+    const completePermissions: RolePermission[] = PERMISSIONS.map(
+      (permName) => {
+        const perm = incomingPermissionsMap.get(permName as PermissionName);
+        if (perm) {
+          return perm;
+        }
+        // Provide default values for all required RolePermission fields
+        return {
+          name: permName,
+          description: `${permName.toLowerCase()} permission for ${name}`,
+          canCreate: false,
+          canRead: false,
+          canUpdate: false,
+          canDelete: false,
+        } as RolePermission;
+      }
+    );
 
-    // Initiate the empty variable for the user role
-    let roleName;
-
-    if (typeof userData.role !== "string") {
-      roleName = userData.role.name; // Safe update
-    } else {
-      roleName = userData.role; // Direct assignment
-    }
-
-    // Create a new session for user role
-    const roleSession: CachedRoleInputs = {
-      id: savedRole.id,
-      name: savedRole.name,
-      description: savedRole.description,
-      createdBy: {
-        id: userData.id,
-        name: userData.firstName + " " + userData.lastName,
-        role: roleName,
+    // Create the role in the database with audit information
+    const role = await createRole(
+      {
+        name,
+        description,
+        defaultPermissions: completePermissions || [],
+        systemDeleteProtection,
+        systemUpdateProtection,
+        systemPermanentDeleteProtection,
+        systemPermanentUpdateProtection,
       },
-      createdAt: savedRole.createdAt.toISOString(),
-      deletedAt: savedRole.deletedAt ? savedRole.deletedAt.toISOString() : null,
-    };
+      user.id
+    );
 
-    // Cache newly user role & name existence in Redis
+    // Cache the new role and its name existence in Redis
     await Promise.all([
-      setRoleInfoByRoleIdInRedis(savedRole.id, roleSession),
-      setRoleInfoByRoleNameInRedis(savedRole.name, roleSession),
-      setRoleNameExistInRedis(savedRole.name),
+      setRoleInfoByRoleIdInRedis(role.id, role),
+      setRoleInfoByRoleNameInRedis(role.name, role),
+      setRoleNameExistInRedis(role.name),
     ]);
 
     return {

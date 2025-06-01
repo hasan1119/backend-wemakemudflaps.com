@@ -1,346 +1,91 @@
-import { Repository } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { Permission } from "../../../entities/permission.entity";
 import {
-  Permission,
-  PermissionName,
-} from "../../../entities/permission.entity";
-import { User } from "../../../entities/user.entity";
-import {
-  getUserInfoByEmailInRedis,
-  getUserInfoByUserIdFromRedis,
-  getUserPermissionsByUserIdFromRedis,
+  getUserInfoByEmailFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
   setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
 import {
   BaseResponseOrError,
-  CachedUserPermissionsInputs,
-  CachedUserSessionByEmailKeyInputs,
   MutationUpdateUserPermissionArgs,
-  UserSession,
 } from "../../../types";
 import CompareInfo from "../../../utils/bcrypt/compare-info";
-import { updateUserPermissionSchema } from "../../../utils/data-validation";
-import { PermissionEnum } from "../../../utils/data-validation/permission/permission";
-import { checkUserAuth } from "../../session-check/session-check";
-
-// Define allowed permissions
-const ROLE_PERMISSIONS: {
-  [key: string]: {
-    read: PermissionName[];
-    create: PermissionName[];
-    update: PermissionName[];
-    delete: PermissionName[];
-  };
-} = {
-  CUSTOMER: {
-    read: [
-      "Brand",
-      "Category",
-      "Product",
-      "Product Review",
-      "Shipping Class",
-      "Sub Category",
-      "Tax Class",
-      "Tax Status",
-      "FAQ",
-      "Pop Up Banner",
-      "Privacy & Policy",
-      "Terms & Conditions",
-      "Order",
-      "Notification",
-    ],
-    create: ["Order", "Notification"],
-    update: ["Product Review", "Notification"],
-    delete: ["Order", "Product Review", "Notification"],
-  },
-  "INVENTORY MANAGER": {
-    read: [
-      "Brand",
-      "Category",
-      "Product",
-      "Product Review",
-      "Shipping Class",
-      "Sub Category",
-      "Tax Class",
-      "Tax Status",
-    ],
-    create: [
-      "Brand",
-      "Category",
-      "Sub Category",
-      "Product",
-      "Tax Class",
-      "Tax Status",
-    ],
-    update: [
-      "Brand",
-      "Category",
-      "Sub Category",
-      "Product",
-      "Tax Class",
-      "Tax Status",
-    ],
-    delete: [
-      "Brand",
-      "Category",
-      "Sub Category",
-      "Product",
-      "Tax Class",
-      "Tax Status",
-    ],
-  },
-  ADMIN: {
-    read: [
-      "Brand",
-      "Category",
-      "Product",
-      "Product Review",
-      "Shipping Class",
-      "Sub Category",
-      "Tax Class",
-      "Tax Status",
-      "FAQ",
-      "Pop Up Banner",
-      "Privacy & Policy",
-      "Terms & Conditions",
-      "Order",
-      "Notification",
-      "User",
-      "Permission",
-      "Role",
-    ],
-    create: [
-      "Brand",
-      "Category",
-      "Sub Category",
-      "Product",
-      "Tax Class",
-      "Tax Status",
-      "FAQ",
-      "Pop Up Banner",
-      "Privacy & Policy",
-      "Terms & Conditions",
-      "Order",
-      "Notification",
-      "User",
-      "Permission",
-      "Role",
-    ],
-    update: [
-      "Brand",
-      "Category",
-      "Sub Category",
-      "Product",
-      "Tax Class",
-      "Tax Status",
-      "FAQ",
-      "Pop Up Banner",
-      "Privacy & Policy",
-      "Terms & Conditions",
-      "Order",
-      "Notification",
-      "User",
-      "Permission",
-      "Role",
-    ],
-    delete: [
-      "Brand",
-      "Category",
-      "Sub Category",
-      "Product",
-      "Tax Class",
-      "Tax Status",
-      "FAQ",
-      "Pop Up Banner",
-      "Privacy & Policy",
-      "Terms & Conditions",
-      "Order",
-      "Notification",
-      "User",
-      "Permission",
-      "Role",
-    ],
-  },
-};
+import {
+  PermissionName,
+  PERMISSIONS,
+  updateUserPermissionSchema,
+} from "../../../utils/data-validation";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  deleteUserSpecificPermission,
+  getPermissionsByUserId,
+  getUserById,
+  updateUserSpecificPermission,
+} from "../../services";
 
 /**
- * Updates the permissions of a specified user with validation and permission checks.
+ * Handles updating a user's permissions with validation and permission checks.
  *
- * Steps:
- * - Validates input using Zod schema
- * - Authenticates user and checks permission update authorization
- * - Requires password for non-SUPER ADMIN users and validates it
- * - Checks Redis for user and permission data to optimize performance
- * - Prevents changes to SUPER ADMIN permissions
- * - Prevents ADMIN from changing another ADMIN's permissions
- * - Allows SUPER ADMIN to change any permissions without password
- * - Updates existing permissions or creates new ones based on accessAll, deniedAll, or custom permissions
- * - Preserves user, createdBy, createdAt, and deletedAt for existing permissions
- * - Invalidates user session and updates Redis caches
+ * Workflow:
+ * 1. Verifies user authentication and retrieves user data from Redis or database.
+ * 2. Checks permission to update user permissions.
+ * 3. Validates input (userId, accessAll, deniedAll, permissions, password) using Zod schema.
+ * 4. For non-Super Admin users, verifies provided password.
+ * 5. Retrieves authenticated and target user entities from the database.
+ * 6. Prevents permission changes for SUPER ADMIN, self, shared-role users, or system-protected users.
+ * 7. Fetches existing user permissions for reference.
+ * 8. Constructs new permission set based on accessAll, deniedAll, or custom permissions input.
+ * 9. Deletes existing user-specific permissions and applies new ones.
+ * 10. Updates Redis caches with new user and permission data.
+ * 11. Returns a success response or error if validation, permission, or update fails.
  *
- * @param _ - Unused parent resolver argument
- * @param args - Arguments for permission update (userId, accessAll, deniedAll, permissions, password)
- * @param context - GraphQL context with AppDataSource and user info
- * @returns Promise<BaseResponseOrError> - Response status and message
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing user ID, permission settings, and optional password.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
  */
 export const updateUserPermission = async (
   _: any,
   args: MutationUpdateUserPermissionArgs,
-  { AppDataSource, user }: Context
+  { user }: Context
 ): Promise<BaseResponseOrError> => {
-  const { userId, accessAll, deniedAll, permissions, password } = args.input;
-
   try {
-    // Check user authentication
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Initialize repositories
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    const permissionRepository: Repository<Permission> =
-      AppDataSource.getRepository(Permission);
+    // Attempt to retrieve cached user data from Redis
+    let userData;
 
-    // Check Redis for cached authenticated user's data
-    let userData = await getUserInfoByEmailInRedis(user.email);
+    userData = await getUserInfoByEmailFromRedis(user.email);
 
-    if (!userData) {
-      // Cache miss: Fetch user from database
-      const dbUser = await userRepository.findOne({
-        where: { id: user.id, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          emailVerified: true,
-          gender: true,
-          role: { name: true },
-          password: true,
-          isAccountActivated: true,
-          tempUpdatedEmail: true,
-          tempEmailVerified: true,
-        },
-      });
+    // Check if user has permission to update permissions
+    const canUpdate = await checkUserPermission({
+      action: "canUpdate",
+      entity: "permission",
+      user,
+    });
 
-      if (!dbUser) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Authenticated user not found in database",
-          __typename: "ErrorResponse",
-        };
-      }
-
-      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
-        id: dbUser.id,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        email: dbUser.email,
-        emailVerified: dbUser.emailVerified,
-        gender: dbUser.gender,
-        role: dbUser.role.name,
-        password: dbUser.password,
-        isAccountActivated: dbUser.isAccountActivated,
-        tempUpdatedEmail: dbUser.tempUpdatedEmail,
-        tempEmailVerified: dbUser.tempEmailVerified,
-      };
-
-      userData = userSessionByEmail;
-
-      // Cache user in Redis
-      await setUserInfoByEmailInRedis(user.email, userSessionByEmail);
-    }
-
-    // Check Redis for cached user permissions
-    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
-
-    if (!userPermissions) {
-      // Cache miss: Fetch permissions from database
-      userPermissions = await permissionRepository.find({
-        where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
-      });
-
-      const fullPermissions: CachedUserPermissionsInputs[] =
-        userPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
-
-      // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(user.id, fullPermissions);
-    }
-
-    // Check if the user has "canUpdate" and "canCreate" permission for Permission
-    const canUpdatePermission = userPermissions.some(
-      (permission) => permission.name === "Permission" && permission.canUpdate
-    );
-    const canCreatePermission = userPermissions.some(
-      (permission) => permission.name === "Permission" && permission.canCreate
-    );
-
-    const canUpdatePermissions = canUpdatePermission && canCreatePermission;
-
-    if (!canUpdatePermissions) {
+    if (!canUpdate) {
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to update permissions",
+        message: "You do not have permission to update any user permission",
         __typename: "BaseResponse",
       };
     }
 
-    // Password validation for non-SUPER ADMIN users
-    if (userData.role !== "SUPER ADMIN") {
-      if (!password) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: "Password is required for non-SUPER ADMIN users",
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Verify password
-      const isPasswordValid = await CompareInfo(password, userData.password);
-      if (!isPasswordValid) {
-        return {
-          statusCode: 403,
-          success: false,
-          message: "Invalid password",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    // Validate input data using Zod schema
-    const validationResult = await updateUserPermissionSchema.safeParseAsync({
-      userId,
-      accessAll,
-      deniedAll,
-      permissions,
-    });
+    // Validate input data with Zod schema
+    const validationResult = await updateUserPermissionSchema.safeParseAsync(
+      args.input
+    );
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join("."), // Join path array to string for field identification
         message: error.message,
       }));
 
@@ -353,23 +98,39 @@ export const updateUserPermission = async (
       };
     }
 
-    // Fetch authenticated user and target user entities
-    const [authUserEntity, targetUserEntity] = await Promise.all([
-      userRepository.findOne({ where: { id: user.id } }),
-      userRepository.findOne({
-        where: { id: userId, deletedAt: null },
-        relations: ["role"],
-      }),
-    ]);
+    const { userId, accessAll, deniedAll, permissions, password } =
+      validationResult.data;
 
-    if (!authUserEntity) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: "Authenticated user not found",
-        __typename: "BaseResponse",
-      };
+    const isNotSuperAdmin = !user.roles.includes("SUPER ADMIN");
+
+    // Validate password for non-Super Admin users
+    if (isNotSuperAdmin) {
+      if (!password) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Password is required for non-SUPER ADMIN users",
+          __typename: "BaseResponse",
+        };
+      }
+
+      // Verify provided password
+      const isPasswordValid = await CompareInfo(password, userData.password);
+      if (!isPasswordValid) {
+        return {
+          statusCode: 403,
+          success: false,
+          message: "Invalid password",
+          __typename: "BaseResponse",
+        };
+      }
     }
+
+    // Fetch authenticated and target user entities
+    const [authUserEntity, targetUserEntity] = await Promise.all([
+      getUserById(user.id),
+      getUserById(userId),
+    ]);
 
     if (!targetUserEntity) {
       return {
@@ -380,23 +141,22 @@ export const updateUserPermission = async (
       };
     }
 
-    // Cache target user in Redis if not already cached
-    if (!(await getUserInfoByUserIdFromRedis(userId))) {
-      const userSession: UserSession = {
-        id: targetUserEntity.id,
-        firstName: targetUserEntity.firstName,
-        lastName: targetUserEntity.lastName,
-        email: targetUserEntity.email,
-        gender: targetUserEntity.gender,
-        role: targetUserEntity.role.name,
-        emailVerified: targetUserEntity.emailVerified,
-        isAccountActivated: targetUserEntity.isAccountActivated,
+    // Check for system update protections
+    if (isNotSuperAdmin && !targetUserEntity.canUpdatePermissions) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: `Permission update is restricted for ${
+          targetUserEntity.firstName + " " + targetUserEntity.lastName
+        }`,
+        __typename: "BaseResponse",
       };
-      await setUserInfoByUserIdInRedis(userId, userSession);
     }
 
     // Prevent changes to SUPER ADMIN permissions
-    if (targetUserEntity.role.name === "SUPER ADMIN") {
+    if (
+      targetUserEntity.roles.some((role: any) => role.name === "SUPER ADMIN")
+    ) {
       return {
         statusCode: 403,
         success: false,
@@ -405,17 +165,21 @@ export const updateUserPermission = async (
       };
     }
 
-    // Prevent ADMIN from changing another ADMIN's permissions
-    if (userData.role === "ADMIN" && targetUserEntity.role.name === "ADMIN") {
+    // Prevent permission changes for users with shared roles
+    const hasCommonRoles = targetUserEntity.roles.some((role) =>
+      userData.roles.includes(role.name)
+    );
+
+    if (hasCommonRoles) {
       return {
         statusCode: 403,
         success: false,
-        message: "ADMIN cannot modify another ADMIN's permissions",
+        message: "You cannot modify a user who shares the same role(s) as you",
         __typename: "BaseResponse",
       };
     }
 
-    // Prevent self permissions changes
+    // Prevent self-permission changes
     if (targetUserEntity.id === user.id) {
       return {
         statusCode: 403,
@@ -425,83 +189,51 @@ export const updateUserPermission = async (
       };
     }
 
-    // Fetch existing permissions for the user
-    const existingPermissions = await permissionRepository.find({
-      where: { user: { id: userId } },
-      relations: ["user", "createdBy"],
-    });
+    // Fetch existing user permissions
+    const existingPermissions = await getPermissionsByUserId(userId);
 
-    // Map existing permissions by name for quick lookup
+    // Map existing permissions for quick lookup
     const permissionMap = new Map(
       existingPermissions.map((perm) => [perm.name, perm])
     );
 
-    // Initialize permissions to upsert (update existing or create new)
-    const permissionsToUpsert: Partial<Permission>[] = [];
+    // Initialize permissions to upsert
+    const permissionsToUpsert: Permission[] = [];
 
-    // Handle permissions based on target user's role
-    const isRestrictedRole =
-      targetUserEntity.role.name === "CUSTOMER" ||
-      targetUserEntity.role.name === "INVENTORY MANAGER";
-    const rolePerms = ROLE_PERMISSIONS[targetUserEntity.role.name];
+    // Get all permission names
+    const allPermissionNames = PERMISSIONS as PermissionName[];
 
-    // Get permission names directly from PermissionEnum.options
-    const allPermissionNames = PermissionEnum.options as PermissionName[];
-
-    if (validationResult.data.accessAll) {
-      // For CUSTOMER and INVENTORY MANAGER, grant only ROLE_PERMISSIONS; others false
-      if (isRestrictedRole && rolePerms) {
-        for (const name of allPermissionNames) {
-          const existingPerm = permissionMap.get(name);
-          permissionsToUpsert.push({
-            id: existingPerm?.id, // Preserve ID for updates
-            name,
-            description: `Access for ${name}`,
-            user: existingPerm
-              ? existingPerm.user
-              : Promise.resolve(targetUserEntity),
-            createdBy: existingPerm
-              ? existingPerm.createdBy
-              : Promise.resolve(authUserEntity),
-            canCreate: rolePerms.create.includes(name),
-            canRead: rolePerms.read.includes(name),
-            canUpdate: rolePerms.update.includes(name),
-            canDelete: rolePerms.delete.includes(name),
-            createdAt: existingPerm?.createdAt, // Preserve createdAt
-            deletedAt: existingPerm?.deletedAt, // Preserve deletedAt
-          });
-        }
-      } else {
-        // For other roles, grant full permissions
-        for (const name of allPermissionNames) {
-          const existingPerm = permissionMap.get(name);
-          permissionsToUpsert.push({
-            id: existingPerm?.id,
-            name,
-            description: `Access for ${name}`,
-            user: existingPerm
-              ? existingPerm.user
-              : Promise.resolve(targetUserEntity),
-            createdBy: existingPerm
-              ? existingPerm.createdBy
-              : Promise.resolve(authUserEntity),
-            canCreate: true,
-            canRead: true,
-            canUpdate: true,
-            canDelete: true,
-            createdAt: existingPerm?.createdAt,
-            deletedAt: existingPerm?.deletedAt,
-          });
-        }
-      }
-    } else if (validationResult.data.deniedAll) {
-      // Set all permissions to false for all roles
+    // Apply accessAll permissions
+    if (accessAll) {
       for (const name of allPermissionNames) {
         const existingPerm = permissionMap.get(name);
         permissionsToUpsert.push({
-          id: existingPerm?.id,
+          id: existingPerm?.id ?? "",
           name,
-          description: `Access for ${name}`,
+          description: `${name} permission for ${targetUserEntity.firstName} ${targetUserEntity.lastName}`,
+          user: existingPerm
+            ? existingPerm.user
+            : Promise.resolve(targetUserEntity),
+          createdBy: existingPerm
+            ? existingPerm.createdBy
+            : Promise.resolve(authUserEntity),
+          canCreate: true,
+          canRead: true,
+          canUpdate: true,
+          canDelete: true,
+          createdAt: existingPerm?.createdAt ?? new Date(),
+          deletedAt: existingPerm?.deletedAt ?? null,
+        });
+      }
+    }
+    // Apply deniedAll permissions
+    else if (deniedAll) {
+      for (const name of allPermissionNames) {
+        const existingPerm = permissionMap.get(name);
+        permissionsToUpsert.push({
+          id: existingPerm?.id ?? "",
+          name,
+          description: `${name} permission for ${targetUserEntity.firstName} ${targetUserEntity.lastName}`,
           user: existingPerm
             ? existingPerm.user
             : Promise.resolve(targetUserEntity),
@@ -512,131 +244,62 @@ export const updateUserPermission = async (
           canRead: false,
           canUpdate: false,
           canDelete: false,
-          createdAt: existingPerm?.createdAt,
-          deletedAt: existingPerm?.deletedAt,
+          createdAt: existingPerm?.createdAt ?? new Date(),
+          deletedAt: existingPerm?.deletedAt ?? null,
         });
       }
-    } else if (validationResult.data.permissions) {
-      const providedNames = new Set(
-        validationResult.data.permissions.map((p) => p.name)
-      );
-
-      // Handle provided permissions
-      for (const perm of validationResult.data.permissions) {
-        if (isRestrictedRole && rolePerms) {
-          // For restricted roles, only allow permissions defined in ROLE_PERMISSIONS
-          if (
-            rolePerms.read.includes(perm.name) ||
-            rolePerms.create.includes(perm.name) ||
-            rolePerms.update.includes(perm.name) ||
-            rolePerms.delete.includes(perm.name)
-          ) {
-            const existingPerm = permissionMap.get(perm.name);
-            permissionsToUpsert.push({
-              id: existingPerm?.id,
-              name: perm.name,
-              description: perm.description || `Access for ${perm.name}`,
-              user: existingPerm
-                ? existingPerm.user
-                : Promise.resolve(targetUserEntity),
-              createdBy: existingPerm
-                ? existingPerm.createdBy
-                : Promise.resolve(authUserEntity),
-              canCreate:
-                rolePerms.create.includes(perm.name) &&
-                (perm.canCreate ?? false),
-              canRead:
-                rolePerms.read.includes(perm.name) && (perm.canRead ?? false),
-              canUpdate:
-                rolePerms.update.includes(perm.name) &&
-                (perm.canUpdate ?? false),
-              canDelete:
-                rolePerms.delete.includes(perm.name) &&
-                (perm.canDelete ?? false),
-              createdAt: existingPerm?.createdAt,
-              deletedAt: existingPerm?.deletedAt,
-            });
-          }
-        } else {
-          // For non-restricted roles, apply permissions as provided
-          const existingPerm = permissionMap.get(perm.name);
-          permissionsToUpsert.push({
-            id: existingPerm?.id,
-            name: perm.name,
-            description: perm.description || `Access for ${perm.name}`,
-            user: existingPerm
-              ? existingPerm.user
-              : Promise.resolve(targetUserEntity),
-            createdBy: existingPerm
-              ? existingPerm.createdBy
-              : Promise.resolve(authUserEntity),
-            canCreate: perm.canCreate ?? false,
-            canRead: perm.canRead ?? false,
-            canUpdate: perm.canUpdate ?? false,
-            canDelete: perm.canDelete ?? false,
-            createdAt: existingPerm?.createdAt,
-            deletedAt: existingPerm?.deletedAt,
-          });
-        }
-      }
-
-      // Add all missing permissions from PermissionEnum with all actions set to false
-      for (const name of allPermissionNames) {
-        if (!providedNames.has(name)) {
-          const existingPerm = permissionMap.get(name);
-          permissionsToUpsert.push({
-            id: existingPerm?.id,
-            name,
-            description: `Access for ${name}`,
-            user: existingPerm
-              ? existingPerm.user
-              : Promise.resolve(targetUserEntity),
-            createdBy: existingPerm
-              ? existingPerm.createdBy
-              : Promise.resolve(authUserEntity),
-            canCreate: false,
-            canRead: false,
-            canUpdate: false,
-            canDelete: false,
-            createdAt: existingPerm?.createdAt,
-            deletedAt: existingPerm?.deletedAt,
-          });
-        }
+    }
+    // Apply custom permissions
+    else if (permissions.length > 0) {
+      for (const perm of permissions) {
+        permissionsToUpsert.push({
+          id: permissionMap.get(perm.name as PermissionName)?.id ?? "",
+          name: perm.name as PermissionName,
+          description:
+            perm.description ||
+            `${perm.name} permission for ${targetUserEntity.firstName} ${targetUserEntity.lastName}`,
+          user: Promise.resolve(targetUserEntity),
+          createdBy: Promise.resolve(authUserEntity),
+          canCreate: perm.canCreate ?? false,
+          canRead: perm.canRead ?? false,
+          canUpdate: perm.canUpdate ?? false,
+          canDelete: perm.canDelete ?? false,
+          createdAt:
+            permissionMap.get(perm.name as PermissionName)?.createdAt ??
+            new Date(),
+          deletedAt:
+            permissionMap.get(perm.name as PermissionName)?.deletedAt ?? null,
+        });
       }
     }
 
-    // Upsert permissions (update existing or insert new)
+    // Delete existing user-specific permissions
+    await deleteUserSpecificPermission(targetUserEntity.id);
+
+    let updateUserWithPermission;
+
+    // Apply new permissions if any
     if (permissionsToUpsert.length > 0) {
-      await permissionRepository.save(permissionsToUpsert);
+      updateUserWithPermission = await updateUserSpecificPermission(
+        targetUserEntity,
+        permissionsToUpsert
+      );
+      // Cache updated user and permission data in Redis
+      await Promise.all([
+        setUserPermissionsByUserIdInRedis(
+          targetUserEntity.id,
+          updateUserWithPermission
+        ),
+        setUserInfoByEmailInRedis(
+          targetUserEntity.id,
+          updateUserWithPermission
+        ),
+        setUserInfoByUserIdInRedis(
+          targetUserEntity.id,
+          updateUserWithPermission
+        ),
+      ]);
     }
-
-    // Fetch updated permissions for caching
-    const updatedPermissions = await permissionRepository.find({
-      where: { user: { id: userId } },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        canCreate: true,
-        canRead: true,
-        canUpdate: true,
-        canDelete: true,
-      },
-    });
-
-    const cachedPermissions: CachedUserPermissionsInputs[] =
-      updatedPermissions.map((permission) => ({
-        id: permission.id,
-        name: permission.name,
-        description: permission.description,
-        canCreate: permission.canCreate,
-        canRead: permission.canRead,
-        canUpdate: permission.canUpdate,
-        canDelete: permission.canDelete,
-      }));
-
-    // Cache updated permissions
-    await setUserPermissionsByUserIdInRedis(userId, cachedPermissions);
 
     return {
       statusCode: 200,
