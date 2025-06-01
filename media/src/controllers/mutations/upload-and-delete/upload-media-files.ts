@@ -6,7 +6,7 @@ import {
 } from "../../../types";
 import { createUploadMediaFilesSchema } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../services/session-check/session-check";
-import { uploadMediaFiles as uploadFiles } from "../../services/upload-and-delete/upload-and-media-files";
+import { uploadMediaFiles as uploadFiles } from "../../services/upload-and-delete/upload-and-delete-media-files";
 
 export const uploadMediaFiles = async (
   _: any,
