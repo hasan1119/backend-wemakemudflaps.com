@@ -9,18 +9,19 @@ import { typeDefs } from "./src/helper/combine/schema";
 import createContext from "./src/middleware/context";
 
 /**
- * Entry point for the Apollo GraphQL Subgraph server.
+ * Initializes and starts the Apollo GraphQL Subgraph server.
  *
- * - Connects to the database
- * - Initializes ApolloServer with subgraph schema, resolvers, and type definitions
- * - Starts the server and listens on the configured port
- * - Logs the subgraph URL on successful startup
+ * Workflow:
+ * 1. Establishes a connection to the database.
+ * 2. Creates an ApolloServer instance with a subgraph schema built from typeDefs and resolvers.
+ * 3. Starts the server on the configured port with the provided context function.
+ * 4. Logs the subgraph URL on successful startup or errors if startup fails.
  */
 async function startApolloServer() {
-  // Connect to the database
+  // Initialize database connection
   await connectDB();
 
-  // Create the Apollo Server instance with subgraph schema
+  // Create Apollo Server instance
   const server = new ApolloServer({
     schema: buildSubgraphSchema([{ typeDefs, resolvers }]),
   });

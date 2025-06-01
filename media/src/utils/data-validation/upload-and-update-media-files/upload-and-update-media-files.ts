@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// Defines a mapping for mimetype values used in media schemas
 export const mimeTypeMap: Record<string, string> = {
   image_jpeg: "image/jpeg",
   image_png: "image/png",
@@ -82,6 +83,7 @@ export const mimeTypeMap: Record<string, string> = {
   application_vnd_visio: "application/vnd.visio",
 };
 
+// Defines a mapping for category values used in media schemas
 export const categoryMap: Record<string, string> = {
   Profile: "Profile",
   Product: "Product",
@@ -102,7 +104,32 @@ export const categoryMap: Record<string, string> = {
   Site_Settings: "Site Settings",
 };
 
-// UploadMediaInput schema
+/**
+ * Defines the schema for validating input data for a single media file upload.
+ *
+ * Workflow:
+ * 1. Validates mediaType using a predefined mimeTypeMap.
+ * 2. Ensures fileName is a non-empty string.
+ * 3. Validates optional fields like title, description, altText, and dimension as trimmed strings.
+ * 4. Processes length as a non-negative number, converting strings to floats if needed.
+ * 5. Validates url as a valid URL format.
+ * 6. Maps category to predefined values using categoryMap.
+ * 7. Ensures size is a positive integer and bucketName is non-empty.
+ * 8. Validates createdBy as a UUID.
+ *
+ * @property mediaType - Type of media file from mimeTypeMap.
+ * @property fileName - Name of the media file.
+ * @property title - Optional title of the media file.
+ * @property description - Optional description of the media file.
+ * @property altText - Optional alt text for accessibility.
+ * @property dimension - Optional dimensions of the media file.
+ * @property length - Optional duration or length of the media file.
+ * @property url - URL where the media file is hosted.
+ * @property category - Category of the media file from categoryMap.
+ * @property size - Size of the media file in bytes.
+ * @property bucketName - Storage bucket name for the media file.
+ * @property createdBy - UUID of the user uploading the file.
+ */
 export const uploadMediaInputSchema = z.object({
   mediaType: z.preprocess((val) => {
     if (typeof val === "string" && mimeTypeMap[val]) {
@@ -143,9 +170,24 @@ export const uploadMediaInputSchema = z.object({
   createdBy: z.string().uuid({ message: "Invalid UUID format" }),
 });
 
+/**
+ * Defines the schema for validating an array of media file uploads.
+ *
+ * Workflow:
+ * 1. Applies the uploadMediaInputSchema to each item in the array.
+ */
 export const UploadMediaFilesSchema = z.array(uploadMediaInputSchema);
 
-// Custom schema factory to validate userId against context user.id
+/**
+ * Creates a schema to validate media uploads against the authenticated user's ID.
+ *
+ * Workflow:
+ * 1. Takes an array of media file uploads and validates each using uploadMediaInputSchema.
+ * 2. Ensures the createdBy field of each media file matches the provided contextUserId.
+ *
+ * @param contextUserId - UUID of the authenticated user.
+ * @returns A schema that validates the array of media files.
+ */
 export const createUploadMediaFilesSchema = (contextUserId: string) =>
   z
     .array(uploadMediaInputSchema)
@@ -159,7 +201,23 @@ export const createUploadMediaFilesSchema = (contextUserId: string) =>
       }
     );
 
-// Schema for updating a single media file's info
+/**
+ * Defines the schema for updating metadata of a single media file.
+ *
+ * Workflow:
+ * 1. Validates id as a UUID.
+ * 2. Allows optional updates to title, description, altText, and dimension as nullable strings.
+ * 3. Processes length as a non-negative number, converting strings to floats if needed.
+ * 4. Validates category using categoryMap if provided.
+ *
+ * @property id - UUID of the media file to update.
+ * @property title - Optional updated title of the media file.
+ * @property description - Optional updated description of the media file.
+ * @property altText - Optional updated alt text for accessibility.
+ * @property dimension - Optional updated dimensions of the media file.
+ * @property length - Optional updated duration or length of the media file.
+ * @property category - Optional updated category from categoryMap.
+ */
 export const UpdateMediaFilesSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
   title: z

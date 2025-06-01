@@ -7,7 +7,7 @@ dotenv.config();
  *
  * This structure holds critical application configurations,
  * including server settings, database connection details,
- * authentication secrets, email settings, and caching configurations.
+ * authentication secrets and caching configurations.
  */
 interface Config {
   /* Application server port */
