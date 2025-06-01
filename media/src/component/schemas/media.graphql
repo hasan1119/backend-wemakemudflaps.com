@@ -1,11 +1,97 @@
-# Importing the Apollo Federation specs for linking services.
+# Importing Apollo Federation specs
 extend schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.7"
     import: ["@key", "@shareable"]
   )
 
-# ENUMS
+# ---------------------- Basic Types ----------------------
+type FieldError @shareable {
+  field: String!
+  message: String!
+}
+
+type ErrorResponse @shareable {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  errors: [FieldError!]
+}
+
+type BaseResponse @shareable {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+}
+
+type CreatedBy @shareable {
+  id: ID!
+  name: String!
+  roles: [String!]!
+}
+
+type PermissionSession @shareable {
+  id: ID!
+  name: String!
+  description: String
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+type UserSession @shareable {
+  id: ID!
+  avatar: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  gender: String!
+  roles: [String!]!
+  emailVerified: Boolean!
+  isAccountActivated: Boolean!
+}
+
+type UserSessionByEmail @shareable {
+  id: ID!
+  avatar: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  password: String!
+  emailVerified: Boolean!
+  gender: String!
+  roles: [String!]!
+  permissions: [PermissionSession!]!
+  canUpdatePermissions: Boolean!
+  canUpdateRole: Boolean!
+  isAccountActivated: Boolean!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
+  createdAt: String!
+  deletedAt: String!
+}
+
+type UserSessionById @shareable {
+  id: ID!
+  avatar: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  emailVerified: Boolean!
+  gender: String!
+  roles: [String!]!
+  permissions: [PermissionSession!]!
+  canUpdatePermissions: Boolean!
+  canUpdateRole: Boolean!
+  isAccountActivated: Boolean!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
+  createdAt: String!
+  deletedAt: String!
+}
+
+# ---------------------- Media Types ----------------------
 enum MediaCategory {
   Profile
   Product
@@ -111,34 +197,10 @@ enum SortOrder {
   desc
 }
 
-# ---------------------- Basic Types ----------------------
-
-# Type representing errors for specific fields
-type FieldError @shareable {
-  field: String! # Name of the field that caused the error
-  message: String! # Error message associated with the field
-}
-
-# Type for validation and general errors
-type ErrorResponse @shareable {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  errors: [FieldError!] # Array of field-specific errors
-}
-
-# Common interface to return status and message.
-type BaseResponse @shareable {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-}
-
 type User @key(fields: "id", resolvable: false) {
   id: ID!
 }
 
-# ---------------------- Media ----------------------
 type Media @key(fields: "id") {
   id: ID!
   mediaType: String
@@ -169,9 +231,10 @@ type MediasResponse {
   success: Boolean!
   message: String!
   medias: [Media!]!
-  total: Int! # Total number of medias matching the query
+  total: Int!
 }
 
+# ---------------------- Inputs ----------------------
 input UploadMediaInput {
   mediaType: MediaMimeType!
   fileName: String!
@@ -197,9 +260,7 @@ input UpdateMediaInput {
   category: MediaCategory!
 }
 
-# Mutation responses can be either a success or an error.
+# ---------------------- Unions ----------------------
 union BaseResponseOrError = BaseResponse | ErrorResponse
-
 union GetMediaByIdResponseOrError = BaseResponse | MediaResponse | ErrorResponse
-
 union GetMediasResponseOrError = BaseResponse | MediasResponse | ErrorResponse

@@ -98,7 +98,7 @@ type Permissions {
 }
 
 # Represents a cached permission in the user's session.
-type PermissionSession {
+type PermissionSession @shareable {
   id: ID!
   name: String!
   description: String

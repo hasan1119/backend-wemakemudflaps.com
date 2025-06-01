@@ -1,6 +1,4 @@
 import { CodegenConfig } from "@graphql-codegen/cli";
-import { print } from "graphql";
-import { typeDefs } from "./src/helper/combine/schema";
 
 /**
  * Configures GraphQL code generation for TypeScript types and resolvers.
@@ -11,7 +9,8 @@ import { typeDefs } from "./src/helper/combine/schema";
  * 3. Configures context type and enables federation support.
  */
 const config: CodegenConfig = {
-  schema: print(typeDefs),
+  // schema: print(typeDefs),
+  schema: "http://localhost:4000/",
   generates: {
     "./src/types.ts": {
       plugins: ["typescript", "typescript-resolvers"],

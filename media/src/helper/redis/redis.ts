@@ -2,7 +2,11 @@ import Redis from "ioredis";
 import config from "../../config/config";
 
 /**
- * Creates and configures a Redis client instance.
+ * Initializes and configures a Redis client instance.
+ *
+ * Workflow:
+ * 1. Creates a Redis client with host, port, and optional password from configuration.
+ * 2. Sets up event listeners for connection success and errors.
  */
 const redisClient = new Redis({
   host: config.REDIS_HOST,
@@ -13,14 +17,16 @@ const redisClient = new Redis({
 redisClient.on("connect", () => console.log("Redis connected successfully."));
 redisClient.on("error", (err) => console.error("Redis connection error:", err));
 
-// ===================== SESSION OPERATIONS =====================
-
 /**
- * Retrieves a session from Redis.
+ * Handles retrieval of a session from Redis.
  *
- * @template T
- * @param {string} sessionId - The session ID (user ID or unique identifier).
- * @returns {Promise<T | null>} - The session data parsed as the specified type, or null if not found.
+ * Workflow:
+ * 1. Queries Redis for the session data by session ID.
+ * 2. Parses the retrieved data as the specified type or returns null if not found.
+ * 3. Catches and logs any errors during retrieval.
+ *
+ * @param sessionId - The session ID (user ID or unique identifier).
+ * @returns A promise resolving to the parsed session data or null if not found.
  */
 async function getSession<T>(sessionId: string): Promise<T | null> {
   try {
@@ -33,12 +39,17 @@ async function getSession<T>(sessionId: string): Promise<T | null> {
 }
 
 /**
- * Stores a session in Redis.
+ * Handles storing a session in Redis.
  *
- * @param {string} id - The session ID (user ID or unique identifier).
- * @param {object | string} sessionData - The session data to store.
- * @param {number} [ttl] - Optional time-to-live (TTL) in seconds.
- * @returns {Promise<void>}
+ * Workflow:
+ * 1. Stringifies the session data and stores it in Redis with the specified ID.
+ * 2. Applies an optional time-to-live (TTL) if provided.
+ * 3. Catches and logs any errors during storage.
+ *
+ * @param id - The session ID (user ID or unique identifier).
+ * @param sessionData - The session data to store (object or string).
+ * @param ttl - Optional time-to-live in seconds.
+ * @returns A promise resolving when the session is stored.
  */
 async function setSession(
   id: string,
@@ -57,10 +68,14 @@ async function setSession(
 }
 
 /**
- * Deletes a session from Redis.
+ * Handles deletion of a session from Redis.
  *
- * @param {string} id - The session ID (user ID or unique identifier).
- * @returns {Promise<void>}
+ * Workflow:
+ * 1. Deletes the session data from Redis using the specified ID.
+ * 2. Catches and logs any errors during deletion.
+ *
+ * @param id - The session ID (user ID or unique identifier).
+ * @returns A promise resolving when the session is deleted.
  */
 async function deleteSession(id: string): Promise<void> {
   try {
@@ -70,6 +85,12 @@ async function deleteSession(id: string): Promise<void> {
   }
 }
 
+/**
+ * Exports Redis session management utilities.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting, and deleting sessions in Redis.
+ */
 export const redis = {
   getSession,
   setSession,
