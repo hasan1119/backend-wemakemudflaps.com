@@ -7,6 +7,7 @@ import {
   getRoleById,
   getUserById,
 } from "../../controllers";
+import { CreatedBy } from "../../controllers/services";
 
 /**
  * Defines GraphQL query resolvers for user-related operations.
@@ -53,4 +54,10 @@ export const userQueriesResolver = {
      */
     getOwnPersonalizedPermissions,
   },
+
+  /**
+   * Resolver for federated reference to the `CreatedBy` entity,
+   * allowing other subgraphs to fetch user data by ID.
+   */
+  CreatedBy,
 };

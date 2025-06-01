@@ -6,13 +6,12 @@ export const mediaQueriesResolver = {
     getAllMedias,
   },
 
-  // BaseResponseOrError: {
-  //   __resolveType(obj: BaseResponseOrError) {
-  //     if (obj.success) {
-  //       return "BaseResponse";
-  //     } else {
-  //       return "ErrorResponse";
-  //     }
-  //   },
-  // },
+  Media: {
+    createdBy: ({ createdBy }) => {
+      return {
+        __typename: "CreatedBy",
+        id: createdBy, // just reference the ID
+      };
+    },
+  },
 };

@@ -93,7 +93,7 @@ export type Media = {
   bucketName?: Maybe<Scalars['String']['output']>;
   category?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   dimension?: Maybe<Scalars['String']['output']>;
@@ -442,8 +442,8 @@ export type QueryGetAllMediasArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<SortBy>;
-  sortOrder?: InputMaybe<SortOrder>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -560,19 +560,6 @@ export type SinglePermissionInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   name: PermissionName;
 };
-
-export enum SortBy {
-  Category = 'category',
-  CreatedAt = 'createdAt',
-  CreatedBy = 'createdBy',
-  Description = 'description',
-  Title = 'title'
-}
-
-export enum SortOrder {
-  Asc = 'asc',
-  Desc = 'desc'
-}
 
 export type UpdateMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
@@ -847,8 +834,6 @@ export type ResolversTypes = {
   RoleSession: ResolverTypeWrapper<RoleSession>;
   RolesResponse: ResolverTypeWrapper<RolesResponse>;
   SinglePermissionInput: SinglePermissionInput;
-  SortBy: SortBy;
-  SortOrder: SortOrder;
   UpdateMediaInput: UpdateMediaInput;
   UpdateUserPermissionInput: UpdateUserPermissionInput;
   UploadMediaInput: UploadMediaInput;
@@ -1020,7 +1005,7 @@ export type MediaResolvers<ContextType = Context, ParentType extends ResolversPa
   bucketName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   category?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   dimension?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

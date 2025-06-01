@@ -58,6 +58,7 @@ export const getMediaById = async (
         ...media,
         createdAt: media.createdAt.toISOString(),
         deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
+        createdBy: media.createdBy as any,
       },
       __typename: "MediaResponse",
     };

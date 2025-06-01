@@ -15,8 +15,10 @@ export { deleteUser } from "./user/delete-user.service";
  * 1. Provides functions to fetch user details by email, ID, or password reset token.
  * 2. Enables retrieval of user count, personalized permissions, and email-only data.
  * 3. Supports paginated user queries for efficient data access.
+ * 4. Resolve user entity references (e.g., for Apollo Federation via `CreatedBy`).
  */
 export {
+  CreatedBy,
   getPaginatedUsers,
   getUserByEmail,
   getUserById,

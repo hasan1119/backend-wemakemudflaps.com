@@ -10,3 +10,5 @@ export {
   getMediaById,
   getMediaByIds,
 } from "./get-media/get-media";
+
+export { checkUserPermission } from "./permission/get-user-permission.service";

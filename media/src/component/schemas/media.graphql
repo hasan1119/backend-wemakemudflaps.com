@@ -2,7 +2,7 @@
 extend schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.7"
-    import: ["@key", "@shareable"]
+    import: ["@key", "@shareable", "@external"]
   )
 
 # ---------------------- Basic Types ----------------------
@@ -24,10 +24,8 @@ type BaseResponse @shareable {
   message: String!
 }
 
-type CreatedBy @shareable {
-  id: ID!
-  name: String!
-  roles: [String!]!
+extend type CreatedBy @key(fields: "id") {
+  id: ID! @external
 }
 
 type PermissionSession @shareable {
@@ -184,20 +182,7 @@ enum MediaMimeType {
   application_vnd_visio
 }
 
-enum SortBy {
-  title
-  description
-  category
-  createdBy
-  createdAt
-}
-
-enum SortOrder {
-  asc
-  desc
-}
-
-type User @key(fields: "id", resolvable: false) {
+type User @key(fields: "id") {
   id: ID!
 }
 
@@ -214,7 +199,7 @@ type Media @key(fields: "id") {
   category: String
   size: Int
   bucketName: String
-  createdBy: String
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
