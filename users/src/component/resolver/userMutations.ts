@@ -16,80 +16,82 @@ import {
 } from "../../controllers";
 
 /**
- * GraphQL mutation resolvers for user-related operations.
+ * Defines GraphQL mutation resolvers for user-related operations.
  *
- * Handles authentication, account management,
- * role creation, updates, and permission modifications.
+ * Workflow:
+ * 1. Maps mutation fields to controller functions for user management.
+ * 2. Handles authentication, account activation, and role/permission updates.
+ * 3. Supports operations like password changes, email verification, and role management.
  */
 export const userMutationsResolver = {
   Mutation: {
     /**
-     * Change a user's password with proper authentication and validation.
+     * Updates a user's password after validating credentials.
      */
     changePassword,
 
     /**
-     * Create a new user role with specific permissions.
+     * Creates a new user role with specified permissions.
      */
     createUserRole,
 
     /**
-     * Initiate forgotten password flow by sending a reset email.
+     * Triggers the password reset process by sending a reset email.
      */
     forgetPassword,
 
     /**
-     * Authenticate user credentials and generate auth tokens.
+     * Authenticates a user and generates authentication tokens.
      */
     login,
 
     /**
-     * Register a new user after validating input data.
+     * Registers a new user with validated input data.
      */
     register,
 
     /**
-     * Reset a password using a valid reset token.
+     * Resets a user's password using a valid reset token.
      */
     resetPassword,
 
     /**
-     * Update personal profile details of the authenticated user.
+     * Updates the authenticated user's profile information.
      */
     updateProfile,
 
     /**
-     * Activate a user account post-verification.
+     * Activates a user account after verification.
      */
     accountActivation,
 
     /**
-     * Verify user's email address during or after registration.
+     * Verifies a user's email address during or post-registration.
      */
     verifyEmail,
 
     /**
-     * Delete existing user roles.
+     * Deletes specified user roles from the system.
      */
     deleteUserRole,
 
     /**
-     * Restore previously deleted user roles.
+     * Restores previously deleted user roles.
      */
     restoreUserRole,
 
     /**
-     * Update detailed information about a specific user role.
+     * Updates detailed information for a specific user role.
      */
     updateUserRoleInfo,
 
     /**
-     * Modify user permissions as per administrative controls.
+     * Modifies user permissions based on administrative input.
      */
     updateUserPermission,
 
     /**
-     * Update role assignments for users.
+     * Updates role assignments for a specific user.
      */
     updateUserRole,
   },

@@ -9,30 +9,32 @@ import {
 } from "../../controllers";
 
 /**
- * GraphQL query resolvers for user-related operations.
+ * Defines GraphQL query resolvers for user-related operations.
  *
- * Handles queries for fetching users, roles, permissions,
- * and profile data.
+ * Workflow:
+ * 1. Maps query fields to controller functions for fetching user data.
+ * 2. Supports retrieval of user profiles, roles, permissions, and lists.
+ * 3. Enables access to both individual and aggregated user-related data.
  */
 export const userQueriesResolver = {
   Query: {
     /**
-     * Retrieves a paginated list of all users.
+     * Fetches a paginated list of all users in the system.
      */
     getAllUsers,
 
     /**
-     * Retrieves detailed information of a user by their unique ID.
+     * Retrieves detailed information for a user by their unique ID.
      */
     getUserById,
 
     /**
-     * Fetches the authenticated user's own profile information.
+     * Fetches the profile information of the authenticated user.
      */
     getProfile,
 
     /**
-     * Retrieves role details by role ID.
+     * Retrieves details for a specific role by its ID.
      */
     getRoleById,
 
@@ -42,12 +44,12 @@ export const userQueriesResolver = {
     getAllRoles,
 
     /**
-     * Retrieves all permissions assigned to a specified user by user ID.
+     * Retrieves all permissions assigned to a user by their ID.
      */
     getAllPermissionsByUserId,
 
     /**
-     * Retrieves the authenticated user's own permissions.
+     * Fetches the authenticated user's personalized permissions.
      */
     getOwnPersonalizedPermissions,
   },
