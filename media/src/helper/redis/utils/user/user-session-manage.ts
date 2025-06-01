@@ -1,5 +1,5 @@
 import { UserSession } from "../../../../types";
-// import { mapUserToTokenData } from "../../../../utils/mapper";
+import { mapUserToTokenData } from "../../../../utils/mapper";
 import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for user session, email, and count caching
@@ -41,10 +41,6 @@ export const setUserTokenInfoByUserIdInRedis = async (
   data: UserSession,
   ttl: number
 ): Promise<void> => {
-  // const sessionData = await mapUserToTokenData(data);
-  await redis.setSession(
-    `${PREFIX.SESSION}token:${userId}`,
-    /* sessionData */ data,
-    ttl
-  );
+  const sessionData = await mapUserToTokenData(data);
+  await redis.setSession(`${PREFIX.SESSION}token:${userId}`, sessionData, ttl);
 };
