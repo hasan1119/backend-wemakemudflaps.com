@@ -58,7 +58,7 @@ type BaseResponse @shareable {
 # ---------------------- CreatedBy & Permissions ----------------------
 
 # Minimal user information stored with entities to track who created them.
-type CreatedBy @shareable {
+type CreatedBy @shareable @key(fields: "id") {
   id: ID! # Unique identifier of the creator.
   name: String! # Full name of the creator.
   roles: [String!]! # List of roles the creator holds.

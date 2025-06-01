@@ -1,5 +1,6 @@
 import { ILike } from "typeorm";
 import { Permission, User } from "../../../entities";
+import { getUserInfoByUserIdFromRedis } from "../../../helper/redis";
 import {
   permissionRepository,
   userRepository,
@@ -59,6 +60,51 @@ export const getUserById = async (id: string): Promise<User | null> => {
     where: { id, deletedAt: null },
     relations: ["roles", "permissions"],
   });
+};
+
+/**
+ * Resolves the CreatedBy entity reference from another subgraph.
+ *
+ * This function is called by Apollo Federation when a subgraph returns a CreatedBy reference.
+ * It fetches full user details (id, name, roles) for the provided ID.
+ *
+ * Workflow:
+ * 1. Retrieves the user using the provided ID.
+ * 2. If the user is found, returns a CreatedBy-compatible object.
+ * 3. If not found, returns null to indicate resolution failure.
+ *
+ * @param id - The ID of the user being resolved.
+ * @returns An object containing id, name, and roles, or null if the user is not found.
+ */
+export const CreatedBy = {
+  __resolveReference: async ({ id }) => {
+    // Attempt to retrieve cached user data from Redis
+    let userData;
+
+    userData = await getUserInfoByUserIdFromRedis(id);
+
+    if (!userData) {
+      // On cache miss, fetch user from database
+      userData = await userRepository.findOne({
+        where: { id },
+        select: {
+          firstName: true,
+          lastName: true,
+          roles: {
+            name: true,
+          },
+        },
+      });
+
+      if (!userData) return null;
+    }
+
+    return {
+      id: userData.id,
+      name: `${userData.firstName} ${userData.lastName}`,
+      roles: userData.roles,
+    };
+  },
 };
 
 /**
