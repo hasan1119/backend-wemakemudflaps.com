@@ -1,0 +1,128 @@
+# Root Mutation type defining all user-related operations.
+type Mutation {
+  # Register a new user.
+  # Allows a new user to create an account by submitting their personal details.
+  # Input includes user's first name, last name, unique email, and a secure password.
+  # Gender is optional. The password is securely hashed server-side before storage.
+  # Response returns a status indicating success or failure of registration.
+  register(
+    firstName: String! # User's first name (required).
+    lastName: String! # User's last name (required).
+    email: String! # Unique email address of the user (required).
+    password: String! # User's raw password to be hashed by server (required).
+    gender: Gender # Optional gender of the user.
+  ): BaseResponseOrError!
+
+  # Authenticate and log in an existing user.
+  # Accepts the user's registered email and password to generate a login session.
+  # On success, returns a token along with the user's profile details.
+  login(
+    email: String! # Registered email address of the user.
+    password: String! # User's login password.
+  ): UserLoginResponseOrError!
+
+  # Update the profile of the currently authenticated user.
+  # Allows partial updates to fields like first name, last name, email, or gender.
+  # Returns a response with the updated profile or error if operation fails.
+  updateProfile(
+    firstName: String # New first name of the user.
+    lastName: String # New last name of the user.
+    email: String # New email address of the user.
+    gender: Gender # New gender value.
+  ): UserProfileUpdateResponseOrError!
+
+  # Change the currently authenticated user's password.
+  # Requires old (current) password and new password for verification.
+  # Validates old password and applies new password after hashing.
+  changePassword(
+    oldPassword: String! # User's current password (required for verification).
+    newPassword: String! # New password to replace the old one.
+  ): BaseResponseOrError!
+
+  # Initiate password reset flow via email.
+  # Sends a password reset link to the user's registered email if valid.
+  forgetPassword(
+    email: String! # Registered email address to send reset link.
+  ): BaseResponseOrError!
+
+  # Complete password reset using a secure token.
+  # The user provides a token received in email and the new password.
+  # If token is valid and not expired, the password is updated.
+  resetPassword(
+    token: String! # Token from password reset email.
+    newPassword: String! # New password to set for the user.
+  ): BaseResponseOrError!
+
+  # Update the roles assigned to a specific user.
+  # Only accessible by authorized users (admin/super admin).
+  # Can add or remove multiple roles. May require password for non-super admin.
+  updateUserRole(
+    roleAddIds: [String] # List of Role IDs to be added to the user.
+    roleRemoveIds: [String] # List of Role IDs to be removed from the user.
+    userId: String! # Target user's ID whose roles are being updated.
+    password: String # Optional: password confirmation for non-super admins.
+  ): BaseResponseOrError!
+
+  # Soft delete one or more user roles.
+  # Only accessible by admin or super admin.
+  # If `skipTrash` is true, deletes permanently unless protected.
+  deleteUserRole(
+    ids: [ID!]! # List of Role IDs to be deleted.
+    skipTrash: Boolean! # If true, permanently deletes instead of soft-deleting.
+    password: String # Optional: required for non-super admins.
+  ): BaseResponseOrError!
+
+  # Restore previously soft-deleted user roles.
+  # Only accessible by authorized users.
+  restoreUserRole(
+    ids: [ID!]! # List of soft-deleted role IDs to be restored.
+  ): BaseResponseOrError!
+
+  # Create a new role for users.
+  # Admins or super admins can define custom roles with associated permissions.
+  # Optional system-level protection flags restrict updates/deletion.
+  createUserRole(
+    name: String! # Name of the role to create (must be unique).
+    description: String # Optional description for the role.
+    defaultPermissions: [RolePermissionInput!] # Permissions assigned by default.
+    systemDeleteProtection: Boolean # If true, prevents soft delete except by Super Admin.
+    systemUpdateProtection: Boolean # If true, prevents update except by Super Admin.
+    systemPermanentDeleteProtection: Boolean # If true, prevents permanent deletion.
+    systemPermanentUpdateProtection: Boolean # If true, prevents permanent update.
+  ): BaseResponseOrError!
+
+  # Update an existing user role's information.
+  # Allows updating role name, description, permissions, or system-level flags.
+  # Requires the role ID and may require password for non-super admins.
+  updateUserRoleInfo(
+    id: ID! # Unique ID of the role to update.
+    name: String # New name for the role.
+    description: String # New description for the role.
+    defaultPermissions: [RolePermissionInput!] # Updated list of default permissions.
+    systemDeleteProtection: Boolean # Update soft delete protection flag.
+    systemUpdateProtection: Boolean # Update edit protection flag.
+    systemPermanentDeleteProtection: Boolean # Update permanent delete protection flag.
+    systemPermanentUpdateProtection: Boolean # Update permanent update protection flag.
+    password: String # Optional: required for non-super admins.
+  ): BaseResponseOrError!
+
+  # Update a user's permissions manually.
+  # Only available to admins or super admins to override role-based access control.
+  updateUserPermission(
+    input: UpdateUserPermissionInput! # Input object containing permission updates.
+  ): BaseResponseOrError!
+
+  # Verify user's email using a verification link.
+  # Usually triggered from an email sent during registration.
+  verifyEmail(
+    userId: ID! # User ID provided in verification email.
+    email: String! # User's email to verify.
+  ): EmailVerificationResponseOrError!
+
+  # Activate a user account via email verification.
+  # This is similar to verifyEmail, but may include additional checks or updates.
+  accountActivation(
+    userId: ID! # User ID provided in activation email.
+    email: String! # User's email associated with account.
+  ): ActiveAccountResponseOrError!
+}

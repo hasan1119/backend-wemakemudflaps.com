@@ -1,0 +1,52 @@
+# Queries to fetch users and related data from the system.
+type Query {
+  # Fetch own profile.
+  # Retrieves the authenticated user's profile information.
+  # Returns a `GetProfileResponseOrError` containing user data and request status.
+  getProfile: GetProfileResponseOrError!
+
+  # Fetch user details by ID.
+  # Retrieves profile details of a specific user using their unique ID.
+  # Returns a `GetUserByIDResponseOrError` containing user data and request status.
+  getUserById(id: String!): GetUserByIDResponseOrError!
+
+  # Fetch all users with pagination and optional filtering.
+  # Retrieves a paginated list of users.
+  # Optional filters include a search term (e.g., name or email), sorting field, and sort order.
+  # Returns a `GetUsersResponseOrError` containing user data and request status.
+  getAllUsers(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of users per page.
+    search: String # Optional search keyword (e.g., name or email).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetUsersResponseOrError!
+
+  # Fetch user role by ID.
+  # Retrieves a specific role's information using its ID.
+  # Returns a `GetRoleByIDResponseOrError` containing role data and request status.
+  getRoleById(id: String!): GetRoleByIDResponseOrError!
+
+  # Fetch all roles with pagination, filtering, and sorting.
+  # Retrieves a paginated list of user roles.
+  # Supports filtering by search term (name or description) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetRolesResponseOrError` containing roles data and request status.
+  getAllRoles(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of roles per page.
+    search: String # Optional search term (matches name or description).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetRolesResponseOrError!
+
+  # Fetch permissions for a specific user.
+  # Retrieves all permissions assigned to a user by their user ID.
+  # Returns a `GetPermissionsResponseOrError` containing permission data and request status.
+  getAllPermissionsByUserId(id: ID!): GetPermissionsResponseOrError!
+
+  # Fetch own permissions.
+  # Retrieves all permissions assigned to the authenticated user.
+  # Returns a `GetPermissionsResponseOrError` containing permission data and request status.
+  getOwnPersonalizedPermissions: GetPermissionsResponseOrError!
+}
