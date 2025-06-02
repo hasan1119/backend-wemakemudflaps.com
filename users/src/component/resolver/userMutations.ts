@@ -5,6 +5,7 @@ import {
   deleteUserRole,
   forgetPassword,
   login,
+  logout,
   register,
   resetPassword,
   restoreUserRole,
@@ -94,5 +95,10 @@ export const userMutationsResolver = {
      * Updates role assignments for a specific user.
      */
     updateUserRole,
+
+    /**
+     * Logs out authenticated users by clearing their session or authentication tokens.
+     */
+    logout,
   },
 };

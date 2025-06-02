@@ -6,6 +6,7 @@ import {
   getTotalUserCountByRoleIdFromRedis,
   getUserInfoByEmailFromRedis,
   getUserInfoByUserIdFromRedis,
+  removeUserRolesInfoFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setTotalUserCountByRoleIdInRedis,
@@ -39,7 +40,7 @@ import {
  * Handles updating a user's roles with validation, permission checks, and cache management.
  *
  * Workflow:
- * 1. Verifies user authentication and retrieves user data from Redis or database.
+ * 1. Verifies user authentication and retrieves user data from Redis.
  * 2. Checks permission to update user roles.
  * 3. Validates input (roleAddIds, roleRemoveIds, userId, password) using Zod schema.
  * 4. For non-Super Admin users, verifies provided password.
@@ -423,6 +424,7 @@ export const updateUserRole = async (
     await Promise.all([
       setUserInfoByUserIdInRedis(updatedUser.id, updatedUser),
       setUserInfoByEmailInRedis(updatedUser.email, updatedUser),
+      removeUserRolesInfoFromRedis(updatedUser.id),
       removeUserTokenByUserIdFromRedis(updatedUser.id),
     ]);
 

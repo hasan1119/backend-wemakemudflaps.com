@@ -26,7 +26,7 @@ import {
  * Handles updating an existing user role's information with validation and permission checks.
  *
  * Workflow:
- * 1. Verifies user authentication and retrieves user data from Redis or database.
+ * 1. Verifies user authentication and retrieves user data from Redis.
  * 2. Checks user permission to update roles.
  * 3. Validates input (role ID, name, description, permissions, protection flags, password) using Zod schema.
  * 4. For non-Super Admin users, verifies provided password.

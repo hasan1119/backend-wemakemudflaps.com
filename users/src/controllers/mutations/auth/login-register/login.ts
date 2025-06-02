@@ -3,14 +3,17 @@ import { Context } from "../../../../context";
 import {
   getLockoutSessionFromRedis,
   getLoginAttemptsFromRedis,
+  getRoleInfoByRoleNameFromRedis,
   getUserInfoByEmailFromRedis,
   removeLockoutSessionFromRedis,
   removeLoginAttemptsFromRedis,
   setLockoutSessionInRedis,
   setLoginAttemptsInRedis,
+  setRoleInfoByRoleNameInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
   setUserPermissionsByUserIdInRedis,
+  setUserRolesInfoInRedis,
   setUserTokenInfoByUserIdInRedis,
 } from "../../../../helper/redis";
 import {
@@ -21,21 +24,22 @@ import {
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import { loginSchema } from "../../../../utils/data-validation";
 import EncodeToken from "../../../../utils/jwt/encode-token";
-import { getUserByEmail } from "../../../services";
+import { mapUserToResponseByEmail } from "../../../../utils/mapper";
+import { findRolesByNames, getUserByEmail } from "../../../services";
 
 /**
  * Handles user login functionality.
  *
  * Workflow:
  * 1. Validates the login input (email and password) using Zod schema.
- * 2. Attempts to retrieve cached user data from Redis to improve performance.
+ * 2. Attempts to retrieve cached user data and role infos from Redis to improve performance.
  * 3. If cache miss, fetches user data from the database and caches it in Redis.
  * 4. Checks for account lockout state and enforces lockout duration if applicable.
  * 5. Verifies the provided password against the stored hash.
  * 6. Tracks failed login attempts and enforces lockout after multiple failures.
  * 7. Validates whether the user's email is verified and account is activated.
  * 8. Clears failed login attempt counters upon successful login.
- * 9. Caches user session data and permissions in Redis for subsequent requests.
+ * 9. Caches user session data, role infos and permissions in Redis for subsequent requests.
  * 10. Generates and returns a JWT token with a 30-day expiration.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
@@ -77,9 +81,9 @@ export const login = async (
 
     if (!user) {
       // On cache miss, query user from database
-      user = await getUserByEmail(email);
+      const dbUser = await getUserByEmail(email);
 
-      if (!user) {
+      if (!dbUser) {
         // Return error if user not found or deleted
         return {
           statusCode: 400,
@@ -89,11 +93,47 @@ export const login = async (
         };
       }
 
+      user = await mapUserToResponseByEmail(dbUser);
+
       // Cache user data in Redis by both email and userId
       await Promise.all([
-        setUserInfoByEmailInRedis(email, user),
-        setUserInfoByUserIdInRedis(user.id, user),
+        setUserInfoByEmailInRedis(email, dbUser),
+        setUserInfoByUserIdInRedis(dbUser.id, dbUser),
       ]);
+    }
+
+    // Attempt to get cached user roles data from Redis by role names
+    let rolesInfoByName;
+
+    rolesInfoByName = await Promise.all(
+      user.roles.map(async (roleName) => {
+        const roleInfo = await getRoleInfoByRoleNameFromRedis(roleName);
+        return roleInfo ?? null; // Return null if not found
+      })
+    );
+
+    // Identify missing roles not found in Redis
+    const missingRoleNames = user.roles.filter(
+      (_, index) => rolesInfoByName[index] === null
+    );
+
+    if (missingRoleNames.length > 0) {
+      // Fetch missing roles from database
+      const dbRoles = await findRolesByNames(missingRoleNames);
+
+      // Merge fetched roles into rolesInfoByName
+      rolesInfoByName = rolesInfoByName.map(
+        (roleInfo, index) =>
+          roleInfo ??
+          dbRoles.find((dbRole) => dbRole.name === user.roles[index])
+      );
+
+      // Cache newly fetched roles in Redis
+      await Promise.all(
+        dbRoles.map((dbRole) =>
+          setRoleInfoByRoleNameInRedis(dbRole.name, dbRole)
+        )
+      );
     }
 
     // Check for any active account lockout session in Redis
@@ -183,6 +223,7 @@ export const login = async (
     await Promise.all([
       setUserTokenInfoByUserIdInRedis(user.id, userSessionData, 25920000),
       setUserPermissionsByUserIdInRedis(user.id, user),
+      setUserRolesInfoInRedis(user.id, rolesInfoByName),
     ]);
 
     // Generate JWT token with 30-day expiration

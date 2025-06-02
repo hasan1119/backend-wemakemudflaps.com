@@ -53,7 +53,7 @@ export const getProfile = async (
         };
       }
       // Map user data to response format
-      userExist = mapUserToResponseById(userExist.id);
+      userExist = await mapUserToResponseById(userExist);
 
       // Cache user data in Redis
       await setUserInfoByUserIdInRedis(userExist.id, userExist);

@@ -7,9 +7,11 @@
  * 3. Supports changing passwords for authenticated users.
  * 4. Handles forgotten passwords by sending reset instructions.
  * 5. Facilitates secure password resets through a validation process.
+ * 6. Logs out authenticated users by clearing their session or authentication tokens.
  */
 export { login } from "./mutations/auth/login-register/login";
 export { register } from "./mutations/auth/login-register/register";
+export { logout } from "./mutations/auth/logout/logout";
 export { changePassword } from "./mutations/auth/password/change-password";
 export { forgetPassword } from "./mutations/auth/password/forget-password";
 export { resetPassword } from "./mutations/auth/password/reset-password";
