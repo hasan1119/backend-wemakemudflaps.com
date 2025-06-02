@@ -1,4 +1,4 @@
-import { Permission, RolePermission, User } from "../../../../entities";
+import { Permission, Role, RolePermission, User } from "../../../../entities";
 import { PermissionSession, RolePermissionSession } from "../../../../types";
 import { mapPermissions } from "../../../../utils/mapper";
 import { redis } from "../../redis";
@@ -6,6 +6,7 @@ import { redis } from "../../redis";
 // Defines prefixes for Redis keys used for permission session caching
 const PREFIX = {
   PERMISSIONS_USER: "permissions:user:",
+  USER_ROLES_INFO: "user:roles:info:",
   ROLE_PERMISSIONS: "role_permissions:",
 };
 
@@ -31,6 +32,23 @@ export const setUserPermissionsByUserIdInRedis = async (
     sessionData = await mapPermissions([data as Permission]);
   }
   await redis.setSession(`${PREFIX.PERMISSIONS_USER}${userId}`, sessionData);
+};
+
+/**
+ * Handles storing user role data in Redis by user ID.
+ *
+ * Workflow:
+ * 1. Stores the role data in Redis with the user roles info prefix and user ID.
+ *
+ * @param userId - The ID of the user.
+ * @param data - The Role data to store.
+ * @returns A promise resolving when the roles are stored.
+ */
+export const setUserRolesInfoInRedis = async (
+  userId: string,
+  data: Role[]
+): Promise<void> => {
+  await redis.setSession(`${PREFIX.USER_ROLES_INFO}${userId}`, data);
 };
 
 /**
@@ -69,6 +87,22 @@ export const getUserPermissionsByUserIdFromRedis = async (
 };
 
 /**
+ * Handles retrieval of user role data from Redis by user ID.
+ *
+ * Workflow:
+ * 1. Queries Redis using the user roles info prefix and user ID.
+ * 2. Returns the parsed Role data or null if not found.
+ *
+ * @param userId - The ID of the user.
+ * @returns A promise resolving to the Role data or null if not found.
+ */
+export const getUserRolesInfoFromRedis = async (
+  userId: string
+): Promise<Role[] | null> => {
+  return redis.getSession<Role[] | null>(`${PREFIX.USER_ROLES_INFO}${userId}`);
+};
+
+/**
  * Handles retrieval of role permissions data from Redis by role ID.
  *
  * Workflow:
@@ -99,6 +133,21 @@ export const removeUserPermissionsFromRedis = async (
   userId: string
 ): Promise<void> => {
   return redis.deleteSession(`${PREFIX.PERMISSIONS_USER}${userId}`);
+};
+
+/**
+ * Handles removal of user role data from Redis by user ID.
+ *
+ * Workflow:
+ * 1. Deletes the role data from Redis using the user roles info prefix and user ID.
+ *
+ * @param userId - The ID of the user.
+ * @returns A promise resolving when the role data is removed.
+ */
+export const removeUserRolesInfoFromRedis = async (
+  userId: string
+): Promise<void> => {
+  return redis.deleteSession(`${PREFIX.USER_ROLES_INFO}${userId}`);
 };
 
 /**

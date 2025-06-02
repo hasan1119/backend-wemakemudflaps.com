@@ -101,9 +101,7 @@ export const getRoleById = async (
       }
 
       // Cache role data in Redis
-      await setRoleInfoByRoleIdInRedis(id, dbRole);
-
-      roleData = dbRole;
+      roleData = await setRoleInfoByRoleIdInRedis(id, dbRole);
     }
 
     // Retrieve total user count for the role from Redis

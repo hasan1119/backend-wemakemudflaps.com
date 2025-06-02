@@ -125,4 +125,9 @@ type Mutation {
     userId: ID! # User ID provided in activation email.
     email: String! # User's email associated with account.
   ): ActiveAccountResponseOrError!
+
+  # Logout the currently authenticated user.
+  # Clears authentication tokens (e.g., cookies or headers) to end the session.
+  # Ensures the user is securely logged out of the system.
+  logout():BaseResponseOrError!
 }

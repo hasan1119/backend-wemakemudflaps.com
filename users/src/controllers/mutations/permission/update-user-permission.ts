@@ -30,7 +30,7 @@ import {
  * Handles updating a user's permissions with validation and permission checks.
  *
  * Workflow:
- * 1. Verifies user authentication and retrieves user data from Redis or database.
+ * 1. Verifies user authentication and retrieves user data from Redis.
  * 2. Checks permission to update user permissions.
  * 3. Validates input (userId, accessAll, deniedAll, permissions, password) using Zod schema.
  * 4. For non-Super Admin users, verifies provided password.
@@ -304,7 +304,7 @@ export const updateUserPermission = async (
     return {
       statusCode: 200,
       success: true,
-      message: "User permissions updated successfully",
+      message: "User's personalized permissions updated successfully",
       __typename: "BaseResponse",
     };
   } catch (error: any) {

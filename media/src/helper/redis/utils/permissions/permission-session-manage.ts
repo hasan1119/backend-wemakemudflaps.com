@@ -4,6 +4,7 @@ import { redis } from "../../redis";
 // Defines prefixes for Redis keys used for permission session caching
 const PREFIX = {
   PERMISSIONS_USER: "permissions:user:",
+  USER_ROLES_INFO: "user:roles:info:",
 };
 
 /**
@@ -22,4 +23,20 @@ export const getUserPermissionsByUserIdFromRedis = async (
   return redis.getSession<RolePermissionSession[] | null>(
     `${PREFIX.PERMISSIONS_USER}${userId}`
   );
+};
+
+/**
+ * Handles retrieval of user role data from Redis by user ID.
+ *
+ * Workflow:
+ * 1. Queries Redis using the user roles info prefix and user ID.
+ * 2. Returns the parsed Role data or null if not found.
+ *
+ * @param userId - The ID of the user.
+ * @returns A promise resolving to the Role data or null if not found.
+ */
+export const getUserRolesInfoFromRedis = async (
+  userId: string
+): Promise<any[] | null> => {
+  return redis.getSession<any[] | null>(`${PREFIX.USER_ROLES_INFO}${userId}`);
 };

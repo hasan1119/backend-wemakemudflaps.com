@@ -1,7 +1,7 @@
 import { Permission, RolePermission } from "../../../entities";
 import {
-  getRoleInfoByRoleNameFromRedis,
   getUserPermissionsByUserIdFromRedis,
+  getUserRolesInfoFromRedis,
 } from "../../../helper/redis";
 import { RolePermissionSession } from "../../../types";
 import { mapPermissions } from "../../../utils/mapper";
@@ -50,14 +50,12 @@ export async function checkUserPermission({
     return false;
   }
 
-  // Retrieve role-based permissions from Redis
-  let rolesInfoByName = await Promise.all(
-    user.roles.map((roleName) => getRoleInfoByRoleNameFromRedis(roleName))
-  );
+  // Retrieve user permissions against role from Redis
+  let userRolesInfo = await getUserRolesInfoFromRedis(user.id);
 
   // Map role permissions to RolePermissionSession format
   const permissionsArrays = await Promise.all(
-    rolesInfoByName.map((role) =>
+    userRolesInfo.map((role) =>
       mapPermissions(
         role?.defaultPermissions as Permission[] | RolePermission[]
       )

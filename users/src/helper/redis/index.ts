@@ -25,18 +25,21 @@ export {
 } from "./utils/password/password-session-manage";
 
 /**
- * Exports utilities for managing permission session data in Redis.
+ * Exports utilities for managing permission and user roles session data in Redis.
  *
  * Workflow:
- * 1. Provides functions for getting, setting, and removing user and role permissions.
+ * 1. Provides functions for getting, setting, and removing user, user roles info and role permissions.
  */
 export {
   getPermissionAgainstRoleFromRedis,
   getUserPermissionsByUserIdFromRedis,
+  getUserRolesInfoFromRedis,
   removePermissionAgainstRoleFromRedis,
   removeUserPermissionsFromRedis,
+  removeUserRolesInfoFromRedis,
   setPermissionAgainstRoleInRedis,
   setUserPermissionsByUserIdInRedis,
+  setUserRolesInfoInRedis,
 } from "./utils/permissions/permission-session-manage";
 
 /**

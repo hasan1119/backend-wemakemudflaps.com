@@ -22,7 +22,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   countUsersWithRole,
-  getRoleById,
+  getRolesByIds,
   hardDeleteRole,
   softDeleteRole,
 } from "../../services";
@@ -143,20 +143,56 @@ export const deleteUserRole = async (
       }
     }
 
+    // Attempt to retrieve role data from Redis
+    const cachedRoles = await Promise.all(
+      ids.map(getRoleInfoByRoleIdFromRedis)
+    );
+
+    const foundRoles: any[] = [];
+    const missingIds: string[] = [];
+
+    cachedRoles.forEach((role, index) => {
+      if (role) {
+        foundRoles.push(role);
+      } else {
+        missingIds.push(ids[index]);
+      }
+    });
+
+    // Fetch missing roles from the database
+    if (missingIds.length > 0) {
+      const dbRoles = await getRolesByIds(missingIds);
+      if (dbRoles.length !== missingIds.length) {
+        const dbFoundIds = new Set(dbRoles.map((r) => r.id));
+        const notFoundRoles = missingIds
+          .filter((id) => !dbFoundIds.has(id))
+          .map((id) => id);
+
+        const notFoundNames = notFoundRoles.map((id) => {
+          const role = dbRoles.find((r) => r.id === id);
+          return role ? role.name : '"Unknown Role"';
+        });
+
+        return {
+          statusCode: 404,
+          success: false,
+          message: `Roles with name: ${notFoundNames.join(", ")} not found`,
+          __typename: "BaseResponse",
+        };
+      }
+      foundRoles.push(...dbRoles);
+    }
+
     const deletedRoles: string[] = [];
 
-    for (const id of ids) {
-      // Attempt to retrieve role data from Redis
-      let roleData;
-
-      roleData = await getRoleInfoByRoleIdFromRedis(id);
-      if (!roleData) {
-        // On cache miss, fetch role data from database
-        roleData = await getRoleById(id);
-      }
-
-      const { systemDeleteProtection, systemPermanentDeleteProtection, name } =
-        roleData;
+    for (const roleData of foundRoles) {
+      const {
+        id,
+        name,
+        systemDeleteProtection,
+        systemPermanentDeleteProtection,
+        deletedAt,
+      } = roleData;
 
       // Prevent deletes to permanently protected roles
       if (systemPermanentDeleteProtection) {
@@ -210,6 +246,16 @@ export const deleteUserRole = async (
         await hardDeleteRole(id);
         await clearRoleCache(id, name);
       } else {
+        // Verify role is soft-deleted
+        if (deletedAt) {
+          return {
+            statusCode: 400,
+            success: false,
+            message: `Role: ${roleData.name} already in the trash`,
+            __typename: "BaseResponse",
+          };
+        }
+
         await softDeleteAndCache(id);
       }
 

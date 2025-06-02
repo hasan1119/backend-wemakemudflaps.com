@@ -1,6 +1,10 @@
 import { ILike } from "typeorm";
 import { Permission, User } from "../../../entities";
-import { getUserInfoByUserIdFromRedis } from "../../../helper/redis";
+import {
+  getUserInfoByUserIdFromRedis,
+  setUserInfoByUserIdInRedis,
+} from "../../../helper/redis";
+import { mapUserToResponseById } from "../../../utils/mapper";
 import {
   permissionRepository,
   userRepository,
@@ -85,22 +89,18 @@ export const CreatedBy = {
 
     if (!userData) {
       // On cache miss, fetch user from database
-      userData = await userRepository.findOne({
-        where: { id },
-        select: {
-          firstName: true,
-          lastName: true,
-          roles: {
-            name: true,
-          },
-        },
-      });
+      const dbUser = await getUserById(id);
 
-      if (!userData) return null;
+      if (!dbUser) return null;
+
+      userData = await mapUserToResponseById(dbUser);
+
+      // Cache user data in Redis id
+      await setUserInfoByUserIdInRedis(id, userData);
     }
 
     return {
-      id: userData.id,
+      id: userData.name,
       name: `${userData.firstName} ${userData.lastName}`,
       roles: userData.roles,
     };
