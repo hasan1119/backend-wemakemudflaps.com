@@ -1,8 +1,8 @@
 import {
   Column,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -11,34 +11,35 @@ import { Role } from "./user-role.entity";
 
 @Entity()
 export class User {
+  // Defines the unique identifier for the user
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // First name of the user
+  // Stores the user's first name
   @Column()
   firstName: string;
 
-  // Last name of the user
+  // Stores the user's last name
   @Column()
   lastName: string;
 
-  // User's unique email address
+  // Stores the user's unique email address
   @Column({ unique: true })
   email: string;
 
-  // User's avatar URL (Optional)
+  // Stores the URL for the user's avatar (optional)
   @Column({ unique: true, nullable: true, default: null })
   avatar: string | null;
 
-  // User's unique temp email address during profile update
+  // Stores a temporary email address during profile updates
   @Column({ unique: true, nullable: true, default: null })
   tempUpdatedEmail: string | null;
 
-  // Hashed password of the user
+  // Stores the user's hashed password
   @Column()
   password: string;
 
-  // Gender of the user (optional)
+  // Stores the user's gender (optional)
   @Column({
     type: "enum",
     enum: ["Male", "Female", "Others", "Rather not to say"],
@@ -47,47 +48,59 @@ export class User {
   })
   gender: string | null;
 
-  // Each user has only one role
-  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
-  @JoinColumn({ name: "roleId" })
-  role: Role;
+  // Establishes a many-to-many relationship with roles
+  @ManyToMany(() => Role, (role) => role.users)
+  @JoinTable({
+    name: "user_roles", // Custom pivot table for user-role relationships
+    joinColumn: { name: "userId", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "roleId", referencedColumnName: "id" },
+  })
+  roles: Role[];
 
-  // Forget password token
+  // Stores the token for password reset (optional)
   @Column({ nullable: true, default: null })
   resetPasswordToken: string | null;
 
-  // Reset password token expiry
+  // Stores the expiry timestamp for the password reset token
   @Column({ type: "timestamp", nullable: true, default: null })
   resetPasswordTokenExpiry: Date | null;
 
-  // Roles created by this user
+  // Establishes a one-to-many relationship for roles created by the user
   @OneToMany(() => Role, (role) => role.createdBy)
-  roles: Role[];
+  createdRoles: Role[];
 
-  // Permissions specific to each user (can be empty or null)
+  // Establishes a one-to-many relationship for user-specific permissions
   @OneToMany(() => Permission, (permission) => permission.user, {
-    nullable: true, // <-- optional, makes it explicit
-    cascade: true, // <-- optional if you want to persist related permissions automatically
+    nullable: true, // Makes permissions optional
+    cascade: true, // Automatically persists related permissions
   })
   permissions?: Permission[] | null;
 
-  // Email verified status
+  // Indicates whether the user's permissions can be updated
+  @Column({ default: true })
+  canUpdatePermissions: boolean;
+
+  // Indicates whether the user's role can be updated
+  @Column({ default: false })
+  canUpdateRole: boolean;
+
+  // Indicates whether the user's email is verified
   @Column({ default: false })
   emailVerified: boolean;
 
-  // User's unique temp email address verification status during profile update
-  @Column({ default: false, nullable: true })
+  // Stores the verification status of a temporary email during profile updates
+  @Column({ default: null, nullable: true })
   tempEmailVerified: boolean | null;
 
-  // Account activation status
+  // Indicates whether the user's account is activated
   @Column({ default: false })
   isAccountActivated: boolean;
 
-  // Timestamp when the user was created
+  // Stores the timestamp when the user was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
-  // Timestamp for soft deletion (null if not deleted)
+  // Stores the timestamp for soft deletion (null if not deleted)
   @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

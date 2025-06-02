@@ -1,39 +1,32 @@
-import { ILike, Repository } from "typeorm";
 import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Permission } from "../../../entities/permission.entity";
-import { Role } from "../../../entities/user-role.entity";
-import { User } from "../../../entities/user.entity";
 import {
   getRolesCountFromRedis,
   getRolesFromRedis,
   getTotalUserCountByRoleIdFromRedis,
-  getUserInfoByUserIdFromRedis,
-  getUserPermissionsByUserIdFromRedis,
   setRolesCountInRedis,
   setRolesInRedis,
   setTotalUserCountByRoleIdInRedis,
-  setUserInfoByUserIdInRedis,
-  setUserPermissionsByUserIdInRedis,
 } from "../../../helper/redis";
-import {
-  CachedRoleInputs,
-  CachedUserPermissionsInputs,
-  GetRolesResponseOrError,
-  QueryGetAllRolesArgs,
-  UserSession,
-} from "../../../types";
+import { GetRolesResponseOrError, QueryGetAllRolesArgs } from "../../../types";
 import {
   paginationSchema,
   rolesSortingSchema,
 } from "../../../utils/data-validation";
-import { checkUserAuth } from "../../session-check/session-check";
+import { mapPermissions } from "../../../utils/mapper";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  countRolesWithSearch,
+  paginateRoles,
+} from "../../services";
+import { userRepository } from "../../services/repositories/repositories";
 
-// Combine pagination and sorting schemas
+// Combine pagination and sorting schemas for validation
 const combinedSchema = z.intersection(paginationSchema, rolesSortingSchema);
 
-// Map GraphQL args to combined schema fields
+// Map GraphQL input arguments to schema fields
 const mapArgsToPagination = (args: QueryGetAllRolesArgs) => ({
   page: args.page,
   limit: args.limit,
@@ -43,20 +36,24 @@ const mapArgsToPagination = (args: QueryGetAllRolesArgs) => ({
 });
 
 /**
- * Fetches a paginated list of roles with optional search and sorting.
- * - Validates input using combined paginationSchema and rolesSortingSchema (Zod).
- * - Restricts sortBy to id, name, description, createdAt, deletedAt.
- * - Authenticates user and checks read permission for Role.
- * - Checks Redis cache for role data and totalUserCount before querying the database.
- * - Fetches non-deleted roles with pagination, search (on name, description), and sorting.
- * - Calculates totalUserCount per role dynamically, caching in Redis.
- * - Caches role data in Redis for common queries (excluding totalUserCount).
- * - Returns a RolesResponse with role details or an error response.
+ * Handles fetching a paginated list of roles with optional search and sorting.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments containing page, limit, search, sortBy, sortOrder
- * @param context - GraphQL context with AppDataSource and user info
- * @returns Promise<GetRolesResponseOrError> - List of roles or error response
+ * Workflow:
+ * 1. Verifies user authentication and checks read permission for roles.
+ * 2. Validates input (page, limit, search, sortBy, sortOrder) using Zod schemas.
+ * 3. Attempts to retrieve roles and total count from Redis for performance.
+ * 4. On cache miss, fetches roles from the database with pagination, search, and sorting.
+ * 5. Maps database roles to cached format, including creator details.
+ * 6. Caches roles and total count in Redis, excluding user counts.
+ * 7. Calculates total role count if not cached and stores it in Redis.
+ * 8. Retrieves or calculates user count per role, caching results in Redis.
+ * 9. Constructs response with role details, including permissions and user counts.
+ * 10. Returns a success response or error if validation, permission, or retrieval fails.
+ *
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing page, limit, search, sortBy, and sortOrder.
+ * @param context - GraphQL context containing AppDataSource and authenticated user information.
+ * @returns A promise resolving to a GetRolesResponseOrError object containing status, message, roles, total count, and errors if applicable.
  */
 export const getAllRoles = async (
   _: any,
@@ -64,117 +61,34 @@ export const getAllRoles = async (
   { AppDataSource, user }: Context
 ): Promise<GetRolesResponseOrError> => {
   try {
-    // Check user authentication
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Initialize repositories
-    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
-    const permissionRepository: Repository<Permission> =
-      AppDataSource.getRepository(Permission);
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+    // Check if user has permission to view roles
+    const canRead = await checkUserPermission({
+      action: "canRead",
+      entity: "role",
+      user,
+    });
 
-    // Check Redis for cached user data
-    let userData = await getUserInfoByUserIdFromRedis(user.id);
-
-    if (!userData) {
-      // Cache miss: Fetch user from database
-      const dbUser = await userRepository.findOne({
-        where: { id: user.id, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          gender: true,
-          role: { name: true },
-          emailVerified: true,
-          isAccountActivated: true,
-        },
-      });
-
-      if (!dbUser) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Authenticated user not found in database",
-          __typename: "ErrorResponse",
-        };
-      }
-
-      const userSession: UserSession = {
-        id: dbUser.id,
-        email: dbUser.email,
-        firstName: dbUser.firstName || "",
-        lastName: dbUser.lastName || "",
-        role: dbUser.role.name,
-        gender: dbUser.gender || "",
-        emailVerified: dbUser.emailVerified || false,
-        isAccountActivated: dbUser.isAccountActivated || false,
-      };
-
-      userData = userSession;
-
-      // Cache user in Redis
-      await setUserInfoByUserIdInRedis(user.id, userSession);
-    }
-
-    // Check Redis for cached user permissions
-    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
-
-    if (!userPermissions) {
-      // Cache miss: Fetch permissions from database
-      userPermissions = await permissionRepository.find({
-        where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
-      });
-
-      const cachedPermissions: CachedUserPermissionsInputs[] =
-        userPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description || "",
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
-
-      // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(user.id, cachedPermissions);
-      userPermissions = cachedPermissions;
-    }
-
-    // Check if the user has "canRead" permission for Role
-    const canReadRole = userPermissions.some(
-      (permission) => permission.name === "Role" && permission.canRead
-    );
-
-    if (!canReadRole) {
+    if (!canRead) {
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to view roles",
+        message: "You do not have permission to view roles info",
         __typename: "BaseResponse",
       };
     }
 
-    // Map and validate input
+    // Map and validate input arguments
     const mappedArgs = mapArgsToPagination(args);
     const validationResult = await combinedSchema.safeParseAsync(mappedArgs);
 
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join("."), // Join path array to string for field identification
         message: error.message,
       }));
 
@@ -189,7 +103,7 @@ export const getAllRoles = async (
 
     const { page, limit, search, sortBy, sortOrder } = mappedArgs;
 
-    // Check Redis for cached roles and total count
+    // Attempt to retrieve cached roles and total count from Redis
     let rolesData;
 
     rolesData = await getRolesFromRedis(page, limit, search, sortBy, sortOrder);
@@ -199,41 +113,18 @@ export const getAllRoles = async (
     total = await getRolesCountFromRedis(search, sortBy, sortOrder);
 
     if (!rolesData) {
-      // Cache miss: Fetch roles from database
-      const skip = (page - 1) * limit;
-      const where: any[] = [{ deletedAt: null }];
-      if (search) {
-        const searchTerm = `%${search.trim()}%`;
-        where.push(
-          { name: ILike(searchTerm) },
-          { description: ILike(searchTerm) }
-        );
-      }
-
-      const [dbRoles, queryTotal] = await roleRepository.findAndCount({
-        where,
-        relations: ["createdBy", "createdBy.role"],
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          createdAt: true,
-          deletedAt: true,
-          createdBy: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            role: { name: true },
-          },
-        },
-        order: { [sortBy]: sortOrder.toUpperCase() },
-        skip,
-        take: limit,
+      // On cache miss, fetch roles from database
+      const { roles: dbRoles, total: queryTotal } = await paginateRoles({
+        page,
+        limit,
+        search,
+        sortBy,
+        sortOrder,
       });
 
       total = queryTotal;
 
-      // Map roles to CachedRoleInputs
+      // Map database roles to cached format
       rolesData = await Promise.all(
         dbRoles.map(async (role) => {
           const createdBy = await role.createdBy;
@@ -242,74 +133,69 @@ export const getAllRoles = async (
             id: role.id,
             name: role.name,
             description: role.description || "",
-            createdAt: role.createdAt.toISOString(),
-            deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
+            defaultPermissions: await mapPermissions(role.defaultPermissions),
+            systemDeleteProtection: role.systemDeleteProtection,
+            systemUpdateProtection: role.systemUpdateProtection,
+            systemPermanentDeleteProtection:
+              role.systemPermanentDeleteProtection,
+            systemPermanentUpdateProtection:
+              role.systemPermanentUpdateProtection,
             createdBy: createdBy
               ? {
                   id: createdBy.id,
                   name: createdBy.firstName + " " + createdBy.lastName,
-                  role: createdBy.role.name,
+                  roles: createdBy.roles.map((role) => role.name),
                 }
               : null,
+            createdAt: role.createdAt.toISOString(),
+            deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
           };
         })
       );
 
-      const cachedRoleInputs: CachedRoleInputs[] = rolesData;
-
-      // Cache roles and roles count in Redis (without totalUserCount)
+      // Cache roles and total count in Redis
       await Promise.all([
-        setRolesInRedis(
-          page,
-          limit,
-          search,
-          sortBy,
-          sortOrder,
-          cachedRoleInputs
-        ),
+        setRolesInRedis(page, limit, search, sortBy, sortOrder, rolesData),
         setRolesCountInRedis(search, sortBy, sortOrder, total),
       ]);
     }
 
-    // Calculate total if not cached
+    // Calculate total role count if not cached
     if (total === 0) {
-      const where: any[] = [{ deletedAt: null }];
-      if (search) {
-        const searchTerm = `%${search.trim()}%`;
-        where.push(
-          { name: ILike(searchTerm) },
-          { description: ILike(searchTerm) }
-        );
-      }
+      total = await countRolesWithSearch(search);
 
-      total = await roleRepository.count({ where });
-
-      // Cache total roles count in Redis
+      // Cache total count in Redis
       await setRolesCountInRedis(search, sortBy, sortOrder, total);
     }
 
-    // Calculate totalUserCount for each role, using Redis cache when available
+    // Calculate user count for each role
     const responseRoles = await Promise.all(
       rolesData.map(async (role) => {
-        let totalUserCount;
+        let assignedUserCount;
 
-        totalUserCount = await getTotalUserCountByRoleIdFromRedis(role.id);
+        // Attempt to retrieve user count from Redis
+        assignedUserCount = await getTotalUserCountByRoleIdFromRedis(role.id);
 
-        if (totalUserCount === 0) {
-          // Cache miss: Fetch count from database
-          totalUserCount = await userRepository.count({
-            where: { role: { id: role.id }, deletedAt: null },
+        if (assignedUserCount === 0) {
+          // On cache miss, fetch user count from database
+          assignedUserCount = await userRepository.count({
+            where: { roles: { id: role.id }, deletedAt: null },
           });
 
-          // Cache count in Redis
-          await setTotalUserCountByRoleIdInRedis(role.id, totalUserCount);
+          // Cache user count in Redis
+          await setTotalUserCountByRoleIdInRedis(role.id, assignedUserCount);
         }
 
         return {
           id: role.id,
           name: role.name,
           description: role.description,
-          totalUserCount,
+          defaultPermissions: await mapPermissions(role.defaultPermissions),
+          assignedUserCount,
+          systemDeleteProtection: role.systemDeleteProtection,
+          systemUpdateProtection: role.systemUpdateProtection,
+          systemPermanentDeleteProtection: role.systemPermanentDeleteProtection,
+          systemPermanentUpdateProtection: role.systemPermanentUpdateProtection,
           createdBy: role.createdBy,
           createdAt: role.createdAt,
           deletedAt: role.deletedAt,
@@ -317,7 +203,6 @@ export const getAllRoles = async (
       })
     );
 
-    // Return RolesResponse
     return {
       statusCode: 200,
       success: true,

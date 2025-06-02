@@ -5,94 +5,58 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { PERMISSIONS } from "../utils/data-validation";
+import type { PermissionName } from "./../utils/data-validation";
 import { User } from "./user.entity";
-
-// Define PermissionName as a TypeScript type (union of literals)
-export type PermissionName =
-  | "User"
-  | "Brand"
-  | "Category"
-  | "Product"
-  | "Permission"
-  | "Product Review"
-  | "Shipping Class"
-  | "Sub Category"
-  | "Tax Class"
-  | "Tax Status"
-  | "FAQ"
-  | "News Letter"
-  | "Pop Up Banner"
-  | "Privacy & Policy"
-  | "Terms & Conditions"
-  | "Order"
-  | "Role"
-  | "Notification"
-  | "Media";
 
 @Entity()
 export class Permission {
+  // Defines the unique identifier for the permission
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // Permissions
+  // Stores the role permission name
   @Column({
     type: "enum",
-    enum: [
-      "User",
-      "Brand",
-      "Category",
-      "Product",
-      "Permission",
-      "Product Review",
-      "Shipping Class",
-      "Sub Category",
-      "Tax Class",
-      "Tax Status",
-      "FAQ",
-      "News Letter",
-      "Pop Up Banner",
-      "Privacy & Policy",
-      "Terms & Conditions",
-      "Order",
-      "Role",
-      "Notification",
-      "Media",
-    ],
+    enum: PERMISSIONS,
   })
   name: PermissionName;
 
-  // Description for the permission
+  // Stores the permission description
   @Column({ nullable: true, default: null })
   description: string | null;
 
-  // The user who has this permission
+  // Establishes a many-to-one relationship for the associated user
   @ManyToOne(() => User, (user) => user.permissions, { nullable: false })
   @JoinColumn({ name: "userId" })
   user: Promise<User>;
 
-  // User who created the permission
+  // Establishes a many-to-one relationship for created by the user
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: "createdBy" })
   createdBy: Promise<User> | null;
 
-  // CRUD permissions for the user
-  @Column()
+  // Stores the permission can create
+  @Column({ nullable: false, default: false })
   canCreate: boolean;
 
-  @Column()
+  // Stores the permission can read
+  @Column({ nullable: false, default: false })
   canRead: boolean;
 
-  @Column()
+  // Stores the permission can update
+  @Column({ nullable: false, default: false })
   canUpdate: boolean;
 
-  @Column()
+  // Stores the permission can delete
+  @Column({ nullable: false, default: false })
   canDelete: boolean;
 
-  // Timestamp when the permission was created
+  // Stores the timestamp when the permission was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
-  // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  // Stores the timestamp for soft deletion (null if not deleted)
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

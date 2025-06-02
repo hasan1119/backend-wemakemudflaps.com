@@ -1,4 +1,13 @@
 {
+  /**
+   * TypeScript compiler configuration for the project.
+   *
+   * Workflow:
+   * 1. Configures the target JavaScript version and module system.
+   * 2. Enables features like strict mode, decorator support, and JSON module resolution.
+   * 3. Specifies input and output directories for compilation.
+   * 4. Defines included files and type roots for type checking.
+   */
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",

@@ -1,63 +1,50 @@
-import { Repository } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { User } from "../../../entities/user.entity";
 import {
   getUserInfoByUserIdFromRedis,
   setUserInfoByUserIdInRedis,
 } from "../../../helper/redis";
-import { GetProfileResponseOrError, UserSession } from "../../../types";
-import { checkUserAuth } from "../../session-check/session-check";
+import { GetProfileResponseOrError } from "../../../types";
+import { mapUserToResponseById } from "../../../utils/mapper";
+import { checkUserAuth, getUserById } from "../../services";
 
 /**
- * Retrieves the authenticated user's profile data, including their role name.
- * - Checks Redis cache for user data before querying the database.
- * - Fetches the user by ID, including their role relation.
- * - Caches user and role data in Redis for future requests.
- * - Returns the user profile with role name or an error response.
+ * Handles retrieval of the authenticated user's profile data.
  *
- * @param _ - Unused GraphQL parent argument
- * @param __ - Unused GraphQL argument
- * @param context - GraphQL context with AppDataSource and user info
- * @returns Promise<GetProfileResponseOrError> - User details with role name or error response
+ * Workflow:
+ * 1. Verifies user authentication.
+ * 2. Attempts to retrieve user data from Redis for performance optimization.
+ * 3. On cache miss, fetches user data from the database by ID.
+ * 4. Maps user data to response format, including role information.
+ * 5. Caches user data in Redis for future requests.
+ * 6. Returns a success response with user profile or an error if authentication, user lookup, or retrieval fails.
+ *
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param __ - Unused arguments parameter for GraphQL resolver.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a GetProfileResponseOrError object containing status, message, user data, and errors if applicable.
  */
 export const getProfile = async (
   _: any,
   __: any,
-  { AppDataSource, user }: Context
+  { user }: Context
 ): Promise<GetProfileResponseOrError> => {
   try {
-    // Check user authentication
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
-
-    // Check Redis for cached user data
+    // Attempt to retrieve cached user data from Redis
     let userExist;
 
     userExist = await getUserInfoByUserIdFromRedis(user.id);
 
-    // Check the user exists or not
+    // Check if user exists
     if (!userExist) {
-      const dbUser = await userRepository.findOne({
-        where: { id: user.id, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          gender: true,
-          role: {
-            name: true,
-          },
-          emailVerified: true,
-          isAccountActivated: true,
-        },
-      });
+      // On cache miss, fetch user data from database
+      userExist = await getUserById(user.id);
 
-      if (!dbUser) {
+      if (!userExist) {
         return {
           statusCode: 404,
           success: false,
@@ -65,22 +52,11 @@ export const getProfile = async (
           __typename: "BaseResponse",
         };
       }
+      // Map user data to response format
+      userExist = await mapUserToResponseById(userExist);
 
-      const userData: UserSession = {
-        id: dbUser.id,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        email: dbUser.email,
-        gender: dbUser.gender,
-        role: dbUser.role.name,
-        emailVerified: dbUser.emailVerified,
-        isAccountActivated: dbUser.isAccountActivated,
-      };
-
-      // Cache user in Redis
-      await setUserInfoByUserIdInRedis(dbUser.id, userData);
-
-      userExist = userData;
+      // Cache user data in Redis
+      await setUserInfoByUserIdInRedis(userExist.id, userExist);
     }
 
     return {

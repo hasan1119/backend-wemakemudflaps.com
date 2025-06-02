@@ -5,16 +5,17 @@ import {
 } from "../../component/resolver";
 
 /**
- * Merges all GraphQL resolvers into a single unified resolver object.
+ * Handles merging of all GraphQL resolvers into a single unified resolver object.
+ *
+ * Workflow:
+ * 1. Imports media mutation and query resolvers from the resolver component.
+ * 2. Uses mergeResolvers to combine all resolver objects into one.
+ * 3. Exports the unified resolver object for use in the GraphQL server.
  */
 export const resolvers = mergeResolvers([
-  /**
-   * Resolver for media mutations (e.g., modifying media data).
-   */
+  // Media mutations resolver for modifying media data
   mediaMutationsResolver,
 
-  /**
-   * Resolver for media queries (e.g., fetching media data).
-   */
+  // Media queries resolver for fetching media data
   mediaQueriesResolver,
 ]) as any;

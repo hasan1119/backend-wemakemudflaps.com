@@ -1,54 +1,26 @@
 import jwt from "jsonwebtoken";
 import config from "../../config/config";
-
-// Define the payload type for better type safety
-interface TokenPayload {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  gender: string;
-  emailVerified: boolean;
-  isAccountActivated: boolean;
-}
+import { UserSession } from "../../types";
+import { mapUserToTokenData } from "../mapper";
 
 /**
- * Generates a JWT token for a user based on their details.
+ * Generates a signed JWT token for a user session.
  *
- * @param id - The user's unique ID.
- * @param firstName - The user's first name.
- * @param lastName - The user's last name.
- * @param email - The user's email.
- * @param gender - The user's gender.
- * @param role - The user's role.
- * @param emailVerified - The user's email verification status.
- * @param isAccountActivated - The user's account activation status.
- * @param expiresIn - Optional. The token expiration time.
- * @returns {Promise<string>} - A promise that resolves to the signed JWT token.
+ * Workflow:
+ * 1. Maps the provided UserSession data to a token payload format.
+ * 2. Signs the payload with the configured secret key and expiration time.
+ * 3. Returns the generated JWT token as a string.
+ *
+ * @param data - The UserSession data to encode.
+ * @param expiresIn - Optional expiration time for the token (defaults to config.EXPIRE).
+ * @returns A promise resolving to the signed JWT token.
  */
 const EncodeToken = async (
-  id: string,
-  firstName: string,
-  lastName: string,
-  email: string,
-  gender: string,
-  role: string,
-  emailVerified: boolean,
-  isAccountActivated: boolean,
+  data: UserSession,
   expiresIn?: string
 ): Promise<string> => {
   // Create the token payload
-  const PAYLOAD: TokenPayload = {
-    id,
-    firstName,
-    lastName,
-    email,
-    gender,
-    role,
-    emailVerified,
-    isAccountActivated,
-  };
+  const PAYLOAD = await mapUserToTokenData(data);
 
   // Use the provided expiresIn value or the default from config
   const tokenExpiresIn = expiresIn || config.EXPIRE;

@@ -6,7 +6,7 @@ import {
 } from "../../../types";
 import { idsSchema } from "../../../utils/data-validation";
 import { checkUserAuth } from "../../services/session-check/session-check";
-import { deleteMediaFiles as deleteFiles } from "../../services/upload-and-delete/upload-and-media-files";
+import { deleteMediaFiles as deleteFiles } from "../../services/upload-and-delete/upload-and-delete-media-files";
 
 export const deleteMediaFiles = async (
   _: any,

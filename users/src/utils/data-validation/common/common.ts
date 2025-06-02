@@ -1,25 +1,147 @@
 import { z } from "zod";
 
-// ID Schema (Single UUID)
+// Defines an array of permission names used in permission schemas
+export const PERMISSIONS = [
+  "User",
+  "Brand",
+  "Category",
+  "Product",
+  "Permission",
+  "Product Review",
+  "Shipping Class",
+  "Sub Category",
+  "Tax Class",
+  "Tax Status",
+  "Faq",
+  "News Letter",
+  "Pop Up Banner",
+  "Privacy Policy",
+  "Terms & Conditions",
+  "Order",
+  "Role",
+  "Notification",
+  "Media",
+  "Coupon",
+];
+
+// Defines a TypeScript type for permission names as a union of literals
+export type PermissionName =
+  | "User"
+  | "Brand"
+  | "Category"
+  | "Product"
+  | "Permission"
+  | "Product Review"
+  | "Shipping Class"
+  | "Sub Category"
+  | "Tax Class"
+  | "Tax Status"
+  | "Faq"
+  | "News Letter"
+  | "Pop Up Banner"
+  | "Privacy Policy"
+  | "Terms & Conditions"
+  | "Order"
+  | "Role"
+  | "Notification"
+  | "Media"
+  | "Coupon";
+
+// Defines a mapping for permission values used in permission schemas
+export const permissionMap: Record<string, string> = {
+  USER: "User",
+  BRAND: "Brand",
+  CATEGORY: "Category",
+  PRODUCT: "Product",
+  PERMISSION: "Permission",
+  PRODUCT_REVIEW: "Product Review",
+  SHIPPING_CLASS: "Shipping Class",
+  SUB_CATEGORY: "Sub Category",
+  TAX_CLASS: "Tax Class",
+  TAX_STATUS: "Tax Status",
+  FAQ: "Faq",
+  NEWS_LETTER: "News Letter",
+  POP_UP_BANNER: "Pop Up Banner",
+  PRIVACY_POLICY: "Privacy Policy",
+  TERMS_CONDITIONS: "Terms & Conditions",
+  ORDER: "Order",
+  ROLE: "Role",
+  NOTIFICATION: "Notification",
+  MEDIA: "Media",
+  COUPON: "Coupon",
+};
+
+/**
+ * Defines an enum for permission names used in permission schemas.
+ *
+ * Workflow:
+ * 1. Preprocesses input to match case-insensitive permission names from PERMISSIONS.
+ * 2. Returns the matched permission or undefined if no match is found.
+ * 3. Validates against the PERMISSIONS array as a Zod enum.
+ *
+ * @type z.ZodEnum<[string, ...string[]]>
+ */
+export const PermissionEnum = z.preprocess((val) => {
+  if (typeof val === "string") {
+    const matched = PERMISSIONS.find(
+      (perm) => perm.toLowerCase() === val.trim().toLowerCase()
+    );
+    return matched ?? undefined;
+  }
+  return undefined;
+}, z.enum([...PERMISSIONS] as [string, ...string[]]));
+
+/**
+ * Defines the schema for validating a single UUID.
+ *
+ * Workflow:
+ * 1. Validates that the id field is a valid UUID string.
+ *
+ * @property id - The UUID string to validate.
+ */
 export const idSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
 });
 
-// IDs Schema (Array of UUIDs)
+/**
+ * Defines the schema for validating an array of UUIDs.
+ *
+ * Workflow:
+ * 1. Validates that the ids field is a non-empty array of valid UUID strings.
+ *
+ * @property ids - An array of UUID strings (at least one required).
+ */
 export const idsSchema = z.object({
   ids: z
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .min(1, { message: "At least one UUID is required" }),
 });
 
-// IDs Schema (Array of UUIDs)
+/**
+ * Defines the schema for validating the skipTrash flag.
+ *
+ * Workflow:
+ * 1. Validates that skipTrash is a boolean value.
+ *
+ * @property skipTrash - Boolean flag to indicate skipping trash.
+ */
 export const skipTrashSchema = z.object({
   skipTrash: z.boolean().refine((val) => typeof val === "boolean", {
     message: "skipTrash must be a boolean value",
   }),
 });
 
-// Pagination Schema
+/**
+ * Defines the schema for validating pagination parameters.
+ *
+ * Workflow:
+ * 1. Validates page and limit as positive numbers (limit max 100).
+ * 2. Allows an optional search term (max 100 chars, nullable).
+ *
+ * @property page - The page number (minimum 1).
+ * @property limit - The number of items per page (1-100).
+ * @property search - Optional search term (max 100 chars).
+ */
 export const paginationSchema = z.object({
   page: z.number().min(1, { message: "Page number must be at least 1" }),
   limit: z
@@ -30,23 +152,46 @@ export const paginationSchema = z.object({
     .string()
     .min(0, { message: "Search term is required" })
     .max(100, { message: "Search term is too long" })
+    .nullable()
     .optional(),
 });
 
-// Roles Sorting Schema
+/**
+ * Defines the schema for validating role sorting parameters.
+ *
+ * Workflow:
+ * 1. Validates sortBy as one of the allowed fields (id, name, description, createdAt, deletedAt).
+ * 2. Validates sortOrder as either 'asc' or 'desc'.
+ * 3. Allows both fields to be nullable or optional.
+ *
+ * @property sortBy - Field to sort by (id, name, description, createdAt, deletedAt).
+ * @property sortOrder - Sort order direction (asc, desc).
+ */
 export const rolesSortingSchema = z.object({
   sortBy: z
     .enum(["id", "name", "description", "createdAt", "deletedAt"], {
       message:
         "Sort field must be one of: id, name, description, createdAt, deletedAt",
     })
+    .nullable()
     .optional(),
   sortOrder: z
     .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
+    .nullable()
     .optional(),
 });
 
-// Users Sorting Schema
+/**
+ * Defines the schema for validating user sorting parameters.
+ *
+ * Workflow:
+ * 1. Validates sortBy as one of the allowed fields (id, firstName, lastName, email, etc.).
+ * 2. Validates sortOrder as either 'asc' or 'desc'.
+ * 3. Allows both fields to be nullable or optional.
+ *
+ * @property sortBy - Field to sort by (id, firstName, lastName, email, etc.).
+ * @property sortOrder - Sort order direction (asc, desc).
+ */
 export const usersSortingSchema = z.object({
   sortBy: z
     .enum(
@@ -57,7 +202,7 @@ export const usersSortingSchema = z.object({
         "email",
         "emailVerified",
         "gender",
-        "role",
+        "roles",
         "isAccountActivated",
         "createdAt",
         "deletedAt",
@@ -67,8 +212,10 @@ export const usersSortingSchema = z.object({
           "Sort field must be one of: id, firstName, lastName, email, emailVerified, gender, role, isAccountActivated, createdAt, deletedAt",
       }
     )
+    .nullable()
     .optional(),
   sortOrder: z
     .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
+    .nullable()
     .optional(),
 });

@@ -5,8 +5,9 @@ import {
   MutationUploadMediaFilesArgs,
 } from "../../../types";
 import { createUploadMediaFilesSchema } from "../../../utils/data-validation";
+import { checkUserPermission } from "../../services";
 import { checkUserAuth } from "../../services/session-check/session-check";
-import { uploadMediaFiles as uploadFiles } from "../../services/upload-and-delete/upload-and-media-files";
+import { uploadMediaFiles as uploadFiles } from "../../services/upload-and-delete/upload-and-delete-media-files";
 
 export const uploadMediaFiles = async (
   _: any,
@@ -19,6 +20,22 @@ export const uploadMediaFiles = async (
     // Check user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
+
+    // Check if user has permission to create a role
+    const canCreate = await checkUserPermission({
+      action: "canCreate",
+      entity: "media",
+      user,
+    });
+
+    if (!canCreate) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "You do not have permission to create role",
+        __typename: "BaseResponse",
+      };
+    }
 
     // Create schema with context user.id for validation
     const UploadMediaFilesSchema = createUploadMediaFilesSchema(user.id);

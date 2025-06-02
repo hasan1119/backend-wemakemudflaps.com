@@ -1,34 +1,7 @@
 import { z } from "zod";
+import { PermissionEnum } from "../common/common";
 
-// Define the Permission enum as per your GraphQL schema
-export const PermissionEnum = z.enum(
-  [
-    "User",
-    "Brand",
-    "Category",
-    "Permission",
-    "Product",
-    "Product Review",
-    "Shipping Class",
-    "Sub Category",
-    "Tax Class",
-    "Tax Status",
-    "FAQ",
-    "News Letter",
-    "Pop Up Banner",
-    "Privacy & Policy",
-    "Terms & Conditions",
-    "Order",
-    "Role",
-    "Notification",
-    "Media",
-  ],
-  {
-    errorMap: () => ({ message: "Invalid permission name" }),
-  }
-);
-
-// Single permission object schema
+// Defines the schema for a single permission object
 const singlePermissionSchema = z.object({
   name: PermissionEnum,
   canCreate: z
@@ -57,45 +30,48 @@ const singlePermissionSchema = z.object({
     .optional(),
 });
 
-// Define the Zod schema for the update user's permission input
+/**
+ * Defines the schema for updating a user's permissions.
+ *
+ * Workflow:
+ * 1. Validates userId as a UUID.
+ * 2. Allows optional accessAll or deniedAll flags (mutually exclusive).
+ * 3. Validates an optional array of permissions if neither flag is true.
+ * 4. Ensures either both flags are null or exactly one is true.
+ * 5. Allows an optional password field.
+ *
+ * @property userId - UUID of the user to update.
+ * @property accessAll - If true, grants all permissions (permissions array omitted).
+ * @property deniedAll - If true, denies all permissions (permissions array omitted).
+ * @property permissions - Array of permission objects (required if no flags).
+ * @property password - Optional password for the update.
+ */
 export const updateUserPermissionSchema = z
   .object({
     userId: z.string().uuid({ message: "Invalid UUID format" }),
     accessAll: z
       .boolean({ message: "accessAll must be a boolean" })
-      .default(false)
+      .nullable()
       .optional(),
     deniedAll: z
       .boolean({ message: "deniedAll must be a boolean" })
-      .default(false)
+      .nullable()
       .optional(),
     permissions: z
       .array(singlePermissionSchema)
+      .nullable()
       .optional()
-      .refine((val) => val === undefined || val.length > 0, {
-        message:
-          "Permissions must be a non-empty array of valid permission objects",
-      }),
+      .default([]),
+    password: z.string().nullable().optional(),
   })
   .refine(
-    (data) => !(data.accessAll && data.deniedAll), // both cannot be true
-    {
-      message: "Only one of accessAll or deniedAll can be true",
-      path: ["accessAll"],
-    }
-  )
-  .refine(
-    (data) => {
-      // If either accessAll or deniedAll is true, permissions must be omitted
-      if (data.accessAll || data.deniedAll) {
-        return !data.permissions || data.permissions.length === 0;
-      }
-      // Otherwise, permissions must be provided
-      return Array.isArray(data.permissions) && data.permissions.length > 0;
-    },
+    (data) =>
+      (data.accessAll === null && data.deniedAll === null) ||
+      ((data.accessAll === true || data.deniedAll === true) &&
+        !(data.accessAll === true && data.deniedAll === true)),
     {
       message:
-        "If accessAll or deniedAll is true, permissions must be omitted. Otherwise, provide at least one permission.",
-      path: ["permissions"],
+        "Either both accessAll and deniedAll must be null, or exactly one must be true.",
+      path: ["accessAll"],
     }
   );

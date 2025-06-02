@@ -1,22 +1,22 @@
-import { Repository } from "typeorm";
-import { Context } from "../../../../context";
-import { User } from "../../../../entities/user.entity";
-
 import CONFIG from "../../../../config/config";
+import { Context } from "../../../../context";
 import {
   getLockoutSessionFromRedis,
   getLoginAttemptsFromRedis,
-  getUserInfoByEmailInRedis,
+  getRoleInfoByRoleNameFromRedis,
+  getUserInfoByEmailFromRedis,
   removeLockoutSessionFromRedis,
   removeLoginAttemptsFromRedis,
   setLockoutSessionInRedis,
   setLoginAttemptsInRedis,
+  setRoleInfoByRoleNameInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
+  setUserPermissionsByUserIdInRedis,
+  setUserRolesInfoInRedis,
   setUserTokenInfoByUserIdInRedis,
 } from "../../../../helper/redis";
 import {
-  CachedUserSessionByEmailKeyInputs,
   MutationLoginArgs,
   UserLoginResponseOrError,
   UserSession,
@@ -24,40 +24,42 @@ import {
 import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import { loginSchema } from "../../../../utils/data-validation";
 import EncodeToken from "../../../../utils/jwt/encode-token";
+import { mapUserToResponseByEmail } from "../../../../utils/mapper";
+import { findRolesByNames, getUserByEmail } from "../../../services";
 
 /**
- * Logs a user into the system.
+ * Handles user login functionality.
  *
- * Steps:
- * - Validates input using Zod schema
- * - Checks Redis for user data to optimize performance via caching
- * - Verifies the account activation status, email verification status, password and handles account lockout logic
- * - Generates and returns a JWT token upon successful login
- * - Cache necessary user data in redis for future request
+ * Workflow:
+ * 1. Validates the login input (email and password) using Zod schema.
+ * 2. Attempts to retrieve cached user data and role infos from Redis to improve performance.
+ * 3. If cache miss, fetches user data from the database and caches it in Redis.
+ * 4. Checks for account lockout state and enforces lockout duration if applicable.
+ * 5. Verifies the provided password against the stored hash.
+ * 6. Tracks failed login attempts and enforces lockout after multiple failures.
+ * 7. Validates whether the user's email is verified and account is activated.
+ * 8. Clears failed login attempt counters upon successful login.
+ * 9. Caches user session data, role infos and permissions in Redis for subsequent requests.
+ * 10. Generates and returns a JWT token with a 30-day expiration.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for login (email, password)
- * @param context - GraphQL context with AppDataSource
- * @returns Promise<UserLoginResponseOrError> - Response status and message
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing email and password.
+ * @param __ - GraphQL context (unused here).
+ * @returns A promise resolving to a UserLoginResponseOrError object containing status, messages, and token if successful.
  */
 export const login = async (
   _: any,
   args: MutationLoginArgs,
-  { AppDataSource }: Context
+  __: Context
 ): Promise<UserLoginResponseOrError> => {
-  const { email, password } = args;
-
   try {
-    // Validate input data using Zod schema
-    const validationResult = await loginSchema.safeParseAsync({
-      email,
-      password,
-    });
+    // Validate input data with Zod schema
+    const validationResult = await loginSchema.safeParseAsync(args);
 
-    // If validation fails, return detailed error messages with field names
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."), // Converts the path array to a string
+        field: error.path.join("."), // Join path array to string for field identification
         message: error.message,
       }));
 
@@ -70,35 +72,19 @@ export const login = async (
       };
     }
 
-    // Initialize repositories for User entity
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+    const { email, password } = validationResult.data;
 
-    // Check Redis for cached user's data
+    // Attempt to get cached user data from Redis by email
     let user;
 
-    user = await getUserInfoByEmailInRedis(email);
+    user = await getUserInfoByEmailFromRedis(email);
 
     if (!user) {
-      // Cache miss: Fetch user from database
-      const dbUser = await userRepository.findOne({
-        where: { email, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          emailVerified: true,
-          gender: true,
-          role: {
-            name: true,
-          },
-          password: true,
-          isAccountActivated: true,
-        },
-      });
+      // On cache miss, query user from database
+      const dbUser = await getUserByEmail(email);
 
       if (!dbUser) {
+        // Return error if user not found or deleted
         return {
           statusCode: 400,
           success: false,
@@ -107,44 +93,61 @@ export const login = async (
         };
       }
 
-      user = {
-        ...dbUser,
-        role: dbUser.role.name,
-      };
+      user = await mapUserToResponseByEmail(dbUser);
 
-      const userSessionByEmail: CachedUserSessionByEmailKeyInputs = {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        emailVerified: user.emailVerified,
-        gender: user.gender,
-        role: user.role.name,
-        password: user.password,
-        isAccountActivated: user.isAccountActivated,
-        tempUpdatedEmail: user.tempUpdatedEmail,
-        tempEmailVerified: user.tempEmailVerified,
-      };
-
-      // Cache user in Redis
-      await setUserInfoByEmailInRedis(email, userSessionByEmail);
+      // Cache user data in Redis by both email and userId
+      await Promise.all([
+        setUserInfoByEmailInRedis(email, dbUser),
+        setUserInfoByUserIdInRedis(dbUser.id, dbUser),
+      ]);
     }
 
-    // Account lock check using Redis session data
+    // Attempt to get cached user roles data from Redis by role names
+    let rolesInfoByName;
+
+    rolesInfoByName = await Promise.all(
+      user.roles.map(async (roleName) => {
+        const roleInfo = await getRoleInfoByRoleNameFromRedis(roleName);
+        return roleInfo ?? null; // Return null if not found
+      })
+    );
+
+    // Identify missing roles not found in Redis
+    const missingRoleNames = user.roles.filter(
+      (_, index) => rolesInfoByName[index] === null
+    );
+
+    if (missingRoleNames.length > 0) {
+      // Fetch missing roles from database
+      const dbRoles = await findRolesByNames(missingRoleNames);
+
+      // Merge fetched roles into rolesInfoByName
+      rolesInfoByName = rolesInfoByName.map(
+        (roleInfo, index) =>
+          roleInfo ??
+          dbRoles.find((dbRole) => dbRole.name === user.roles[index])
+      );
+
+      // Cache newly fetched roles in Redis
+      await Promise.all(
+        dbRoles.map((dbRole) =>
+          setRoleInfoByRoleNameInRedis(dbRole.name, dbRole)
+        )
+      );
+    }
+
+    // Check for any active account lockout session in Redis
     const lockoutSession = await getLockoutSessionFromRedis(user.email);
 
-    // Handle lockout state
     if (lockoutSession) {
-      const { lockedAt, duration } = lockoutSession; // Cast to LockoutSession type
+      const { lockedAt, duration } = lockoutSession;
 
-      const timePassed = Math.floor((Date.now() - lockedAt) / 1000); // Time passed in seconds
-
+      const timePassed = Math.floor((Date.now() - lockedAt) / 1000); // seconds elapsed
       const timeLeft = duration - timePassed;
 
       if (timeLeft > 0) {
-        // If lock time is remaining, return the time left
+        // Lockout still active, inform user of remaining lockout time
         const minutes = Math.floor(timeLeft / 60);
-
         const seconds = timeLeft % 60;
 
         return {
@@ -154,21 +157,23 @@ export const login = async (
           __typename: "ErrorResponse",
         };
       } else {
-        // Clear cache and unlock the account if the lock time has expired
+        // Lockout expired, remove lockout session to allow login attempts
         await removeLockoutSessionFromRedis(user.email);
       }
     }
 
-    // Verify password
-    if (!(await CompareInfo(password, user.password))) {
+    // Verify the user's password using bcrypt comparison
+    const passwordValid = await CompareInfo(password, user.password);
+    if (!passwordValid) {
+      // Increment failed login attempts counter in Redis
       const newAttempts = (await getLoginAttemptsFromRedis(user.email)) + 1;
-
       await setLoginAttemptsInRedis(user.email, newAttempts);
 
+      // Lock account after 5 failed attempts for 15 minutes
       if (newAttempts >= 5) {
         await setLockoutSessionInRedis(user.email, {
           lockedAt: Date.now(),
-          duration: 900,
+          duration: 900, // 15 minutes in seconds
         });
         return {
           statusCode: 400,
@@ -178,6 +183,7 @@ export const login = async (
         };
       }
 
+      // Return invalid password error otherwise
       return {
         statusCode: 400,
         success: false,
@@ -186,59 +192,42 @@ export const login = async (
       };
     }
 
-    // Check whether user email is verified and account is activated or not
+    // Ensure user's email is verified and account is activated before allowing login
     if (!user.emailVerified && !user.isAccountActivated) {
       return {
         statusCode: 400,
         success: false,
         message:
-          "Your mail isn't verified and account isn't activated. Please verify your mail to active your account.",
+          "Your mail isn't verified and account isn't activated. Please verify your mail to activate your account.",
         __typename: "ErrorResponse",
       };
     }
 
-    // Clear cache login attempts after successful password verification
+    // Clear failed login attempts after successful login
     await removeLoginAttemptsFromRedis(user.email);
 
-    // Initiate the empty variable for the user role
-    let roleName;
-
-    if (typeof user.role !== "string") {
-      roleName = user.role.name; // Safe update
-    } else {
-      roleName = user.role; // Direct assignment
-    }
-
-    // Generate JWT token
-    const token = await EncodeToken(
-      user.id,
-      user.firstName,
-      user.lastName,
-      user.email,
-      user.gender,
-      roleName,
-      user.emailVerified,
-      user.isAccountActivated,
-      "30d" // Set the token expiration time
-    );
-
-    // Create and store session
-    const session: UserSession = {
+    // Prepare user session data for JWT token and caching
+    const userSessionData: UserSession = {
       id: user.id,
+      avatar: user.avatar,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
       gender: user.gender,
-      role: roleName,
+      roles: user.roles.map((role) => role.toUpperCase()),
       emailVerified: user.emailVerified,
       isAccountActivated: user.isAccountActivated,
     };
 
-    // Cache user, user session for curd in Redis with configurable TTL(30 days = 25920000)
+    // Cache user session and permissions in Redis with TTL (30 days)
     await Promise.all([
-      setUserTokenInfoByUserIdInRedis(user.id, session, 25920000),
-      setUserInfoByUserIdInRedis(user.id, session),
+      setUserTokenInfoByUserIdInRedis(user.id, userSessionData, 25920000),
+      setUserPermissionsByUserIdInRedis(user.id, user),
+      setUserRolesInfoInRedis(user.id, rolesInfoByName),
     ]);
+
+    // Generate JWT token with 30-day expiration
+    const token = await EncodeToken(userSessionData, "30d");
 
     return {
       statusCode: 200,

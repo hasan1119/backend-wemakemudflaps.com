@@ -1,3 +1,11 @@
+/**
+ * Handles merging of all GraphQL schemas into a single unified type definition.
+ *
+ * Workflow:
+ * 1. Imports user-related schema definitions from the schemas component.
+ * 2. Uses mergeTypeDefs to combine all schema definitions into one.
+ * 3. Exports the unified type definition for use in the GraphQL server.
+ */
 import { mergeTypeDefs } from "@graphql-tools/merge";
 import {
   userDef,
@@ -5,10 +13,21 @@ import {
   userQueriesDef,
 } from "../../component/schemas";
 
-// Merge all schemas into a single type definition.
+/**
+ * Handles merging of all GraphQL schemas into a single unified type definition.
+ *
+ * Workflow:
+ * 1. Imports user-related schema definitions from the schemas component.
+ * 2. Uses mergeTypeDefs to combine all schema definitions into one.
+ * 3. Exports the unified type definition for use in the GraphQL server.
+ */
 export const typeDefs = mergeTypeDefs([
-  // Merging all the GraphQL schemas into one unified schema
-  userDef, // User schema definition (main user model)
-  userQueriesDef, // User queries (e.g., fetching user data)
-  userMutationsDef, // User mutations (e.g., modifying user data)
+  // Main user schema definition
+  userDef,
+
+  // Schema for user queries (fetching user data)
+  userQueriesDef,
+
+  // Schema for user mutations (modifying user data)
+  userMutationsDef,
 ]);

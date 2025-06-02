@@ -1,35 +1,33 @@
-import { ILike, Repository } from "typeorm";
+import { ILike } from "typeorm";
 import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Permission } from "../../../entities/permission.entity";
-import { User } from "../../../entities/user.entity";
 import {
-  getUserInfoByUserIdFromRedis,
-  getUserPermissionsByUserIdFromRedis,
   getUsersCountFromRedis,
   getUsersFromRedis,
-  setUserInfoByUserIdInRedis,
-  setUserPermissionsByUserIdInRedis,
   setUsersCountInRedis,
   setUsersInRedis,
 } from "../../../helper/redis";
 import {
-  CachedUserPermissionsInputs,
   GetUsersResponseOrError,
+  PermissionName,
   QueryGetAllUsersArgs,
-  UserSession,
 } from "../../../types";
 import {
   paginationSchema,
   usersSortingSchema,
 } from "../../../utils/data-validation";
-import { checkUserAuth } from "../../session-check/session-check";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  getPaginatedUsers,
+} from "../../services";
+import { userRepository } from "../../services/repositories/repositories";
 
-// Combine pagination and sorting schemas
+// Combine pagination and sorting schemas for validation
 const combinedSchema = z.intersection(paginationSchema, usersSortingSchema);
 
-// Map GraphQL args to combined schema fields
+// Map GraphQL input arguments to schema fields
 const mapArgsToPagination = (args: QueryGetAllUsersArgs) => ({
   page: args.page,
   limit: args.limit,
@@ -39,121 +37,42 @@ const mapArgsToPagination = (args: QueryGetAllUsersArgs) => ({
 });
 
 /**
- * Fetches a paginated list of users with optional search and sorting.
- * - Validates input using combined paginationSchema and usersSortingSchema (Zod).
- * - Restricts sortBy to id, firstName, lastName, email, emailVerified, gender, role, isAccountActivated, createdAt, deletedAt.
- * - Authenticates user and checks read permission for User.
- * - Checks Redis cache for user data before querying the database.
- * - Fetches non-deleted users with pagination, search (on firstName, lastName, email, role.name), and sorting.
- * - Caches user data in Redis for common queries.
- * - Returns a UsersResponse with user details or an error response.
+ * Handles fetching a paginated list of users with optional search and sorting.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments containing page, limit, search, sortBy, sortOrder
- * @param context - GraphQL context with AppDataSource and user info
- * @returns Promise<GetUsersResponseOrError> - List of users or error response
+ * Workflow:
+ * 1. Verifies user authentication and checks read permission for users.
+ * 2. Validates input (page, limit, search, sortBy, sortOrder) using Zod schemas.
+ * 3. Attempts to retrieve users and total count from Redis for performance.
+ * 4. On cache miss, fetches users from the database with pagination, search, and sorting.
+ * 5. Maps database users to cached format, including roles and permissions.
+ * 6. Caches users and total count in Redis.
+ * 7. Calculates total user count if not cached, using search conditions, and stores it in Redis.
+ * 8. Maps cached users to response format with role and permission details.
+ * 9. Returns a success response with user list and total count or an error if validation, permission, or retrieval fails.
+ *
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing page, limit, search, sortBy, and sortOrder.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a GetUsersResponseOrError object containing status, message, users, total count, and errors if applicable.
  */
 export const getAllUsers = async (
   _: any,
   args: QueryGetAllUsersArgs,
-  { AppDataSource, user }: Context
+  { user }: Context
 ): Promise<GetUsersResponseOrError> => {
   try {
-    // Check user authentication
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Initialize repositories
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
-    const permissionRepository: Repository<Permission> =
-      AppDataSource.getRepository(Permission);
+    // Check if user has permission to view users
+    const canRead = await checkUserPermission({
+      action: "canRead",
+      entity: "user",
+      user,
+    });
 
-    // Check Redis for cached user data
-    let userData = await getUserInfoByUserIdFromRedis(user.id);
-
-    if (!userData) {
-      // Cache miss: Fetch user from database
-      const dbUser = await userRepository.findOne({
-        where: { id: user.id, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          gender: true,
-          role: { id: true, name: true },
-          emailVerified: true,
-          isAccountActivated: true,
-        },
-      });
-
-      if (!dbUser) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Authenticated user not found in database",
-          __typename: "ErrorResponse",
-        };
-      }
-
-      const userSession: UserSession = {
-        id: dbUser.id,
-        email: dbUser.email,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        role: dbUser.role.name,
-        gender: dbUser.gender,
-        emailVerified: dbUser.emailVerified,
-        isAccountActivated: dbUser.isAccountActivated,
-      };
-
-      userData = userSession;
-
-      // Cache user in Redis
-      await setUserInfoByUserIdInRedis(user.id, userSession);
-    }
-
-    // Check Redis for cached user permissions
-    let userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
-
-    if (!userPermissions) {
-      // Cache miss: Fetch permissions from database
-      userPermissions = await permissionRepository.find({
-        where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
-      });
-
-      const cachedPermissions: CachedUserPermissionsInputs[] =
-        userPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description || "",
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
-
-      // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(user.id, cachedPermissions);
-      userPermissions = cachedPermissions;
-    }
-
-    // Check if the user has "canRead" permission for User
-    const canReadUser = userPermissions.some(
-      (permission) => permission.name === "User" && permission.canRead
-    );
-
-    if (!canReadUser) {
+    if (!canRead) {
       return {
         statusCode: 403,
         success: false,
@@ -162,13 +81,14 @@ export const getAllUsers = async (
       };
     }
 
-    // Map and validate input
+    // Map and validate input arguments
     const mappedArgs = mapArgsToPagination(args);
     const validationResult = await combinedSchema.safeParseAsync(mappedArgs);
 
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join("."), // Join path array to string for field identification
         message: error.message,
       }));
 
@@ -183,7 +103,7 @@ export const getAllUsers = async (
 
     const { page, limit, search, sortBy, sortOrder } = mappedArgs;
 
-    // Check Redis for cached users and total count
+    // Attempt to retrieve cached users and total count from Redis
     let usersData = await getUsersFromRedis(
       page,
       limit,
@@ -197,59 +117,18 @@ export const getAllUsers = async (
     total = await getUsersCountFromRedis(search, sortBy, sortOrder);
 
     if (!usersData) {
-      // Cache miss: Fetch users from database
-      const skip = (page - 1) * limit;
-      const where: any[] = [{ deletedAt: null }];
-
-      if (search) {
-        const searchTerm = `%${search.trim()}%`;
-        where.push(
-          { firstName: ILike(searchTerm), deletedAt: null },
-          { lastName: ILike(searchTerm), deletedAt: null },
-          { email: ILike(searchTerm), deletedAt: null },
-          { role: { name: ILike(searchTerm) }, deletedAt: null }
-        );
-      }
-
-      const order: any = {};
-      if (sortBy === "role") {
-        order["role"] = { name: sortOrder.toUpperCase() };
-      } else {
-        order[sortBy] = sortOrder.toUpperCase();
-      }
-
-      const [users, queryTotal] = await userRepository.findAndCount({
-        where,
-        relations: ["role", "permissions"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          emailVerified: true,
-          gender: true,
-          role: { name: true },
-          isAccountActivated: true,
-          permissions: {
-            id: true,
-            name: true,
-            description: true,
-            canCreate: true,
-            canRead: true,
-            canUpdate: true,
-            canDelete: true,
-          },
-          createdAt: true,
-          deletedAt: true,
-        },
-        order,
-        skip,
-        take: limit,
+      // On cache miss, fetch users from database
+      const { users, queryTotal } = await getPaginatedUsers({
+        page,
+        limit,
+        search,
+        sortBy,
+        sortOrder: sortOrder as "asc" | "desc",
       });
 
       total = queryTotal;
 
-      // Map users to CachedUserInputs
+      // Map database users to cached format
       usersData = users.map((user) => ({
         id: user.id,
         firstName: user.firstName,
@@ -257,29 +136,31 @@ export const getAllUsers = async (
         email: user.email,
         emailVerified: user.emailVerified,
         gender: user.gender,
-        role: user.role.name,
+        roles: user.roles.map((role) => role.name.toUpperCase()),
         isAccountActivated: user.isAccountActivated,
         permissions: user.permissions.map((permission) => ({
           id: permission.id,
-          name: permission.name,
+          name: permission.name as PermissionName,
           description: permission.description,
           canCreate: permission.canCreate,
           canRead: permission.canRead,
           canUpdate: permission.canUpdate,
           canDelete: permission.canDelete,
         })),
+        canUpdatePermissions: user.canUpdatePermissions,
+        canUpdateRole: user.canUpdateRole,
         createdAt: user.createdAt.toISOString(),
         deletedAt: user.deletedAt ? user.deletedAt.toISOString() : null,
       }));
 
-      // Cache users and users count in Redis
+      // Cache users and total count in Redis
       await Promise.all([
         setUsersInRedis(page, limit, search, sortBy, sortOrder, usersData),
         setUsersCountInRedis(search, sortBy, sortOrder, total),
       ]);
     }
 
-    // Calculate total if not cached
+    // Calculate total user count if not cached
     if (total === 0) {
       const where: any[] = [{ deletedAt: null }];
       if (search) {
@@ -288,17 +169,18 @@ export const getAllUsers = async (
           { firstName: ILike(searchTerm), deletedAt: null },
           { lastName: ILike(searchTerm), deletedAt: null },
           { email: ILike(searchTerm), deletedAt: null },
-          { role: { name: ILike(searchTerm) }, deletedAt: null }
+          { roles: { name: ILike(searchTerm) }, deletedAt: null }
         );
       }
 
+      // Fetch total count from database
       total = await userRepository.count({ where });
 
-      // Cache users count in Redis
+      // Cache total count in Redis
       await setUsersCountInRedis(search, sortBy, sortOrder, total);
     }
 
-    // Map cached users to User response
+    // Map cached users to response format
     const responseUsers = usersData.map((user) => ({
       id: user.id,
       firstName: user.firstName,
@@ -306,7 +188,7 @@ export const getAllUsers = async (
       email: user.email,
       emailVerified: user.emailVerified,
       gender: user.gender,
-      role: user.role,
+      roles: user.roles.map((role) => role.toUpperCase()),
       isAccountActivated: user.isAccountActivated,
       permissions: user.permissions.map((permission) => ({
         id: permission.id,
@@ -317,11 +199,12 @@ export const getAllUsers = async (
         canUpdate: permission.canUpdate,
         canDelete: permission.canDelete,
       })),
+      canUpdatePermissions: user.canUpdatePermissions,
+      canUpdateRole: user.canUpdateRole,
       createdAt: user.createdAt,
       deletedAt: user.deletedAt,
     }));
 
-    // Return UsersResponse
     return {
       statusCode: 200,
       success: true,

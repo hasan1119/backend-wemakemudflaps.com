@@ -1,150 +1,58 @@
-import { Repository } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Permission } from "../../../entities/permission.entity";
-import { Role } from "../../../entities/user-role.entity";
-import { User } from "../../../entities/user.entity";
 import {
   getRoleInfoByRoleIdFromRedis,
-  getUserInfoByUserIdFromRedis,
-  getUserPermissionsByUserIdFromRedis,
+  getTotalUserCountByRoleIdFromRedis,
   setRoleInfoByRoleIdInRedis,
-  setUserInfoByUserIdInRedis,
-  setUserPermissionsByUserIdInRedis,
+  setTotalUserCountByRoleIdInRedis,
 } from "../../../helper/redis";
 import {
-  CachedRoleInputs,
-  CachedUserPermissionsInputs,
   GetRoleByIdResponseOrError,
   QueryGetRoleByIdArgs,
-  UserSession,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
-import { checkUserAuth } from "../../session-check/session-check";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  countUsersWithRole,
+  getRoleById as getRoleByIdService,
+} from "../../services";
 
 /**
- * Retrieves a single user role by ID with validation and permission checks.
+ * Handles retrieving a user role by its ID with validation and permission checks.
  *
- * Steps:
- * - Validates input using Zod schema
- * - Authenticates user and checks role view permission
- * - Checks Redis cache for role data before querying the database
- * - Returns the role data with combined firstName and lastName for createdBy, including the creator's role name
+ * Workflow:
+ * 1. Verifies user authentication and checks permission to view roles.
+ * 2. Validates input role ID using Zod schema.
+ * 3. Attempts to retrieve role data from Redis for performance optimization.
+ * 4. Fetches role data from the database if not found in Redis and caches it.
+ * 5. Retrieves the total user count for the role, preferring Redis cache.
+ * 6. Fetches user count from the database if not cached and stores it in Redis.
+ * 7. Returns a success response with role data and user count or an error if validation, permission, or retrieval fails.
  *
- * @param _ - Unused GraphQL parent argument
- * @param args - Arguments for retrieving the role (id)
- * @param context - Application context containing AppDataSource and user
- * @returns Promise<GetRoleByIdResponseOrError> - Result of the get operation
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing the role ID.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a GetRoleByIdResponseOrError object containing status, message, role data, and errors if applicable.
  */
 export const getRoleById = async (
   _: any,
   args: QueryGetRoleByIdArgs,
-  { AppDataSource, user }: Context
+  { user }: Context
 ): Promise<GetRoleByIdResponseOrError> => {
-  const { id } = args;
-
   try {
-    // Check user authentication
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Initialize repositories
-    const roleRepository: Repository<Role> = AppDataSource.getRepository(Role);
-    const permissionRepository: Repository<Permission> =
-      AppDataSource.getRepository(Permission);
-    const userRepository: Repository<User> = AppDataSource.getRepository(User);
+    // Check if user has permission to view roles
+    const canRead = await checkUserPermission({
+      action: "canRead",
+      entity: "role",
+      user,
+    });
 
-    // Check Redis for cached user data
-    let userData;
-
-    userData = await getUserInfoByUserIdFromRedis(user.id);
-
-    if (!userData) {
-      // Cache miss: Fetch user from database
-      const dbUser = await userRepository.findOne({
-        where: { id: user.id, deletedAt: null },
-        relations: ["role"],
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          gender: true,
-          role: {
-            name: true,
-          },
-          emailVerified: true,
-          isAccountActivated: true,
-        },
-      });
-
-      if (!dbUser) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Authenticated user not found in database",
-          __typename: "ErrorResponse",
-        };
-      }
-
-      const userSession: UserSession = {
-        id: dbUser.id,
-        email: dbUser.email,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        role: dbUser.role.name,
-        gender: dbUser.gender,
-        emailVerified: dbUser.emailVerified,
-        isAccountActivated: dbUser.isAccountActivated,
-      };
-
-      userData = userSession;
-
-      // Cache user in Redis
-      await setUserInfoByUserIdInRedis(user.id, userSession);
-    }
-
-    // Check Redis for cached user permissions
-    let userPermissions;
-
-    userPermissions = await getUserPermissionsByUserIdFromRedis(user.id);
-
-    if (!userPermissions) {
-      // Cache miss: Fetch permissions from database
-      userPermissions = await permissionRepository.find({
-        where: { user: { id: user.id } },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          canCreate: true,
-          canRead: true,
-          canUpdate: true,
-          canDelete: true,
-        },
-      });
-
-      const cachedPermissions: CachedUserPermissionsInputs[] =
-        userPermissions.map((permission) => ({
-          id: permission.id,
-          name: permission.name,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        }));
-
-      // Cache permissions in Redis
-      await setUserPermissionsByUserIdInRedis(user.id, cachedPermissions);
-    }
-
-    // Check if the user has "canRead" permission for Role
-    const canReadRole = userPermissions.some(
-      (permission) => permission.name === "Role" && permission.canRead
-    );
-
-    if (!canReadRole) {
+    if (!canRead) {
       return {
         statusCode: 403,
         success: false,
@@ -153,12 +61,13 @@ export const getRoleById = async (
       };
     }
 
-    // Validate input data using Zod schema
-    const validationResult = await idSchema.safeParseAsync({ id });
+    // Validate input role ID with Zod schema
+    const validationResult = await idSchema.safeParseAsync(args);
 
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
+        field: error.path.join("."), // Join path array to string for field identification
         message: error.message,
       }));
 
@@ -171,30 +80,16 @@ export const getRoleById = async (
       };
     }
 
-    // Check Redis for cached role data
-    let roleData = await getRoleInfoByRoleIdFromRedis(id);
+    const { id } = args;
+
+    // Attempt to retrieve cached role data from Redis
+    let roleData;
+
+    roleData = await getRoleInfoByRoleIdFromRedis(id);
 
     if (!roleData) {
-      // Cache miss: Fetch role from database
-      const dbRole = await roleRepository.findOne({
-        where: { id },
-        relations: ["createdBy", "createdBy.role"],
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          createdAt: true,
-          deletedAt: true,
-          createdBy: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            role: {
-              name: true,
-            },
-          },
-        },
-      });
+      // On cache miss, fetch role data from database
+      const dbRole = await getRoleByIdService(id);
 
       if (!dbRole) {
         return {
@@ -205,37 +100,19 @@ export const getRoleById = async (
         };
       }
 
-      // Resolve lazy-loaded createdBy
-      const createdBy = await dbRole.createdBy;
+      // Cache role data in Redis
+      roleData = await setRoleInfoByRoleIdInRedis(id, dbRole);
+    }
 
-      // Create role data for response and caching
-      roleData = {
-        id: dbRole.id,
-        name: dbRole.name,
-        description: dbRole.description,
-        createdAt: dbRole.createdAt.toISOString(),
-        deletedAt: dbRole.deletedAt ? dbRole.deletedAt.toISOString() : null,
-        createdBy: createdBy
-          ? {
-              id: createdBy.id,
-              name: createdBy.firstName + " " + createdBy.lastName,
-              role: createdBy.role.name,
-            }
-          : null,
-      };
+    // Retrieve total user count for the role from Redis
+    let assignedUserCount = await getTotalUserCountByRoleIdFromRedis(id);
 
-      // Create a new session for user role
-      const cachedRole: CachedRoleInputs = {
-        id: roleData.id,
-        name: roleData.name,
-        description: roleData.description,
-        createdAt: roleData.createdAt,
-        deletedAt: roleData.deletedAt,
-        createdBy: roleData.createdBy,
-      };
+    if (!assignedUserCount) {
+      // On cache miss, fetch user count from database
+      assignedUserCount = await countUsersWithRole(id);
 
-      // Cache user role info in Redis
-      await setRoleInfoByRoleIdInRedis(id, cachedRole);
+      // Cache user count in Redis
+      await setTotalUserCountByRoleIdInRedis(id, assignedUserCount);
     }
 
     return {
@@ -243,12 +120,8 @@ export const getRoleById = async (
       success: true,
       message: "Role retrieved successfully",
       role: {
-        id: roleData.id,
-        name: roleData.name,
-        description: roleData.description,
-        createdAt: roleData.createdAt,
-        deletedAt: roleData.deletedAt,
-        createdBy: roleData.createdBy,
+        ...roleData,
+        assignedUserCount,
       },
       __typename: "RoleResponse",
     };

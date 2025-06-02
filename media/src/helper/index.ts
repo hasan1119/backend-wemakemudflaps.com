@@ -1,9 +1,10 @@
 /**
- * Exports database and Redis helpers for use throughout the application.
+ * Exports database and Redis utilities for application-wide use.
  *
- * @exports AppDataSource - The TypeORM data source instance
- * @exports connectDB - Function to connect to the database
- * @exports redis - The Redis client instance
+ * Workflow:
+ * 1. Exports the TypeORM data source instance for database operations.
+ * 2. Exports the database connection function.
+ * 3. Exports the Redis client instance for session and caching management.
  */
 export { AppDataSource, connectDB } from "./connect-db";
 export { redis } from "./redis/redis";

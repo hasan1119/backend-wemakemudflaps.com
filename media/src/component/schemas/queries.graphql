@@ -16,7 +16,7 @@ type Query {
     page: Int! # The page number to fetch (for pagination).
     limit: Int! # The number of medias to display per page (for pagination).
     search: String # Optional search term to filter medias (can be by name, category, etc.).
-    sortBy: SortBy # Optional field to sort by (e.g., name, createdAt).
-    sortOrder: SortOrder # Optional sort order (asc or desc).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort order (asc or desc).
   ): GetMediasResponseOrError!
 }

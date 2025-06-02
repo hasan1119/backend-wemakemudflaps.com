@@ -61,6 +61,7 @@ export const getAllMedias = async (
     // Convert dates to ISO strings
     const mediaWithIsoDates = media.map((item) => ({
       ...item,
+      createdBy: item.createdBy as any,
       createdAt: item.createdAt.toISOString(),
       deletedAt: item.deletedAt ? item.deletedAt.toISOString() : null,
     }));

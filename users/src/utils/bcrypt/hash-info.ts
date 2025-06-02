@@ -2,10 +2,14 @@ import bcrypt from "bcryptjs";
 import config from "../../config/config";
 
 /**
- * Hashes the given data using bcrypt.
+ * Hashes data using bcrypt with a configured salt.
  *
- * @param {string} data - The data to be hashed.
- * @returns {Promise<string>} - A promise that resolves to the hashed data.
+ * Workflow:
+ * 1. Applies bcrypt hashing to the input data using the specified salt rounds from config.
+ * 2. Returns the resulting hash as a string.
+ *
+ * @param data - The data to be hashed.
+ * @returns A promise resolving to the hashed data.
  */
 const HashInfo = async (data: string) => {
   // Hash the data using bcrypt with a salt rounds value
