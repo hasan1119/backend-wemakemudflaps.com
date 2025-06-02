@@ -73,9 +73,11 @@ export const getUserById = async (id: string): Promise<User | null> => {
  * It fetches full user details (id, name, roles) for the provided ID.
  *
  * Workflow:
- * 1. Retrieves the user using the provided ID.
- * 2. If the user is found, returns a CreatedBy-compatible object.
- * 3. If not found, returns null to indicate resolution failure.
+ * 1. Attempts to fetch user details from Redis cache for performance.
+ * 2. If not present in Redis (cache miss), fetches the user from the database.
+ * 3. Maps the database user to a response object and caches it for future use.
+ * 4. Returns an object with the user's `id`, full `name`, and assigned `roles`.
+ * 5. Returns `null` if the user doesn't exist.
  *
  * @param id - The ID of the user being resolved.
  * @returns An object containing id, name, and roles, or null if the user is not found.
