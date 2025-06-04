@@ -14,7 +14,13 @@ const mediaRepository = AppDataSource.getRepository(Media);
  * @param data - An object containing the media ID and fields to update (title, description, altText, dimension, length, category).
  * @returns A promise that resolves when the update operation is complete.
  */
-export const updateMediaFileInfo = async (data: Media): Promise<void> => {
+export const updateMediaFileInfo = async (data: Media): Promise<Media> => {
   // Update media entity with the specified fields
   await mediaRepository.update({ id: data.id }, data);
+
+  return mediaRepository.findOne({
+    where: {
+      id: data.id,
+    },
+  });
 };

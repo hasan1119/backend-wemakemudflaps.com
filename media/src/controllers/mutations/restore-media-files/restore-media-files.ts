@@ -1,6 +1,10 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  getMediaByMediaIdFromRedis,
+  setMediaByMediaIdInRedis,
+} from "../../../helper/redis";
+import {
   BaseResponseOrError,
   MutationRestoreMediaFilesArgs,
 } from "../../../types";
@@ -8,6 +12,7 @@ import { idsSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
+  getMediaByIds,
   restoreMedia,
 } from "../../services";
 
@@ -19,6 +24,7 @@ import {
  * 2. Validates input role IDs using Zod schema.
  * 3. Attempts to retrieve role data from Redis for performance optimization.
  * 6. Restores medias by clearing their deletedAt timestamp in the database.
+ * 7. Updates Redis cache with restored media.
  * 8. Returns a success response or error if validation, permission, or restoration fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
@@ -72,8 +78,71 @@ export const restoreMediaFiles = async (
 
     const { ids } = validationResult.data;
 
-    // Restore soft-deleted roles
-    await restoreMedia(ids);
+    // Attempt to retrieve media data from Redis
+    const cachedMedias = await Promise.all(ids.map(getMediaByMediaIdFromRedis));
+
+    const foundMedias: any[] = [];
+    const missingIds: string[] = [];
+
+    cachedMedias.forEach((media, index) => {
+      if (media) {
+        foundMedias.push(media);
+      } else {
+        missingIds.push(ids[index]);
+      }
+    });
+
+    // Fetch missing medias from the database
+    if (missingIds.length > 0) {
+      const dbMedias = await getMediaByIds(missingIds);
+      if (dbMedias.length !== missingIds.length) {
+        const dbFoundIds = new Set(dbMedias.map((r) => r.id));
+        const notFoundMedias = missingIds
+          .filter((id) => !dbFoundIds.has(id))
+          .map((id) => id);
+
+        const notFoundNames = notFoundMedias.map((id) => {
+          const media = dbMedias.find((r) => r.id === id);
+          return media ? media.fileName : '"Unknown file"';
+        });
+
+        return {
+          statusCode: 404,
+          success: false,
+          message: `Medias with IDs ${notFoundNames.join(", ")} not found`,
+          __typename: "BaseResponse",
+        };
+      }
+      foundMedias.push(...dbMedias);
+    }
+
+    // Verify all medias are soft-deleted
+    const nonDeleted = foundMedias.filter((media) => !media.deletedAt);
+    if (nonDeleted.length > 0) {
+      return {
+        statusCode: 400,
+        success: false,
+        message: `Medias with IDs ${nonDeleted
+          .map((r) => r.id)
+          .join(", ")} are not in the trash`,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Restore soft-deleted medias
+    const result = await restoreMedia(ids);
+
+    // Update Redis cache with restored role data
+    await Promise.all(
+      result.map((media) =>
+        setMediaByMediaIdInRedis(media.id, {
+          ...media,
+          createdBy: media.createdBy as any,
+          createdAt: media.createdAt.toISOString(),
+          deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
+        })
+      )
+    );
 
     return {
       statusCode: 200,

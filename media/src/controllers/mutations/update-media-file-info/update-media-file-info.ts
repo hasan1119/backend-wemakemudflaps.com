@@ -1,6 +1,10 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  getMediaByMediaIdFromRedis,
+  setMediaByMediaIdInRedis,
+} from "../../../helper/redis";
+import {
   BaseResponseOrError,
   MutationUpdateMediaFileInfoArgs,
 } from "../../../types";
@@ -18,10 +22,12 @@ import { updateMediaFileInfo as updateMedia } from "../../services/update-media-
  * Workflow:
  * 1. Verifies user authentication and permission to update media.
  * 2. Validates input fields using Zod schema.
- * 3. Checks if the media exists in the database.
- * 4. Updates relevant metadata fields (title, description, alt text, etc.).
- * 5. Saves updated media to the database.
- * 6. Returns a success response or appropriate error.
+ * 3. Attempts to retrieve cached media from Redis to improve performance.
+ * 4. On cache miss, fetches media from the database.
+ * 5. Updates relevant metadata fields (title, description, alt text, etc.).
+ * 6. Saves updated media to the database.
+ * 7. Updates Redis cache with restored media.
+ * 8. Returns a success response or appropriate error.
  *
  * @param _ - Unused parent resolver parameter.
  * @param args - Contains the media update input fields.
@@ -78,17 +84,29 @@ export const updateMediaFileInfo = async (
     const { id, title, description, altText, dimension, length, category } =
       validationResult.data;
 
+    // Attempt to retrieve cached media from Redis
     let existingMedia;
 
-    // Fetch media from database
-    existingMedia = await getMediaById(id);
+    existingMedia = await getMediaByMediaIdFromRedis(id);
 
     if (!existingMedia) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: `Media not found with this id: ${id} or has been deleted`,
-        __typename: "ErrorResponse",
+      // On cache miss, fetch roles from database
+      const dbMedia = await getMediaById(id);
+
+      if (!dbMedia) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: `Media not found with this id: ${id} or has been deleted`,
+          __typename: "ErrorResponse",
+        };
+      }
+
+      existingMedia = {
+        ...dbMedia,
+        createdAt: dbMedia.createdAt.toISOString(),
+        deletedAt: dbMedia.deletedAt ? dbMedia.deletedAt.toISOString() : null,
+        createdBy: dbMedia.createdBy as any,
       };
     }
 
@@ -99,9 +117,20 @@ export const updateMediaFileInfo = async (
     if (dimension !== undefined) existingMedia.dimension = dimension;
     if (length !== undefined) existingMedia.length = length;
     if (category !== undefined) existingMedia.category = category;
+    existingMedia.createdBy = user.id;
 
     // Update media files in the database
     await updateMedia(existingMedia);
+
+    // Cache the updated media in Redis
+    await setMediaByMediaIdInRedis(id, {
+      ...existingMedia,
+      createdBy: existingMedia.createdBy as any,
+      createdAt: existingMedia.createdAt.toISOString(),
+      deletedAt: existingMedia.deletedAt
+        ? existingMedia.deletedAt.toISOString()
+        : null,
+    });
 
     return {
       statusCode: 200,

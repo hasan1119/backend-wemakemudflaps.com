@@ -1,5 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { getMediaByMediaIdFromRedis } from "../../../helper/redis";
 import {
   GetMediaByIdResponseOrError,
   QueryGetRoleByIdArgs,
@@ -14,8 +15,9 @@ import { getMediaById as getMedia } from "./../../services/get-media/get-media";
  * Workflow:
  * 1. Verifies user authentication and checks read permission for media.
  * 2. Validates the provided ID using Zod.
- * 3. Attempts to retrieve media from the database.
- * 4. Returns media data or an appropriate error message.
+ * 3. Attempts to retrieve cached media from Redis to improve performance.
+ * 4. Attempts to retrieve media from the database.
+ * 5. Returns media data or an appropriate error message.
  *
  * @param _ - Unused parent resolver parameter.
  * @param args - Contains the media ID.
@@ -68,15 +70,29 @@ export const getMediaById = async (
       };
     }
 
-    // Retrieve media by ID
-    let media = await getMedia(id);
+    // Attempt to retrieve cached media from Redis
+    let media;
+
+    media = await getMediaByMediaIdFromRedis(id);
 
     if (!media) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: `Media not found with this id: ${id} or has been deleted`,
-        __typename: "ErrorResponse",
+      // On cache miss, fetch roles from database
+      media = await getMedia(id);
+
+      if (!media) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: `Media not found with this id: ${id} or has been deleted`,
+          __typename: "ErrorResponse",
+        };
+      }
+
+      media = {
+        ...media,
+        createdAt: media.createdAt.toISOString(),
+        deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
+        createdBy: media.createdBy as any,
       };
     }
 
@@ -84,12 +100,7 @@ export const getMediaById = async (
       statusCode: 200,
       success: true,
       message: "Media file fetched successfully",
-      media: {
-        ...media,
-        createdAt: media.createdAt.toISOString(),
-        deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
-        createdBy: media.createdBy as any,
-      },
+      media,
       __typename: "MediaResponse",
     };
   } catch (error: any) {

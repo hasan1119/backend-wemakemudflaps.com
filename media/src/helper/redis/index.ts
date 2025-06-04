@@ -1,4 +1,16 @@
 /**
+ * Exports utilities for managing media session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting and setting.
+ */
+export {
+  getMediaByMediaIdFromRedis,
+  removeMediaByMediaIdFromRedis,
+  setMediaByMediaIdInRedis,
+} from "./utils/media/media-session-manage";
+
+/**
  * Exports utilities for managing user session data in Redis.
  *
  * Workflow:
