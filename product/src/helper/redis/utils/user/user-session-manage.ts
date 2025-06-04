@@ -19,7 +19,8 @@ export const getUserTokenInfoByUserIdFromRedis = async (
   userId: string
 ): Promise<UserSession | null> => {
   return redis.getSession<UserSession | null>(
-    `${PREFIX.SESSION}token:${userId}`
+    `${PREFIX.SESSION}token:${userId}`,
+    "user-session"
   );
 };
 
@@ -37,6 +38,7 @@ export const getUserInfoByEmailFromRedis = async (
   email: string
 ): Promise<UserSessionByEmail | null> => {
   return redis.getSession<UserSessionByEmail | null>(
-    `${PREFIX.SESSION}email:${email}`
+    `${PREFIX.SESSION}email:${email}`,
+    "user-session"
   );
 };

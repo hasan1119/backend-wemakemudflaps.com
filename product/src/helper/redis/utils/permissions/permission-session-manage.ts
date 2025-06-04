@@ -21,7 +21,8 @@ export const getUserPermissionsByUserIdFromRedis = async (
   userId: string
 ): Promise<RolePermissionSession[] | PermissionSession[] | null> => {
   return redis.getSession<RolePermissionSession[] | null>(
-    `${PREFIX.PERMISSIONS_USER}${userId}`
+    `${PREFIX.PERMISSIONS_USER}${userId}`,
+    "user-session"
   );
 };
 
@@ -38,5 +39,8 @@ export const getUserPermissionsByUserIdFromRedis = async (
 export const getUserRolesInfoFromRedis = async (
   userId: string
 ): Promise<any[] | null> => {
-  return redis.getSession<any[] | null>(`${PREFIX.USER_ROLES_INFO}${userId}`);
+  return redis.getSession<any[] | null>(
+    `${PREFIX.USER_ROLES_INFO}${userId}`,
+    "user-session"
+  );
 };

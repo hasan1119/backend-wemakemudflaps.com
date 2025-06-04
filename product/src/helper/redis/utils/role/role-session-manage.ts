@@ -20,6 +20,7 @@ export const getRoleInfoByRoleNameFromRedis = async (
   roleName: string
 ): Promise<RoleSession | null> => {
   return redis.getSession<RoleSession | null>(
-    `${PREFIX.ROLE}${roleName.toLowerCase().trim()}`
+    `${PREFIX.ROLE}${roleName.toLowerCase().trim()}`,
+    "user-session"
   );
 };
