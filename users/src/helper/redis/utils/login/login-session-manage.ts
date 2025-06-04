@@ -28,7 +28,8 @@ export const getLockoutSessionFromRedis = async (
   email: string
 ): Promise<LockoutSession | null> => {
   const session = await redis.getSession<LockoutSession | null>(
-    `${PREFIX.ACCOUNT_LOCKOUT}${email}`
+    `${PREFIX.ACCOUNT_LOCKOUT}${email}`,
+    "user-session"
   );
   return session;
 };
@@ -47,7 +48,8 @@ export const getLoginAttemptsFromRedis = async (
   email: string
 ): Promise<number> => {
   const sessionData = await redis.getSession<{ attempts: number } | null>(
-    `${PREFIX.LOGIN_ATTEMPTS}${email}`
+    `${PREFIX.LOGIN_ATTEMPTS}${email}`,
+    "user-session"
   );
   return sessionData?.attempts || 0;
 };
@@ -69,7 +71,12 @@ export const setLockoutSessionInRedis = async (
   session: LockoutSession,
   ttl: number = 300
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.ACCOUNT_LOCKOUT}${email}`, session, ttl);
+  await redis.setSession(
+    `${PREFIX.ACCOUNT_LOCKOUT}${email}`,
+    session,
+    "user-session",
+    ttl
+  );
 };
 
 /**
@@ -89,7 +96,12 @@ export const setLoginAttemptsInRedis = async (
   attempts: number,
   ttl: number = 3600
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.LOGIN_ATTEMPTS}${email}`, { attempts }, ttl);
+  await redis.setSession(
+    `${PREFIX.LOGIN_ATTEMPTS}${email}`,
+    { attempts },
+    "user-session",
+    ttl
+  );
 };
 
 /**
@@ -104,7 +116,10 @@ export const setLoginAttemptsInRedis = async (
 export const removeLockoutSessionFromRedis = async (
   email: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.ACCOUNT_LOCKOUT}${email}`);
+  await redis.deleteSession(
+    `${PREFIX.ACCOUNT_LOCKOUT}${email}`,
+    "user-session"
+  );
 };
 
 /**
@@ -119,5 +134,5 @@ export const removeLockoutSessionFromRedis = async (
 export const removeLoginAttemptsFromRedis = async (
   email: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.LOGIN_ATTEMPTS}${email}`);
+  await redis.deleteSession(`${PREFIX.LOGIN_ATTEMPTS}${email}`, "user-session");
 };

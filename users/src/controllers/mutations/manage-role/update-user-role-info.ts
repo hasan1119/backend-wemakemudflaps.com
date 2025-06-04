@@ -5,7 +5,7 @@ import {
   getUserInfoByEmailFromRedis,
   removeUserInfoByEmailFromRedis,
   removeUserInfoByUserIdInRedis,
-  removeUserTokenByUserIdFromRedis,
+  removeUserTokenInfoByUserIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
 } from "../../../helper/redis";
@@ -241,7 +241,7 @@ export const updateUserRoleInfo = async (
         return Promise.all([
           removeUserInfoByEmailFromRedis(user.email),
           removeUserInfoByUserIdInRedis(user.id),
-          removeUserTokenByUserIdFromRedis(user.id),
+          removeUserTokenInfoByUserIdFromRedis(user.id),
         ]);
       })
     );

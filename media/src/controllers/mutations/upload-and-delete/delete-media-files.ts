@@ -1,6 +1,10 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { getUserInfoByEmailFromRedis } from "../../../helper/redis";
+import {
+  getUserInfoByEmailFromRedis,
+  removeMediaByMediaIdFromRedis,
+  setMediaByMediaIdInRedis,
+} from "../../../helper/redis";
 import {
   BaseResponseOrError,
   MutationDeleteMediaFilesArgs,
@@ -22,7 +26,7 @@ import {
  * 2. Validates input IDs and skipTrash flag using Zod schemas.
  * 3. Checks user permissions to delete media.
  * 4. If not a SUPER ADMIN, requires and verifies password.
- * 5. Soft deletes (moves to trash) or permanently deletes media files.
+ * 5. Soft deletes (moves to trash) or permanently deletes media files and clear/update the redis entities.
  * 6. Returns success or error response.
  *
  * @param _ - Unused parent resolver parameter.
@@ -111,8 +115,23 @@ export const deleteMediaFiles = async (
     // Perform soft or hard deletion based on skipTrash
     if (skipTrash) {
       await deleteFiles(ids);
+
+      // Clear media-related cache entries in Redis
+      await Promise.all(ids.map((id) => removeMediaByMediaIdFromRedis(id)));
     } else {
-      await deleteSoftMedia(ids);
+      const result = await deleteSoftMedia(ids);
+
+      // Update media-related cache entities update cache
+      await Promise.all(
+        result.map((media) =>
+          setMediaByMediaIdInRedis(media.id, {
+            ...media,
+            createdBy: media.createdBy as any,
+            createdAt: media.createdAt.toISOString(),
+            deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
+          })
+        )
+      );
     }
 
     return {

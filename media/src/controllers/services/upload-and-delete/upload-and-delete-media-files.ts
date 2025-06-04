@@ -28,11 +28,14 @@ export const uploadMediaFiles = async (data: any[]): Promise<Media[]> => {
  * 2. Does not return any value, as the function resolves to void.
  *
  * @param ids - An array of UUIDs representing the media to be soft deleted.
- * @returns A promise that resolves when the operation is complete.
+ * @returns A promise that resolves when the operation is complete with the updated medias.
  */
-export const deleteSoftMedia = async (ids: string[]): Promise<void> => {
+export const deleteSoftMedia = async (ids: string[]): Promise<Media[]> => {
   // Update deletedAt timestamp for the specified media
   await mediaRepository.update({ id: In(ids) }, { deletedAt: new Date() });
+
+  // Return the updated records
+  return mediaRepository.find({ where: { id: In(ids) } });
 };
 
 /**

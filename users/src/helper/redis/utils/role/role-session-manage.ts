@@ -24,7 +24,8 @@ export const getRoleInfoByRoleNameFromRedis = async (
   roleName: string
 ): Promise<RoleSession | null> => {
   return redis.getSession<RoleSession | null>(
-    `${PREFIX.ROLE}${roleName.toLowerCase().trim()}`
+    `${PREFIX.ROLE}${roleName.toLowerCase().trim()}`,
+    "user-app"
   );
 };
 
@@ -41,7 +42,10 @@ export const getRoleInfoByRoleNameFromRedis = async (
 export const getRoleInfoByRoleIdFromRedis = async (
   roleId: string
 ): Promise<RoleSession | null> => {
-  return redis.getSession<RoleSession | null>(`${PREFIX.ROLE}${roleId}`);
+  return redis.getSession<RoleSession | null>(
+    `${PREFIX.ROLE}${roleId}`,
+    "user-app"
+  );
 };
 
 /**
@@ -58,7 +62,8 @@ export const getRoleNameExistFromRedis = async (
   roleName: string
 ): Promise<boolean> => {
   const result = await redis.getSession<string | null>(
-    `${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`
+    `${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`,
+    "user-app"
   );
   return result === "exists";
 };
@@ -77,7 +82,8 @@ export const getTotalUserCountByRoleIdFromRedis = async (
   roleId: string
 ): Promise<number> => {
   const result = await redis.getSession<number | null>(
-    `${PREFIX.ROLE_USER_COUNT}${roleId}`
+    `${PREFIX.ROLE_USER_COUNT}${roleId}`,
+    "user-app"
   );
 
   const count = Number(result);
@@ -102,7 +108,8 @@ export const setRoleInfoByRoleNameInRedis = async (
   const sessionData = await mapRoleToResponse(data);
   await redis.setSession(
     `${PREFIX.ROLE}${roleName.toLowerCase().trim()}`,
-    sessionData
+    sessionData,
+    "user-app"
   );
 };
 
@@ -122,7 +129,7 @@ export const setRoleInfoByRoleIdInRedis = async (
   data: Role
 ): Promise<void> => {
   const sessionData = await mapRoleToResponse(data);
-  await redis.setSession(`${PREFIX.ROLE}${roleId}`, sessionData);
+  await redis.setSession(`${PREFIX.ROLE}${roleId}`, sessionData, "user-app");
 };
 
 /**
@@ -139,7 +146,8 @@ export const setRoleNameExistInRedis = async (
 ): Promise<void> => {
   await redis.setSession(
     `${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`,
-    "exists"
+    "exists",
+    "user-app"
   );
 };
 
@@ -159,7 +167,8 @@ export const setTotalUserCountByRoleIdInRedis = async (
 ): Promise<void> => {
   await redis.setSession(
     `${PREFIX.ROLE_USER_COUNT}${roleId}`,
-    count.toString()
+    count.toString(),
+    "user-app"
   );
 };
 
@@ -175,7 +184,10 @@ export const setTotalUserCountByRoleIdInRedis = async (
 export const removeRoleInfoByRoleNameFromRedis = async (
   roleName: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.ROLE}${roleName.toLowerCase().trim()}`);
+  await redis.deleteSession(
+    `${PREFIX.ROLE}${roleName.toLowerCase().trim()}`,
+    "user-app"
+  );
 };
 
 /**
@@ -190,7 +202,7 @@ export const removeRoleInfoByRoleNameFromRedis = async (
 export const removeRoleInfoByRoleIdFromRedis = async (
   roleId: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.ROLE}${roleId}`);
+  await redis.deleteSession(`${PREFIX.ROLE}${roleId}`, "user-app");
 };
 
 /**
@@ -205,7 +217,10 @@ export const removeRoleInfoByRoleIdFromRedis = async (
 export const removeRoleNameExistFromRedis = async (
   roleName: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`);
+  await redis.deleteSession(
+    `${PREFIX.EXISTS}${roleName.toLowerCase().trim()}`,
+    "user-app"
+  );
 };
 
 /**
@@ -220,5 +235,5 @@ export const removeRoleNameExistFromRedis = async (
 export const removeTotalUserCountByRoleIdFromRedis = async (
   roleId: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.ROLE_USER_COUNT}${roleId}`);
+  await redis.deleteSession(`${PREFIX.ROLE_USER_COUNT}${roleId}`, "user-app");
 };

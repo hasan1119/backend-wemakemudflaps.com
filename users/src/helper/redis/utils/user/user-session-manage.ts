@@ -32,7 +32,7 @@ const PREFIX = {
 export const getUserEmailFromRedis = async (
   email: string
 ): Promise<string | null> => {
-  return redis.getSession<string | null>(`${PREFIX.EMAIL}${email}`);
+  return redis.getSession<string | null>(`${PREFIX.EMAIL}${email}`, "user-app");
 };
 
 /**
@@ -45,7 +45,10 @@ export const getUserEmailFromRedis = async (
  * @returns A promise resolving to the user count or null if not found.
  */
 export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
-  const count = await redis.getSession<string>(`${PREFIX.COUNT}user`);
+  const count = await redis.getSession<string>(
+    `${PREFIX.COUNT}user`,
+    "user-app"
+  );
   return count ? Number(count) : null;
 };
 
@@ -63,7 +66,8 @@ export const getUserTokenInfoByUserIdFromRedis = async (
   userId: string
 ): Promise<UserSession | null> => {
   return redis.getSession<UserSession | null>(
-    `${PREFIX.SESSION}token:${userId}`
+    `${PREFIX.SESSION}token:${userId}`,
+    "user-session"
   );
 };
 
@@ -81,7 +85,8 @@ export const getUserInfoByUserIdFromRedis = async (
   userId: string
 ): Promise<UserSessionById | null> => {
   return redis.getSession<UserSessionById | null>(
-    `${PREFIX.SESSION}user:${userId}`
+    `${PREFIX.SESSION}user:${userId}`,
+    "user-app"
   );
 };
 
@@ -99,7 +104,8 @@ export const getUserInfoByEmailFromRedis = async (
   email: string
 ): Promise<UserSessionByEmail | null> => {
   return redis.getSession<UserSessionByEmail | null>(
-    `${PREFIX.SESSION}email:${email}`
+    `${PREFIX.SESSION}email:${email}`,
+    "user-session"
   );
 };
 
@@ -117,7 +123,7 @@ export const setUserEmailInRedis = async (
   email: string,
   data: string
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.EMAIL}${email}`, data);
+  await redis.setSession(`${PREFIX.EMAIL}${email}`, data, "user-app");
 };
 
 /**
@@ -130,7 +136,7 @@ export const setUserEmailInRedis = async (
  * @returns A promise resolving when the count is cached.
  */
 export const setUserCountInDBInRedis = async (count: number): Promise<void> => {
-  await redis.setSession(`${PREFIX.COUNT}user`, count.toString());
+  await redis.setSession(`${PREFIX.COUNT}user`, count.toString(), "user-app");
 };
 
 /**
@@ -149,7 +155,11 @@ export const setUserInfoByUserIdInRedis = async (
   data: User
 ): Promise<void> => {
   const sessionData = await mapUserToResponseById(data);
-  await redis.setSession(`${PREFIX.SESSION}user:${userId}`, sessionData);
+  await redis.setSession(
+    `${PREFIX.SESSION}user:${userId}`,
+    sessionData,
+    "user-app"
+  );
 };
 
 /**
@@ -170,7 +180,12 @@ export const setUserTokenInfoByUserIdInRedis = async (
   ttl: number
 ): Promise<void> => {
   const sessionData = await mapUserToTokenData(data);
-  await redis.setSession(`${PREFIX.SESSION}token:${userId}`, sessionData, ttl);
+  await redis.setSession(
+    `${PREFIX.SESSION}token:${userId}`,
+    sessionData,
+    "user-session",
+    ttl
+  );
 };
 
 /**
@@ -189,7 +204,11 @@ export const setUserInfoByEmailInRedis = async (
   data: User
 ): Promise<void> => {
   const sessionData = await mapUserToResponseByEmail(data);
-  await redis.setSession(`${PREFIX.SESSION}email:${email}`, sessionData);
+  await redis.setSession(
+    `${PREFIX.SESSION}email:${email}`,
+    sessionData,
+    "user-session"
+  );
 };
 
 /**
@@ -204,7 +223,7 @@ export const setUserInfoByEmailInRedis = async (
 export const removeUserInfoByUserIdInRedis = async (
   userId: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.SESSION}user:${userId}`);
+  await redis.deleteSession(`${PREFIX.SESSION}user:${userId}`, "user-app");
 };
 
 /**
@@ -216,10 +235,10 @@ export const removeUserInfoByUserIdInRedis = async (
  * @param userId - The ID of the user.
  * @returns A promise resolving when the token data is removed.
  */
-export const removeUserTokenByUserIdFromRedis = async (
+export const removeUserTokenInfoByUserIdFromRedis = async (
   userId: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.SESSION}token:${userId}`);
+  await redis.deleteSession(`${PREFIX.SESSION}token:${userId}`, "user-session");
 };
 
 /**
@@ -234,7 +253,7 @@ export const removeUserTokenByUserIdFromRedis = async (
 export const removeUserInfoByEmailFromRedis = async (
   email: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.SESSION}email:${email}`);
+  await redis.deleteSession(`${PREFIX.SESSION}email:${email}`, "user-session");
 };
 
 /**
@@ -249,7 +268,7 @@ export const removeUserInfoByEmailFromRedis = async (
 export const removeUserEmailFromRedis = async (
   email: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.EMAIL}${email}`);
+  await redis.deleteSession(`${PREFIX.EMAIL}${email}`, "user-app");
 };
 
 /**
@@ -261,5 +280,5 @@ export const removeUserEmailFromRedis = async (
  * @returns A promise resolving when the count is removed.
  */
 export const removeUserCountInDBFromRedis = async (): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.COUNT}user`);
+  await redis.deleteSession(`${PREFIX.COUNT}user`, "user-app");
 };

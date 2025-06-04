@@ -1,5 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { setMediaByMediaIdInRedis } from "../../../helper/redis";
 import {
   BaseResponseOrError,
   MutationUploadMediaFilesArgs,
@@ -16,7 +17,8 @@ import { uploadMediaFiles as uploadFiles } from "../../services/upload-and-delet
  * 1. Verifies user authentication and permission to upload medias.
  * 3. Validates input using a Zod schema that includes user ID context.
  * 4. Calls the service to upload media files.
- * 5. Returns success or validation/error response.
+ * 5. Caches the new medias in Redis for future requests.
+ * 6. Returns success or validation/error response.
  *
  * @param _ - Unused parent resolver parameter.
  * @param args - Contains the inputs (media file details).
@@ -73,7 +75,19 @@ export const uploadMediaFiles = async (
       };
     }
 
-    await uploadFiles(validationResult.data);
+    const result = await uploadFiles(validationResult.data);
+
+    // Cache the new medias in Redis
+    await Promise.all(
+      result.map((media) =>
+        setMediaByMediaIdInRedis(media.id, {
+          ...media,
+          createdBy: media.createdBy as any,
+          createdAt: media.createdAt.toISOString(),
+          deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
+        })
+      )
+    );
 
     return {
       statusCode: 200,

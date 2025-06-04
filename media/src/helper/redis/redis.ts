@@ -1,21 +1,43 @@
 import Redis from "ioredis";
 import config from "../../config/config";
 
-/**
- * Initializes and configures a Redis client instance.
- *
- * Workflow:
- * 1. Creates a Redis client with host, port, and optional password from configuration.
- * 2. Sets up event listeners for connection success and errors.
- */
-const redisClient = new Redis({
+type SessionType = "user-session" | "media-app";
+
+// Redis instance for user session data
+const userSessionRedisClient = new Redis({
   host: config.REDIS_HOST,
-  port: config.REDIS_PORT || 6379, // Default to 6379 if not set
+  port: config.REDIS_PORT || 6379,
   password: config.REDIS_PASSWORD || undefined,
 });
 
-redisClient.on("connect", () => console.log("Redis connected successfully."));
-redisClient.on("error", (err) => console.error("Redis connection error:", err));
+userSessionRedisClient.on("connect", () =>
+  console.log("User Session Redis connected successfully.")
+);
+userSessionRedisClient.on("error", (err) =>
+  console.error("User Session Redis connection error:", err)
+);
+
+// Redis instance for other session-related data
+const appSessionRedisClient = new Redis({
+  host: config.REDIS_HOST,
+  port: config.REDIS_PORT || 6379,
+  password: config.REDIS_PASSWORD || undefined,
+  db: 1, // Use separate DB index (optional)
+});
+
+appSessionRedisClient.on("connect", () =>
+  console.log("App Session Redis connected successfully.")
+);
+appSessionRedisClient.on("error", (err) =>
+  console.error("App Session Redis connection error:", err)
+);
+
+// Utility to select client
+function getRedisClient(type: SessionType) {
+  return type === "user-session"
+    ? userSessionRedisClient
+    : appSessionRedisClient;
+}
 
 /**
  * Handles retrieval of a session from Redis.
@@ -28,12 +50,16 @@ redisClient.on("error", (err) => console.error("Redis connection error:", err));
  * @param sessionId - The session ID (user ID or unique identifier).
  * @returns A promise resolving to the parsed session data or null if not found.
  */
-async function getSession<T>(sessionId: string): Promise<T | null> {
+async function getSession<T>(
+  sessionId: string,
+  type: SessionType = "media-app"
+): Promise<T | null> {
   try {
-    const session = await redisClient.get(`${sessionId}`);
+    const client = getRedisClient(type);
+    const session = await client.get(sessionId);
     return session ? (JSON.parse(session) as T) : null;
   } catch (error) {
-    console.error("Error retrieving session from Redis:", error);
+    console.error(`Error retrieving ${type} session from Redis:`, error);
     return null;
   }
 }
@@ -54,16 +80,15 @@ async function getSession<T>(sessionId: string): Promise<T | null> {
 async function setSession(
   id: string,
   sessionData: object | string,
+  type: SessionType = "media-app",
   ttl?: number
 ): Promise<void> {
   try {
-    if (ttl) {
-      await redisClient.set(`${id}`, JSON.stringify(sessionData), "EX", ttl);
-    } else {
-      await redisClient.set(`${id}`, JSON.stringify(sessionData));
-    }
+    const client = getRedisClient(type);
+    const value = JSON.stringify(sessionData);
+    ttl ? await client.set(id, value, "EX", ttl) : await client.set(id, value);
   } catch (error) {
-    console.error("Error setting session in Redis:", error);
+    console.error(`Error setting ${type} session in Redis:`, error);
   }
 }
 
@@ -77,20 +102,19 @@ async function setSession(
  * @param id - The session ID (user ID or unique identifier).
  * @returns A promise resolving when the session is deleted.
  */
-async function deleteSession(id: string): Promise<void> {
+async function deleteSession(
+  id: string,
+  type: SessionType = "media-app"
+): Promise<void> {
   try {
-    await redisClient.del(`${id}`);
+    const client = getRedisClient(type);
+    await client.del(id);
   } catch (error) {
-    console.error("Error deleting session from Redis:", error);
+    console.error(`Error deleting ${type} session from Redis:`, error);
   }
 }
 
-/**
- * Exports Redis session management utilities.
- *
- * Workflow:
- * 1. Provides functions for getting, setting, and deleting sessions in Redis.
- */
+// Export utility
 export const redis = {
   getSession,
   setSession,

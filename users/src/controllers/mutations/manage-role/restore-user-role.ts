@@ -102,11 +102,19 @@ export const restoreUserRole = async (
       const dbRoles = await getRolesByIds(missingIds);
       if (dbRoles.length !== missingIds.length) {
         const dbFoundIds = new Set(dbRoles.map((r) => r.id));
-        const notFoundIds = missingIds.filter((id) => !dbFoundIds.has(id));
+        const notFoundRoles = missingIds
+          .filter((id) => !dbFoundIds.has(id))
+          .map((id) => id);
+
+        const notFoundNames = notFoundRoles.map((id) => {
+          const role = dbRoles.find((r) => r.id === id);
+          return role ? role.name : '"Unknown Role"';
+        });
+
         return {
           statusCode: 404,
           success: false,
-          message: `Roles with IDs ${notFoundIds.join(", ")} not found`,
+          message: `Roles with IDs ${notFoundNames.join(", ")} not found`,
           __typename: "BaseResponse",
         };
       }

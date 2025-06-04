@@ -30,7 +30,7 @@ export const getUsersFromRedis = async (
 ): Promise<User[] | null> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.USERS}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  return redis.getSession<User[] | null>(key);
+  return redis.getSession<User[] | null>(key, "user-app");
 };
 
 /**
@@ -54,7 +54,7 @@ export const getUsersCountFromRedis = async (
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
 
-  const result = await redis.getSession<string | null>(key);
+  const result = await redis.getSession<string | null>(key, "user-app");
 
   if (result === null) {
     return null;
@@ -91,7 +91,7 @@ export const setUsersInRedis = async (
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.USERS}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, users, ttl);
+  await redis.setSession(key, users, "user-app", ttl);
 };
 
 /**
@@ -117,7 +117,7 @@ export const setUsersCountInRedis = async (
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, total.toString(), ttl);
+  await redis.setSession(key, total.toString(), "user-app", ttl);
 };
 
 /**
@@ -147,7 +147,7 @@ export const removeUsersFromRedis = async (
   const countKey = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
 
   await Promise.all([
-    redis.deleteSession(usersKey),
-    redis.deleteSession(countKey),
+    redis.deleteSession(usersKey, "user-app"),
+    redis.deleteSession(countKey, "user-app"),
   ]);
 };

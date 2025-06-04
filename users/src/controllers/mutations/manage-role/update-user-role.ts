@@ -32,7 +32,7 @@ import {
   updateUser,
 } from "../../services";
 import {
-  removeUserTokenByUserIdFromRedis,
+  removeUserTokenInfoByUserIdFromRedis,
   setUserInfoByEmailInRedis,
 } from "./../../../helper/redis/utils/user/user-session-manage";
 
@@ -425,7 +425,7 @@ export const updateUserRole = async (
       setUserInfoByUserIdInRedis(updatedUser.id, updatedUser),
       setUserInfoByEmailInRedis(updatedUser.email, updatedUser),
       removeUserRolesInfoFromRedis(updatedUser.id),
-      removeUserTokenByUserIdFromRedis(updatedUser.id),
+      removeUserTokenInfoByUserIdFromRedis(updatedUser.id),
     ]);
 
     return {
