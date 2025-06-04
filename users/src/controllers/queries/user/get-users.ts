@@ -208,7 +208,7 @@ export const getAllUsers = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Users fetched successfully",
+      message: "User(s) fetched successfully",
       users: responseUsers,
       total,
       __typename: "UsersResponse",

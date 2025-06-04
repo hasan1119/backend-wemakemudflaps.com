@@ -54,7 +54,7 @@ type Mutation {
   ): BaseResponseOrError!
 
   # Update the roles assigned to a specific user.
-  # Only accessible by authorized users (admin/super admin).
+  # Only accessible by authorized users.
   # Can add or remove multiple roles. May require password for non-super admin.
   updateUserRole(
     roleAddIds: [String] # List of Role IDs to be added to the user.
@@ -64,7 +64,7 @@ type Mutation {
   ): BaseResponseOrError!
 
   # Soft delete one or more user roles.
-  # Only accessible by admin or super admin.
+  # Only accessible by authorized users.
   # If `skipTrash` is true, deletes permanently unless protected.
   deleteUserRole(
     ids: [ID!]! # List of Role IDs to be deleted.
@@ -79,7 +79,7 @@ type Mutation {
   ): BaseResponseOrError!
 
   # Create a new role for users.
-  # Admins or super admins can define custom roles with associated permissions.
+  # Only accessible by authorized users.
   # Optional system-level protection flags restrict updates/deletion.
   createUserRole(
     name: String! # Name of the role to create (must be unique).
@@ -92,6 +92,7 @@ type Mutation {
   ): BaseResponseOrError!
 
   # Update an existing user role's information.
+  # Only accessible by authorized users.
   # Allows updating role name, description, permissions, or system-level flags.
   # Requires the role ID and may require password for non-super admins.
   updateUserRoleInfo(
@@ -107,6 +108,7 @@ type Mutation {
   ): BaseResponseOrError!
 
   # Update a user's permissions manually.
+  # Only accessible by authorized users.
   # Only available to admins or super admins to override role-based access control.
   updateUserPermission(
     input: UpdateUserPermissionInput! # Input object containing permission updates.
@@ -129,5 +131,5 @@ type Mutation {
   # Logout the currently authenticated user.
   # Clears authentication tokens (e.g., cookies or headers) to end the session.
   # Ensures the user is securely logged out of the system.
-  logout():BaseResponseOrError!
+  logout: BaseResponseOrError!
 }

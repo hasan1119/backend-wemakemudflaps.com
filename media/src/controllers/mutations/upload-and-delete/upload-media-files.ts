@@ -9,6 +9,20 @@ import { checkUserPermission } from "../../services";
 import { checkUserAuth } from "../../services/session-check/session-check";
 import { uploadMediaFiles as uploadFiles } from "../../services/upload-and-delete/upload-and-delete-media-files";
 
+/**
+ * Handles uploading of media files.
+ *
+ * Workflow:
+ * 1. Verifies user authentication and permission to upload medias.
+ * 3. Validates input using a Zod schema that includes user ID context.
+ * 4. Calls the service to upload media files.
+ * 5. Returns success or validation/error response.
+ *
+ * @param _ - Unused parent resolver parameter.
+ * @param args - Contains the inputs (media file details).
+ * @param context - GraphQL context containing the authenticated user.
+ * @returns A promise resolving to BaseResponseOrError.
+ */
 export const uploadMediaFiles = async (
   _: any,
   args: MutationUploadMediaFilesArgs,
@@ -32,7 +46,7 @@ export const uploadMediaFiles = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to create role",
+        message: "You do not have permission to upload media files",
         __typename: "BaseResponse",
       };
     }

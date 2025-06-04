@@ -118,7 +118,7 @@ export const getRoleById = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Role retrieved successfully",
+      message: "Role fetched successfully",
       role: {
         ...roleData,
         assignedUserCount,

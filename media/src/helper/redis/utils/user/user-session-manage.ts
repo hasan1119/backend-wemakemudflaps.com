@@ -1,5 +1,4 @@
-import { UserSession } from "../../../../types";
-import { mapUserToTokenData } from "../../../../utils/mapper";
+import { UserSession, UserSessionByEmail } from "../../../../types";
 import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for user session, email, and count caching
@@ -25,22 +24,19 @@ export const getUserTokenInfoByUserIdFromRedis = async (
 };
 
 /**
- * Handles caching user token session data in Redis by user ID.
+ * Handles retrieval of user session data from Redis by email.
  *
  * Workflow:
- * 1. Maps the provided user session data to a token format using mapUserToTokenData.
- * 2. Stores the mapped data in Redis with the session token prefix, user ID, and specified TTL.
+ * 1. Queries Redis using the session email prefix and user email.
+ * 2. Returns the parsed UserSessionByEmail or null if not found.
  *
- * @param userId - The ID of the user.
- * @param data - The UserSession data to cache.
- * @param ttl - Time-to-live in seconds.
- * @returns A promise resolving when the token data is cached.
+ * @param email - The email address of the user.
+ * @returns A promise resolving to the UserSessionByEmail or null if not found.
  */
-export const setUserTokenInfoByUserIdInRedis = async (
-  userId: string,
-  data: UserSession,
-  ttl: number
-): Promise<void> => {
-  const sessionData = await mapUserToTokenData(data);
-  await redis.setSession(`${PREFIX.SESSION}token:${userId}`, sessionData, ttl);
+export const getUserInfoByEmailFromRedis = async (
+  email: string
+): Promise<UserSessionByEmail | null> => {
+  return redis.getSession<UserSessionByEmail | null>(
+    `${PREFIX.SESSION}email:${email}`
+  );
 };

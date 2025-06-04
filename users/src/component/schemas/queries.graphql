@@ -6,11 +6,13 @@ type Query {
   getProfile: GetProfileResponseOrError!
 
   # Fetch user details by ID.
+  # Only accessible by authorized users.
   # Retrieves profile details of a specific user using their unique ID.
   # Returns a `GetUserByIDResponseOrError` containing user data and request status.
   getUserById(id: String!): GetUserByIDResponseOrError!
 
   # Fetch all users with pagination and optional filtering.
+  # Only accessible by authorized users.
   # Retrieves a paginated list of users.
   # Optional filters include a search term (e.g., name or email), sorting field, and sort order.
   # Returns a `GetUsersResponseOrError` containing user data and request status.
@@ -23,11 +25,13 @@ type Query {
   ): GetUsersResponseOrError!
 
   # Fetch user role by ID.
+  # Only accessible by authorized users.
   # Retrieves a specific role's information using its ID.
   # Returns a `GetRoleByIDResponseOrError` containing role data and request status.
   getRoleById(id: String!): GetRoleByIDResponseOrError!
 
   # Fetch all roles with pagination, filtering, and sorting.
+  # Only accessible by authorized users.
   # Retrieves a paginated list of user roles.
   # Supports filtering by search term (name or description) and sorting options.
   # Defaults to sorting by `createdAt` in descending order if none is provided.
@@ -41,6 +45,7 @@ type Query {
   ): GetRolesResponseOrError!
 
   # Fetch permissions for a specific user.
+  # Only accessible by authorized users.
   # Retrieves all permissions assigned to a user by their user ID.
   # Returns a `GetPermissionsResponseOrError` containing permission data and request status.
   getAllPermissionsByUserId(id: ID!): GetPermissionsResponseOrError!

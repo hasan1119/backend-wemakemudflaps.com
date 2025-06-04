@@ -4,7 +4,11 @@ import {
   QueryGetAllMediasArgs,
 } from "../../../types";
 import { mediaCombinedSchema } from "../../../utils/data-validation";
-import { checkUserAuth, getAllMedias as getMedias } from "../../services";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  getAllMedias as getMedias,
+} from "../../services";
 
 // Map GraphQL args to combined schema fields
 const mapArgsToPagination = (args: QueryGetAllMediasArgs) => ({
@@ -15,6 +19,20 @@ const mapArgsToPagination = (args: QueryGetAllMediasArgs) => ({
   sortOrder: args.sortOrder || "desc",
 });
 
+/**
+ * Retrieves all media files with pagination, filtering, and sorting.
+ *
+ * Workflow:
+ * 1. Verifies user authentication and checks read permission for media.
+ * 2. Maps and validates input arguments using Zod.
+ * 3. Fetches paginated and filtered media from the database.
+ * 4. Returns a list of media or an appropriate error message.
+ *
+ * @param _ - Unused parent resolver parameter.
+ * @param args - Query arguments for pagination, search, sorting, etc.
+ * @param context - GraphQL context containing the authenticated user.
+ * @returns A promise resolving to GetMediasResponseOrError.
+ */
 export const getAllMedias = async (
   _: any,
   args: QueryGetAllMediasArgs,
@@ -24,6 +42,22 @@ export const getAllMedias = async (
     // Check user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
+
+    // Check if user has permission to view media
+    const canRead = await checkUserPermission({
+      action: "canRead",
+      entity: "media",
+      user,
+    });
+
+    if (!canRead) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "You do not have permission to view media(s) info",
+        __typename: "BaseResponse",
+      };
+    }
 
     // Map and validate input
     const mappedArgs = mapArgsToPagination(args);
@@ -69,7 +103,7 @@ export const getAllMedias = async (
     return {
       statusCode: 200,
       success: true,
-      message: `Retrieved ${media.length} of ${total} media file(s) successfully`,
+      message: "Media file(s) fetched successfully",
       medias: mediaWithIsoDates,
       total,
       __typename: "MediasResponse",

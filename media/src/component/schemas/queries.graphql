@@ -1,22 +1,21 @@
 # Queries to fetch medias from the system.
 type Query {
-  # Retrieve a media file by its ID.
-  # This query allows an authenticated user to fetch a single media file by its unique ID.
-  # The response includes the media entity or an error if not found.
+  # Fetch media by ID.
+  # Retrieves a specific media file's details using its unique ID.
+  # Returns a `GetMediaByIdResponseOrError` containing media data and request status.
   getMediaById(
-    id: ID! # The unique ID of the media file.
-  ): GetMediaByIdResponseOrError! # Returns success or error response with media data.
-  # Fetch all medias with pagination and optional search.
-  # This query allows you to fetch a list of all medias.
-  # You can paginate the results by specifying the `pageNo` and `showPerPage`.
-  # You can also filter the medias by a `searchKeyWord` (e.g., searching by name or category).
-  # If no `searchKeyWord` is provided, it returns all medias.
-  # The response will include a `GetMediasResponseOrError` containing medias data, and status.
+    id: ID! # Unique identifier of the media file to retrieve.
+  ): GetMediaByIdResponseOrError!
+
+  # Fetch all media files with pagination, filtering, and sorting.
+  # Retrieves a paginated list of media files uploaded to the system.
+  # Optional filters include search term (e.g., file name), sorting field, and sort order.
+  # Returns a `GetMediasResponseOrError` containing media list and request status.
   getAllMedias(
-    page: Int! # The page number to fetch (for pagination).
-    limit: Int! # The number of medias to display per page (for pagination).
-    search: String # Optional search term to filter medias (can be by name, category, etc.).
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of media items per page.
+    search: String # Optional keyword to filter media by name or description.
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
-    sortOrder: String # Optional sort order (asc or desc).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
   ): GetMediasResponseOrError!
 }

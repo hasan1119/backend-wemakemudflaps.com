@@ -1,4 +1,6 @@
-# Importing Apollo Federation specs
+# ---------------------- Apollo Federation Link ----------------------
+
+# Importing Apollo Federation specification directives for composing multiple services into a single graph.
 extend schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.7"
@@ -6,90 +8,8 @@ extend schema
   )
 
 # ---------------------- Basic Types ----------------------
-type FieldError @shareable {
-  field: String!
-  message: String!
-}
 
-type ErrorResponse @shareable {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  errors: [FieldError!]
-}
-
-type BaseResponse @shareable {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-}
-
-extend type CreatedBy @key(fields: "id") {
-  id: ID! @external
-}
-
-type PermissionSession @shareable {
-  id: ID!
-  name: String!
-  description: String
-  canCreate: Boolean!
-  canRead: Boolean!
-  canUpdate: Boolean!
-  canDelete: Boolean!
-}
-
-type UserSession @shareable {
-  id: ID!
-  avatar: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  gender: String!
-  roles: [String!]!
-  emailVerified: Boolean!
-  isAccountActivated: Boolean!
-}
-
-type UserSessionByEmail @shareable {
-  id: ID!
-  avatar: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  password: String!
-  emailVerified: Boolean!
-  gender: String!
-  roles: [String!]!
-  permissions: [PermissionSession!]!
-  canUpdatePermissions: Boolean!
-  canUpdateRole: Boolean!
-  isAccountActivated: Boolean!
-  tempUpdatedEmail: String!
-  tempEmailVerified: Boolean!
-  createdAt: String!
-  deletedAt: String!
-}
-
-type UserSessionById @shareable {
-  id: ID!
-  avatar: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  emailVerified: Boolean!
-  gender: String!
-  roles: [String!]!
-  permissions: [PermissionSession!]!
-  canUpdatePermissions: Boolean!
-  canUpdateRole: Boolean!
-  isAccountActivated: Boolean!
-  tempUpdatedEmail: String!
-  tempEmailVerified: Boolean!
-  createdAt: String!
-  deletedAt: String!
-}
-
-# ---------------------- Media Types ----------------------
+# Enum defining all possible media categories in the system.
 enum MediaCategory {
   Profile
   Product
@@ -110,6 +30,7 @@ enum MediaCategory {
   Site_Settings
 }
 
+# Enum defining supported media MIME types for validation and categorization.
 enum MediaMimeType {
   image_jpeg
   image_png
@@ -182,28 +103,56 @@ enum MediaMimeType {
   application_vnd_visio
 }
 
-type User @key(fields: "id") {
-  id: ID!
+# Represents an error related to a specific field in input validation or business logic.
+type FieldError @shareable {
+  field: String! # The specific field that caused the error (e.g., "title", "url").
+  message: String! # Descriptive message explaining the reason for the error.
 }
 
+# Generic error response type returned when a mutation or query fails.
+type ErrorResponse @shareable {
+  statusCode: Int! # HTTP-like status code (e.g., 400, 401, 500).
+  success: Boolean! # Whether the operation was successful (always false here).
+  message: String! # General error message.
+  errors: [FieldError!] # Optional list of field-specific errors.
+}
+
+# Standard response structure used when only status and message are returned (e.g., success/failure).
+type BaseResponse @shareable {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+}
+
+# ---------------------- CreatedBy & Permissions ----------------------
+
+# Extends the CreatedBy entity to support federated references.
+extend type CreatedBy @key(fields: "id") {
+  id: ID! @external
+}
+
+# ---------------------- Media Types ----------------------
+
+# Represents a media file stored in the system.
 type Media @key(fields: "id") {
-  id: ID!
-  mediaType: String
-  url: String
-  fileName: String
-  title: String
-  description: String
-  altText: String
-  dimension: String
-  length: Int
-  category: String
-  size: Int
-  bucketName: String
-  createdBy: CreatedBy
-  createdAt: String
-  deletedAt: String
+  id: ID! # Unique identifier for the media item.
+  mediaType: String # MIME type of the media (e.g., "image/jpeg").
+  url: String # URL where the media is accessible.
+  fileName: String # Original name of the uploaded file.
+  title: String # Optional title for the media.
+  description: String # Optional description of the media.
+  altText: String # Alternative text for accessibility.
+  dimension: String # Dimensions of the media (e.g., "1920x1080").
+  length: Int # Duration in seconds for video/audio files.
+  category: String # Category under which the media is classified.
+  size: Int # Size of the media file in bytes.
+  bucketName: String # Name of the storage bucket where media is stored.
+  createdBy: CreatedBy # Metadata on who uploaded the media.
+  createdAt: String # Timestamp when the media was created.
+  deletedAt: String # Timestamp when the media was deleted, if applicable.
 }
 
+# Response returned when fetching a single media item.
 type MediaResponse {
   statusCode: Int!
   success: Boolean!
@@ -211,41 +160,51 @@ type MediaResponse {
   media: Media!
 }
 
+# Response returned when fetching multiple media items.
 type MediasResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
   medias: [Media!]!
-  total: Int!
+  total: Int! # Total number of media items matching the query.
 }
 
 # ---------------------- Inputs ----------------------
+
+# Input type for uploading a new media item.
 input UploadMediaInput {
-  mediaType: MediaMimeType!
-  fileName: String!
-  title: String
-  description: String
-  altText: String
-  dimension: String
-  length: Int
-  category: MediaCategory!
-  size: Int!
-  url: String!
-  bucketName: String!
-  createdBy: String!
+  mediaType: MediaMimeType! # MIME type of the media.
+  fileName: String! # Original name of the uploaded file.
+  title: String # Optional title for the media.
+  description: String # Optional description of the media.
+  altText: String # Alternative text for accessibility.
+  dimension: String # Dimensions of the media (e.g., "1920x1080").
+  length: Int # Duration in seconds for video/audio files.
+  category: MediaCategory! # Category under which the media is classified.
+  size: Int! # Size of the media file in bytes.
+  url: String! # URL where the media is accessible.
+  bucketName: String! # Name of the storage bucket where media is stored.
+  createdBy: String! # ID of the user who uploaded the media.
 }
 
+# Input type for updating an existing media item.
 input UpdateMediaInput {
-  id: ID!
-  title: String
-  description: String
-  altText: String
-  dimension: String
-  length: Int
-  category: MediaCategory!
+  id: ID! # Unique identifier for the media item.
+  title: String # Optional new title for the media.
+  description: String # Optional new description of the media.
+  altText: String # Optional new alternative text for accessibility.
+  dimension: String # Optional new dimensions of the media (e.g., "1920x1080").
+  length: Int # Optional new duration in seconds for video/audio files.
+  category: MediaCategory! # New category under which the media is classified.
 }
 
 # ---------------------- Unions ----------------------
+
+# Union type for responses that can be either a base response or an error response.
 union BaseResponseOrError = BaseResponse | ErrorResponse
+
+# Union type for responses when fetching a single media item.
 union GetMediaByIdResponseOrError = BaseResponse | MediaResponse | ErrorResponse
+
+# Union type for responses when fetching multiple media items.
 union GetMediasResponseOrError = BaseResponse | MediasResponse | ErrorResponse

@@ -1,23 +1,35 @@
-# Mutations to modify user data.
+# Mutations to manage media file operations.
 type Mutation {
-  # Upload media files for a user.
-  # This mutation allows an authenticated user to upload multiple media files by providing an array of media details.
-  # The user must be identified by their unique `userId`, which must match the authenticated user's ID.
-  # The response will include a `BaseResponseOrError` indicating the success or failure of the operation.
+  # Upload one or more media files.
+  # Accepts an array of media file input objects, including metadata and file info.
+  # Each file is stored securely and linked to the specified user.
+  # Returns a status indicating success or failure of the upload.
   uploadMediaFiles(
-    inputs: [UploadMediaInput]! # Array of media details, including mediaType, fileName, url, category, size, bucketName, and userId.
-    userId: String! # The unique ID of the authorized user, must match the authenticated user's ID.
-  ): BaseResponseOrError! # Returns success or error response with status.
-  # Update media files' information.
-  # This mutation allows an authenticated user to update specific fields (title, description, altText, dimension, length, category) of one media file by providing unique ID and updated values.
-  # The response will include a `BaseResponseOrError` indicating the success or failure of the operation.
+    inputs: [UploadMediaInput]! # List of media files and associated metadata.
+    userId: String! # ID of the user who is uploading the files.
+  ): BaseResponseOrError!
+
+  # Update information of an existing media file.
+  # Allows changing metadata like name, description, tags, or other fields.
+  # The file itself is not re-uploaded — only metadata is updated.
   updateMediaFileInfo(
-    inputs: UpdateMediaInput! # Object containing media ID and fields to update (title, description, altText, dimension, length, category).
-  ): BaseResponseOrError! # Returns success or error response with status.
-  # Delete media files by their IDs.
-  # This mutation allows an authenticated user to delete one or more media files by providing their unique IDs.
-  # The response will include a `BaseResponseOrError` indicating the success or failure of the operation.
+    inputs: UpdateMediaInput! # Input object with updated media file details.
+  ): BaseResponseOrError!
+
+  # Delete one or more media files.
+  # If `skipTrash` is false, files are soft-deleted and can be restored later.
+  # If `skipTrash` is true, files are permanently deleted unless protected.
+  # Password may be required for non-super admins.
   deleteMediaFiles(
-    ids: [ID!]! # Array of unique IDs of the media files to be deleted.
-  ): BaseResponseOrError! # Returns success or error response with status.
+    ids: [ID!]! # List of media file IDs to delete.
+    skipTrash: Boolean! # If true, deletes permanently instead of soft-deleting.
+    password: String # Optional password confirmation for non-super admins.
+  ): BaseResponseOrError!
+
+  # Restore previously soft-deleted media files.
+  # Only restores files that were not permanently deleted.
+  # Returns a status indicating success or failure of restoration.
+  restoreMediaFiles(
+    ids: [ID!]! # List of media file IDs to be restored.
+  ): BaseResponseOrError!
 }

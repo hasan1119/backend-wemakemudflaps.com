@@ -5,9 +5,29 @@ import {
   MutationUpdateMediaFileInfoArgs,
 } from "../../../types";
 import { UpdateMediaFilesSchema } from "../../../utils/data-validation";
-import { checkUserAuth, getMediaById } from "../../services";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  getMediaById,
+} from "../../services";
 import { updateMediaFileInfo as updateMedia } from "../../services/update-media-file-info/update-media-file-info";
 
+/**
+ * Handles updating metadata for a media file.
+ *
+ * Workflow:
+ * 1. Verifies user authentication and permission to update media.
+ * 2. Validates input fields using Zod schema.
+ * 3. Checks if the media exists in the database.
+ * 4. Updates relevant metadata fields (title, description, alt text, etc.).
+ * 5. Saves updated media to the database.
+ * 6. Returns a success response or appropriate error.
+ *
+ * @param _ - Unused parent resolver parameter.
+ * @param args - Contains the media update input fields.
+ * @param context - Contains the authenticated user info.
+ * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
+ */
 export const updateMediaFileInfo = async (
   _: any,
   args: MutationUpdateMediaFileInfoArgs,
@@ -23,6 +43,22 @@ export const updateMediaFileInfo = async (
     const validationResult = await UpdateMediaFilesSchema.safeParseAsync(
       inputs
     );
+
+    // Check if user has permission to restore medias
+    const canUpdate = await checkUserPermission({
+      action: "canUpdate",
+      entity: "media",
+      user,
+    });
+
+    if (!canUpdate) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "You do not have permission to media metadata",
+        __typename: "BaseResponse",
+      };
+    }
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({

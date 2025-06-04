@@ -206,7 +206,7 @@ export const getAllRoles = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Roles fetched successfully",
+      message: "Role(s) fetched successfully",
       roles: responseRoles,
       total,
       __typename: "RolesResponse",

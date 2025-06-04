@@ -6,9 +6,14 @@ import { AppDataSource } from "../../../helper";
 const mediaRepository = AppDataSource.getRepository(Media);
 
 /**
- * Retrieves a media file from the database by its ID.
- * @param id - The ID of the media file (UUID).
- * @returns The media entity or null if not found.
+ * Handles retrieval of a media by their ID with full details.
+ *
+ * Workflow:
+ * 1. Queries the mediaRepository to find a non-deleted media with the specified ID.
+ * 2. Returns the Media entity or null if not found.
+ *
+ * @param id - The UUID of the media.
+ * @returns A promise resolving to the Media entity or null if not found.
  */
 export const getMediaById = async (id: string): Promise<Media | null> => {
   // Retrieve media file
@@ -16,9 +21,14 @@ export const getMediaById = async (id: string): Promise<Media | null> => {
 };
 
 /**
- * Retrieves multiple media files from the database by their IDs.
- * @param ids - Array of media IDs (UUIDs).
- * @returns Array of found media entities (empty if none found).
+ * Handles retrieval of medias by their IDs with full details.
+ *
+ * Workflow:
+ * 1. Queries the mediaRepository to find a non-deleted media with the specified IDs.
+ * 2. Returns the Medias entity or null if not found.
+ *
+ * @param ids - An array of UUIDs representing the media files.
+ * @returns A promise resolving to an array of Media entities or an empty array if not found.
  */
 export const getMediaByIds = async (ids: string[]): Promise<Media[]> => {
   // Retrieve media files
@@ -28,13 +38,17 @@ export const getMediaByIds = async (ids: string[]): Promise<Media[]> => {
 };
 
 /**
- * Retrieves paginated and sorted media files for a user.
- * @param page - The page number for pagination (1-based).
- * @param limit - The number of records per page.
- * @param search - The search term to filter media (optional).
- * @param sortBy - The field to sort by (e.g., "createdAt", "category").
- * @param sortOrder - The sort order ("asc" or "desc").
- * @returns Object containing media array and total count.
+ * Handles fetching paginated medias with optional search and sorting.
+ *
+ * Workflow:
+ * 1. Calculates the number of records to skip based on page and limit.
+ * 2. Constructs a where clause to filter non-deleted medias and apply search conditions if provided.
+ * 3. Sets sorting order for roles or other fields.
+ * 4. Queries the userRepository to fetch medias with pagination and sorting.
+ * 5. Returns an object with the paginated medias and total count.
+ *
+ * @param input - Input parameters including page, limit, search, sortBy, and sortOrder.
+ * @returns A promise resolving to an object containing the paginated medias and total count.
  */
 export const getAllMedias = async (
   page: number,

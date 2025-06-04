@@ -5,9 +5,23 @@ import {
   QueryGetRoleByIdArgs,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
-import { checkUserAuth } from "../../services";
+import { checkUserAuth, checkUserPermission } from "../../services";
 import { getMediaById as getMedia } from "./../../services/get-media/get-media";
 
+/**
+ * Retrieves a media file by its ID.
+ *
+ * Workflow:
+ * 1. Verifies user authentication and checks read permission for media.
+ * 2. Validates the provided ID using Zod.
+ * 3. Attempts to retrieve media from the database.
+ * 4. Returns media data or an appropriate error message.
+ *
+ * @param _ - Unused parent resolver parameter.
+ * @param args - Contains the media ID.
+ * @param context - GraphQL context containing the authenticated user.
+ * @returns A promise resolving to GetMediaByIdResponseOrError.
+ */
 export const getMediaById = async (
   _: any,
   args: QueryGetRoleByIdArgs,
@@ -19,6 +33,22 @@ export const getMediaById = async (
     // Check user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
+
+    // Check if user has permission to view media
+    const canRead = await checkUserPermission({
+      action: "canRead",
+      entity: "media",
+      user,
+    });
+
+    if (!canRead) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "You do not have permission to view media info",
+        __typename: "BaseResponse",
+      };
+    }
 
     // Validate input data using Zod schema
     const validationResult = await idSchema.safeParseAsync({ id });
@@ -53,7 +83,7 @@ export const getMediaById = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Media file retrieved successfully",
+      message: "Media file fetched successfully",
       media: {
         ...media,
         createdAt: media.createdAt.toISOString(),

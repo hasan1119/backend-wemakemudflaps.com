@@ -269,9 +269,9 @@ export const paginationSchema = z.object({
  */
 export const mediaSortingSchema = z.object({
   sortBy: z
-    .enum(["title", "description", "category", "createdBy", "createdAt"], {
+    .enum(["title", "description", "category", "createdAt", "deletedAt"], {
       message:
-        "Sort field must be one of: title, description, category, createdBy, createdAt",
+        "Sort field must be one of: title, description, category, createdAt, deleteAt",
     })
     .nullable()
     .optional(),

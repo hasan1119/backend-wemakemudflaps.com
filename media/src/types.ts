@@ -224,8 +224,10 @@ export type Mutation = {
   deleteUserRole: BaseResponseOrError;
   forgetPassword: BaseResponseOrError;
   login: UserLoginResponseOrError;
+  logout: BaseResponseOrError;
   register: BaseResponseOrError;
   resetPassword: BaseResponseOrError;
+  restoreMediaFiles: BaseResponseOrError;
   restoreUserRole: BaseResponseOrError;
   updateMediaFileInfo: BaseResponseOrError;
   updateProfile: UserProfileUpdateResponseOrError;
@@ -262,6 +264,8 @@ export type MutationCreateUserRoleArgs = {
 
 export type MutationDeleteMediaFilesArgs = {
   ids: Array<Scalars['ID']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
+  skipTrash: Scalars['Boolean']['input'];
 };
 
 
@@ -295,6 +299,11 @@ export type MutationRegisterArgs = {
 export type MutationResetPasswordArgs = {
   newPassword: Scalars['String']['input'];
   token: Scalars['String']['input'];
+};
+
+
+export type MutationRestoreMediaFilesArgs = {
+  ids: Array<Scalars['ID']['input']>;
 };
 
 
@@ -1040,12 +1049,14 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
   createUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
-  deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids'>>;
+  deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
   deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'ids' | 'skipTrash'>>;
   forgetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationForgetPasswordArgs, 'email'>>;
   login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
+  logout?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password'>>;
   resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
+  restoreMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreMediaFilesArgs, 'ids'>>;
   restoreUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreUserRoleArgs, 'ids'>>;
   updateMediaFileInfo?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFileInfoArgs, 'inputs'>>;
   updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, Partial<MutationUpdateProfileArgs>>;

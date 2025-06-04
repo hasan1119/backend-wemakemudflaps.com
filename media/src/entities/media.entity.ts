@@ -4,6 +4,7 @@ import type { Category, MimeType } from "./../utils/data-validation";
 
 @Entity()
 export class Media {
+  // Defines the unique identifier for the role
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
