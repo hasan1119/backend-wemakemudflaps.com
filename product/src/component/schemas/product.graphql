@@ -1,0 +1,8 @@
+# ---------------------- Apollo Federation Link ----------------------
+
+# Importing Apollo Federation specification directives for composing multiple services into a single graph.
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.7"
+    import: ["@key", "@shareable", "@external"]
+  )
