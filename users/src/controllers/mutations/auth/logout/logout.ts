@@ -2,7 +2,7 @@ import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
 import {
   removeUserRolesInfoFromRedis,
-  removeUserTokenByUserIdFromRedis,
+  removeUserTokenInfoByUserIdFromRedis,
 } from "../../../../helper/redis";
 import { BaseResponseOrError } from "../../../../types";
 import { checkUserAuth } from "../../../services";
@@ -33,7 +33,7 @@ export const logout = async (
     // Refresh Redis user data
     await Promise.all([
       removeUserRolesInfoFromRedis(user.id),
-      removeUserTokenByUserIdFromRedis(user.id),
+      removeUserTokenInfoByUserIdFromRedis(user.id),
     ]);
 
     return {

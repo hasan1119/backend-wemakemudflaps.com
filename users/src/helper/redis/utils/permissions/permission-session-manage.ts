@@ -31,7 +31,11 @@ export const setUserPermissionsByUserIdInRedis = async (
   } else if ("id" in data && "name" in data) {
     sessionData = await mapPermissions([data as Permission]);
   }
-  await redis.setSession(`${PREFIX.PERMISSIONS_USER}${userId}`, sessionData);
+  await redis.setSession(
+    `${PREFIX.PERMISSIONS_USER}${userId}`,
+    sessionData,
+    "user-session"
+  );
 };
 
 /**
@@ -48,7 +52,11 @@ export const setUserRolesInfoInRedis = async (
   userId: string,
   data: Role[]
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.USER_ROLES_INFO}${userId}`, data);
+  await redis.setSession(
+    `${PREFIX.USER_ROLES_INFO}${userId}`,
+    data,
+    "user-session"
+  );
 };
 
 /**
@@ -65,7 +73,11 @@ export const setPermissionAgainstRoleInRedis = async (
   roleId: string,
   permissions: RolePermission[]
 ): Promise<void> => {
-  await redis.setSession(`${PREFIX.ROLE_PERMISSIONS}${roleId}`, permissions);
+  await redis.setSession(
+    `${PREFIX.ROLE_PERMISSIONS}${roleId}`,
+    permissions,
+    "user-app"
+  );
 };
 
 /**
@@ -82,7 +94,8 @@ export const getUserPermissionsByUserIdFromRedis = async (
   userId: string
 ): Promise<RolePermissionSession[] | PermissionSession[] | null> => {
   return redis.getSession<RolePermissionSession[] | null>(
-    `${PREFIX.PERMISSIONS_USER}${userId}`
+    `${PREFIX.PERMISSIONS_USER}${userId}`,
+    "user-session"
   );
 };
 
@@ -99,7 +112,10 @@ export const getUserPermissionsByUserIdFromRedis = async (
 export const getUserRolesInfoFromRedis = async (
   userId: string
 ): Promise<Role[] | null> => {
-  return redis.getSession<Role[] | null>(`${PREFIX.USER_ROLES_INFO}${userId}`);
+  return redis.getSession<Role[] | null>(
+    `${PREFIX.USER_ROLES_INFO}${userId}`,
+    "user-session"
+  );
 };
 
 /**
@@ -116,7 +132,8 @@ export const getPermissionAgainstRoleFromRedis = async (
   roleId: string
 ): Promise<RolePermission[] | null> => {
   return redis.getSession<RolePermission[] | null>(
-    `${PREFIX.ROLE_PERMISSIONS}${roleId}`
+    `${PREFIX.ROLE_PERMISSIONS}${roleId}`,
+    "user-app"
   );
 };
 
@@ -129,10 +146,13 @@ export const getPermissionAgainstRoleFromRedis = async (
  * @param userId - The ID of the user.
  * @returns A promise resolving when the permissions are removed.
  */
-export const removeUserPermissionsFromRedis = async (
+export const removeUserPermissionsByUserIdFromRedis = async (
   userId: string
 ): Promise<void> => {
-  return redis.deleteSession(`${PREFIX.PERMISSIONS_USER}${userId}`);
+  return redis.deleteSession(
+    `${PREFIX.PERMISSIONS_USER}${userId}`,
+    "user-session"
+  );
 };
 
 /**
@@ -147,7 +167,10 @@ export const removeUserPermissionsFromRedis = async (
 export const removeUserRolesInfoFromRedis = async (
   userId: string
 ): Promise<void> => {
-  return redis.deleteSession(`${PREFIX.USER_ROLES_INFO}${userId}`);
+  return redis.deleteSession(
+    `${PREFIX.USER_ROLES_INFO}${userId}`,
+    "user-session"
+  );
 };
 
 /**
@@ -162,5 +185,5 @@ export const removeUserRolesInfoFromRedis = async (
 export const removePermissionAgainstRoleFromRedis = async (
   roleId: string
 ): Promise<void> => {
-  return redis.deleteSession(`${PREFIX.ROLE_PERMISSIONS}${roleId}`);
+  return redis.deleteSession(`${PREFIX.ROLE_PERMISSIONS}${roleId}`, "user-app");
 };

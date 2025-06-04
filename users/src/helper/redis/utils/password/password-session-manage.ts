@@ -19,7 +19,8 @@ export const getLastResetRequestFromRedis = async (
   email: string
 ): Promise<number | null> => {
   const timestamp = await redis.getSession<string | null>(
-    `${PREFIX.RESET_LAST_SENT}${email}`
+    `${PREFIX.RESET_LAST_SENT}${email}`,
+    "user-app"
   );
   return timestamp ? Number(timestamp) : null;
 };
@@ -42,6 +43,7 @@ export const setLastResetRequestInRedis = async (
   await redis.setSession(
     `${PREFIX.RESET_LAST_SENT}${email}`,
     Date.now().toString(),
+    "user-app",
     ttl
   );
 };

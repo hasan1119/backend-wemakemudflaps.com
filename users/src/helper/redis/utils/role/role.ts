@@ -31,7 +31,7 @@ export const getRolesFromRedis = async (
 ): Promise<Role[] | null> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.ROLES}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  return redis.getSession<Role[] | null>(key);
+  return redis.getSession<Role[] | null>(key, "user-app");
 };
 
 /**
@@ -55,7 +55,7 @@ export const getRolesCountFromRedis = async (
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.ROLES_COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
 
-  const result = await redis.getSession<string | null>(key);
+  const result = await redis.getSession<string | null>(key, "user-app");
 
   if (result === null) {
     return null;
@@ -92,7 +92,7 @@ export const setRolesInRedis = async (
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.ROLES}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, roles, ttl);
+  await redis.setSession(key, roles, "user-app", ttl);
 };
 
 /**
@@ -118,5 +118,5 @@ export const setRolesCountInRedis = async (
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.ROLES_COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, total.toString(), ttl);
+  await redis.setSession(key, total.toString(), "user-app", ttl);
 };
