@@ -6,3 +6,9 @@ extend schema
     url: "https://specs.apollo.dev/federation/v2.7"
     import: ["@key", "@shareable", "@external"]
   )
+
+  # ---------------------- Product Types ----------------------
+
+type Product @key(fields: "id") {
+   id: ID! # Unique identifier for the product item.
+}

@@ -29,7 +29,7 @@ export class ProductVariationAttributeValue {
     onDelete: "CASCADE", // Ensures the associated value is deleted if the variation is deleted
   })
   @JoinColumn({ name: "variation_id" }) // Specifies the column name for the join
-  variation: ProductVariation;
+  variation: Promise<ProductVariation>;
 
   // Timestamp when the product variation attribute value was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

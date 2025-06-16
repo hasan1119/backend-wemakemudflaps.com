@@ -1,3 +1,4 @@
 # Mutations to manage products operations.
 type Mutation {
+  createProduct(name: String!, price: Float!): String
 }

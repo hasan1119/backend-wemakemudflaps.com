@@ -5,7 +5,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { ProductTieredPrice } from "./product-tiered-pricing";
+import { ProductTieredPrice } from "./product-tiered-pricing.entity";
 import { ProductVariation } from "./product-variation.entity";
 import { Product } from "./product.entity";
 
@@ -41,7 +41,7 @@ export class ProductPrice {
     nullable: true,
     onDelete: "CASCADE",
   })
-  productVariation: ProductVariation | null;
+  productVariation: Promise<ProductVariation> | null;
 
   // Timestamp when the user was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
