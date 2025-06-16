@@ -266,31 +266,31 @@ export const register = async (
             let canDelete = false;
 
             switch (name) {
-              case "order":
+              case "Order":
                 canCreate = true;
                 canRead = true;
                 canDelete = true;
                 break;
-              case "product-review":
+              case "Product Review":
                 canCreate = true;
                 canRead = true;
                 canUpdate = true;
                 canDelete = true;
                 break;
-              case "notification":
+              case "Notification":
                 canCreate = false;
                 canRead = true;
                 canUpdate = true;
                 canDelete = true;
                 break;
-              case "coupon":
+              case "Coupon":
                 canRead = true;
                 break;
-              case "permission":
-              case "news-letter":
-              case "user":
-              case "role":
-              case "media":
+              case "Permission":
+              case "News Letter":
+              case "User":
+              case "Role":
+              case "Media":
                 canRead = false;
                 break;
               default:
