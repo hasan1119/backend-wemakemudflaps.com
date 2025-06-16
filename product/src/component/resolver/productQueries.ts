@@ -1,3 +1,5 @@
+import { getProduct } from "../../controllers/queries/product/get-product";
+
 /**
  * Defines GraphQL query resolvers for product-related operations.
  *
@@ -7,5 +9,7 @@
  * 3. Enables access to detailed product metadata and creator references.
  */
 export const productQueriesResolver = {
-  Query: {},
+  Query: {
+    getProduct,
+  },
 };

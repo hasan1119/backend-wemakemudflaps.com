@@ -1,3 +1,5 @@
+import { createProduct } from "../../controllers/mutations/manage-product/create-product";
+
 /**
  * Defines GraphQL mutation resolvers for product-related operations.
  *
@@ -7,5 +9,7 @@
  * 3. Ensures efficient product file lifecycle management through structured mutations.
  */
 export const productMutationsResolver = {
-  Mutation: {},
+  Mutation: {
+    createProduct,
+  },
 };
