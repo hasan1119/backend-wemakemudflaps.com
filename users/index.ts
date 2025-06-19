@@ -7,6 +7,7 @@ import { connectDB } from "./src/helper";
 import { resolvers } from "./src/helper/combine/resolver";
 import { typeDefs } from "./src/helper/combine/schema";
 import createContext from "./src/middleware/context";
+import loggingPlugin from './src/plugins/loggingPlugin';
 
 /**
  * Initializes and starts the Apollo GraphQL Subgraph server.
@@ -24,6 +25,7 @@ async function startApolloServer() {
   // Create Apollo Server instance
   const server = new ApolloServer({
     schema: buildSubgraphSchema([{ typeDefs, resolvers }]),
+    plugins: [loggingPlugin],
   });
 
   const port = CONFIG.PORT;
