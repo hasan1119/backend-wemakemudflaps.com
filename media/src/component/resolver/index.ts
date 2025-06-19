@@ -4,7 +4,6 @@
  * Workflow:
  * 1. Provides resolvers for creating, updating, and managing media data.
  * 2. Handles authentication-related mutations such as login and password changes.
- * 3. Manages role and permission modifications for medias.
  */
 export { mediaMutationsResolver } from "./mediaMutations";
 

@@ -27,7 +27,7 @@ export class ProductTieredPrice {
     nullable: true,
     onDelete: "CASCADE",
   })
-  productPrice: ProductPrice;
+  productPrice: Promise<ProductPrice>;
 
   // Timestamp when the user was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

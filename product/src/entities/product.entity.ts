@@ -131,7 +131,7 @@ export class Product {
     cascade: true, // Ensures the associated tier prices is deleted if the product is deleted
   })
   @JoinColumn({ name: "product_tier_pricing_id" })
-  tierPricingInfo: ProductPrice | null;
+  tierPricingInfo: Promise<ProductPrice> | null;
 
   // Sale quantity limit (if the product is a deal)
   @Column({ nullable: true })

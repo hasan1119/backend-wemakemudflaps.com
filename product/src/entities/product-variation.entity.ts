@@ -61,7 +61,7 @@ export class ProductVariation {
     cascade: true,
   })
   @JoinColumn({ name: "variation_tier_pricing_id" })
-  tierPricingInfo: ProductPrice | null;
+  tierPricingInfo: Promise<ProductPrice> | null;
 
   // Stock status of the product variation (e.g., "In stock", "Out of stock", "On backorder")
   @Column({

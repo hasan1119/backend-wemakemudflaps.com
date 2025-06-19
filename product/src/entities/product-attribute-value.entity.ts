@@ -14,7 +14,7 @@ export class ProductAttributeValue {
   @ManyToOne(() => ProductAttribute, (attribute) => attribute.values, {
     onDelete: "CASCADE", // Cascade delete if the product attribute is deleted
   })
-  attribute: ProductAttribute;
+  attribute: Promise<ProductAttribute>;
 
   // Timestamp when the product attribute value was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

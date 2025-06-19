@@ -1,0 +1,4 @@
+# Queries to fetch products from the system.
+type Query {
+  getProduct: String
+}

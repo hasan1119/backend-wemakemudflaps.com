@@ -1,6 +1,9 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { getMediaByMediaIdFromRedis } from "../../../helper/redis";
+import {
+  getMediaByMediaIdFromRedis,
+  setMediaByMediaIdInRedis,
+} from "../../../helper/redis";
 import {
   GetMediaByIdResponseOrError,
   QueryGetRoleByIdArgs,
@@ -94,6 +97,9 @@ export const getMediaById = async (
         deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
         createdBy: media.createdBy as any,
       };
+
+      // Cache media data in Redis
+      await setMediaByMediaIdInRedis(media.id, media);
     }
 
     return {
