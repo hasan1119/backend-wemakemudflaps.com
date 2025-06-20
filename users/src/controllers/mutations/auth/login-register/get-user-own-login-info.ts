@@ -28,10 +28,10 @@ export const getUserOwnLoginInfo = async (
     const userLoginInfoRaw = await getUserLoginInfoByUserId(user.id);
     const userLoginInfo = userLoginInfoRaw.map((info) => ({
       ...info,
-      loggedInAt:
-        info.loggedInAt instanceof Date
-          ? info.loggedInAt.toISOString()
-          : info.loggedInAt,
+      createdAt:
+        info.createdAt instanceof Date
+          ? info.createdAt.toISOString()
+          : info.createdAt,
     }));
 
     return {

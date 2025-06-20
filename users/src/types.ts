@@ -96,6 +96,7 @@ export type LoginMeta = {
   country?: Maybe<Scalars['String']['output']>;
   countryGeonameId?: Maybe<Scalars['Int']['output']>;
   countryIso?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['String']['output'];
   fingerprint: Scalars['String']['output'];
   fraud: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
@@ -103,7 +104,6 @@ export type LoginMeta = {
   isp?: Maybe<Scalars['String']['output']>;
   ispId?: Maybe<Scalars['Int']['output']>;
   latitude?: Maybe<Scalars['Float']['output']>;
-  loggedInAt: Scalars['String']['output'];
   longitude?: Maybe<Scalars['Float']['output']>;
   postalCode?: Maybe<Scalars['String']['output']>;
   session: Scalars['String']['output'];
@@ -121,12 +121,10 @@ export type LoginMetaInput = {
   countryIso?: InputMaybe<Scalars['String']['input']>;
   fingerprint: Scalars['String']['input'];
   fraud: Scalars['Float']['input'];
-  id: Scalars['ID']['input'];
   ip?: InputMaybe<Scalars['String']['input']>;
   isp?: InputMaybe<Scalars['String']['input']>;
   ispId?: InputMaybe<Scalars['Int']['input']>;
   latitude?: InputMaybe<Scalars['Float']['input']>;
-  loggedInAt: Scalars['String']['input'];
   longitude?: InputMaybe<Scalars['Float']['input']>;
   postalCode?: InputMaybe<Scalars['String']['input']>;
   session: Scalars['String']['input'];
@@ -1099,6 +1097,7 @@ export type LoginMetaResolvers<ContextType = Context, ParentType extends Resolve
   country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   countryGeonameId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   countryIso?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   fingerprint?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   fraud?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1106,7 +1105,6 @@ export type LoginMetaResolvers<ContextType = Context, ParentType extends Resolve
   isp?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ispId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   latitude?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
-  loggedInAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   longitude?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   postalCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   session?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

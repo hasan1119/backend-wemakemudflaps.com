@@ -59,7 +59,6 @@ type BaseResponse @shareable {
 
 # Represents a single user login record, including IP, geolocation, and session metadata.
 input LoginMetaInput {
-  id: ID! # Unique identifier of the login record.
   ip: String # IP address used during login.
   city: String # City (if available).
   isp: String # Name of the Internet Service Provider.
@@ -78,7 +77,6 @@ input LoginMetaInput {
   session: String! # Unique session identifier.
   fraud: Float! # Probability score indicating risk/fraud likelihood.
   tor: Boolean! # Whether the login came through a Tor exit node.
-  loggedInAt: String! # Timestamp when the login occurred.
 }
 
 type LoginMeta {
@@ -101,7 +99,7 @@ type LoginMeta {
   session: String! # Unique session identifier.
   fraud: Float! # Probability score indicating risk/fraud likelihood.
   tor: Boolean! # Whether the login came through a Tor exit node.
-  loggedInAt: String! # Timestamp when the login occurred.
+  createdAt: String! # Timestamp when the login occurred.
 }
 
 # ---------------------- CreatedBy & Permissions ----------------------

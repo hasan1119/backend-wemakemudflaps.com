@@ -214,6 +214,7 @@ export const login = async (
     await removeLoginAttemptsFromRedis(user.email);
 
     const sessionData = await createUserLoginInfo({
+      id: crypto.randomUUID(),
       ...args.meta,
       user: user.id,
       ip: args.meta?.ip ?? null,
@@ -234,9 +235,7 @@ export const login = async (
       session: args.meta?.session,
       fraud: args.meta?.fraud ?? 0,
       tor: args.meta?.tor ?? false,
-      loggedInAt: args.meta?.loggedInAt
-        ? new Date(args.meta.loggedInAt)
-        : new Date(),
+      createdAt: new Date(),
     });
 
     // Prepare user session data for JWT token and caching
@@ -272,7 +271,7 @@ export const login = async (
       success: true,
       message: "Login successful",
       token,
-      sessionId: args.meta.session,
+      sessionId: sessionData.id,
       __typename: "UserLoginResponse",
     };
   } catch (error: any) {

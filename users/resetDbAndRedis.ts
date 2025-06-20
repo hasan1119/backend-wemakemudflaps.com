@@ -54,6 +54,7 @@ async function resetTablesAndRedis() {
         "user_roles",
         "role_permission",
         "role",
+        "user_login",
         "user",
       ];
       const orderedTables = ordered.filter((t) => tables.includes(t));
