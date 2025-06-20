@@ -5,7 +5,7 @@ import {
 } from "../../../../types";
 import {
   checkUserAuth,
-  deleteUserLoginInfoBySessionId,
+  deleteUserLoginInfoSessionById,
 } from "../../../services";
 
 /**
@@ -32,7 +32,7 @@ export const deleteLoginSession = async (
     if (authResponse) return authResponse;
 
     // Delete the user login info from database
-    await deleteUserLoginInfoBySessionId(sessionId);
+    await deleteUserLoginInfoSessionById(sessionId);
 
     return {
       statusCode: 200,
