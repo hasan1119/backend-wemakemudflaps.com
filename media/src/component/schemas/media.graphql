@@ -221,3 +221,6 @@ union UploadMediaResponseOrError =
     BaseResponse
   | UploadMediaResponse
   | ErrorResponse
+
+# Union type for responses when updating a single media info.
+union UpdateMediaResponseOrError = BaseResponse | MediaResponse | ErrorResponse

@@ -5,8 +5,8 @@ import {
   setMediaByMediaIdInRedis,
 } from "../../../helper/redis";
 import {
-  BaseResponseOrError,
   MutationUpdateMediaFileInfoArgs,
+  UpdateMediaResponseOrError,
 } from "../../../types";
 import { UpdateMediaFilesSchema } from "../../../utils/data-validation";
 import {
@@ -38,7 +38,7 @@ export const updateMediaFileInfo = async (
   _: any,
   args: MutationUpdateMediaFileInfoArgs,
   { user }: Context
-): Promise<BaseResponseOrError> => {
+): Promise<UpdateMediaResponseOrError> => {
   const { inputs } = args;
   try {
     // Check user authentication
@@ -126,17 +126,23 @@ export const updateMediaFileInfo = async (
     await setMediaByMediaIdInRedis(id, {
       ...existingMedia,
       createdBy: existingMedia.createdBy as any,
-      createdAt: existingMedia.createdAt.toISOString(),
-      deletedAt: existingMedia.deletedAt
-        ? existingMedia.deletedAt.toISOString()
-        : null,
+      createdAt: existingMedia.createdAt,
+      deletedAt: existingMedia.deletedAt ? existingMedia.deletedAt : null,
     });
 
     return {
       statusCode: 200,
       success: true,
       message: "Media file(s) updated successfully",
-      __typename: "BaseResponse",
+      media: {
+        ...existingMedia,
+        createdAt: existingMedia.createdAt,
+        deletedAt: existingMedia.deletedAt
+          ? existingMedia.deletedAt.toISOString()
+          : null,
+        createdBy: existingMedia.createdBy as any,
+      },
+      __typename: "MediaResponse",
     };
   } catch (error: any) {
     console.error("Error during media update:", error);

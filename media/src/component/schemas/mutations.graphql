@@ -14,7 +14,7 @@ type Mutation {
   # The file itself is not re-uploaded — only metadata is updated.
   updateMediaFileInfo(
     inputs: UpdateMediaInput! # Input object with updated media file details.
-  ): BaseResponseOrError!
+  ): UpdateMediaResponseOrError!
 
   # Delete one or more media files.
   # If `skipTrash` is false, files are soft-deleted and can be restored later.
