@@ -159,6 +159,13 @@ type MediaResponse {
   message: String!
   media: Media!
 }
+# Response returned when uploading multiple media items.
+type UploadMediaResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  medias: [Media]!
+}
 
 # Response returned when fetching multiple media items.
 type MediasResponse {
@@ -208,3 +215,9 @@ union GetMediaByIdResponseOrError = BaseResponse | MediaResponse | ErrorResponse
 
 # Union type for responses when fetching multiple media items.
 union GetMediasResponseOrError = BaseResponse | MediasResponse | ErrorResponse
+
+# Union type for responses when uploading media items.
+union UploadMediaResponseOrError =
+    BaseResponse
+  | UploadMediaResponse
+  | ErrorResponse

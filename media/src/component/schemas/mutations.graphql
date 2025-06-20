@@ -7,7 +7,7 @@ type Mutation {
   uploadMediaFiles(
     inputs: [UploadMediaInput]! # List of media files and associated metadata.
     userId: String! # ID of the user who is uploading the files.
-  ): BaseResponseOrError!
+  ): UploadMediaResponseOrError!
 
   # Update information of an existing media file.
   # Allows changing metadata like name, description, tags, or other fields.

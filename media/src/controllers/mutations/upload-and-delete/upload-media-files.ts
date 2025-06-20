@@ -2,8 +2,8 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { setMediaByMediaIdInRedis } from "../../../helper/redis";
 import {
-  BaseResponseOrError,
   MutationUploadMediaFilesArgs,
+  UploadMediaResponseOrError,
 } from "../../../types";
 import { createUploadMediaFilesSchema } from "../../../utils/data-validation";
 import { checkUserPermission } from "../../services";
@@ -29,7 +29,7 @@ export const uploadMediaFiles = async (
   _: any,
   args: MutationUploadMediaFilesArgs,
   { user }: Context
-): Promise<BaseResponseOrError> => {
+): Promise<UploadMediaResponseOrError> => {
   const data = args.inputs;
 
   try {
@@ -93,7 +93,13 @@ export const uploadMediaFiles = async (
       statusCode: 200,
       success: true,
       message: "Media files uploaded successfully",
-      __typename: "BaseResponse",
+      medias: result.map((media) => ({
+        ...media,
+        createdBy: media.createdBy as any,
+        createdAt: media.createdAt.toISOString(),
+        deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
+      })),
+      __typename: "UploadMediaResponse",
     };
   } catch (error: any) {
     console.error("Error during media upload:", error);
