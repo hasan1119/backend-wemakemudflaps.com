@@ -87,17 +87,17 @@ export {
   getUserEmailFromRedis,
   getUserInfoByEmailFromRedis,
   getUserInfoByUserIdFromRedis,
-  getUserTokenInfoByUserIdFromRedis,
+  getUserTokenInfoByUserSessionIdFromRedis,
   removeUserCountInDBFromRedis,
   removeUserEmailFromRedis,
   removeUserInfoByEmailFromRedis,
   removeUserInfoByUserIdInRedis,
-  removeUserTokenInfoByUserIdFromRedis,
+  removeUserTokenInfoByUserSessionIdFromRedis,
   setUserCountInDBInRedis,
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserTokenInfoByUserIdInRedis,
+  setUserTokenInfoByUserSessionIdInRedis,
 } from "./utils/user/user-session-manage";
 
 /**

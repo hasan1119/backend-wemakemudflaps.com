@@ -6,14 +6,18 @@ import {
   removeUserInfoByEmailFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserTokenInfoByUserIdInRedis,
+  setUserTokenInfoByUserSessionIdInRedis,
 } from "../../../helper/redis";
 import {
   EmailVerificationResponseOrError,
   MutationVerifyEmailArgs,
   UserSession,
 } from "../../../types";
-import { emailSchema, idSchema } from "../../../utils/data-validation";
+import {
+  emailSchema,
+  idSchema,
+  sessionStringSchema,
+} from "../../../utils/data-validation";
 import EncodeToken from "../../../utils/jwt/encode-token";
 import { updateUser } from "../../services";
 
@@ -41,16 +45,17 @@ export const verifyEmail = async (
   __: Context
 ): Promise<EmailVerificationResponseOrError> => {
   try {
-    const { userId, email } = args;
+    const { userId, email, sessionId } = args;
 
     // Validate input data with Zod schema
-    const [idResult, emailResult] = await Promise.all([
+    const [idResult, emailResult, sessionString] = await Promise.all([
       idSchema.safeParseAsync({ id: userId }),
       emailSchema.safeParseAsync({ email }),
+      sessionStringSchema.safeParseAsync({ sessionId }),
     ]);
 
     // Return detailed validation errors if input is invalid
-    if (!idResult.success || !emailResult.success) {
+    if (!idResult.success || !emailResult.success || !sessionString.success) {
       const errors = [
         ...(idResult.error?.errors || []),
         ...(emailResult.error?.errors || []),
@@ -105,11 +110,16 @@ export const verifyEmail = async (
       roles: updateResult.roles.map((role) => role.name.toUpperCase()),
       emailVerified: updateResult.emailVerified,
       isAccountActivated: updateResult.isAccountActivated,
+      sessionId: args.sessionId,
     };
 
     // Update Redis caches with new email and remove old email data
     await Promise.all([
-      setUserTokenInfoByUserIdInRedis(userId, userSessionData, 2592000),
+      setUserTokenInfoByUserSessionIdInRedis(
+        args.sessionId,
+        userSessionData,
+        2592000
+      ),
       setUserInfoByUserIdInRedis(userId, updateResult),
       setUserInfoByEmailInRedis(updateResult.email, updateResult),
       removeUserInfoByEmailFromRedis(oldEmail),

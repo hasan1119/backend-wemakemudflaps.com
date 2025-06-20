@@ -2,6 +2,7 @@ import {
   accountActivation,
   changePassword,
   createUserRole,
+  deleteLoginSession,
   deleteUserRole,
   forgetPassword,
   login,
@@ -100,5 +101,10 @@ export const userMutationsResolver = {
      * Logs out authenticated users by clearing their session or authentication tokens.
      */
     logout,
+
+    /**
+     * Deletes a user's login session, effectively logging them out.
+     */
+    deleteLoginSession,
   },
 };

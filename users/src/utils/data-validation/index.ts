@@ -27,6 +27,7 @@ export {
   PermissionEnum,
   PERMISSIONS,
   rolesSortingSchema,
+  sessionStringSchema,
   skipTrashSchema,
   usersSortingSchema,
 } from "./common/common";

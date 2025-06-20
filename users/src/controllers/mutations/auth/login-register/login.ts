@@ -14,7 +14,7 @@ import {
   setUserInfoByUserIdInRedis,
   setUserPermissionsByUserIdInRedis,
   setUserRolesInfoInRedis,
-  setUserTokenInfoByUserIdInRedis,
+  setUserTokenInfoByUserSessionIdInRedis,
 } from "../../../../helper/redis";
 import {
   MutationLoginArgs,
@@ -25,7 +25,11 @@ import CompareInfo from "../../../../utils/bcrypt/compare-info";
 import { loginSchema } from "../../../../utils/data-validation";
 import EncodeToken from "../../../../utils/jwt/encode-token";
 import { mapUserToResponseByEmail } from "../../../../utils/mapper";
-import { findRolesByNames, getUserByEmail } from "../../../services";
+import {
+  createUserLoginInfo,
+  findRolesByNames,
+  getUserByEmail,
+} from "../../../services";
 
 /**
  * Handles user login functionality.
@@ -54,7 +58,10 @@ export const login = async (
 ): Promise<UserLoginResponseOrError> => {
   try {
     // Validate input data with Zod schema
-    const validationResult = await loginSchema.safeParseAsync(args);
+    const validationResult = await loginSchema.safeParseAsync({
+      email: args.email,
+      password: args.password,
+    });
 
     // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
@@ -206,6 +213,32 @@ export const login = async (
     // Clear failed login attempts after successful login
     await removeLoginAttemptsFromRedis(user.email);
 
+    await createUserLoginInfo({
+      ...args.meta,
+      user: user.id,
+      ip: args.meta?.ip ?? null,
+      city: args.meta?.city ?? null,
+      isp: args.meta?.isp ?? null,
+      country: args.meta?.country ?? null,
+      countryIso: args.meta?.countryIso ?? null,
+      postalCode: args.meta?.postalCode ?? null,
+      subdivisionIso: args.meta?.subdivisionIso ?? null,
+      timeZone: args.meta?.timeZone ?? null,
+      cityGeonameId: args.meta?.cityGeonameId ?? null,
+      countryGeonameId: args.meta?.countryGeonameId ?? null,
+      subdivisionGeonameId: args.meta?.subdivisionGeonameId ?? null,
+      ispId: args.meta?.ispId ?? null,
+      latitude: args.meta?.latitude ?? null,
+      longitude: args.meta?.longitude ?? null,
+      fingerprint: args.meta?.fingerprint,
+      session: args.meta?.session,
+      fraud: args.meta?.fraud ?? 0,
+      tor: args.meta?.tor ?? false,
+      loggedInAt: args.meta?.loggedInAt
+        ? new Date(args.meta.loggedInAt)
+        : new Date(),
+    });
+
     // Prepare user session data for JWT token and caching
     const userSessionData: UserSession = {
       id: user.id,
@@ -217,11 +250,16 @@ export const login = async (
       roles: user.roles.map((role) => role.toUpperCase()),
       emailVerified: user.emailVerified,
       isAccountActivated: user.isAccountActivated,
+      sessionId: args.meta?.session,
     };
 
     // Cache user session and permissions in Redis with TTL (30 days)
     await Promise.all([
-      setUserTokenInfoByUserIdInRedis(user.id, userSessionData, 25920000),
+      setUserTokenInfoByUserSessionIdInRedis(
+        args.meta.session,
+        userSessionData,
+        25920000
+      ),
       setUserPermissionsByUserIdInRedis(user.id, user),
       setUserRolesInfoInRedis(user.id, rolesInfoByName),
     ]);
@@ -234,6 +272,7 @@ export const login = async (
       success: true,
       message: "Login successful",
       token,
+      sessionId: args.meta.session,
       __typename: "UserLoginResponse",
     };
   } catch (error: any) {

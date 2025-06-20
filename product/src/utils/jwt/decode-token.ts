@@ -29,7 +29,8 @@ const DecodeToken = async (token: string): Promise<UserSession | null> => {
       "gender" in decoded &&
       "roles" in decoded &&
       "emailVerified" in decoded &&
-      "isAccountActivated" in decoded
+      "isAccountActivated" in decoded &&
+      "sessionId" in decoded
     ) {
       return decoded;
     }

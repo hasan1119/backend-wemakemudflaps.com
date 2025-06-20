@@ -5,7 +5,7 @@ import {
   getUserInfoByEmailFromRedis,
   removeUserInfoByEmailFromRedis,
   removeUserInfoByUserIdInRedis,
-  removeUserTokenInfoByUserIdFromRedis,
+  removeUserTokenInfoByUserSessionIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
 } from "../../../helper/redis";
@@ -18,7 +18,9 @@ import { userRoleInfoUpdateSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
+  deleteUserLoginInfoByUserIds,
   getRoleById,
+  getUsersLoginInfoByUserIds,
   updateRoleInfo,
 } from "../../services";
 
@@ -235,13 +237,24 @@ export const updateUserRoleInfo = async (
     // Retrieve all users associated with the updated role
     const allUsersAssociateWithUpdateRole = await getRoleById(updatedRole.id);
 
+    const associateUserIds = allUsersAssociateWithUpdateRole.users.map(
+      (user) => user.id
+    );
+
+    const usersLoginInfo = await getUsersLoginInfoByUserIds(associateUserIds);
+
+    // Delete the users login info from database
+    await deleteUserLoginInfoByUserIds(associateUserIds);
+
     // Clear cache for all users associated with the updated role
     await Promise.all(
-      allUsersAssociateWithUpdateRole.users.map((user) => {
+      allUsersAssociateWithUpdateRole.users.map(async (user) => {
         return Promise.all([
           removeUserInfoByEmailFromRedis(user.email),
           removeUserInfoByUserIdInRedis(user.id),
-          removeUserTokenInfoByUserIdFromRedis(user.id),
+          ...usersLoginInfo.map((login) =>
+            removeUserTokenInfoByUserSessionIdFromRedis(login.session)
+          ),
         ]);
       })
     );

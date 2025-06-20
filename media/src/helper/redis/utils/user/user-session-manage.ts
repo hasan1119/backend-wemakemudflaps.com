@@ -6,20 +6,20 @@ const PREFIX = {
   SESSION: "session:",
 };
 /**
- * Handles retrieval of user token session data from Redis by user ID.
+ * Handles retrieval of user token session data from Redis by session ID.
  *
  * Workflow:
- * 1. Queries Redis using the session token prefix and user ID.
+ * 1. Queries Redis using the session token prefix and session ID.
  * 2. Returns the parsed UserSession or null if not found.
  *
- * @param userId - The ID of the user.
+ * @param sessionId - The ID of the session.
  * @returns A promise resolving to the UserSession or null if not found.
  */
-export const getUserTokenInfoByUserIdFromRedis = async (
-  userId: string
+export const getUserTokenInfoByUserSessionIdFromRedis = async (
+  sessionId: string
 ): Promise<UserSession | null> => {
   return redis.getSession<UserSession | null>(
-    `${PREFIX.SESSION}token:${userId}`,
+    `${PREFIX.SESSION}token:${sessionId}`,
     "user-session"
   );
 };

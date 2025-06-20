@@ -29,3 +29,11 @@ export { Role } from "./user-role.entity";
  * 1. Provides the User entity to handle user-related data and authentication processes.
  */
 export { User } from "./user.entity";
+
+/**
+ * Exports the Login entity for storing user login session metadata.
+ *
+ * Workflow:
+ * 1. Provides the Login entity to log each successful login with IP, fingerprint, and location-related metadata.
+ */
+export { UserLogin } from "./user-login.entity";

@@ -15,7 +15,7 @@ const PREFIX = {
  * @param userId - The ID of the user.
  * @returns A promise resolving to the UserSession or null if not found.
  */
-export const getUserTokenInfoByUserIdFromRedis = async (
+export const getUserTokenInfoByUserSessionIdFromRedis = async (
   userId: string
 ): Promise<UserSession | null> => {
   return redis.getSession<UserSession | null>(

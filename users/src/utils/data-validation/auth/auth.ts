@@ -175,6 +175,7 @@ export const changePasswordSchema = z.object({
  * @property lastName - Optional last name (letters, spaces, hyphens, max 50 chars).
  * @property email - Optional email address (valid format).
  * @property gender - Optional gender value from genderMap.
+ * @property sessionId - User session id of the token.
  */
 export const updateProfileSchema = z.object({
   firstName: z
@@ -203,4 +204,5 @@ export const updateProfileSchema = z.object({
     }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]]))
     .nullable()
     .optional(),
+  sessionId: z.string().min(1, { message: "Session ID is required" }),
 });

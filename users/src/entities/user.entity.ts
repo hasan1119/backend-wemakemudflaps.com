@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Permission } from "./permission.entity";
+import { UserLogin } from "./user-login.entity";
 import { Role } from "./user-role.entity";
 
 @Entity()
@@ -95,6 +96,10 @@ export class User {
   // Indicates whether the user's account is activated
   @Column({ default: false })
   isAccountActivated: boolean;
+
+  // Establishes a one-to-many relationship for login records
+  @OneToMany(() => UserLogin, (login) => login.user)
+  logins: UserLogin[];
 
   // Stores the timestamp when the user was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

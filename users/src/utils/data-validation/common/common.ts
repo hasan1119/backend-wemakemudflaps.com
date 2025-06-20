@@ -104,6 +104,18 @@ export const idSchema = z.object({
 });
 
 /**
+ * Defines the schema for validating a session string.
+ *
+ * Workflow:
+ * 1. Validates that the sessionId field is a valid string.
+ *
+ * @property id - The UUID string to validate.
+ */
+export const sessionStringSchema = z.object({
+  sessionId: z.string().min(1, { message: "Session ID is required" }),
+});
+
+/**
  * Defines the schema for validating an array of UUIDs.
  *
  * Workflow:

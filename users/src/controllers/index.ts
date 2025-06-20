@@ -9,8 +9,10 @@
  * 5. Facilitates secure password resets through a validation process.
  * 6. Logs out authenticated users by clearing their session or authentication tokens.
  */
+export { getUserOwnLoginInfo } from "./mutations/auth/login-register/get-user-own-login-info";
 export { login } from "./mutations/auth/login-register/login";
 export { register } from "./mutations/auth/login-register/register";
+export { deleteLoginSession } from "./mutations/auth/logout/delete-login-session";
 export { logout } from "./mutations/auth/logout/logout";
 export { changePassword } from "./mutations/auth/password/change-password";
 export { forgetPassword } from "./mutations/auth/password/forget-password";

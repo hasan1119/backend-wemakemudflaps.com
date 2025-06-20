@@ -5,8 +5,12 @@
  * 1. Provides functions for creating and deleting users.
  * 2. Enables operations for user management tasks.
  */
-export { createUser } from "./user/create-user.service";
-export { deleteUser } from "./user/delete-user.service";
+export { createUser, createUserLoginInfo } from "./user/create-user.service";
+export {
+  deleteUser,
+  deleteUserLoginInfoBySessionId,
+  deleteUserLoginInfoByUserIds,
+} from "./user/delete-user.service";
 
 /**
  * Exports services for retrieving user data.
@@ -25,7 +29,9 @@ export {
   getUserByPasswordResetToken,
   getUserCount,
   getUserEmailOnly,
+  getUserLoginInfoByUserId,
   getUserPersonalizedPermission,
+  getUsersLoginInfoByUserIds,
 } from "./user/get-user.service";
 
 /**

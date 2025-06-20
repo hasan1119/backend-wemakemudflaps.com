@@ -53,20 +53,20 @@ export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
 };
 
 /**
- * Handles retrieval of user token session data from Redis by user ID.
+ * Handles retrieval of user token session data from Redis by session ID.
  *
  * Workflow:
- * 1. Queries Redis using the session token prefix and user ID.
+ * 1. Queries Redis using the session token prefix and session ID.
  * 2. Returns the parsed UserSession or null if not found.
  *
- * @param userId - The ID of the user.
+ * @param sessionId - The ID of the session.
  * @returns A promise resolving to the UserSession or null if not found.
  */
-export const getUserTokenInfoByUserIdFromRedis = async (
-  userId: string
+export const getUserTokenInfoByUserSessionIdFromRedis = async (
+  sessionId: string
 ): Promise<UserSession | null> => {
   return redis.getSession<UserSession | null>(
-    `${PREFIX.SESSION}token:${userId}`,
+    `${PREFIX.SESSION}token:${sessionId}`,
     "user-session"
   );
 };
@@ -163,25 +163,25 @@ export const setUserInfoByUserIdInRedis = async (
 };
 
 /**
- * Handles caching user token session data in Redis by user ID.
+ * Handles caching user token session data in Redis by session ID.
  *
  * Workflow:
  * 1. Maps the provided user session data to a token format using mapUserToTokenData.
- * 2. Stores the mapped data in Redis with the session token prefix, user ID, and specified TTL.
+ * 2. Stores the mapped data in Redis with the session token prefix, session ID, and specified TTL.
  *
- * @param userId - The ID of the user.
+ * @param sessionId - The ID of the session.
  * @param data - The UserSession data to cache.
  * @param ttl - Time-to-live in seconds.
  * @returns A promise resolving when the token data is cached.
  */
-export const setUserTokenInfoByUserIdInRedis = async (
-  userId: string,
+export const setUserTokenInfoByUserSessionIdInRedis = async (
+  sessionId: string,
   data: UserSession,
   ttl: number
 ): Promise<void> => {
   const sessionData = await mapUserToTokenData(data);
   await redis.setSession(
-    `${PREFIX.SESSION}token:${userId}`,
+    `${PREFIX.SESSION}token:${sessionId}`,
     sessionData,
     "user-session",
     ttl
@@ -227,18 +227,21 @@ export const removeUserInfoByUserIdInRedis = async (
 };
 
 /**
- * Handles removal of user token session data from Redis by user ID.
+ * Handles removal of user token session data from Redis by session ID.
  *
  * Workflow:
- * 1. Deletes the token session data from Redis using the session token prefix and user ID.
+ * 1. Deletes the token session data from Redis using the session token prefix and session ID.
  *
- * @param userId - The ID of the user.
+ * @param sessionId - The ID of the session.
  * @returns A promise resolving when the token data is removed.
  */
-export const removeUserTokenInfoByUserIdFromRedis = async (
-  userId: string
+export const removeUserTokenInfoByUserSessionIdFromRedis = async (
+  sessionId: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.SESSION}token:${userId}`, "user-session");
+  await redis.deleteSession(
+    `${PREFIX.SESSION}token:${sessionId}`,
+    "user-session"
+  );
 };
 
 /**

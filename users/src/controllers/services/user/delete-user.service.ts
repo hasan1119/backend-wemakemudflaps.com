@@ -1,4 +1,5 @@
-import { userRepository } from "../repositories/repositories";
+import { In } from "typeorm";
+import { loginRepository, userRepository } from "../repositories/repositories";
 
 /**
  * Handles deletion of a user by their ID.
@@ -12,4 +13,59 @@ import { userRepository } from "../repositories/repositories";
  */
 export const deleteUser = async (id: string): Promise<void> => {
   await userRepository.delete({ id });
+};
+
+/**
+ * Handles deletion of user login information by session ID.
+ *
+ * Workflow:
+ * 1. Deletes the user login information associated with the specified session ID from the loginRepository.
+ * 2. Resolves the promise when the deletion is complete.
+ *
+ * @param sessionId - The session ID of the user whose login information is to be deleted.
+ * @returns A promise resolving to void when the user login information is deleted.
+ */
+export const deleteUserLoginInfoBySessionId = async (
+  sessionId: string
+): Promise<void> => {
+  await loginRepository.delete({
+    session: sessionId,
+  });
+};
+
+/**
+ * Handles deletion of user login information by user ID.
+ *
+ * Workflow:
+ * 1. Deletes the user login information associated with the specified user ID from the loginRepository.
+ * 2. Resolves the promise when the deletion is complete.
+ *
+ * @param userId - The user ID of the user whose login information is to be deleted.
+ * @returns A promise resolving to void when the user login information is deleted.
+ */
+export const deleteUserLoginInfoByUserId = async (
+  userId: string
+): Promise<void> => {
+  await loginRepository.delete({
+    user: { id: userId },
+  });
+};
+
+/**
+ * Handles deletion of user login information by multiple user IDs.
+ *
+ * Workflow:
+ * 1. Deletes all login records from the loginRepository where the user ID matches any of the provided IDs.
+ * 2. Uses TypeORM's In operator to perform bulk deletion efficiently.
+ * 3. Useful when removing access for users after role changes, deactivation, or batch logout operations.
+ *
+ * @param userIds - An array of user IDs whose login records need to be removed.
+ * @returns A promise resolving to void once all relevant records are deleted.
+ */
+export const deleteUserLoginInfoByUserIds = async (
+  userIds: string[]
+): Promise<void> => {
+  await loginRepository.delete({
+    user: { id: In(userIds) },
+  });
 };

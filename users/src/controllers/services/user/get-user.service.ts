@@ -1,11 +1,12 @@
-import { ILike } from "typeorm";
-import { Permission, User } from "../../../entities";
+import { ILike, In } from "typeorm";
+import { Permission, User, UserLogin } from "../../../entities";
 import {
   getUserInfoByUserIdFromRedis,
   setUserInfoByUserIdInRedis,
 } from "../../../helper/redis";
 import { mapUserToResponseById } from "../../../utils/mapper";
 import {
+  loginRepository,
   permissionRepository,
   userRepository,
 } from "../repositories/repositories";
@@ -246,4 +247,44 @@ export const getPaginatedUsers = async ({
   });
 
   return { users, queryTotal };
+};
+
+/**
+ * Handles fetching user login information by user ID.
+ *
+ * Workflow:
+ * 1. Queries the loginRepository to find a UserLogin entity linked to the specified user ID.
+ * 2. Includes the user relation for the login entry.
+ * 3. Returns the UserLogin entities or null if not found.
+ *
+ * @param userId - The UUID of the user to search for.
+ * @returns A promise resolving to the UserLogin entities or null if not found.
+ */
+export const getUserLoginInfoByUserId = async (
+  userId: string
+): Promise<UserLogin[] | null> => {
+  return await loginRepository.find({
+    where: { user: { id: userId } },
+    relations: ["user"],
+  });
+};
+
+/**
+ * Handles fetching user login information by user IDs.
+ *
+ * Workflow:
+ * 1. Queries the loginRepository to find all UserLogin entities linked to the specified user IDs.
+ * 2. Includes the user relation for each login entry.
+ * 3. Returns an array of UserLogin entities.
+ *
+ * @param userIds - An array of user IDs to search for.
+ * @returns A promise resolving to an array of UserLogin entities.
+ */
+export const getUsersLoginInfoByUserIds = async (
+  userIds: string[]
+): Promise<UserLogin[]> => {
+  return await loginRepository.find({
+    where: { user: { id: In(userIds) } },
+    relations: ["user"],
+  });
 };

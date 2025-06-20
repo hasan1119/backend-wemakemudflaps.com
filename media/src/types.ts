@@ -87,6 +87,29 @@ export type GetUserByIdResponseOrError = BaseResponse | ErrorResponse | UserResp
 
 export type GetUsersResponseOrError = BaseResponse | ErrorResponse | UsersResponse;
 
+export type LoginMetaInput = {
+  city?: InputMaybe<Scalars['String']['input']>;
+  cityGeonameId?: InputMaybe<Scalars['Int']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  countryGeonameId?: InputMaybe<Scalars['Int']['input']>;
+  countryIso?: InputMaybe<Scalars['String']['input']>;
+  fingerprint: Scalars['String']['input'];
+  fraud: Scalars['Float']['input'];
+  id: Scalars['ID']['input'];
+  ip?: InputMaybe<Scalars['String']['input']>;
+  isp?: InputMaybe<Scalars['String']['input']>;
+  ispId?: InputMaybe<Scalars['Int']['input']>;
+  latitude?: InputMaybe<Scalars['Float']['input']>;
+  loggedInAt: Scalars['String']['input'];
+  longitude?: InputMaybe<Scalars['Float']['input']>;
+  postalCode?: InputMaybe<Scalars['String']['input']>;
+  session: Scalars['String']['input'];
+  subdivisionGeonameId?: InputMaybe<Scalars['Int']['input']>;
+  subdivisionIso?: InputMaybe<Scalars['String']['input']>;
+  timeZone?: InputMaybe<Scalars['String']['input']>;
+  tor: Scalars['Boolean']['input'];
+};
+
 export type Media = {
   __typename?: 'Media';
   altText?: Maybe<Scalars['String']['output']>;
@@ -283,6 +306,7 @@ export type MutationForgetPasswordArgs = {
 
 export type MutationLoginArgs = {
   email: Scalars['String']['input'];
+  meta: LoginMetaInput;
   password: Scalars['String']['input'];
 };
 
@@ -623,6 +647,7 @@ export type User = {
 export type UserLoginResponse = {
   __typename?: 'UserLoginResponse';
   message: Scalars['String']['output'];
+  sessionId: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
   token: Scalars['String']['output'];
@@ -659,6 +684,7 @@ export type UserSession = {
   isAccountActivated: Scalars['Boolean']['output'];
   lastName: Scalars['String']['output'];
   roles: Array<Scalars['String']['output']>;
+  sessionId: Scalars['String']['output'];
 };
 
 export type UserSessionByEmail = {
@@ -823,6 +849,8 @@ export type ResolversTypes = {
   GetRolesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRolesResponseOrError']>;
   GetUserByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUserByIDResponseOrError']>;
   GetUsersResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUsersResponseOrError']>;
+  LoginMetaInput: LoginMetaInput;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Media: ResolverTypeWrapper<Media>;
   MediaCategory: MediaCategory;
   MediaMimeType: MediaMimeType;
@@ -882,6 +910,8 @@ export type ResolversParentTypes = {
   GetRolesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRolesResponseOrError'];
   GetUserByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUserByIDResponseOrError'];
   GetUsersResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUsersResponseOrError'];
+  LoginMetaInput: LoginMetaInput;
+  Float: Scalars['Float']['output'];
   Media: Media;
   MediaResponse: MediaResponse;
   MediasResponse: MediasResponse;
@@ -1052,7 +1082,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
   deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'ids' | 'skipTrash'>>;
   forgetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationForgetPasswordArgs, 'email'>>;
-  login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
+  login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'meta' | 'password'>>;
   logout?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password'>>;
   resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
@@ -1196,6 +1226,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 
 export type UserLoginResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserLoginResponse'] = ResolversParentTypes['UserLoginResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1236,6 +1267,7 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
   isAccountActivated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

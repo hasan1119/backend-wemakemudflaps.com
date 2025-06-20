@@ -5,7 +5,7 @@ import {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserTokenInfoByUserIdInRedis,
+  setUserTokenInfoByUserSessionIdInRedis,
 } from "../../../helper/redis";
 import {
   MutationUpdateProfileArgs,
@@ -145,12 +145,13 @@ export const updateProfile = async (
       roles: updatedUser.roles.map((role) => role.name.toUpperCase()),
       emailVerified: updatedUser.emailVerified,
       isAccountActivated: updatedUser.isAccountActivated,
+      sessionId: args.sessionId,
     };
 
     // Cache user data, session, and email in Redis with 30-day TTL
     const promises = [
-      setUserTokenInfoByUserIdInRedis(
-        updatedUser.id,
+      setUserTokenInfoByUserSessionIdInRedis(
+        args.sessionId,
         userSessionData,
         25920000
       ),

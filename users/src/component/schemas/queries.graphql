@@ -30,6 +30,12 @@ type Query {
   # Returns a `GetRoleByIDResponseOrError` containing role data and request status.
   getRoleById(id: String!): GetRoleByIDResponseOrError!
 
+  # Fetch user login information.
+  # Only accessible by authorized users.
+  # Retrieves a specific users's login information.
+  # Returns a `GetUserLoginInfoByUserIDResponseOrError` containing login data and request status.
+  getUserOwnLoginInfo: GetUserLoginInfoResponseOrError!
+
   # Fetch all roles with pagination, filtering, and sorting.
   # Only accessible by authorized users.
   # Retrieves a paginated list of user roles.

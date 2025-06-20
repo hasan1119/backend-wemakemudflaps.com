@@ -109,5 +109,6 @@ export const mapUserToTokenData = async (
     gender: user.gender,
     roles: user.roles.map((role) => role.toUpperCase()),
     isAccountActivated: user.isAccountActivated,
+    sessionId: user.sessionId,
   };
 };

@@ -1,5 +1,5 @@
-import { Role, User } from "../../../entities";
-import { userRepository } from "../repositories/repositories";
+import { Role, User, UserLogin } from "../../../entities";
+import { loginRepository, userRepository } from "../repositories/repositories";
 
 /**
  * Handles creation and saving of a new user in the database.
@@ -39,4 +39,25 @@ export const createUser = async (data: {
 
   // Save and return the user
   return await userRepository.save(newUser);
+};
+
+/**
+ * Handles creation and saving of a new user login info in the database.
+ *
+ * Workflow:
+ * 1. Creates a new UserLogin entity with the provided data.
+ * 2. Saves the UserLogin entity to the database using the loginRepository.
+ * 3. Returns the newly created UserLogin entity.
+ *
+ * @param data - User login data including required fields.
+ * @returns A promise resolving to the newly created UserLogin entity.
+ */
+export const createUserLoginInfo = async (
+  data: UserLogin
+): Promise<UserLogin> => {
+  // Create new user login entity
+  const newUserLogin = loginRepository.create(data);
+
+  // Save and return the user login info
+  return await loginRepository.save(newUserLogin);
 };

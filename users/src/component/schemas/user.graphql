@@ -55,6 +55,55 @@ type BaseResponse @shareable {
   message: String!
 }
 
+# ---------------------- User Login Info types ----------------------
+
+# Represents a single user login record, including IP, geolocation, and session metadata.
+input LoginMetaInput {
+  id: ID! # Unique identifier of the login record.
+  ip: String # IP address used during login.
+  city: String # City (if available).
+  isp: String # Name of the Internet Service Provider.
+  country: String # Country name.
+  countryIso: String # Country ISO code.
+  postalCode: String # Postal or ZIP code.
+  subdivisionIso: String # ISO code of the subdivision/region.
+  timeZone: String # Timezone of the login location.
+  cityGeonameId: Int # GeoName ID of the city.
+  countryGeonameId: Int # GeoName ID of the country.
+  subdivisionGeonameId: Int # GeoName ID of the subdivision.
+  ispId: Int # Unique identifier of the ISP.
+  latitude: Float # Latitude coordinate of the login.
+  longitude: Float # Longitude coordinate of the login.
+  fingerprint: String! # Unique browser/device fingerprint hash.
+  session: String! # Unique session identifier.
+  fraud: Float! # Probability score indicating risk/fraud likelihood.
+  tor: Boolean! # Whether the login came through a Tor exit node.
+  loggedInAt: String! # Timestamp when the login occurred.
+}
+
+type LoginMeta {
+  id: ID! # Unique identifier of the login record.
+  ip: String # IP address used during login.
+  city: String # City (if available).
+  isp: String # Name of the Internet Service Provider.
+  country: String # Country name.
+  countryIso: String # Country ISO code.
+  postalCode: String # Postal or ZIP code.
+  subdivisionIso: String # ISO code of the subdivision/region.
+  timeZone: String # Timezone of the login location.
+  cityGeonameId: Int # GeoName ID of the city.
+  countryGeonameId: Int # GeoName ID of the country.
+  subdivisionGeonameId: Int # GeoName ID of the subdivision.
+  ispId: Int # Unique identifier of the ISP.
+  latitude: Float # Latitude coordinate of the login.
+  longitude: Float # Longitude coordinate of the login.
+  fingerprint: String! # Unique browser/device fingerprint hash.
+  session: String! # Unique session identifier.
+  fraud: Float! # Probability score indicating risk/fraud likelihood.
+  tor: Boolean! # Whether the login came through a Tor exit node.
+  loggedInAt: String! # Timestamp when the login occurred.
+}
+
 # ---------------------- CreatedBy & Permissions ----------------------
 
 # Minimal user information stored with entities to track who created them.
@@ -181,6 +230,7 @@ type UserSession @shareable {
   roles: [String!]!
   emailVerified: Boolean!
   isAccountActivated: Boolean!
+  sessionId: String! # Unique session identifier.
 }
 
 # Cached user session indexed by email, stored in Redis.
@@ -283,6 +333,15 @@ type UserLoginResponse {
   success: Boolean!
   message: String!
   token: String!
+  sessionId: String! # Unique session identifier.
+}
+
+# Response of the user login information by user ID.
+type UserLoginInfoResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  userLoginInfo: [LoginMeta!]! # List of login records for the user.
 }
 
 # Response when user profile is updated, possibly with a new token.
@@ -392,4 +451,10 @@ union GetPermissionsResponseOrError =
 union GetPersonalizedPermissionsResponseOrError =
     BaseResponse
   | PermissionsResponse
+  | ErrorResponse
+
+# Union when retrieving a single role.
+union GetUserLoginInfoResponseOrError =
+    BaseResponse
+  | UserLoginInfoResponse
   | ErrorResponse

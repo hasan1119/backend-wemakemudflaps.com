@@ -29,10 +29,12 @@ import {
   findRolesByNames,
   getRolesByIds,
   getUserById,
+  getUserLoginInfoByUserId,
   updateUser,
 } from "../../services";
+import { deleteUserLoginInfoByUserId } from "../../services/user/delete-user.service";
 import {
-  removeUserTokenInfoByUserIdFromRedis,
+  removeUserTokenInfoByUserSessionIdFromRedis,
   setUserInfoByEmailInRedis,
 } from "./../../../helper/redis/utils/user/user-session-manage";
 
@@ -420,12 +422,18 @@ export const updateUserRole = async (
       }
     }
 
+    const userLoginInfo = await getUserLoginInfoByUserId(updatedUser.id);
+
+    await deleteUserLoginInfoByUserId(updatedUser.id);
+
     // Refresh Redis user data
     await Promise.all([
       setUserInfoByUserIdInRedis(updatedUser.id, updatedUser),
       setUserInfoByEmailInRedis(updatedUser.email, updatedUser),
       removeUserRolesInfoFromRedis(updatedUser.id),
-      removeUserTokenInfoByUserIdFromRedis(updatedUser.id),
+      ...userLoginInfo.map((login) =>
+        removeUserTokenInfoByUserSessionIdFromRedis(login.session)
+      ),
     ]);
 
     return {

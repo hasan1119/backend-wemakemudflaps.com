@@ -6,7 +6,7 @@
  */
 export {
   getUserInfoByEmailFromRedis,
-  getUserTokenInfoByUserIdFromRedis,
+  getUserTokenInfoByUserSessionIdFromRedis,
 } from "./utils/user/user-session-manage";
 
 /**

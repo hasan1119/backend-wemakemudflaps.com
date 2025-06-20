@@ -1,11 +1,11 @@
 import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
-import {
-  removeUserRolesInfoFromRedis,
-  removeUserTokenInfoByUserIdFromRedis,
-} from "../../../../helper/redis";
+import { removeUserTokenInfoByUserSessionIdFromRedis } from "../../../../helper/redis";
 import { BaseResponseOrError } from "../../../../types";
-import { checkUserAuth } from "../../../services";
+import {
+  checkUserAuth,
+  deleteUserLoginInfoBySessionId,
+} from "../../../services";
 
 /**
  * Handles user logout and cache management.
@@ -30,10 +30,11 @@ export const logout = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Refresh Redis user data
+    // Delete the user login info from database
+    await deleteUserLoginInfoBySessionId(user.sessionId);
+
     await Promise.all([
-      removeUserRolesInfoFromRedis(user.id),
-      removeUserTokenInfoByUserIdFromRedis(user.id),
+      removeUserTokenInfoByUserSessionIdFromRedis(user.sessionId),
     ]);
 
     return {

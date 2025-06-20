@@ -6,6 +6,7 @@ import {
   getProfile,
   getRoleById,
   getUserById,
+  getUserOwnLoginInfo,
 } from "../../controllers";
 import { CreatedBy } from "../../controllers/services";
 
@@ -53,6 +54,11 @@ export const userQueriesResolver = {
      * Fetches the authenticated user's personalized permissions.
      */
     getOwnPersonalizedPermissions,
+
+    /**
+     * Fetches the authenticated user's login information.
+     */
+    getUserOwnLoginInfo,
   },
 
   /**
