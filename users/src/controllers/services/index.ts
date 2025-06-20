@@ -8,8 +8,9 @@
 export { createUser, createUserLoginInfo } from "./user/create-user.service";
 export {
   deleteUser,
-  deleteUserLoginInfoBySessionId,
+  deleteUserLoginInfoByUserId,
   deleteUserLoginInfoByUserIds,
+  deleteUserLoginInfoSessionById,
 } from "./user/delete-user.service";
 
 /**

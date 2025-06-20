@@ -204,5 +204,5 @@ export const updateProfileSchema = z.object({
     }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]]))
     .nullable()
     .optional(),
-  sessionId: z.string().min(1, { message: "Session ID is required" }),
+  sessionId: z.string().uuid({ message: "Invalid UUID format" }),
 });

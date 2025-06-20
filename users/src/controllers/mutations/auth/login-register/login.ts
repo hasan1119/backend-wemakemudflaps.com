@@ -213,7 +213,7 @@ export const login = async (
     // Clear failed login attempts after successful login
     await removeLoginAttemptsFromRedis(user.email);
 
-    await createUserLoginInfo({
+    const sessionData = await createUserLoginInfo({
       ...args.meta,
       user: user.id,
       ip: args.meta?.ip ?? null,
@@ -250,13 +250,13 @@ export const login = async (
       roles: user.roles.map((role) => role.toUpperCase()),
       emailVerified: user.emailVerified,
       isAccountActivated: user.isAccountActivated,
-      sessionId: args.meta?.session,
+      sessionId: sessionData.id,
     };
 
     // Cache user session and permissions in Redis with TTL (30 days)
     await Promise.all([
       setUserTokenInfoByUserSessionIdInRedis(
-        args.meta.session,
+        sessionData.id,
         userSessionData,
         25920000
       ),

@@ -36,7 +36,7 @@ import { deleteUserLoginInfoByUserId } from "../../services/user/delete-user.ser
 import {
   removeUserTokenInfoByUserSessionIdFromRedis,
   setUserInfoByEmailInRedis,
-} from "./../../../helper/redis/utils/user/user-session-manage";
+} from "./../../../helper/redis";
 
 /**
  * Handles updating a user's roles with validation, permission checks, and cache management.
@@ -432,7 +432,7 @@ export const updateUserRole = async (
       setUserInfoByEmailInRedis(updatedUser.email, updatedUser),
       removeUserRolesInfoFromRedis(updatedUser.id),
       ...userLoginInfo.map((login) =>
-        removeUserTokenInfoByUserSessionIdFromRedis(login.session)
+        removeUserTokenInfoByUserSessionIdFromRedis(login.id)
       ),
     ]);
 

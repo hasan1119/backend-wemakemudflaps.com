@@ -253,7 +253,7 @@ export const updateUserRoleInfo = async (
           removeUserInfoByEmailFromRedis(user.email),
           removeUserInfoByUserIdInRedis(user.id),
           ...usersLoginInfo.map((login) =>
-            removeUserTokenInfoByUserSessionIdFromRedis(login.session)
+            removeUserTokenInfoByUserSessionIdFromRedis(login.id)
           ),
         ]);
       })

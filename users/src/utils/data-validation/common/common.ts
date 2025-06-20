@@ -112,7 +112,7 @@ export const idSchema = z.object({
  * @property id - The UUID string to validate.
  */
 export const sessionStringSchema = z.object({
-  sessionId: z.string().min(1, { message: "Session ID is required" }),
+  sessionId: z.string().uuid({ message: "Invalid UUID format" }),
 });
 
 /**

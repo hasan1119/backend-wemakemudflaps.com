@@ -16,21 +16,19 @@ export const deleteUser = async (id: string): Promise<void> => {
 };
 
 /**
- * Handles deletion of user login information by session ID.
+ * Handles deletion of a user login session by its ID.
  *
  * Workflow:
- * 1. Deletes the user login information associated with the specified session ID from the loginRepository.
+ * 1. Deletes the user login session with the specified ID from the loginRepository.
  * 2. Resolves the promise when the deletion is complete.
  *
- * @param sessionId - The session ID of the user whose login information is to be deleted.
- * @returns A promise resolving to void when the user login information is deleted.
+ * @param sessionId - The session ID of the user login session to delete.
+ * @returns A promise resolving to void when the user login session is deleted.
  */
-export const deleteUserLoginInfoBySessionId = async (
+export const deleteUserLoginInfoSessionById = async (
   sessionId: string
 ): Promise<void> => {
-  await loginRepository.delete({
-    session: sessionId,
-  });
+  await loginRepository.delete({ id: sessionId });
 };
 
 /**

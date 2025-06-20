@@ -2,9 +2,10 @@ import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
 import { removeUserTokenInfoByUserSessionIdFromRedis } from "../../../../helper/redis";
 import { BaseResponseOrError } from "../../../../types";
+import { sessionStringSchema } from "../../../../utils/data-validation";
 import {
   checkUserAuth,
-  deleteUserLoginInfoBySessionId,
+  deleteUserLoginInfoSessionById,
 } from "../../../services";
 
 /**
@@ -30,8 +31,27 @@ export const logout = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
+    const validationResult = await sessionStringSchema.safeParseAsync({
+      sessionId: user.sessionId,
+    });
+
+    if (!validationResult.success) {
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."), // Join path array to string for field identification
+        message: error.message,
+      }));
+
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Validation failed",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
+      };
+    }
+
     // Delete the user login info from database
-    await deleteUserLoginInfoBySessionId(user.sessionId);
+    await deleteUserLoginInfoSessionById(user.sessionId);
 
     await Promise.all([
       removeUserTokenInfoByUserSessionIdFromRedis(user.sessionId),
