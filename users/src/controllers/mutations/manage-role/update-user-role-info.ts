@@ -10,8 +10,8 @@ import {
   setRoleInfoByRoleNameInRedis,
 } from "../../../helper/redis";
 import {
-  BaseResponseOrError,
   MutationUpdateUserRoleInfoArgs,
+  UpdateRoleResponseOrError,
 } from "../../../types";
 import CompareInfo from "../../../utils/bcrypt/compare-info";
 import { userRoleInfoUpdateSchema } from "../../../utils/data-validation";
@@ -49,7 +49,7 @@ export const updateUserRoleInfo = async (
   _: any,
   args: MutationUpdateUserRoleInfoArgs,
   { user }: Context
-): Promise<BaseResponseOrError> => {
+): Promise<UpdateRoleResponseOrError> => {
   try {
     // Verify user authentication
     const authResponse = checkUserAuth(user);
@@ -270,7 +270,32 @@ export const updateUserRoleInfo = async (
       success: true,
       message:
         "User role updated successfully. To see the changes associated user must have to login again.",
-      __typename: "BaseResponse",
+      role: {
+        id: updatedRole.id,
+        name: updatedRole.name,
+        description: updatedRole.description,
+        defaultPermissions: updatedRole.defaultPermissions,
+        systemDeleteProtection: updatedRole.systemDeleteProtection,
+        systemUpdateProtection: updatedRole.systemUpdateProtection,
+        systemPermanentDeleteProtection:
+          updatedRole.systemPermanentDeleteProtection,
+        systemPermanentUpdateProtection:
+          updatedRole.systemPermanentUpdateProtection,
+        assignedUserCount: 0,
+        createdBy: {
+          id: user.id,
+          name: user.firstName + " " + user.lastName,
+          roles: user.roles,
+        },
+        createdAt:
+          typeof updatedRole.createdAt === "string"
+            ? updatedRole.createdAt
+            : updatedRole.createdAt.toISOString(),
+        deletedAt: updatedRole.deletedAt
+          ? updatedRole.deletedAt.toISOString()
+          : null,
+      },
+      __typename: "RoleResponse",
     };
   } catch (error: any) {
     console.error("Error updating user role info:", error);

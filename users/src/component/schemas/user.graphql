@@ -459,3 +459,6 @@ union GetUserLoginInfoResponseOrError =
 
 # Union when creating a single role.
 union CreateRoleResponseOrError = BaseResponse | RoleResponse | ErrorResponse
+
+# Union when updating a single role.
+union UpdateRoleResponseOrError = BaseResponse | RoleResponse | ErrorResponse

@@ -16,7 +16,9 @@ import { mapPermissions } from "../permission/permission.mapper";
  * @returns A promise resolving to a RoleSession object.
  */
 export const mapRoleToResponse = async (role: Role): Promise<RoleSession> => {
-  const createdBy = await getUserById((await role.createdBy).id);
+  const createdBy = (await role.createdBy)
+    ? await getUserById((await role.createdBy).id)
+    : null;
 
   return {
     id: role.id,

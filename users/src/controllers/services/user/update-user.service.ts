@@ -52,7 +52,7 @@ export const activateUserAccount = async (userId: string): Promise<User> => {
   );
 
   // Retrieve and return updated user
-  await getUserById(userId);
+  return await getUserById(userId);
 };
 
 /**

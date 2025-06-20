@@ -107,7 +107,7 @@ type Mutation {
     systemPermanentDeleteProtection: Boolean # Update permanent delete protection flag.
     systemPermanentUpdateProtection: Boolean # Update permanent update protection flag.
     password: String # Optional: required for non-super admins.
-  ): BaseResponseOrError!
+  ): UpdateRoleResponseOrError!
 
   # Update a user's permissions manually.
   # Only accessible by authorized users.
