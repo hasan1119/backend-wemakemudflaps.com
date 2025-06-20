@@ -179,8 +179,6 @@ export const createUserRole = async (
       setRoleNameExistInRedis(role.name),
     ]);
 
-    console.log(user.roles);
-
     return {
       statusCode: 201,
       success: true,
