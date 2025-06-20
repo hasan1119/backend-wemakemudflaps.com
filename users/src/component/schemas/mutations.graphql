@@ -91,7 +91,7 @@ type Mutation {
     systemUpdateProtection: Boolean # If true, prevents update except by Super Admin.
     systemPermanentDeleteProtection: Boolean # If true, prevents permanent deletion.
     systemPermanentUpdateProtection: Boolean # If true, prevents permanent update.
-  ): BaseResponseOrError!
+  ): CreateRoleResponseOrError!
 
   # Update an existing user role's information.
   # Only accessible by authorized users.

@@ -8,7 +8,7 @@ import {
   setRoleNameExistInRedis,
 } from "../../../helper/redis";
 import {
-  BaseResponseOrError,
+  CreateRoleResponseOrError,
   MutationCreateUserRoleArgs,
 } from "../../../types";
 import { PERMISSIONS, userRoleSchema } from "../../../utils/data-validation";
@@ -41,7 +41,7 @@ export const createUserRole = async (
   _: any,
   args: MutationCreateUserRoleArgs,
   { user }: Context
-): Promise<BaseResponseOrError> => {
+): Promise<CreateRoleResponseOrError> => {
   try {
     // Verify user authentication
     const authResponse = checkUserAuth(user);
@@ -179,11 +179,31 @@ export const createUserRole = async (
       setRoleNameExistInRedis(role.name),
     ]);
 
+    console.log(user.roles);
+
     return {
       statusCode: 201,
       success: true,
       message: "Role created successfully",
-      __typename: "BaseResponse",
+      role: {
+        id: role.id,
+        name: role.name,
+        description: role.description,
+        defaultPermissions: role.defaultPermissions,
+        systemDeleteProtection: role.systemDeleteProtection,
+        systemUpdateProtection: role.systemUpdateProtection,
+        systemPermanentDeleteProtection: role.systemPermanentDeleteProtection,
+        systemPermanentUpdateProtection: role.systemPermanentUpdateProtection,
+        assignedUserCount: 0,
+        createdBy: {
+          id: user.id,
+          name: user.firstName + " " + user.lastName,
+          roles: user.roles,
+        },
+        createdAt: role.createdAt?.toISOString(),
+        deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
+      },
+      __typename: "RoleResponse",
     };
   } catch (error: any) {
     console.error("Error creating role:", error);

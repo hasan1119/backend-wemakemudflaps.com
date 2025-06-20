@@ -29,6 +29,8 @@ export type BaseResponse = {
 
 export type BaseResponseOrError = BaseResponse | ErrorResponse;
 
+export type CreateRoleResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
+
 export type CreatedBy = {
   __typename?: 'CreatedBy';
   id: Scalars['ID']['output'];
@@ -266,7 +268,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   accountActivation: ActiveAccountResponseOrError;
   changePassword: BaseResponseOrError;
-  createUserRole: BaseResponseOrError;
+  createUserRole: CreateRoleResponseOrError;
   deleteLoginSession: BaseResponseOrError;
   deleteMediaFiles: BaseResponseOrError;
   deleteUserRole: BaseResponseOrError;
@@ -849,6 +851,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   ActiveAccountResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  CreateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
   GetMediaByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
   GetMediasResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediasResponse );
@@ -874,6 +877,7 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
+  CreateRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateRoleResponseOrError']>;
   CreatedBy: ResolverTypeWrapper<CreatedBy>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   EmailVerificationResponse: ResolverTypeWrapper<EmailVerificationResponse>;
@@ -939,6 +943,7 @@ export type ResolversParentTypes = {
   Int: Scalars['Int']['output'];
   Boolean: Scalars['Boolean']['output'];
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
+  CreateRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateRoleResponseOrError'];
   CreatedBy: CreatedBy;
   ID: Scalars['ID']['output'];
   EmailVerificationResponse: EmailVerificationResponse;
@@ -1012,6 +1017,10 @@ export type BaseResponseResolvers<ContextType = Context, ParentType extends Reso
 
 export type BaseResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BaseResponseOrError'] = ResolversParentTypes['BaseResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type CreateRoleResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateRoleResponseOrError'] = ResolversParentTypes['CreateRoleResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
 };
 
 export type CreatedByResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatedBy'] = ResolversParentTypes['CreatedBy']> = {
@@ -1154,7 +1163,7 @@ export type MediasResponseResolvers<ContextType = Context, ParentType extends Re
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
-  createUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
+  createUserRole?: Resolver<ResolversTypes['CreateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionId'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
   deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'ids' | 'skipTrash'>>;
@@ -1411,6 +1420,7 @@ export type Resolvers<ContextType = Context> = {
   ActiveAccountResponseOrError?: ActiveAccountResponseOrErrorResolvers<ContextType>;
   BaseResponse?: BaseResponseResolvers<ContextType>;
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
+  CreateRoleResponseOrError?: CreateRoleResponseOrErrorResolvers<ContextType>;
   CreatedBy?: CreatedByResolvers<ContextType>;
   EmailVerificationResponse?: EmailVerificationResponseResolvers<ContextType>;
   EmailVerificationResponseOrError?: EmailVerificationResponseOrErrorResolvers<ContextType>;
