@@ -6,7 +6,6 @@ import {
 } from "../repositories/repositories";
 import { getUserById } from "../user/get-user.service";
 import type { PermissionName } from "./../../../utils/data-validation";
-import { getRoleById } from "./get-role.service";
 
 export interface UpdateRoleInfoInput {
   roleData: any;
@@ -90,8 +89,5 @@ export const updateRoleInfo = async ({
   roleData.createdBy = await getUserById(updatedByUserId);
 
   // Save updated role with relations
-  await roleRepository.save(roleData);
-
-  // Retrieve and return the updated role
-  return await getRoleById(roleId);
+  return await roleRepository.save(roleData);
 };

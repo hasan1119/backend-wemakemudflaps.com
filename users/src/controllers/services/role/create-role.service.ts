@@ -1,6 +1,5 @@
 import { Role } from "../../../entities";
 import { roleRepository } from "../repositories/repositories";
-import { getRoleById } from "./get-role.service";
 
 /**
  * Handles creation and saving of a new role in the database.
@@ -35,8 +34,5 @@ export const createRole = async (
   });
 
   // Save role to database
-  await roleRepository.save(role);
-
-  // Retrieve and return the created role
-  return await getRoleById(role.id);
+  return await roleRepository.save(role);
 };
