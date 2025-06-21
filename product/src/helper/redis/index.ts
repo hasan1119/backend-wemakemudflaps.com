@@ -10,14 +10,6 @@ export {
 } from "./utils/user/user-session-manage";
 
 /**
- * Exports utilities for managing role session data in Redis.
- *
- * Workflow:
- * 1. Provides functions for getting.
- */
-export { getRoleInfoByRoleNameFromRedis } from "./utils/role/role-session-manage";
-
-/**
  * Exports utilities for managing permission and user roles session data in Redis.
  *
  * Workflow:
