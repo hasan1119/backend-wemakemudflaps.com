@@ -55,7 +55,7 @@ export class Product {
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "product_brand" })
-  brand: Brand | null;
+  brand: Promise<Brand> | null;
 
   // Main product description
   @Column({ type: "text" })

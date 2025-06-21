@@ -1,3 +1,4 @@
+import { createCategory } from "../../controllers/mutations/manage-category/create-category";
 import { createProduct } from "../../controllers/mutations/manage-product/create-product";
 
 /**
@@ -10,6 +11,10 @@ import { createProduct } from "../../controllers/mutations/manage-product/create
  */
 export const productMutationsResolver = {
   Mutation: {
+    /**
+     * Creates a new category.
+     */
+    createCategory,
     createProduct,
   },
 };

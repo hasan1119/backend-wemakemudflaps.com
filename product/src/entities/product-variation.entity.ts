@@ -102,7 +102,7 @@ export class ProductVariation {
     onDelete: "CASCADE", // Ensures the associated variation is deleted if the product is deleted
   })
   @JoinColumn({ name: "product_id" })
-  product: Product;
+  product: Promise<Product>;
 
   // To store attribute values for the variation
   @OneToMany(

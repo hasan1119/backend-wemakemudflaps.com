@@ -1,4 +1,12 @@
 # Mutations to manage products operations.
 type Mutation {
-  createProduct(name: String!, price: Float!): String
+  # Create a new category for products.
+  # Only accessible by authorized users.
+  createCategory(
+    thumbnail: String # Optional thumbnail image URL for the category.
+    name: String! # Name of the category to create (must be unique).
+    description: String # Optional description for the role.
+    categoryId: String # Optional ID of the parent category if this is a sub-category.,
+    parentSubCategoryId: String # Optional ID of the parent sub-category if this is a sub-category.
+  ): CreateCategoryResponseOrError!
 }

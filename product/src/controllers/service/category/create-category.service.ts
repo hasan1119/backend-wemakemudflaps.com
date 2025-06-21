@@ -1,5 +1,5 @@
-import { Category } from "../../../entities/category.entity";
-import { SubCategory } from "../../../entities/sub-category.entity";
+import { Category, SubCategory } from "../../../entities";
+import { MutationCreateCategoryArgs } from "../../../types";
 import {
   categoryRepository,
   subCategoryRepository,
@@ -16,15 +16,14 @@ import {
  *
  * @param data - Partial data for Category or SubCategory creation.
  * @param userId - Optional user ID who creates this.
- * @param options - Optional context: categoryId and parentSubCategoryId.
  * @returns Created Category or SubCategory entity.
  */
 export const createCategoryOrSubCategory = async (
-  data: Partial<Category> & Partial<SubCategory>,
-  userId?: string,
-  options?: { categoryId?: string; parentSubCategoryId?: string }
+  data: MutationCreateCategoryArgs,
+  userId?: string
 ): Promise<Category | SubCategory> => {
-  const { categoryId, parentSubCategoryId } = options ?? {};
+  const { categoryId, description, name, parentSubCategoryId, thumbnail } =
+    data ?? {};
 
   if (parentSubCategoryId) {
     // Create nested SubCategory
@@ -39,12 +38,14 @@ export const createCategoryOrSubCategory = async (
     const maxPosition = maxPositionResult?.max ?? 0;
 
     const subCategory = subCategoryRepository.create({
-      name: data.name,
-      description: data.description ?? null,
-      thumbnail: data.thumbnail ?? null,
+      name: name,
+      description: description ?? null,
+      thumbnail: thumbnail ?? null,
       createdBy: userId ?? null,
-      category: { id: categoryId } as any,
-      parentSubCategory: { id: parentSubCategoryId } as any,
+      category: categoryId ? ({ id: categoryId } as any) : null,
+      parentSubCategory: parentSubCategoryId
+        ? ({ id: parentSubCategoryId } as any)
+        : null,
       position: maxPosition + 1,
     });
 
@@ -62,9 +63,9 @@ export const createCategoryOrSubCategory = async (
     const maxPosition = maxPositionResult?.max ?? 0;
 
     const subCategory = subCategoryRepository.create({
-      name: data.name,
-      description: data.description ?? null,
-      thumbnail: data.thumbnail ?? null,
+      name: name,
+      description: description ?? null,
+      thumbnail: thumbnail ?? null,
       createdBy: userId ?? null,
       category: { id: categoryId } as any,
       parentSubCategory: null,
@@ -82,13 +83,14 @@ export const createCategoryOrSubCategory = async (
     const maxPosition = maxPositionResult?.max ?? 0;
 
     const category = categoryRepository.create({
-      name: data.name,
-      description: data.description ?? null,
-      thumbnail: data.thumbnail ?? null,
+      name: name,
+      description: description ?? null,
+      thumbnail: thumbnail ?? null,
       createdBy: userId ?? null,
       position: maxPosition + 1,
     });
 
+    // Explicitly assert the return type as Category
     return await categoryRepository.save(category);
   }
 };

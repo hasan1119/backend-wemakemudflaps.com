@@ -56,6 +56,8 @@ async function resetTablesAndRedis() {
         "role",
         "user_login",
         "user",
+        "sub_category",
+        "category",
       ];
       const orderedTables = ordered.filter((t) => tables.includes(t));
       const otherTables = tables.filter((t) => !ordered.includes(t));

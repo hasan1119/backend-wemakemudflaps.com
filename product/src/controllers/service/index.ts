@@ -1,4 +1,20 @@
 /**
+ * Exports service for verifying user authentication status.
+ *
+ * Workflow:
+ * 1. Provides a function to check if a user is authenticated.
+ */
+export { checkUserAuth } from "./session-check/session-check";
+
+/**
+ * Exports services for managing permissions for media access.
+ *
+ * Workflow:
+ * 1. Provides a function to check if a user has permission to access media.
+ */
+export { checkUserPermission } from "./permission/get-user-permission.service";
+
+/**
  * Exports services for creating categories and subcategories.
  *
  * Workflow:
@@ -25,11 +41,12 @@ export {
  *
  * Workflow:
  * 1. Provides counting of categories matching optional search criteria.
- * 2. Provides functions to fetch category or subcategory by ID with relations.
+ * 2. Provides functions to fetch category or subcategory by ID/name with relations.
  * 3. Supports paginated retrieval of categories including their subcategories.
  */
 export {
   countCategoriesWithSearch,
+  findCategoryByName,
   getCategoryById,
   getSubCategoryById,
   paginateCategories,

@@ -29,6 +29,30 @@ export type BaseResponse = {
 
 export type BaseResponseOrError = BaseResponse | ErrorResponse;
 
+export type Category = {
+  __typename?: 'Category';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  position: Scalars['Int']['output'];
+  products?: Maybe<Array<Product>>;
+  subCategories: Array<SubCategory>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+};
+
+export type CategoryResponse = {
+  __typename?: 'CategoryResponse';
+  data: Category;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type CreateCategoryResponseOrError = BaseResponse | CategoryResponse | ErrorResponse | SubCategoryResponse;
+
 export type CreateRoleResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
 
 export type CreatedBy = {
@@ -268,7 +292,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   accountActivation: ActiveAccountResponseOrError;
   changePassword: BaseResponseOrError;
-  createProduct?: Maybe<Scalars['String']['output']>;
+  createCategory: CreateCategoryResponseOrError;
   createUserRole: CreateRoleResponseOrError;
   deleteLoginSession: BaseResponseOrError;
   deleteMediaFiles: BaseResponseOrError;
@@ -302,9 +326,12 @@ export type MutationChangePasswordArgs = {
 };
 
 
-export type MutationCreateProductArgs = {
+export type MutationCreateCategoryArgs = {
+  categoryId?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-  price: Scalars['Float']['input'];
+  parentSubCategoryId?: InputMaybe<Scalars['String']['input']>;
+  thumbnail?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -642,6 +669,30 @@ export type SinglePermissionInput = {
   name: PermissionName;
 };
 
+export type SubCategory = {
+  __typename?: 'SubCategory';
+  category: Category;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  parentSubCategory?: Maybe<SubCategory>;
+  position: Scalars['Int']['output'];
+  products?: Maybe<Array<Product>>;
+  subCategories: Array<SubCategory>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+};
+
+export type SubCategoryResponse = {
+  __typename?: 'SubCategoryResponse';
+  data: SubCategory;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
 export type UpdateMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
   category: MediaCategory;
@@ -878,6 +929,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   ActiveAccountResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  CreateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
   CreateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
   GetMediaByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
@@ -907,9 +959,12 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
+  Category: ResolverTypeWrapper<Category>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  CategoryResponse: ResolverTypeWrapper<CategoryResponse>;
+  CreateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateCategoryResponseOrError']>;
   CreateRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateRoleResponseOrError']>;
   CreatedBy: ResolverTypeWrapper<CreatedBy>;
-  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   EmailVerificationResponse: ResolverTypeWrapper<EmailVerificationResponse>;
   EmailVerificationResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EmailVerificationResponseOrError']>;
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
@@ -950,6 +1005,8 @@ export type ResolversTypes = {
   RoleSession: ResolverTypeWrapper<RoleSession>;
   RolesResponse: ResolverTypeWrapper<RolesResponse>;
   SinglePermissionInput: SinglePermissionInput;
+  SubCategory: ResolverTypeWrapper<SubCategory>;
+  SubCategoryResponse: ResolverTypeWrapper<SubCategoryResponse>;
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateMediaResponseOrError']>;
   UpdateRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateRoleResponseOrError']>;
@@ -978,9 +1035,12 @@ export type ResolversParentTypes = {
   Int: Scalars['Int']['output'];
   Boolean: Scalars['Boolean']['output'];
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
+  Category: Category;
+  ID: Scalars['ID']['output'];
+  CategoryResponse: CategoryResponse;
+  CreateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateCategoryResponseOrError'];
   CreateRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateRoleResponseOrError'];
   CreatedBy: CreatedBy;
-  ID: Scalars['ID']['output'];
   EmailVerificationResponse: EmailVerificationResponse;
   EmailVerificationResponseOrError: ResolversUnionTypes<ResolversParentTypes>['EmailVerificationResponseOrError'];
   ErrorResponse: ErrorResponse;
@@ -1017,6 +1077,8 @@ export type ResolversParentTypes = {
   RoleSession: RoleSession;
   RolesResponse: RolesResponse;
   SinglePermissionInput: SinglePermissionInput;
+  SubCategory: SubCategory;
+  SubCategoryResponse: SubCategoryResponse;
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateMediaResponseOrError'];
   UpdateRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateRoleResponseOrError'];
@@ -1057,6 +1119,32 @@ export type BaseResponseResolvers<ContextType = Context, ParentType extends Reso
 
 export type BaseResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BaseResponseOrError'] = ResolversParentTypes['BaseResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type CategoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  products?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
+  subCategories?: Resolver<Array<ResolversTypes['SubCategory']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CategoryResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryResponse'] = ResolversParentTypes['CategoryResponse']> = {
+  data?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateCategoryResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateCategoryResponseOrError'] = ResolversParentTypes['CreateCategoryResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryResponse' | 'ErrorResponse' | 'SubCategoryResponse', ParentType, ContextType>;
 };
 
 export type CreateRoleResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateRoleResponseOrError'] = ResolversParentTypes['CreateRoleResponseOrError']> = {
@@ -1203,7 +1291,7 @@ export type MediasResponseResolvers<ContextType = Context, ParentType extends Re
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
-  createProduct?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'name' | 'price'>>;
+  createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name'>>;
   createUserRole?: Resolver<ResolversTypes['CreateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionId'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
@@ -1338,6 +1426,30 @@ export type RolesResponseResolvers<ContextType = Context, ParentType extends Res
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubCategoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategory'] = ResolversParentTypes['SubCategory']> = {
+  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  parentSubCategory?: Resolver<Maybe<ResolversTypes['SubCategory']>, ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  products?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
+  subCategories?: Resolver<Array<ResolversTypes['SubCategory']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubCategoryResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryResponse'] = ResolversParentTypes['SubCategoryResponse']> = {
+  data?: Resolver<ResolversTypes['SubCategory'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1487,6 +1599,9 @@ export type Resolvers<ContextType = Context> = {
   ActiveAccountResponseOrError?: ActiveAccountResponseOrErrorResolvers<ContextType>;
   BaseResponse?: BaseResponseResolvers<ContextType>;
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
+  Category?: CategoryResolvers<ContextType>;
+  CategoryResponse?: CategoryResponseResolvers<ContextType>;
+  CreateCategoryResponseOrError?: CreateCategoryResponseOrErrorResolvers<ContextType>;
   CreateRoleResponseOrError?: CreateRoleResponseOrErrorResolvers<ContextType>;
   CreatedBy?: CreatedByResolvers<ContextType>;
   EmailVerificationResponse?: EmailVerificationResponseResolvers<ContextType>;
@@ -1520,6 +1635,8 @@ export type Resolvers<ContextType = Context> = {
   RoleResponse?: RoleResponseResolvers<ContextType>;
   RoleSession?: RoleSessionResolvers<ContextType>;
   RolesResponse?: RolesResponseResolvers<ContextType>;
+  SubCategory?: SubCategoryResolvers<ContextType>;
+  SubCategoryResponse?: SubCategoryResponseResolvers<ContextType>;
   UpdateMediaResponseOrError?: UpdateMediaResponseOrErrorResolvers<ContextType>;
   UpdateRoleResponseOrError?: UpdateRoleResponseOrErrorResolvers<ContextType>;
   UploadMediaResponse?: UploadMediaResponseResolvers<ContextType>;

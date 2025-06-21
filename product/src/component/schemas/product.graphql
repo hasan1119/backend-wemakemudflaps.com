@@ -7,8 +7,95 @@ extend schema
     import: ["@key", "@shareable", "@external"]
   )
 
-  # ---------------------- Product Types ----------------------
+# Represents an error related to a specific field in input validation or business logic.
+type FieldError @shareable {
+  field: String! # The specific field that caused the error (e.g., "title", "url").
+  message: String! # Descriptive message explaining the reason for the error.
+}
+
+# Generic error response type returned when a mutation or query fails.
+type ErrorResponse @shareable {
+  statusCode: Int! # HTTP-like status code (e.g., 400, 401, 500).
+  success: Boolean! # Whether the operation was successful (always false here).
+  message: String! # General error message.
+  errors: [FieldError!] # Optional list of field-specific errors.
+}
+
+# Standard response structure used when only status and message are returned (e.g., success/failure).
+type BaseResponse @shareable {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+}
+
+# ---------------------- CreatedBy & Permissions ----------------------
+
+# Extends the CreatedBy entity to support federated references.
+extend type CreatedBy @key(fields: "id") {
+  id: ID! @external
+}
+
+# ---------------------- Category & Sub Category Types ----------------------
+type Category {
+  id: ID!
+  name: String!
+  description: String
+  thumbnail: String
+  position: Int! # Display order/position of the category.
+  createdBy: CreatedBy # Metadata on who created the category.
+  subCategories: [SubCategory!]! # List of subcategories under this category.
+  products: [Product!] # Optional list of products associated with this category.
+  createdAt: String
+  deletedAt: String
+}
+
+type SubCategory {
+  id: ID! #
+  name: String!
+  description: String
+  thumbnail: String
+  category: Category! # The category to which this subcategory belongs.
+  parentSubCategory: SubCategory # Optional parent subcategory if nested.
+  subCategories: [SubCategory!]! # List of child subcategories (if any).
+  products: [Product!] # Optional list of products associated with this subcategory.
+  position: Int! # Display order/position of the subcategory.
+  createdBy: CreatedBy # Metadata on who created the category.
+  createdAt: String
+  deletedAt: String
+}
+
+# ---------------------- Product Types ----------------------
 
 type Product @key(fields: "id") {
-   id: ID! # Unique identifier for the product item.
+  id: ID! # Unique identifier for the product item.
 }
+
+# ---------------------- Responses ----------------------
+
+# Response for single user fetch.
+type CategoryResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  data: Category!
+}
+
+# Response for single user fetch.
+type SubCategoryResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  data: SubCategory!
+}
+
+# ---------------------- Unions ----------------------
+
+# Union type for responses that can be either a base response or an error response.
+union BaseResponseOrError = BaseResponse | ErrorResponse
+
+# Union when creating a category role.
+union CreateCategoryResponseOrError =
+    BaseResponse
+  | CategoryResponse
+  | SubCategoryResponse
+  | ErrorResponse

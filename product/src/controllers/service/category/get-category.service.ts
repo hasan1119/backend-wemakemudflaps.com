@@ -7,6 +7,34 @@ import {
 } from "../repositories/repositories";
 
 /**
+ * Fetches a Category entity by its name.
+ *
+ * Workflow:
+ * 1. Queries the categoryRepository to find a category matching the given name.
+ * 2. Includes subCategories and products as relations for complete context.
+ * 3. Returns the Category entity or null if not found.
+ *
+ * @param name - The unique name of the category to fetch.
+ * @param type - The type of category to fetch, either "category" or "subCategory".
+ * @returns A Promise resolving to the Category or SubCategory or null.
+ */
+export async function findCategoryByName(
+  name: string,
+  type: "category" | "subCategory"
+): Promise<Category | SubCategory | null> {
+  const repository =
+    type === "category" ? categoryRepository : subCategoryRepository;
+
+  return await repository.findOne({
+    where: { name, deletedAt: null },
+    relations:
+      type === "category"
+        ? ["subCategories", "products"]
+        : ["category", "parentSubCategory", "subCategories"],
+  });
+}
+
+/**
  * Fetches a Category by its ID along with all relations defined in the entity.
  *
  * Workflow:

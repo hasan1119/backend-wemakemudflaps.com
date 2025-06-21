@@ -34,7 +34,7 @@ export class ProductPrice {
     nullable: true,
     onDelete: "CASCADE",
   })
-  product: Product | null;
+  product: Promise<Product> | null;
 
   // For variable products, link to the specific product variation
   @OneToOne(() => ProductVariation, (variation) => variation.tierPricingInfo, {
