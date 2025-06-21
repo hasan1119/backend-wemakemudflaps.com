@@ -16,7 +16,9 @@ import {
  *
  * @param id - UUID of the entity to restore.
  */
-export async function restoreById(id: string): Promise<void> {
+export async function restoreCategoryOrSubCategoryById(
+  id: string
+): Promise<void> {
   // Try find in Category soft deleted
   let item = await categoryRepository.findOne({
     where: { id, deletedAt: Not(null) },
