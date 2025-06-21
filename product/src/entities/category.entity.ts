@@ -7,23 +7,38 @@ export class Category {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  // Category thumbnail image URL
+  @Column({ type: "text", nullable: true, default: null })
+  thumbnail: string | null;
+
   // Unique name of the category
   @Column({ unique: true })
   name: string;
 
+  // Category description
+  @Column({ type: "text", nullable: true, default: null })
+  description: string | null;
+
   // One category can have multiple subcategories
   @OneToMany(() => SubCategory, (subCategory) => subCategory.category, {
     cascade: true, // Ensures the associated sub categories is deleted if the category is deleted
+    nullable: true,
   })
-  subCategories: SubCategory[];
+  subCategories: SubCategory[] | null;
 
   // One category can have multiple products
-  @OneToMany(() => Product, (product) => product.category)
-  products: Product[];
+  @OneToMany(() => Product, (product) => product.category, {
+    nullable: true,
+  })
+  products: Product[] | null;
+
+  // Set category position/order in list
+  @Column({ type: "int", nullable: true })
+  position: number;
 
   // User ID who created the category (string only for Apollo Federation compatibility)
-  @Column()
-  createdBy: string;
+  @Column({ nullable: true, default: null })
+  createdBy: string | null;
 
   // Timestamp when the category was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

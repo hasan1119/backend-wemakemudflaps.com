@@ -14,17 +14,27 @@ export class SubCategory {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  // Category thumbnail image URL
+  @Column({ type: "text", nullable: true, default: null })
+  thumbnail: string | null;
+
   // The name of the subcategory (must be unique)
   @Column({ unique: true })
   name: string;
+
+  // Sub category description
+  @Column({ type: "text", nullable: true, default: null })
+  description: string | null;
 
   // Relationship to the category to which this subcategory belongs
   @ManyToOne(() => Category, (category) => category.subCategories)
   category: Promise<Category>;
 
   // Relationship to the products associated with this subcategory
-  @ManyToMany(() => Product, (product) => product.subCategories)
-  products: Product[];
+  @ManyToMany(() => Product, (product) => product.subCategories, {
+    nullable: true,
+  })
+  products: Product[] | null;
 
   // Self-referencing relationship to allow subcategories to have subcategories
   @ManyToOne(() => SubCategory, (subCategory) => subCategory.subCategories, {
@@ -32,12 +42,22 @@ export class SubCategory {
   })
   parentSubCategory: SubCategory | null;
 
-  @OneToMany(() => SubCategory, (subCategory) => subCategory.parentSubCategory)
-  subCategories: SubCategory[];
+  @OneToMany(
+    () => SubCategory,
+    (subCategory) => subCategory.parentSubCategory,
+    {
+      nullable: true,
+    }
+  )
+  subCategories: SubCategory[] | null;
+
+  // Used for ordering within parent (or root level)
+  @Column({ type: "int", nullable: false })
+  position: number;
 
   // User ID who created the subcategory (string only for Apollo Federation compatibility)
-  @Column()
-  createdBy: string;
+  @Column({ nullable: true, default: null })
+  createdBy: string | null;
 
   // Timestamp when the subcategory was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
