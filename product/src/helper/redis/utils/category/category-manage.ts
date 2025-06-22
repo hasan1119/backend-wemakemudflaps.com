@@ -26,12 +26,13 @@ export const getCategoryNameExistFromRedis = async (
  * Check if a subcategory name exists in Redis.
  */
 export const getSubCategoryNameExistFromRedis = async (
-  name: string
+  name: string,
+  parentScopeId: string
 ): Promise<boolean> => {
-  const result = await redis.getSession<string | null>(
-    `${PREFIX.SUB_CATEGORY_EXISTS}${name.toLowerCase().trim()}`,
-    "product-app"
-  );
+  const key = `${PREFIX.SUB_CATEGORY_EXISTS}${parentScopeId}:${name
+    .toLowerCase()
+    .trim()}`;
+  const result = await redis.getSession<string | null>(key, "product-app");
   return result === "exists";
 };
 
@@ -76,13 +77,13 @@ export const setCategoryNameExistInRedis = async (
  * Set a subcategory name existence flag in Redis.
  */
 export const setSubCategoryNameExistInRedis = async (
-  name: string
+  name: string,
+  parentScopeId: string
 ): Promise<void> => {
-  await redis.setSession(
-    `${PREFIX.SUB_CATEGORY_EXISTS}${name.toLowerCase().trim()}`,
-    "exists",
-    "product-app"
-  );
+  const key = `${PREFIX.SUB_CATEGORY_EXISTS}${parentScopeId}:${name
+    .toLowerCase()
+    .trim()}`;
+  await redis.setSession(key, "exists", "product-app");
 };
 
 /**

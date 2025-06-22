@@ -19,7 +19,7 @@ export class SubCategory {
   thumbnail: string | null;
 
   // The name of the subcategory (must be unique)
-  @Column({ unique: true })
+  @Column()
   name: string;
 
   // Sub category description

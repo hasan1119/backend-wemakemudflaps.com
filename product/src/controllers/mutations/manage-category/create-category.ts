@@ -6,6 +6,7 @@ import {
   getSubCategoryNameExistFromRedis,
   setCategoryInfoByCategoryIdInRedis,
   setCategoryNameExistInRedis,
+  setSubCategoryInfoBySubCategoryIdInRedis,
   setSubCategoryNameExistInRedis,
 } from "../../../helper/redis";
 import {
@@ -32,7 +33,7 @@ export const createCategory = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Check if user has permission to create a role
+    // Check if user has permission to create a category
     const canCreate = await checkUserPermission({
       action: "canCreate",
       entity: "category",
@@ -54,7 +55,7 @@ export const createCategory = async (
     // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."), // Join path array to string for field identification
+        field: error.path.join("."),
         message: error.message,
       }));
 
@@ -70,30 +71,64 @@ export const createCategory = async (
     const { categoryId, description, name, parentSubCategoryId, thumbnail } =
       validationResult.data;
 
+    // Check for existing category/subcategory in Redis or database
     // Attempt to check for existing category in Redis
     let categoryExists;
 
     if (categoryId || parentSubCategoryId) {
-      // Check if category exists in Redis
-      categoryExists = await getSubCategoryNameExistFromRedis(name);
+      categoryExists = await getSubCategoryNameExistFromRedis(
+        name,
+        categoryId || parentSubCategoryId
+      );
     } else {
       categoryExists = await getCategoryNameExistFromRedis(name);
     }
 
     if (!categoryExists) {
-      // On cache miss, check database for role existence
       categoryExists = await findCategoryByName(
         name,
-        categoryId || parentSubCategoryId ? "subCategory" : "category"
+        categoryId || parentSubCategoryId ? "subCategory" : "category",
+        categoryId ? categoryId : undefined,
+        parentSubCategoryId ? parentSubCategoryId : undefined
       );
 
-      if (categoryExists) {
-        // Cache role existence in Redis
+      // console.log(categoryExists);
 
-        if (categoryId || parentSubCategoryId) {
-          await setSubCategoryNameExistInRedis(name);
+      if (categoryExists) {
+        const promises = [];
+
+        const categoryType =
+          categoryId || parentSubCategoryId ? "subCategory" : "category";
+
+        const pushCategoryPromises = () => {
+          promises.push(
+            setCategoryNameExistInRedis(name),
+            setCategoryInfoByCategoryIdInRedis(
+              categoryExists.id,
+              categoryExists
+            )
+          );
+        };
+
+        const pushSubCategoryPromises = (id) => {
+          promises.push(
+            setSubCategoryNameExistInRedis(name, id),
+            setSubCategoryInfoBySubCategoryIdInRedis(
+              categoryExists.id,
+              categoryExists
+            )
+          );
+        };
+
+        if (categoryType === "subCategory") {
+          const id = categoryId || parentSubCategoryId;
+          if (categoryId) {
+            pushCategoryPromises();
+          } else if (parentSubCategoryId) {
+            pushSubCategoryPromises(id);
+          }
         } else {
-          await setCategoryNameExistInRedis(name);
+          pushCategoryPromises();
         }
 
         return {
@@ -101,7 +136,7 @@ export const createCategory = async (
           success: false,
           message:
             categoryId || parentSubCategoryId
-              ? "Subcategory with this name already exists"
+              ? "Subcategory with this name already exists in parent"
               : "Category with this name already exists",
           __typename: "BaseResponse",
         };
@@ -112,14 +147,85 @@ export const createCategory = async (
         success: false,
         message:
           categoryId || parentSubCategoryId
-            ? "Subcategory with this name already exists"
+            ? "Subcategory with this name already exists in parent"
             : "Category with this name already exists",
         __typename: "BaseResponse",
       };
     }
 
-    // Create the category in the database with audit information
-    const category = await createCategoryOrSubCategory(
+    // Validate parent category if categoryId is provided
+    let parentCategoryExist;
+    if (categoryId) {
+      parentCategoryExist = await getCategoryInfoByCategoryIdFromRedis(
+        categoryId
+      );
+      if (!parentCategoryExist) {
+        parentCategoryExist = await getCategoryById(categoryId);
+        if (!parentCategoryExist) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "Parent category not found",
+            __typename: "BaseResponse",
+          };
+        }
+        parentCategoryExist = {
+          ...parentCategoryExist,
+          subCategories: parentCategoryExist.subCategories ?? [],
+          products: parentCategoryExist.products ?? [],
+          createdBy: parentCategoryExist.createdBy as any,
+          createdAt:
+            parentCategoryExist.createdAt instanceof Date
+              ? parentCategoryExist.createdAt.toISOString()
+              : parentCategoryExist.createdAt,
+          deletedAt:
+            parentCategoryExist.deletedAt instanceof Date
+              ? parentCategoryExist.deletedAt.toISOString()
+              : parentCategoryExist.deletedAt,
+        };
+        await setCategoryInfoByCategoryIdInRedis(
+          categoryId,
+          parentCategoryExist
+        );
+      }
+    }
+
+    // Validate parent subcategory if parentSubCategoryId is provided
+    let subParentCategoryExist;
+    if (parentSubCategoryId) {
+      subParentCategoryExist = await getSubCategoryById(parentSubCategoryId);
+      if (!subParentCategoryExist) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "Parent subcategory not found",
+          __typename: "BaseResponse",
+        };
+      }
+      subParentCategoryExist = {
+        ...subParentCategoryExist,
+        category: subParentCategoryExist.parentSubCategory || null,
+        parentSubCategory: subParentCategoryExist.parentSubCategory || null,
+        subCategories: subParentCategoryExist.subCategories ?? [],
+        products: subParentCategoryExist.products ?? [],
+        createdBy: subParentCategoryExist.createdBy as any,
+        createdAt:
+          subParentCategoryExist.createdAt instanceof Date
+            ? subParentCategoryExist.createdAt.toISOString()
+            : subParentCategoryExist.createdAt,
+        deletedAt:
+          subParentCategoryExist.deletedAt instanceof Date
+            ? subParentCategoryExist.deletedAt.toISOString()
+            : subParentCategoryExist.deletedAt,
+      };
+      await setSubCategoryInfoBySubCategoryIdInRedis(
+        parentSubCategoryId,
+        subParentCategoryExist
+      );
+    }
+
+    // Create the category or subcategory in the database
+    const categoryResult = await createCategoryOrSubCategory(
       {
         categoryId,
         description,
@@ -130,90 +236,71 @@ export const createCategory = async (
       user.id
     );
 
-    const isSubCategory = "categoryId" in args || "parentSubCategoryId" in args;
+    const isSubCategory = categoryId || parentSubCategoryId;
 
-    let parentCategory = null;
-    let parentSubCategory = null;
-
-    if (isSubCategory) {
-      if (categoryId) {
-        // Direct subcategory under category
-        parentCategory =
-          (await getCategoryInfoByCategoryIdFromRedis(categoryId)) ||
-          (await getCategoryById(categoryId));
-        if (!parentCategory) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "Parent category not found",
-            __typename: "BaseResponse",
-          };
-        }
-        await setCategoryInfoByCategoryIdInRedis(categoryId, parentCategory);
-      } else if (parentSubCategoryId) {
-        // Nested subcategory, find parent subcategory
-        parentSubCategory = await getSubCategoryById(parentSubCategoryId);
-        if (!parentSubCategory) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "Parent subcategory not found",
-            __typename: "BaseResponse",
-          };
-        }
-
-        parentCategory = parentSubCategory.category;
-        if (!parentCategory) {
-          return {
-            statusCode: 500,
-            success: false,
-            message: "Parent category is missing from subcategory",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-    }
-
+    // Construct the response object
     let categoryResponse: any;
     if (!isSubCategory) {
+      // Top-level category
       categoryResponse = {
-        ...category,
-        subCategories: category.subCategories ?? [],
-        products: category.products ?? [],
-        createdBy: category.createdBy as any,
+        ...categoryResult,
+        subCategories: categoryResult.subCategories ?? [],
+        products: categoryResult.products ?? [],
+        createdBy: categoryResult.createdBy as any,
         createdAt:
-          category.createdAt instanceof Date
-            ? category.createdAt.toISOString()
-            : category.createdAt,
+          categoryResult.createdAt instanceof Date
+            ? categoryResult.createdAt.toISOString()
+            : categoryResult.createdAt,
         deletedAt:
-          category.deletedAt instanceof Date
-            ? category.deletedAt.toISOString()
-            : category.deletedAt,
+          categoryResult.deletedAt instanceof Date
+            ? categoryResult.deletedAt.toISOString()
+            : categoryResult.deletedAt,
       };
     } else {
+      // Subcategory
       categoryResponse = {
-        ...category,
-        category: isSubCategory ? parentCategory : undefined,
-        parentSubCategory: parentSubCategory || null,
-        subCategories: category.subCategories ?? [],
-        products: category.products ?? [],
-        createdBy: category.createdBy as any,
+        ...categoryResult,
+        category: subParentCategoryExist?.category,
+        parentSubCategory: subParentCategoryExist || null,
+        subCategories: categoryResult.subCategories ?? [],
+        products: categoryResult.products ?? [],
+        createdBy: categoryResult.createdBy as any,
         createdAt:
-          category.createdAt instanceof Date
-            ? category.createdAt.toISOString()
-            : category.createdAt,
+          categoryResult.createdAt instanceof Date
+            ? categoryResult.createdAt.toISOString()
+            : categoryResult.createdAt,
         deletedAt:
-          category.deletedAt instanceof Date
-            ? category.deletedAt.toISOString()
-            : category.deletedAt,
+          categoryResult.deletedAt instanceof Date
+            ? categoryResult.deletedAt.toISOString()
+            : categoryResult.deletedAt,
       };
     }
 
-    // Cache the new category and its name existence in Redis
-    await Promise.all([
-      setCategoryInfoByCategoryIdInRedis(category.id, categoryResponse),
-      setCategoryNameExistInRedis(category.name),
-    ]);
+    // Cache the new category/subcategory in Redis
+    const cachePromises = [];
+    if (!isSubCategory) {
+      cachePromises.push(
+        setCategoryInfoByCategoryIdInRedis(categoryResult.id, categoryResponse),
+        setCategoryNameExistInRedis(name)
+      );
+    } else if (categoryId) {
+      cachePromises.push(
+        setSubCategoryNameExistInRedis(name, categoryId),
+        setSubCategoryInfoBySubCategoryIdInRedis(
+          categoryResult.id,
+          categoryResponse
+        )
+      );
+    } else if (parentSubCategoryId) {
+      cachePromises.push(
+        setSubCategoryNameExistInRedis(name, parentSubCategoryId),
+        setSubCategoryInfoBySubCategoryIdInRedis(
+          categoryResult.id,
+          categoryResponse
+        )
+      );
+    }
+    await Promise.all(cachePromises);
 
     return {
       statusCode: 201,
@@ -226,15 +313,13 @@ export const createCategory = async (
     };
   } catch (error: any) {
     console.error("Error creating category:", error);
-
     return {
       statusCode: 500,
       success: false,
-      message: `${
+      message:
         CONFIG.NODE_ENV === "production"
           ? "Something went wrong, please try again."
-          : error.message || "Internal server error"
-      }`,
+          : error.message || "Internal server error",
       __typename: "BaseResponse",
     };
   }

@@ -7,30 +7,58 @@ import {
 } from "../repositories/repositories";
 
 /**
- * Fetches a Category entity by its name.
+ * Fetches a Category or SubCategory entity by its name.
  *
- * Workflow:
- * 1. Queries the categoryRepository to find a category matching the given name.
- * 2. Includes subCategories and products as relations for complete context.
- * 3. Returns the Category entity or null if not found.
- *
- * @param name - The unique name of the category to fetch.
- * @param type - The type of category to fetch, either "category" or "subCategory".
- * @returns A Promise resolving to the Category or SubCategory or null.
+ * @param name - The name of the category or subcategory.
+ * @param type - Either "category" or "subCategory".
+ * @param categoryId - (Optional) Category ID for scoping subCategory.
+ * @param parentScopeId - (Optional) Parent SubCategory ID for nested subCategory.
+ * @returns A Promise resolving to the matched Category or SubCategory, or null.
  */
 export async function findCategoryByName(
   name: string,
-  type: "category" | "subCategory"
+  type: "category" | "subCategory",
+  categoryId?: string,
+  parentScopeId?: string
 ): Promise<Category | SubCategory | null> {
-  const repository =
-    type === "category" ? categoryRepository : subCategoryRepository;
+  if (type === "category") {
+    return categoryRepository.findOne({
+      where: { name: ILike(name), deletedAt: null },
+      relations: ["subCategories", "products"],
+    });
+  }
 
-  return await repository.findOne({
-    where: { name, deletedAt: null },
-    relations:
-      type === "category"
-        ? ["subCategories", "products"]
-        : ["category", "parentSubCategory", "subCategories"],
+  const [parentCategory, subParentCategory] = await Promise.all([
+    categoryId
+      ? categoryRepository.findOne({
+          where: { id: categoryId, name: ILike(name), deletedAt: null },
+          relations: ["subCategories", "products"],
+        })
+      : null,
+    parentScopeId
+      ? subCategoryRepository.findOne({
+          where: { id: parentScopeId, name: ILike(name), deletedAt: null },
+          relations: [
+            "category",
+            "parentSubCategory",
+            "subCategories",
+            "products",
+          ],
+        })
+      : null,
+  ]);
+
+  if (parentCategory) return parentCategory;
+  if (subParentCategory) return subParentCategory;
+
+  return subCategoryRepository.findOne({
+    where: {
+      name: ILike(name),
+      deletedAt: null,
+      ...(categoryId && { category: { id: categoryId } }),
+      ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
+    },
+    relations: ["category", "parentSubCategory", "subCategories", "products"],
   });
 }
 
@@ -68,7 +96,7 @@ export async function getSubCategoryById(
 ): Promise<SubCategory | null> {
   return await subCategoryRepository.findOne({
     where: { id },
-    relations: ["category", "parentSubCategory", "subCategories"],
+    relations: ["category", "parentSubCategory", "subCategories", "products"],
   });
 }
 
