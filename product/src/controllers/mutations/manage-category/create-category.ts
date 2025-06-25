@@ -287,7 +287,9 @@ export const createCategory = async (
       // Subcategory
       categoryResponse = {
         ...categoryResult,
-        category: subParentCategoryExist?.category,
+        category: categoryId
+          ? parentCategoryExist
+          : subParentCategoryExist?.category,
         parentSubCategory: subParentCategoryExist || null,
         subCategories: categoryResult.subCategories ?? [],
         products: categoryResult.products ?? [],
