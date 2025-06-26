@@ -1,4 +1,18 @@
 # Queries to fetch products from the system.
 type Query {
   getProduct: String
+
+  # Fetch category by ID.
+  # Retrieves a specific category file's details using its unique ID.
+  # Returns a `GetCategoryByIdResponseOrError` containing category data and request status.
+  getCategoryById(
+    id: ID! # Unique identifier of the category file to retrieve.
+  ): Category!
+
+  # Fetch sub category by ID.
+  # Retrieves a specific sub category file's details using its unique ID.
+  # Returns a `GetSubCategoryByIdResponseOrError` containing sub category data and request status.
+  getSubCategoryById(
+    id: ID! # Unique identifier of the category file to retrieve.
+  ): Category!
 }
