@@ -52,13 +52,13 @@ const mapArgsToPagination = (args: QueryGetAllRolesArgs) => ({
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
  * @param args - Input arguments containing page, limit, search, sortBy, and sortOrder.
- * @param context - GraphQL context containing AppDataSource and authenticated user information.
+ * @param context - GraphQL context containing authenticated user information.
  * @returns A promise resolving to a GetRolesResponseOrError object containing status, message, roles, total count, and errors if applicable.
  */
 export const getAllRoles = async (
   _: any,
   args: QueryGetAllRolesArgs,
-  { AppDataSource, user }: Context
+  { user }: Context
 ): Promise<GetRolesResponseOrError> => {
   try {
     // Verify user authentication

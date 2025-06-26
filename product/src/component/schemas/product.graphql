@@ -134,6 +134,15 @@ type SubCategoryResponseById {
   subcategory: SubCategoryDataResponse!
 }
 
+# Response for fetching a categories.
+type CategoryPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: [Category!]!
+  total: Int!
+}
+
 # ---------------------- Unions ----------------------
 
 # Union type for responses that can be either a base response or an error response.
@@ -156,6 +165,12 @@ union GetCategoryByIDResponseOrError =
 union GetSubCategoryByIDResponseOrError =
     BaseResponse
   | SubCategoryResponseById
+  | ErrorResponse
+
+# Union for retrieving multiple categories.
+union GetCategoriesResponseOrError =
+    BaseResponse
+  | CategoryPaginationResponse
   | ErrorResponse
 
 # Union when Updating a category/sub category by ID.

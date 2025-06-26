@@ -17,6 +17,7 @@ export {
  * 1. Provides schemas for UUID validation, pagination, sorting.
  */
 export {
+  categorySortingSchema,
   idSchema,
   idsSchema,
   paginationSchema,

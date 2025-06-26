@@ -154,10 +154,6 @@ export async function getSubCategoryById(
   return await subCategoryRepository.findOne({
     where: { id },
     relations: ["category", "parentSubCategory", "subCategories", "products"],
-    select: {
-      category: true,
-      parentSubCategory: true,
-    },
   });
 }
 

@@ -54,6 +54,15 @@ export type CategoryDataResponse = {
   thumbnail?: Maybe<Scalars['String']['output']>;
 };
 
+export type CategoryPaginationResponse = {
+  __typename?: 'CategoryPaginationResponse';
+  category: Array<Category>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type CategoryResponse = {
   __typename?: 'CategoryResponse';
   category: CategoryDataResponse;
@@ -116,6 +125,8 @@ export enum Gender {
   Others = 'Others',
   RatherNotToSay = 'Rather_not_to_say'
 }
+
+export type GetCategoriesResponseOrError = BaseResponse | CategoryPaginationResponse | ErrorResponse;
 
 export type GetCategoryByIdResponseOrError = BaseResponse | CategoryResponseById | ErrorResponse;
 
@@ -578,6 +589,7 @@ export type Product = {
 
 export type Query = {
   __typename?: 'Query';
+  getAllCategories: GetCategoriesResponseOrError;
   getAllMedias: GetMediasResponseOrError;
   getAllPermissionsByUserId: GetPermissionsResponseOrError;
   getAllRoles: GetRolesResponseOrError;
@@ -591,6 +603,15 @@ export type Query = {
   getSubCategoryById: GetSubCategoryByIdResponseOrError;
   getUserById: GetUserByIdResponseOrError;
   getUserOwnLoginInfo: GetUserLoginInfoResponseOrError;
+};
+
+
+export type QueryGetAllCategoriesArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1016,6 +1037,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   CreateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
   CreateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
+  GetCategoriesResponseOrError: ( BaseResponse ) | ( CategoryPaginationResponse ) | ( ErrorResponse );
   GetCategoryByIDResponseOrError: ( BaseResponse ) | ( CategoryResponseById ) | ( ErrorResponse );
   GetMediaByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
   GetMediasResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediasResponse );
@@ -1050,6 +1072,7 @@ export type ResolversTypes = {
   Category: ResolverTypeWrapper<Category>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   CategoryDataResponse: ResolverTypeWrapper<CategoryDataResponse>;
+  CategoryPaginationResponse: ResolverTypeWrapper<CategoryPaginationResponse>;
   CategoryResponse: ResolverTypeWrapper<CategoryResponse>;
   CategoryResponseById: ResolverTypeWrapper<CategoryResponseById>;
   CategoryType: CategoryType;
@@ -1061,6 +1084,7 @@ export type ResolversTypes = {
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
   FieldError: ResolverTypeWrapper<FieldError>;
   Gender: Gender;
+  GetCategoriesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoriesResponseOrError']>;
   GetCategoryByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoryByIDResponseOrError']>;
   GetMediaByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediaByIdResponseOrError']>;
   GetMediasResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediasResponseOrError']>;
@@ -1135,6 +1159,7 @@ export type ResolversParentTypes = {
   Category: Category;
   ID: Scalars['ID']['output'];
   CategoryDataResponse: CategoryDataResponse;
+  CategoryPaginationResponse: CategoryPaginationResponse;
   CategoryResponse: CategoryResponse;
   CategoryResponseById: CategoryResponseById;
   CreateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateCategoryResponseOrError'];
@@ -1144,6 +1169,7 @@ export type ResolversParentTypes = {
   EmailVerificationResponseOrError: ResolversUnionTypes<ResolversParentTypes>['EmailVerificationResponseOrError'];
   ErrorResponse: ErrorResponse;
   FieldError: FieldError;
+  GetCategoriesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoriesResponseOrError'];
   GetCategoryByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoryByIDResponseOrError'];
   GetMediaByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediaByIdResponseOrError'];
   GetMediasResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediasResponseOrError'];
@@ -1251,6 +1277,15 @@ export type CategoryDataResponseResolvers<ContextType = Context, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CategoryPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryPaginationResponse'] = ResolversParentTypes['CategoryPaginationResponse']> = {
+  category?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CategoryResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryResponse'] = ResolversParentTypes['CategoryResponse']> = {
   category?: Resolver<ResolversTypes['CategoryDataResponse'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1306,6 +1341,10 @@ export type FieldErrorResolvers<ContextType = Context, ParentType extends Resolv
   field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GetCategoriesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetCategoriesResponseOrError'] = ResolversParentTypes['GetCategoriesResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryPaginationResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type GetCategoryByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetCategoryByIDResponseOrError'] = ResolversParentTypes['GetCategoryByIDResponseOrError']> = {
@@ -1491,6 +1530,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getAllCategories?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
   getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
@@ -1767,6 +1807,7 @@ export type Resolvers<ContextType = Context> = {
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CategoryDataResponse?: CategoryDataResponseResolvers<ContextType>;
+  CategoryPaginationResponse?: CategoryPaginationResponseResolvers<ContextType>;
   CategoryResponse?: CategoryResponseResolvers<ContextType>;
   CategoryResponseById?: CategoryResponseByIdResolvers<ContextType>;
   CreateCategoryResponseOrError?: CreateCategoryResponseOrErrorResolvers<ContextType>;
@@ -1776,6 +1817,7 @@ export type Resolvers<ContextType = Context> = {
   EmailVerificationResponseOrError?: EmailVerificationResponseOrErrorResolvers<ContextType>;
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
+  GetCategoriesResponseOrError?: GetCategoriesResponseOrErrorResolvers<ContextType>;
   GetCategoryByIDResponseOrError?: GetCategoryByIdResponseOrErrorResolvers<ContextType>;
   GetMediaByIdResponseOrError?: GetMediaByIdResponseOrErrorResolvers<ContextType>;
   GetMediasResponseOrError?: GetMediasResponseOrErrorResolvers<ContextType>;

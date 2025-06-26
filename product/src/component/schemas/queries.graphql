@@ -15,4 +15,18 @@ type Query {
   getSubCategoryById(
     id: ID! # Unique identifier of the category file to retrieve.
   ): GetSubCategoryByIDResponseOrError!
+
+  # Fetch all categories with pagination, filtering, and sorting.
+  # Only accessible by authorized users.
+  # Retrieves a paginated list of categories.
+  # Supports filtering by search term (name or description) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetCategoriesResponseOrError` containing roles data and request status.
+  getAllCategories(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of roles per page.
+    search: String # Optional search term (matches name or description).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetCategoriesResponseOrError!
 }

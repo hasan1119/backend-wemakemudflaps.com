@@ -64,3 +64,28 @@ export const paginationSchema = z.object({
     .nullable()
     .optional(),
 });
+
+/**
+ * Defines the schema for validating category sorting parameters.
+ *
+ * Workflow:
+ * 1. Validates sortBy as one of the allowed fields (id, name, description, createdAt, deletedAt).
+ * 2. Validates sortOrder as either 'asc' or 'desc'.
+ * 3. Allows both fields to be nullable or optional.
+ *
+ * @property sortBy - Field to sort by (id, name, description, createdAt, deletedAt).
+ * @property sortOrder - Sort order direction (asc, desc).
+ */
+export const categorySortingSchema = z.object({
+  sortBy: z
+    .enum(["name", "createdAt", "position"], {
+      message:
+        "Sort field must be one of: id, name, description, createdAt, deletedAt",
+    })
+    .nullable()
+    .optional(),
+  sortOrder: z
+    .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
+    .nullable()
+    .optional(),
+});
