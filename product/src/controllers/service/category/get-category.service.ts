@@ -1,4 +1,4 @@
-import { ILike, Not } from "typeorm";
+import { Brackets, ILike, Not } from "typeorm";
 import { Category } from "../../../entities/category.entity";
 import { SubCategory } from "../../../entities/sub-category.entity";
 import {
@@ -198,31 +198,45 @@ export const paginateCategories = async ({
 }: GetPaginatedCategoriesInput) => {
   const skip = (page - 1) * limit;
 
-  const where: any[] = [{ deletedAt: null }];
+  // Start query builder on Category
+  const query = categoryRepository
+    .createQueryBuilder("category")
+    .leftJoinAndSelect("category.subCategories", "subCategory")
+    .where("category.deletedAt IS NULL");
 
-  if (search) {
+  // Add search filter on category and subcategories
+  if (search && search.trim() !== "") {
     const searchTerm = `%${search.trim()}%`;
-    where.push(
-      { name: ILike(searchTerm), deletedAt: null },
-      { description: ILike(searchTerm), deletedAt: null }
+
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where("category.name ILIKE :searchTerm", { searchTerm })
+          .orWhere("category.description ILIKE :searchTerm", { searchTerm })
+          .orWhere("subCategory.name ILIKE :searchTerm", { searchTerm })
+          .orWhere("subCategory.description ILIKE :searchTerm", { searchTerm });
+      })
     );
   }
 
-  // Safety check for sortBy to prevent SQL injection or invalid fields
-  const order: Record<string, "asc" | "desc"> = {};
-  if (sortFields[sortBy]) {
-    order[sortBy] = sortOrder;
-  } else {
-    order["position"] = "asc"; // default order
-  }
+  // Apply sorting with fallback default
+  const allowedSortFields = ["name", "createdAt", "position"] as const;
+  const safeSortBy = allowedSortFields.includes(sortBy as any)
+    ? (sortBy as (typeof allowedSortFields)[number])
+    : "position";
 
-  const [categories, total] = await categoryRepository.findAndCount({
-    where,
-    skip,
-    take: limit,
-    order,
-    relations: ["subCategories"], // Load subCategories relation
-  });
+  const safeSortOrder =
+    sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "asc";
+
+  query.orderBy(
+    `category.${safeSortBy}`,
+    safeSortOrder.toUpperCase() as "ASC" | "DESC"
+  );
+
+  // Pagination
+  query.skip(skip).take(limit);
+
+  // Execute query and count total
+  const [categories, total] = await query.getManyAndCount();
 
   return {
     categories,
