@@ -64,6 +64,30 @@ type SubCategory {
   deletedAt: String
 }
 
+type CategoryDataResponse {
+  id: ID!
+  name: String!
+  description: String
+  thumbnail: String
+  position: Int! # Display order/position of the category.
+  createdBy: CreatedBy # Metadata on who created the category.
+  createdAt: String
+  deletedAt: String
+}
+
+type SubCategoryDataResponse {
+  id: ID!
+  name: String!
+  description: String
+  thumbnail: String
+  category: ID # The category to which this subcategory belongs.
+  parentSubCategory: ID # The parent subcategory if nested.
+  position: Int! # Display order/position of the subcategory.
+  createdBy: CreatedBy # Metadata on who created the category.
+  createdAt: String
+  deletedAt: String
+}
+
 # ---------------------- Product Types ----------------------
 
 type Product @key(fields: "id") {
@@ -77,7 +101,7 @@ type CategoryResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  data: Category!
+  data: CategoryDataResponse!
 }
 
 # Response for single user fetch.
@@ -85,7 +109,7 @@ type SubCategoryResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  data: SubCategory!
+  data: SubCategoryDataResponse!
 }
 
 # ---------------------- Unions ----------------------

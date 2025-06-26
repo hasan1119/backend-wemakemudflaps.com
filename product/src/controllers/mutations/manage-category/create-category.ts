@@ -119,20 +119,34 @@ export const createCategory = async (
         const pushCategoryPromises = () => {
           promises.push(
             setCategoryNameExistInRedis(name),
-            setCategoryInfoByCategoryIdInRedis(
-              categoryExists.id,
-              categoryExists
-            )
+            setCategoryInfoByCategoryIdInRedis(categoryExists.id, {
+              id: categoryExists.id,
+              name: categoryExists.name,
+              description: categoryExists.description,
+              thumbnail: categoryExists.thumbnail,
+              position: categoryExists.position,
+              createdBy: categoryExists.createdBy as any,
+              createdAt: categoryExists.createdAt,
+              deletedAt: categoryExists.deletedAt,
+            })
           );
         };
 
         const pushSubCategoryPromises = (id) => {
           promises.push(
             setSubCategoryNameExistInRedis(name, id),
-            setSubCategoryInfoBySubCategoryIdInRedis(
-              categoryExists.id,
-              categoryExists
-            )
+            setSubCategoryInfoBySubCategoryIdInRedis(categoryExists.id, {
+              id: categoryExists.id,
+              name: categoryExists.name,
+              description: categoryExists.description,
+              thumbnail: categoryExists.thumbnail,
+              position: categoryExists.position,
+              category: categoryExists.category,
+              parentSubCategory: categoryExists.parentSubCategory,
+              createdBy: categoryExists.createdBy as any,
+              createdAt: categoryExists.createdAt,
+              deletedAt: categoryExists.deletedAt,
+            })
           );
         };
 
@@ -189,9 +203,11 @@ export const createCategory = async (
           };
         }
         parentCategoryExist = {
-          ...parentCategoryExist,
-          subCategories: parentCategoryExist.subCategories ?? [],
-          products: parentCategoryExist.products ?? [],
+          id: parentCategoryExist.id,
+          name: parentCategoryExist.name,
+          description: parentCategoryExist.description,
+          thumbnail: parentCategoryExist.thumbnail,
+          position: parentCategoryExist.position,
           createdBy: parentCategoryExist.createdBy as any,
           createdAt:
             parentCategoryExist.createdAt instanceof Date
@@ -217,6 +233,7 @@ export const createCategory = async (
       subParentCategoryExist = await getSubCategoryInfoBySubCategoryIdFromRedis(
         parentSubCategoryId
       );
+
       if (!subParentCategoryExist) {
         // On cache miss, check database for category existence
         subParentCategoryExist = await getSubCategoryById(parentSubCategoryId);
@@ -228,12 +245,14 @@ export const createCategory = async (
             __typename: "BaseResponse",
           };
         }
+
         subParentCategoryExist = {
-          ...subParentCategoryExist,
-          category: subParentCategoryExist.parentSubCategory || null,
+          id: subParentCategoryExist.id,
+          name: subParentCategoryExist.name,
+          description: subParentCategoryExist.description,
+          thumbnail: subParentCategoryExist.thumbnail,
+          category: subParentCategoryExist.category || null,
           parentSubCategory: subParentCategoryExist.parentSubCategory || null,
-          subCategories: subParentCategoryExist.subCategories ?? [],
-          products: subParentCategoryExist.products ?? [],
           createdBy: subParentCategoryExist.createdBy as any,
           createdAt:
             subParentCategoryExist.createdAt instanceof Date
@@ -270,9 +289,11 @@ export const createCategory = async (
     if (!isSubCategory) {
       // Top-level category
       categoryResponse = {
-        ...categoryResult,
-        subCategories: categoryResult.subCategories ?? [],
-        products: categoryResult.products ?? [],
+        id: categoryResult.id,
+        name: categoryResult.name,
+        description: categoryResult.description,
+        thumbnail: categoryResult.thumbnail,
+        position: categoryResult.position,
         createdBy: categoryResult.createdBy as any,
         createdAt:
           categoryResult.createdAt instanceof Date
@@ -286,13 +307,13 @@ export const createCategory = async (
     } else {
       // Subcategory
       categoryResponse = {
-        ...categoryResult,
-        category: categoryId
-          ? parentCategoryExist
-          : subParentCategoryExist?.category,
-        parentSubCategory: subParentCategoryExist || null,
-        subCategories: categoryResult.subCategories ?? [],
-        products: categoryResult.products ?? [],
+        id: categoryResult.id,
+        name: categoryResult.name,
+        description: categoryResult.description,
+        thumbnail: categoryResult.thumbnail,
+        position: categoryResult.position,
+        category: categoryId ? categoryId : subParentCategoryExist.category,
+        parentSubCategory: subParentCategoryExist?.id || null,
         createdBy: categoryResult.createdBy as any,
         createdAt:
           categoryResult.createdAt instanceof Date
@@ -309,24 +330,27 @@ export const createCategory = async (
     const cachePromises = [];
     if (!isSubCategory) {
       cachePromises.push(
-        setCategoryInfoByCategoryIdInRedis(categoryResult.id, categoryResponse),
+        setCategoryInfoByCategoryIdInRedis(categoryResult.id, {
+          ...categoryResponse,
+          createdBy: categoryResult.createdBy as any,
+        }),
         setCategoryNameExistInRedis(name)
       );
     } else if (categoryId) {
       cachePromises.push(
         setSubCategoryNameExistInRedis(name, categoryId),
-        setSubCategoryInfoBySubCategoryIdInRedis(
-          categoryResult.id,
-          categoryResponse
-        )
+        setSubCategoryInfoBySubCategoryIdInRedis(categoryResult.id, {
+          ...categoryResponse,
+          createdBy: categoryResult.createdBy as any,
+        })
       );
     } else if (parentSubCategoryId) {
       cachePromises.push(
         setSubCategoryNameExistInRedis(name, parentSubCategoryId),
-        setSubCategoryInfoBySubCategoryIdInRedis(
-          categoryResult.id,
-          categoryResponse
-        )
+        setSubCategoryInfoBySubCategoryIdInRedis(categoryResult.id, {
+          ...categoryResponse,
+          createdBy: categoryResult.createdBy as any,
+        })
       );
     }
     await Promise.all(cachePromises);

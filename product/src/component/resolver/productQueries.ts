@@ -37,7 +37,31 @@ export const productQueriesResolver = {
       };
     },
   },
+  CategoryDataResponse: {
+    /**
+     * Resolver for federated reference to the `CreatedBy` entity,
+     * allowing other subgraphs to fetch media creator data by ID.
+     */
+    createdBy: ({ createdBy }) => {
+      return {
+        __typename: "CreatedBy",
+        id: createdBy, // Just references the creator's unique ID.
+      };
+    },
+  },
   SubCategory: {
+    /**
+     * Resolver for federated reference to the `CreatedBy` entity,
+     * allowing other subgraphs to fetch media creator data by ID.
+     */
+    createdBy: ({ createdBy }) => {
+      return {
+        __typename: "CreatedBy",
+        id: createdBy, // Just references the creator's unique ID.
+      };
+    },
+  },
+  SubCategoryDataResponse: {
     /**
      * Resolver for federated reference to the `CreatedBy` entity,
      * allowing other subgraphs to fetch media creator data by ID.
