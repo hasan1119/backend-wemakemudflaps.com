@@ -1,4 +1,4 @@
-import { ILike } from "typeorm";
+import { ILike, Not } from "typeorm";
 import { Category } from "../../../entities/category.entity";
 import { SubCategory } from "../../../entities/sub-category.entity";
 import {
@@ -63,6 +63,63 @@ export async function findCategoryByName(
 }
 
 /**
+ * Finds a category or subcategory by name (excluding the current one) within its scope.
+ *
+ * @param id - ID of the entity being updated (to exclude it).
+ * @param name - New name being checked.
+ * @param type - Either "category" or "subCategory".
+ * @param categoryId - (Optional) For subcategory: the parent category ID.
+ * @param parentScopeId - (Optional) For subcategory: the parent subcategory ID.
+ * @returns A matching record if conflict exists, else null.
+ */
+export async function findCategoryByNameToUpdateScoped(
+  id: string,
+  name: string,
+  type: "category" | "subCategory",
+  categoryId?: string,
+  parentScopeId?: string
+): Promise<Category | SubCategory | null> {
+  if (type === "category") {
+    // Regular category name check
+    return categoryRepository.findOne({
+      where: {
+        name: ILike(name),
+        id: Not(id),
+        deletedAt: null,
+      },
+    });
+  }
+
+  // Subcategory scope-level conflict check
+  const conflict = await subCategoryRepository.findOne({
+    where: {
+      name: ILike(name),
+      id: Not(id),
+      deletedAt: null,
+      ...(categoryId && { category: { id: categoryId } }),
+      ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
+    },
+  });
+
+  if (conflict) return conflict;
+
+  const current = await subCategoryRepository.findOne({
+    where: { id, deletedAt: null },
+    relations: ["subCategories"],
+  });
+
+  if (
+    current?.subCategories?.some(
+      (child) => child.name.toLowerCase() === name.toLowerCase()
+    )
+  ) {
+    return current;
+  }
+
+  return null;
+}
+
+/**
  * Fetches a Category by its ID along with all relations defined in the entity.
  *
  * Workflow:
@@ -97,6 +154,9 @@ export async function getSubCategoryById(
   return await subCategoryRepository.findOne({
     where: { id },
     relations: ["category", "parentSubCategory", "subCategories", "products"],
+    select: {
+      parentSubCategory: true,
+    },
   });
 }
 

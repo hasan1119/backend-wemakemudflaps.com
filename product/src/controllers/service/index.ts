@@ -47,6 +47,7 @@ export {
 export {
   countCategoriesWithSearch,
   findCategoryByName,
+  findCategoryByNameToUpdateScoped,
   getCategoryById,
   getSubCategoryById,
   paginateCategories,

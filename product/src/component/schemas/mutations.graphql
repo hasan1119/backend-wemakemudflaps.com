@@ -9,4 +9,14 @@ type Mutation {
     categoryId: String # Optional ID of the parent category if this is a sub-category.,
     parentSubCategoryId: String # Optional ID of the parent sub-category if this is a sub-category.
   ): CreateCategoryResponseOrError!
+
+  # Update an existing category/sub category.
+  # Only accessible by authorized users.
+  updateCategory(
+    id: ID! # ID of the category to update.
+    thumbnail: String # Optional new thumbnail image URL for the category/sub category.
+    name: String # Optional updated name of the category/sub category.
+    description: String # Optional updated description for the category/sub category.
+    categoryType: CategoryType!
+  ): UpdateCategoryResponseOrError!
 }

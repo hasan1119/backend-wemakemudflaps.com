@@ -1,0 +1,221 @@
+import CONFIG from "../../../config/config";
+import { Context } from "../../../context";
+import { getUserInfoByEmailFromRedis } from "../../../helper/redis";
+import {
+  MutationUpdateCategoryArgs,
+  UpdateCategoryResponseOrError,
+} from "../../../types";
+import { updateCategorySchema } from "../../../utils/data-validation";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  findCategoryByNameToUpdateScoped,
+  getCategoryById,
+  getSubCategoryById,
+  updateCategoryOrSubCategory,
+} from "../../service";
+
+/**
+ * Handles updating an existing category information with validation and permission checks.
+ *
+ * Workflow:
+ * 1. Verifies user authentication and retrieves user data from Redis.
+ * 2. Checks user permission to update roles.
+ * 3. Validates input (role ID, name, description, thumbnail) using Zod schema.
+ * 4. Retrieves category data from database and ensures it exists and is not soft-deleted.
+ * 5. Updates category information in the database with audit details.
+ * 6. Returns a success response or error if validation, permission, or update fails.
+ *
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing role ID, name, description, permissions, protection flags, and optional password.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
+ */
+export const updateCategory = async (
+  _: any,
+  args: MutationUpdateCategoryArgs,
+  { user }: Context
+): Promise<UpdateCategoryResponseOrError> => {
+  try {
+    // Verify user authentication
+    const authResponse = checkUserAuth(user);
+    if (authResponse) return authResponse;
+
+    // Attempt to retrieve cached user data from Redis
+    let userData;
+
+    userData = await getUserInfoByEmailFromRedis(user.email);
+
+    // Check if user has permission to update roles
+    const canUpdate = await checkUserPermission({
+      action: "canUpdate",
+      entity: "category",
+      user,
+    });
+
+    if (!canUpdate) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "You do not have permission to update any category info",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Validate input data with Zod schema
+    const validationResult = await updateCategorySchema.safeParseAsync(args);
+
+    // Return detailed validation errors if input is invalid
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((e) => ({
+        field: e.path.join("."), // Join path array to string for field identification
+        message: e.message,
+      }));
+
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Validation failed",
+        errors,
+        __typename: "ErrorResponse",
+      };
+    }
+
+    const { id, description, name, thumbnail, categoryType } =
+      validationResult.data;
+
+    // Check database for category existence
+    const categoryExist =
+      categoryType === "category"
+        ? await getCategoryById(id)
+        : await getSubCategoryById(id);
+
+    if (!categoryExist) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: "Category not found",
+        __typename: "BaseResponse",
+      };
+    }
+
+    /*   const createdBy = (await role.createdBy)
+    ? await getUserById((await role.createdBy).id)
+    : null; */
+
+    let categoryId = undefined;
+
+    if (categoryType !== "category" && "category" in categoryExist) {
+      categoryId = categoryExist?.category
+        ? (await categoryExist.category).id
+        : undefined;
+    }
+
+    let parentSubCategoryId = undefined;
+
+    if (categoryType !== "category" && "parentSubCategory" in categoryExist) {
+      parentSubCategoryId = categoryExist?.parentSubCategory
+        ? (await categoryExist.parentSubCategory).id
+        : undefined;
+    }
+
+    // Check for name conflict in the same parent scope (excluding self)
+    const nameConflict = await findCategoryByNameToUpdateScoped(
+      id,
+      name,
+      categoryType,
+      categoryId,
+      parentSubCategoryId
+    );
+
+    if (nameConflict) {
+      return {
+        statusCode: 400,
+        success: false,
+        message:
+          categoryType === "category"
+            ? "Category with this name already exists"
+            : "Subcategory with this name already exists in parent",
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Update role information in the database
+    await updateCategoryOrSubCategory(
+      id,
+      {
+        description,
+        name,
+        thumbnail,
+      },
+      categoryType === "category" ? "category" : "subCategory"
+    );
+
+    if (categoryType !== "category") {
+      return {
+        statusCode: 201,
+        success: true,
+        message: "Subcategory updated successfully",
+        subcategory: {
+          id: id,
+          name,
+          description,
+          thumbnail,
+          position: categoryExist.position,
+          createdBy: categoryExist.createdBy as any,
+          subCategories: categoryExist.subCategories
+            ? categoryExist.subCategories.map((subCat: any) => ({
+                ...subCat,
+                category: undefined,
+              }))
+            : null,
+          createdAt:
+            categoryExist.createdAt instanceof Date
+              ? categoryExist.createdAt.toISOString()
+              : categoryExist.createdAt,
+          deletedAt:
+            categoryExist.deletedAt instanceof Date
+              ? categoryExist.deletedAt.toISOString()
+              : categoryExist.deletedAt,
+        },
+        __typename: "SubCategoryResponse",
+      };
+    } else {
+      return {
+        statusCode: 201,
+        success: true,
+        message: "Category updated successfully",
+        category: {
+          id: categoryExist.id,
+          name,
+          description,
+          thumbnail,
+          position: categoryExist.position,
+          createdBy: categoryExist.createdBy as any,
+          createdAt:
+            categoryExist.createdAt instanceof Date
+              ? categoryExist.createdAt.toISOString()
+              : categoryExist.createdAt,
+          deletedAt:
+            categoryExist.deletedAt instanceof Date
+              ? categoryExist.deletedAt.toISOString()
+              : categoryExist.deletedAt,
+        },
+        __typename: "CategoryResponse",
+      };
+    }
+  } catch (error: any) {
+    console.error("Error updating category info:", error);
+
+    return {
+      statusCode: 500,
+      success: false,
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
+      __typename: "BaseResponse",
+    };
+  }
+};

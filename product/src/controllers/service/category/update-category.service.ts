@@ -192,9 +192,8 @@ type UpdateData = {
  *
  * Workflow:
  * 1. Detects entity type by `type` parameter ("category" or "subcategory").
- * 2. Finds existing entity by ID.
- * 3. Updates fields if provided in `data`.
- * 4. Saves updated entity to database.
+ * 2. Updates fields if provided in `data`.
+ * 3. Saves updated entity to database.
  *
  * @param id - UUID of the entity to update.
  * @param data - Partial update data (name, description, thumbnail).
@@ -206,21 +205,16 @@ type UpdateData = {
 export async function updateCategoryOrSubCategory(
   id: string,
   data: UpdateData,
-  type: "category" | "subcategory"
-): Promise<Category | SubCategory> {
+  type: "category" | "subCategory"
+): Promise<void> {
   const repository = (
     type === "category" ? categoryRepository : subCategoryRepository
   ) as import("typeorm").Repository<Category | SubCategory>;
 
-  // Step 1: Find entity by id
-  const entity = await repository.findOne({ where: { id } });
-  if (!entity) throw new Error(`${type} with id ${id} not found`);
-
-  // Step 2: Update fields if provided
-  if (data.name !== undefined) entity.name = data.name;
-  if (data.description !== undefined) entity.description = data.description;
-  if (data.thumbnail !== undefined) entity.thumbnail = data.thumbnail;
-
-  // Step 3: Save updated entity
-  return await repository.save(entity);
+  // Step 2.5: Directly update the entity in the database
+  await repository.update(id, {
+    ...(data.name !== undefined && { name: data.name }),
+    ...(data.description !== undefined && { description: data.description }),
+    ...(data.thumbnail !== undefined && { thumbnail: data.thumbnail }),
+  });
 }

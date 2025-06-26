@@ -92,6 +92,7 @@ export const getCategoryById = async (
         subCategories: category.subCategories
           ? category.subCategories.map((subCat: any) => ({
               ...subCat,
+              createdBy: category.createdBy as any,
               category: undefined,
             }))
           : null,

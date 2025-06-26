@@ -1,10 +1,14 @@
 /**
- * Exports GraphQL queries for retrieving category data.
+ * Exports GraphQL queries and mutations for managing category data.
  *
  * Workflow:
- * 1. Provides queries for fetching details of a specific category/sub category by its ID.
- * 2. Enables retrieval of all categories in the system.
- * 5. Facilitates listing all categories in the system.
+ * 1. Provides mutations for creating, updating, deleting, and restoring categories or sub-categories.
+ * 2. Enables retrieval of a specific category or sub-category by its ID.
+ * 3. Facilitates listing all categories and sub-categories in the system.
  */
+export { createCategory } from "./mutations/manage-category/create-category";
+export { updateCategory } from "./mutations/manage-category/update-category";
+// export { deleteCategory } from "./mutations/manage-category/delete-category";
+// export { restoreCategory } from "./mutations/manage-category/restore-category";
 export { getCategoryById } from "./queries/category/get-category-by-id";
 export { getSubCategoryById } from "./queries/category/get-sub-category-by-id";

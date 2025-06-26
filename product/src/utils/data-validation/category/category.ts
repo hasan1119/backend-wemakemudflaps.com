@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Defines the schema for a single RolePermission object
+// Defines the schema for a single category object
 export const createCategorySchema = z
   .object({
     thumbnail: z.string().url("Invalid URL format"),
@@ -32,3 +32,28 @@ export const createCategorySchema = z
       path: ["categoryId"], // You can target both fields if needed
     }
   );
+
+// Define enum for category type
+export const CategoryTypeEnum = z.enum(["category", "subCategory"], {
+  errorMap: () => ({
+    message: "Category type must be either 'category' or 'subCategory'",
+  }),
+});
+
+// Defines the schema for a single update category object
+export const updateCategorySchema = z.object({
+  id: z.string().uuid({ message: "Invalid UUID format" }),
+  thumbnail: z.string().url("Invalid URL format").optional(),
+  name: z
+    .string()
+    .min(3, "Category name must be at least 3 characters")
+    .trim()
+    .optional(),
+  description: z
+    .string()
+    .min(3, "Category description must be at least 3 characters")
+    .trim()
+    .nullable()
+    .optional(),
+  categoryType: CategoryTypeEnum.optional(),
+});
