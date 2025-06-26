@@ -198,13 +198,19 @@ export const paginateCategories = async ({
 }: GetPaginatedCategoriesInput) => {
   const skip = (page - 1) * limit;
 
-  // Start query builder on Category
+  const allowedSortFields = ["name", "createdAt", "position"] as const;
+  const safeSortBy = allowedSortFields.includes(sortBy as any)
+    ? (sortBy as (typeof allowedSortFields)[number])
+    : "position";
+
+  const safeSortOrder =
+    sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "asc";
+
   const query = categoryRepository
     .createQueryBuilder("category")
     .leftJoinAndSelect("category.subCategories", "subCategory")
     .where("category.deletedAt IS NULL");
 
-  // Add search filter on category and subcategories
   if (search && search.trim() !== "") {
     const searchTerm = `%${search.trim()}%`;
 
@@ -218,25 +224,37 @@ export const paginateCategories = async ({
     );
   }
 
-  // Apply sorting with fallback default
-  const allowedSortFields = ["name", "createdAt", "position"] as const;
-  const safeSortBy = allowedSortFields.includes(sortBy as any)
-    ? (sortBy as (typeof allowedSortFields)[number])
-    : "position";
-
-  const safeSortOrder =
-    sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "asc";
-
+  // Apply dynamic sorting on categories
   query.orderBy(
     `category.${safeSortBy}`,
     safeSortOrder.toUpperCase() as "ASC" | "DESC"
   );
 
-  // Pagination
   query.skip(skip).take(limit);
 
-  // Execute query and count total
   const [categories, total] = await query.getManyAndCount();
+
+  // Recursive function to sort subCategories array by position ascending (always)
+  const sortSubCategoriesRecursively = (
+    subs: SubCategory[] | null
+  ): SubCategory[] | null => {
+    if (!subs) return null;
+
+    subs.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+
+    subs.forEach((sub) => {
+      if (sub.subCategories && sub.subCategories.length > 0) {
+        sub.subCategories = sortSubCategoriesRecursively(sub.subCategories);
+      }
+    });
+
+    return subs;
+  };
+
+  // Sort nested subcategories by position ascending for each category
+  categories.forEach((cat) => {
+    cat.subCategories = sortSubCategoriesRecursively(cat.subCategories);
+  });
 
   return {
     categories,

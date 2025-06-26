@@ -24,7 +24,7 @@ const mapArgsToPagination = (args: QueryGetAllCategoriesArgs) => ({
   limit: args.limit,
   search: args.search,
   sortBy: args.sortBy || "createdAt",
-  sortOrder: args.sortOrder || "desc",
+  sortOrder: args.sortOrder || "asc",
 });
 
 // Recursively fetch and map all nested subcategories
