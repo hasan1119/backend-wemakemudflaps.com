@@ -1,7 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Category, SubCategory } from "../../../entities";
-import { getUserInfoByEmailFromRedis } from "../../../helper/redis";
 import {
   MutationUpdateCategoryArgs,
   UpdateCategoryResponseOrError,
@@ -41,11 +40,6 @@ export const updateCategory = async (
     // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
-
-    // Attempt to retrieve cached user data from Redis
-    let userData;
-
-    userData = await getUserInfoByEmailFromRedis(user.email);
 
     // Check if user has permission to update roles
     const canUpdate = await checkUserPermission({

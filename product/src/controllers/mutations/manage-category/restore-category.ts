@@ -36,9 +36,11 @@ export const restoreCategory = async (
   { user }: Context
 ): Promise<RestoreCategoryResponseOrError> => {
   try {
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
+    // Check if user has permission to restore a category
     const canRestore = await checkUserPermission({
       action: "canUpdate",
       entity: "category",
@@ -54,8 +56,10 @@ export const restoreCategory = async (
       };
     }
 
+    // Validate input data with Zod schema
     const parsed = restoreCategorySchema.safeParse(args);
 
+    // Return detailed validation errors if input is invalid
     if (!parsed.success) {
       const errors = parsed.error.errors.map((e) => ({
         field: e.path.join("."),

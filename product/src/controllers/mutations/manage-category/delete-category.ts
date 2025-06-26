@@ -43,7 +43,7 @@ export const deleteCategory = async (
   { user }: Context
 ): Promise<BaseResponseOrError> => {
   try {
-    // Auth & permission
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
@@ -53,6 +53,7 @@ export const deleteCategory = async (
       user,
     });
 
+    // Check if user has permission to delete a category
     if (!canDelete) {
       return {
         statusCode: 403,
@@ -62,8 +63,10 @@ export const deleteCategory = async (
       };
     }
 
-    // Validate args
+    // Validate input data with Zod schema
     const validationResult = deleteCategorySchema.safeParse(args);
+
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errors = validationResult.error.errors.map((e) => ({
         field: e.path.join("."),

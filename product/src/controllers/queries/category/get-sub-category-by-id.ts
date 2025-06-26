@@ -51,7 +51,7 @@ export const getSubCategoryById = async (
       };
     }
 
-    // Validate input category ID with Zod schema
+    // Validate input data with Zod schema
     const validationResult = await idSchema.safeParseAsync(args);
 
     // Return detailed validation errors if input is invalid

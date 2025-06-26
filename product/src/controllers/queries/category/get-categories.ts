@@ -107,9 +107,11 @@ export const getAllCategories = async (
   { user }: Context
 ): Promise<GetCategoriesResponseOrError> => {
   try {
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
+    // Check if user has permission to delete a category
     const canRead = await checkUserPermission({
       action: "canRead",
       entity: "category",
@@ -125,9 +127,11 @@ export const getAllCategories = async (
       };
     }
 
+    // Map and validate input arguments
     const mappedArgs = mapArgsToPagination(args);
     const validationResult = await combinedSchema.safeParseAsync(mappedArgs);
 
+    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
         field: error.path.join("."),
