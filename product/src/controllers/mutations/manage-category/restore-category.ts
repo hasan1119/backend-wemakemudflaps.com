@@ -11,6 +11,25 @@ import {
   restoreCategoryOrSubCategoryById,
 } from "../../service";
 
+/**
+ * GraphQL Mutation Resolver to restore a soft-deleted category or subcategory.
+ *
+ * Workflow:
+ * 1. Verifies user authentication and authorization to perform update operations.
+ * 2. Validates the input arguments using Zod schema.
+ * 3. Normalizes `categoryType` to match service expectations (e.g., converts "subCategory" to "subcategory").
+ * 4. Invokes the service function to restore the soft-deleted entity by clearing `deletedAt`.
+ * 5. Returns a success message on successful restoration, or error response if any failure occurs.
+ *
+ * Notes:
+ * - This handles both `category` and `subcategory` restoration using the same resolver.
+ * - A permission check for `canUpdate` is used since restore is a form of update.
+ *
+ * @param _ - Unused resolver root parameter.
+ * @param args - Input arguments including ID of the entity to restore and its category type.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A `RestoreCategoryResponseOrError` indicating operation success or failure details.
+ */
 export const restoreCategory = async (
   _: any,
   args: MutationRestoreCategoryArgs,

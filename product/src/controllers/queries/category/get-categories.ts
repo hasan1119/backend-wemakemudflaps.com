@@ -85,6 +85,22 @@ const mapSubCategory = async (
   };
 };
 
+/**
+ * Fetches a paginated list of categories with deeply nested subcategories.
+ *
+ * Workflow:
+ * 1. Authenticates the user and verifies their permission to view categories.
+ * 2. Validates pagination and sorting inputs using Zod schemas.
+ * 3. Queries the database using pagination, sorting, and optional search.
+ * 4. Recursively maps each category and all levels of nested subcategories.
+ * 5. Returns a structured success response with categories and total count,
+ *    or an error response if validation or permission fails.
+ *
+ * @param _ - Unused GraphQL root/resolver parameter.
+ * @param args - GraphQL arguments including pagination, sorting, and search.
+ * @param context - GraphQL context containing the authenticated user.
+ * @returns A `GetCategoriesResponseOrError` containing paginated results or error.
+ */
 export const getAllCategories = async (
   _: any,
   args: QueryGetAllCategoriesArgs,

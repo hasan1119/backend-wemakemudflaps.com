@@ -18,7 +18,24 @@ import {
 } from "../../service";
 
 /**
- * GraphQL Resolver to delete a category or subcategory (soft or hard)
+ * GraphQL Mutation Resolver to delete a category or subcategory.
+ *
+ * Workflow:
+ * 1. Authenticates the user and checks for delete permissions.
+ * 2. Validates input arguments using Zod schema.
+ * 3. Retrieves the category or subcategory by ID and ensures it exists.
+ * 4. Verifies the entity has no associated products (for safe deletion).
+ * 5. Performs a soft delete (move to trash) or hard delete (permanent) based on `skipTrash`.
+ * 6. If subcategory, ensures position realignment within its parent scope.
+ *
+ * Notes:
+ * - For subcategories, the function determines whether it's nested under a parent subcategory or directly under a category.
+ * - Handles both `category` and `subcategory` types via a shared resolver.
+ *
+ * @param _ - Unused resolver root parameter.
+ * @param args - Input arguments: id (UUID), categoryType ("category" or "subcategory"), and skipTrash (Boolean).
+ * @param context - GraphQL context with authenticated user info.
+ * @returns A `BaseResponseOrError` indicating success or detailed error info.
  */
 export const deleteCategory = async (
   _: any,
