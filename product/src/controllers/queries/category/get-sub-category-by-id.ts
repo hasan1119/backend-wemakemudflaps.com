@@ -89,6 +89,13 @@ export const getSubCategoryById = async (
       message: "Sub Category fetched successfully",
       subcategory: {
         ...subCategoryData,
+        subCategories: subCategoryData.subCategories
+          ? subCategoryData.subCategories.map((subCat: any) => ({
+              ...subCat,
+              createdBy: subCategoryData.createdBy as any,
+              category: undefined,
+            }))
+          : null,
         category:
           subCategoryData.category &&
           typeof subCategoryData.category === "object"

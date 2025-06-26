@@ -80,6 +80,7 @@ type SubCategoryDataResponse {
   thumbnail: String
   category: ID # The category to which this subcategory belongs.
   parentSubCategory: ID # The parent subcategory if nested.
+  subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String

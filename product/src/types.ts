@@ -730,6 +730,7 @@ export type SubCategoryDataResponse = {
   name: Scalars['String']['output'];
   parentSubCategory?: Maybe<Scalars['ID']['output']>;
   position: Scalars['Int']['output'];
+  subCategories?: Maybe<Array<SubCategoryDataResponse>>;
   thumbnail?: Maybe<Scalars['String']['output']>;
 };
 
@@ -1553,6 +1554,7 @@ export type SubCategoryDataResponseResolvers<ContextType = Context, ParentType e
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   parentSubCategory?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategoryDataResponse']>>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

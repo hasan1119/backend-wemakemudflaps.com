@@ -89,6 +89,12 @@ export const getCategoryById = async (
       message: "Category fetched successfully",
       category: {
         ...category,
+        subCategories: category.subCategories
+          ? category.subCategories.map((subCat: any) => ({
+              ...subCat,
+              category: undefined,
+            }))
+          : null,
         createdBy: category.createdBy as any,
         createdAt:
           category.createdAt instanceof Date
@@ -98,12 +104,6 @@ export const getCategoryById = async (
           category.deletedAt instanceof Date
             ? category.deletedAt.toISOString()
             : category.deletedAt,
-        subCategories: category.subCategories
-          ? category.subCategories.map((subCat: any) => ({
-              ...subCat,
-              category: undefined,
-            }))
-          : null,
       },
       __typename: "CategoryResponseById",
     };
