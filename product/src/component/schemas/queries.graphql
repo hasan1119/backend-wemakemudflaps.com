@@ -4,15 +4,15 @@ type Query {
 
   # Fetch category by ID.
   # Retrieves a specific category file's details using its unique ID.
-  # Returns a `GetCategoryByIdResponseOrError` containing category data and request status.
+  # Returns a `GetCategoryByIDResponseOrError` containing category data and request status.
   getCategoryById(
     id: ID! # Unique identifier of the category file to retrieve.
-  ): Category!
+  ): GetCategoryByIDResponseOrError!
 
   # Fetch sub category by ID.
   # Retrieves a specific sub category file's details using its unique ID.
-  # Returns a `GetSubCategoryByIdResponseOrError` containing sub category data and request status.
+  # Returns a `GetCategoryByIDResponseOrError` containing sub category data and request status.
   getSubCategoryById(
     id: ID! # Unique identifier of the category file to retrieve.
-  ): Category!
+  ): GetSubCategoryByIDResponseOrError!
 }

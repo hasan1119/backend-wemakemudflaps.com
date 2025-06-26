@@ -44,7 +44,6 @@ type Category {
   position: Int! # Display order/position of the category.
   createdBy: CreatedBy # Metadata on who created the category.
   subCategories: [SubCategory!]! # List of subcategories under this category.
-  products: [Product!] # Optional list of products associated with this category.
   createdAt: String
   deletedAt: String
 }
@@ -55,9 +54,8 @@ type SubCategory {
   description: String
   thumbnail: String
   category: Category! # The category to which this subcategory belongs.
-  parentSubCategory: SubCategory # Optional parent subcategory if nested.
-  subCategories: [SubCategory!]! # List of child subcategories (if any).
-  products: [Product!] # Optional list of products associated with this subcategory.
+  parentSubCategory: SubCategoryDataResponse # Optional parent subcategory if nested.
+  subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
@@ -96,20 +94,36 @@ type Product @key(fields: "id") {
 
 # ---------------------- Responses ----------------------
 
-# Response for single user fetch.
+# Response for fetching a category.
 type CategoryResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  data: CategoryDataResponse!
+  category: CategoryDataResponse!
 }
 
-# Response for single user fetch.
+# Response for fetching a subcategory.
 type SubCategoryResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  data: SubCategoryDataResponse!
+  subcategory: SubCategoryDataResponse!
+}
+
+# Response for fetching a category by ID.
+type CategoryResponseById {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: Category!
+}
+
+# Response for fetching a sub category by ID.
+type SubCategoryResponseById {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  subcategory: SubCategoryDataResponse!
 }
 
 # ---------------------- Unions ----------------------
@@ -122,4 +136,16 @@ union CreateCategoryResponseOrError =
     BaseResponse
   | CategoryResponse
   | SubCategoryResponse
+  | ErrorResponse
+
+# Union when fetching category by ID.
+union GetCategoryByIDResponseOrError =
+    BaseResponse
+  | CategoryResponseById
+  | ErrorResponse
+
+# Union when fetching sub category by ID.
+union GetSubCategoryByIDResponseOrError =
+    BaseResponse
+  | SubCategoryResponseById
   | ErrorResponse

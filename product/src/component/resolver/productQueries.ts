@@ -1,3 +1,4 @@
+import { getCategoryById, getSubCategoryById } from "../../controllers";
 import { getProduct } from "../../controllers/queries/product/get-product";
 
 /**
@@ -11,6 +12,16 @@ import { getProduct } from "../../controllers/queries/product/get-product";
 export const productQueriesResolver = {
   Query: {
     getProduct,
+
+    /**
+     * Retrieves detailed information for a category by their unique ID.
+     */
+    getCategoryById,
+
+    /**
+     * Retrieves detailed information for a sub category by their unique ID.
+     */
+    getSubCategoryById,
   },
 
   Product: {
