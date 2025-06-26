@@ -55,5 +55,18 @@ export const updateCategorySchema = z.object({
     .trim()
     .nullable()
     .optional(),
-  categoryType: CategoryTypeEnum.optional(),
+  categoryType: CategoryTypeEnum,
+});
+
+// Defines the schema for a single update position category object
+export const updateCategoryPositionSchema = z.object({
+  id: z.string().uuid({ message: "Invalid UUID format" }),
+  position: z
+    .number({
+      required_error: "Position is required",
+      invalid_type_error: "Position must be a number",
+    })
+    .int("Position must be an integer")
+    .nonnegative("Position must be 0 or a positive integer"),
+  categoryType: CategoryTypeEnum,
 });

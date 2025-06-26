@@ -155,6 +155,7 @@ export async function getSubCategoryById(
     where: { id },
     relations: ["category", "parentSubCategory", "subCategories", "products"],
     select: {
+      category: true,
       parentSubCategory: true,
     },
   });

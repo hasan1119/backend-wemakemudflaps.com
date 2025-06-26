@@ -3,28 +3,27 @@ import { Context } from "../../../context";
 import { Category, SubCategory } from "../../../entities";
 import { getUserInfoByEmailFromRedis } from "../../../helper/redis";
 import {
-  MutationUpdateCategoryArgs,
-  UpdateCategoryResponseOrError,
+  MutationUpdateCategoryPositionArgs,
+  UpdateCategoryPositionResponseOrError,
 } from "../../../types";
-import { updateCategorySchema } from "../../../utils/data-validation";
+import { updateCategoryPositionSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  findCategoryByNameToUpdateScoped,
   getCategoryById,
   getSubCategoryById,
-  updateCategoryOrSubCategory,
+  updatePosition,
 } from "../../service";
 
 /**
- * Handles updating an existing category information with validation and permission checks.
+ * Handles updating an existing category position with validation and permission checks.
  *
  * Workflow:
  * 1. Verifies user authentication and retrieves user data from Redis.
  * 2. Checks user permission to update roles.
- * 3. Validates input (role ID, name, description, thumbnail) using Zod schema.
+ * 3. Validates input (role ID, position) using Zod schema.
  * 4. Retrieves category data from database and ensures it exists and is not soft-deleted.
- * 5. Updates category information in the database with audit details.
+ * 5. Updates category position in the database with audit details.
  * 6. Returns a success response or error if validation, permission, or update fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
@@ -32,11 +31,11 @@ import {
  * @param context - GraphQL context containing authenticated user information.
  * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
  */
-export const updateCategory = async (
+export const updateCategoryPosition = async (
   _: any,
-  args: MutationUpdateCategoryArgs,
+  args: MutationUpdateCategoryPositionArgs,
   { user }: Context
-): Promise<UpdateCategoryResponseOrError> => {
+): Promise<UpdateCategoryPositionResponseOrError> => {
   try {
     // Verify user authentication
     const authResponse = checkUserAuth(user);
@@ -64,7 +63,9 @@ export const updateCategory = async (
     }
 
     // Validate input data with Zod schema
-    const validationResult = await updateCategorySchema.safeParseAsync(args);
+    const validationResult = await updateCategoryPositionSchema.safeParseAsync(
+      args
+    );
 
     // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
@@ -82,8 +83,7 @@ export const updateCategory = async (
       };
     }
 
-    const { id, description, name, thumbnail, categoryType } =
-      validationResult.data;
+    const { id, position, categoryType } = validationResult.data;
 
     // Check database for category existence
     const categoryExist =
@@ -116,51 +116,39 @@ export const updateCategory = async (
       }
     }
 
-    // Check for name conflict in the same parent scope (excluding self)
-    const nameConflict = await findCategoryByNameToUpdateScoped(
-      id,
-      name,
-      categoryType,
-      categoryId,
-      parentSubCategoryId
-    );
-
-    if (nameConflict) {
+    // Update role information in the database
+    try {
+      await updatePosition(
+        id,
+        position,
+        categoryType === "category" ? "category" : "subCategory",
+        {
+          categoryId,
+          parentSubCategoryId,
+        }
+      );
+    } catch (err: any) {
       return {
         statusCode: 400,
         success: false,
-        message:
-          categoryType === "category"
-            ? "Category with this name already exists"
-            : "Subcategory with this name already exists in parent",
+        message: err.message || "Failed to update position",
         __typename: "BaseResponse",
       };
     }
-
-    // Update role information in the database
-    await updateCategoryOrSubCategory(
-      id,
-      {
-        description,
-        name,
-        thumbnail,
-      },
-      categoryType === "category" ? "category" : "subCategory"
-    );
 
     if (categoryType !== "category") {
       return {
         statusCode: 201,
         success: true,
-        message: "Subcategory updated successfully",
+        message: "Subcategory position updated successfully",
         subcategory: {
           id: id,
-          name,
-          description,
-          thumbnail,
+          name: categoryExist.name,
+          description: categoryExist.description,
+          thumbnail: categoryExist.thumbnail,
+          position: position,
           category: categoryId,
           parentSubCategory: parentSubCategoryId,
-          position: categoryExist.position,
           createdBy: categoryExist.createdBy as any,
           subCategories: categoryExist.subCategories
             ? categoryExist.subCategories.map((subCat: any) => ({
@@ -183,13 +171,13 @@ export const updateCategory = async (
       return {
         statusCode: 201,
         success: true,
-        message: "Category updated successfully",
+        message: "Category position updated successfully",
         category: {
           id: categoryExist.id,
-          name,
-          description,
-          thumbnail,
-          position: categoryExist.position,
+          name: categoryExist.name,
+          description: categoryExist.description,
+          thumbnail: categoryExist.thumbnail,
+          position: position,
           createdBy: categoryExist.createdBy as any,
           createdAt:
             categoryExist.createdAt instanceof Date

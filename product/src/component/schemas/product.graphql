@@ -158,8 +158,15 @@ union GetSubCategoryByIDResponseOrError =
   | SubCategoryResponseById
   | ErrorResponse
 
-# Union when Updating a category role.
+# Union when Updating a category/sub category by ID.
 union UpdateCategoryResponseOrError =
+    BaseResponse
+  | CategoryResponse
+  | SubCategoryResponse
+  | ErrorResponse
+
+# Union when Updating a category/sub category position by ID.
+union UpdateCategoryPositionResponseOrError =
     BaseResponse
   | CategoryResponse
   | SubCategoryResponse

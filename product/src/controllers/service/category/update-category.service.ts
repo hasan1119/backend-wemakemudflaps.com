@@ -43,7 +43,7 @@ interface UpdatePositionOptions {
 export const updatePosition = async (
   id: string,
   newPosition: number,
-  type: "category" | "subcategory",
+  type: "category" | "subCategory",
   options?: UpdatePositionOptions
 ): Promise<void | string> => {
   // Use the transaction from repository's manager
@@ -61,7 +61,6 @@ export const updatePosition = async (
       where: { id },
       select: ["id", "position"],
     });
-    if (!item) throw new Error(`${type} with id ${id} not found`);
 
     const currentPosition = item.position;
     if (currentPosition === newPosition) return; // no update needed
@@ -76,7 +75,7 @@ export const updatePosition = async (
 
       if (newPosition < 1 || newPosition > maxPosition) {
         throw new Error(
-          `newPosition ${newPosition} is out of range 1-${maxPosition}`
+          `New position: ${newPosition} is out of range 1-${maxPosition}`
         );
       }
 

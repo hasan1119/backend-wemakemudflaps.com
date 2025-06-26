@@ -1,4 +1,8 @@
-import { createCategory, updateCategory } from "../../controllers";
+import {
+  createCategory,
+  updateCategory,
+  updateCategoryPosition,
+} from "../../controllers";
 import { createProduct } from "../../controllers/mutations/manage-product/create-product";
 
 /**
@@ -20,6 +24,11 @@ export const productMutationsResolver = {
      * Updates detailed information for a specific category/sub category.
      */
     updateCategory,
+
+    /**
+     * Update a specific category/sub category position.
+     */
+    updateCategoryPosition,
 
     createProduct,
   },

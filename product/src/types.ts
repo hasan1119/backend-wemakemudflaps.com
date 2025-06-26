@@ -333,6 +333,7 @@ export type Mutation = {
   restoreMediaFiles: BaseResponseOrError;
   restoreUserRole: BaseResponseOrError;
   updateCategory: UpdateCategoryResponseOrError;
+  updateCategoryPosition: UpdateCategoryPositionResponseOrError;
   updateMediaFileInfo: UpdateMediaResponseOrError;
   updateProfile: UserProfileUpdateResponseOrError;
   updateUserPermission: BaseResponseOrError;
@@ -437,6 +438,13 @@ export type MutationUpdateCategoryArgs = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   thumbnail?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateCategoryPositionArgs = {
+  categoryType: CategoryType;
+  id: Scalars['ID']['input'];
+  position: Scalars['Int']['input'];
 };
 
 
@@ -765,6 +773,8 @@ export type SubCategoryResponseById = {
   success: Scalars['Boolean']['output'];
 };
 
+export type UpdateCategoryPositionResponseOrError = BaseResponse | CategoryResponse | ErrorResponse | SubCategoryResponse;
+
 export type UpdateCategoryResponseOrError = BaseResponse | CategoryResponse | ErrorResponse | SubCategoryResponse;
 
 export type UpdateMediaInput = {
@@ -1019,6 +1029,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   GetUserByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
   GetUserLoginInfoResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserLoginInfoResponse );
   GetUsersResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UsersResponse );
+  UpdateCategoryPositionResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
   UpdateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
   UpdateMediaResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
   UpdateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
@@ -1091,6 +1102,7 @@ export type ResolversTypes = {
   SubCategoryDataResponse: ResolverTypeWrapper<SubCategoryDataResponse>;
   SubCategoryResponse: ResolverTypeWrapper<SubCategoryResponse>;
   SubCategoryResponseById: ResolverTypeWrapper<SubCategoryResponseById>;
+  UpdateCategoryPositionResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryPositionResponseOrError']>;
   UpdateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryResponseOrError']>;
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateMediaResponseOrError']>;
@@ -1170,6 +1182,7 @@ export type ResolversParentTypes = {
   SubCategoryDataResponse: SubCategoryDataResponse;
   SubCategoryResponse: SubCategoryResponse;
   SubCategoryResponseById: SubCategoryResponseById;
+  UpdateCategoryPositionResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryPositionResponseOrError'];
   UpdateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryResponseOrError'];
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateMediaResponseOrError'];
@@ -1423,6 +1436,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   restoreMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreMediaFilesArgs, 'ids'>>;
   restoreUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreUserRoleArgs, 'ids'>>;
   updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'categoryType' | 'id'>>;
+  updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryPositionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'categoryType' | 'id' | 'position'>>;
   updateMediaFileInfo?: Resolver<ResolversTypes['UpdateMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFileInfoArgs, 'inputs'>>;
   updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'sessionId'>>;
   updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
@@ -1595,6 +1609,10 @@ export type SubCategoryResponseByIdResolvers<ContextType = Context, ParentType e
   subcategory?: Resolver<ResolversTypes['SubCategoryDataResponse'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateCategoryPositionResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateCategoryPositionResponseOrError'] = ResolversParentTypes['UpdateCategoryPositionResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryResponse' | 'ErrorResponse' | 'SubCategoryResponse', ParentType, ContextType>;
 };
 
 export type UpdateCategoryResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateCategoryResponseOrError'] = ResolversParentTypes['UpdateCategoryResponseOrError']> = {
@@ -1791,6 +1809,7 @@ export type Resolvers<ContextType = Context> = {
   SubCategoryDataResponse?: SubCategoryDataResponseResolvers<ContextType>;
   SubCategoryResponse?: SubCategoryResponseResolvers<ContextType>;
   SubCategoryResponseById?: SubCategoryResponseByIdResolvers<ContextType>;
+  UpdateCategoryPositionResponseOrError?: UpdateCategoryPositionResponseOrErrorResolvers<ContextType>;
   UpdateCategoryResponseOrError?: UpdateCategoryResponseOrErrorResolvers<ContextType>;
   UpdateMediaResponseOrError?: UpdateMediaResponseOrErrorResolvers<ContextType>;
   UpdateRoleResponseOrError?: UpdateRoleResponseOrErrorResolvers<ContextType>;

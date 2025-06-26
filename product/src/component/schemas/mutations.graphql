@@ -19,4 +19,12 @@ type Mutation {
     description: String # Optional updated description for the category/sub category.
     categoryType: CategoryType!
   ): UpdateCategoryResponseOrError!
+
+  # Update the display order/position of a category or subcategory.
+  # Only accessible by authorized users.
+  updateCategoryPosition(
+    id: ID! # ID of the category or subcategory to update.
+    position: Int! # New position value.
+    categoryType: CategoryType! # Either "category" or "subCategory".
+  ): UpdateCategoryPositionResponseOrError!
 }
