@@ -27,4 +27,14 @@ type Mutation {
     position: Int! # New position value.
     categoryType: CategoryType! # Either "category" or "subCategory".
   ): UpdateCategoryPositionResponseOrError!
+
+  # Deletes a category or subcategory by ID.
+  # Performs a soft delete by default (moves to trash).
+  # If skipTrash is true, performs a permanent delete and reorders remaining items.
+  # Only accessible by authorized users.
+  deleteCategory(
+    id: ID!
+    type: String! # "category" or "subcategory"
+    skipTrash: Boolean
+  ): DeleteCategoryResponseOrError
 }

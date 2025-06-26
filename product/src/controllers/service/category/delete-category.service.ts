@@ -20,9 +20,9 @@ import {
  * @param type - "category" or "subcategory"
  * @returns boolean indicating deletability
  */
-async function canDeleteCategoryOrSubCategory(
+export async function canDeleteCategoryOrSubCategory(
   id: string,
-  type: "category" | "subcategory"
+  type: "category" | "subCategory"
 ): Promise<boolean> {
   const repository =
     type === "category" ? categoryRepository : subCategoryRepository;
@@ -58,7 +58,7 @@ async function canDeleteCategoryOrSubCategory(
  */
 export async function softDeleteCategoryOrSubCategory(
   id: string,
-  type: "category" | "subcategory"
+  type: "category" | "subCategory"
 ): Promise<void> {
   const repository =
     type === "category" ? categoryRepository : subCategoryRepository;
@@ -83,7 +83,7 @@ export async function softDeleteCategoryOrSubCategory(
  */
 export async function hardDeleteCategoryOrSubCategory(
   id: string,
-  type: "category" | "subcategory",
+  type: "category" | "subCategory",
   options?: { categoryId?: string; parentSubCategoryId?: string }
 ): Promise<void> {
   const repository =

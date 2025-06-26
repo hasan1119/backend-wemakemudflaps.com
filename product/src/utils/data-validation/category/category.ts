@@ -70,3 +70,12 @@ export const updateCategoryPositionSchema = z.object({
     .nonnegative("Position must be 0 or a positive integer"),
   categoryType: CategoryTypeEnum,
 });
+
+// Zod validation schema for input args
+export const deleteCategorySchema = z.object({
+  id: z.string().uuid(),
+  categoryType: CategoryTypeEnum,
+  skipTrash: z.boolean().optional().default(false),
+  categoryId: z.string().uuid().optional(), // needed for subcategory position update
+  parentSubCategoryId: z.string().uuid().optional(), // needed for nested subcategory
+});

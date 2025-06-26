@@ -6,6 +6,7 @@
  */
 export {
   createCategorySchema,
+  deleteCategorySchema,
   updateCategoryPositionSchema,
   updateCategorySchema,
 } from "./category/category";

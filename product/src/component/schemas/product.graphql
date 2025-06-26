@@ -173,16 +173,19 @@ union GetCategoriesResponseOrError =
   | CategoryPaginationResponse
   | ErrorResponse
 
-# Union when Updating a category/sub category by ID.
+# Union when updating a category/sub category by ID.
 union UpdateCategoryResponseOrError =
     BaseResponse
   | CategoryResponse
   | SubCategoryResponse
   | ErrorResponse
 
-# Union when Updating a category/sub category position by ID.
+# Union when updating a category/sub category position by ID.
 union UpdateCategoryPositionResponseOrError =
     BaseResponse
   | CategoryResponse
   | SubCategoryResponse
   | ErrorResponse
+
+# Union when deleting a category/sub category position by ID.
+union DeleteCategoryResponseOrError = BaseResponse | ErrorResponse

@@ -32,6 +32,7 @@ export { createCategoryOrSubCategory } from "./category/create-category.service"
  * 3. Checks for product associations before allowing deletion.
  */
 export {
+  canDeleteCategoryOrSubCategory,
   hardDeleteCategoryOrSubCategory,
   softDeleteCategoryOrSubCategory,
 } from "./category/delete-category.service";
