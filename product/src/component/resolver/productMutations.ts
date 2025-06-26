@@ -1,5 +1,6 @@
 import {
   createCategory,
+  restoreCategory,
   updateCategory,
   updateCategoryPosition,
 } from "../../controllers";
@@ -29,6 +30,11 @@ export const productMutationsResolver = {
      * Update a specific category/sub category position.
      */
     updateCategoryPosition,
+
+    /**
+     * Restores previously deleted category
+     */
+    restoreCategory,
 
     createProduct,
   },

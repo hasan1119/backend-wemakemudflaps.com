@@ -71,11 +71,17 @@ export const updateCategoryPositionSchema = z.object({
   categoryType: CategoryTypeEnum,
 });
 
-// Zod validation schema for input args
+// Defines the schema for a single delete category object
 export const deleteCategorySchema = z.object({
   id: z.string().uuid(),
   categoryType: CategoryTypeEnum,
   skipTrash: z.boolean().optional().default(false),
   categoryId: z.string().uuid().optional(), // needed for subcategory position update
   parentSubCategoryId: z.string().uuid().optional(), // needed for nested subcategory
+});
+
+// Defines the schema to restore category object
+export const restoreCategorySchema = z.object({
+  id: z.string().uuid("Invalid category ID"),
+  categoryType: CategoryTypeEnum,
 });

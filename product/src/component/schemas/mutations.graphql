@@ -25,7 +25,7 @@ type Mutation {
   updateCategoryPosition(
     id: ID! # ID of the category or subcategory to update.
     position: Int! # New position value.
-    categoryType: CategoryType! # Either "category" or "subCategory".
+    categoryType: CategoryType!
   ): UpdateCategoryPositionResponseOrError!
 
   # Deletes a category or subcategory by ID.
@@ -34,7 +34,14 @@ type Mutation {
   # Only accessible by authorized users.
   deleteCategory(
     id: ID!
-    type: String! # "category" or "subcategory"
+    categoryType: CategoryType!
     skipTrash: Boolean
   ): DeleteCategoryResponseOrError
+
+  # Mutation to restore a soft-deleted category or subcategory
+  # Only accessible by authorized users.
+  restoreCategory(
+    id: ID!
+    categoryType: CategoryType! # "category" or "subcategory"
+  ): RestoreCategoryResponseOrError
 }

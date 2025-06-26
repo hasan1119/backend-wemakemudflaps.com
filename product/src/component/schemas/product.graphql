@@ -189,3 +189,6 @@ union UpdateCategoryPositionResponseOrError =
 
 # Union when deleting a category/sub category position by ID.
 union DeleteCategoryResponseOrError = BaseResponse | ErrorResponse
+
+# Union response for restoring a category/subcategory
+union RestoreCategoryResponseOrError = BaseResponse | ErrorResponse
