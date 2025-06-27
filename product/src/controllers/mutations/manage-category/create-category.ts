@@ -86,6 +86,7 @@ export const createCategory = async (
     // Check database for category existence
     const categoryExists = await findCategoryByName(
       name,
+      slug,
       categoryId || parentSubCategoryId ? "subCategory" : "category",
       categoryId ? categoryId : undefined,
       parentSubCategoryId ? parentSubCategoryId : undefined
@@ -97,8 +98,8 @@ export const createCategory = async (
         success: false,
         message:
           categoryId || parentSubCategoryId
-            ? "Subcategory with this name already exists in parent"
-            : "Category with this name already exists",
+            ? "Subcategory with this name/slug already exists in parent"
+            : "Category with this name/slug already exists",
         __typename: "BaseResponse",
       };
     }

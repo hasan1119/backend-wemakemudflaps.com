@@ -7,37 +7,49 @@ import {
 } from "../repositories/repositories";
 
 /**
- * Fetches a Category or SubCategory entity by its name.
+ * Fetches a Category or SubCategory entity by name OR slug within scope.
  *
  * @param name - The name of the category or subcategory.
+ * @param slug - The slug of the category or subcategory.
  * @param type - Either "category" or "subCategory".
- * @param categoryId - (Optional) Category ID for scoping subCategory.
- * @param parentScopeId - (Optional) Parent SubCategory ID for nested subCategory.
- * @returns A Promise resolving to the matched Category or SubCategory, or null.
+ * @param categoryId - (Optional) For subcategory: the parent category ID.
+ * @param parentScopeId - (Optional) For subcategory: the parent subcategory ID.
+ * @returns A matched Category or SubCategory or null.
  */
 export async function findCategoryByName(
   name: string,
+  slug: string,
   type: "category" | "subCategory",
   categoryId?: string,
   parentScopeId?: string
 ): Promise<Category | SubCategory | null> {
   if (type === "category") {
     return categoryRepository.findOne({
-      where: { name: ILike(name), deletedAt: null },
+      where: [
+        { name: ILike(name), deletedAt: null },
+        { slug: ILike(slug), deletedAt: null },
+      ],
       relations: ["subCategories", "products"],
     });
   }
 
+  // First check if the parentCategory or subParentCategory itself matches
   const [parentCategory, subParentCategory] = await Promise.all([
     categoryId
       ? categoryRepository.findOne({
-          where: { id: categoryId, name: ILike(name), deletedAt: null },
+          where: [
+            { id: categoryId, name: ILike(name), deletedAt: null },
+            { id: categoryId, slug: ILike(slug), deletedAt: null },
+          ],
           relations: ["subCategories", "products"],
         })
       : null,
     parentScopeId
       ? subCategoryRepository.findOne({
-          where: { id: parentScopeId, name: ILike(name), deletedAt: null },
+          where: [
+            { id: parentScopeId, name: ILike(name), deletedAt: null },
+            { id: parentScopeId, slug: ILike(slug), deletedAt: null },
+          ],
           relations: [
             "category",
             "parentSubCategory",
@@ -51,22 +63,32 @@ export async function findCategoryByName(
   if (parentCategory) return parentCategory;
   if (subParentCategory) return subParentCategory;
 
+  // Then look for a subCategory with either name or slug within scope
   return subCategoryRepository.findOne({
-    where: {
-      name: ILike(name),
-      deletedAt: null,
-      ...(categoryId && { category: { id: categoryId } }),
-      ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
-    },
+    where: [
+      {
+        name: ILike(name),
+        deletedAt: null,
+        ...(categoryId && { category: { id: categoryId } }),
+        ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
+      },
+      {
+        slug: ILike(slug),
+        deletedAt: null,
+        ...(categoryId && { category: { id: categoryId } }),
+        ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
+      },
+    ],
     relations: ["category", "parentSubCategory", "subCategories", "products"],
   });
 }
 
 /**
- * Finds a category or subcategory by name (excluding the current one) within its scope.
+ * Finds a category or subcategory by name or slug (excluding the current one) within its scope.
  *
  * @param id - ID of the entity being updated (to exclude it).
  * @param name - New name being checked.
+ * @param slug - New slug being checked (optional).
  * @param type - Either "category" or "subCategory".
  * @param categoryId - (Optional) For subcategory: the parent category ID.
  * @param parentScopeId - (Optional) For subcategory: the parent subcategory ID.
@@ -75,43 +97,52 @@ export async function findCategoryByName(
 export async function findCategoryByNameToUpdateScoped(
   id: string,
   name: string,
+  slug: string | undefined,
   type: "category" | "subCategory",
   categoryId?: string,
   parentScopeId?: string
 ): Promise<Category | SubCategory | null> {
+  const whereConditions: any[] = [
+    { name: ILike(name), id: Not(id), deletedAt: null },
+  ];
+
+  if (slug) {
+    whereConditions.push({ slug: ILike(slug), id: Not(id), deletedAt: null });
+  }
+
   if (type === "category") {
-    // Regular category name check
     return categoryRepository.findOne({
-      where: {
-        name: ILike(name),
-        id: Not(id),
-        deletedAt: null,
-      },
+      where: whereConditions,
     });
   }
 
-  // Subcategory scope-level conflict check
+  // Build subcategory scoped conditions
+  const subcategoryConditions = whereConditions.map((base) => ({
+    ...base,
+    ...(categoryId && { category: { id: categoryId } }),
+    ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
+  }));
+
   const conflict = await subCategoryRepository.findOne({
-    where: {
-      name: ILike(name),
-      id: Not(id),
-      deletedAt: null,
-      ...(categoryId && { category: { id: categoryId } }),
-      ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
-    },
+    where: subcategoryConditions,
   });
 
   if (conflict) return conflict;
 
+  // Also check children of current subcategory
   const current = await subCategoryRepository.findOne({
     where: { id, deletedAt: null },
     relations: ["subCategories"],
   });
 
   if (
-    current?.subCategories?.some(
-      (child) => child.name.toLowerCase() === name.toLowerCase()
-    )
+    current?.subCategories?.some((child) => {
+      const nameMatch = child.name.toLowerCase() === name.toLowerCase();
+      const slugMatch = slug
+        ? child.slug.toLowerCase() === slug.toLowerCase()
+        : false;
+      return nameMatch || slugMatch;
+    })
   ) {
     return current;
   }

@@ -76,7 +76,7 @@ export const updateCategory = async (
       };
     }
 
-    const { id, name, categoryType } = validationResult.data;
+    const { id, name, slug, categoryType } = validationResult.data;
 
     // Check database for category existence
     const categoryExist =
@@ -113,6 +113,7 @@ export const updateCategory = async (
     const nameConflict = await findCategoryByNameToUpdateScoped(
       id,
       name,
+      slug ? slug : undefined,
       categoryType,
       categoryId,
       parentSubCategoryId
@@ -124,8 +125,8 @@ export const updateCategory = async (
         success: false,
         message:
           categoryType === "category"
-            ? "Category with this name already exists"
-            : "Subcategory with this name already exists in parent",
+            ? "Category with this name/slug already exists"
+            : "Subcategory with this name/slug already exists in parent",
         __typename: "BaseResponse",
       };
     }
