@@ -4,6 +4,7 @@ import {
   getTagInfoByTagIdFromRedis,
   removeTagInfoByTagIdFromRedis,
   removeTagNameExistFromRedis,
+  removeTagSlugExistFromRedis,
   setTagInfoByTagIdInRedis,
 } from "../../../helper/redis";
 import { BaseResponseOrError, MutationDeleteTagArgs } from "../../../types";
@@ -18,10 +19,11 @@ import {
 } from "../../services";
 
 // Clear tag-related cache entries in Redis
-const clearTagCache = async (id: string, name: string) => {
+const clearTagCache = async (id: string, name: string, slug: string) => {
   await Promise.all([
     removeTagInfoByTagIdFromRedis(id),
     removeTagNameExistFromRedis(name),
+    removeTagSlugExistFromRedis(slug),
   ]);
 };
 
@@ -139,7 +141,7 @@ export const deleteTag = async (
     const deletedTags: string[] = [];
 
     for (const tagData of foundTags) {
-      const { id, name, deletedAt } = tagData;
+      const { id, name, slug, deletedAt } = tagData;
 
       let tagProducts;
 
@@ -174,7 +176,7 @@ export const deleteTag = async (
       // Perform soft or hard deletion based on skipTrash
       if (skipTrash) {
         await hardDeleteTag(id);
-        await clearTagCache(id, name);
+        await clearTagCache(id, name, slug);
       } else {
         if (deletedAt) {
           return {
