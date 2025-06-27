@@ -46,6 +46,7 @@ extend type CreatedBy @key(fields: "id") {
 type Category {
   id: ID!
   name: String!
+  slug: String!
   description: String
   thumbnail: String
   position: Int! # Display order/position of the category.
@@ -58,6 +59,7 @@ type Category {
 type SubCategory {
   id: ID! #
   name: String!
+  slug: String!
   description: String
   thumbnail: String
   category: Category! # The category to which this subcategory belongs.
@@ -72,6 +74,7 @@ type SubCategory {
 type CategoryDataResponse {
   id: ID!
   name: String!
+  slug: String!
   description: String
   thumbnail: String
   position: Int! # Display order/position of the category.
@@ -83,6 +86,7 @@ type CategoryDataResponse {
 type SubCategoryDataResponse {
   id: ID!
   name: String!
+  slug: String!
   description: String
   thumbnail: String
   category: ID # The category to which this subcategory belongs.

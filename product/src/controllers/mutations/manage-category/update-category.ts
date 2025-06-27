@@ -76,7 +76,7 @@ export const updateCategory = async (
       };
     }
 
-    const { id, description, name, thumbnail, categoryType } =
+    const { id, description, name, thumbnail, categoryType, slug } =
       validationResult.data;
 
     // Check database for category existence
@@ -132,12 +132,13 @@ export const updateCategory = async (
     }
 
     // Update role information in the database
-    await updateCategoryOrSubCategory(
+    const result = await updateCategoryOrSubCategory(
       id,
       {
         description,
         name,
         thumbnail,
+        slug,
       },
       categoryType === "category" ? "category" : "subCategory"
     );
@@ -148,28 +149,29 @@ export const updateCategory = async (
         success: true,
         message: "Subcategory updated successfully",
         subcategory: {
-          id: id,
-          name,
-          description,
-          thumbnail,
+          id: result.id,
+          name: result.name,
+          slug: result.slug,
+          description: result.description,
+          thumbnail: result.thumbnail,
           category: categoryId,
           parentSubCategory: parentSubCategoryId,
-          position: categoryExist.position,
-          createdBy: categoryExist.createdBy as any,
-          subCategories: categoryExist.subCategories
-            ? categoryExist.subCategories.map((subCat: any) => ({
+          position: result.position,
+          createdBy: result.createdBy as any,
+          subCategories: result.subCategories
+            ? result.subCategories.map((subCat: any) => ({
                 ...subCat,
                 category: undefined,
               }))
             : null,
           createdAt:
-            categoryExist.createdAt instanceof Date
-              ? categoryExist.createdAt.toISOString()
-              : categoryExist.createdAt,
+            result.createdAt instanceof Date
+              ? result.createdAt.toISOString()
+              : result.createdAt,
           deletedAt:
-            categoryExist.deletedAt instanceof Date
-              ? categoryExist.deletedAt.toISOString()
-              : categoryExist.deletedAt,
+            result.deletedAt instanceof Date
+              ? result.deletedAt.toISOString()
+              : result.deletedAt,
         },
         __typename: "SubCategoryResponse",
       };
@@ -179,20 +181,21 @@ export const updateCategory = async (
         success: true,
         message: "Category updated successfully",
         category: {
-          id: categoryExist.id,
-          name,
-          description,
-          thumbnail,
-          position: categoryExist.position,
-          createdBy: categoryExist.createdBy as any,
+          id: result.id,
+          name: result.name,
+          slug: result.slug,
+          description: result.description,
+          thumbnail: result.thumbnail,
+          position: result.position,
+          createdBy: result.createdBy as any,
           createdAt:
-            categoryExist.createdAt instanceof Date
-              ? categoryExist.createdAt.toISOString()
-              : categoryExist.createdAt,
+            result.createdAt instanceof Date
+              ? result.createdAt.toISOString()
+              : result.createdAt,
           deletedAt:
-            categoryExist.deletedAt instanceof Date
-              ? categoryExist.deletedAt.toISOString()
-              : categoryExist.deletedAt,
+            result.deletedAt instanceof Date
+              ? result.deletedAt.toISOString()
+              : result.deletedAt,
         },
         __typename: "CategoryResponse",
       };

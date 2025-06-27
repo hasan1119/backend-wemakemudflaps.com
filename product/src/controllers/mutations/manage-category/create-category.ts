@@ -74,8 +74,14 @@ export const createCategory = async (
       };
     }
 
-    const { categoryId, description, name, parentSubCategoryId, thumbnail } =
-      validationResult.data;
+    const {
+      categoryId,
+      description,
+      name,
+      parentSubCategoryId,
+      thumbnail,
+      slug,
+    } = validationResult.data;
 
     // Check database for category existence
     const categoryExists = await findCategoryByName(
@@ -138,6 +144,7 @@ export const createCategory = async (
         name,
         parentSubCategoryId,
         thumbnail,
+        slug,
       },
       user.id
     );
@@ -151,6 +158,7 @@ export const createCategory = async (
       categoryResponse = {
         id: categoryResult.id,
         name: categoryResult.name,
+        slug: categoryResult.slug,
         description: categoryResult.description,
         thumbnail: categoryResult.thumbnail,
         position: categoryResult.position,
@@ -169,6 +177,7 @@ export const createCategory = async (
       categoryResponse = {
         id: categoryResult.id,
         name: categoryResult.name,
+        slug: categoryResult.slug,
         description: categoryResult.description,
         thumbnail: categoryResult.thumbnail,
         position: categoryResult.position,

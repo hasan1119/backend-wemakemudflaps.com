@@ -67,6 +67,7 @@ const mapSubCategory = async (
   return {
     id: subCat.id,
     name: subCat.name,
+    slug: subCat.slug,
     description: subCat.description || null,
     thumbnail: subCat.thumbnail || null,
     position: subCat.position,
@@ -179,6 +180,7 @@ export const getAllCategories = async (
         return {
           id: cat.id,
           name: cat.name,
+          slug: cat.slug,
           description: cat.description || null,
           thumbnail: cat.thumbnail || null,
           position: cat.position,

@@ -22,8 +22,14 @@ export const createCategoryOrSubCategory = async (
   data: MutationCreateCategoryArgs,
   userId?: string
 ): Promise<Category | SubCategory> => {
-  const { categoryId, description, name, parentSubCategoryId, thumbnail } =
-    data ?? {};
+  const {
+    categoryId,
+    description,
+    name,
+    parentSubCategoryId,
+    thumbnail,
+    slug,
+  } = data ?? {};
 
   if (parentSubCategoryId) {
     // Create nested SubCategory
@@ -39,6 +45,7 @@ export const createCategoryOrSubCategory = async (
 
     const subCategory = subCategoryRepository.create({
       name: name,
+      slug: slug,
       description: description ?? null,
       thumbnail: thumbnail ?? null,
       createdBy: userId ?? null,
@@ -64,6 +71,7 @@ export const createCategoryOrSubCategory = async (
 
     const subCategory = subCategoryRepository.create({
       name: name,
+      slug: slug,
       description: description ?? null,
       thumbnail: thumbnail ?? null,
       createdBy: userId ?? null,
@@ -84,6 +92,7 @@ export const createCategoryOrSubCategory = async (
 
     const category = categoryRepository.create({
       name: name,
+      slug: slug,
       description: description ?? null,
       thumbnail: thumbnail ?? null,
       createdBy: userId ?? null,

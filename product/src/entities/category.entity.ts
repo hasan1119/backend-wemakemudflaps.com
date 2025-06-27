@@ -15,6 +15,10 @@ export class Category {
   @Column({ unique: true })
   name: string;
 
+  // Category slug
+  @Column({ type: "text" })
+  slug: string;
+
   // Category description
   @Column({ type: "text", nullable: true, default: null })
   description: string | null;

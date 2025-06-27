@@ -22,6 +22,10 @@ export class SubCategory {
   @Column()
   name: string;
 
+  // Sub category slug
+  @Column({ type: "text" })
+  slug: string;
+
   // Sub category description
   @Column({ type: "text", nullable: true, default: null })
   description: string | null;

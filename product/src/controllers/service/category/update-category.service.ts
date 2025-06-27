@@ -1,9 +1,10 @@
-import { Category } from "../../../entities/category.entity";
-import { SubCategory } from "../../../entities/sub-category.entity";
+import { Category, SubCategory } from "../../../entities";
+import { MutationUpdateCategoryArgs } from "../../../types";
 import {
   categoryRepository,
   subCategoryRepository,
 } from "../repositories/repositories";
+import { getCategoryById, getSubCategoryById } from "./get-category.service";
 
 interface UpdatePositionOptions {
   categoryId?: string;
@@ -180,12 +181,6 @@ export const updatePosition = async (
   });
 };
 
-type UpdateData = {
-  name?: string;
-  description?: string | null;
-  thumbnail?: string | null;
-};
-
 /**
  * Updates Category or SubCategory fields: name, description, thumbnail.
  *
@@ -203,9 +198,9 @@ type UpdateData = {
  */
 export async function updateCategoryOrSubCategory(
   id: string,
-  data: UpdateData,
+  data: MutationUpdateCategoryArgs,
   type: "category" | "subCategory"
-): Promise<void> {
+): Promise<Category | SubCategory> {
   const repository = (
     type === "category" ? categoryRepository : subCategoryRepository
   ) as import("typeorm").Repository<Category | SubCategory>;
@@ -213,7 +208,10 @@ export async function updateCategoryOrSubCategory(
   // Step 2.5: Directly update the entity in the database
   await repository.update(id, {
     ...(data.name !== undefined && { name: data.name }),
+    ...(data.slug !== undefined && { slug: data.slug }),
     ...(data.description !== undefined && { description: data.description }),
     ...(data.thumbnail !== undefined && { thumbnail: data.thumbnail }),
   });
+
+  return type === "category" ? getCategoryById(id) : getSubCategoryById(id);
 }

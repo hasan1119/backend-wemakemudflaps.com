@@ -5,6 +5,7 @@ type Mutation {
   createCategory(
     thumbnail: String # Optional thumbnail image URL for the category.
     name: String! # Name of the category to create (must be unique).
+    slug: String! # Slug of the category to create.
     description: String # Optional description for the role.
     categoryId: String # Optional ID of the parent category if this is a sub-category.,
     parentSubCategoryId: String # Optional ID of the parent sub-category if this is a sub-category.
@@ -15,6 +16,7 @@ type Mutation {
   updateCategory(
     id: ID! # ID of the category to update.
     thumbnail: String # Optional new thumbnail image URL for the category/sub category.
+    slug: String # Optional updated Slug of the category/sub category.
     name: String # Optional updated name of the category/sub category.
     description: String # Optional updated description for the category/sub category.
     categoryType: CategoryType!

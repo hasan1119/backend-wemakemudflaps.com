@@ -8,6 +8,10 @@ export const createCategorySchema = z
       .string()
       .min(3, "Category name must be at least 3 characters")
       .trim(),
+    slug: z
+      .string()
+      .min(3, "Category slug must be at least 3 characters")
+      .trim(),
     description: z
       .string()
       .min(3, "Category description must be at least 3 characters")
@@ -47,6 +51,11 @@ export const updateCategorySchema = z.object({
   name: z
     .string()
     .min(3, "Category name must be at least 3 characters")
+    .trim()
+    .optional(),
+  slug: z
+    .string()
+    .min(3, "Category slug must be at least 3 characters")
     .trim()
     .optional(),
   description: z
