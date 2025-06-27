@@ -74,3 +74,52 @@ export {
   updateCategoryOrSubCategory,
   updatePosition,
 } from "./category/update-category.service";
+
+/**
+ * Exports services for creating tag.
+ *
+ * Workflow:
+ * 1. Provides a function to create either a tag based on input.
+ */
+export { createTag } from "./tag/create-tag.service";
+
+/**
+ * Exports services for deleting tags.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export { hardDeleteTag, softDeleteTag } from "./tag/delete-tag.service";
+
+/**
+ * Exports services for fetching and counting tags.
+ *
+ * Workflow:
+ * 1. Provides counting of tags matching optional search criteria.
+ * 2. Provides functions to fetch tag by ID/name with relations.
+ * 3. Supports paginated retrieval of tags.
+ */
+export {
+  countProductsForTag,
+  countTagsWithSearch,
+  findTagByName,
+  getTagById,
+  getTagsByIds,
+  paginateTags,
+} from "./tag/get-tag.service";
+
+/**
+ * Exports service for restoring soft-deleted tags by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { restoreTag } from "./tag/restore-tag.service";
+
+/**
+ * Exports services for updating categories and subcategories.
+ *
+ * Workflow:
+ * 1. Provides functions to update basic fields (name, slug).
+ */
+export { updateTag } from "./tag/update-tag.service";
