@@ -160,17 +160,10 @@ export async function getSubCategoryById(
 interface GetPaginatedCategoriesInput {
   page: number;
   limit: number;
-  search?: string;
-  sortBy: keyof typeof sortFields;
+  search?: string | null;
+  sortBy?: string | null;
   sortOrder: "asc" | "desc";
 }
-
-// Define allowed sortable fields for safety (optional)
-const sortFields = {
-  name: true,
-  createdAt: true,
-  position: true,
-};
 
 /**
  * Handles pagination of categories including their subCategories.
