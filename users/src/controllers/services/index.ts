@@ -71,11 +71,7 @@ export { checkUserAuth } from "./session-check/session-check";
  * 3. Supports counting users assigned to roles and restoring soft-deleted roles.
  */
 export { createRole } from "./role/create-role.service";
-export {
-  hardDeleteRole,
-  restoreRole,
-  softDeleteRole,
-} from "./role/delete-role.service";
+export { hardDeleteRole, softDeleteRole } from "./role/delete-role.service";
 export {
   countRolesWithSearch,
   countUsersWithRole,
@@ -85,6 +81,7 @@ export {
   getRolesByIds,
   paginateRoles,
 } from "./role/get-role.service";
+export { restoreRole } from "./role/restore-role.service";
 export { updateRoleInfo } from "./role/update-role.service";
 
 /**
