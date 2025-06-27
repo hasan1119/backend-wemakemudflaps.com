@@ -46,4 +46,35 @@ type Mutation {
     id: ID!
     categoryType: CategoryType! # "category" or "subcategory"
   ): RestoreCategoryResponseOrError
+
+  # Create a new tag.
+  # Only accessible by authorized users.
+  createTag(
+    name: String! # Unique name of the tag to create.
+    slug: String! # Slug for the tag.
+    description: String # Optional description for the tag.
+    thumbnail: String # Optional thumbnail image URL for the tag.
+  ): CreateTagResponseOrError!
+
+  # Update an existing tag.
+  # Only accessible by authorized users.
+  updateTag(
+    id: ID! # ID of the tag to update.
+    name: String # Optional updated name of the tag.
+    slug: String # Optional updated slug of the tag.
+    description: String # Optional updated description for the tag.
+    thumbnail: String # Optional updated thumbnail image URL for the tag.
+  ): UpdateTagResponseOrError!
+
+  # Deletes a tag by ID.
+  # Performs a soft delete by default (marks as deleted).
+  # If skipTrash is true, performs a permanent delete.
+  # Only accessible by authorized users.
+  deleteTag(id: ID!, skipTrash: Boolean): DeleteTagResponseOrError!
+
+  # Mutation to restore a soft-deleted tag.
+  # Only accessible by authorized users.
+  restoreTag(
+    ids: [ID!]! # List of soft-deleted role IDs to be restored.
+  ): RestoreTagResponseOrError!
 }

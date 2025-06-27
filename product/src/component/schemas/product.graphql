@@ -98,6 +98,17 @@ type SubCategoryDataResponse {
   deletedAt: String
 }
 
+# ---------------------- Tag Types ----------------------
+
+type Tag {
+  id: ID!
+  name: String!
+  slug: String!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
 # ---------------------- Product Types ----------------------
 
 type Product @key(fields: "id") {
@@ -138,12 +149,29 @@ type SubCategoryResponseById {
   subcategory: SubCategoryDataResponse!
 }
 
-# Response for fetching a categories.
+# Response for fetching a categories list.
 type CategoryPaginationResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
   category: [Category!]!
+  total: Int!
+}
+
+# Response for fetching a tag.
+type TagResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  tag: Tag!
+}
+
+# Response for fetching a tags list.
+type TagPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  tags: [Tag!]!
   total: Int!
 }
 
@@ -158,6 +186,9 @@ union CreateCategoryResponseOrError =
   | CategoryResponse
   | SubCategoryResponse
   | ErrorResponse
+
+# Union when creating a tag.
+union CreateTagResponseOrError = BaseResponse | TagResponse | ErrorResponse
 
 # Union when fetching category by ID.
 union GetCategoryByIDResponseOrError =
@@ -177,6 +208,15 @@ union GetCategoriesResponseOrError =
   | CategoryPaginationResponse
   | ErrorResponse
 
+# Union when fetching tag by ID.
+union GetTagByIDResponseOrError = BaseResponse | TagResponse | ErrorResponse
+
+# Union for retrieving multiple tags.
+union GetTagsResponseOrError =
+    BaseResponse
+  | TagPaginationResponse
+  | ErrorResponse
+
 # Union when updating a category/sub category by ID.
 union UpdateCategoryResponseOrError =
     BaseResponse
@@ -184,15 +224,24 @@ union UpdateCategoryResponseOrError =
   | SubCategoryResponse
   | ErrorResponse
 
-# Union when updating a category/sub category position by ID.
+# Union when updating a tag by ID.
+union UpdateTagResponseOrError = BaseResponse | TagResponse | ErrorResponse
+
+# Union when updating a category/sub category by ID.
 union UpdateCategoryPositionResponseOrError =
     BaseResponse
   | CategoryResponse
   | SubCategoryResponse
   | ErrorResponse
 
-# Union when deleting a category/sub category position by ID.
+# Union when deleting a category/sub category by ID.
 union DeleteCategoryResponseOrError = BaseResponse | ErrorResponse
+
+# Union when deleting a tag by ID.
+union DeleteTagResponseOrError = BaseResponse | ErrorResponse
 
 # Union response for restoring a category/subcategory
 union RestoreCategoryResponseOrError = BaseResponse | ErrorResponse
+
+# Union response for restoring a tag
+union RestoreTagResponseOrError = BaseResponse | ErrorResponse
