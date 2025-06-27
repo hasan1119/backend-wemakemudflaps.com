@@ -104,6 +104,7 @@ export {
   countTagsWithSearch,
   findTagByName,
   findTagByNameToUpdate,
+  findTagBySlug,
   findTagBySlugToUpdate,
   getTagById,
   getTagsByIds,

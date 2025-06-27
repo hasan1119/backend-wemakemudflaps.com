@@ -114,7 +114,7 @@ export const restoreUserRole = async (
         return {
           statusCode: 404,
           success: false,
-          message: `Roles with IDs ${notFoundNames.join(", ")} not found`,
+          message: `Roles with names: ${notFoundNames.join(", ")} not found`,
           __typename: "BaseResponse",
         };
       }
@@ -127,7 +127,7 @@ export const restoreUserRole = async (
       return {
         statusCode: 400,
         success: false,
-        message: `Roles with IDs ${nonDeleted
+        message: `Roles with IDs: ${nonDeleted
           .map((r) => r.id)
           .join(", ")} are not in the trash`,
         __typename: "BaseResponse",

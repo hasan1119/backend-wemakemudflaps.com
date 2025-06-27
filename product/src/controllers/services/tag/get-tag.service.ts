@@ -36,6 +36,22 @@ export const findTagByName = async (name: string): Promise<Tag | null> => {
 };
 
 /**
+ * Finds a Tag entity by its slug (case-insensitive).
+ *
+ * @param slug - The slug of the tag to find.
+ * @returns A promise resolving to the Tag entity or null if not found.
+ */
+export const findTagBySlug = async (slug: string): Promise<Tag | null> => {
+  return await tagRepository.findOne({
+    where: {
+      slug: ILike(slug),
+      deletedAt: null,
+    },
+    relations: ["products"],
+  });
+};
+
+/**
  * Finds a Tag entity by its name (case-insensitive) to update tag info.
  *
  * @param id - The UUID of the tag.

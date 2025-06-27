@@ -80,7 +80,7 @@ export const getTagById = async (
       return {
         statusCode: 404,
         success: false,
-        message: `Tag not found with this id: ${id} or has been deleted`,
+        message: `Tag not found with this id: ${id}, or it may have been deleted or moved to the trash`,
         __typename: "BaseResponse",
       };
     }
@@ -93,7 +93,7 @@ export const getTagById = async (
         return {
           statusCode: 404,
           success: false,
-          message: `Tag not found with this id: ${id} or has been deleted`,
+          message: `Tag not found with this id: ${id}, or it may have been deleted or moved to the trash`,
           __typename: "BaseResponse",
         };
       }

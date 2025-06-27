@@ -94,7 +94,7 @@ export const updateTag = async (
       return {
         statusCode: 404,
         success: false,
-        message: `Tag not found with this id: ${id} or has been deleted`,
+        message: `Tag not found with this id: ${id}, or it may have been deleted or moved to the trash`,
         __typename: "BaseResponse",
       };
     }
@@ -105,7 +105,7 @@ export const updateTag = async (
         return {
           statusCode: 404,
           success: false,
-          message: `Tag not found with this id: ${id} or has been deleted`,
+          message: `Tag not found with this id: ${id}, or it may have been deleted or moved to the trash`,
           __typename: "BaseResponse",
         };
       }
@@ -118,10 +118,12 @@ export const updateTag = async (
       nameExists = await getTagNameExistFromRedis(name);
 
       if (!nameExists) {
-        nameExists = findTagByNameToUpdate(id, name);
+        nameExists = await findTagByNameToUpdate(id, name);
       }
 
       if (nameExists) {
+        await setTagNameExistInRedis(name);
+
         return {
           statusCode: 400,
           success: false,
@@ -138,10 +140,12 @@ export const updateTag = async (
       slugExists = await getTagSlugExistFromRedis(slug);
 
       if (!slugExists) {
-        slugExists = findTagBySlugToUpdate(id, slug);
+        slugExists = await findTagBySlugToUpdate(id, slug);
       }
 
       if (slugExists) {
+        await setTagSlugExistInRedis(slug);
+
         return {
           statusCode: 400,
           success: false,

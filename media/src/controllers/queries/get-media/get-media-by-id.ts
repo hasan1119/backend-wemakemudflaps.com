@@ -82,7 +82,7 @@ export const getMediaById = async (
       return {
         statusCode: 404,
         success: false,
-        message: `Media not found with this id: ${id} or has been deleted`,
+        message: `Media not found with this id: ${id}, or it may have been deleted or moved to the trash`,
         __typename: "BaseResponse",
       };
     }
@@ -95,7 +95,7 @@ export const getMediaById = async (
         return {
           statusCode: 404,
           success: false,
-          message: `Media not found with this id: ${id} or has been deleted`,
+          message: `Media not found with this id: ${id}, or it may have been deleted or moved to the trash`,
           __typename: "ErrorResponse",
         };
       }

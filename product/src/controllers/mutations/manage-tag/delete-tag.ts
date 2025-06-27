@@ -30,7 +30,6 @@ const clearTagCache = async (id: string, name: string, slug: string) => {
 // Perform soft delete and update cache
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteTag(id);
-
   setTagInfoByTagIdInRedis(id, deletedData);
 };
 
@@ -160,7 +159,7 @@ export const deleteTag = async (
         // Attempt DB fallback to count products by tag
         productCount = await countProductsForTag(id);
       } else {
-        productCount = tagProducts.products.length;
+        productCount = tagProducts?.products.length;
       }
 
       // Prevent deletion if tag is in use

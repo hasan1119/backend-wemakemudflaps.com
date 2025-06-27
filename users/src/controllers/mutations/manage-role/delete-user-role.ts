@@ -38,11 +38,11 @@ const clearRoleCache = async (id: string, name: string) => {
 };
 
 // Perform soft delete and update cache
-const softDeleteAndCache = async (id: string) => {
+const softDeleteAndCache = async (id: string, name: string) => {
   const deletedData = await softDeleteRole(id);
   await Promise.all([
     setRoleInfoByRoleIdInRedis(id, deletedData),
-    setRoleInfoByRoleNameInRedis(id, deletedData),
+    setRoleInfoByRoleNameInRedis(name, deletedData),
   ]);
 };
 
@@ -256,7 +256,7 @@ export const deleteUserRole = async (
           };
         }
 
-        await softDeleteAndCache(id);
+        await softDeleteAndCache(id, name);
       }
 
       deletedRoles.push(name);

@@ -6,6 +6,7 @@ import {
   restoreCategory,
   updateCategory,
   updateCategoryPosition,
+  updateTag,
 } from "../../controllers";
 import { createProduct } from "../../controllers/mutations/manage-product/create-product";
 
@@ -48,6 +49,11 @@ export const productMutationsResolver = {
      * Creates a new tag.
      */
     createTag,
+
+    /**
+     * Updates detailed information for a specific tag.
+     */
+    updateTag,
 
     /**
      * Deletes specified tag from the system.

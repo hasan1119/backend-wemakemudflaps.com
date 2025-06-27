@@ -2,8 +2,10 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   getTagNameExistFromRedis,
+  getTagSlugExistFromRedis,
   setTagInfoByTagIdInRedis,
   setTagNameExistInRedis,
+  setTagSlugExistInRedis,
 } from "../../../helper/redis";
 import {
   CreateTagResponseOrError,
@@ -15,6 +17,7 @@ import {
   checkUserPermission,
   createTag as createTagService,
   findTagByName,
+  findTagBySlug,
 } from "../../services";
 
 /**
@@ -95,7 +98,7 @@ export const createTag = async (
         return {
           statusCode: 400,
           success: false,
-          message: "A tag with this name already exists",
+          message: `A tag with this ${name} already exists`,
           __typename: "BaseResponse",
         };
       }
@@ -103,7 +106,34 @@ export const createTag = async (
       return {
         statusCode: 400,
         success: false,
-        message: "A tag with this name already exists",
+        message: `A tag with this ${name} already exists`,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Attempt to check for existing tag slug in Redis
+    let tagSlug = await getTagSlugExistFromRedis(slug);
+
+    if (!tagSlug) {
+      // On cache miss, check database for tag existence
+      const existingSlugTag = await findTagBySlug(name);
+
+      if (existingSlugTag) {
+        // Cache tag existence in Redis
+        await setTagSlugExistInRedis(name);
+
+        return {
+          statusCode: 400,
+          success: false,
+          message: `A tag with this ${slug} already exists`,
+          __typename: "BaseResponse",
+        };
+      }
+    } else {
+      return {
+        statusCode: 400,
+        success: false,
+        message: `A tag with this ${slug} already exists`,
         __typename: "BaseResponse",
       };
     }
@@ -115,6 +145,7 @@ export const createTag = async (
     await Promise.all([
       setTagInfoByTagIdInRedis(tag.id, tag),
       setTagNameExistInRedis(tag.name),
+      setTagSlugExistInRedis(tag.slug),
     ]);
 
     return {
