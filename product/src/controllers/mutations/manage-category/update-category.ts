@@ -76,8 +76,7 @@ export const updateCategory = async (
       };
     }
 
-    const { id, description, name, thumbnail, categoryType, slug } =
-      validationResult.data;
+    const { id, name, categoryType } = validationResult.data;
 
     // Check database for category existence
     const categoryExist =
