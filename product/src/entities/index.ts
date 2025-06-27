@@ -119,6 +119,14 @@ export { ShippingClass } from "./shipping-class.entity";
 export { SubCategory } from "./sub-category.entity";
 
 /**
+ * Exports the Tag entity for defining different tag groups.
+ *
+ * Workflow:
+ * 1. Manages tags and assignments to products.
+ */
+export { Tag } from "./tag.entity";
+
+/**
  * Exports the TaxClass entity for defining different tax groups.
  *
  * Workflow:

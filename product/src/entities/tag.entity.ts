@@ -2,27 +2,27 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Product } from "./product.entity";
 
 @Entity()
-export class Brand {
+export class Tag {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // Unique name of the brand
+  // Unique name of the tag
   @Column({ unique: true })
   name: string;
 
-  // Brand slug
+  // Tag slug
   @Column({ type: "text" })
   slug: string;
 
-  // One brand can be associated with multiple products
-  @OneToMany(() => Product, (product) => product.brand)
+  // One tag can be associated with multiple products
+  @OneToMany(() => Product, (product) => product.tags)
   products: Product[];
 
-  // User ID who created the brand (string only for Apollo Federation compatibility)
+  // User ID who created the tag (string only for Apollo Federation compatibility)
   @Column()
   createdBy: string;
 
-  // Timestamp when the brand was created (auto-generated)
+  // Timestamp when the tag was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 

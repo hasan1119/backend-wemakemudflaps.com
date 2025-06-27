@@ -16,6 +16,7 @@ import { ProductPrice } from "./product-price.entity";
 import { ProductVariation } from "./product-variation.entity";
 import { ShippingClass } from "./shipping-class.entity";
 import { SubCategory } from "./sub-category.entity";
+import { Tag } from "./tag.entity";
 import { TaxClass } from "./tax-class.entity";
 import { TaxStatus } from "./tax-status.entity";
 
@@ -56,6 +57,14 @@ export class Product {
   })
   @JoinColumn({ name: "product_brand" })
   brand: Promise<Brand> | null;
+
+  // Associated tags for the product
+  @ManyToOne(() => Tag, (tag) => tag.products, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "product_tags" })
+  tags: Tag[] | null;
 
   // Main product description
   @Column({ type: "text" })
