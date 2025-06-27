@@ -2,12 +2,14 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   getRoleInfoByRoleIdFromRedis,
+  getRoleNameExistFromRedis,
   getUserInfoByEmailFromRedis,
   removeUserInfoByEmailFromRedis,
   removeUserInfoByUserIdInRedis,
   removeUserTokenInfoByUserSessionIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
+  setRoleNameExistInRedis,
 } from "../../../helper/redis";
 import {
   MutationUpdateUserRoleInfoArgs,
@@ -19,6 +21,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   deleteUserLoginInfoByUserIds,
+  findRoleByNameToUpdate,
   getRoleById,
   getUsersLoginInfoByUserIds,
   updateRoleInfo,
@@ -139,15 +142,6 @@ export const updateUserRoleInfo = async (
 
     roleData = await getRoleInfoByRoleIdFromRedis(id);
 
-    if (roleData?.deletedAt) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: `Role not found with this id: ${id} , or it may have been deleted or moved to the trash.`,
-        __typename: "BaseResponse",
-      };
-    }
-
     if (!roleData) {
       // On cache miss, fetch role data from database
       roleData = await getRoleById(id);
@@ -156,7 +150,7 @@ export const updateUserRoleInfo = async (
         return {
           statusCode: 404,
           success: false,
-          message: `Role not found with this id: ${id} , or it may have been deleted or moved to the trash.`,
+          message: `Role not found with this id: ${id}, or it may have been deleted or moved to the trash.`,
           __typename: "BaseResponse",
         };
       }
@@ -215,6 +209,28 @@ export const updateUserRoleInfo = async (
         message: `You cannot modify system protection flags for the role: ${roleData.name}. Only a Super Admin can change them.`,
         __typename: "BaseResponse",
       };
+    }
+
+    // Check for duplicate name (if changed)
+    if (name && name !== roleData.name) {
+      let nameExists;
+
+      nameExists = await getRoleNameExistFromRedis(name);
+
+      if (!nameExists) {
+        nameExists = await findRoleByNameToUpdate(id, name);
+      }
+
+      if (nameExists) {
+        await setRoleNameExistInRedis(name);
+
+        return {
+          statusCode: 400,
+          success: false,
+          message: `Role name: "${name}" already exists`,
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Prevent updates to soft-deleted roles

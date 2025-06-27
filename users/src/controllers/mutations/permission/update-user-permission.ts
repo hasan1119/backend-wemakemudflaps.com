@@ -136,7 +136,7 @@ export const updateUserPermission = async (
       return {
         statusCode: 404,
         success: false,
-        message: `User with ID ${userId} not found , or it may have been deleted or moved to the trash.`,
+        message: `User with ID ${userId} not found, or it may have been deleted or moved to the trash.`,
         __typename: "BaseResponse",
       };
     }
