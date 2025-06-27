@@ -15,7 +15,7 @@ import {
   checkUserPermission,
   createTag as createTagService,
   findTagByName,
-} from "../../service";
+} from "../../services";
 
 /**
  * Handles the creation of a new tag in the system.
@@ -110,8 +110,6 @@ export const createTag = async (
 
     // Create the tag in the database
     const tag = await createTagService({ name, slug }, user.id);
-
-    delete tag.products;
 
     // Cache tag information and existence in Redis
     await Promise.all([

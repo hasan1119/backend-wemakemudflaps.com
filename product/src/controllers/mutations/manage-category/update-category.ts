@@ -13,7 +13,7 @@ import {
   getCategoryById,
   getSubCategoryById,
   updateCategoryOrSubCategory,
-} from "../../service";
+} from "../../services";
 
 /**
  * Handles updating an existing category information with validation and permission checks.

@@ -24,7 +24,7 @@ export { getSubCategoryById } from "./queries/category/get-sub-category-by-id";
  * 3. Facilitates listing all tags in the system.
  */
 export { createTag } from "./mutations/manage-tag/create-tag";
-// export { deleteTag } from "./mutations/manage-tag/delete-tag";
+export { deleteTag } from "./mutations/manage-tag/delete-tag";
 // export { restoreTag } from "./mutations/manage-tag/restore-tag";
 // export { updateTag } from "./mutations/manage-tag/update-tag";
 export { getTagById } from "./queries/tag/get-tag-by-id";

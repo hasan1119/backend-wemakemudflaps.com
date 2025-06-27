@@ -15,7 +15,7 @@ import {
   getSubCategoryById,
   hardDeleteCategoryOrSubCategory,
   softDeleteCategoryOrSubCategory,
-} from "../../service";
+} from "../../services";
 
 /**
  * GraphQL Mutation Resolver to delete a category or subcategory.

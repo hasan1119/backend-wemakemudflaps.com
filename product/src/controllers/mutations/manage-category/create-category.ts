@@ -12,7 +12,7 @@ import {
   findCategoryByName,
   getCategoryById,
   getSubCategoryById,
-} from "../../service";
+} from "../../services";
 
 /**
  * Handles the creation of a new category for product in the system.

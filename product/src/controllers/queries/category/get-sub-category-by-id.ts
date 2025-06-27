@@ -9,7 +9,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   getSubCategoryById as getSubCategoryByIdService,
-} from "../../service";
+} from "../../services";
 
 /**
  * Handles retrieving a sub category by its ID with validation and permission checks.

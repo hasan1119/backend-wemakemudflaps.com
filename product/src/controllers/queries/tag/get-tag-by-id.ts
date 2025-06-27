@@ -10,7 +10,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   getTagById as getTagByIdService,
-} from "../../service";
+} from "../../services";
 
 /**
  * Handles retrieving a tag by its ID with validation and permission checks.
@@ -76,6 +76,15 @@ export const getTagById = async (
     // Attempt to retrieve cached tag data from Redis
     let tagData = await getTagInfoByTagIdFromRedis(id);
 
+    if (tagData.deletedAt) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: `Tag not found with this id: ${id} or has been deleted`,
+        __typename: "BaseResponse",
+      };
+    }
+
     if (!tagData) {
       // On cache miss, fetch tag data from database
       const dbTag = await getTagByIdService(id);
@@ -84,12 +93,10 @@ export const getTagById = async (
         return {
           statusCode: 404,
           success: false,
-          message: "Tag not found",
+          message: `Tag not found with this id: ${id} or has been deleted`,
           __typename: "BaseResponse",
         };
       }
-
-      delete dbTag.products;
 
       // Cache tag data in Redis
       await setTagInfoByTagIdInRedis(id, dbTag);

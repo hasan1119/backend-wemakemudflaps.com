@@ -9,7 +9,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   restoreCategoryOrSubCategoryById,
-} from "../../service";
+} from "../../services";
 
 /**
  * GraphQL Mutation Resolver to restore a soft-deleted category or subcategory.

@@ -48,7 +48,7 @@ export const findTagByName = async (name: string): Promise<Tag | null> => {
  */
 export const getTagById = async (id: string): Promise<Tag | null> => {
   return await tagRepository.findOne({
-    where: { id },
+    where: { id, deletedAt: null },
     relations: ["products"],
   });
 };

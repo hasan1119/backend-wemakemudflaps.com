@@ -13,8 +13,8 @@ import {
   checkUserAuth,
   checkUserPermission,
   paginateCategories,
-} from "../../service";
-import { subCategoryRepository } from "../../service/repositories/repositories";
+} from "../../services";
+import { subCategoryRepository } from "../../services/repositories/repositories";
 
 // Combine pagination and sorting schemas for validation
 const combinedSchema = z.intersection(paginationSchema, categorySortingSchema);

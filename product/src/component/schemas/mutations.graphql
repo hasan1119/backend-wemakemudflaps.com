@@ -62,11 +62,11 @@ type Mutation {
     slug: String # Optional updated slug of the tag.
   ): UpdateTagResponseOrError!
 
-  # Deletes a tag by ID.
+  # Deletes a tag by IDs.
   # Performs a soft delete by default (marks as deleted).
   # If skipTrash is true, performs a permanent delete.
   # Only accessible by authorized users.
-  deleteTag(id: ID!, skipTrash: Boolean): DeleteTagResponseOrError!
+  deleteTag(ids: [ID]!, skipTrash: Boolean!): DeleteTagResponseOrError!
 
   # Mutation to restore a soft-deleted tag.
   # Only accessible by authorized users.

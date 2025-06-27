@@ -12,7 +12,7 @@ import {
   getCategoryById,
   getSubCategoryById,
   updatePosition,
-} from "../../service";
+} from "../../services";
 
 /**
  * Handles updating an existing category position with validation and permission checks.

@@ -17,7 +17,7 @@ import {
   checkUserPermission,
   countTagsWithSearch,
   paginateTags,
-} from "../../service";
+} from "../../services";
 
 // Combine pagination and sorting schemas for validation
 const combinedSchema = z.intersection(paginationSchema, tagsSortingSchema);
