@@ -1,4 +1,19 @@
 /**
+ * Exports utilities for managing tag session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting and setting.
+ */
+export {
+  getTagInfoByTagIdFromRedis,
+  getTagNameExistFromRedis,
+  removeTagInfoByTagIdFromRedis,
+  removeTagNameExistFromRedis,
+  setTagInfoByTagIdInRedis,
+  setTagNameExistInRedis,
+} from "./utils/tag/manage-tag-session";
+
+/**
  * Exports utilities for managing user session data in Redis.
  *
  * Workflow:

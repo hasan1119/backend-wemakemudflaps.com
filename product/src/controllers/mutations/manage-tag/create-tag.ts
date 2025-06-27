@@ -1,6 +1,11 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  getTagNameExistFromRedis,
+  setTagInfoByTagIdInRedis,
+  setTagNameExistInRedis,
+} from "../../../helper/redis";
+import {
   CreateTagResponseOrError,
   MutationCreateTagArgs,
 } from "../../../types";
@@ -13,19 +18,21 @@ import {
 } from "../../service";
 
 /**
- * Handles the creation of a new tag.
+ * Handles the creation of a new tag in the system.
  *
  * Workflow:
- * 1. Verifies user authentication and authorization to create tags.
- * 2. Validates input using Zod schema.
- * 3. Checks if a tag with the same name already exists.
- * 4. Creates and stores the new tag in the database.
- * 5. Returns the created tag or an appropriate error response.
+ * 1. Verifies user authentication and permission to create tags.
+ * 2. Validates input (name, slug) using Zod schema.
+ * 3. Checks Redis for existing tag name to prevent duplicates.
+ * 4. Queries the database for tag existence if not found in Redis.
+ * 5. Creates the tag in the database with audit information from the authenticated user.
+ * 6. Caches the new tag and its name existence in Redis for future requests.
+ * 7. Returns a success response or error if validation, permission, or creation fails.
  *
- * @param _ - Unused parent resolver param.
- * @param args - Input arguments for creating a tag (name, slug).
- * @param context - GraphQL context containing authenticated user.
- * @returns A union response containing either the created tag or an error.
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing tag name and slug.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
  */
 export const createTag = async (
   _: any,
@@ -74,9 +81,25 @@ export const createTag = async (
 
     const { name, slug } = result.data;
 
-    // Check database for tag existence
-    const existingTag = await findTagByName(name);
-    if (existingTag) {
+    // Attempt to check for existing tag in Redis
+    let tagExists = await getTagNameExistFromRedis(name);
+
+    if (!tagExists) {
+      // On cache miss, check database for tag existence
+      const existingTag = await findTagByName(name);
+
+      if (existingTag) {
+        // Cache tag existence in Redis
+        await setTagNameExistInRedis(name);
+
+        return {
+          statusCode: 400,
+          success: false,
+          message: "A tag with this name already exists",
+          __typename: "BaseResponse",
+        };
+      }
+    } else {
       return {
         statusCode: 400,
         success: false,
@@ -87,6 +110,12 @@ export const createTag = async (
 
     // Create the tag in the database
     const tag = await createTagService({ name, slug }, user.id);
+
+    // Cache tag information and existence in Redis
+    await Promise.all([
+      setTagInfoByTagIdInRedis(tag.id, tag),
+      setTagNameExistInRedis(tag.name),
+    ]);
 
     return {
       statusCode: 201,
