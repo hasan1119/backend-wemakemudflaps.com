@@ -89,7 +89,7 @@ export { createTag } from "./tag/create-tag.service";
  * Workflow:
  * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
  */
-export { hardDeleteTags, softDeleteTags } from "./tag/delete-tag.service";
+export { hardDeleteTag, softDeleteTag } from "./tag/delete-tag.service";
 
 /**
  * Exports services for fetching and counting tags.
