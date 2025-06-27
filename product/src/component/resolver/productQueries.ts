@@ -2,6 +2,7 @@ import {
   getAllCategories,
   getCategoryById,
   getSubCategoryById,
+  getTagById,
 } from "../../controllers";
 import { getProduct } from "../../controllers/queries/product/get-product";
 
@@ -40,6 +41,11 @@ export const productQueriesResolver = {
      * Fetches a paginated list of all categories in the system.
      */
     getAllCategories,
+
+    /**
+     * Retrieves detailed information for a tag by their unique ID.
+     */
+    getTagById,
   },
 
   // Reuse resolveCreatedBy for all applicable types

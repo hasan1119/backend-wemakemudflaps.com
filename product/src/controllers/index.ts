@@ -28,4 +28,4 @@ export { createTag } from "./mutations/manage-tag/create-tag";
 // export { restoreTag } from "./mutations/manage-tag/restore-tag";
 // export { updateTag } from "./mutations/manage-tag/update-tag";
 // export { getAllTags } from "./queries/tag/get-tags";
-// export { getTagById } from "./queries/tag/get-tag-by-id";
+export { getTagById } from "./queries/tag/get-tag-by-id";
