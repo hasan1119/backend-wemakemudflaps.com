@@ -89,6 +89,15 @@ export const updateMediaFileInfo = async (
 
     existingMedia = await getMediaByMediaIdFromRedis(id);
 
+    if (existingMedia?.deletedAt) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: `Media not found with this id: ${id} or has been deleted`,
+        __typename: "BaseResponse",
+      };
+    }
+
     if (!existingMedia) {
       // On cache miss, fetch roles from database
       const dbMedia = await getMediaById(id);

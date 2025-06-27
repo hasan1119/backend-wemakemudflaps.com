@@ -76,7 +76,7 @@ export const getTagById = async (
     // Attempt to retrieve cached tag data from Redis
     let tagData = await getTagInfoByTagIdFromRedis(id);
 
-    if (tagData.deletedAt) {
+    if (tagData?.deletedAt) {
       return {
         statusCode: 404,
         success: false,

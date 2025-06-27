@@ -78,7 +78,7 @@ export const getMediaById = async (
 
     media = await getMediaByMediaIdFromRedis(id);
 
-    if (media.deletedAt) {
+    if (media?.deletedAt) {
       return {
         statusCode: 404,
         success: false,

@@ -223,8 +223,15 @@ export const updateUserRole = async (
       const result: any[] = [];
 
       for (let i = 0; i < roleIds.length; i++) {
-        if (rolesFromCache[i]) {
-          result.push(rolesFromCache[i]);
+        const cachedRole = rolesFromCache[i];
+
+        if (cachedRole) {
+          if (!cachedRole.deletedAt) {
+            result.push(cachedRole);
+          } else {
+            // Soft-deleted role in cache
+            missingIds.push(roleIds[i]);
+          }
         } else {
           missingIds.push(roleIds[i]);
         }
@@ -232,14 +239,21 @@ export const updateUserRole = async (
 
       if (missingIds.length > 0) {
         const dbRoles = await getRolesByIds(missingIds);
-        await Promise.all(
-          dbRoles.map((role) => setRoleInfoByRoleIdInRedis(role.id, role))
-        );
-        result.push(...dbRoles.map((role) => mapRoleToResponse(role)));
 
-        // Determine still missing role IDs after DB fetch
-        const foundIds = new Set(dbRoles.map((r) => r.id));
+        // Filter out soft-deleted roles
+        const validDbRoles = dbRoles.filter((role) => !role.deletedAt);
+
+        // Cache valid roles
+        await Promise.all(
+          validDbRoles.map((role) => setRoleInfoByRoleIdInRedis(role.id, role))
+        );
+
+        result.push(...validDbRoles.map((role) => mapRoleToResponse(role)));
+
+        // Determine still missing role IDs after DB fetch or soft-deleted
+        const foundIds = new Set(validDbRoles.map((r) => r.id));
         const stillMissing = missingIds.filter((id) => !foundIds.has(id));
+
         if (stillMissing.length > 0) {
           return { roles: result, missing: stillMissing };
         }

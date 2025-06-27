@@ -139,6 +139,15 @@ export const updateUserRoleInfo = async (
 
     roleData = await getRoleInfoByRoleIdFromRedis(id);
 
+    if (roleData?.deletedAt) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: `Role not found with this id: ${id} or has been deleted`,
+        __typename: "BaseResponse",
+      };
+    }
+
     if (!roleData) {
       // On cache miss, fetch role data from database
       roleData = await getRoleById(id);
@@ -147,7 +156,7 @@ export const updateUserRoleInfo = async (
         return {
           statusCode: 404,
           success: false,
-          message: `Role with ID ${id} not found`,
+          message: `Role not found with this id: ${id} or has been deleted`,
           __typename: "BaseResponse",
         };
       }
