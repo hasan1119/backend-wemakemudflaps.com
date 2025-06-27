@@ -76,6 +76,7 @@ export {
   countRolesWithSearch,
   countUsersWithRole,
   findRoleByName,
+  findRoleByNameToUpdate,
   findRolesByNames,
   getRoleById,
   getRolesByIds,

@@ -6,6 +6,7 @@ import { redis } from "../../redis";
 const PREFIX = {
   TAG: "tag:",
   EXISTS: "tag-exists:",
+  SLUG_EXISTS: "tag-slug-exists:",
   COUNT: "tags-count:",
   LIST: "tags-list:",
 };
@@ -51,6 +52,26 @@ export const getTagsCountFromRedis = async (
   const result = await redis.getSession<number | null>(key, "product-app");
   const count = Number(result);
   return isNaN(count) ? 0 : count;
+};
+
+/**
+ * Handles checking if a tag slug exists in Redis.
+ *
+ * Workflow:
+ * 1. Queries Redis using the SLUG_EXISTS prefix and normalized tag slug.
+ * 2. Returns true if the slug exists, false otherwise.
+ *
+ * @param tagSlug - The slug of the tag.
+ * @returns A promise resolving to a boolean indicating if the tag slug exists.
+ */
+export const getTagSlugExistFromRedis = async (
+  tagSlug: string
+): Promise<boolean> => {
+  const result = await redis.getSession<string | null>(
+    `${PREFIX.SLUG_EXISTS}${tagSlug.toLowerCase().trim()}`,
+    "product-app"
+  );
+  return result === "exists";
 };
 
 /**
@@ -111,6 +132,25 @@ export const getTagInfoByTagIdFromRedis = async (
   tagId: string
 ): Promise<Tag | null> => {
   return redis.getSession<Tag | null>(`${PREFIX.TAG}${tagId}`, "product-app");
+};
+
+/**
+ * Handles setting an existence flag for a tag slug in Redis.
+ *
+ * Workflow:
+ * 1. Stores an "exists" flag in Redis with the SLUG_EXISTS prefix and normalized tag slug.
+ *
+ * @param tagSlug - The slug of the tag.
+ * @returns A promise resolving when the flag is set.
+ */
+export const setTagSlugExistInRedis = async (
+  tagSlug: string
+): Promise<void> => {
+  await redis.setSession(
+    `${PREFIX.SLUG_EXISTS}${tagSlug.toLowerCase().trim()}`,
+    "exists",
+    "product-app"
+  );
 };
 
 /**
@@ -199,6 +239,21 @@ export const removeTagNameExistFromRedis = async (
 ): Promise<void> => {
   await redis.deleteSession(
     `${PREFIX.EXISTS}${tagName.toLowerCase().trim()}`,
+    "product-app"
+  );
+};
+
+/**
+ * Removes the existence flag for a tag slug from Redis.
+ *
+ * @param tagSlug - The slug of the tag.
+ * @returns A promise that resolves when the flag is removed.
+ */
+export const removeTagSlugExistFromRedis = async (
+  tagSlug: string
+): Promise<void> => {
+  await redis.deleteSession(
+    `${PREFIX.SLUG_EXISTS}${tagSlug.toLowerCase().trim()}`,
     "product-app"
   );
 };

@@ -9,12 +9,15 @@ export {
   getTagNameExistFromRedis,
   getTagsCountFromRedis,
   getTagsFromRedis,
+  getTagSlugExistFromRedis,
   removeTagInfoByTagIdFromRedis,
   removeTagNameExistFromRedis,
+  removeTagSlugExistFromRedis,
   setTagInfoByTagIdInRedis,
   setTagNameExistInRedis,
   setTagsCountInRedis,
   setTagsInRedis,
+  setTagSlugExistInRedis,
 } from "./utils/tag/manage-tag-session";
 
 /**

@@ -13,6 +13,9 @@ export const updateTag = async (
   tagId: string,
   data: Partial<Tag>
 ): Promise<Tag> => {
-  await tagRepository.update(tagId, data);
+  await tagRepository.update(tagId, {
+    ...(data.name !== undefined && { name: data.name }),
+    ...(data.slug !== undefined && { slug: data.slug }),
+  });
   return await getTagById(tagId);
 };

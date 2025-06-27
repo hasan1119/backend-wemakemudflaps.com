@@ -1,4 +1,4 @@
-import { ILike, In } from "typeorm";
+import { ILike, In, Not } from "typeorm";
 import { Tag } from "../../../entities";
 import { tagRepository } from "../repositories/repositories";
 
@@ -29,6 +29,48 @@ export const findTagByName = async (name: string): Promise<Tag | null> => {
   return await tagRepository.findOne({
     where: {
       name: ILike(name),
+      deletedAt: null,
+    },
+    relations: ["products"],
+  });
+};
+
+/**
+ * Finds a Tag entity by its name (case-insensitive) to update tag info.
+ *
+ * @param id - The UUID of the tag.
+ * @param name - The name of the tag to find.
+ * @returns A promise resolving to the Tag entity or null if not found.
+ */
+export const findTagByNameToUpdate = async (
+  id: string,
+  name: string
+): Promise<Tag | null> => {
+  return await tagRepository.findOne({
+    where: {
+      id: Not(id),
+      name: ILike(name),
+      deletedAt: null,
+    },
+    relations: ["products"],
+  });
+};
+
+/**
+ * Finds a Tag entity by its slug (case-insensitive) to update tag info.
+ *
+ * @param id - The UUID of the tag.
+ * @param slug - The slug of the tag to find.
+ * @returns A promise resolving to the Tag entity or null if not found.
+ */
+export const findTagBySlugToUpdate = async (
+  id: string,
+  slug: string
+): Promise<Tag | null> => {
+  return await tagRepository.findOne({
+    where: {
+      id: Not(id),
+      slug: ILike(slug),
       deletedAt: null,
     },
     relations: ["products"],

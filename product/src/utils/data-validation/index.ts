@@ -33,4 +33,4 @@ export {
  * Workflow:
  * 1. Provides schemas for creating, and updating tag.
  */
-export { createTagSchema } from "./tag/tag";
+export { createTagSchema, updateTagSchema } from "./tag/tag";

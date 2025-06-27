@@ -103,6 +103,8 @@ export {
   countProductsForTag,
   countTagsWithSearch,
   findTagByName,
+  findTagByNameToUpdate,
+  findTagBySlugToUpdate,
   getTagById,
   getTagsByIds,
   paginateTags,

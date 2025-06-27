@@ -134,12 +134,7 @@ export const updateCategory = async (
     // Update role information in the database
     const result = await updateCategoryOrSubCategory(
       id,
-      {
-        description,
-        name,
-        thumbnail,
-        slug,
-      },
+      args,
       categoryType === "category" ? "category" : "subCategory"
     );
 

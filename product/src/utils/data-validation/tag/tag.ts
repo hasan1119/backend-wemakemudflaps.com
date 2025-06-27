@@ -5,3 +5,18 @@ export const createTagSchema = z.object({
   name: z.string().min(3, "Tag name must be at least 3 characters").trim(),
   slug: z.string().min(3, "Tag slug must be at least 3 characters").trim(),
 });
+
+// Defines the schema for a single tag object
+export const updateTagSchema = z.object({
+  id: z.string().uuid({ message: "Invalid UUID format" }),
+  name: z
+    .string()
+    .min(3, "Tag name must be at least 3 characters")
+    .trim()
+    .optional(),
+  slug: z
+    .string()
+    .min(3, "Tag slug must be at least 3 characters")
+    .trim()
+    .optional(),
+});

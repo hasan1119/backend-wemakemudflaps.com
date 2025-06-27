@@ -1,4 +1,4 @@
-import { ILike, In } from "typeorm";
+import { ILike, In, Not } from "typeorm";
 import { Role } from "../../../entities";
 import { roleRepository, userRepository } from "../repositories/repositories";
 
@@ -38,6 +38,28 @@ export const findRoleByName = async (
 ): Promise<Role | null> => {
   return await roleRepository.findOne({
     where: { name: ILike(roleName) },
+    relations: ["defaultPermissions", "createdBy", "createdBy.roles"],
+  });
+};
+
+/**
+ * Handles retrieval of a role by its name to update role info.
+ *
+ * Workflow:
+ * 1. Queries the roleRepository to find a role with the specified name (case-insensitive).
+ * 2. Includes relations for defaultPermissions, createdBy, and createdBy.roles.
+ * 3. Returns the Role entity or null if not found.
+ *
+ * @param roleId - The UUID of the role.
+ * @param roleName - The name of the role (e.g., "SUPER ADMIN").
+ * @returns A promise resolving to the Role entity or null if not found.
+ */
+export const findRoleByNameToUpdate = async (
+  roleId: string,
+  roleName: string
+): Promise<Role | null> => {
+  return await roleRepository.findOne({
+    where: { id: Not(roleId), name: ILike(roleName) },
     relations: ["defaultPermissions", "createdBy", "createdBy.roles"],
   });
 };
