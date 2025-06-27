@@ -1,4 +1,4 @@
-import { ILike, In, Not } from "typeorm";
+import { Brackets, ILike, In, Not } from "typeorm";
 import { Tag } from "../../../entities";
 import { tagRepository } from "../repositories/repositories";
 
@@ -166,25 +166,29 @@ export const paginateTags = async ({
 }: GetPaginatedTagsInput) => {
   const skip = (page - 1) * limit;
 
-  const where: any[] = [{ deletedAt: null }];
+  const queryBuilder = tagRepository
+    .createQueryBuilder("tag")
+    .leftJoinAndSelect("tag.products", "products")
+    .where("tag.deletedAt IS NULL");
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;
-    where.push(
-      { name: ILike(searchTerm), deletedAt: null },
-      { slug: ILike(searchTerm), deletedAt: null }
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        qb.where("tag.name ILIKE :search", { search: searchTerm }).orWhere(
+          "tag.slug ILIKE :search",
+          { search: searchTerm }
+        );
+      })
     );
   }
 
-  const [tags, total] = await tagRepository.findAndCount({
-    where,
-    skip,
-    take: limit,
-    order: {
-      [sortBy]: sortOrder,
-    },
-    relations: ["products"],
-  });
+  queryBuilder
+    .skip(skip)
+    .take(limit)
+    .orderBy(`tag.${sortBy}`, sortOrder.toUpperCase() as "ASC" | "DESC");
+
+  const [tags, total] = await queryBuilder.getManyAndCount();
 
   return { tags, total };
 };
@@ -201,15 +205,21 @@ export const paginateTags = async ({
  * @returns A promise resolving to the total number of matching tags.
  */
 export const countTagsWithSearch = async (search?: string): Promise<number> => {
-  const where: any[] = [{ deletedAt: null }];
+  const queryBuilder = tagRepository
+    .createQueryBuilder("tag")
+    .where("tag.deletedAt IS NULL");
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;
-    where.push(
-      { name: ILike(searchTerm), deletedAt: null },
-      { slug: ILike(searchTerm), deletedAt: null }
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        qb.where("tag.name ILIKE :search", { search: searchTerm }).orWhere(
+          "tag.slug ILIKE :search",
+          { search: searchTerm }
+        );
+      })
     );
   }
 
-  return await tagRepository.count({ where });
+  return await queryBuilder.getCount();
 };

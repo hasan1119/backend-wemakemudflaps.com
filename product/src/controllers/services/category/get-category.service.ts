@@ -201,14 +201,15 @@ interface GetPaginatedCategoriesInput {
  *
  * Workflow:
  * 1. Calculates the number of records to skip based on page and limit.
- * 2. Constructs a where clause to filter non-deleted categories and apply search conditions if provided.
- * 3. Queries the categoryRepository to fetch categories with pagination, sorting, and filtering.
- * 4. Includes relation for subCategories.
- * 5. Returns an object with the list of categories and the total count of matching categories.
+ * 2. Constructs a query to filter only non-deleted categories and subcategories.
+ * 3. Applies optional search filters across category and subcategory fields.
+ * 4. Sorts and paginates the result.
+ * 5. Recursively sorts subCategories by position (ascending).
+ * 6. Returns the filtered and paginated categories with total count.
  *
  * @param page - The current page number (1-based index).
  * @param limit - The number of categories to retrieve per page.
- * @param search - Optional search query to filter categories by name or description (case-insensitive).
+ * @param search - Optional search query to filter categories by name or description.
  * @param sortBy - The field to sort categories by (e.g., "name", "createdAt", "position").
  * @param sortOrder - The sort direction ("asc" or "desc").
  * @returns A promise resolving to an object containing the paginated categories and total count.
@@ -222,6 +223,7 @@ export const paginateCategories = async ({
 }: GetPaginatedCategoriesInput) => {
   const skip = (page - 1) * limit;
 
+  // Safely handle sort field
   const allowedSortFields = ["name", "createdAt", "position"] as const;
   const safeSortBy = allowedSortFields.includes(sortBy as any)
     ? (sortBy as (typeof allowedSortFields)[number])
@@ -230,11 +232,17 @@ export const paginateCategories = async ({
   const safeSortOrder =
     sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "asc";
 
+  // Build base query: only non-deleted categories
   const query = categoryRepository
     .createQueryBuilder("category")
-    .leftJoinAndSelect("category.subCategories", "subCategory")
-    .where("category.deletedAt IS NULL");
+    .leftJoinAndSelect(
+      "category.subCategories",
+      "subCategory",
+      "subCategory.deletedAt IS NULL" // Only join non-deleted subCategories
+    )
+    .where("category.deletedAt IS NULL"); // Only fetch non-deleted categories
 
+  // Apply optional search on name/description of both categories and subcategories
   if (search && search.trim() !== "") {
     const searchTerm = `%${search.trim()}%`;
 
@@ -248,17 +256,18 @@ export const paginateCategories = async ({
     );
   }
 
-  // Apply dynamic sorting on categories
-  query.orderBy(
-    `category.${safeSortBy}`,
-    safeSortOrder.toUpperCase() as "ASC" | "DESC"
-  );
-
-  query.skip(skip).take(limit);
+  // Apply dynamic sorting and pagination
+  query
+    .orderBy(
+      `category.${safeSortBy}`,
+      safeSortOrder.toUpperCase() as "ASC" | "DESC"
+    )
+    .skip(skip)
+    .take(limit);
 
   const [categories, total] = await query.getManyAndCount();
 
-  // Recursive function to sort subCategories array by position ascending (always)
+  // Recursively sort subcategories by position ascending
   const sortSubCategoriesRecursively = (
     subs: SubCategory[] | null
   ): SubCategory[] | null => {
@@ -275,7 +284,7 @@ export const paginateCategories = async ({
     return subs;
   };
 
-  // Sort nested subcategories by position ascending for each category
+  // Sort nested subcategories for each category
   categories.forEach((cat) => {
     cat.subCategories = sortSubCategoriesRecursively(cat.subCategories);
   });
@@ -300,15 +309,21 @@ export const paginateCategories = async ({
 export const countCategoriesWithSearch = async (
   search?: string
 ): Promise<number> => {
-  const where: any[] = [{ deletedAt: null }];
+  const query = categoryRepository
+    .createQueryBuilder("category")
+    .where("category.deletedAt IS NULL");
 
-  if (search) {
+  if (search?.trim()) {
     const searchTerm = `%${search.trim()}%`;
-    where.push(
-      { name: ILike(searchTerm), deletedAt: null },
-      { description: ILike(searchTerm), deletedAt: null }
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where("category.name ILIKE :searchTerm", { searchTerm }).orWhere(
+          "category.description ILIKE :searchTerm",
+          { searchTerm }
+        );
+      })
     );
   }
 
-  return await categoryRepository.count({ where });
+  return await query.getCount();
 };

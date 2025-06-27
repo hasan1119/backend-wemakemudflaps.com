@@ -1,4 +1,4 @@
-import { ILike, In } from "typeorm";
+import { Brackets, In } from "typeorm";
 import { Permission, User, UserLogin } from "../../../entities";
 import {
   getUserInfoByUserIdFromRedis,
@@ -188,63 +188,47 @@ export const getPaginatedUsers = async ({
   page,
   limit,
   search,
-  sortBy,
-  sortOrder,
+  sortBy = "createdAt",
+  sortOrder = "desc",
 }: GetPaginatedUsersInput): Promise<{ users: User[]; queryTotal: number }> => {
-  // Calculate records to skip for pagination
   const skip = (page - 1) * limit;
-  const where: any[] = [{ deletedAt: null }];
 
-  // Add search conditions if provided
-  if (search) {
+  // Start building the query for users
+  const query = userRepository
+    .createQueryBuilder("user")
+    .leftJoinAndSelect("user.roles", "role")
+    .leftJoinAndSelect("user.permissions", "permission")
+    .where("user.deletedAt IS NULL"); // Filter out soft-deleted users
+
+  // Apply search filter if provided
+  if (search && search.trim() !== "") {
     const searchTerm = `%${search.trim()}%`;
-    where.push(
-      { firstName: ILike(searchTerm), deletedAt: null },
-      { lastName: ILike(searchTerm), deletedAt: null },
-      { email: ILike(searchTerm), deletedAt: null },
-      { roles: { name: ILike(searchTerm) }, deletedAt: null }
+
+    // Use Brackets for OR conditions on multiple fields including related entity
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where("user.firstName ILIKE :searchTerm", { searchTerm })
+          .orWhere("user.lastName ILIKE :searchTerm", { searchTerm })
+          .orWhere("user.email ILIKE :searchTerm", { searchTerm })
+          .orWhere("role.name ILIKE :searchTerm", { searchTerm });
+      })
     );
   }
 
-  // Configure sorting order
-  const order: any = {};
+  // Determine sorting field and apply order
   if (sortBy === "roles") {
-    order["roles"] = { name: sortOrder.toUpperCase() };
+    // Sort by role name (related entity)
+    query.orderBy("role.name", sortOrder.toUpperCase() as "ASC" | "DESC");
   } else {
-    order[sortBy] = sortOrder.toUpperCase();
+    // Sort by user field
+    query.orderBy(`user.${sortBy}`, sortOrder.toUpperCase() as "ASC" | "DESC");
   }
 
-  // Fetch paginated users with relations
-  const [users, queryTotal] = await userRepository.findAndCount({
-    where,
-    relations: ["roles", "permissions"],
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      email: true,
-      emailVerified: true,
-      gender: true,
-      roles: { name: true },
-      isAccountActivated: true,
-      permissions: {
-        id: true,
-        name: true,
-        description: true,
-        canCreate: true,
-        canRead: true,
-        canUpdate: true,
-        canDelete: true,
-      },
-      canUpdatePermissions: true,
-      canUpdateRole: true,
-      createdAt: true,
-      deletedAt: true,
-    },
-    order,
-    skip,
-    take: limit,
-  });
+  // Apply pagination
+  query.skip(skip).take(limit);
+
+  // Execute query and get results and total count
+  const [users, queryTotal] = await query.getManyAndCount();
 
   return { users, queryTotal };
 };

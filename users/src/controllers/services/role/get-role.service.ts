@@ -1,4 +1,4 @@
-import { ILike, In, Not } from "typeorm";
+import { Brackets, ILike, In, Not } from "typeorm";
 import { Role } from "../../../entities";
 import { roleRepository, userRepository } from "../repositories/repositories";
 
@@ -133,7 +133,7 @@ interface GetPaginatedRolesInput {
  *
  * Workflow:
  * 1. Calculates the number of records to skip based on page and limit.
- * 2. Constructs a where clause to filter non-deleted roles and apply search conditions if provided.
+ * 2. Constructs a query to filter non-deleted roles and apply search conditions if provided.
  * 3. Queries the roleRepository to fetch roles with pagination, sorting, and filtering.
  * 4. Includes relations for defaultPermissions, createdBy, and createdBy.roles.
  * 5. Returns an object with the list of roles and the total count of matching roles.
@@ -149,45 +149,48 @@ export const paginateRoles = async ({
   page,
   limit,
   search,
-  sortBy,
-  sortOrder,
+  sortBy = "createdAt",
+  sortOrder = "desc",
 }: GetPaginatedRolesInput) => {
-  // Calculate records to skip for pagination
   const skip = (page - 1) * limit;
 
-  const where: any[] = [{ deletedAt: null }];
+  // Create query builder for roles
+  const query = roleRepository
+    .createQueryBuilder("role")
+    .leftJoinAndSelect("role.defaultPermissions", "defaultPermissions")
+    .leftJoinAndSelect("role.createdBy", "createdBy")
+    .leftJoinAndSelect("createdBy.roles", "creatorRoles")
+    .where("role.deletedAt IS NULL"); // Only non-deleted roles
 
-  // Add search conditions if provided
-  if (search) {
+  // Apply search filter if provided
+  if (search && search.trim() !== "") {
     const searchTerm = `%${search.trim()}%`;
-    where.push(
-      { name: ILike(searchTerm), deletedAt: null },
-      { description: ILike(searchTerm), deletedAt: null }
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where("role.name ILIKE :searchTerm", { searchTerm }).orWhere(
+          "role.description ILIKE :searchTerm",
+          { searchTerm }
+        );
+      })
     );
   }
 
-  // Fetch paginated roles with sorting and relations
-  const [roles, total] = await roleRepository.findAndCount({
-    where,
-    skip,
-    take: limit,
-    order: {
-      [sortBy]: sortOrder,
-    },
-    relations: ["defaultPermissions", "createdBy", "createdBy.roles"],
-  });
+  // Apply sorting
+  query.orderBy(`role.${sortBy}`, sortOrder.toUpperCase() as "ASC" | "DESC");
 
-  return {
-    roles,
-    total,
-  };
+  // Apply pagination
+  query.skip(skip).take(limit);
+
+  const [roles, total] = await query.getManyAndCount();
+
+  return { roles, total };
 };
 
 /**
  * Handles counting roles matching optional search criteria.
  *
  * Workflow:
- * 1. Constructs a where clause to filter non-deleted roles and apply search conditions if provided.
+ * 1. Constructs a query to filter non-deleted roles and apply search conditions if provided.
  * 2. Queries the roleRepository to count roles matching the criteria.
  * 3. Returns the total number of matching roles.
  *
@@ -197,16 +200,21 @@ export const paginateRoles = async ({
 export const countRolesWithSearch = async (
   search?: string
 ): Promise<number> => {
-  const where: any[] = [{ deletedAt: null }];
+  const query = roleRepository
+    .createQueryBuilder("role")
+    .where("role.deletedAt IS NULL");
 
-  // Add search conditions if provided
-  if (search) {
+  if (search && search.trim() !== "") {
     const searchTerm = `%${search.trim()}%`;
-    where.push(
-      { name: ILike(searchTerm), deletedAt: null },
-      { description: ILike(searchTerm), deletedAt: null }
+    query.andWhere(
+      new Brackets((qb) => {
+        qb.where("role.name ILIKE :searchTerm", { searchTerm }).orWhere(
+          "role.description ILIKE :searchTerm",
+          { searchTerm }
+        );
+      })
     );
   }
 
-  return await roleRepository.count({ where });
+  return await query.getCount();
 };
