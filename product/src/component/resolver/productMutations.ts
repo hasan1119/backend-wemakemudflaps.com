@@ -4,6 +4,7 @@ import {
   deleteCategory,
   deleteTag,
   restoreCategory,
+  restoreTags,
   updateCategory,
   updateCategoryPosition,
   updateTag,
@@ -59,6 +60,11 @@ export const productMutationsResolver = {
      * Deletes specified tag from the system.
      */
     deleteTag,
+
+    /**
+     * Restores previously deleted category
+     */
+    restoreTags,
 
     createProduct,
   },
