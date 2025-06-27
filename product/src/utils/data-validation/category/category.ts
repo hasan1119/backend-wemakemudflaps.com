@@ -91,6 +91,8 @@ export const deleteCategorySchema = z.object({
 
 // Defines the schema to restore category object
 export const restoreCategorySchema = z.object({
-  id: z.string().uuid("Invalid category ID"),
+  ids: z
+    .array(z.string().uuid({ message: "Invalid UUID format" }))
+    .min(1, { message: "At least one UUID is required" }),
   categoryType: CategoryTypeEnum,
 });

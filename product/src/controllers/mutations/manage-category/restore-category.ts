@@ -75,13 +75,13 @@ export const restoreCategory = async (
       };
     }
 
-    const { id, categoryType } = parsed.data;
+    const { ids, categoryType } = parsed.data;
 
     // Map "subCategory" to "subcategory" to match the expected type
     const normalizedCategoryType =
       categoryType === "subCategory" ? "subcategory" : categoryType;
 
-    await restoreCategoryOrSubCategoryById(id, normalizedCategoryType);
+    await restoreCategoryOrSubCategoryById(ids, normalizedCategoryType);
 
     return {
       statusCode: 200,
