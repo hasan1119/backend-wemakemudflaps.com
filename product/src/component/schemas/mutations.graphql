@@ -70,7 +70,7 @@ type Mutation {
 
   # Mutation to restore a soft-deleted tag.
   # Only accessible by authorized users.
-  restoreTag(
+  restoreTags(
     ids: [ID!]! # List of soft-deleted role IDs to be restored.
   ): RestoreTagResponseOrError!
 }

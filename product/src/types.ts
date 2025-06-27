@@ -358,7 +358,7 @@ export type Mutation = {
   resetPassword: BaseResponseOrError;
   restoreCategory?: Maybe<RestoreCategoryResponseOrError>;
   restoreMediaFiles: BaseResponseOrError;
-  restoreTag: RestoreTagResponseOrError;
+  restoreTags: RestoreTagResponseOrError;
   restoreUserRole: BaseResponseOrError;
   updateCategory: UpdateCategoryResponseOrError;
   updateCategoryPosition: UpdateCategoryPositionResponseOrError;
@@ -433,7 +433,7 @@ export type MutationDeleteMediaFilesArgs = {
 
 export type MutationDeleteTagArgs = {
   ids: Array<InputMaybe<Scalars['ID']['input']>>;
-  skipTrash?: InputMaybe<Scalars['Boolean']['input']>;
+  skipTrash: Scalars['Boolean']['input'];
 };
 
 
@@ -482,7 +482,7 @@ export type MutationRestoreMediaFilesArgs = {
 };
 
 
-export type MutationRestoreTagArgs = {
+export type MutationRestoreTagsArgs = {
   ids: Array<Scalars['ID']['input']>;
 };
 
@@ -1642,7 +1642,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteCategory?: Resolver<Maybe<ResolversTypes['DeleteCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'categoryType' | 'id'>>;
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionId'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
-  deleteTag?: Resolver<ResolversTypes['DeleteTagResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTagArgs, 'ids'>>;
+  deleteTag?: Resolver<ResolversTypes['DeleteTagResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTagArgs, 'ids' | 'skipTrash'>>;
   deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'ids' | 'skipTrash'>>;
   forgetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationForgetPasswordArgs, 'email'>>;
   login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'meta' | 'password'>>;
@@ -1651,7 +1651,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   restoreCategory?: Resolver<Maybe<ResolversTypes['RestoreCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationRestoreCategoryArgs, 'categoryType' | 'ids'>>;
   restoreMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreMediaFilesArgs, 'ids'>>;
-  restoreTag?: Resolver<ResolversTypes['RestoreTagResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTagArgs, 'ids'>>;
+  restoreTags?: Resolver<ResolversTypes['RestoreTagResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTagsArgs, 'ids'>>;
   restoreUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreUserRoleArgs, 'ids'>>;
   updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'categoryType' | 'id'>>;
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryPositionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'categoryType' | 'id' | 'position'>>;
