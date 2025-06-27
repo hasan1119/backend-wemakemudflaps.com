@@ -1,5 +1,6 @@
 import {
   getAllCategories,
+  getAllTags,
   getCategoryById,
   getSubCategoryById,
   getTagById,
@@ -46,10 +47,16 @@ export const productQueriesResolver = {
      * Retrieves detailed information for a tag by their unique ID.
      */
     getTagById,
+
+    /**
+     * Fetches a paginated list of all tags in the system.
+     */
+    getAllTags,
   },
 
   // Reuse resolveCreatedBy for all applicable types
   Tag: { createdBy: resolveCreatedBy },
+  TagPaginationDataSession: { createdBy: resolveCreatedBy },
   Product: { createdBy: resolveCreatedBy },
   Category: { createdBy: resolveCreatedBy },
   CategoryDataResponse: { createdBy: resolveCreatedBy },

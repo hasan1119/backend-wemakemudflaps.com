@@ -166,12 +166,23 @@ type TagResponse {
   tag: Tag!
 }
 
+# Response for fetching a tag.
+type TagPaginationDataSession {
+  id: ID!
+  name: String!
+  slug: String!
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
 # Response for fetching a tags list.
 type TagPaginationResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  tags: [Tag!]!
+  tags: [TagPaginationDataSession!]!
   total: Int!
 }
 

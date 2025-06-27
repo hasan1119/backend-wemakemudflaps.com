@@ -24,6 +24,7 @@ export {
   idsSchema,
   paginationSchema,
   skipTrashSchema,
+  tagsSortingSchema,
 } from "./common/common";
 
 /**

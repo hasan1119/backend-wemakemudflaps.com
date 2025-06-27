@@ -111,6 +111,8 @@ export const createTag = async (
     // Create the tag in the database
     const tag = await createTagService({ name, slug }, user.id);
 
+    delete tag.products;
+
     // Cache tag information and existence in Redis
     await Promise.all([
       setTagInfoByTagIdInRedis(tag.id, tag),

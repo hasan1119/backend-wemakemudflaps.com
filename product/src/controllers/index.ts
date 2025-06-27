@@ -27,5 +27,5 @@ export { createTag } from "./mutations/manage-tag/create-tag";
 // export { deleteTag } from "./mutations/manage-tag/delete-tag";
 // export { restoreTag } from "./mutations/manage-tag/restore-tag";
 // export { updateTag } from "./mutations/manage-tag/update-tag";
-// export { getAllTags } from "./queries/tag/get-tags";
 export { getTagById } from "./queries/tag/get-tag-by-id";
+export { getAllTags } from "./queries/tag/get-tags";

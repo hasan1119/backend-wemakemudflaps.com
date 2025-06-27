@@ -396,10 +396,8 @@ export type MutationCreateCategoryArgs = {
 
 
 export type MutationCreateTagArgs = {
-  description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   slug: Scalars['String']['input'];
-  thumbnail?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -526,11 +524,9 @@ export type MutationUpdateProfileArgs = {
 
 
 export type MutationUpdateTagArgs = {
-  description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
-  thumbnail?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -598,6 +594,7 @@ export enum PermissionName {
   Role = 'ROLE',
   ShippingClass = 'SHIPPING_CLASS',
   SubCategory = 'SUB_CATEGORY',
+  Tag = 'TAG',
   TaxClass = 'TAX_CLASS',
   TaxStatus = 'TAX_STATUS',
   TermsConditions = 'TERMS_CONDITIONS',
@@ -887,12 +884,23 @@ export type Tag = {
   slug: Scalars['String']['output'];
 };
 
+export type TagPaginationDataSession = {
+  __typename?: 'TagPaginationDataSession';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  totalProducts?: Maybe<Scalars['Int']['output']>;
+};
+
 export type TagPaginationResponse = {
   __typename?: 'TagPaginationResponse';
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
-  tags: Array<Tag>;
+  tags: Array<TagPaginationDataSession>;
   total: Scalars['Int']['output'];
 };
 
@@ -1254,6 +1262,7 @@ export type ResolversTypes = {
   SubCategoryResponse: ResolverTypeWrapper<SubCategoryResponse>;
   SubCategoryResponseById: ResolverTypeWrapper<SubCategoryResponseById>;
   Tag: ResolverTypeWrapper<Tag>;
+  TagPaginationDataSession: ResolverTypeWrapper<TagPaginationDataSession>;
   TagPaginationResponse: ResolverTypeWrapper<TagPaginationResponse>;
   TagResponse: ResolverTypeWrapper<TagResponse>;
   UpdateCategoryPositionResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryPositionResponseOrError']>;
@@ -1347,6 +1356,7 @@ export type ResolversParentTypes = {
   SubCategoryResponse: SubCategoryResponse;
   SubCategoryResponseById: SubCategoryResponseById;
   Tag: Tag;
+  TagPaginationDataSession: TagPaginationDataSession;
   TagPaginationResponse: TagPaginationResponse;
   TagResponse: TagResponse;
   UpdateCategoryPositionResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryPositionResponseOrError'];
@@ -1843,11 +1853,22 @@ export type TagResolvers<ContextType = Context, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type TagPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TagPaginationDataSession'] = ResolversParentTypes['TagPaginationDataSession']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type TagPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TagPaginationResponse'] = ResolversParentTypes['TagPaginationResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  tags?: Resolver<Array<ResolversTypes['Tag']>, ParentType, ContextType>;
+  tags?: Resolver<Array<ResolversTypes['TagPaginationDataSession']>, ParentType, ContextType>;
   total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -2072,6 +2093,7 @@ export type Resolvers<ContextType = Context> = {
   SubCategoryResponse?: SubCategoryResponseResolvers<ContextType>;
   SubCategoryResponseById?: SubCategoryResponseByIdResolvers<ContextType>;
   Tag?: TagResolvers<ContextType>;
+  TagPaginationDataSession?: TagPaginationDataSessionResolvers<ContextType>;
   TagPaginationResponse?: TagPaginationResponseResolvers<ContextType>;
   TagResponse?: TagResponseResolvers<ContextType>;
   UpdateCategoryPositionResponseOrError?: UpdateCategoryPositionResponseOrErrorResolvers<ContextType>;

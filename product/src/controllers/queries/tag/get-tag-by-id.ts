@@ -89,6 +89,8 @@ export const getTagById = async (
         };
       }
 
+      delete dbTag.products;
+
       // Cache tag data in Redis
       await setTagInfoByTagIdInRedis(id, dbTag);
       tagData = dbTag;
