@@ -1,5 +1,7 @@
 import {
   createCategory,
+  createTag,
+  deleteCategory,
   restoreCategory,
   updateCategory,
   updateCategoryPosition,
@@ -32,9 +34,19 @@ export const productMutationsResolver = {
     updateCategoryPosition,
 
     /**
+     * Deletes specified category from the system.
+     */
+    deleteCategory,
+
+    /**
      * Restores previously deleted category
      */
     restoreCategory,
+
+    /**
+     * Creates a new tag.
+     */
+    createTag,
 
     createProduct,
   },

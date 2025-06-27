@@ -10,6 +10,7 @@ export const PERMISSIONS = [
   "Product Review",
   "Shipping Class",
   "Sub Category",
+  "Tag",
   "Tax Class",
   "Tax Status",
   "Faq",
@@ -34,6 +35,7 @@ export type PermissionName =
   | "Product Review"
   | "Shipping Class"
   | "Sub Category"
+  | "Tag"
   | "Tax Class"
   | "Tax Status"
   | "Faq"
@@ -57,6 +59,7 @@ export const permissionMap: Record<string, string> = {
   PRODUCT_REVIEW: "Product Review",
   SHIPPING_CLASS: "Shipping Class",
   SUB_CATEGORY: "Sub Category",
+  TAG: "Tag",
   TAX_CLASS: "Tax Class",
   TAX_STATUS: "Tax Status",
   FAQ: "Faq",

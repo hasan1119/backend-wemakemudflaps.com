@@ -6,6 +6,15 @@ import {
 import { getProduct } from "../../controllers/queries/product/get-product";
 
 /**
+ * Shared resolver function for federated `CreatedBy` references.
+ * Returns a reference to the `CreatedBy` entity using the `createdBy` ID.
+ */
+const resolveCreatedBy = ({ createdBy }: { createdBy: string }) => ({
+  __typename: "CreatedBy",
+  id: createdBy,
+});
+
+/**
  * Defines GraphQL query resolvers for product-related operations.
  *
  * Workflow:
@@ -33,64 +42,11 @@ export const productQueriesResolver = {
     getAllCategories,
   },
 
-  Product: {
-    /**
-     * Resolver for federated reference to the `CreatedBy` entity,
-     * allowing other subgraphs to fetch product creator data by ID.
-     */
-    createdBy: ({ createdBy }) => {
-      return {
-        __typename: "CreatedBy",
-        id: createdBy, // Just references the creator's unique ID.
-      };
-    },
-  },
-  Category: {
-    /**
-     * Resolver for federated reference to the `CreatedBy` entity,
-     * allowing other subgraphs to fetch media creator data by ID.
-     */
-    createdBy: ({ createdBy }) => {
-      return {
-        __typename: "CreatedBy",
-        id: createdBy, // Just references the creator's unique ID.
-      };
-    },
-  },
-  CategoryDataResponse: {
-    /**
-     * Resolver for federated reference to the `CreatedBy` entity,
-     * allowing other subgraphs to fetch media creator data by ID.
-     */
-    createdBy: ({ createdBy }) => {
-      return {
-        __typename: "CreatedBy",
-        id: createdBy, // Just references the creator's unique ID.
-      };
-    },
-  },
-  SubCategory: {
-    /**
-     * Resolver for federated reference to the `CreatedBy` entity,
-     * allowing other subgraphs to fetch media creator data by ID.
-     */
-    createdBy: ({ createdBy }) => {
-      return {
-        __typename: "CreatedBy",
-        id: createdBy, // Just references the creator's unique ID.
-      };
-    },
-  },
-  SubCategoryDataResponse: {
-    /**
-     * Resolver for federated reference to the `CreatedBy` entity,
-     * allowing other subgraphs to fetch media creator data by ID.
-     */
-    createdBy: ({ createdBy }) => {
-      return {
-        __typename: "CreatedBy",
-        id: createdBy, // Just references the creator's unique ID.
-      };
-    },
-  },
+  // Reuse resolveCreatedBy for all applicable types
+  Tag: { createdBy: resolveCreatedBy },
+  Product: { createdBy: resolveCreatedBy },
+  Category: { createdBy: resolveCreatedBy },
+  CategoryDataResponse: { createdBy: resolveCreatedBy },
+  SubCategory: { createdBy: resolveCreatedBy },
+  SubCategoryDataResponse: { createdBy: resolveCreatedBy },
 };

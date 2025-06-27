@@ -52,8 +52,6 @@ type Mutation {
   createTag(
     name: String! # Unique name of the tag to create.
     slug: String! # Slug for the tag.
-    description: String # Optional description for the tag.
-    thumbnail: String # Optional thumbnail image URL for the tag.
   ): CreateTagResponseOrError!
 
   # Update an existing tag.
@@ -62,8 +60,6 @@ type Mutation {
     id: ID! # ID of the tag to update.
     name: String # Optional updated name of the tag.
     slug: String # Optional updated slug of the tag.
-    description: String # Optional updated description for the tag.
-    thumbnail: String # Optional updated thumbnail image URL for the tag.
   ): UpdateTagResponseOrError!
 
   # Deletes a tag by ID.
