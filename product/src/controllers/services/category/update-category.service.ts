@@ -207,10 +207,12 @@ export async function updateCategoryOrSubCategory(
 
   // Step 2.5: Directly update the entity in the database
   await repository.update(id, {
-    ...(data.name !== undefined && { name: data.name }),
-    ...(data.slug !== undefined && { slug: data.slug }),
-    ...(data.description !== undefined && { description: data.description }),
-    ...(data.thumbnail !== undefined && { thumbnail: data.thumbnail }),
+    ...(data.name !== undefined && data.name !== null && { name: data.name }),
+    ...(data.slug !== undefined && data.slug !== null && { slug: data.slug }),
+    ...(data.description !== undefined &&
+      data.description !== null && { description: data.description }),
+    ...(data.thumbnail !== undefined &&
+      data.thumbnail !== null && { thumbnail: data.thumbnail }),
   });
 
   return type === "category" ? getCategoryById(id) : getSubCategoryById(id);

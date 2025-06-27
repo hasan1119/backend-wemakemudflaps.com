@@ -120,12 +120,16 @@ export const updateMediaFileInfo = async (
     }
 
     // Prepare update object, excluding undefined fields
-    if (title !== undefined) existingMedia.title = title;
-    if (description !== undefined) existingMedia.description = description;
-    if (altText !== undefined) existingMedia.altText = altText;
-    if (dimension !== undefined) existingMedia.dimension = dimension;
-    if (length !== undefined) existingMedia.length = length;
-    if (category !== undefined) existingMedia.category = category;
+    if (title !== undefined && title !== null) existingMedia.title = title;
+    if (description !== undefined && description !== null)
+      existingMedia.description = description;
+    if (altText !== undefined && altText !== null)
+      existingMedia.altText = altText;
+    if (dimension !== undefined && dimension !== null)
+      existingMedia.dimension = dimension;
+    if (length !== undefined && length !== null) existingMedia.length = length;
+    if (category !== undefined && category !== null)
+      existingMedia.category = category;
     existingMedia.createdBy = user.id;
 
     // Update media files in the database

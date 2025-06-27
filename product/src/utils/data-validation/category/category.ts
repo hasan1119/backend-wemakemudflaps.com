@@ -52,11 +52,13 @@ export const updateCategorySchema = z.object({
     .string()
     .min(3, "Category name must be at least 3 characters")
     .trim()
+    .nullable()
     .optional(),
   slug: z
     .string()
     .min(3, "Category slug must be at least 3 characters")
     .trim()
+    .nullable()
     .optional(),
   description: z
     .string()

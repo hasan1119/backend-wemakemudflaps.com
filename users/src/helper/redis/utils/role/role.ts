@@ -78,7 +78,7 @@ export const getRolesCountFromRedis = async (
  * @param sortBy - The field to sort by (default: "createdAt").
  * @param sortOrder - The sort order (default: "desc").
  * @param roles - The array of Role data to cache.
- * @param ttl - Optional time-to-live in seconds (default: 60).
+ * @param ttl - Optional time-to-live in seconds (default: 30).
  * @returns A promise resolving when the roles are cached.
  */
 export const setRolesInRedis = async (
@@ -88,7 +88,7 @@ export const setRolesInRedis = async (
   sortBy: string = "createdAt",
   sortOrder: string = "desc",
   roles: Role[],
-  ttl: number = 60
+  ttl: number = 30
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.ROLES}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
@@ -106,7 +106,7 @@ export const setRolesInRedis = async (
  * @param sortBy - The field to sort by (default: "createdAt").
  * @param sortOrder - The sort order (default: "desc").
  * @param total - The total roles count to cache.
- * @param ttl - Optional time-to-live in seconds (default: 60).
+ * @param ttl - Optional time-to-live in seconds (default: 30).
  * @returns A promise resolving when the count is cached.
  */
 export const setRolesCountInRedis = async (
@@ -114,7 +114,7 @@ export const setRolesCountInRedis = async (
   sortBy: string = "createdAt",
   sortOrder: string = "desc",
   total: number,
-  ttl: number = 60
+  ttl: number = 30
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.ROLES_COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;

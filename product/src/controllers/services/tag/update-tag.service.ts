@@ -1,4 +1,5 @@
 import { Tag } from "../../../entities";
+import { MutationUpdateCategoryArgs } from "../../../types";
 import { tagRepository } from "../repositories/repositories";
 import { getTagById } from "./get-tag.service";
 
@@ -11,11 +12,12 @@ import { getTagById } from "./get-tag.service";
  */
 export const updateTag = async (
   tagId: string,
-  data: Partial<Tag>
+  data: Partial<MutationUpdateCategoryArgs>
 ): Promise<Tag> => {
   await tagRepository.update(tagId, {
-    ...(data.name !== undefined && { name: data.name }),
-    ...(data.slug !== undefined && { slug: data.slug }),
+    ...(data.name !== undefined && data.name !== null && { name: data.name }),
+    ...(data.slug !== undefined && data.slug !== null && { slug: data.slug }),
   });
+
   return await getTagById(tagId);
 };

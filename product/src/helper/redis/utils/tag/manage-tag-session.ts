@@ -83,7 +83,7 @@ export const getTagSlugExistFromRedis = async (
  * @param sortBy - Field to sort by.
  * @param sortOrder - Sort order ('asc' or 'desc').
  * @param tags - Array of Tag objects to cache.
- * @param ttl - Optional TTL (Time to live in seconds).
+ * @param ttl - Optional time-to-live in seconds (default: 30).
  */
 export const setTagsInRedis = async (
   page: number,
@@ -92,7 +92,7 @@ export const setTagsInRedis = async (
   sortBy: string,
   sortOrder: string,
   tags: TagPaginationDataSession[],
-  ttl?: number
+  ttl: number = 30
 ): Promise<void> => {
   const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
   await redis.setSession(key, tags, "product-app", ttl);
@@ -105,14 +105,14 @@ export const setTagsInRedis = async (
  * @param sortBy - Field used for sorting.
  * @param sortOrder - Sort order.
  * @param count - Total number of tags.
- * @param ttl - Optional TTL (Time to live in seconds).
+ * @param ttl - Optional time-to-live in seconds (default: 30).
  */
 export const setTagsCountInRedis = async (
   search: string,
   sortBy: string,
   sortOrder: string,
   count: number,
-  ttl?: number
+  ttl: number = 30
 ): Promise<void> => {
   const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
   await redis.setSession(key, count.toString(), "product-app", ttl);

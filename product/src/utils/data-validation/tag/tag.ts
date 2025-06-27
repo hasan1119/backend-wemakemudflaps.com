@@ -13,10 +13,12 @@ export const updateTagSchema = z.object({
     .string()
     .min(3, "Tag name must be at least 3 characters")
     .trim()
+    .nullable()
     .optional(),
   slug: z
     .string()
     .min(3, "Tag slug must be at least 3 characters")
     .trim()
+    .nullable()
     .optional(),
 });
