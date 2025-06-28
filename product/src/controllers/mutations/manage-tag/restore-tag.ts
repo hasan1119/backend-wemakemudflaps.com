@@ -128,10 +128,9 @@ export const restoreTags = async (
 
     // Update Redis
     await Promise.all([
-      restored.map((tag) => setTagInfoByTagIdInRedis(tag.id, tag))
-    ),
-clearAllTagSearchCache()
-			]
+      restored.map((tag) => setTagInfoByTagIdInRedis(tag.id, tag)),
+clearAllTagSearchCache(),
+])
 		 
 
     return {
