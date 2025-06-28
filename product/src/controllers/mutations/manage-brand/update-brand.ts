@@ -163,8 +163,6 @@ export const updateBrand = async (
       thumbnail,
     });
 
-    console.log(updatedBrand);
-
     // Update Redis cache: remove old, add new
     await Promise.all([
       removeBrandInfoByBrandIdFromRedis(id),
