@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllTagSearchCache,
   getTagInfoByTagIdFromRedis,
   removeTagInfoByTagIdFromRedis,
   removeTagNameExistFromRedis,
@@ -24,6 +25,7 @@ const clearTagCache = async (id: string, name: string, slug: string) => {
     removeTagInfoByTagIdFromRedis(id),
     removeTagNameExistFromRedis(name),
     removeTagSlugExistFromRedis(slug),
+		 clearAllTagSearchCache(),
   ]);
 };
 
@@ -31,6 +33,7 @@ const clearTagCache = async (id: string, name: string, slug: string) => {
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteTag(id);
   setTagInfoByTagIdInRedis(id, deletedData);
+  clearAllTagSearchCache();
 };
 
 /**
