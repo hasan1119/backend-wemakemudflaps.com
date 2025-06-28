@@ -15,8 +15,8 @@ export class ShippingClass {
   value: string;
 
   // Description of the shipping class, explaining its details or usage
-  @Column({ type: "text" })
-  description: string;
+  @Column({ type: "text", nullable: true, default: null })
+  description: string | null;
 
   // One shipping class can be used by many products
   @OneToMany(() => Product, (product) => product.shippingClass)

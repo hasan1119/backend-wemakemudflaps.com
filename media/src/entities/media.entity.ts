@@ -27,7 +27,7 @@ export class Media {
   title: string | null;
 
   // Media title description
-  @Column({ nullable: true, default: null })
+  @Column({ type: "text", nullable: true, default: null })
   description: string | null;
 
   // Media alt text (e.g., "image-one", "video-one", etc.)

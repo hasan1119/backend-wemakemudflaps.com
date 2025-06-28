@@ -16,8 +16,8 @@ export class TaxClass {
   value: string;
 
   // A detailed description of the tax class
-  @Column({ type: "text" })
-  description: string;
+  @Column({ type: "text", nullable: true, default: null })
+  description: string | null;
 
   // One tax class can be used by many products
   @OneToMany(() => Product, (product) => product.taxClass)

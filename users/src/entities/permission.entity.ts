@@ -23,7 +23,7 @@ export class Permission {
   name: PermissionName;
 
   // Stores the permission description
-  @Column({ nullable: true, default: null })
+  @Column({ type: "text", nullable: true, default: null })
   description: string | null;
 
   // Establishes a many-to-one relationship for the associated user
