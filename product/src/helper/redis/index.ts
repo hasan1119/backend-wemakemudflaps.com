@@ -5,6 +5,7 @@
  * 1. Provides functions for getting and setting.
  */
 export {
+  clearAllTagSearchCache,
   getTagInfoByTagIdFromRedis,
   getTagNameExistFromRedis,
   getTagsCountFromRedis,
