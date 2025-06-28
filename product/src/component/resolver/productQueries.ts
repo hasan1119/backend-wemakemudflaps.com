@@ -1,9 +1,11 @@
 import {
   getAllBrands,
   getAllCategories,
+  getAllShippingClass,
   getAllTags,
   getBrandById,
   getCategoryById,
+  getShippingClassById,
   getSubCategoryById,
   getTagById,
 } from "../../controllers";
@@ -64,6 +66,16 @@ export const productQueriesResolver = {
      * Fetches a paginated list of all brands in the system.
      */
     getAllBrands,
+
+    /**
+     * Retrieves detailed information for a shipping class by their unique ID.
+     */
+    getShippingClassById,
+
+    /**
+     * Fetches a paginated list of all shipping classes in the system.
+     */
+    getAllShippingClass,
   },
 
   // Reuse resolveCreatedBy for all applicable types
@@ -72,6 +84,8 @@ export const productQueriesResolver = {
   BrandPaginationDataSession: { createdBy: resolveCreatedBy },
   Tag: { createdBy: resolveCreatedBy },
   TagPaginationDataSession: { createdBy: resolveCreatedBy },
+  ShippingClass: { createdBy: resolveCreatedBy },
+  ShippingClassPaginationDataSession: { createdBy: resolveCreatedBy },
   Product: { createdBy: resolveCreatedBy },
   Category: { createdBy: resolveCreatedBy },
   CategoryDataResponse: { createdBy: resolveCreatedBy },

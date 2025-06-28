@@ -45,6 +45,26 @@ export {
 } from "./utils/tag/tag-session-manage";
 
 /**
+ * Exports utilities for managing shipping class session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllShippingClassSearchCache,
+  getShippingClassCountFromRedis,
+  getShippingClassesFromRedis,
+  getShippingClassInfoByIdFromRedis,
+  getShippingClassValueExistFromRedis,
+  removeShippingClassInfoByIdFromRedis,
+  removeShippingClassValueExistFromRedis,
+  setShippingClassCountInRedis,
+  setShippingClassesInRedis,
+  setShippingClassInfoByIdInRedis,
+  setShippingClassValueExistInRedis,
+} from "./utils/shipping-class/shipping-class-session-manage";
+
+/**
  * Exports utilities for managing user session data in Redis.
  *
  * Workflow:

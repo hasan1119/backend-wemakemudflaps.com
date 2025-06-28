@@ -1,8 +1,8 @@
 # ---------------------- Shipping Class Types ----------------------
 type ShippingClass {
   id: ID!
-  name: String!
-  description: String!
+  value: String!
+  description: String
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String
@@ -19,7 +19,7 @@ type ShippingClassResponse {
 # Response for fetching a shipping class.
 type ShippingClassPaginationDataSession {
   id: ID!
-  name: String!
+  value: String!
   description: String
   totalProducts: Int
   createdBy: CreatedBy

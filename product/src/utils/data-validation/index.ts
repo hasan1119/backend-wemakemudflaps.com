@@ -46,3 +46,15 @@ export {
   createBrandSchema,
   updateBrandSchema,
 } from "./brand/brand";
+
+/**
+ * Exports shipping-class related schemas for tag management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, and updating tag.
+ */
+export {
+  createShippingClassSchema,
+  shippingClassSortingSchema,
+  updateShippingClassSchema,
+} from "./shipping-class/shipping-class";

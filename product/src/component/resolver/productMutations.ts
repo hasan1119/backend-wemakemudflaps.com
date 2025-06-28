@@ -1,16 +1,20 @@
 import {
   createBrand,
   createCategory,
+  createShippingClass,
   createTag,
   deleteBrand,
   deleteCategory,
+  deleteShippingClass,
   deleteTag,
   restoreBrands,
   restoreCategory,
+  restoreShippingClasses,
   restoreTags,
   updateBrand,
   updateCategory,
   updateCategoryPosition,
+  updateShippingClass,
   updateTag,
 } from "../../controllers";
 import { createProduct } from "../../controllers/mutations/manage-product/create-product";
@@ -46,7 +50,7 @@ export const productMutationsResolver = {
     deleteCategory,
 
     /**
-     * Restores previously deleted category
+     * Restores previously deleted category.
      */
     restoreCategory,
 
@@ -66,7 +70,7 @@ export const productMutationsResolver = {
     deleteTag,
 
     /**
-     * Restores previously deleted category
+     * Restores previously deleted category.
      */
     restoreTags,
 
@@ -86,9 +90,28 @@ export const productMutationsResolver = {
     deleteBrand,
 
     /**
-     * Restores previously deleted category
+     * Restores previously deleted brand.
      */
     restoreBrands,
+
+    /**
+     * Creates a new shipping class.
+     */
+    createShippingClass,
+    /**
+     * Updates detailed information for a specific shipping class .
+     */
+    updateShippingClass,
+
+    /**
+     * Deletes specified shipping class from the system.
+     */
+    deleteShippingClass,
+
+    /**
+     * Restores previously deleted shipping class.
+     */
+    restoreShippingClasses,
 
     createProduct,
   },
