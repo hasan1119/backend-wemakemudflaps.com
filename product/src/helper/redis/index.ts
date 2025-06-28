@@ -1,4 +1,27 @@
 /**
+ * Exports utilities for managing brand session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllBrandSearchCache,
+  getBrandInfoByBrandIdFromRedis,
+  getBrandNameExistFromRedis,
+  getBrandsCountFromRedis,
+  getBrandsFromRedis,
+  getBrandSlugExistFromRedis,
+  removeBrandInfoByBrandIdFromRedis,
+  removeBrandNameExistFromRedis,
+  removeBrandSlugExistFromRedis,
+  setBrandInfoByBrandIdInRedis,
+  setBrandNameExistInRedis,
+  setBrandsCountInRedis,
+  setBrandsInRedis,
+  setBrandSlugExistInRedis,
+} from "./utils/brand/manage-brand-session";
+
+/**
  * Exports utilities for managing tag session data in Redis.
  *
  * Workflow:
