@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllTagSearchCache,
   getTagInfoByTagIdFromRedis,
   setTagInfoByTagIdInRedis,
 } from "../../../helper/redis";
@@ -126,9 +127,12 @@ export const restoreTags = async (
     const restored = await restoreTag(ids);
 
     // Update Redis
-    await Promise.all(
+    await Promise.all([
       restored.map((tag) => setTagInfoByTagIdInRedis(tag.id, tag))
-    );
+    ),
+clearAllTagSearchCache()
+			]
+		 
 
     return {
       statusCode: 200,
