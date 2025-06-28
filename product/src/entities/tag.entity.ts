@@ -11,7 +11,7 @@ export class Tag {
   name: string;
 
   // Tag slug
-  @Column({ type: "text" })
+  @Column({ unique: true, type: "text" })
   slug: string;
 
   // One tag can be associated with multiple products
