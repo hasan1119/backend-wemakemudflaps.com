@@ -167,7 +167,7 @@ export const updateTag = async (
       clearAllTagSearchCache(),
       setTagInfoByTagIdInRedis(id, updatedTag),
       setTagNameExistInRedis(updatedTag.name),
-      setTagSlugExistInRedis(updatedTag.name),
+      setTagSlugExistInRedis(updatedTag.slug),
     ]);
 
     return {

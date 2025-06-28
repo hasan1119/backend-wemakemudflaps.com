@@ -171,7 +171,7 @@ export const updateBrand = async (
       clearAllBrandSearchCache(),
       setBrandInfoByBrandIdInRedis(id, updatedBrand),
       setBrandNameExistInRedis(updatedBrand.name),
-      setBrandSlugExistInRedis(updatedBrand.name),
+      setBrandSlugExistInRedis(updatedBrand.slug),
     ]);
 
     return {

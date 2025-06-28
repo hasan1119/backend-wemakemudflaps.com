@@ -80,7 +80,7 @@ export const productQueriesResolver = {
 
   // Reuse resolveCreatedBy for all applicable types
   Brand: { createdBy: resolveCreatedBy },
-  BrandDataResponse: { createdBy: resolveCreatedBy },
+  // BrandDataResponse: { createdBy: resolveCreatedBy },
   BrandPaginationDataSession: { createdBy: resolveCreatedBy },
   Tag: { createdBy: resolveCreatedBy },
   TagPaginationDataSession: { createdBy: resolveCreatedBy },

@@ -40,17 +40,6 @@ export type Brand = {
   thumbnail?: Maybe<Scalars['String']['output']>;
 };
 
-export type BrandDataResponse = {
-  __typename?: 'BrandDataResponse';
-  createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
-  deletedAt?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  slug: Scalars['String']['output'];
-  thumbnail?: Maybe<Scalars['String']['output']>;
-};
-
 export type BrandPaginationDataSession = {
   __typename?: 'BrandPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
@@ -74,7 +63,7 @@ export type BrandPaginationResponse = {
 
 export type BrandResponse = {
   __typename?: 'BrandResponse';
-  brand: BrandDataResponse;
+  brand: Brand;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
@@ -1423,7 +1412,6 @@ export type ResolversTypes = {
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   Brand: ResolverTypeWrapper<Brand>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
-  BrandDataResponse: ResolverTypeWrapper<BrandDataResponse>;
   BrandPaginationDataSession: ResolverTypeWrapper<BrandPaginationDataSession>;
   BrandPaginationResponse: ResolverTypeWrapper<BrandPaginationResponse>;
   BrandResponse: ResolverTypeWrapper<BrandResponse>;
@@ -1544,7 +1532,6 @@ export type ResolversParentTypes = {
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   Brand: Brand;
   ID: Scalars['ID']['output'];
-  BrandDataResponse: BrandDataResponse;
   BrandPaginationDataSession: BrandPaginationDataSession;
   BrandPaginationResponse: BrandPaginationResponse;
   BrandResponse: BrandResponse;
@@ -1683,17 +1670,6 @@ export type BrandResolvers<ContextType = Context, ParentType extends ResolversPa
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type BrandDataResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BrandDataResponse'] = ResolversParentTypes['BrandDataResponse']> = {
-  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
-  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type BrandPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BrandPaginationDataSession'] = ResolversParentTypes['BrandPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
@@ -1716,7 +1692,7 @@ export type BrandPaginationResponseResolvers<ContextType = Context, ParentType e
 };
 
 export type BrandResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BrandResponse'] = ResolversParentTypes['BrandResponse']> = {
-  brand?: Resolver<ResolversTypes['BrandDataResponse'], ParentType, ContextType>;
+  brand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -2466,7 +2442,6 @@ export type Resolvers<ContextType = Context> = {
   BaseResponse?: BaseResponseResolvers<ContextType>;
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
   Brand?: BrandResolvers<ContextType>;
-  BrandDataResponse?: BrandDataResponseResolvers<ContextType>;
   BrandPaginationDataSession?: BrandPaginationDataSessionResolvers<ContextType>;
   BrandPaginationResponse?: BrandPaginationResponseResolvers<ContextType>;
   BrandResponse?: BrandResponseResolvers<ContextType>;

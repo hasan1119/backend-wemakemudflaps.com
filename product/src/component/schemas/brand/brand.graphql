@@ -9,22 +9,12 @@ type Brand {
   deletedAt: String
 }
 
-type BrandDataResponse {
-  id: ID!
-  name: String!
-  slug: String!
-  thumbnail: String
-  createdBy: CreatedBy
-  createdAt: String
-  deletedAt: String
-}
-
 # Response for fetching a brand.
 type BrandResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  brand: BrandDataResponse!
+  brand: Brand!
 }
 
 # Response for fetching a brand.
