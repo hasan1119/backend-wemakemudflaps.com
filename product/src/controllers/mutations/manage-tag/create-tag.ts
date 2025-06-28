@@ -147,7 +147,7 @@ export const createTag = async (
       setTagInfoByTagIdInRedis(tag.id, tag),
       setTagNameExistInRedis(tag.name),
       setTagSlugExistInRedis(tag.slug),
-				clearAllTagSearchCache(),
+      clearAllTagSearchCache(),
     ]);
 
     return {

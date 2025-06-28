@@ -75,7 +75,7 @@ export const getTagSlugExistFromRedis = async (
 };
 
 /**
- * Caches a paginated list of tags in Redis with optional TTL.
+ * Caches a paginated list of tags in Redis.
  *
  * @param page - Current page number.
  * @param limit - Number of tags per page.
@@ -83,7 +83,6 @@ export const getTagSlugExistFromRedis = async (
  * @param sortBy - Field to sort by.
  * @param sortOrder - Sort order ('asc' or 'desc').
  * @param tags - Array of Tag objects to cache.
- * @param ttl - Optional time-to-live in seconds (default: 30).
  */
 export const setTagsInRedis = async (
   page: number,
@@ -91,31 +90,28 @@ export const setTagsInRedis = async (
   search: string,
   sortBy: string,
   sortOrder: string,
-  tags: TagPaginationDataSession[],
-  ttl: number = 30
+  tags: TagPaginationDataSession[]
 ): Promise<void> => {
   const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, tags, "product-app", ttl);
+  await redis.setSession(key, tags, "product-app");
 };
 
 /**
- * Caches the total tag count in Redis with optional TTL.
+ * Caches the total tag count in Redis.
  *
  * @param search - Search query.
  * @param sortBy - Field used for sorting.
  * @param sortOrder - Sort order.
  * @param count - Total number of tags.
- * @param ttl - Optional time-to-live in seconds (default: 30).
  */
 export const setTagsCountInRedis = async (
   search: string,
   sortBy: string,
   sortOrder: string,
-  count: number,
-  ttl: number = 30
+  count: number
 ): Promise<void> => {
   const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, count.toString(), "product-app", ttl);
+  await redis.setSession(key, count.toString(), "product-app");
 };
 
 /**
@@ -260,13 +256,13 @@ export const removeTagSlugExistFromRedis = async (
 
 /**
  * Deletes all Redis cache entries related to tag list and count.
- * 
+ *
  * Order of deletion:
  * 1. Delete list-related keys (paginated data)
  * 2. Delete count-related keys (total counts)
  */
 export const clearAllTagSearchCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKeys("product-app");
+  const keys = await redis.getAllSessionKey("product-app");
 
   const listKeys = keys.filter((key) => key.startsWith(PREFIX.LIST));
   const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));

@@ -25,7 +25,7 @@ const clearTagCache = async (id: string, name: string, slug: string) => {
     removeTagInfoByTagIdFromRedis(id),
     removeTagNameExistFromRedis(name),
     removeTagSlugExistFromRedis(slug),
-		 clearAllTagSearchCache(),
+    clearAllTagSearchCache(),
   ]);
 };
 

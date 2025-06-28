@@ -5,7 +5,7 @@ import {
   getTagInfoByTagIdFromRedis,
   setTagInfoByTagIdInRedis,
 } from "../../../helper/redis";
-import { BaseResponseOrError, MutationRestoreTagArgs } from "../../../types";
+import { BaseResponseOrError, MutationRestoreTagsArgs } from "../../../types";
 import { idsSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
@@ -34,7 +34,7 @@ import {
  */
 export const restoreTags = async (
   _: any,
-  args: MutationRestoreTagArgs,
+  args: MutationRestoreTagsArgs,
   { user }: Context
 ): Promise<BaseResponseOrError> => {
   try {
@@ -129,9 +129,8 @@ export const restoreTags = async (
     // Update Redis
     await Promise.all([
       restored.map((tag) => setTagInfoByTagIdInRedis(tag.id, tag)),
-clearAllTagSearchCache(),
-]);
-		 
+      clearAllTagSearchCache(),
+    ]);
 
     return {
       statusCode: 200,
