@@ -33,7 +33,7 @@ const clearTagCache = async (id: string, name: string, slug: string) => {
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteTag(id);
   setTagInfoByTagIdInRedis(id, deletedData);
-  clearAllTagSearchCache();
+  await clearAllTagSearchCache();
 };
 
 /**
