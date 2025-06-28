@@ -32,6 +32,29 @@ appSessionRedisClient.on("error", (err) =>
   console.error("App Session Redis connection error:", err)
 );
 
+/**
+ * Retrieves all session keys from Redis for a given session type.
+ *
+ * Workflow:
+ * 1. Uses Redis `keys` command with pattern matching to fetch relevant keys.
+ * 2. Catches and logs any errors during key retrieval.
+ *
+ * @param type - The Redis session type ("user-session" | "user-app").
+ * @returns A promise resolving to an array of matching keys.
+ */
+async function getAllSessionKey(
+  type: SessionType = "user-app"
+): Promise<string[]> {
+  try {
+    const client = getRedisClient(type);
+    const keys = await client.keys("*");
+    return keys;
+  } catch (error) {
+    console.error(`Error retrieving keys for ${type}:`, error);
+    return [];
+  }
+}
+
 // Utility to select client
 function getRedisClient(type: SessionType) {
   return type === "user-session"
@@ -116,6 +139,7 @@ async function deleteSession(
 
 // Export utility
 export const redis = {
+  getAllSessionKey,
   getSession,
   setSession,
   deleteSession,

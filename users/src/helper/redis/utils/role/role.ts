@@ -78,7 +78,6 @@ export const getRolesCountFromRedis = async (
  * @param sortBy - The field to sort by (default: "createdAt").
  * @param sortOrder - The sort order (default: "desc").
  * @param roles - The array of Role data to cache.
- * @param ttl - Optional time-to-live in seconds (default: 30).
  * @returns A promise resolving when the roles are cached.
  */
 export const setRolesInRedis = async (
@@ -87,12 +86,11 @@ export const setRolesInRedis = async (
   search: string | null,
   sortBy: string = "createdAt",
   sortOrder: string = "desc",
-  roles: Role[],
-  ttl: number = 30
+  roles: Role[]
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.ROLES}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, roles, "user-app", ttl);
+  await redis.setSession(key, roles, "user-app");
 };
 
 /**
@@ -106,17 +104,43 @@ export const setRolesInRedis = async (
  * @param sortBy - The field to sort by (default: "createdAt").
  * @param sortOrder - The sort order (default: "desc").
  * @param total - The total roles count to cache.
- * @param ttl - Optional time-to-live in seconds (default: 30).
  * @returns A promise resolving when the count is cached.
  */
 export const setRolesCountInRedis = async (
   search: string | null,
   sortBy: string = "createdAt",
   sortOrder: string = "desc",
-  total: number,
-  ttl: number = 30
+  total: number
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.ROLES_COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, total.toString(), "user-app", ttl);
+  await redis.setSession(key, total.toString(), "user-app");
+};
+
+/**
+ * Deletes all Redis cache entries related to role list and count.
+ *
+ * Order of deletion:
+ * 1. Delete list-related keys (paginated data)
+ * 2. Delete count-related keys (total counts)
+ */
+export const clearAllRoleSearchCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKey("user-app");
+
+  const listKeys = keys.filter((key) => key.startsWith(PREFIX.ROLES));
+  const countKeys = keys.filter((key) => key.startsWith(PREFIX.ROLES_COUNT));
+
+  // Delete list keys first
+  if (listKeys.length > 0) {
+    await Promise.all(
+      listKeys.map((key) => redis.deleteSession(key, "user-app"))
+    );
+  }
+
+  // Then delete count keys
+  if (countKeys.length > 0) {
+    await Promise.all(
+      countKeys.map((key) => redis.deleteSession(key, "user-app"))
+    );
+  }
 };

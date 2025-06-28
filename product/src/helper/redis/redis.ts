@@ -54,7 +54,7 @@ async function getAllSessionKey(
 ): Promise<string[]> {
   try {
     const client = getRedisClient(type);
-    const keys = await client.keys("*"); // You can use a prefix pattern like "tag:*" for stricter matching
+    const keys = await client.keys("*");
     return keys;
   } catch (error) {
     console.error(`Error retrieving keys for ${type}:`, error);

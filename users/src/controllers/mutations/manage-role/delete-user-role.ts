@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllRoleSearchCache,
   getRoleInfoByRoleIdFromRedis,
   getTotalUserCountByRoleIdFromRedis,
   getUserInfoByEmailFromRedis,
@@ -34,6 +35,7 @@ const clearRoleCache = async (id: string, name: string) => {
     removeRoleInfoByRoleNameFromRedis(name),
     removeRoleNameExistFromRedis(name),
     removeTotalUserCountByRoleIdFromRedis(id),
+    clearAllRoleSearchCache(),
   ]);
 };
 
@@ -43,6 +45,7 @@ const softDeleteAndCache = async (id: string, name: string) => {
   await Promise.all([
     setRoleInfoByRoleIdInRedis(id, deletedData),
     setRoleInfoByRoleNameInRedis(name, deletedData),
+    clearAllRoleSearchCache(),
   ]);
 };
 

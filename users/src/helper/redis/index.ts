@@ -70,6 +70,7 @@ export {
  * 1. Provides functions for getting and setting cached roles and their counts.
  */
 export {
+  clearAllRoleSearchCache,
   getRolesCountFromRedis,
   getRolesFromRedis,
   setRolesCountInRedis,

@@ -2,6 +2,7 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { RolePermission } from "../../../entities";
 import {
+  clearAllRoleSearchCache,
   getRoleNameExistFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
@@ -177,6 +178,7 @@ export const createUserRole = async (
       setRoleInfoByRoleIdInRedis(role.id, role),
       setRoleInfoByRoleNameInRedis(role.name, role),
       setRoleNameExistInRedis(role.name),
+      clearAllRoleSearchCache(),
     ]);
 
     return {

@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllRoleSearchCache,
   getRoleInfoByRoleIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
@@ -138,14 +139,15 @@ export const restoreUserRole = async (
     const restoredRoles = await restoreRole(ids);
 
     // Update Redis cache with restored role data
-    await Promise.all(
+    await Promise.all([
       restoredRoles.map((role) =>
         Promise.all([
           setRoleInfoByRoleIdInRedis(role.id, role),
           setRoleInfoByRoleNameInRedis(role.name, role),
         ])
-      )
-    );
+      ),
+      clearAllRoleSearchCache(),
+    ]);
 
     return {
       statusCode: 200,

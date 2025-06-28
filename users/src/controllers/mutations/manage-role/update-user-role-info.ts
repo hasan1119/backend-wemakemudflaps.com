@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllRoleSearchCache,
   getRoleInfoByRoleIdFromRedis,
   getRoleNameExistFromRedis,
   getUserInfoByEmailFromRedis,
@@ -288,6 +289,7 @@ export const updateUserRoleInfo = async (
     await Promise.all([
       setRoleInfoByRoleNameInRedis(updatedRole.id, updatedRole),
       setRoleInfoByRoleIdInRedis(updatedRole.id, updatedRole),
+      clearAllRoleSearchCache(),
     ]);
 
     return {
