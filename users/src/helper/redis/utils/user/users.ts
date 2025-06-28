@@ -69,7 +69,6 @@ export const getUsersCountFromRedis = async (
  *
  * Workflow:
  * 1. Constructs a Redis key using page, limit, search term, sortBy, and sortOrder.
- * 2. Stores the provided users array in Redis with an optional time-to-live (TTL).
  *
  * @param page - The page number for pagination.
  * @param limit - The number of users per page.
@@ -77,7 +76,6 @@ export const getUsersCountFromRedis = async (
  * @param sortBy - The field to sort by (default: "createdAt").
  * @param sortOrder - The sort order (default: "desc").
  * @param users - The array of User data to cache.
- * @param ttl - Optional time-to-live in seconds (default: 60).
  * @returns A promise resolving when the users are cached.
  */
 export const setUsersInRedis = async (
@@ -86,12 +84,11 @@ export const setUsersInRedis = async (
   search: string | null,
   sortBy: string = "createdAt",
   sortOrder: string = "desc",
-  users: User[],
-  ttl: number = 60
+  users: User[]
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.USERS}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, users, "user-app", ttl);
+  await redis.setSession(key, users, "user-app");
 };
 
 /**
@@ -99,25 +96,22 @@ export const setUsersInRedis = async (
  *
  * Workflow:
  * 1. Constructs a Redis key using search term, sortBy, and sortOrder.
- * 2. Stores the total count as a string in Redis with an optional time-to-live (TTL).
  *
  * @param search - Optional search term or null for no search.
  * @param sortBy - The field to sort by (default: "createdAt").
  * @param sortOrder - The sort order (default: "desc").
  * @param total - The total users count to cache.
- * @param ttl - Optional time-to-live in seconds (default: 60).
  * @returns A promise resolving when the count is cached.
  */
 export const setUsersCountInRedis = async (
   search: string | null,
   sortBy: string = "createdAt",
   sortOrder: string = "desc",
-  total: number,
-  ttl: number = 60
+  total: number
 ): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
   const key = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, total.toString(), "user-app", ttl);
+  await redis.setSession(key, total.toString(), "user-app");
 };
 
 /**
@@ -150,4 +144,22 @@ export const removeUsersFromRedis = async (
     redis.deleteSession(usersKey, "user-app"),
     redis.deleteSession(countKey, "user-app"),
   ]);
+};
+
+/**
+ * Deletes all Redis cache entries related to user list and count.
+ *
+ * Order of deletion:
+ * 1. Delete list-related keys (paginated data)
+ * 2. Delete count-related keys (total counts)
+ */
+export const clearAllUserSearchCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKey("user-app");
+
+  const listKeys = keys.filter((key) => key.startsWith(PREFIX.USERS));
+
+  // Delete list and count keys
+  await Promise.all(
+    listKeys.map((key) => redis.deleteSession(key, "user-app"))
+  );
 };

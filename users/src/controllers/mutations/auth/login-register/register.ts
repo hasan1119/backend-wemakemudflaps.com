@@ -2,6 +2,7 @@ import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
 import { Role, User } from "../../../../entities";
 import {
+  clearAllUserSearchCache,
   getRoleInfoByRoleNameFromRedis,
   getTotalUserCountByRoleIdFromRedis,
   getUserCountInDBFromRedis,
@@ -238,6 +239,7 @@ export const register = async (
         setUserInfoByEmailInRedis(email, savedUser),
         setUserCountInDBInRedis(userCount + 1),
         setTotalUserCountByRoleIdInRedis(role.id, userCountForRole + 1),
+        clearAllUserSearchCache(),
       ]);
 
       return {
@@ -401,6 +403,7 @@ export const register = async (
         setUserInfoByEmailInRedis(email, savedUser),
         setUserCountInDBInRedis(userCount + 1),
         setTotalUserCountByRoleIdInRedis(role.id, userCountForRole + 1),
+        clearAllUserSearchCache(),
       ]);
 
       return {

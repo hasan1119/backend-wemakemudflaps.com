@@ -108,6 +108,7 @@ export {
  * 1. Provides functions for getting, setting, and removing cached users and their counts.
  */
 export {
+  clearAllUserSearchCache,
   getUsersCountFromRedis,
   getUsersFromRedis,
   removeUsersFromRedis,
