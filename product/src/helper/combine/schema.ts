@@ -10,6 +10,9 @@ import {
   productMutationsDef,
   productQueriesDef,
   sharedDef,
+  shippingClassDef,
+  shippingClassMutationsDef,
+  shippingClassQueriesDef,
   tagDef,
   tagMutationsDef,
   tagQueriesDef,
@@ -62,4 +65,13 @@ export const typeDefs = mergeTypeDefs([
 
   // Schema for product mutations (modifying product data)
   productMutationsDef,
+
+  // Shipping Class schema definition
+  shippingClassDef,
+
+  // Schema for shippingClass queries (fetching shipping class data)
+  shippingClassQueriesDef,
+
+  // Schema for shippingClass mutations (modifying shipping class data)
+  shippingClassMutationsDef,
 ]);

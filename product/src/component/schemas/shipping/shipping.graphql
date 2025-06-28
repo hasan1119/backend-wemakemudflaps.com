@@ -1,0 +1,57 @@
+# ---------------------- Shipping Class Types ----------------------
+type ShippingClass {
+  id: ID!
+  name: String!
+  description: String!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a shipping class.
+type ShippingClassResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingClass: ShippingClass!
+}
+
+# Response for fetching a shipping class.
+type ShippingClassPaginationDataSession {
+  id: ID!
+  name: String!
+  description: String
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a shipping classes list.
+type ShippingClassPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingClasses: [ShippingClassPaginationDataSession!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateShippingClassResponseOrError =
+    BaseResponse
+  | ShippingClassResponse
+  | ErrorResponse
+union GetShippingClassByIDResponseOrError =
+    BaseResponse
+  | ShippingClassResponse
+  | ErrorResponse
+union GetShippingClassesResponseOrError =
+    BaseResponse
+  | ShippingClassPaginationResponse
+  | ErrorResponse
+union UpdateShippingClassResponseOrError =
+    BaseResponse
+  | ShippingClassResponse
+  | ErrorResponse
+union DeleteShippingClassResponseOrError = BaseResponse | ErrorResponse
+union RestoreShippingClassResponseOrError = BaseResponse | ErrorResponse

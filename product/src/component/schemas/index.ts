@@ -192,3 +192,48 @@ export const productMutationsDef = gql(
     encoding: "utf-8",
   })
 );
+
+/**
+ * Loads and parses the GraphQL schema for shipping class-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `shipping/shipping.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for shipping classes as a DocumentNode.
+ */
+export const shippingClassDef = gql(
+  readFileSync(path.join(__dirname, "./shipping/shipping.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL queries for shipping class-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `shipping/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for shipping classes as a DocumentNode.
+ */
+export const shippingClassQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./shipping/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for shipping class-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `shipping/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for shipping classes as a DocumentNode.
+ */
+export const shippingClassMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./shipping/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);

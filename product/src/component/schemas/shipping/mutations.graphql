@@ -1,0 +1,32 @@
+# Mutations to manage shipping class operations.
+type Mutation {
+  # Create a new shipping class.
+  # Only accessible by authorized users.
+  createShippingClass(
+    name: String! # Unique name of the shipping class to create.
+    description: String # Optional description for the shipping class.
+  ): CreateShippingClassResponseOrError!
+
+  # Update an existing shipping class.
+  # Only accessible by authorized users.
+  updateShippingClass(
+    id: ID! # ID of the shipping class to update.
+    name: String # Optional updated name of the shipping class.
+    description: String # Optional updated description of the shipping class.
+  ): UpdateShippingClassResponseOrError!
+
+  # Deletes a shipping class by IDs.
+  # Performs a soft delete by default (marks as deleted).
+  # If skipTrash is true, performs a permanent delete.
+  # Only accessible by authorized users.
+  deleteShippingClass(
+    ids: [ID]!
+    skipTrash: Boolean!
+  ): DeleteShippingClassResponseOrError!
+
+  # Mutation to restore a soft-deleted shipping class.
+  # Only accessible by authorized users.
+  restoreShippingClasses(
+    ids: [ID!]! # List of soft-deleted role IDs to be restored.
+  ): RestoreShippingClassResponseOrError!
+}
