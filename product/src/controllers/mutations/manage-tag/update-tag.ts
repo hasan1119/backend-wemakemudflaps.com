@@ -2,13 +2,13 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearAllTagSearchCache,
-  getTagInfoByTagIdFromRedis,
+  getTagInfoByIdFromRedis,
   getTagNameExistFromRedis,
   getTagSlugExistFromRedis,
-  removeTagInfoByTagIdFromRedis,
+  removeTagInfoByIdFromRedis,
   removeTagNameExistFromRedis,
   removeTagSlugExistFromRedis,
-  setTagInfoByTagIdInRedis,
+  setTagInfoByIdInRedis,
   setTagNameExistInRedis,
   setTagSlugExistInRedis,
 } from "../../../helper/redis";
@@ -89,7 +89,7 @@ export const updateTag = async (
     const { id, name, slug } = result.data;
 
     // Get current tag data from Redis or DB
-    let currentTag = await getTagInfoByTagIdFromRedis(id);
+    let currentTag = await getTagInfoByIdFromRedis(id);
 
     if (currentTag?.deletedAt) {
       return {
@@ -161,11 +161,11 @@ export const updateTag = async (
 
     // Update Redis cache: remove old, add new
     await Promise.all([
-      removeTagInfoByTagIdFromRedis(id),
+      removeTagInfoByIdFromRedis(id),
       removeTagNameExistFromRedis(currentTag.name),
       removeTagSlugExistFromRedis(currentTag.slug),
       clearAllTagSearchCache(),
-      setTagInfoByTagIdInRedis(id, updatedTag),
+      setTagInfoByIdInRedis(id, updatedTag),
       setTagNameExistInRedis(updatedTag.name),
       setTagSlugExistInRedis(updatedTag.slug),
     ]);

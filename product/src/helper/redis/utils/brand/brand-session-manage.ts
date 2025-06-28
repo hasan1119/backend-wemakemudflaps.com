@@ -84,7 +84,7 @@ export const getBrandSlugExistFromRedis = async (
  * @param brandId - The ID of the brand.
  * @returns A promise resolving to the Brand or null if not found.
  */
-export const getBrandInfoByBrandIdFromRedis = async (
+export const getBrandInfoByIdFromRedis = async (
   brandId: string
 ): Promise<Brand | null> => {
   return redis.getSession<Brand | null>(
@@ -187,7 +187,7 @@ export const setBrandSlugExistInRedis = async (
  * @param data - The Brand entity to cache.
  * @returns A promise resolving when the brand is cached.
  */
-export const setBrandInfoByBrandIdInRedis = async (
+export const setBrandInfoByIdInRedis = async (
   brandId: string,
   data: Brand
 ): Promise<void> => {
@@ -222,7 +222,7 @@ export const setBrandNameExistInRedis = async (
  * @param brandId - The ID of the brand.
  * @returns A promise resolving when the brand data is removed.
  */
-export const removeBrandInfoByBrandIdFromRedis = async (
+export const removeBrandInfoByIdFromRedis = async (
   brandId: string
 ): Promise<void> => {
   await redis.deleteSession(`${PREFIX.BRAND}${brandId}`, "product-app");

@@ -2,13 +2,13 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearAllBrandSearchCache,
-  getBrandInfoByBrandIdFromRedis,
+  getBrandInfoByIdFromRedis,
   getBrandNameExistFromRedis,
   getBrandSlugExistFromRedis,
-  removeBrandInfoByBrandIdFromRedis,
+  removeBrandInfoByIdFromRedis,
   removeBrandNameExistFromRedis,
   removeBrandSlugExistFromRedis,
-  setBrandInfoByBrandIdInRedis,
+  setBrandInfoByIdInRedis,
   setBrandNameExistInRedis,
   setBrandSlugExistInRedis,
 } from "../../../helper/redis";
@@ -89,7 +89,7 @@ export const updateBrand = async (
     const { id, name, slug, thumbnail } = result.data;
 
     // Get current brand data from Redis or DB
-    let currentBrand = await getBrandInfoByBrandIdFromRedis(id);
+    let currentBrand = await getBrandInfoByIdFromRedis(id);
 
     if (currentBrand?.deletedAt) {
       return {
@@ -165,11 +165,11 @@ export const updateBrand = async (
 
     // Update Redis cache: remove old, add new
     await Promise.all([
-      removeBrandInfoByBrandIdFromRedis(id),
+      removeBrandInfoByIdFromRedis(id),
       removeBrandNameExistFromRedis(currentBrand.name),
       removeBrandSlugExistFromRedis(currentBrand.slug),
       clearAllBrandSearchCache(),
-      setBrandInfoByBrandIdInRedis(id, updatedBrand),
+      setBrandInfoByIdInRedis(id, updatedBrand),
       setBrandNameExistInRedis(updatedBrand.name),
       setBrandSlugExistInRedis(updatedBrand.slug),
     ]);

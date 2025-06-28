@@ -84,7 +84,7 @@ export const getTagSlugExistFromRedis = async (
  * @param tagId - The ID of the tag.
  * @returns A promise resolving to the Tag or null if not found.
  */
-export const getTagInfoByTagIdFromRedis = async (
+export const getTagInfoByIdFromRedis = async (
   tagId: string
 ): Promise<Tag | null> => {
   return redis.getSession<Tag | null>(`${PREFIX.TAG}${tagId}`, "product-app");
@@ -184,7 +184,7 @@ export const setTagSlugExistInRedis = async (
  * @param data - The Tag entity to cache.
  * @returns A promise resolving when the tag is cached.
  */
-export const setTagInfoByTagIdInRedis = async (
+export const setTagInfoByIdInRedis = async (
   tagId: string,
   data: Tag
 ): Promise<void> => {
@@ -219,7 +219,7 @@ export const setTagNameExistInRedis = async (
  * @param tagId - The ID of the tag.
  * @returns A promise resolving when the tag data is removed.
  */
-export const removeTagInfoByTagIdFromRedis = async (
+export const removeTagInfoByIdFromRedis = async (
   tagId: string
 ): Promise<void> => {
   await redis.deleteSession(`${PREFIX.TAG}${tagId}`, "product-app");
