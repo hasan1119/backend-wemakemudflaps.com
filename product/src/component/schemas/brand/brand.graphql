@@ -7,7 +7,6 @@ type Brand {
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String
-  products: [Product!]! # List of products associated with this brand
 }
 
 type BrandDataResponse {

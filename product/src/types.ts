@@ -36,7 +36,6 @@ export type Brand = {
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  products: Array<Product>;
   slug: Scalars['String']['output'];
   thumbnail?: Maybe<Scalars['String']['output']>;
 };
@@ -1559,7 +1558,6 @@ export type BrandResolvers<ContextType = Context, ParentType extends ResolversPa
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  products?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

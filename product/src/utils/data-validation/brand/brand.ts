@@ -13,7 +13,7 @@ import { SortOrderTypeEnum } from "../common/common";
  * @property slug - Brand slug (minimum 3 characters).
  */
 export const createBrandSchema = z.object({
-  thumbnail: z.string().url("Invalid URL format").optional(),
+  thumbnail: z.string().url("Invalid URL format").nullable().optional(),
   name: z.string().min(3, "Brand name must be at least 3 characters").trim(),
   slug: z.string().min(3, "Brand slug must be at least 3 characters").trim(),
 });
@@ -33,7 +33,7 @@ export const createBrandSchema = z.object({
  */
 export const updateBrandSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
-  thumbnail: z.string().url("Invalid URL format").optional(),
+  thumbnail: z.string().url("Invalid URL format").nullable().optional(),
   name: z
     .string()
     .min(3, "Brand name must be at least 3 characters")

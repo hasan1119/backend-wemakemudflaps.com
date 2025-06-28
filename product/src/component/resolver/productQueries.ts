@@ -1,6 +1,8 @@
 import {
+  getAllBrands,
   getAllCategories,
   getAllTags,
+  getBrandById,
   getCategoryById,
   getSubCategoryById,
   getTagById,
@@ -52,9 +54,22 @@ export const productQueriesResolver = {
      * Fetches a paginated list of all tags in the system.
      */
     getAllTags,
+
+    /**
+     * Retrieves detailed information for a brand by their unique ID.
+     */
+    getBrandById,
+
+    /**
+     * Fetches a paginated list of all brands in the system.
+     */
+    getAllBrands,
   },
 
   // Reuse resolveCreatedBy for all applicable types
+  Brand: { createdBy: resolveCreatedBy },
+  BrandDataResponse: { createdBy: resolveCreatedBy },
+  BrandPaginationDataSession: { createdBy: resolveCreatedBy },
   Tag: { createdBy: resolveCreatedBy },
   TagPaginationDataSession: { createdBy: resolveCreatedBy },
   Product: { createdBy: resolveCreatedBy },

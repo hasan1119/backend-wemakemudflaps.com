@@ -1,10 +1,14 @@
 import {
+  createBrand,
   createCategory,
   createTag,
+  deleteBrand,
   deleteCategory,
   deleteTag,
+  restoreBrands,
   restoreCategory,
   restoreTags,
+  updateBrand,
   updateCategory,
   updateCategoryPosition,
   updateTag,
@@ -65,6 +69,26 @@ export const productMutationsResolver = {
      * Restores previously deleted category
      */
     restoreTags,
+
+    /**
+     * Creates a new brand.
+     */
+    createBrand,
+
+    /**
+     * Updates detailed information for a specific brand.
+     */
+    updateBrand,
+
+    /**
+     * Deletes specified brand from the system.
+     */
+    deleteBrand,
+
+    /**
+     * Restores previously deleted category
+     */
+    restoreBrands,
 
     createProduct,
   },

@@ -26,7 +26,7 @@ export const CategoryTypeEnum = z.enum(["category", "subCategory"], {
  */
 export const createCategorySchema = z
   .object({
-    thumbnail: z.string().url("Invalid URL format"),
+    thumbnail: z.string().url("Invalid URL format").nullable().optional(),
     name: z
       .string()
       .min(3, "Category name must be at least 3 characters")
@@ -78,7 +78,7 @@ export const createCategorySchema = z
  */
 export const updateCategorySchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
-  thumbnail: z.string().url("Invalid URL format").optional(),
+  thumbnail: z.string().url("Invalid URL format").nullable().optional(),
   name: z
     .string()
     .min(3, "Category name must be at least 3 characters")

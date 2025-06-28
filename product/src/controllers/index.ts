@@ -1,4 +1,19 @@
 /**
+ * Exports GraphQL queries and mutations for managing brand data.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating, updating, deleting, and restoring brands.
+ * 2. Enables retrieval of a specific brand by its ID.
+ * 3. Facilitates listing all tags in the system.
+ */
+export { createBrand } from "./mutations/manage-brand/create-brand";
+export { deleteBrand } from "./mutations/manage-brand/delete-brand";
+export { restoreBrands } from "./mutations/manage-brand/restore-brand";
+export { updateBrand } from "./mutations/manage-brand/update-brand";
+export { getBrandById } from "./queries/brand/get-brand-by-id";
+export { getAllBrands } from "./queries/brand/get-brands";
+
+/**
  * Exports GraphQL queries and mutations for managing category data.
  *
  * Workflow:
