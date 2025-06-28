@@ -257,3 +257,31 @@ export const removeTagSlugExistFromRedis = async (
     "product-app"
   );
 };
+
+/**
+ * Deletes all Redis cache entries related to tag list and count.
+ * 
+ * Order of deletion:
+ * 1. Delete list-related keys (paginated data)
+ * 2. Delete count-related keys (total counts)
+ */
+export const clearAllTagSearchCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKeys("product-app");
+
+  const listKeys = keys.filter((key) => key.startsWith(PREFIX.LIST));
+  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
+
+  // Delete list keys first
+  if (listKeys.length > 0) {
+    await Promise.all(
+      listKeys.map((key) => redis.deleteSession(key, "product-app"))
+    );
+  }
+
+  // Then delete count keys
+  if (countKeys.length > 0) {
+    await Promise.all(
+      countKeys.map((key) => redis.deleteSession(key, "product-app"))
+    );
+  }
+};
