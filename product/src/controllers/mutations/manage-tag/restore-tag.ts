@@ -130,7 +130,7 @@ export const restoreTags = async (
     await Promise.all([
       restored.map((tag) => setTagInfoByTagIdInRedis(tag.id, tag)),
 clearAllTagSearchCache(),
-])
+]);
 		 
 
     return {
