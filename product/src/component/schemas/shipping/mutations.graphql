@@ -3,7 +3,7 @@ type Mutation {
   # Create a new shipping class.
   # Only accessible by authorized users.
   createShippingClass(
-    name: String! # Unique name of the shipping class to create.
+    value: String! # Unique name of the shipping class to create.
     description: String # Optional description for the shipping class.
   ): CreateShippingClassResponseOrError!
 
@@ -11,7 +11,7 @@ type Mutation {
   # Only accessible by authorized users.
   updateShippingClass(
     id: ID! # ID of the shipping class to update.
-    name: String # Optional updated name of the shipping class.
+    value: String # Optional updated name of the shipping class.
     description: String # Optional updated description of the shipping class.
   ): UpdateShippingClassResponseOrError!
 
