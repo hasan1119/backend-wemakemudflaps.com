@@ -126,3 +126,55 @@ export { restoreTag } from "./tag/restore-tag.service";
  * 1. Provides functions to update basic fields (name, slug).
  */
 export { updateTag } from "./tag/update-tag.service";
+
+/**
+ * Exports services for creating brand.
+ *
+ * Workflow:
+ * 1. Provides a function to create either a brand based on input.
+ */
+export { createBrand } from "./brand/create-brand.service";
+
+/**
+ * Exports services for deleting brands.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export { hardDeleteBrand, softDeleteBrand } from "./brand/delete-brand.service";
+
+/**
+ * Exports services for fetching and counting brands.
+ *
+ * Workflow:
+ * 1. Provides counting of brands matching optional search criteria.
+ * 2. Provides functions to fetch brand by ID/name with relations.
+ * 3. Supports paginated retrieval of brands.
+ */
+export {
+  countBrandsWithSearch,
+  countProductsForBrand,
+  findBrandByName,
+  findBrandByNameToUpdate,
+  findBrandBySlug,
+  findBrandBySlugToUpdate,
+  getBrandById,
+  getBrandsByIds,
+  paginateBrands,
+} from "./brand/get-brand.service";
+
+/**
+ * Exports service for restoring soft-deleted brands by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { restoreBrand } from "./brand/restore-brand.service";
+
+/**
+ * Exports services for updating categories and subcategories.
+ *
+ * Workflow:
+ * 1. Provides functions to update basic fields (name, slug).
+ */
+export { updateBrand } from "./brand/update-brand.service";
