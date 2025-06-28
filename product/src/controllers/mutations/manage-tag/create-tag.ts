@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllTagSearchCache,
   getTagNameExistFromRedis,
   getTagSlugExistFromRedis,
   setTagInfoByTagIdInRedis,
