@@ -2,7 +2,7 @@
  * Exports utilities for managing tag session data in Redis.
  *
  * Workflow:
- * 1. Provides functions for getting and setting.
+ * 1. Provides functions for getting, setting amd removing.
  */
 export {
   clearAllTagSearchCache,
