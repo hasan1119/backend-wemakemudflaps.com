@@ -75,46 +75,6 @@ export const getTagSlugExistFromRedis = async (
 };
 
 /**
- * Caches a paginated list of tags in Redis.
- *
- * @param page - Current page number.
- * @param limit - Number of tags per page.
- * @param search - Search query.
- * @param sortBy - Field to sort by.
- * @param sortOrder - Sort order ('asc' or 'desc').
- * @param tags - Array of Tag objects to cache.
- */
-export const setTagsInRedis = async (
-  page: number,
-  limit: number,
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  tags: TagPaginationDataSession[]
-): Promise<void> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, tags, "product-app");
-};
-
-/**
- * Caches the total tag count in Redis.
- *
- * @param search - Search query.
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @param count - Total number of tags.
- */
-export const setTagsCountInRedis = async (
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  count: number
-): Promise<void> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, count.toString(), "product-app");
-};
-
-/**
  * Handles retrieval of tag information from Redis by tag ID.
  *
  * Workflow:
@@ -128,25 +88,6 @@ export const getTagInfoByTagIdFromRedis = async (
   tagId: string
 ): Promise<Tag | null> => {
   return redis.getSession<Tag | null>(`${PREFIX.TAG}${tagId}`, "product-app");
-};
-
-/**
- * Handles setting an existence flag for a tag slug in Redis.
- *
- * Workflow:
- * 1. Stores an "exists" flag in Redis with the SLUG_EXISTS prefix and normalized tag slug.
- *
- * @param tagSlug - The slug of the tag.
- * @returns A promise resolving when the flag is set.
- */
-export const setTagSlugExistInRedis = async (
-  tagSlug: string
-): Promise<void> => {
-  await redis.setSession(
-    `${PREFIX.SLUG_EXISTS}${tagSlug.toLowerCase().trim()}`,
-    "exists",
-    "product-app"
-  );
 };
 
 /**
@@ -167,6 +108,69 @@ export const getTagNameExistFromRedis = async (
     "product-app"
   );
   return result === "exists";
+};
+
+/**
+ * Caches a paginated list of tags in Redis.
+ *
+ * @param page - Current page number.
+ * @param limit - Number of tags per page.
+ * @param search - Search query.
+ * @param sortBy - Field to sort by.
+ * @param sortOrder - Sort order ('asc' or 'desc').
+ * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
+ * @param tags - Array of Tag objects to cache.
+ */
+export const setTagsInRedis = async (
+  page: number,
+  limit: number,
+  search: string,
+  sortBy: string,
+  sortOrder: string,
+  tags: TagPaginationDataSession[],
+  ttl: number = 3600
+): Promise<void> => {
+  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
+  await redis.setSession(key, tags, "product-app", ttl);
+};
+
+/**
+ * Caches the total tag count in Redis.
+ *
+ * @param search - Search query.
+ * @param sortBy - Field used for sorting.
+ * @param sortOrder - Sort order.
+ * @param count - Total number of tags.
+ * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
+ */
+export const setTagsCountInRedis = async (
+  search: string,
+  sortBy: string,
+  sortOrder: string,
+  count: number,
+  ttl: number = 3600
+): Promise<void> => {
+  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
+  await redis.setSession(key, count.toString(), "product-app", ttl);
+};
+
+/**
+ * Handles setting an existence flag for a tag slug in Redis.
+ *
+ * Workflow:
+ * 1. Stores an "exists" flag in Redis with the SLUG_EXISTS prefix and normalized tag slug.
+ *
+ * @param tagSlug - The slug of the tag.
+ * @returns A promise resolving when the flag is set.
+ */
+export const setTagSlugExistInRedis = async (
+  tagSlug: string
+): Promise<void> => {
+  await redis.setSession(
+    `${PREFIX.SLUG_EXISTS}${tagSlug.toLowerCase().trim()}`,
+    "exists",
+    "product-app"
+  );
 };
 
 /**

@@ -49,9 +49,12 @@ export {
  * 1. Provides functions for getting, setting, and removing role info, existence flags, and user counts.
  */
 export {
+  clearAllRoleSearchCache,
   getRoleInfoByRoleIdFromRedis,
   getRoleInfoByRoleNameFromRedis,
   getRoleNameExistFromRedis,
+  getRolesCountFromRedis,
+  getRolesFromRedis,
   getTotalUserCountByRoleIdFromRedis,
   removeRoleInfoByRoleIdFromRedis,
   removeRoleInfoByRoleNameFromRedis,
@@ -60,22 +63,10 @@ export {
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
-  setTotalUserCountByRoleIdInRedis,
-} from "./utils/role/role-session-manage";
-
-/**
- * Exports utilities for managing role list data in Redis.
- *
- * Workflow:
- * 1. Provides functions for getting and setting cached roles and their counts.
- */
-export {
-  clearAllRoleSearchCache,
-  getRolesCountFromRedis,
-  getRolesFromRedis,
   setRolesCountInRedis,
   setRolesInRedis,
-} from "./utils/role/role";
+  setTotalUserCountByRoleIdInRedis,
+} from "./utils/role/role-session-manage";
 
 /**
  * Exports utilities for managing user session data in Redis.
@@ -84,10 +75,13 @@ export {
  * 1. Provides functions for getting, setting, and removing user sessions, emails, and counts.
  */
 export {
+  clearAllUserSearchCache,
   getUserCountInDBFromRedis,
   getUserEmailFromRedis,
   getUserInfoByEmailFromRedis,
   getUserInfoByUserIdFromRedis,
+  getUsersCountFromRedis,
+  getUsersFromRedis,
   getUserTokenInfoByUserSessionIdFromRedis,
   removeUserCountInDBFromRedis,
   removeUserEmailFromRedis,
@@ -98,20 +92,7 @@ export {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserTokenInfoByUserSessionIdInRedis,
-} from "./utils/user/user-session-manage";
-
-/**
- * Exports utilities for managing user list data in Redis.
- *
- * Workflow:
- * 1. Provides functions for getting, setting, and removing cached users and their counts.
- */
-export {
-  clearAllUserSearchCache,
-  getUsersCountFromRedis,
-  getUsersFromRedis,
-  removeUsersFromRedis,
   setUsersCountInRedis,
   setUsersInRedis,
-} from "./utils/user/users";
+  setUserTokenInfoByUserSessionIdInRedis,
+} from "./utils/user/user-session-manage";

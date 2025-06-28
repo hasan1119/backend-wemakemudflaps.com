@@ -19,7 +19,7 @@ export {
   setBrandsCountInRedis,
   setBrandsInRedis,
   setBrandSlugExistInRedis,
-} from "./utils/brand/manage-brand-session";
+} from "./utils/brand/brand-session-manage";
 
 /**
  * Exports utilities for managing tag session data in Redis.
@@ -42,7 +42,7 @@ export {
   setTagsCountInRedis,
   setTagsInRedis,
   setTagSlugExistInRedis,
-} from "./utils/tag/manage-tag-session";
+} from "./utils/tag/tag-session-manage";
 
 /**
  * Exports utilities for managing user session data in Redis.

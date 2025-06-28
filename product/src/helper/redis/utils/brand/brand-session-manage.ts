@@ -75,46 +75,6 @@ export const getBrandSlugExistFromRedis = async (
 };
 
 /**
- * Caches a paginated list of brands in Redis.
- *
- * @param page - Current page number.
- * @param limit - Number of brands per page.
- * @param search - Search query.
- * @param sortBy - Field to sort by.
- * @param sortOrder - Sort order ('asc' or 'desc').
- * @param brands - Array of Brand objects to cache.
- */
-export const setBrandsInRedis = async (
-  page: number,
-  limit: number,
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  brands: BrandPaginationDataSession[]
-): Promise<void> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, brands, "product-app");
-};
-
-/**
- * Caches the total brand count in Redis.
- *
- * @param search - Search query.
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @param count - Total number of brands.
- */
-export const setBrandsCountInRedis = async (
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  count: number
-): Promise<void> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, count.toString(), "product-app");
-};
-
-/**
  * Handles retrieval of brand information from Redis by brand ID.
  *
  * Workflow:
@@ -129,25 +89,6 @@ export const getBrandInfoByBrandIdFromRedis = async (
 ): Promise<Brand | null> => {
   return redis.getSession<Brand | null>(
     `${PREFIX.BRAND}${brandId}`,
-    "product-app"
-  );
-};
-
-/**
- * Handles setting an existence flag for a brand slug in Redis.
- *
- * Workflow:
- * 1. Stores an "exists" flag in Redis with the SLUG_EXISTS prefix and normalized brand slug.
- *
- * @param brandSlug - The slug of the brand.
- * @returns A promise resolving when the flag is set.
- */
-export const setBrandSlugExistInRedis = async (
-  brandSlug: string
-): Promise<void> => {
-  await redis.setSession(
-    `${PREFIX.SLUG_EXISTS}${brandSlug.toLowerCase().trim()}`,
-    "exists",
     "product-app"
   );
 };
@@ -170,6 +111,69 @@ export const getBrandNameExistFromRedis = async (
     "product-app"
   );
   return result === "exists";
+};
+
+/**
+ * Caches a paginated list of brands in Redis.
+ *
+ * @param page - Current page number.
+ * @param limit - Number of brands per page.
+ * @param search - Search query.
+ * @param sortBy - Field to sort by.
+ * @param sortOrder - Sort order ('asc' or 'desc').
+ * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
+ * @param brands - Array of Brand objects to cache.
+ */
+export const setBrandsInRedis = async (
+  page: number,
+  limit: number,
+  search: string,
+  sortBy: string,
+  sortOrder: string,
+  brands: BrandPaginationDataSession[],
+  ttl: number = 3600
+): Promise<void> => {
+  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
+  await redis.setSession(key, brands, "product-app", ttl);
+};
+
+/**
+ * Caches the total brand count in Redis.
+ *
+ * @param search - Search query.
+ * @param sortBy - Field used for sorting.
+ * @param sortOrder - Sort order.
+ * @param count - Total number of brands.
+ * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
+ */
+export const setBrandsCountInRedis = async (
+  search: string,
+  sortBy: string,
+  sortOrder: string,
+  count: number,
+  ttl: number = 3600
+): Promise<void> => {
+  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
+  await redis.setSession(key, count.toString(), "product-app", ttl);
+};
+
+/**
+ * Handles setting an existence flag for a brand slug in Redis.
+ *
+ * Workflow:
+ * 1. Stores an "exists" flag in Redis with the SLUG_EXISTS prefix and normalized brand slug.
+ *
+ * @param brandSlug - The slug of the brand.
+ * @returns A promise resolving when the flag is set.
+ */
+export const setBrandSlugExistInRedis = async (
+  brandSlug: string
+): Promise<void> => {
+  await redis.setSession(
+    `${PREFIX.SLUG_EXISTS}${brandSlug.toLowerCase().trim()}`,
+    "exists",
+    "product-app"
+  );
 };
 
 /**
