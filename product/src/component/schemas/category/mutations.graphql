@@ -1,6 +1,6 @@
-# Mutations to manage products operations.
+# Mutations to manage category operations.
 type Mutation {
-  # Create a new category for products.
+  # Create a new category.
   # Only accessible by authorized users.
   createCategory(
     thumbnail: String # Optional thumbnail image URL for the category.
@@ -46,31 +46,4 @@ type Mutation {
     ids: [ID!]! # List of soft-deleted role IDs to be restored.
     categoryType: CategoryType! # "category" or "subcategory"
   ): RestoreCategoryResponseOrError
-
-  # Create a new tag.
-  # Only accessible by authorized users.
-  createTag(
-    name: String! # Unique name of the tag to create.
-    slug: String! # Slug for the tag.
-  ): CreateTagResponseOrError!
-
-  # Update an existing tag.
-  # Only accessible by authorized users.
-  updateTag(
-    id: ID! # ID of the tag to update.
-    name: String # Optional updated name of the tag.
-    slug: String # Optional updated slug of the tag.
-  ): UpdateTagResponseOrError!
-
-  # Deletes a tag by IDs.
-  # Performs a soft delete by default (marks as deleted).
-  # If skipTrash is true, performs a permanent delete.
-  # Only accessible by authorized users.
-  deleteTag(ids: [ID]!, skipTrash: Boolean!): DeleteTagResponseOrError!
-
-  # Mutation to restore a soft-deleted tag.
-  # Only accessible by authorized users.
-  restoreTags(
-    ids: [ID!]! # List of soft-deleted role IDs to be restored.
-  ): RestoreTagResponseOrError!
 }

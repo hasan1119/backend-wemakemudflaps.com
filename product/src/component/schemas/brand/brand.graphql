@@ -1,0 +1,72 @@
+# ---------------------- Brand Types ----------------------
+type Brand {
+  id: ID!
+  name: String!
+  slug: String!
+  thumbnail: String
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+  products: [Product!]! # List of products associated with this brand
+}
+
+type BrandDataResponse {
+  id: ID!
+  name: String!
+  slug: String!
+  thumbnail: String
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a brand.
+type BrandResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  brand: BrandDataResponse!
+}
+
+# Response for fetching a brand.
+type BrandPaginationDataSession {
+  id: ID!
+  name: String!
+  slug: String!
+  thumbnail: String
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a brand by ID.
+type BrandResponseById {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  brand: Brand!
+}
+
+# Response for fetching a brands list.
+type BrandPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  brands: [BrandPaginationDataSession!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateBrandResponseOrError = BaseResponse | BrandResponse | ErrorResponse
+union GetBrandByIDResponseOrError =
+    BaseResponse
+  | BrandResponseById
+  | ErrorResponse
+union GetBrandsResponseOrError =
+    BaseResponse
+  | BrandPaginationResponse
+  | ErrorResponse
+union UpdateBrandResponseOrError = BaseResponse | BrandResponse | ErrorResponse
+union DeleteBrandResponseOrError = BaseResponse | ErrorResponse
+union RestoreBrandResponseOrError = BaseResponse | ErrorResponse

@@ -1,0 +1,35 @@
+# ---------------------- Apollo Federation Link ----------------------
+# Importing Apollo Federation specification directives for composing multiple services into a single graph.
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.7"
+    import: ["@key", "@shareable", "@external"]
+  )
+
+# ---------------------- Basic Types ----------------------
+# Represents an error related to a specific field in input validation or business logic.
+type FieldError @shareable {
+  field: String! # The specific field that caused the error (e.g., "title", "url").
+  message: String! # Descriptive message explaining the reason for the error.
+}
+
+# Generic error response type returned when a mutation or query fails.
+type ErrorResponse @shareable {
+  statusCode: Int! # HTTP-like status code (e.g., 400, 401, 500).
+  success: Boolean! # Whether the operation was successful (always false here).
+  message: String! # General error message.
+  errors: [FieldError!] # Optional list of field-specific errors.
+}
+
+# Standard response structure used when only status and message are returned (e.g., success/failure).
+type BaseResponse @shareable {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+}
+
+# ---------------------- CreatedBy & Permissions ----------------------
+# Extends the CreatedBy entity to support federated references.
+extend type CreatedBy @key(fields: "id") {
+  id: ID! @external
+}

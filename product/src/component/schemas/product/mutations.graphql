@@ -1,0 +1,4 @@
+# Mutations to manage products operations.
+type Mutation {
+  createProduct: String
+}

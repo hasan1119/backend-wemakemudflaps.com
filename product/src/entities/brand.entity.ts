@@ -6,12 +6,16 @@ export class Brand {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  // Brand thumbnail image URL
+  @Column({ type: "text", nullable: true, default: null })
+  thumbnail: string | null;
+
   // Unique name of the brand
   @Column({ unique: true })
   name: string;
 
   // Brand slug
-  @Column({ type: "text" })
+  @Column({ unique: true })
   slug: string;
 
   // One brand can be associated with multiple products

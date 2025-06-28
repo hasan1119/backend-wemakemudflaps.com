@@ -1,7 +1,5 @@
-# Queries to fetch products from the system.
+# Queries to fetch category from the system.
 type Query {
-  getProduct: String
-
   # Fetch category by ID.
   # Retrieves a specific category file's details using its unique ID.
   # Returns a `GetCategoryByIDResponseOrError` containing category data and request status.
@@ -29,24 +27,4 @@ type Query {
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort direction: "asc" or "desc".
   ): GetCategoriesResponseOrError!
-
-  # Fetch tag by ID.
-  # Retrieves a specific tag details by its unique ID.
-  # Returns a `GetTagByIDResponseOrError` containing tag data and request status.
-  getTagById(
-    id: ID! # Unique identifier of the tag to retrieve.
-  ): GetTagByIDResponseOrError!
-
-  # Fetch all tags with pagination, filtering, and sorting.
-  # Retrieves a paginated list of tags.
-  # Supports filtering by search term (name or slug) and sorting options.
-  # Defaults to sorting by `createdAt` in descending order if none is provided.
-  # Returns a `GetTagsResponseOrError` containing tag data and request status.
-  getAllTags(
-    page: Int! # Page number to retrieve (1-based index).
-    limit: Int! # Number of tags per page.
-    search: String # Optional search term (matches name or slug).
-    sortBy: String # Optional field to sort by (e.g., name, createdAt).
-    sortOrder: String # Optional sort direction: "asc" or "desc".
-  ): GetTagsResponseOrError!
 }

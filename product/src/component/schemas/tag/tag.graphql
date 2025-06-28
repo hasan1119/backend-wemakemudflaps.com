@@ -1,0 +1,48 @@
+# ---------------------- Tag Types ----------------------
+type Tag {
+  id: ID!
+  name: String!
+  slug: String!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a tag.
+type TagResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  tag: Tag!
+}
+
+# Response for fetching a tag.
+type TagPaginationDataSession {
+  id: ID!
+  name: String!
+  slug: String!
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a tags list.
+type TagPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  tags: [TagPaginationDataSession!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateTagResponseOrError = BaseResponse | TagResponse | ErrorResponse
+union GetTagByIDResponseOrError = BaseResponse | TagResponse | ErrorResponse
+union GetTagsResponseOrError =
+    BaseResponse
+  | TagPaginationResponse
+  | ErrorResponse
+union UpdateTagResponseOrError = BaseResponse | TagResponse | ErrorResponse
+union DeleteTagResponseOrError = BaseResponse | ErrorResponse
+union RestoreTagResponseOrError = BaseResponse | ErrorResponse

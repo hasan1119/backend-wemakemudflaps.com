@@ -1,0 +1,22 @@
+# Queries to fetch brands from the system.
+type Query {
+  # Fetch brand by ID.
+  # Retrieves a specific brand details by its unique ID.
+  # Returns a `GetBrandByIDResponseOrError` containing brand data and request status.
+  getBrandById(
+    id: ID! # Unique identifier of the brand to retrieve.
+  ): GetBrandByIDResponseOrError!
+
+  # Fetch all brands with pagination, filtering, and sorting.
+  # Retrieves a paginated list of brands.
+  # Supports filtering by search term (name or slug) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetBrandsResponseOrError` containing brand data and request status.
+  getAllBrands(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of brands per page.
+    search: String # Optional search term (matches name or slug).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetBrandsResponseOrError!
+}

@@ -1,0 +1,31 @@
+# Mutations to manage brands operations.
+type Mutation {
+  # Create a new brand.
+  # Only accessible by authorized users.
+  createBrand(
+    thumbnail: String # Optional thumbnail image URL for the brand.
+    name: String! # Unique name of the brand to create.
+    slug: String! # Slug for the brand.
+  ): CreateBrandResponseOrError!
+
+  # Update an existing brand.
+  # Only accessible by authorized users.
+  updateBrand(
+    id: ID! # ID of the brand to update.
+    thumbnail: String # Optional updated thumbnail image URL for the brand.
+    name: String # Optional updated name of the brand.
+    slug: String # Optional updated slug of the brand.
+  ): UpdateBrandResponseOrError!
+
+  # Deletes a brand by IDs.
+  # Performs a soft delete by default (marks as deleted).
+  # If skipTrash is true, performs a permanent delete.
+  # Only accessible by authorized users.
+  deleteBrand(ids: [ID]!, skipTrash: Boolean!): DeleteBrandResponseOrError!
+
+  # Mutation to restore a soft-deleted brand.
+  # Only accessible by authorized users.
+  restoreBrands(
+    ids: [ID!]! # List of soft-deleted role IDs to be restored.
+  ): RestoreBrandResponseOrError!
+}

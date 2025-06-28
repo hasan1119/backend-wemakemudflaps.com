@@ -1,0 +1,4 @@
+# ---------------------- Product Types ----------------------
+type Product @key(fields: "id") {
+  id: ID! # Unique identifier for the product item.
+}

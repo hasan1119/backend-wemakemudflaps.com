@@ -1,0 +1,132 @@
+# ---------------------- Category & Sub Category Types ----------------------
+enum CategoryType {
+  category
+  subCategory
+}
+
+type Category {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: String
+  position: Int! # Display order/position of the category.
+  createdBy: CreatedBy # Metadata on who created the category.
+  subCategories: [SubCategory!]! # List of subcategories under this category.
+  createdAt: String
+  deletedAt: String
+}
+
+type SubCategory {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: String
+  category: Category! # The category to which this subcategory belongs.
+  parentSubCategory: SubCategoryDataResponse # Optional parent subcategory if nested.
+  subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
+  position: Int! # Display order/position of the subcategory.
+  createdBy: CreatedBy # Metadata on who created the category.
+  createdAt: String
+  deletedAt: String
+}
+
+type CategoryDataResponse {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: String
+  position: Int! # Display order/position of the category.
+  createdBy: CreatedBy # Metadata on who created the category.
+  createdAt: String
+  deletedAt: String
+}
+
+type SubCategoryDataResponse {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: String
+  category: ID # The category to which this subcategory belongs.
+  parentSubCategory: ID # The parent subcategory if nested.
+  subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
+  position: Int! # Display order/position of the subcategory.
+  createdBy: CreatedBy # Metadata on who created the category.
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a category.
+type CategoryResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: CategoryDataResponse!
+}
+
+# Response for fetching a subcategory.
+type SubCategoryResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  subcategory: SubCategoryDataResponse!
+}
+
+# Response for fetching a category by ID.
+type CategoryResponseById {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: Category!
+}
+
+# Response for fetching a sub category by ID.
+type SubCategoryResponseById {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  subcategory: SubCategoryDataResponse!
+}
+
+# Response for fetching a categories list.
+type CategoryPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: [Category!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateCategoryResponseOrError =
+    BaseResponse
+  | CategoryResponse
+  | SubCategoryResponse
+  | ErrorResponse
+union GetCategoryByIDResponseOrError =
+    BaseResponse
+  | CategoryResponseById
+  | ErrorResponse
+union GetSubCategoryByIDResponseOrError =
+    BaseResponse
+  | SubCategoryResponseById
+  | ErrorResponse
+union GetCategoriesResponseOrError =
+    BaseResponse
+  | CategoryPaginationResponse
+  | ErrorResponse
+union UpdateCategoryResponseOrError =
+    BaseResponse
+  | CategoryResponse
+  | SubCategoryResponse
+  | ErrorResponse
+union UpdateCategoryPositionResponseOrError =
+    BaseResponse
+  | CategoryResponse
+  | SubCategoryResponse
+  | ErrorResponse
+union DeleteCategoryResponseOrError = BaseResponse | ErrorResponse
+union RestoreCategoryResponseOrError = BaseResponse | ErrorResponse
