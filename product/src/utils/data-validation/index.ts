@@ -5,6 +5,7 @@
  * 1. Provides schemas for creating, and updating categories.
  */
 export {
+  categorySortingSchema,
   createCategorySchema,
   deleteCategorySchema,
   restoreCategorySchema,
@@ -19,12 +20,11 @@ export {
  * 1. Provides schemas for UUID validation, pagination, sorting.
  */
 export {
-  categorySortingSchema,
   idSchema,
   idsSchema,
   paginationSchema,
   skipTrashSchema,
-  tagsSortingSchema,
+  SortOrderTypeEnum,
 } from "./common/common";
 
 /**
@@ -33,4 +33,16 @@ export {
  * Workflow:
  * 1. Provides schemas for creating, and updating tag.
  */
-export { createTagSchema, updateTagSchema } from "./tag/tag";
+export { createTagSchema, tagsSortingSchema, updateTagSchema } from "./tag/tag";
+
+/**
+ * Exports brand-related schemas for brand management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, and updating brand.
+ */
+export {
+  brandsSortingSchema,
+  createBrandSchema,
+  updateBrandSchema,
+} from "./brand/brand";

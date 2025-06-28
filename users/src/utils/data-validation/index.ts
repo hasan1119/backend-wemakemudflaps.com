@@ -29,6 +29,7 @@ export {
   rolesSortingSchema,
   sessionStringSchema,
   skipTrashSchema,
+  SortOrderTypeEnum,
   usersSortingSchema,
 } from "./common/common";
 export type { PermissionName } from "./common/common";

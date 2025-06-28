@@ -66,50 +66,11 @@ export const paginationSchema = z.object({
 });
 
 /**
- * Defines the schema for validating category sorting parameters.
- *
- * Workflow:
- * 1. Validates sortBy as one of the allowed fields (id, name, description, createdAt, deletedAt).
- * 2. Validates sortOrder as either 'asc' or 'desc'.
- * 3. Allows both fields to be nullable or optional.
- *
- * @property sortBy - Field to sort by (id, name, description, createdAt, deletedAt).
- * @property sortOrder - Sort order direction (asc, desc).
+ * Enum definition for sort order types used in sorting queries.
+ * Accepts 'asc' for ascending and 'desc' for descending.
+ * Can be optional and nullable.
  */
-export const categorySortingSchema = z.object({
-  sortBy: z
-    .enum(["name", "createdAt", "position"], {
-      message:
-        "Sort field must be one of: id, name, description, createdAt, deletedAt",
-    })
-    .nullable()
-    .optional(),
-  sortOrder: z
-    .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
-    .nullable()
-    .optional(),
-});
-
-/**
- * Defines the schema for validating tag sorting parameters.
- *
- * Workflow:
- * 1. Validates sortBy as one of the allowed fields (id, name, description, createdAt, deletedAt).
- * 2. Validates sortOrder as either 'asc' or 'desc'.
- * 3. Allows both fields to be nullable or optional.
- *
- * @property sortBy - Field to sort by (id, name, description, createdAt, deletedAt).
- * @property sortOrder - Sort order direction (asc, desc).
- */
-export const tagsSortingSchema = z.object({
-  sortBy: z
-    .enum(["name", "slug", "createdAt", "deletedAt"], {
-      message: "Sort field must be one of: name, slug, createdAt, deletedAt",
-    })
-    .nullable()
-    .optional(),
-  sortOrder: z
-    .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
-    .nullable()
-    .optional(),
-});
+export const SortOrderTypeEnum = z
+  .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
+  .nullable()
+  .optional();

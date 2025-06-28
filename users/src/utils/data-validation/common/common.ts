@@ -95,6 +95,16 @@ export const PermissionEnum = z.preprocess((val) => {
 }, z.enum([...PERMISSIONS] as [string, ...string[]]));
 
 /**
+ * Enum definition for sort order types used in sorting queries.
+ * Accepts 'asc' for ascending and 'desc' for descending.
+ * Can be optional and nullable.
+ */
+export const SortOrderTypeEnum = z
+  .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
+  .nullable()
+  .optional();
+
+/**
  * Defines the schema for validating a single UUID.
  *
  * Workflow:
@@ -190,10 +200,7 @@ export const rolesSortingSchema = z.object({
     })
     .nullable()
     .optional(),
-  sortOrder: z
-    .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
-    .nullable()
-    .optional(),
+  sortOrder: SortOrderTypeEnum,
 });
 
 /**
@@ -229,8 +236,5 @@ export const usersSortingSchema = z.object({
     )
     .nullable()
     .optional(),
-  sortOrder: z
-    .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
-    .nullable()
-    .optional(),
+  sortOrder: SortOrderTypeEnum,
 });
