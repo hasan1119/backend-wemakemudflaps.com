@@ -59,3 +59,18 @@ export { restoreShippingClasses } from "./mutations/manage-shipping-class/restor
 export { updateShippingClass } from "./mutations/manage-shipping-class/update-shipping-class";
 export { getAllShippingClass } from "./queries/shipping-class/get-shipping-class";
 export { getShippingClassById } from "./queries/shipping-class/get-shipping-class-by-id";
+
+/**
+ * Exports GraphQL queries and mutations for managing tax class data.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating, updating, deleting, and restoring tax classes.
+ * 2. Enables retrieval of a specific tax class by its ID.
+ * 3. Facilitates listing all tags in the system.
+ */
+export { createTaxClass } from "./mutations/manage-tax-class/create-tax-class";
+export { deleteTaxClass } from "./mutations/manage-tax-class/delete-tax-class";
+export { restoreTaxClasses } from "./mutations/manage-tax-class/restore-tax-class";
+export { updateTaxClass } from "./mutations/manage-tax-class/update-tax-class";
+export { getAllTaxClass } from "./queries/tax-class/get-tax-class";
+export { getTaxClassById } from "./queries/tax-class/get-tax-class-by-id";
