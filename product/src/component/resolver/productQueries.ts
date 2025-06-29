@@ -3,11 +3,13 @@ import {
   getAllCategories,
   getAllShippingClass,
   getAllTags,
+  getAllTaxClass,
   getBrandById,
   getCategoryById,
   getShippingClassById,
   getSubCategoryById,
   getTagById,
+  getTaxClassById,
 } from "../../controllers";
 import { getProduct } from "../../controllers/queries/product/get-product";
 
@@ -76,16 +78,27 @@ export const productQueriesResolver = {
      * Fetches a paginated list of all shipping classes in the system.
      */
     getAllShippingClass,
+
+    /**
+     * Retrieves detailed information for a tax class by their unique ID.
+     */
+    getTaxClassById,
+
+    /**
+     * Fetches a paginated list of all tax classes in the system.
+     */
+    getAllTaxClass,
   },
 
   // Reuse resolveCreatedBy for all applicable types
   Brand: { createdBy: resolveCreatedBy },
-  // BrandDataResponse: { createdBy: resolveCreatedBy },
   BrandPaginationDataSession: { createdBy: resolveCreatedBy },
   Tag: { createdBy: resolveCreatedBy },
   TagPaginationDataSession: { createdBy: resolveCreatedBy },
   ShippingClass: { createdBy: resolveCreatedBy },
   ShippingClassPaginationDataSession: { createdBy: resolveCreatedBy },
+  TaxClass: { createdBy: resolveCreatedBy },
+  TaxClassPaginationDataSession: { createdBy: resolveCreatedBy },
   Product: { createdBy: resolveCreatedBy },
   Category: { createdBy: resolveCreatedBy },
   CategoryDataResponse: { createdBy: resolveCreatedBy },
