@@ -58,3 +58,15 @@ export {
   shippingClassSortingSchema,
   updateShippingClassSchema,
 } from "./shipping-class/shipping-class";
+
+/**
+ * Exports tax-class related schemas for tag management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, and updating tag.
+ */
+export {
+  createTaxClassSchema,
+  taxClassSortingSchema,
+  updateTaxClassSchema,
+} from "./tax-class/tax-class";
