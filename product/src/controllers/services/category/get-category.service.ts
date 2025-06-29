@@ -250,8 +250,10 @@ export const paginateCategories = async ({
       new Brackets((qb) => {
         qb.where("category.name ILIKE :searchTerm", { searchTerm })
           .orWhere("category.description ILIKE :searchTerm", { searchTerm })
+          .orWhere("category.slug ILIKE :searchTerm", { searchTerm })
           .orWhere("subCategory.name ILIKE :searchTerm", { searchTerm })
-          .orWhere("subCategory.description ILIKE :searchTerm", { searchTerm });
+          .orWhere("subCategory.description ILIKE :searchTerm", { searchTerm })
+          .orWhere("subCategory.slug ILIKE :searchTerm", { searchTerm });
       })
     );
   }
@@ -311,16 +313,23 @@ export const countCategoriesWithSearch = async (
 ): Promise<number> => {
   const query = categoryRepository
     .createQueryBuilder("category")
+    .leftJoin(
+      "category.subCategories",
+      "subCategory",
+      "subCategory.deletedAt IS NULL"
+    )
     .where("category.deletedAt IS NULL");
 
   if (search?.trim()) {
     const searchTerm = `%${search.trim()}%`;
     query.andWhere(
       new Brackets((qb) => {
-        qb.where("category.name ILIKE :searchTerm", { searchTerm }).orWhere(
-          "category.description ILIKE :searchTerm",
-          { searchTerm }
-        );
+        qb.where("category.name ILIKE :searchTerm", { searchTerm })
+          .orWhere("category.description ILIKE :searchTerm", { searchTerm })
+          .orWhere("category.slug ILIKE :searchTerm", { searchTerm })
+          .orWhere("subCategory.name ILIKE :searchTerm", { searchTerm })
+          .orWhere("subCategory.description ILIKE :searchTerm", { searchTerm })
+          .orWhere("subCategory.slug ILIKE :searchTerm", { searchTerm });
       })
     );
   }
