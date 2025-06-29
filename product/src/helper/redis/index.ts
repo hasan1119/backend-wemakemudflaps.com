@@ -65,6 +65,26 @@ export {
 } from "./utils/shipping-class/shipping-class-session-manage";
 
 /**
+ * Exports utilities for managing tax class session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllTaxClassSearchCache,
+  getTaxClassCountFromRedis,
+  getTaxClassesFromRedis,
+  getTaxClassInfoByIdFromRedis,
+  getTaxClassValueExistFromRedis,
+  removeTaxClassInfoByIdFromRedis,
+  removeTaxClassValueExistFromRedis,
+  setTaxClassCountInRedis,
+  setTaxClassesInRedis,
+  setTaxClassInfoByIdInRedis,
+  setTaxClassValueExistInRedis,
+} from "./utils/tax-class/tax-class-session-manage";
+
+/**
  * Exports utilities for managing user session data in Redis.
  *
  * Workflow:
