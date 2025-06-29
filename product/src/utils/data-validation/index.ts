@@ -70,3 +70,15 @@ export {
   taxClassSortingSchema,
   updateTaxClassSchema,
 } from "./tax-class/tax-class";
+
+/**
+ * Exports tax-status related schemas for tag management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, and updating tag.
+ */
+export {
+  createTaxStatusSchema,
+  taxStatusSortingSchema,
+  updateTaxStatusSchema,
+} from "./tax-status/tax-status";
