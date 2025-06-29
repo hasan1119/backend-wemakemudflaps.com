@@ -23,12 +23,12 @@ import {
 } from "../../services";
 
 /**
- * Handles updating taxClass data (value, description) with proper validation and permission checks.
+ * Handles updating tax class data (value, description) with proper validation and permission checks.
  *
  * Workflow:
  * 1. Authenticates user and verifies permission to update tax classes.
  * 2. Validates input (id, value, description) using Zod schema.
- * 3. Fetches current taxClass data from Redis or DB.
+ * 3. Fetches current tax class data from Redis or DB.
  * 4. Checks if updated value conflicts with existing tax classes.
  * 5. Updates the tax class in the database.
  * 6. Updates Redis with new tax class info and value existence key.
@@ -84,7 +84,7 @@ export const updateTaxClass = async (
 
     const { id, value, description } = result.data;
 
-    // Get current taxClass data from Redis or DB
+    // Get current tax class data from Redis or DB
     let currentTaxClass = await getTaxClassInfoByIdFromRedis(id);
 
     if (currentTaxClass?.deletedAt) {
@@ -130,7 +130,7 @@ export const updateTaxClass = async (
       }
     }
 
-    // Update the taxClass in the database
+    // Update the tax class in the database
     const updatedTaxClass = await updateTaxClassService(id, {
       value,
       description,

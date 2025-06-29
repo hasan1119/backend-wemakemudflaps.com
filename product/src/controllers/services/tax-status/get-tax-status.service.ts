@@ -93,7 +93,7 @@ export const getTaxStatusById = async (
  * @param ids - An array of tax status UUIDs to retrieve.
  * @returns A promise resolving to an array of tax status entities.
  */
-export const getTaxStatusesByIds = async (
+export const getTaxStatusByIds = async (
   ids: string[]
 ): Promise<TaxStatus[]> => {
   if (!ids.length) return [];
@@ -128,7 +128,7 @@ interface GetPaginatedTaxStatusesInput {
  * @param params - Pagination parameters including page, limit, search, sortBy, sortOrder.
  * @returns A promise resolving to an object containing the paginated tax statuses and total count.
  */
-export const paginateTaxStatuses = async ({
+export const paginateTaxStatus = async ({
   page,
   limit,
   search,
@@ -176,7 +176,7 @@ export const paginateTaxStatuses = async ({
  * @param search - Optional search term to filter by value or description (case-insensitive).
  * @returns A promise resolving to the total number of matching tax statuses.
  */
-export const countTaxStatusesWithSearch = async (
+export const countTaxStatusWithSearch = async (
   search?: string
 ): Promise<number> => {
   const queryBuilder = taxStatusRepository

@@ -1,7 +1,7 @@
 import { In } from "typeorm";
 import { TaxClass } from "../../../entities";
 import { taxClassRepository } from "../repositories/repositories";
-import { getTaxClassesByIds } from "./get-tax-class.service";
+import { getTaxClassByIds } from "./get-tax-class.service";
 
 /**
  * Restores one or more soft-deleted tax classes by clearing their deletedAt timestamps.
@@ -14,7 +14,7 @@ export const restoreTaxClass = async (ids: string[]): Promise<TaxClass[]> => {
 
   await taxClassRepository.update({ id: In(ids) }, { deletedAt: null });
 
-  const restoredTaxClasses = await getTaxClassesByIds(ids);
+  const restoredTaxClasses = await getTaxClassByIds(ids);
 
   return restoredTaxClasses;
 };

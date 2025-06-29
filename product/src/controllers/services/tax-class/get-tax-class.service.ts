@@ -91,9 +91,7 @@ export const getTaxClassById = async (id: string): Promise<TaxClass | null> => {
  * @param ids - An array of tax class UUIDs to retrieve.
  * @returns A promise resolving to an array of tax class entities.
  */
-export const getTaxClassesByIds = async (
-  ids: string[]
-): Promise<TaxClass[]> => {
+export const getTaxClassByIds = async (ids: string[]): Promise<TaxClass[]> => {
   if (!ids.length) return [];
 
   return await taxClassRepository.find({

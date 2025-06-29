@@ -205,8 +205,8 @@ export const deleteShippingClass = async (
       message: deletedShippingClasses.length
         ? `${
             skipTrash
-              ? "Shipping class(s) permanently deleted"
-              : "Shipping class(s) moved to trash"
+              ? "Shipping class(es) permanently deleted"
+              : "Shipping class(es) moved to trash"
           } successfully: ${deletedShippingClasses.join(", ")}`
         : "No shipping classes deleted",
       __typename: "BaseResponse",

@@ -1,7 +1,7 @@
 import { In } from "typeorm";
 import { TaxStatus } from "../../../entities";
 import { taxStatusRepository } from "../repositories/repositories";
-import { getTaxStatusesByIds } from "./get-tax-status.service";
+import { getTaxStatusByIds } from "./get-tax-status.service";
 
 /**
  * Restores one or more soft-deleted tax statuses by clearing their deletedAt timestamps.
@@ -14,7 +14,7 @@ export const restoreTaxStatus = async (ids: string[]): Promise<TaxStatus[]> => {
 
   await taxStatusRepository.update({ id: In(ids) }, { deletedAt: null });
 
-  const restoredTaxStatuses = await getTaxStatusesByIds(ids);
+  const restoredTaxStatuses = await getTaxStatusByIds(ids);
 
   return restoredTaxStatuses;
 };

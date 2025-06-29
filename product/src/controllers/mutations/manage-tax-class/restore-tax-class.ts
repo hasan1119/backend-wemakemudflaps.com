@@ -13,7 +13,7 @@ import { idsSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  getTaxClassesByIds,
+  getTaxClassByIds,
   restoreTaxClass,
 } from "../../services";
 
@@ -94,7 +94,7 @@ export const restoreTaxClasses = async (
 
     // Fetch missing tax classes from the database
     if (missingIds.length > 0) {
-      const dbTaxClasses = await getTaxClassesByIds(missingIds);
+      const dbTaxClasses = await getTaxClassByIds(missingIds);
 
       if (dbTaxClasses.length !== missingIds.length) {
         const dbFoundIds = new Set(dbTaxClasses.map((r) => r.id));
@@ -144,7 +144,7 @@ export const restoreTaxClasses = async (
     return {
       statusCode: 200,
       success: true,
-      message: `Tax class(s) restored successfully`,
+      message: `Tax class(es) restored successfully`,
       __typename: "BaseResponse",
     };
   } catch (error: any) {

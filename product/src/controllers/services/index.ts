@@ -267,7 +267,7 @@ export {
   findTaxClassByValue,
   findTaxClassByValueToUpdate,
   getTaxClassById,
-  getTaxClassesByIds,
+  getTaxClassByIds,
   paginateTaxClasses,
 } from "./tax-class/get-tax-class.service";
 
@@ -316,12 +316,12 @@ export {
  */
 export {
   countProductsForTaxStatus,
-  countTaxStatusesWithSearch,
+  countTaxStatusWithSearch,
   findTaxStatusByValue,
   findTaxStatusByValueToUpdate,
   getTaxStatusById,
-  getTaxStatusesByIds,
-  paginateTaxStatuses,
+  getTaxStatusByIds,
+  paginateTaxStatus,
 } from "./tax-status/get-tax-status.service";
 
 /**

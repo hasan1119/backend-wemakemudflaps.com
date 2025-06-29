@@ -1,43 +1,43 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllShippingClassSearchCache,
-  getShippingClassInfoByIdFromRedis,
-  setShippingClassInfoByIdInRedis,
+  clearAllTaxStatusSearchCache,
+  getTaxStatusInfoByIdFromRedis,
+  setTaxStatusInfoByIdInRedis,
 } from "../../../helper/redis";
 import {
   BaseResponseOrError,
-  MutationRestoreShippingClassesArgs,
+  MutationRestoreTaxStatusesArgs,
 } from "../../../types";
 import { idsSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  getShippingClassesByIds,
-  restoreShippingClass,
+  getTaxStatusByIds,
+  restoreTaxStatus,
 } from "../../services";
 
 /**
- * Handles the restoration of soft-deleted shipping classes.
+ * Handles the restoration of soft-deleted tax status.
  *
  * Workflow:
- * 1. Verifies user authentication and permission to restore shipping classes.
- * 2. Validates input shipping class IDs using Zod schema.
- * 3. Attempts to retrieve shipping class data from Redis.
- * 4. Fetches missing shipping class data from the database if not found in Redis.
- * 5. Ensures all shipping classes are soft-deleted before restoration.
- * 6. Restores shipping classes in the database.
- * 7. Updates Redis cache with restored shipping class data and sets value existence.
+ * 1. Verifies user authentication and permission to restore tax status.
+ * 2. Validates input tax status IDs using Zod schema.
+ * 3. Attempts to retrieve tax status data from Redis.
+ * 4. Fetches missing tax status data from the database if not found in Redis.
+ * 5. Ensures all tax status are soft-deleted before restoration.
+ * 6. Restores tax status in the database.
+ * 7. Updates Redis cache with restored tax status data and sets value existence.
  * 8. Returns success response or error if validation, permission, or restoration fails.
  *
  * @param _ - Unused GraphQL resolver parent param.
- * @param args - Mutation args containing shipping class IDs to restore.
+ * @param args - Mutation args containing tax status IDs to restore.
  * @param context - GraphQL context with authenticated user.
  * @returns A promise resolving to BaseResponseOrError.
  */
-export const restoreShippingClasses = async (
+export const restoreTaxStatuses = async (
   _: any,
-  args: MutationRestoreShippingClassesArgs,
+  args: MutationRestoreTaxStatusesArgs,
   { user }: Context
 ): Promise<BaseResponseOrError> => {
   try {
@@ -48,7 +48,7 @@ export const restoreShippingClasses = async (
     // Check restore permission
     const hasPermission = await checkUserPermission({
       action: "canUpdate",
-      entity: "shipping class",
+      entity: "tax status",
       user,
     });
 
@@ -56,7 +56,7 @@ export const restoreShippingClasses = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to restore shipping class(es)",
+        message: "You do not have permission to restore tax status(es)",
         __typename: "BaseResponse",
       };
     }
@@ -80,75 +80,75 @@ export const restoreShippingClasses = async (
     const { ids } = validation.data;
 
     // Attempt Redis fetch
-    const cachedShippingClasses = await Promise.all(
-      ids.map(getShippingClassInfoByIdFromRedis)
+    const cachedTaxStatuses = await Promise.all(
+      ids.map(getTaxStatusInfoByIdFromRedis)
     );
 
-    const foundShippingClasses: any[] = [];
+    const foundTaxStatuses: any[] = [];
     const missingIds: string[] = [];
 
-    cachedShippingClasses.forEach((shippingClass, index) => {
-      if (shippingClass) foundShippingClasses.push(shippingClass);
+    cachedTaxStatuses.forEach((taxStatus, index) => {
+      if (taxStatus) foundTaxStatuses.push(taxStatus);
       else missingIds.push(ids[index]);
     });
 
-    // Fetch missing shipping classes from the database
+    // Fetch missing tax statuses from the database
     if (missingIds.length > 0) {
-      const dbShippingClasses = await getShippingClassesByIds(missingIds);
+      const dbTaxStatuses = await getTaxStatusByIds(missingIds);
 
-      if (dbShippingClasses.length !== missingIds.length) {
-        const dbFoundIds = new Set(dbShippingClasses.map((r) => r.id));
-        const notFoundShippingClasses = missingIds.filter(
+      if (dbTaxStatuses.length !== missingIds.length) {
+        const dbFoundIds = new Set(dbTaxStatuses.map((r) => r.id));
+        const notFoundTaxStatuses = missingIds.filter(
           (id) => !dbFoundIds.has(id)
         );
 
         return {
           statusCode: 404,
           success: false,
-          message: `Shipping class with IDs: ${notFoundShippingClasses.join(
+          message: `Tax status with IDs: ${notFoundTaxStatuses.join(
             ", "
           )} not found`,
           __typename: "BaseResponse",
         };
       }
 
-      foundShippingClasses.push(...dbShippingClasses);
+      foundTaxStatuses.push(...dbTaxStatuses);
     }
 
-    // Check all shipping classes are soft-deleted
-    const notDeleted = foundShippingClasses.filter(
-      (shippingClass) => !shippingClass.deletedAt
+    // Check all tax status are soft-deleted
+    const notDeleted = foundTaxStatuses.filter(
+      (taxStatus) => !taxStatus.deletedAt
     );
     if (notDeleted.length > 0) {
       return {
         statusCode: 400,
         success: false,
-        message: `Shipping class with IDs ${notDeleted
+        message: `Tax status with IDs ${notDeleted
           .map((r) => r.id)
           .join(", ")} are not in the trash`,
         __typename: "BaseResponse",
       };
     }
 
-    // Restore shipping classes
-    const restored = await restoreShippingClass(ids);
+    // Restore tax status
+    const restored = await restoreTaxStatus(ids);
 
     // Update Redis
     await Promise.all([
-      ...restored.map((shippingClass) =>
-        setShippingClassInfoByIdInRedis(shippingClass.id, shippingClass)
+      ...restored.map((taxStatus) =>
+        setTaxStatusInfoByIdInRedis(taxStatus.id, taxStatus)
       ),
-      clearAllShippingClassSearchCache(),
+      clearAllTaxStatusSearchCache(),
     ]);
 
     return {
       statusCode: 200,
       success: true,
-      message: `Shipping class(es) restored successfully`,
+      message: `Tax status(es) restored successfully`,
       __typename: "BaseResponse",
     };
   } catch (error: any) {
-    console.error("Error restoring shipping class:", error);
+    console.error("Error restoring tax status:", error);
     return {
       statusCode: 500,
       success: false,
