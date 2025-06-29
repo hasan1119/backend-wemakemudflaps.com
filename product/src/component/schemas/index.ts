@@ -203,9 +203,12 @@ export const productMutationsDef = gql(
  * @returns The parsed GraphQL schema for shipping classes as a DocumentNode.
  */
 export const shippingClassDef = gql(
-  readFileSync(path.join(__dirname, "./shipping/shipping.graphql"), {
-    encoding: "utf-8",
-  })
+  readFileSync(
+    path.join(__dirname, "./shipping-class/shipping-class.graphql"),
+    {
+      encoding: "utf-8",
+    }
+  )
 );
 
 /**
@@ -218,7 +221,7 @@ export const shippingClassDef = gql(
  * @returns The parsed GraphQL queries for shipping classes as a DocumentNode.
  */
 export const shippingClassQueriesDef = gql(
-  readFileSync(path.join(__dirname, "./shipping/queries.graphql"), {
+  readFileSync(path.join(__dirname, "./shipping-class/queries.graphql"), {
     encoding: "utf-8",
   })
 );
@@ -233,7 +236,7 @@ export const shippingClassQueriesDef = gql(
  * @returns The parsed GraphQL mutations for shipping classes as a DocumentNode.
  */
 export const shippingClassMutationsDef = gql(
-  readFileSync(path.join(__dirname, "./shipping/mutations.graphql"), {
+  readFileSync(path.join(__dirname, "./shipping-class/mutations.graphql"), {
     encoding: "utf-8",
   })
 );
