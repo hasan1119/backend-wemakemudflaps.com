@@ -22,6 +22,35 @@ export {
 } from "./utils/brand/brand-session-manage";
 
 /**
+ * Exports utilities for managing brand session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllCategorySearchCache,
+  getCategoriesCountFromRedis,
+  getCategoriesFromRedis,
+  getCategoryInfoByIdFromRedis,
+  getCategoryNameExistFromRedis,
+  getCategorySlugExistFromRedis,
+  getSubCategoryInfoByIdFromRedis,
+  getSubCategorySlugExistFromRedis,
+  removeCategoryInfoByIdFromRedis,
+  removeCategoryNameExistFromRedis,
+  removeCategorySlugExistFromRedis,
+  removeSubCategoryInfoByIdFromRedis,
+  removeSubCategorySlugExistFromRedis,
+  setCategoriesCountInRedis,
+  setCategoriesInRedis,
+  setCategoryInfoByIdInRedis,
+  setCategoryNameExistInRedis,
+  setCategorySlugExistInRedis,
+  setSubCategoryInfoByIdInRedis,
+  setSubCategorySlugExistInRedis,
+} from "./utils/category/category-session-manage";
+
+/**
  * Exports utilities for managing tag session data in Redis.
  *
  * Workflow:
