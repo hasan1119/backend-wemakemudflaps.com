@@ -22,6 +22,25 @@ const resolveCreatedBy = ({ createdBy }: { createdBy: string }) => ({
   id: createdBy,
 });
 
+// List of types that use the `resolveCreatedBy` resolver
+const typesWithCreatedBy = [
+  "Brand",
+  "BrandPaginationDataSession",
+  "Tag",
+  "TagPaginationDataSession",
+  "ShippingClass",
+  "ShippingClassPaginationDataSession",
+  "TaxClass",
+  "TaxClassPaginationDataSession",
+  "TaxStatus",
+  "TaxStatusPaginationDataSession",
+  "Product",
+  "Category",
+  "CategoryDataResponse",
+  "SubCategory",
+  "SubCategoryDataResponse",
+];
+
 /**
  * Defines GraphQL query resolvers for product-related operations.
  *
@@ -90,18 +109,8 @@ export const productQueriesResolver = {
     getAllTaxClass,
   },
 
-  // Reuse resolveCreatedBy for all applicable types
-  Brand: { createdBy: resolveCreatedBy },
-  BrandPaginationDataSession: { createdBy: resolveCreatedBy },
-  Tag: { createdBy: resolveCreatedBy },
-  TagPaginationDataSession: { createdBy: resolveCreatedBy },
-  ShippingClass: { createdBy: resolveCreatedBy },
-  ShippingClassPaginationDataSession: { createdBy: resolveCreatedBy },
-  TaxClass: { createdBy: resolveCreatedBy },
-  TaxClassPaginationDataSession: { createdBy: resolveCreatedBy },
-  Product: { createdBy: resolveCreatedBy },
-  Category: { createdBy: resolveCreatedBy },
-  CategoryDataResponse: { createdBy: resolveCreatedBy },
-  SubCategory: { createdBy: resolveCreatedBy },
-  SubCategoryDataResponse: { createdBy: resolveCreatedBy },
+  // Dynamically assign resolveCreatedBy to all relevant types
+  ...Object.fromEntries(
+    typesWithCreatedBy.map((type) => [type, { createdBy: resolveCreatedBy }])
+  ),
 };

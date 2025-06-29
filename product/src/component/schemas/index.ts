@@ -326,7 +326,7 @@ export const taxStatusQueriesDef = gql(
  * @returns The parsed GraphQL mutations for tax status as a DocumentNode.
  */
 export const taxStatusMutationsDef = gql(
-  readFileSync(path.join(__dirname, "./tax-class/mutations.graphql"), {
+  readFileSync(path.join(__dirname, "./tax-status/mutations.graphql"), {
     encoding: "utf-8",
   })
 );
