@@ -16,13 +16,16 @@ import {
   tagDef,
   tagMutationsDef,
   tagQueriesDef,
+  taxClassDef,
+  taxClassMutationsDef,
+  taxClassQueriesDef,
 } from "../../component/schemas";
 
 /**
  * Handles merging of all GraphQL schemas into a single unified type definition.
  *
  * Workflow:
- * 1. Imports shared, brand, tag, category, and product-related schema definitions from the schema module.
+ * 1. Imports shared, brand, tag, category, and product-related schema etc, definitions from the schema module.
  * 2. Uses mergeTypeDefs to combine all schema definitions into one.
  * 3. Exports the unified type definition for use in the GraphQL server.
  */
@@ -74,4 +77,13 @@ export const typeDefs = mergeTypeDefs([
 
   // Schema for shippingClass mutations (modifying shipping class data)
   shippingClassMutationsDef,
+
+  // Tax Class schema definition
+  taxClassDef,
+
+  // Schema for taxClass queries (fetching tax class data)
+  taxClassQueriesDef,
+
+  // Schema for taxClass mutations (modifying tax class data)
+  taxClassMutationsDef,
 ]);

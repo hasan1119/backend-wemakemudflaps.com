@@ -1,0 +1,22 @@
+# Queries to fetch tax class from the system.
+type Query {
+  # Fetch tax class by ID.
+  # Retrieves a specific tax class details by its unique ID.
+  # Returns a `GetTax GetTaxClassByIDResponseOrError` containing tax class data and request status.
+  getTaxClassById(
+    id: ID! # Unique identifier of the tax class to retrieve.
+  ): GetTaxClassByIDResponseOrError!
+
+  # Fetch all tax class with pagination, filtering, and sorting.
+  # Retrieves a paginated list of tax class.
+  # Supports filtering by search term (name or slug) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetTaxClassesResponseOrError` containing tax class data and request status.
+  getAllTaxClass(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of taxClass per page.
+    search: String # Optional search term (matches name or slug).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetTaxClassesResponseOrError!
+}
