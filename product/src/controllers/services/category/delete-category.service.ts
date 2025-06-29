@@ -1,9 +1,9 @@
-import { Category } from "../../../entities/category.entity";
-import { SubCategory } from "../../../entities/sub-category.entity";
+import { Category, SubCategory } from "../../../entities";
 import {
   categoryRepository,
   subCategoryRepository,
 } from "../repositories/repositories";
+import { getCategoryById, getSubCategoryById } from "./get-category.service";
 
 /**
  * Checks if a category or subcategory can be deleted (i.e. no associated products).
@@ -55,16 +55,21 @@ export async function canDeleteCategoryOrSubCategory(
  *
  * @param id - UUID of the category or subcategory
  * @param type - "category" or "subcategory"
+ * @returns The soft-deleted Category or Sub Category entity.
  */
 export async function softDeleteCategoryOrSubCategory(
   id: string,
   type: "category" | "subCategory"
-): Promise<void> {
+): Promise<Category | SubCategory> {
   const repository =
     type === "category" ? categoryRepository : subCategoryRepository;
   const now = new Date();
 
   await repository.update(id, { deletedAt: now });
+
+  const softDeletedCategory =
+    type === "category" ? await getCategoryById(id) : getSubCategoryById(id);
+  return softDeletedCategory;
 }
 
 /**

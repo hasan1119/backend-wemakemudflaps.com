@@ -1,6 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Permission } from "../../../entities/permission.entity";
+import { Permission } from "../../../entities";
 import {
   clearAllUserSearchCache,
   getUserInfoByEmailFromRedis,

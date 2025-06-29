@@ -1,5 +1,8 @@
-import { Category, SubCategory } from "../../../../entities";
-import { Category as CategoryPaginationDataSession } from "../../../../types";
+import {
+  Category as CategoryPaginationDataSession,
+  CategoryResponse,
+  SubCategoryResponse,
+} from "../../../../types";
 import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for category session and user count caching
@@ -11,6 +14,27 @@ const PREFIX = {
   COUNT: "categories-count:",
   LIST: "category-list:",
   SUBCATEGORY_SLUG_EXISTS: "subcategory-slug-exists:",
+  SUBCATEGORY_EXISTS: "subcategory-exists:",
+};
+
+/**
+ * Generates the Redis key for sub-category name existence.
+ *
+ * If parentId is provided, namespaces the key by parent ID to ensure uniqueness within the parent.
+ * If not, treats it as a top-level subcategory.
+ *
+ * @param subCategoryName - The name of the subcategory.
+ * @param parentId - (Optional) ID of the parent category or subcategory.
+ * @returns Redis key string.
+ */
+export const getSubCategoryNameKey = (
+  subCategoryName: string,
+  parentId?: string
+): string => {
+  const name = subCategoryName.toLowerCase().trim();
+  return parentId
+    ? `${PREFIX.SUBCATEGORY_EXISTS}${parentId}:${name}`
+    : `${PREFIX.SUBCATEGORY_EXISTS}${name}`;
 };
 
 /**
@@ -124,8 +148,8 @@ export const getSubCategorySlugExistFromRedis = async (
  */
 export const getCategoryInfoByIdFromRedis = async (
   categoryId: string
-): Promise<Category | null> => {
-  return redis.getSession<Category | null>(
+): Promise<CategoryResponse | null> => {
+  return redis.getSession<CategoryResponse | null>(
     `${PREFIX.CATEGORY}${categoryId}`,
     "product-app"
   );
@@ -140,12 +164,12 @@ export const getCategoryInfoByIdFromRedis = async (
  * 3. Returns the subcategory or null if not found.
  *
  * @param id - The unique ID of the subcategory.
- * @returns A promise resolving to a SubCategory object or null.
+ * @returns A promise resolving to a SubCategoryResponse object or null.
  */
 export const getSubCategoryInfoByIdFromRedis = async (
   id: string
-): Promise<SubCategory | null> => {
-  return redis.getSession<SubCategory | null>(
+): Promise<SubCategoryResponse | null> => {
+  return redis.getSession<SubCategoryResponse | null>(
     `${PREFIX.SUB_CATEGORY}${id}`,
     "product-app"
   );
@@ -168,6 +192,22 @@ export const getCategoryNameExistFromRedis = async (
     `${PREFIX.EXISTS}${categoryName.toLowerCase().trim()}`,
     "product-app"
   );
+  return result === "exists";
+};
+
+/**
+ * Checks if a sub-category name exists in Redis (optionally within a parent).
+ *
+ * @param subCategoryName - The name of the subcategory.
+ * @param parentId - (Optional) ID of the parent category or subcategory.
+ * @returns A promise resolving to a boolean indicating if the name exists.
+ */
+export const getSubCategoryNameExistFromRedis = async (
+  subCategoryName: string,
+  parentId?: string
+): Promise<boolean> => {
+  const key = getSubCategoryNameKey(subCategoryName, parentId);
+  const result = await redis.getSession<string | null>(key, "product-app");
   return result === "exists";
 };
 
@@ -261,7 +301,7 @@ export const setSubCategorySlugExistInRedis = async (
  */
 export const setCategoryInfoByIdInRedis = async (
   categoryId: string,
-  data: Category
+  data: CategoryResponse
 ): Promise<void> => {
   await redis.setSession(
     `${PREFIX.CATEGORY}${categoryId}`,
@@ -282,7 +322,7 @@ export const setCategoryInfoByIdInRedis = async (
  */
 export const setSubCategoryInfoByIdInRedis = async (
   id: string,
-  data: SubCategory
+  data: SubCategoryResponse
 ): Promise<void> => {
   await redis.setSession(`${PREFIX.SUB_CATEGORY}${id}`, data, "product-app");
 };
@@ -304,6 +344,20 @@ export const setCategoryNameExistInRedis = async (
     "exists",
     "product-app"
   );
+};
+
+/**
+ * Sets an existence flag for a sub-category name in Redis (optionally within a parent).
+ *
+ * @param subCategoryName - The name of the subcategory.
+ * @param parentId - (Optional) ID of the parent category or subcategory.
+ */
+export const setSubCategoryNameExistInRedis = async (
+  subCategoryName: string,
+  parentId?: string
+): Promise<void> => {
+  const key = getSubCategoryNameKey(subCategoryName, parentId);
+  await redis.setSession(key, "exists", "product-app");
 };
 
 /**
@@ -352,6 +406,20 @@ export const removeCategoryNameExistFromRedis = async (
     `${PREFIX.EXISTS}${categoryName.toLowerCase().trim()}`,
     "product-app"
   );
+};
+
+/**
+ * Removes the existence flag for a sub-category name from Redis (optionally within a parent).
+ *
+ * @param subCategoryName - The name of the subcategory.
+ * @param parentId - (Optional) ID of the parent category or subcategory.
+ */
+export const removeSubCategoryNameExistFromRedis = async (
+  subCategoryName: string,
+  parentId?: string
+): Promise<void> => {
+  const key = getSubCategoryNameKey(subCategoryName, parentId);
+  await redis.deleteSession(key, "product-app");
 };
 
 /**

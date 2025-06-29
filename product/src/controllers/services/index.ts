@@ -47,10 +47,12 @@ export {
  */
 export {
   countCategoriesWithSearch,
-  findCategoryByName,
-  findCategoryByNameToUpdateScoped,
+  findCategoryByNameOrSlug,
+  findCategoryByNameOrSlugToUpdateScoped,
   getCategoryById,
+  getCategoryByIds,
   getSubCategoryById,
+  getSubCategoryByIds,
   paginateCategories,
 } from "./category/get-category.service";
 

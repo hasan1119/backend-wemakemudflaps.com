@@ -1,6 +1,5 @@
 import { Brackets, ILike, Not } from "typeorm";
-import { Category } from "../../../entities/category.entity";
-import { SubCategory } from "../../../entities/sub-category.entity";
+import { Category, SubCategory } from "../../../entities";
 import {
   categoryRepository,
   subCategoryRepository,
@@ -16,7 +15,7 @@ import {
  * @param parentScopeId - (Optional) For subcategory: the parent subcategory ID.
  * @returns A matched Category or SubCategory or null.
  */
-export async function findCategoryByName(
+export async function findCategoryByNameOrSlug(
   name: string,
   slug: string,
   type: "category" | "subCategory",
@@ -94,7 +93,7 @@ export async function findCategoryByName(
  * @param parentScopeId - (Optional) For subcategory: the parent subcategory ID.
  * @returns A matching record if conflict exists, else null.
  */
-export async function findCategoryByNameToUpdateScoped(
+export async function findCategoryByNameOrSlugToUpdateScoped(
   id: string,
   name: string,
   slug: string | undefined,
@@ -169,6 +168,20 @@ export async function getCategoryById(id: string): Promise<Category | null> {
 }
 
 /**
+ * Fetches multiple categories by their IDs (not soft-deleted).
+ *
+ * @param ids - Array of category UUIDs.
+ * @returns Array of Category entities.
+ */
+export async function getCategoryByIds(ids: string[]): Promise<Category[]> {
+  if (!ids.length) return [];
+  return categoryRepository.find({
+    where: ids.map((id) => ({ id, deletedAt: null })),
+    relations: ["subCategories", "products"],
+  });
+}
+
+/**
  * Fetches a SubCategory by its ID along with all relations defined in the entity.
  *
  * Workflow:
@@ -184,6 +197,22 @@ export async function getSubCategoryById(
 ): Promise<SubCategory | null> {
   return await subCategoryRepository.findOne({
     where: { id },
+    relations: ["category", "parentSubCategory", "subCategories", "products"],
+  });
+}
+
+/**
+ * Fetches multiple subcategories by their IDs (not soft-deleted).
+ *
+ * @param ids - Array of subcategory UUIDs.
+ * @returns Array of SubCategory entities.
+ */
+export async function getSubCategoryByIds(
+  ids: string[]
+): Promise<SubCategory[]> {
+  if (!ids.length) return [];
+  return subCategoryRepository.find({
+    where: ids.map((id) => ({ id, deletedAt: null })),
     relations: ["category", "parentSubCategory", "subCategories", "products"],
   });
 }

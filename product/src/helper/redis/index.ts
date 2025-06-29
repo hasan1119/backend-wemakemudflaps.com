@@ -35,11 +35,14 @@ export {
   getCategoryNameExistFromRedis,
   getCategorySlugExistFromRedis,
   getSubCategoryInfoByIdFromRedis,
+  getSubCategoryNameExistFromRedis,
+  getSubCategoryNameKey,
   getSubCategorySlugExistFromRedis,
   removeCategoryInfoByIdFromRedis,
   removeCategoryNameExistFromRedis,
   removeCategorySlugExistFromRedis,
   removeSubCategoryInfoByIdFromRedis,
+  removeSubCategoryNameExistFromRedis,
   removeSubCategorySlugExistFromRedis,
   setCategoriesCountInRedis,
   setCategoriesInRedis,
@@ -47,6 +50,7 @@ export {
   setCategoryNameExistInRedis,
   setCategorySlugExistInRedis,
   setSubCategoryInfoByIdInRedis,
+  setSubCategoryNameExistInRedis,
   setSubCategorySlugExistInRedis,
 } from "./utils/category/category-session-manage";
 

@@ -1091,6 +1091,7 @@ export type SubCategory = {
   slug: Scalars['String']['output'];
   subCategories?: Maybe<Array<SubCategoryDataResponse>>;
   thumbnail?: Maybe<Scalars['String']['output']>;
+  totalProducts?: Maybe<Scalars['Int']['output']>;
 };
 
 export type SubCategoryDataResponse = {
@@ -1107,6 +1108,7 @@ export type SubCategoryDataResponse = {
   slug: Scalars['String']['output'];
   subCategories?: Maybe<Array<SubCategoryDataResponse>>;
   thumbnail?: Maybe<Scalars['String']['output']>;
+  totalProducts?: Maybe<Scalars['Int']['output']>;
 };
 
 export type SubCategoryResponse = {
@@ -2348,6 +2350,7 @@ export type SubCategoryResolvers<ContextType = Context, ParentType extends Resol
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategoryDataResponse']>>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2364,6 +2367,7 @@ export type SubCategoryDataResponseResolvers<ContextType = Context, ParentType e
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategoryDataResponse']>>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
