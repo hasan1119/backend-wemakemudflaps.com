@@ -49,6 +49,28 @@ export class User {
   })
   gender: string | null;
 
+  // Stores the user's address (optional)
+  @Column({
+    type: "jsonb",
+    nullable: true,
+    default: null,
+  })
+  address: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    county?: string;
+  } | null;
+
+  // Stores the user's username
+  @Column({ unique: true, nullable: true })
+  username: string | null;
+
+  // Stores the user's phone number (optional)
+  @Column({ nullable: true })
+  phone: string | null;
+
   // Establishes a many-to-many relationship with roles
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({

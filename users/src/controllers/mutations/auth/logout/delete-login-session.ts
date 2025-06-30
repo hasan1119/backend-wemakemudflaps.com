@@ -3,10 +3,10 @@ import {
   BaseResponseOrError,
   MutationDeleteLoginSessionArgs,
 } from "../../../../types";
-import { idSchema } from "../../../../utils/data-validation";
+import { idsSchema } from "../../../../utils/data-validation";
 import {
   checkUserAuth,
-  deleteUserLoginInfoSessionById,
+  deleteUserLoginInfoSessionsByIds,
 } from "../../../services";
 
 /**
@@ -24,7 +24,7 @@ import {
  */
 export const deleteLoginSession = async (
   _,
-  { sessionId }: MutationDeleteLoginSessionArgs,
+  { sessionIds }: MutationDeleteLoginSessionArgs,
   { user }
 ): Promise<BaseResponseOrError> => {
   try {
@@ -33,8 +33,8 @@ export const deleteLoginSession = async (
     if (authResponse) return authResponse;
 
     // Validate input user ID with Zod schema
-    const validationResult = await idSchema.safeParseAsync({
-      id: sessionId,
+    const validationResult = await idsSchema.safeParseAsync({
+      ids: sessionIds,
     });
 
     // Return detailed validation errors if input is invalid
@@ -54,7 +54,7 @@ export const deleteLoginSession = async (
     }
 
     // Delete the user login info from database
-    await deleteUserLoginInfoSessionById(sessionId);
+    await deleteUserLoginInfoSessionsByIds(sessionIds);
 
     return {
       statusCode: 200,

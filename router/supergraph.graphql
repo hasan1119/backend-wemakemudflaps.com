@@ -714,9 +714,9 @@ type Mutation
   updateTaxStatus(id: ID!, value: String, description: String): UpdateTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   deleteTaxStatus(ids: [ID]!, skipTrash: Boolean!): DeleteTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   restoreTaxStatuses(ids: [ID!]!): RestoreTaxStatusResponseOrError! @join__field(graph: PRODUCT)
-  register(firstName: String!, lastName: String!, email: String!, password: String!, gender: Gender): BaseResponseOrError! @join__field(graph: USER)
+  register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
-  updateProfile(firstName: String, lastName: String, email: String, gender: Gender, sessionId: String!): UserProfileUpdateResponseOrError! @join__field(graph: USER)
+  updateProfile(firstName: String, lastName: String, email: String, username: String, avatar: String, gender: Gender, address: UserAddressInput, sessionId: String!): UserProfileUpdateResponseOrError! @join__field(graph: USER)
   changePassword(oldPassword: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
   forgetPassword(email: String!): BaseResponseOrError! @join__field(graph: USER)
   resetPassword(token: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
@@ -729,7 +729,7 @@ type Mutation
   verifyEmail(userId: ID!, email: String!, sessionId: String!): EmailVerificationResponseOrError! @join__field(graph: USER)
   accountActivation(userId: ID!, email: String!): ActiveAccountResponseOrError! @join__field(graph: USER)
   logout: BaseResponseOrError! @join__field(graph: USER)
-  deleteLoginSession(sessionId: String!): BaseResponseOrError! @join__field(graph: USER)
+  deleteLoginSession(sessionIds: [String]!): BaseResponseOrError! @join__field(graph: USER)
 }
 
 input PermissionAgainstRoleInput
@@ -1321,6 +1321,7 @@ type User
   firstName: String
   lastName: String
   email: String
+  address: UserAddress
   emailVerified: Boolean
   gender: String
   roles: [String]
@@ -1330,6 +1331,27 @@ type User
   canUpdateRole: Boolean
   createdAt: String
   deletedAt: String
+}
+
+type UserAddress
+  @join__type(graph: USER)
+{
+  street: String
+  city: String
+  state: String
+  zip: String
+  county: String
+}
+
+input UserAddressInput
+  @join__type(graph: USER)
+{
+  houseNo: String
+  street: String
+  city: String
+  state: String
+  zip: String
+  county: String
 }
 
 type UserLoginInfoResponse
@@ -1406,6 +1428,7 @@ type UserSessionByEmail
   firstName: String!
   lastName: String!
   email: String!
+  address: UserAddress
   password: String!
   emailVerified: Boolean!
   gender: String!
@@ -1428,6 +1451,7 @@ type UserSessionById
   firstName: String!
   lastName: String!
   email: String!
+  address: UserAddress
   emailVerified: Boolean!
   gender: String!
   roles: [String!]!

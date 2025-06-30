@@ -7,6 +7,7 @@ import {
   getTotalUserCountByRoleIdFromRedis,
   getUserCountInDBFromRedis,
   getUserEmailFromRedis,
+  getUserUsernameFromRedis,
   setPermissionAgainstRoleInRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
@@ -16,6 +17,7 @@ import {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
+  setUserUsernameInRedis,
 } from "../../../../helper/redis";
 import {
   BaseResponseOrError,
@@ -36,6 +38,7 @@ import {
   findRoleByName,
   getUserCount,
   getUserEmailOnly,
+  isUsernameAvailable,
 } from "../../../services";
 
 /**
@@ -83,7 +86,7 @@ export const register = async (
       };
     }
 
-    const { firstName, lastName, email, password, gender } =
+    const { firstName, lastName, email, username, password, gender } =
       validationResult.data;
 
     // Attempt to retrieve cached user email from Redis
@@ -110,6 +113,35 @@ export const register = async (
           statusCode: 400,
           success: false,
           message: "Email already in use",
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
+    // Attempt to retrieve cached user username from Redis
+    let userUsername;
+
+    userUsername = await getUserUsernameFromRedis(username);
+
+    if (userUsername) {
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Username already in use",
+        __typename: "BaseResponse",
+      };
+    } else {
+      // On cache miss, query user username from database
+      const dbUser = await isUsernameAvailable(username);
+
+      if (dbUser) {
+        // Cache user username in Redis
+        await setUserUsernameInRedis(username, username);
+
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Username already in use",
           __typename: "BaseResponse",
         };
       }
@@ -197,6 +229,7 @@ export const register = async (
         firstName,
         lastName,
         email,
+        username,
         password: hashedPassword,
         gender: gender || null,
         roles: [role], // expects an array of Role entities
@@ -360,6 +393,7 @@ export const register = async (
         firstName,
         lastName,
         email,
+        username,
         password: hashedPassword,
         gender: gender || null,
         roles: [role], // expects an array of Role entities

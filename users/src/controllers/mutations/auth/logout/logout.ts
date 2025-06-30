@@ -5,7 +5,7 @@ import { BaseResponseOrError } from "../../../../types";
 import { sessionStringSchema } from "../../../../utils/data-validation";
 import {
   checkUserAuth,
-  deleteUserLoginInfoSessionById,
+  deleteUserLoginInfoSessionsByIds,
 } from "../../../services";
 
 /**
@@ -51,7 +51,7 @@ export const logout = async (
     }
 
     // Delete the user login info from database
-    await deleteUserLoginInfoSessionById(user.sessionId);
+    await deleteUserLoginInfoSessionsByIds([user.sessionId]);
 
     await Promise.all([
       removeUserTokenInfoByUserSessionIdFromRedis(user.sessionId),

@@ -12,6 +12,28 @@ import {
 } from "../repositories/repositories";
 
 /**
+ * Checks if a given username is available (not taken).
+ *
+ * Workflow:
+ * 1. Queries the userRepository to find a non-deleted user with the specified username.
+ * 2. If user is found, username is taken → return false.
+ * 3. If user is not found → return true.
+ *
+ * @param username - The username to check.
+ * @returns A promise resolving to `true` if available, `false` if taken.
+ */
+export const isUsernameAvailable = async (
+  username: string
+): Promise<boolean> => {
+  const user = await userRepository.findOne({
+    where: { username, deletedAt: null },
+    select: { id: true },
+  });
+
+  return !user;
+};
+
+/**
  * Handles retrieval of a user's email field by their email address.
  *
  * Workflow:
