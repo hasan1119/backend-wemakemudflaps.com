@@ -123,6 +123,8 @@ export const register = async (
 
     userUsername = await getUserUsernameFromRedis(username);
 
+    console.log(userUsername);
+
     if (userUsername) {
       return {
         statusCode: 400,
@@ -454,11 +456,10 @@ export const register = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${
-        CONFIG.NODE_ENV === "production"
+      message: `${CONFIG.NODE_ENV === "production"
           ? "Something went wrong, please try again."
           : error.message || "Internal server error"
-      }`,
+        }`,
       __typename: "BaseResponse",
     };
   }

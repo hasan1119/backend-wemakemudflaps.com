@@ -45,8 +45,8 @@ export const registerSchema = z.object({
     .string()
     .min(5, { message: "Username is required" })
     .max(10, { message: "Username must not exceed 10 characters" })
-    .regex(/^[a-zA-Z\s-]+$/, {
-      message: "Username must contain only letters, spaces, or hyphens",
+    .regex(/^[a-zA-Z0-9\s-]+$/, {
+      message: "Username must contain only letters, numbers, spaces, or hyphens",
     })
     .trim(),
   email: z
