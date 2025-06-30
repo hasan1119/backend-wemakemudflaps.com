@@ -180,8 +180,7 @@ export const setBrandSlugExistInRedis = async (
  * Handles caching brand information in Redis by brand ID.
  *
  * Workflow:
- * 1. Maps the provided brand data to a response format using mapBrandToResponse.
- * 2. Stores the mapped data in Redis with the brand prefix and brand ID.
+ * 1. Stores the data in Redis with the brand prefix and brand ID.
  *
  * @param brandId - The ID of the brand.
  * @param data - The Brand entity to cache.
