@@ -183,6 +183,7 @@ export const changePasswordSchema = z.object({
  * @property firstName - Optional first name (letters, spaces, hyphens, max 50 chars).
  * @property lastName - Optional last name (letters, spaces, hyphens, max 50 chars).
  * @property username - Optional user name (letters, spaces, hyphens, max 10 chars).
+ * @property phone - Optional phone value.
  * @property email - Optional email address (valid format).
  * @property gender - Optional gender value from genderMap.
  * @property address - Optional address value.
@@ -216,6 +217,17 @@ export const updateProfileSchema = z.object({
     .max(10, { message: "Username must not exceed 10 characters" })
     .regex(/^[a-zA-Z\s-]+$/, {
       message: "Username must contain only letters, spaces, or hyphens",
+    })
+    .trim()
+    .nullable()
+    .optional(),
+  phone: z
+    .string()
+    .min(10, { message: "Phone number must be at least 10 digits" })
+    .max(15, { message: "Phone number must not exceed 15 digits" })
+    .regex(/^\+?[0-9\s-]+$/, {
+      message:
+        "Phone number must contain only digits, spaces, dashes, or an optional leading '+'",
     })
     .trim()
     .nullable()

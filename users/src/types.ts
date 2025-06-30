@@ -548,7 +548,7 @@ export type MutationDeleteCategoryArgs = {
 
 
 export type MutationDeleteLoginSessionArgs = {
-  sessionId: Scalars['String']['input'];
+  sessionIds: Array<InputMaybe<Scalars['String']['input']>>;
 };
 
 
@@ -691,6 +691,7 @@ export type MutationUpdateMediaFileInfoArgs = {
 
 export type MutationUpdateProfileArgs = {
   address?: InputMaybe<UserAddressInput>;
+  avatar?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   gender?: InputMaybe<Gender>;
@@ -1375,6 +1376,7 @@ export type User = {
   isAccountActivated?: Maybe<Scalars['Boolean']['output']>;
   lastName?: Maybe<Scalars['String']['output']>;
   permissions?: Maybe<Array<Permissions>>;
+  phone?: Maybe<Scalars['String']['output']>;
   roles?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
@@ -1435,7 +1437,6 @@ export type UserResponse = {
 
 export type UserSession = {
   __typename?: 'UserSession';
-  address?: Maybe<UserAddress>;
   avatar: Scalars['String']['output'];
   email: Scalars['String']['output'];
   emailVerified: Scalars['Boolean']['output'];
@@ -1465,6 +1466,7 @@ export type UserSessionByEmail = {
   lastName: Scalars['String']['output'];
   password: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
+  phone: Scalars['String']['output'];
   roles: Array<Scalars['String']['output']>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
@@ -1486,6 +1488,7 @@ export type UserSessionById = {
   isAccountActivated: Scalars['Boolean']['output'];
   lastName: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
+  phone: Scalars['String']['output'];
   roles: Array<Scalars['String']['output']>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
@@ -2285,7 +2288,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createUserRole?: Resolver<ResolversTypes['CreateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
   deleteBrand?: Resolver<ResolversTypes['DeleteBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteBrandArgs, 'ids' | 'skipTrash'>>;
   deleteCategory?: Resolver<Maybe<ResolversTypes['DeleteCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'categoryType' | 'id'>>;
-  deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionId'>>;
+  deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionIds'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
   deleteShippingClass?: Resolver<ResolversTypes['DeleteShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingClassArgs, 'ids' | 'skipTrash'>>;
   deleteTag?: Resolver<ResolversTypes['DeleteTagResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTagArgs, 'ids' | 'skipTrash'>>;
@@ -2740,6 +2743,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   isAccountActivated?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   permissions?: Resolver<Maybe<Array<ResolversTypes['Permissions']>>, ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   roles?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -2795,7 +2799,6 @@ export type UserResponseResolvers<ContextType = Context, ParentType extends Reso
 };
 
 export type UserSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSession'] = ResolversParentTypes['UserSession']> = {
-  address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
   avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -2825,6 +2828,7 @@ export type UserSessionByEmailResolvers<ContextType = Context, ParentType extend
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -2846,6 +2850,7 @@ export type UserSessionByIdResolvers<ContextType = Context, ParentType extends R
   isAccountActivated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
