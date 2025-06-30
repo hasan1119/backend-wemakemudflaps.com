@@ -127,8 +127,6 @@ export const getBrandById = async (id: string): Promise<Brand | null> => {
  * @returns A promise resolving to an array of Brand entities.
  */
 export const getBrandsByIds = async (ids: string[]): Promise<Brand[]> => {
-  if (!ids.length) return [];
-
   return await brandRepository.find({
     where: {
       id: In(ids),

@@ -28,7 +28,7 @@ type BaseResponse @shareable {
   message: String!
 }
 
-# ---------------------- CreatedBy & Permissions ----------------------
+# ---------------------- CreatedBy ----------------------
 # Extends the CreatedBy entity to support federated references.
 extend type CreatedBy @key(fields: "id") {
   id: ID! @external

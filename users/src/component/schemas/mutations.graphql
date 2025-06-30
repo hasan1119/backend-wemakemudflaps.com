@@ -146,4 +146,43 @@ type Mutation {
   deleteLoginSession(
     sessionIds: [String]! # ID of the login session to be deleted.
   ): BaseResponseOrError!
+
+  # Create a new address book entry for the current user.
+  # Allows users to add a new address to their address book.
+  # Input includes address details such as street, city, state, country, and postal code.
+  # Returns a response indicating success or failure of the operation.
+  createAddressBookEntry(
+    street: String! # Street address
+    houseNo: String # Apartment/Suite/House No (optional)
+    city: String! # City
+    state: String! # State
+    zip: String! # ZIP code
+    county: String! # County (optional)
+    type: AddressType! # Address type (SHIPPING or BILLING)
+    isDefault: Boolean! # Is this the default address for this type?
+  ): CreateAddressBookResponseOrError!
+
+  # Update an existing address book entry.
+  # Allows users to modify details of a specific address in their address book.
+  # Requires the address entry ID and updated address details.
+  # Returns a response with the updated address or error if operation fails.
+  updateAddressBookEntry(
+    id: ID! # Unique ID of the address book entry to update.
+    street: String # Street address (optional)
+    houseNo: String # Apartment/Suite/House No (optional)
+    city: String # City (optional)
+    state: String # State (optional)
+    zip: String # ZIP code (optional)
+    county: String # County (optional)
+    type: AddressType # Address type (SHIPPING or BILLING)
+    isDefault: Boolean # Is this the default address for this type?
+  ): UpdateAddressBookResponseOrError!
+
+  # Delete one or more address book entries.
+  # Allows users to remove addresses from their address book.
+  # Accepts a list of address entry IDs to be deleted.
+  # Returns a response indicating success or failure of the deletion.
+  deleteAddressBookEntry(
+    ids: [ID!]! # List of address book entry IDs to be deleted.
+  ): BaseResponseOrError!
 }
