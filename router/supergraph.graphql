@@ -778,7 +778,7 @@ type Mutation
   restoreTaxStatuses(ids: [ID!]!): RestoreTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
-  updateProfile(firstName: String, lastName: String, email: String, username: String, avatar: String, gender: Gender, address: UserAddressInput, sessionId: String!): UserProfileUpdateResponseOrError! @join__field(graph: USER)
+  updateProfile(firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput, sessionId: String!): UserProfileUpdateResponseOrError! @join__field(graph: USER)
   changePassword(oldPassword: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
   forgetPassword(email: String!): BaseResponseOrError! @join__field(graph: USER)
   resetPassword(token: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
