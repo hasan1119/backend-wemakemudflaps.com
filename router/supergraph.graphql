@@ -1,0 +1,1479 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.4", for: EXECUTION)
+{
+  query: Query
+  mutation: Mutation
+}
+
+directive @join__directive(graphs: [join__Graph!], name: String!, args: join__DirectiveArguments) repeatable on SCHEMA | OBJECT | INTERFACE | FIELD_DEFINITION
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean, overrideLabel: String) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+union ActiveAccountResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+type BaseResponse
+  @join__type(graph: MEDIA)
+  @join__type(graph: PRODUCT)
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+}
+
+union BaseResponseOrError
+  @join__type(graph: MEDIA)
+  @join__type(graph: USER)
+  @join__unionMember(graph: MEDIA, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: MEDIA, member: "ErrorResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+type Brand
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  thumbnail: String
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type BrandPaginationDataSession
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  thumbnail: String
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type BrandPaginationResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  brands: [BrandPaginationDataSession!]!
+  total: Int!
+}
+
+type BrandResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  brand: Brand!
+}
+
+type BrandResponseById
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  brand: Brand!
+}
+
+type Category
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: String
+  position: Int!
+  createdBy: CreatedBy
+  subCategories: [SubCategory!]!
+  createdAt: String
+  deletedAt: String
+}
+
+type CategoryDataResponse
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: String
+  position: Int!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type CategoryPaginationResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: [Category!]!
+  total: Int!
+}
+
+type CategoryResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: CategoryDataResponse!
+}
+
+type CategoryResponseById
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: Category!
+}
+
+enum CategoryType
+  @join__type(graph: PRODUCT)
+{
+  category @join__enumValue(graph: PRODUCT)
+  subCategory @join__enumValue(graph: PRODUCT)
+}
+
+union CreateBrandResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "BrandResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | BrandResponse | ErrorResponse
+
+union CreateCategoryResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
+  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CategoryResponse | SubCategoryResponse | ErrorResponse
+
+type CreatedBy
+  @join__type(graph: MEDIA, key: "id", extension: true)
+  @join__type(graph: PRODUCT, key: "id", extension: true)
+  @join__type(graph: USER, key: "id")
+{
+  id: ID!
+  name: String! @join__field(graph: USER)
+  roles: [String!]! @join__field(graph: USER)
+}
+
+union CreateRoleResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "RoleResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | RoleResponse | ErrorResponse
+
+union CreateShippingClassResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ShippingClassResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ShippingClassResponse | ErrorResponse
+
+union CreateTagResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TagResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TagResponse | ErrorResponse
+
+union CreateTaxClassResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TaxClassResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TaxClassResponse | ErrorResponse
+
+union CreateTaxStatusResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TaxStatusResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TaxStatusResponse | ErrorResponse
+
+union DeleteBrandResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union DeleteCategoryResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union DeleteShippingClassResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union DeleteTagResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union DeleteTaxClassResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union DeleteTaxStatusResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+type EmailVerificationResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  token: String
+}
+
+union EmailVerificationResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "EmailVerificationResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = EmailVerificationResponse | ErrorResponse
+
+type ErrorResponse
+  @join__type(graph: MEDIA)
+  @join__type(graph: PRODUCT)
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  errors: [FieldError!]
+}
+
+type FieldError
+  @join__type(graph: MEDIA)
+  @join__type(graph: PRODUCT)
+  @join__type(graph: USER)
+{
+  field: String!
+  message: String!
+}
+
+enum Gender
+  @join__type(graph: USER)
+{
+  Male @join__enumValue(graph: USER)
+  Female @join__enumValue(graph: USER)
+  Others @join__enumValue(graph: USER)
+  Rather_not_to_say @join__enumValue(graph: USER)
+}
+
+union GetBrandByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "BrandResponseById")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | BrandResponseById | ErrorResponse
+
+union GetBrandsResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "BrandPaginationResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | BrandPaginationResponse | ErrorResponse
+
+union GetCategoriesResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryPaginationResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CategoryPaginationResponse | ErrorResponse
+
+union GetCategoryByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryResponseById")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CategoryResponseById | ErrorResponse
+
+union GetMediaByIdResponseOrError
+  @join__type(graph: MEDIA)
+  @join__unionMember(graph: MEDIA, member: "BaseResponse")
+  @join__unionMember(graph: MEDIA, member: "MediaResponse")
+  @join__unionMember(graph: MEDIA, member: "ErrorResponse")
+ = BaseResponse | MediaResponse | ErrorResponse
+
+union GetMediasResponseOrError
+  @join__type(graph: MEDIA)
+  @join__unionMember(graph: MEDIA, member: "BaseResponse")
+  @join__unionMember(graph: MEDIA, member: "MediasResponse")
+  @join__unionMember(graph: MEDIA, member: "ErrorResponse")
+ = BaseResponse | MediasResponse | ErrorResponse
+
+union GetPermissionsResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "PersonalizedWithRolePermissionResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | PersonalizedWithRolePermissionResponse | ErrorResponse
+
+union GetPersonalizedPermissionsResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "PermissionsResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | PermissionsResponse | ErrorResponse
+
+union GetProfileResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+  @join__unionMember(graph: USER, member: "UserResponse")
+ = BaseResponse | ErrorResponse | UserResponse
+
+union GetRoleByIDResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "RoleResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | RoleResponse | ErrorResponse
+
+union GetRoleResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "RoleResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | RoleResponse | ErrorResponse
+
+union GetRolesResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "RolesResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | RolesResponse | ErrorResponse
+
+union GetShippingClassByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ShippingClassResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ShippingClassResponse | ErrorResponse
+
+union GetShippingClassesResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ShippingClassPaginationResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ShippingClassPaginationResponse | ErrorResponse
+
+union GetSubCategoryByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponseById")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | SubCategoryResponseById | ErrorResponse
+
+union GetTagByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TagResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TagResponse | ErrorResponse
+
+union GetTagsResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TagPaginationResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TagPaginationResponse | ErrorResponse
+
+union GetTaxClassByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TaxClassResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TaxClassResponse | ErrorResponse
+
+union GetTaxClassesResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TaxClassPaginationResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TaxClassPaginationResponse | ErrorResponse
+
+union GetTaxStatusByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TaxStatusResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TaxStatusResponse | ErrorResponse
+
+union GetTaxStatusesResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TaxStatusPaginationResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TaxStatusPaginationResponse | ErrorResponse
+
+union GetUserByIDResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "UserResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | UserResponse | ErrorResponse
+
+union GetUserLoginInfoResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "UserLoginInfoResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | UserLoginInfoResponse | ErrorResponse
+
+union GetUsersResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "UsersResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | UsersResponse | ErrorResponse
+
+scalar join__DirectiveArguments
+
+scalar join__FieldSet
+
+enum join__Graph {
+  MEDIA @join__graph(name: "media", url: "http://localhost:4002/")
+  PRODUCT @join__graph(name: "product", url: "http://localhost:4003/")
+  USER @join__graph(name: "user", url: "http://localhost:4001/")
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+type LoginMeta
+  @join__type(graph: USER)
+{
+  id: ID!
+  ip: String
+  city: String
+  isp: String
+  country: String
+  countryIso: String
+  postalCode: String
+  subdivisionIso: String
+  timeZone: String
+  cityGeonameId: Int
+  countryGeonameId: Int
+  subdivisionGeonameId: Int
+  ispId: Int
+  latitude: Float
+  longitude: Float
+  fingerprint: String!
+  session: String!
+  fraud: Float!
+  tor: Boolean!
+  createdAt: String!
+}
+
+input LoginMetaInput
+  @join__type(graph: USER)
+{
+  ip: String
+  city: String
+  isp: String
+  country: String
+  countryIso: String
+  postalCode: String
+  subdivisionIso: String
+  timeZone: String
+  cityGeonameId: Int
+  countryGeonameId: Int
+  subdivisionGeonameId: Int
+  ispId: Int
+  latitude: Float
+  longitude: Float
+  fingerprint: String!
+  session: String!
+  fraud: Float!
+  tor: Boolean!
+}
+
+type Media
+  @join__type(graph: MEDIA, key: "id")
+{
+  id: ID!
+  mediaType: String
+  url: String
+  fileName: String
+  title: String
+  description: String
+  altText: String
+  dimension: String
+  length: Int
+  category: String
+  size: Int
+  bucketName: String
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+enum MediaCategory
+  @join__type(graph: MEDIA)
+{
+  Profile @join__enumValue(graph: MEDIA)
+  Product @join__enumValue(graph: MEDIA)
+  Product_Review @join__enumValue(graph: MEDIA)
+  Product_Return @join__enumValue(graph: MEDIA)
+  Order @join__enumValue(graph: MEDIA)
+  Complain @join__enumValue(graph: MEDIA)
+  Banner @join__enumValue(graph: MEDIA)
+  Site_Logo @join__enumValue(graph: MEDIA)
+  Site_Favicon @join__enumValue(graph: MEDIA)
+  Carousel @join__enumValue(graph: MEDIA)
+  Category @join__enumValue(graph: MEDIA)
+  Sub_Category @join__enumValue(graph: MEDIA)
+  Brand @join__enumValue(graph: MEDIA)
+  Promotion @join__enumValue(graph: MEDIA)
+  Invoice @join__enumValue(graph: MEDIA)
+  Shipping_Label @join__enumValue(graph: MEDIA)
+  Site_Settings @join__enumValue(graph: MEDIA)
+}
+
+enum MediaMimeType
+  @join__type(graph: MEDIA)
+{
+  image_jpeg @join__enumValue(graph: MEDIA)
+  image_png @join__enumValue(graph: MEDIA)
+  image_gif @join__enumValue(graph: MEDIA)
+  image_bmp @join__enumValue(graph: MEDIA)
+  image_webp @join__enumValue(graph: MEDIA)
+  image_svg_xml @join__enumValue(graph: MEDIA)
+  image_tiff @join__enumValue(graph: MEDIA)
+  image_x_icon @join__enumValue(graph: MEDIA)
+  image_heic @join__enumValue(graph: MEDIA)
+  image_heif @join__enumValue(graph: MEDIA)
+  image_jp2 @join__enumValue(graph: MEDIA)
+  image_jpx @join__enumValue(graph: MEDIA)
+  image_jpm @join__enumValue(graph: MEDIA)
+  image_avif @join__enumValue(graph: MEDIA)
+  image_x_portable_anymap @join__enumValue(graph: MEDIA)
+  image_x_portable_bitmap @join__enumValue(graph: MEDIA)
+  image_x_portable_graymap @join__enumValue(graph: MEDIA)
+  image_x_portable_pixmap @join__enumValue(graph: MEDIA)
+  image_x_rgb @join__enumValue(graph: MEDIA)
+  image_x_xbitmap @join__enumValue(graph: MEDIA)
+  image_x_xpixmap @join__enumValue(graph: MEDIA)
+  image_x_xwindowdump @join__enumValue(graph: MEDIA)
+  video_mp4 @join__enumValue(graph: MEDIA)
+  video_mpeg @join__enumValue(graph: MEDIA)
+  video_ogg @join__enumValue(graph: MEDIA)
+  video_webm @join__enumValue(graph: MEDIA)
+  video_x_msvideo @join__enumValue(graph: MEDIA)
+  video_x_flv @join__enumValue(graph: MEDIA)
+  video_x_m4v @join__enumValue(graph: MEDIA)
+  video_x_ms_wmv @join__enumValue(graph: MEDIA)
+  video_x_ms_asf @join__enumValue(graph: MEDIA)
+  video_x_matroska @join__enumValue(graph: MEDIA)
+  video_quicktime @join__enumValue(graph: MEDIA)
+  video_3gpp @join__enumValue(graph: MEDIA)
+  video_3gpp2 @join__enumValue(graph: MEDIA)
+  video_h261 @join__enumValue(graph: MEDIA)
+  video_h263 @join__enumValue(graph: MEDIA)
+  video_h264 @join__enumValue(graph: MEDIA)
+  video_jpeg @join__enumValue(graph: MEDIA)
+  video_jpm @join__enumValue(graph: MEDIA)
+  video_mj2 @join__enumValue(graph: MEDIA)
+  video_mp2t @join__enumValue(graph: MEDIA)
+  video_x_f4v @join__enumValue(graph: MEDIA)
+  video_x_fli @join__enumValue(graph: MEDIA)
+  video_x_mng @join__enumValue(graph: MEDIA)
+  video_x_smv @join__enumValue(graph: MEDIA)
+  application_pdf @join__enumValue(graph: MEDIA)
+  application_msword @join__enumValue(graph: MEDIA)
+  application_vnd_ms_excel @join__enumValue(graph: MEDIA)
+  application_vnd_ms_powerpoint @join__enumValue(graph: MEDIA)
+  application_vnd_openxmlformats_officedocument_wordprocessingml_document @join__enumValue(graph: MEDIA)
+  application_vnd_openxmlformats_officedocument_spreadsheetml_sheet @join__enumValue(graph: MEDIA)
+  application_vnd_openxmlformats_officedocument_presentationml_presentation @join__enumValue(graph: MEDIA)
+  application_vnd_oasis_opendocument_text @join__enumValue(graph: MEDIA)
+  application_vnd_oasis_opendocument_spreadsheet @join__enumValue(graph: MEDIA)
+  application_vnd_oasis_opendocument_presentation @join__enumValue(graph: MEDIA)
+  application_vnd_oasis_opendocument_graphics @join__enumValue(graph: MEDIA)
+  application_vnd_oasis_opendocument_chart @join__enumValue(graph: MEDIA)
+  application_vnd_oasis_opendocument_formula @join__enumValue(graph: MEDIA)
+  application_vnd_oasis_opendocument_image @join__enumValue(graph: MEDIA)
+  application_rtf @join__enumValue(graph: MEDIA)
+  application_x_abiword @join__enumValue(graph: MEDIA)
+  application_vnd_lotus_1_2_3 @join__enumValue(graph: MEDIA)
+  application_vnd_lotus_approach @join__enumValue(graph: MEDIA)
+  application_vnd_lotus_freelance @join__enumValue(graph: MEDIA)
+  application_vnd_lotus_organizer @join__enumValue(graph: MEDIA)
+  application_vnd_lotus_screencam @join__enumValue(graph: MEDIA)
+  application_vnd_lotus_wordpro @join__enumValue(graph: MEDIA)
+  application_vnd_visio @join__enumValue(graph: MEDIA)
+}
+
+type MediaResponse
+  @join__type(graph: MEDIA)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  media: Media!
+}
+
+type MediasResponse
+  @join__type(graph: MEDIA)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  medias: [Media!]!
+  total: Int!
+}
+
+type Mutation
+  @join__type(graph: MEDIA)
+  @join__type(graph: PRODUCT)
+  @join__type(graph: USER)
+{
+  uploadMediaFiles(inputs: [UploadMediaInput]!, userId: String!): UploadMediaResponseOrError! @join__field(graph: MEDIA)
+  updateMediaFileInfo(inputs: UpdateMediaInput!): UpdateMediaResponseOrError! @join__field(graph: MEDIA)
+  deleteMediaFiles(ids: [ID!]!, skipTrash: Boolean!, password: String): BaseResponseOrError! @join__field(graph: MEDIA)
+  restoreMediaFiles(ids: [ID!]!): BaseResponseOrError! @join__field(graph: MEDIA)
+  createBrand(thumbnail: String, name: String!, slug: String!): CreateBrandResponseOrError! @join__field(graph: PRODUCT)
+  updateBrand(id: ID!, thumbnail: String, name: String, slug: String): UpdateBrandResponseOrError! @join__field(graph: PRODUCT)
+  deleteBrand(ids: [ID]!, skipTrash: Boolean!): DeleteBrandResponseOrError! @join__field(graph: PRODUCT)
+  restoreBrands(ids: [ID!]!): RestoreBrandResponseOrError! @join__field(graph: PRODUCT)
+  createTag(name: String!, slug: String!): CreateTagResponseOrError! @join__field(graph: PRODUCT)
+  updateTag(id: ID!, name: String, slug: String): UpdateTagResponseOrError! @join__field(graph: PRODUCT)
+  deleteTag(ids: [ID]!, skipTrash: Boolean!): DeleteTagResponseOrError! @join__field(graph: PRODUCT)
+  restoreTags(ids: [ID!]!): RestoreTagResponseOrError! @join__field(graph: PRODUCT)
+  createCategory(thumbnail: String, name: String!, slug: String!, description: String, categoryId: String, parentSubCategoryId: String): CreateCategoryResponseOrError! @join__field(graph: PRODUCT)
+  updateCategory(id: ID!, thumbnail: String, slug: String, name: String, description: String, categoryType: CategoryType!): UpdateCategoryResponseOrError! @join__field(graph: PRODUCT)
+  updateCategoryPosition(id: ID!, position: Int!, categoryType: CategoryType!): UpdateCategoryPositionResponseOrError! @join__field(graph: PRODUCT)
+  deleteCategory(id: ID!, categoryType: CategoryType!, skipTrash: Boolean): DeleteCategoryResponseOrError @join__field(graph: PRODUCT)
+  restoreCategory(ids: [ID!]!, categoryType: CategoryType!): RestoreCategoryResponseOrError @join__field(graph: PRODUCT)
+  createProduct: String @join__field(graph: PRODUCT)
+  createShippingClass(value: String!, description: String): CreateShippingClassResponseOrError! @join__field(graph: PRODUCT)
+  updateShippingClass(id: ID!, value: String, description: String): UpdateShippingClassResponseOrError! @join__field(graph: PRODUCT)
+  deleteShippingClass(ids: [ID]!, skipTrash: Boolean!): DeleteShippingClassResponseOrError! @join__field(graph: PRODUCT)
+  restoreShippingClasses(ids: [ID!]!): RestoreShippingClassResponseOrError! @join__field(graph: PRODUCT)
+  createTaxClass(value: String!, description: String): CreateTaxClassResponseOrError! @join__field(graph: PRODUCT)
+  updateTaxClass(id: ID!, value: String, description: String): UpdateTaxClassResponseOrError! @join__field(graph: PRODUCT)
+  deleteTaxClass(ids: [ID]!, skipTrash: Boolean!): DeleteTaxClassResponseOrError! @join__field(graph: PRODUCT)
+  restoreTaxClasses(ids: [ID!]!): RestoreTaxClassResponseOrError! @join__field(graph: PRODUCT)
+  createTaxStatus(value: String!, description: String): CreateTaxStatusResponseOrError! @join__field(graph: PRODUCT)
+  updateTaxStatus(id: ID!, value: String, description: String): UpdateTaxStatusResponseOrError! @join__field(graph: PRODUCT)
+  deleteTaxStatus(ids: [ID]!, skipTrash: Boolean!): DeleteTaxStatusResponseOrError! @join__field(graph: PRODUCT)
+  restoreTaxStatuses(ids: [ID!]!): RestoreTaxStatusResponseOrError! @join__field(graph: PRODUCT)
+  register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender): BaseResponseOrError! @join__field(graph: USER)
+  login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
+  updateProfile(firstName: String, lastName: String, email: String, username: String, avatar: String, gender: Gender, address: UserAddressInput, sessionId: String!): UserProfileUpdateResponseOrError! @join__field(graph: USER)
+  changePassword(oldPassword: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
+  forgetPassword(email: String!): BaseResponseOrError! @join__field(graph: USER)
+  resetPassword(token: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
+  updateUserRole(roleAddIds: [String], roleRemoveIds: [String], userId: String!, password: String): BaseResponseOrError! @join__field(graph: USER)
+  deleteUserRole(ids: [ID!]!, skipTrash: Boolean!, password: String): BaseResponseOrError! @join__field(graph: USER)
+  restoreUserRole(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
+  createUserRole(name: String!, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, systemPermanentDeleteProtection: Boolean, systemPermanentUpdateProtection: Boolean): CreateRoleResponseOrError! @join__field(graph: USER)
+  updateUserRoleInfo(id: ID!, name: String, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, systemPermanentDeleteProtection: Boolean, systemPermanentUpdateProtection: Boolean, password: String): UpdateRoleResponseOrError! @join__field(graph: USER)
+  updateUserPermission(input: UpdateUserPermissionInput!): BaseResponseOrError! @join__field(graph: USER)
+  verifyEmail(userId: ID!, email: String!, sessionId: String!): EmailVerificationResponseOrError! @join__field(graph: USER)
+  accountActivation(userId: ID!, email: String!): ActiveAccountResponseOrError! @join__field(graph: USER)
+  logout: BaseResponseOrError! @join__field(graph: USER)
+  deleteLoginSession(sessionIds: [String]!): BaseResponseOrError! @join__field(graph: USER)
+}
+
+input PermissionAgainstRoleInput
+  @join__type(graph: USER)
+{
+  name: String!
+  description: String
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+enum PermissionName
+  @join__type(graph: USER)
+{
+  USER @join__enumValue(graph: USER)
+  BRAND @join__enumValue(graph: USER)
+  CATEGORY @join__enumValue(graph: USER)
+  PRODUCT @join__enumValue(graph: USER)
+  PERMISSION @join__enumValue(graph: USER)
+  PRODUCT_REVIEW @join__enumValue(graph: USER)
+  SHIPPING_CLASS @join__enumValue(graph: USER)
+  SUB_CATEGORY @join__enumValue(graph: USER)
+  TAG @join__enumValue(graph: USER)
+  TAX_CLASS @join__enumValue(graph: USER)
+  TAX_STATUS @join__enumValue(graph: USER)
+  FAQ @join__enumValue(graph: USER)
+  NEWS_LETTER @join__enumValue(graph: USER)
+  POP_UP_BANNER @join__enumValue(graph: USER)
+  PRIVACY_POLICY @join__enumValue(graph: USER)
+  TERMS_CONDITIONS @join__enumValue(graph: USER)
+  ORDER @join__enumValue(graph: USER)
+  ROLE @join__enumValue(graph: USER)
+  NOTIFICATION @join__enumValue(graph: USER)
+  MEDIA @join__enumValue(graph: USER)
+  COUPON @join__enumValue(graph: USER)
+}
+
+type Permissions
+  @join__type(graph: USER)
+{
+  id: ID!
+  name: PermissionName!
+  description: String!
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+type PermissionSession
+  @join__type(graph: USER)
+{
+  id: ID!
+  name: String!
+  description: String
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+type PermissionsResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  permissions: [Permissions!]!
+}
+
+type PersonalizedWithRolePermissionResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  personalizedPermissions: [Permissions!]!
+  rolePermissions: [Role!]
+}
+
+type Product
+  @join__type(graph: PRODUCT, key: "id")
+{
+  id: ID!
+}
+
+type Query
+  @join__type(graph: MEDIA)
+  @join__type(graph: PRODUCT)
+  @join__type(graph: USER)
+{
+  getMediaById(id: ID!): GetMediaByIdResponseOrError! @join__field(graph: MEDIA)
+  getAllMedias(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetMediasResponseOrError! @join__field(graph: MEDIA)
+  getBrandById(id: ID!): GetBrandByIDResponseOrError! @join__field(graph: PRODUCT)
+  getAllBrands(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetBrandsResponseOrError! @join__field(graph: PRODUCT)
+  getTagById(id: ID!): GetTagByIDResponseOrError! @join__field(graph: PRODUCT)
+  getAllTags(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTagsResponseOrError! @join__field(graph: PRODUCT)
+  getCategoryById(id: ID!): GetCategoryByIDResponseOrError! @join__field(graph: PRODUCT)
+  getSubCategoryById(id: ID!): GetSubCategoryByIDResponseOrError! @join__field(graph: PRODUCT)
+  getAllCategories(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetCategoriesResponseOrError! @join__field(graph: PRODUCT)
+  getProduct: String @join__field(graph: PRODUCT)
+  getShippingClassById(id: ID!): GetShippingClassByIDResponseOrError! @join__field(graph: PRODUCT)
+  getAllShippingClass(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetShippingClassesResponseOrError! @join__field(graph: PRODUCT)
+  getTaxClassById(id: ID!): GetTaxClassByIDResponseOrError! @join__field(graph: PRODUCT)
+  getAllTaxClass(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTaxClassesResponseOrError! @join__field(graph: PRODUCT)
+  getTaxStatusById(id: ID!): GetTaxStatusByIDResponseOrError! @join__field(graph: PRODUCT)
+  getAllTaxStatus(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTaxStatusesResponseOrError! @join__field(graph: PRODUCT)
+  getProfile: GetProfileResponseOrError! @join__field(graph: USER)
+  getUserById(id: String!): GetUserByIDResponseOrError! @join__field(graph: USER)
+  getAllUsers(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetUsersResponseOrError! @join__field(graph: USER)
+  getRoleById(id: String!): GetRoleByIDResponseOrError! @join__field(graph: USER)
+  getUserOwnLoginInfo: GetUserLoginInfoResponseOrError! @join__field(graph: USER)
+  getAllRoles(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetRolesResponseOrError! @join__field(graph: USER)
+  getAllPermissionsByUserId(id: ID!): GetPermissionsResponseOrError! @join__field(graph: USER)
+  getOwnPersonalizedPermissions: GetPermissionsResponseOrError! @join__field(graph: USER)
+}
+
+union RestoreBrandResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union RestoreCategoryResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union RestoreShippingClassResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union RestoreTagResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union RestoreTaxClassResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union RestoreTaxStatusResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+type Role
+  @join__type(graph: USER)
+{
+  id: ID!
+  name: String!
+  description: String
+  defaultPermissions: [RolePermissionSession!]
+  systemDeleteProtection: Boolean
+  systemUpdateProtection: Boolean
+  systemPermanentDeleteProtection: Boolean
+  systemPermanentUpdateProtection: Boolean
+  assignedUserCount: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+input RolePermissionInput
+  @join__type(graph: USER)
+{
+  name: PermissionName!
+  description: String
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+type RolePermissionSession
+  @join__type(graph: USER)
+{
+  id: ID!
+  name: String!
+  description: String
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+type RoleResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  role: Role!
+  success: Boolean!
+  message: String!
+}
+
+type RoleSession
+  @join__type(graph: USER)
+{
+  id: ID!
+  name: String!
+  description: String!
+  defaultPermissions: [RolePermissionSession!]!
+  systemDeleteProtection: Boolean!
+  systemUpdateProtection: Boolean!
+  systemPermanentDeleteProtection: Boolean!
+  systemPermanentUpdateProtection: Boolean!
+  createdBy: CreatedBy!
+  createdAt: String!
+  deletedAt: String!
+}
+
+type RolesResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  roles: [Role!]!
+  total: Int!
+}
+
+type ShippingClass
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  value: String!
+  description: String
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type ShippingClassPaginationDataSession
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  value: String!
+  description: String
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type ShippingClassPaginationResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingClasses: [ShippingClassPaginationDataSession!]!
+  total: Int!
+}
+
+type ShippingClassResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingClass: ShippingClass!
+}
+
+input SinglePermissionInput
+  @join__type(graph: USER)
+{
+  name: PermissionName!
+  canCreate: Boolean
+  canRead: Boolean
+  canUpdate: Boolean
+  canDelete: Boolean
+  description: String
+}
+
+type SubCategory
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: String
+  category: Category!
+  parentSubCategory: SubCategoryDataResponse
+  subCategories: [SubCategoryDataResponse!]
+  totalProducts: Int
+  position: Int!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type SubCategoryDataResponse
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: String
+  category: ID
+  parentSubCategory: ID
+  subCategories: [SubCategoryDataResponse!]
+  totalProducts: Int
+  position: Int!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type SubCategoryResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  subcategory: SubCategoryDataResponse!
+}
+
+type SubCategoryResponseById
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  subcategory: SubCategoryDataResponse!
+}
+
+type Tag
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type TagPaginationDataSession
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type TagPaginationResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  tags: [TagPaginationDataSession!]!
+  total: Int!
+}
+
+type TagResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  tag: Tag!
+}
+
+type TaxClass
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  value: String!
+  description: String
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type TaxClassPaginationDataSession
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  value: String!
+  description: String
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type TaxClassPaginationResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxClasses: [TaxClassPaginationDataSession!]!
+  total: Int!
+}
+
+type TaxClassResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxClass: TaxClass!
+}
+
+type TaxStatus
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  value: String!
+  description: String
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type TaxStatusPaginationDataSession
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  value: String!
+  description: String
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type TaxStatusPaginationResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxStatuses: [TaxStatusPaginationDataSession!]!
+  total: Int!
+}
+
+type TaxStatusResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxStatus: TaxStatus!
+}
+
+union UpdateBrandResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "BrandResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | BrandResponse | ErrorResponse
+
+union UpdateCategoryPositionResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
+  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CategoryResponse | SubCategoryResponse | ErrorResponse
+
+union UpdateCategoryResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
+  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CategoryResponse | SubCategoryResponse | ErrorResponse
+
+input UpdateMediaInput
+  @join__type(graph: MEDIA)
+{
+  id: ID!
+  title: String
+  description: String
+  altText: String
+  dimension: String
+  length: Int
+  category: MediaCategory!
+}
+
+union UpdateMediaResponseOrError
+  @join__type(graph: MEDIA)
+  @join__unionMember(graph: MEDIA, member: "BaseResponse")
+  @join__unionMember(graph: MEDIA, member: "MediaResponse")
+  @join__unionMember(graph: MEDIA, member: "ErrorResponse")
+ = BaseResponse | MediaResponse | ErrorResponse
+
+union UpdateRoleResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "RoleResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | RoleResponse | ErrorResponse
+
+union UpdateShippingClassResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ShippingClassResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ShippingClassResponse | ErrorResponse
+
+union UpdateTagResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TagResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TagResponse | ErrorResponse
+
+union UpdateTaxClassResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TaxClassResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TaxClassResponse | ErrorResponse
+
+union UpdateTaxStatusResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "TaxStatusResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | TaxStatusResponse | ErrorResponse
+
+input UpdateUserPermissionInput
+  @join__type(graph: USER)
+{
+  userId: ID!
+  accessAll: Boolean
+  deniedAll: Boolean
+  permissions: [SinglePermissionInput!]
+  password: String
+}
+
+input UploadMediaInput
+  @join__type(graph: MEDIA)
+{
+  mediaType: MediaMimeType!
+  fileName: String!
+  title: String
+  description: String
+  altText: String
+  dimension: String
+  length: Int
+  category: MediaCategory!
+  size: Int!
+  url: String!
+  bucketName: String!
+  createdBy: String!
+}
+
+type UploadMediaResponse
+  @join__type(graph: MEDIA)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  medias: [Media]!
+}
+
+union UploadMediaResponseOrError
+  @join__type(graph: MEDIA)
+  @join__unionMember(graph: MEDIA, member: "BaseResponse")
+  @join__unionMember(graph: MEDIA, member: "UploadMediaResponse")
+  @join__unionMember(graph: MEDIA, member: "ErrorResponse")
+ = BaseResponse | UploadMediaResponse | ErrorResponse
+
+type User
+  @join__type(graph: USER, key: "id")
+{
+  id: ID!
+  avatar: String
+  firstName: String
+  lastName: String
+  email: String
+  address: UserAddress
+  emailVerified: Boolean
+  gender: String
+  phone: String
+  roles: [String]
+  isAccountActivated: Boolean
+  permissions: [Permissions!]
+  canUpdatePermissions: Boolean
+  canUpdateRole: Boolean
+  createdAt: String
+  deletedAt: String
+}
+
+type UserAddress
+  @join__type(graph: USER)
+{
+  street: String
+  city: String
+  state: String
+  zip: String
+  county: String
+}
+
+input UserAddressInput
+  @join__type(graph: USER)
+{
+  houseNo: String
+  street: String
+  city: String
+  state: String
+  zip: String
+  county: String
+}
+
+type UserLoginInfoResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  userLoginInfo: [LoginMeta!]!
+}
+
+type UserLoginResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  token: String!
+  sessionId: String!
+}
+
+union UserLoginResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "UserLoginResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | UserLoginResponse | ErrorResponse
+
+type UserProfileUpdateResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  token: String!
+}
+
+union UserProfileUpdateResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "UserProfileUpdateResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | UserProfileUpdateResponse | ErrorResponse
+
+type UserResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  user: User!
+}
+
+type UserSession
+  @join__type(graph: USER)
+{
+  id: ID!
+  avatar: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  gender: String!
+  roles: [String!]!
+  emailVerified: Boolean!
+  isAccountActivated: Boolean!
+  sessionId: String!
+}
+
+type UserSessionByEmail
+  @join__type(graph: USER)
+{
+  id: ID!
+  avatar: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  address: UserAddress
+  password: String!
+  emailVerified: Boolean!
+  gender: String!
+  roles: [String!]!
+  permissions: [PermissionSession!]!
+  canUpdatePermissions: Boolean!
+  canUpdateRole: Boolean!
+  isAccountActivated: Boolean!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
+  createdAt: String!
+  deletedAt: String!
+}
+
+type UserSessionById
+  @join__type(graph: USER)
+{
+  id: ID!
+  avatar: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  address: UserAddress
+  emailVerified: Boolean!
+  gender: String!
+  phone: String!
+  roles: [String!]!
+  permissions: [PermissionSession!]!
+  canUpdatePermissions: Boolean!
+  canUpdateRole: Boolean!
+  isAccountActivated: Boolean!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
+  createdAt: String!
+  deletedAt: String!
+}
+
+type UsersResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  users: [User!]!
+  total: Int!
+}

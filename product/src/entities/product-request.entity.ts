@@ -16,7 +16,7 @@ export class ProductRequest {
   // The status of the product request, which can either be "pending" or "fulfilled"
   @Column({
     type: "enum",
-    enum: ["pending", "fulfilled"],
+    enum: ["pending", "rejected", "fulfilled"],
     default: "pending",
   })
   status: string;

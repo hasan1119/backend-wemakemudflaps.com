@@ -3,11 +3,11 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import "reflect-metadata";
 import CONFIG from "./src/config/config";
-import { connectDB } from "./src/helper";
+import { AppDataSource, connectDB } from "./src/helper";
 import { resolvers } from "./src/helper/combine/resolver";
 import { typeDefs } from "./src/helper/combine/schema";
 import createContext from "./src/middleware/context";
-import loggingPlugin from './src/plugins/loggingPlugin';
+import loggingPlugin from "./src/plugins/loggingPlugin";
 
 /**
  * Initializes and starts the Apollo GraphQL Subgraph server.
@@ -39,6 +39,8 @@ async function startApolloServer() {
     });
 
     console.log(`🚀 Subgraph ${subgraphName} running at ${url}`);
+
+    await AppDataSource.runMigrations();
   } catch (err) {
     console.error("Error starting Apollo Subgraph:", err);
   }

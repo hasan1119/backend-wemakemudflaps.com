@@ -192,3 +192,141 @@ export const productMutationsDef = gql(
     encoding: "utf-8",
   })
 );
+
+/**
+ * Loads and parses the GraphQL schema for shipping class-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `shipping/shipping.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for shipping classes as a DocumentNode.
+ */
+export const shippingClassDef = gql(
+  readFileSync(
+    path.join(__dirname, "./shipping-class/shipping-class.graphql"),
+    {
+      encoding: "utf-8",
+    }
+  )
+);
+
+/**
+ * Loads and parses GraphQL queries for shipping class-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `shipping/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for shipping classes as a DocumentNode.
+ */
+export const shippingClassQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./shipping-class/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for shipping class-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `shipping/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for shipping classes as a DocumentNode.
+ */
+export const shippingClassMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./shipping-class/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses the GraphQL schema for tax class-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `tax-class/tax-class.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for tax classes as a DocumentNode.
+ */
+export const taxClassDef = gql(
+  readFileSync(path.join(__dirname, "./tax-class/tax-class.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL queries for tax class-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `tax-class/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for tax classes as a DocumentNode.
+ */
+export const taxClassQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./tax-class/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for tax class-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `tax-class/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for tax classes as a DocumentNode.
+ */
+export const taxClassMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./tax-class/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses the GraphQL schema for tax status-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `tax-status/tax.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for tax statuses as a DocumentNode.
+ */
+export const taxStatusDef = gql(
+  readFileSync(path.join(__dirname, "./tax-status/tax-status.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL queries for tax status-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `tax-status/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for tax statuses as a DocumentNode.
+ */
+export const taxStatusQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./tax-status/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for tax status-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `tax-status/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for tax status as a DocumentNode.
+ */
+export const taxStatusMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./tax-status/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);

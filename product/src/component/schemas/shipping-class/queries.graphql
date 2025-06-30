@@ -1,0 +1,22 @@
+# Queries to fetch shipping class from the system.
+type Query {
+  # Fetch shipping class by ID.
+  # Retrieves a specific shipping class details by its unique ID.
+  # Returns a `GetShipping GetShippingClassByIDResponseOrError` containing shipping class data and request status.
+  getShippingClassById(
+    id: ID! # Unique identifier of the shipping class to retrieve.
+  ): GetShippingClassByIDResponseOrError!
+
+  # Fetch all shipping class with pagination, filtering, and sorting.
+  # Retrieves a paginated list of shipping class.
+  # Supports filtering by search term (name or slug) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetShippingClassesResponseOrError` containing shipping class data and request status.
+  getAllShippingClass(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of shippingClass per page.
+    search: String # Optional search term (matches name or slug).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetShippingClassesResponseOrError!
+}

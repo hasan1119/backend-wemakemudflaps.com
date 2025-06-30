@@ -1,8 +1,8 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getBrandInfoByBrandIdFromRedis,
-  setBrandInfoByBrandIdInRedis,
+  getBrandInfoByIdFromRedis,
+  setBrandInfoByIdInRedis,
 } from "../../../helper/redis";
 import {
   GetBrandByIdResponseOrError,
@@ -77,7 +77,7 @@ export const getBrandById = async (
     const { id } = args;
 
     // Attempt to retrieve cached brand data from Redis
-    let brandData = await getBrandInfoByBrandIdFromRedis(id);
+    let brandData = await getBrandInfoByIdFromRedis(id);
 
     if (brandData?.deletedAt) {
       return {
@@ -102,7 +102,7 @@ export const getBrandById = async (
       }
 
       // Cache brand data in Redis
-      await setBrandInfoByBrandIdInRedis(id, dbBrand);
+      await setBrandInfoByIdInRedis(id, dbBrand);
       brandData = dbBrand;
     }
 

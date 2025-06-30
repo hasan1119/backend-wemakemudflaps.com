@@ -1,17 +1,29 @@
 import {
   createBrand,
   createCategory,
+  createShippingClass,
   createTag,
+  createTaxClass,
+  createTaxStatus,
   deleteBrand,
   deleteCategory,
+  deleteShippingClass,
   deleteTag,
+  deleteTaxClass,
+  deleteTaxStatus,
   restoreBrands,
   restoreCategory,
+  restoreShippingClasses,
   restoreTags,
+  restoreTaxClasses,
+  restoreTaxStatuses,
   updateBrand,
   updateCategory,
   updateCategoryPosition,
+  updateShippingClass,
   updateTag,
+  updateTaxClass,
+  updateTaxStatus,
 } from "../../controllers";
 import { createProduct } from "../../controllers/mutations/manage-product/create-product";
 
@@ -46,7 +58,7 @@ export const productMutationsResolver = {
     deleteCategory,
 
     /**
-     * Restores previously deleted category
+     * Restores previously deleted category.
      */
     restoreCategory,
 
@@ -66,7 +78,7 @@ export const productMutationsResolver = {
     deleteTag,
 
     /**
-     * Restores previously deleted category
+     * Restores previously deleted category.
      */
     restoreTags,
 
@@ -86,9 +98,66 @@ export const productMutationsResolver = {
     deleteBrand,
 
     /**
-     * Restores previously deleted category
+     * Restores previously deleted brand.
      */
     restoreBrands,
+
+    /**
+     * Creates a new shipping class.
+     */
+    createShippingClass,
+    /**
+     * Updates detailed information for a specific shipping class .
+     */
+    updateShippingClass,
+
+    /**
+     * Deletes specified shipping class from the system.
+     */
+    deleteShippingClass,
+
+    /**
+     * Restores previously deleted shipping class.
+     */
+    restoreShippingClasses,
+
+    /**
+     * Creates a new tax class.
+     */
+    createTaxClass,
+    /**
+     * Updates detailed information for a specific tax class .
+     */
+    updateTaxClass,
+
+    /**
+     * Deletes specified tax class from the system.
+     */
+    deleteTaxClass,
+
+    /**
+     * Restores previously deleted tax class.
+     */
+    restoreTaxClasses,
+
+    /**
+     * Creates a new tax status.
+     */
+    createTaxStatus,
+    /**
+     * Updates detailed information for a specific tax status .
+     */
+    updateTaxStatus,
+
+    /**
+     * Deletes specified tax status from the system.
+     */
+    deleteTaxStatus,
+
+    /**
+     * Restores previously deleted tax status.
+     */
+    restoreTaxStatuses,
 
     createProduct,
   },

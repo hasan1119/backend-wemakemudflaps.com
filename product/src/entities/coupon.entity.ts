@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product } from "./product.entity";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Coupon {
@@ -37,11 +36,11 @@ export class Coupon {
   maxUsage: number | null;
 
   // A coupon may be tied to a specific product
-  @ManyToOne(() => Product, (product) => product.coupons, {
+  /*   @ManyToOne(() => Product, (product) => product.coupons, {
     nullable: true,
     onDelete: "CASCADE", // Ensures the associated coupon is deleted if the product is deleted
   })
-  product: Product | null;
+  product: Product | null; */
 
   // A coupon may be tied to a specific order (string only for Apollo Federation compatibility)
   @Column({ nullable: true })

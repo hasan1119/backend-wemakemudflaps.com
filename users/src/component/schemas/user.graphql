@@ -218,6 +218,14 @@ enum Gender {
   Rather_not_to_say
 }
 
+# Type for structured user address fields
+type UserAddress {
+  street: String
+  city: String
+  state: String
+  zip: String
+  county: String
+}
 # Represents the authenticated user's session data (lightweight).
 type UserSession @shareable {
   id: ID!
@@ -239,6 +247,8 @@ type UserSessionByEmail @shareable {
   firstName: String!
   lastName: String!
   email: String!
+  phone: String!
+  address: UserAddress
   password: String!
   emailVerified: Boolean!
   gender: String!
@@ -260,8 +270,10 @@ type UserSessionById @shareable {
   firstName: String!
   lastName: String!
   email: String!
+  address: UserAddress
   emailVerified: Boolean!
   gender: String!
+  phone: String!
   roles: [String!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!
@@ -276,11 +288,14 @@ type UserSessionById @shareable {
 # Represents a full user object fetched from the database.
 type User @key(fields: "id") {
   id: ID!
+  avatar: String
   firstName: String
   lastName: String
   email: String
+  address: UserAddress
   emailVerified: Boolean
   gender: String
+  phone: String
   roles: [String]
   isAccountActivated: Boolean
   permissions: [Permissions!]
@@ -377,6 +392,15 @@ type RoleResponse {
 }
 
 # ---------------------- Inputs ----------------------
+# Input to update user's address.
+input UserAddressInput {
+  houseNo: String
+  street: String
+  city: String
+  state: String
+  zip: String
+  county: String
+}
 
 # Input to define a single permission, typically for mutation to assign to a user.
 input SinglePermissionInput {

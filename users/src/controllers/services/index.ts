@@ -10,7 +10,7 @@ export {
   deleteUser,
   deleteUserLoginInfoByUserId,
   deleteUserLoginInfoByUserIds,
-  deleteUserLoginInfoSessionById,
+  deleteUserLoginInfoSessionsByIds,
 } from "./user/delete-user.service";
 
 /**
@@ -33,6 +33,7 @@ export {
   getUserLoginInfoByUserId,
   getUserPersonalizedPermission,
   getUsersLoginInfoByUserIds,
+  isUsernameAvailable,
 } from "./user/get-user.service";
 
 /**

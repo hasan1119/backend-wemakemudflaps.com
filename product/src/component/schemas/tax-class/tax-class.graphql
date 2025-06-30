@@ -1,0 +1,57 @@
+# ---------------------- Tax Class Types ----------------------
+type TaxClass {
+  id: ID!
+  value: String!
+  description: String
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a tax class.
+type TaxClassResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxClass: TaxClass!
+}
+
+# Response for fetching a tax class.
+type TaxClassPaginationDataSession {
+  id: ID!
+  value: String!
+  description: String
+  totalProducts: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a tax classes list.
+type TaxClassPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxClasses: [TaxClassPaginationDataSession!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateTaxClassResponseOrError =
+    BaseResponse
+  | TaxClassResponse
+  | ErrorResponse
+union GetTaxClassByIDResponseOrError =
+    BaseResponse
+  | TaxClassResponse
+  | ErrorResponse
+union GetTaxClassesResponseOrError =
+    BaseResponse
+  | TaxClassPaginationResponse
+  | ErrorResponse
+union UpdateTaxClassResponseOrError =
+    BaseResponse
+  | TaxClassResponse
+  | ErrorResponse
+union DeleteTaxClassResponseOrError = BaseResponse | ErrorResponse
+union RestoreTaxClassResponseOrError = BaseResponse | ErrorResponse

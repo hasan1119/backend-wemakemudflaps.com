@@ -9,6 +9,7 @@ type Mutation {
     firstName: String! # User's first name (required).
     lastName: String! # User's last name (required).
     email: String! # Unique email address of the user (required).
+    username: String! # Unique username of the user (required).
     password: String! # User's raw password to be hashed by server (required).
     gender: Gender # Optional gender of the user.
   ): BaseResponseOrError!
@@ -29,7 +30,11 @@ type Mutation {
     firstName: String # New first name of the user.
     lastName: String # New last name of the user.
     email: String # New email address of the user.
+    username: String # New username of the user.
+    phone: String # New phone of the user.
+    avatar: String # New avatar of the user.
     gender: Gender # New gender value.
+    address: UserAddressInput # New gender value.
     sessionId: String! # Session ID for the current user (required for authentication).
   ): UserProfileUpdateResponseOrError!
 
@@ -140,6 +145,6 @@ type Mutation {
   # Allows the user to delete a specific login session by its ID.
   # This is useful for managing active sessions, especially in case of security concerns.
   deleteLoginSession(
-    sessionId: String! # ID of the login session to be deleted.
+    sessionIds: [String]! # ID of the login session to be deleted.
   ): BaseResponseOrError!
 }

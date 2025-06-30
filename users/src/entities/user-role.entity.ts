@@ -21,7 +21,7 @@ export class Role {
   name: string;
 
   // Stores the user role description
-  @Column({ nullable: true, default: null })
+  @Column({ type: "text", nullable: true, default: null })
   description: string | null;
 
   // Establishes a one-to-many relationship with permissions

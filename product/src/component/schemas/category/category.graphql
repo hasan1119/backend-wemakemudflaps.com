@@ -26,6 +26,7 @@ type SubCategory {
   category: Category! # The category to which this subcategory belongs.
   parentSubCategory: SubCategoryDataResponse # Optional parent subcategory if nested.
   subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
+  totalProducts: Int # Optional total product count associate with this sub category.
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
@@ -38,6 +39,7 @@ type CategoryDataResponse {
   slug: String!
   description: String
   thumbnail: String
+
   position: Int! # Display order/position of the category.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
@@ -53,6 +55,7 @@ type SubCategoryDataResponse {
   category: ID # The category to which this subcategory belongs.
   parentSubCategory: ID # The parent subcategory if nested.
   subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
+  totalProducts: Int # Optional total product count associate with this sub category.
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String

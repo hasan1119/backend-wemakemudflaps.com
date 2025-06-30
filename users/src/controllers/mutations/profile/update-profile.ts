@@ -3,10 +3,13 @@ import { Context } from "../../../context";
 import {
   clearAllUserSearchCache,
   getUserInfoByUserIdFromRedis,
+  getUserUsernameFromRedis,
+  removeUserTokenInfoByUserSessionIdFromRedis,
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
   setUserTokenInfoByUserSessionIdInRedis,
+  setUserUsernameInRedis,
 } from "../../../helper/redis";
 import {
   MutationUpdateProfileArgs,
@@ -16,7 +19,14 @@ import {
 import { updateProfileSchema } from "../../../utils/data-validation";
 import SendEmail from "../../../utils/email/send-email";
 import EncodeToken from "../../../utils/jwt/encode-token";
-import { checkUserAuth, isEmailInUse, updateUser } from "../../services";
+import {
+  checkUserAuth,
+  deleteUserLoginInfoSessionsByIds,
+  getUserLoginInfoByUserId,
+  isEmailInUse,
+  isUsernameAvailable,
+  updateUser,
+} from "../../services";
 
 /**
  * Handles updating a user's account information.
@@ -66,17 +76,65 @@ export const updateProfile = async (
       };
     }
 
-    const { firstName, lastName, email, gender } = validationResult.data;
+    const {
+      firstName,
+      lastName,
+      avatar,
+      email,
+      gender,
+      address,
+      phone,
+      username,
+    } = validationResult.data;
 
     // Attempt to retrieve cached user data from Redis
     let userData;
 
     userData = await getUserInfoByUserIdFromRedis(user.id);
 
+    // Attempt to retrieve cached user username from Redis
+    let userUsername;
+
+    userUsername = await getUserUsernameFromRedis(username);
+
+    if (userUsername) {
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Username already in use",
+        __typename: "BaseResponse",
+      };
+    } else {
+      // On cache miss, query user username from database
+      const dbUser = await isUsernameAvailable(username);
+
+      if (dbUser) {
+        // Cache user username in Redis
+        await setUserUsernameInRedis(username, username);
+
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Username already in use",
+          __typename: "BaseResponse",
+        };
+      }
+
+      userData.username = username;
+    }
+
     // Update user fields only if provided
     if (firstName) userData.firstName = firstName;
 
     if (lastName) userData.lastName = lastName;
+
+    if (gender) userData.gender = gender;
+
+    if (address) userData.address = address;
+
+    if (avatar) userData.avatar = avatar;
+
+    if (phone) userData.phone = phone;
 
     if (email && email !== userData.email) {
       // Check if the new email is already in use
@@ -120,8 +178,6 @@ export const updateProfile = async (
       userData.tempEmailVerified = false;
     }
 
-    if (gender) userData.gender = gender;
-
     // Remove fields that should not be updated
     delete userData.roles;
     delete userData.permissions;
@@ -148,6 +204,20 @@ export const updateProfile = async (
       isAccountActivated: updatedUser.isAccountActivated,
       sessionId: args.sessionId,
     };
+
+    const userLoginInfoRaw = await getUserLoginInfoByUserId(user.id);
+
+    // Filter out all sessions except the current one to delete others
+    const sessionsToDelete = userLoginInfoRaw
+      .filter((info) => info.id !== args.sessionId)
+      .map((info) => info.id);
+
+    await deleteUserLoginInfoSessionsByIds(sessionsToDelete),
+      await Promise.all(
+        sessionsToDelete.map((sessionId) => [
+          removeUserTokenInfoByUserSessionIdFromRedis(sessionId),
+        ])
+      );
 
     // Cache user data, session, and email in Redis with 30-day TTL
     const promises = [

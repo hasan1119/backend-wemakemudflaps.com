@@ -2,11 +2,11 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearAllTagSearchCache,
-  getTagInfoByTagIdFromRedis,
-  removeTagInfoByTagIdFromRedis,
+  getTagInfoByIdFromRedis,
+  removeTagInfoByIdFromRedis,
   removeTagNameExistFromRedis,
   removeTagSlugExistFromRedis,
-  setTagInfoByTagIdInRedis,
+  setTagInfoByIdInRedis,
 } from "../../../helper/redis";
 import { BaseResponseOrError, MutationDeleteTagArgs } from "../../../types";
 import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
@@ -22,7 +22,7 @@ import {
 // Clear tag-related cache entries in Redis
 const clearTagCache = async (id: string, name: string, slug: string) => {
   await Promise.all([
-    removeTagInfoByTagIdFromRedis(id),
+    removeTagInfoByIdFromRedis(id),
     removeTagNameExistFromRedis(name),
     removeTagSlugExistFromRedis(slug),
     clearAllTagSearchCache(),
@@ -32,7 +32,7 @@ const clearTagCache = async (id: string, name: string, slug: string) => {
 // Perform soft delete and update cache
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteTag(id);
-  setTagInfoByTagIdInRedis(id, deletedData);
+  setTagInfoByIdInRedis(id, deletedData);
   await clearAllTagSearchCache();
 };
 
@@ -106,7 +106,7 @@ export const deleteTag = async (
     }
 
     // Attempt to retrieve tag data from Redis
-    const cachedTags = await Promise.all(ids.map(getTagInfoByTagIdFromRedis));
+    const cachedTags = await Promise.all(ids.map(getTagInfoByIdFromRedis));
 
     const foundTags: any[] = [];
     const missingIds: string[] = [];
@@ -148,7 +148,7 @@ export const deleteTag = async (
       let tagProducts;
 
       // Attempt to fetch tag info from Redis
-      tagProducts = await getTagInfoByTagIdFromRedis(id);
+      tagProducts = await getTagInfoByIdFromRedis(id);
 
       // Initialize productCount
       let productCount = 0;

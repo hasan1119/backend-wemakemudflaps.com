@@ -71,7 +71,7 @@ export class Product {
   defaultMainDescription: string;
 
   // Short description
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, default: null })
   defaultShortDescription: string | null;
 
   // Comma-separated product tags

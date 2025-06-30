@@ -19,6 +19,7 @@ export const genderMap: Record<string, string> = {
  *
  * @property firstName - User's first name (letters, spaces, hyphens, max 50 chars).
  * @property lastName - User's last name (letters, spaces, hyphens, max 50 chars).
+ * @property userName - User's user name (letters, spaces, hyphens, max 10 chars).
  * @property email - User's email address (valid format).
  * @property password - User's password (complexity requirements).
  * @property gender - Optional gender value from genderMap.
@@ -38,6 +39,14 @@ export const registerSchema = z.object({
     .max(50, { message: "Last name must not exceed 50 characters" })
     .regex(/^[a-zA-Z\s-]+$/, {
       message: "Last name must contain only letters, spaces, or hyphens",
+    })
+    .trim(),
+  username: z
+    .string()
+    .min(5, { message: "Username is required" })
+    .max(10, { message: "Username must not exceed 10 characters" })
+    .regex(/^[a-zA-Z\s-]+$/, {
+      message: "Username must contain only letters, spaces, or hyphens",
     })
     .trim(),
   email: z
@@ -173,8 +182,12 @@ export const changePasswordSchema = z.object({
  *
  * @property firstName - Optional first name (letters, spaces, hyphens, max 50 chars).
  * @property lastName - Optional last name (letters, spaces, hyphens, max 50 chars).
+ * @property username - Optional user name (letters, spaces, hyphens, max 10 chars).
+ * @property phone - Optional phone value.
  * @property email - Optional email address (valid format).
  * @property gender - Optional gender value from genderMap.
+ * @property address - Optional address value.
+ * @property avatar - Optional avatar value.
  * @property sessionId - User session id of the token.
  */
 export const updateProfileSchema = z.object({
@@ -182,18 +195,48 @@ export const updateProfileSchema = z.object({
     .string()
     .min(1, { message: "First name is required" })
     .max(50, { message: "First name is too long" })
+    .regex(/^[a-zA-Z\s-]+$/, {
+      message: "First name must contain only letters, spaces, or hyphens",
+    })
     .trim()
+    .nullable()
     .optional(),
   lastName: z
     .string()
     .min(1, { message: "Last name is required" })
     .max(50, { message: "Last name is too long" })
+    .regex(/^[a-zA-Z\s-]+$/, {
+      message: "Last name must contain only letters, spaces, or hyphens",
+    })
     .trim()
+    .nullable()
+    .optional(),
+  username: z
+    .string()
+    .min(5, { message: "Username is required" })
+    .max(10, { message: "Username must not exceed 10 characters" })
+    .regex(/^[a-zA-Z\s-]+$/, {
+      message: "Username must contain only letters, spaces, or hyphens",
+    })
+    .trim()
+    .nullable()
+    .optional(),
+  phone: z
+    .string()
+    .min(10, { message: "Phone number must be at least 10 digits" })
+    .max(15, { message: "Phone number must not exceed 15 digits" })
+    .regex(/^\+?[0-9\s-]+$/, {
+      message:
+        "Phone number must contain only digits, spaces, dashes, or an optional leading '+'",
+    })
+    .trim()
+    .nullable()
     .optional(),
   email: z
     .string()
     .email({ message: "Invalid email format" })
     .trim()
+    .nullable()
     .optional(),
   gender: z
     .preprocess((val) => {
@@ -202,6 +245,19 @@ export const updateProfileSchema = z.object({
       }
       return val;
     }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]]))
+    .nullable()
+    .optional(),
+  address: z.object({
+    street: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zip: z.string().optional(),
+    county: z.string().optional(),
+  }),
+  avatar: z
+    .string()
+    .url({ message: "Avatar must be a valid URL" })
+    .trim()
     .nullable()
     .optional(),
   sessionId: z.string().uuid({ message: "Invalid UUID format" }),

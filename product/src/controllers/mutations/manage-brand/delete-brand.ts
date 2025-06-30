@@ -2,11 +2,11 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearAllBrandSearchCache,
-  getBrandInfoByBrandIdFromRedis,
-  removeBrandInfoByBrandIdFromRedis,
+  getBrandInfoByIdFromRedis,
+  removeBrandInfoByIdFromRedis,
   removeBrandNameExistFromRedis,
   removeBrandSlugExistFromRedis,
-  setBrandInfoByBrandIdInRedis,
+  setBrandInfoByIdInRedis,
 } from "../../../helper/redis";
 import { BaseResponseOrError, MutationDeleteBrandArgs } from "../../../types";
 import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
@@ -22,7 +22,7 @@ import {
 // Clear brand-related cache entries in Redis
 const clearBrandCache = async (id: string, name: string, slug: string) => {
   await Promise.all([
-    removeBrandInfoByBrandIdFromRedis(id),
+    removeBrandInfoByIdFromRedis(id),
     removeBrandNameExistFromRedis(name),
     removeBrandSlugExistFromRedis(slug),
     clearAllBrandSearchCache(),
@@ -32,7 +32,7 @@ const clearBrandCache = async (id: string, name: string, slug: string) => {
 // Perform soft delete and update cache
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteBrand(id);
-  setBrandInfoByBrandIdInRedis(id, deletedData);
+  setBrandInfoByIdInRedis(id, deletedData);
   await clearAllBrandSearchCache();
 };
 
@@ -106,9 +106,7 @@ export const deleteBrand = async (
     }
 
     // Attempt to retrieve brand data from Redis
-    const cachedBrands = await Promise.all(
-      ids.map(getBrandInfoByBrandIdFromRedis)
-    );
+    const cachedBrands = await Promise.all(ids.map(getBrandInfoByIdFromRedis));
 
     const foundBrands: any[] = [];
     const missingIds: string[] = [];
@@ -150,7 +148,7 @@ export const deleteBrand = async (
       let brandProducts;
 
       // Attempt to fetch brand info from Redis
-      brandProducts = await getBrandInfoByBrandIdFromRedis(id);
+      brandProducts = await getBrandInfoByIdFromRedis(id);
 
       // Initialize productCount
       let productCount = 0;

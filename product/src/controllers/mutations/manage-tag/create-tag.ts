@@ -4,7 +4,7 @@ import {
   clearAllTagSearchCache,
   getTagNameExistFromRedis,
   getTagSlugExistFromRedis,
-  setTagInfoByTagIdInRedis,
+  setTagInfoByIdInRedis,
   setTagNameExistInRedis,
   setTagSlugExistInRedis,
 } from "../../../helper/redis";
@@ -144,7 +144,7 @@ export const createTag = async (
 
     // Cache tag information and existence in Redis
     await Promise.all([
-      setTagInfoByTagIdInRedis(tag.id, tag),
+      setTagInfoByIdInRedis(tag.id, tag),
       setTagNameExistInRedis(tag.name),
       setTagSlugExistInRedis(tag.slug),
       clearAllTagSearchCache(),

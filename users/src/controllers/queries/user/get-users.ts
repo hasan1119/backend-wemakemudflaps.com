@@ -104,7 +104,8 @@ export const getAllUsers = async (
     const { page, limit, search, sortBy, sortOrder } = mappedArgs;
 
     // Attempt to retrieve cached users and total count from Redis
-    let usersData = await getUsersFromRedis(
+    // Use 'any' type for usersData to allow mapped objects with a reduced set of fields
+    let usersData: any = await getUsersFromRedis(
       page,
       limit,
       search,
@@ -136,6 +137,9 @@ export const getAllUsers = async (
         email: user.email,
         emailVerified: user.emailVerified,
         gender: user.gender,
+        phone: user.phone,
+        address: user.address,
+        avatar: user.avatar,
         roles: user.roles.map((role) => role.name.toUpperCase()),
         isAccountActivated: user.isAccountActivated,
         permissions: user.permissions.map((permission) => ({
@@ -183,11 +187,14 @@ export const getAllUsers = async (
     // Map cached users to response format
     const responseUsers = usersData.map((user) => ({
       id: user.id,
+      avatar: user.avatar,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
       emailVerified: user.emailVerified,
       gender: user.gender,
+      phone: user.phone,
+      address: user.address,
       roles: user.roles.map((role) => role.toUpperCase()),
       isAccountActivated: user.isAccountActivated,
       permissions: user.permissions.map((permission) => ({

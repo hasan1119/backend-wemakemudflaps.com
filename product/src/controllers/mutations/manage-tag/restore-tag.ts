@@ -2,8 +2,8 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearAllTagSearchCache,
-  getTagInfoByTagIdFromRedis,
-  setTagInfoByTagIdInRedis,
+  getTagInfoByIdFromRedis,
+  setTagInfoByIdInRedis,
 } from "../../../helper/redis";
 import { BaseResponseOrError, MutationRestoreTagsArgs } from "../../../types";
 import { idsSchema } from "../../../utils/data-validation";
@@ -77,7 +77,7 @@ export const restoreTags = async (
     const { ids } = validation.data;
 
     // Attempt Redis fetch
-    const cachedTags = await Promise.all(ids.map(getTagInfoByTagIdFromRedis));
+    const cachedTags = await Promise.all(ids.map(getTagInfoByIdFromRedis));
     const foundTags: any[] = [];
     const missingIds: string[] = [];
 
@@ -128,7 +128,7 @@ export const restoreTags = async (
 
     // Update Redis
     await Promise.all([
-      restored.map((tag) => setTagInfoByTagIdInRedis(tag.id, tag)),
+      restored.map((tag) => setTagInfoByIdInRedis(tag.id, tag)),
       clearAllTagSearchCache(),
     ]);
 

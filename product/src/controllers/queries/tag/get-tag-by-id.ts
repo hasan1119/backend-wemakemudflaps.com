@@ -1,8 +1,8 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getTagInfoByTagIdFromRedis,
-  setTagInfoByTagIdInRedis,
+  getTagInfoByIdFromRedis,
+  setTagInfoByIdInRedis,
 } from "../../../helper/redis";
 import { GetTagByIdResponseOrError, QueryGetTagByIdArgs } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
@@ -74,7 +74,7 @@ export const getTagById = async (
     const { id } = args;
 
     // Attempt to retrieve cached tag data from Redis
-    let tagData = await getTagInfoByTagIdFromRedis(id);
+    let tagData = await getTagInfoByIdFromRedis(id);
 
     if (tagData?.deletedAt) {
       return {
@@ -99,7 +99,7 @@ export const getTagById = async (
       }
 
       // Cache tag data in Redis
-      await setTagInfoByTagIdInRedis(id, dbTag);
+      await setTagInfoByIdInRedis(id, dbTag);
       tagData = dbTag;
     }
 

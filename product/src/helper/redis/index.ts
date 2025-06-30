@@ -6,20 +6,53 @@
  */
 export {
   clearAllBrandSearchCache,
-  getBrandInfoByBrandIdFromRedis,
+  getBrandInfoByIdFromRedis,
   getBrandNameExistFromRedis,
   getBrandsCountFromRedis,
   getBrandsFromRedis,
   getBrandSlugExistFromRedis,
-  removeBrandInfoByBrandIdFromRedis,
+  removeBrandInfoByIdFromRedis,
   removeBrandNameExistFromRedis,
   removeBrandSlugExistFromRedis,
-  setBrandInfoByBrandIdInRedis,
+  setBrandInfoByIdInRedis,
   setBrandNameExistInRedis,
   setBrandsCountInRedis,
   setBrandsInRedis,
   setBrandSlugExistInRedis,
 } from "./utils/brand/brand-session-manage";
+
+/**
+ * Exports utilities for managing brand session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllCategorySearchCache,
+  getCategoriesCountFromRedis,
+  getCategoriesFromRedis,
+  getCategoryInfoByIdFromRedis,
+  getCategoryNameExistFromRedis,
+  getCategorySlugExistFromRedis,
+  getSubCategoryInfoByIdFromRedis,
+  getSubCategoryNameExistFromRedis,
+  getSubCategoryNameKey,
+  getSubCategorySlugExistFromRedis,
+  removeCategoryInfoByIdFromRedis,
+  removeCategoryNameExistFromRedis,
+  removeCategorySlugExistFromRedis,
+  removeSubCategoryInfoByIdFromRedis,
+  removeSubCategoryNameExistFromRedis,
+  removeSubCategorySlugExistFromRedis,
+  setCategoriesCountInRedis,
+  setCategoriesInRedis,
+  setCategoryInfoByIdInRedis,
+  setCategoryNameExistInRedis,
+  setCategorySlugExistInRedis,
+  setSubCategoryInfoByIdInRedis,
+  setSubCategoryNameExistInRedis,
+  setSubCategorySlugExistInRedis,
+} from "./utils/category/category-session-manage";
 
 /**
  * Exports utilities for managing tag session data in Redis.
@@ -29,20 +62,80 @@ export {
  */
 export {
   clearAllTagSearchCache,
-  getTagInfoByTagIdFromRedis,
+  getTagInfoByIdFromRedis,
   getTagNameExistFromRedis,
   getTagsCountFromRedis,
   getTagsFromRedis,
   getTagSlugExistFromRedis,
-  removeTagInfoByTagIdFromRedis,
+  removeTagInfoByIdFromRedis,
   removeTagNameExistFromRedis,
   removeTagSlugExistFromRedis,
-  setTagInfoByTagIdInRedis,
+  setTagInfoByIdInRedis,
   setTagNameExistInRedis,
   setTagsCountInRedis,
   setTagsInRedis,
   setTagSlugExistInRedis,
 } from "./utils/tag/tag-session-manage";
+
+/**
+ * Exports utilities for managing shipping class session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllShippingClassSearchCache,
+  getShippingClassCountFromRedis,
+  getShippingClassesFromRedis,
+  getShippingClassInfoByIdFromRedis,
+  getShippingClassValueExistFromRedis,
+  removeShippingClassInfoByIdFromRedis,
+  removeShippingClassValueExistFromRedis,
+  setShippingClassCountInRedis,
+  setShippingClassesInRedis,
+  setShippingClassInfoByIdInRedis,
+  setShippingClassValueExistInRedis,
+} from "./utils/shipping-class/shipping-class-session-manage";
+
+/**
+ * Exports utilities for managing tax class session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllTaxClassSearchCache,
+  getTaxClassCountFromRedis,
+  getTaxClassesFromRedis,
+  getTaxClassInfoByIdFromRedis,
+  getTaxClassValueExistFromRedis,
+  removeTaxClassInfoByIdFromRedis,
+  removeTaxClassValueExistFromRedis,
+  setTaxClassCountInRedis,
+  setTaxClassesInRedis,
+  setTaxClassInfoByIdInRedis,
+  setTaxClassValueExistInRedis,
+} from "./utils/tax-class/tax-class-session-manage";
+
+/**
+ * Exports utilities for managing tax status session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllTaxStatusSearchCache,
+  getTaxStatusCountFromRedis,
+  getTaxStatusesFromRedis,
+  getTaxStatusInfoByIdFromRedis,
+  getTaxStatusValueExistFromRedis,
+  removeTaxStatusInfoByIdFromRedis,
+  removeTaxStatusValueExistFromRedis,
+  setTaxStatusCountInRedis,
+  setTaxStatusesInRedis,
+  setTaxStatusInfoByIdInRedis,
+  setTaxStatusValueExistInRedis,
+} from "./utils/tax-status/tax-status-session-manage";
 
 /**
  * Exports utilities for managing user session data in Redis.

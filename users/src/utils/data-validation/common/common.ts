@@ -185,18 +185,18 @@ export const paginationSchema = z.object({
  * Defines the schema for validating role sorting parameters.
  *
  * Workflow:
- * 1. Validates sortBy as one of the allowed fields (id, name, description, createdAt, deletedAt).
+ * 1. Validates sortBy as one of the allowed fields ( name, description, createdAt, deletedAt).
  * 2. Validates sortOrder as either 'asc' or 'desc'.
  * 3. Allows both fields to be nullable or optional.
  *
- * @property sortBy - Field to sort by (id, name, description, createdAt, deletedAt).
+ * @property sortBy - Field to sort by ( name, description, createdAt, deletedAt).
  * @property sortOrder - Sort order direction (asc, desc).
  */
 export const rolesSortingSchema = z.object({
   sortBy: z
-    .enum(["id", "name", "description", "createdAt", "deletedAt"], {
+    .enum(["name", "description", "createdAt", "deletedAt"], {
       message:
-        "Sort field must be one of: id, name, description, createdAt, deletedAt",
+        "Sort field must be one of:  name, description, createdAt, deletedAt",
     })
     .nullable()
     .optional(),
@@ -218,7 +218,6 @@ export const usersSortingSchema = z.object({
   sortBy: z
     .enum(
       [
-        "id",
         "firstName",
         "lastName",
         "email",
@@ -231,7 +230,7 @@ export const usersSortingSchema = z.object({
       ],
       {
         message:
-          "Sort field must be one of: id, firstName, lastName, email, emailVerified, gender, role, isAccountActivated, createdAt, deletedAt",
+          "Sort field must be one of: firstName, lastName, email, emailVerified, gender, role, isAccountActivated, createdAt, deletedAt",
       }
     )
     .nullable()

@@ -4,7 +4,7 @@ import {
   clearAllBrandSearchCache,
   getBrandNameExistFromRedis,
   getBrandSlugExistFromRedis,
-  setBrandInfoByBrandIdInRedis,
+  setBrandInfoByIdInRedis,
   setBrandNameExistInRedis,
   setBrandSlugExistInRedis,
 } from "../../../helper/redis";
@@ -144,7 +144,7 @@ export const createBrand = async (
 
     // Cache brand information and existence in Redis
     await Promise.all([
-      setBrandInfoByBrandIdInRedis(brand.id, brand),
+      setBrandInfoByIdInRedis(brand.id, brand),
       setBrandNameExistInRedis(brand.name),
       setBrandSlugExistInRedis(brand.slug),
       clearAllBrandSearchCache(),

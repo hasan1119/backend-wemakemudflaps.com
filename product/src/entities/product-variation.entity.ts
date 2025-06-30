@@ -191,8 +191,8 @@ export class ProductVariation {
   taxClass: TaxClass | null;
 
   // Description of the product variation
-  @Column({ type: "text" })
-  description: string;
+  @Column({ type: "text", nullable: true, default: null })
+  description: string | null;
 
   // Timestamp when the product variation was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

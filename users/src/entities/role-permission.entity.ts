@@ -28,7 +28,7 @@ export class RolePermission {
   name: PermissionName;
 
   // Stores the role permission description
-  @Column({ nullable: true, default: null })
+  @Column({ type: "text", nullable: true, default: null })
   description: string | null;
 
   // Stores the role permission can create

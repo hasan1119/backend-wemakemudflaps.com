@@ -17,6 +17,7 @@ export const createUser = async (data: {
   firstName: string;
   lastName: string;
   email: string;
+  username: string;
   password: string;
   gender?: string | null;
   roles: Role[];
@@ -29,6 +30,7 @@ export const createUser = async (data: {
     firstName: data.firstName,
     lastName: data.lastName,
     email: data.email,
+    username: data.username,
     password: data.password,
     gender: data.gender ?? null,
     roles: data.roles,

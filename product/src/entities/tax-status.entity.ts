@@ -16,8 +16,8 @@ export class TaxStatus {
   value: string;
 
   // A detailed description of the tax status
-  @Column({ type: "text" })
-  description: string;
+  @Column({ type: "text", nullable: true, default: null })
+  description: string | null;
 
   // One tax status can be used by many products
   @OneToMany(() => Product, (product) => product.taxStatus)

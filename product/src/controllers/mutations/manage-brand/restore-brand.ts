@@ -2,8 +2,8 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearAllBrandSearchCache,
-  getBrandInfoByBrandIdFromRedis,
-  setBrandInfoByBrandIdInRedis,
+  getBrandInfoByIdFromRedis,
+  setBrandInfoByIdInRedis,
 } from "../../../helper/redis";
 import { BaseResponseOrError, MutationRestoreBrandsArgs } from "../../../types";
 import { idsSchema } from "../../../utils/data-validation";
@@ -77,9 +77,7 @@ export const restoreBrands = async (
     const { ids } = validation.data;
 
     // Attempt Redis fetch
-    const cachedBrands = await Promise.all(
-      ids.map(getBrandInfoByBrandIdFromRedis)
-    );
+    const cachedBrands = await Promise.all(ids.map(getBrandInfoByIdFromRedis));
     const foundBrands: any[] = [];
     const missingIds: string[] = [];
 
@@ -130,7 +128,7 @@ export const restoreBrands = async (
 
     // Update Redis
     await Promise.all([
-      restored.map((brand) => setBrandInfoByBrandIdInRedis(brand.id, brand)),
+      restored.map((brand) => setBrandInfoByIdInRedis(brand.id, brand)),
       clearAllBrandSearchCache(),
     ]);
 

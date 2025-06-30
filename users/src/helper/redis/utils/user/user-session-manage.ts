@@ -18,6 +18,26 @@ const PREFIX = {
   EMAIL: "email:",
   COUNT: "count:",
   USERS: "users:",
+  USERNAME: "username:",
+};
+
+/**
+ * Handles retrieval of cached username data from Redis.
+ *
+ * Workflow:
+ * 1. Queries Redis using the username prefix and provided username.
+ * 2. Returns the cached username or null if not found.
+ *
+ * @param username - The username of the user.
+ * @returns A promise resolving to the username string or null if not found.
+ */
+export const getUserUsernameFromRedis = async (
+  username: string
+): Promise<string | null> => {
+  return redis.getSession<string | null>(
+    `${PREFIX.USERNAME}${username}`,
+    "user-app"
+  );
 };
 
 /**
@@ -166,6 +186,23 @@ export const getUserInfoByEmailFromRedis = async (
     `${PREFIX.SESSION}email:${email}`,
     "user-session"
   );
+};
+
+/**
+ * Handles caching username data in Redis.
+ *
+ * Workflow:
+ * 1. Stores the provided username in Redis with the username prefix.
+ *
+ * @param username - The username to cache.
+ * @param value - The value to associate with the username (typically same as username).
+ * @returns A promise resolving when the username is cached.
+ */
+export const setUserUsernameInRedis = async (
+  username: string,
+  value: string
+): Promise<void> => {
+  await redis.setSession(`${PREFIX.USERNAME}${username}`, value, "user-app");
 };
 
 /**
@@ -322,6 +359,21 @@ export const setUserInfoByEmailInRedis = async (
     sessionData,
     "user-session"
   );
+};
+
+/**
+ * Handles removal of cached username data from Redis.
+ *
+ * Workflow:
+ * 1. Deletes the username data from Redis using the username prefix and username.
+ *
+ * @param username - The username of the user.
+ * @returns A promise resolving when the username data is removed.
+ */
+export const removeUserUsernameFromRedis = async (
+  username: string
+): Promise<void> => {
+  await redis.deleteSession(`${PREFIX.USERNAME}${username}`, "user-app");
 };
 
 /**

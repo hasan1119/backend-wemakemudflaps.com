@@ -47,10 +47,12 @@ export {
  */
 export {
   countCategoriesWithSearch,
-  findCategoryByName,
-  findCategoryByNameToUpdateScoped,
+  findCategoryByNameOrSlug,
+  findCategoryByNameOrSlugToUpdateScoped,
   getCategoryById,
+  getCategoryByIds,
   getSubCategoryById,
+  getSubCategoryByIds,
   paginateCategories,
 } from "./category/get-category.service";
 
@@ -178,3 +180,162 @@ export { restoreBrand } from "./brand/restore-brand.service";
  * 1. Provides functions to update basic fields (name, slug).
  */
 export { updateBrand } from "./brand/update-brand.service";
+
+/**
+ * Exports services for creating shipping class.
+ *
+ * Workflow:
+ * 1. Provides a function to create either a shipping class based on input.
+ */
+export { createShippingClass } from "./shipping-class/create-shipping-class.service";
+
+/**
+ * Exports services for deleting shipping classes.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export {
+  hardDeleteShippingClass,
+  softDeleteShippingClass,
+} from "./shipping-class/delete-shipping-class.service";
+
+/**
+ * Exports services for fetching and counting shipping class.
+ *
+ * Workflow:
+ * 1. Provides counting of shipping class matching optional search criteria.
+ * 2. Provides functions to fetch shipping class by ID/name with relations.
+ * 3. Supports paginated retrieval of shipping class.
+ */
+export {
+  countProductsForShippingClass,
+  countShippingClassesWithSearch,
+  findShippingClassByValue,
+  findShippingClassByValueToUpdate,
+  getShippingClassById,
+  getShippingClassesByIds,
+  paginateShippingClasses,
+} from "./shipping-class/get-shipping-class.service";
+
+/**
+ * Exports service for restoring soft-deleted shipping class by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { restoreShippingClass } from "./shipping-class/restore-shipping-class.service";
+
+/**
+ * Exports services for updating shipping class.
+ *
+ * Workflow:
+ * 1. Provides functions to update basic fields (value, description).
+ */
+export { updateShippingClass } from "./shipping-class/update-shipping-class.service";
+
+/**
+ * Exports services for creating tax class.
+ *
+ * Workflow:
+ * 1. Provides a function to create a tax class based on input.
+ */
+export { createTaxClass } from "./tax-class/create-tax-class.service";
+
+/**
+ * Exports services for deleting tax classes.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export {
+  hardDeleteTaxClass,
+  softDeleteTaxClass,
+} from "./tax-class/delete-tax-class.service";
+
+/**
+ * Exports services for fetching and counting tax classes.
+ *
+ * Workflow:
+ * 1. Provides counting of tax classes matching optional search criteria.
+ * 2. Provides functions to fetch tax class by ID/name with relations.
+ * 3. Supports paginated retrieval of tax classes.
+ */
+export {
+  countProductsForTaxClass,
+  countTaxClassesWithSearch,
+  findTaxClassByValue,
+  findTaxClassByValueToUpdate,
+  getTaxClassById,
+  getTaxClassByIds,
+  paginateTaxClasses,
+} from "./tax-class/get-tax-class.service";
+
+/**
+ * Exports service for restoring soft-deleted tax class by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { restoreTaxClass } from "./tax-class/restore-tax-class.service";
+
+/**
+ * Exports services for updating tax class.
+ *
+ * Workflow:
+ * 1. Provides functions to update basic fields (value, description).
+ */
+export { updateTaxClass } from "./tax-class/update-tax-class.service";
+
+/**
+ * Exports services for creating tax class.
+ *
+ * Workflow:
+ * 1. Provides a function to create a tax class based on input.
+ */
+export { createTaxStatus } from "./tax-status/create-tax-status.service";
+
+/**
+ * Exports services for deleting tax status.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export {
+  hardDeleteTaxStatus,
+  softDeleteTaxStatus,
+} from "./tax-status//delete-tax-status.service";
+
+/**
+ * Exports services for fetching and counting tax status.
+ *
+ * Workflow:
+ * 1. Provides counting of tax status matching optional search criteria.
+ * 2. Provides functions to fetch tax status by ID/name with relations.
+ * 3. Supports paginated retrieval of tax status.
+ */
+export {
+  countProductsForTaxStatus,
+  countTaxStatusWithSearch,
+  findTaxStatusByValue,
+  findTaxStatusByValueToUpdate,
+  getTaxStatusById,
+  getTaxStatusByIds,
+  paginateTaxStatus,
+} from "./tax-status/get-tax-status.service";
+
+/**
+ * Exports service for restoring soft-deleted tax status by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { restoreTaxStatus } from "./tax-status/restore-tax-status.service";
+
+/**
+ * Exports services for updating tax status.
+ *
+ * Workflow:
+ * 1. Provides functions to update basic fields (value, description).
+ */
+export { updateTaxStatus } from "./tax-status/update-tax-status.service";

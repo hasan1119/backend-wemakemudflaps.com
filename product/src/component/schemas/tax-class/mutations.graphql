@@ -1,0 +1,32 @@
+# Mutations to manage tax class operations.
+type Mutation {
+  # Create a new tax class.
+  # Only accessible by authorized users.
+  createTaxClass(
+    value: String! # Unique name of the tax class to create.
+    description: String # Optional description for the tax class.
+  ): CreateTaxClassResponseOrError!
+
+  # Update an existing tax class.
+  # Only accessible by authorized users.
+  updateTaxClass(
+    id: ID! # ID of the tax class to update.
+    value: String # Optional updated name of the tax class.
+    description: String # Optional updated description of the tax class.
+  ): UpdateTaxClassResponseOrError!
+
+  # Deletes a tax class by IDs.
+  # Performs a soft delete by default (marks as deleted).
+  # If skipTrash is true, performs a permanent delete.
+  # Only accessible by authorized users.
+  deleteTaxClass(
+    ids: [ID]!
+    skipTrash: Boolean!
+  ): DeleteTaxClassResponseOrError!
+
+  # Mutation to restore a soft-deleted tax class.
+  # Only accessible by authorized users.
+  restoreTaxClasses(
+    ids: [ID!]! # List of soft-deleted role IDs to be restored.
+  ): RestoreTaxClassResponseOrError!
+}

@@ -16,19 +16,19 @@ export const deleteUser = async (id: string): Promise<void> => {
 };
 
 /**
- * Handles deletion of a user login session by its ID.
+ * Handles deletion of multiple user login sessions by their IDs.
  *
  * Workflow:
- * 1. Deletes the user login session with the specified ID from the loginRepository.
- * 2. Resolves the promise when the deletion is complete.
+ * 1. Deletes all user login sessions with the specified IDs from the loginRepository in a single operation.
+ * 2. Resolves the promise when all deletions are complete.
  *
- * @param sessionId - The session ID of the user login session to delete.
- * @returns A promise resolving to void when the user login session is deleted.
+ * @param sessionIds - An array of session IDs of the user login sessions to delete.
+ * @returns A promise resolving to void when the user login sessions are deleted.
  */
-export const deleteUserLoginInfoSessionById = async (
-  sessionId: string
+export const deleteUserLoginInfoSessionsByIds = async (
+  sessionIds: string[]
 ): Promise<void> => {
-  await loginRepository.delete({ id: sessionId });
+  await loginRepository.delete({ id: In(sessionIds) });
 };
 
 /**

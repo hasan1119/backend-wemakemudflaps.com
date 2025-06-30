@@ -26,9 +26,11 @@ export const mapUserToResponseByEmail = async (
     avatar: user.avatar,
     firstName: user.firstName,
     lastName: user.lastName,
+    address: user.address ?? null,
     email: user.email,
     emailVerified: user.emailVerified,
     gender: user.gender,
+    phone: user.phone,
     roles: user.roles.map((role) => role.name.toUpperCase()),
     permissions: (await mapPermissions(
       user.permissions
@@ -66,9 +68,11 @@ export const mapUserToResponseById = async (
     avatar: user.avatar,
     firstName: user.firstName,
     lastName: user.lastName,
+    address: user.address ?? null,
     email: user.email,
     emailVerified: user.emailVerified,
     gender: user.gender,
+    phone: user.phone,
     roles: user.roles.map((role) => role.name.toUpperCase()),
     permissions: (await mapPermissions(
       user.permissions
