@@ -45,8 +45,8 @@ export const registerSchema = z.object({
     .string()
     .min(5, { message: "Username is required" })
     .max(10, { message: "Username must not exceed 10 characters" })
-    .regex(/^[a-zA-Z0-9\s-]+$/, {
-      message: "Username must contain only letters, numbers, spaces, or hyphens",
+    .regex(/^[a-zA-Z0-9-]+$/, {
+      message: 'Username must contain only letters, numbers, or hyphens'
     })
     .trim(),
   email: z
@@ -198,9 +198,7 @@ export const updateProfileSchema = z.object({
     .regex(/^[a-zA-Z\s-]+$/, {
       message: "First name must contain only letters, spaces, or hyphens",
     })
-    .trim()
-    .nullable()
-    .optional(),
+    .trim(),
   lastName: z
     .string()
     .min(1, { message: "Last name is required" })
@@ -208,19 +206,15 @@ export const updateProfileSchema = z.object({
     .regex(/^[a-zA-Z\s-]+$/, {
       message: "Last name must contain only letters, spaces, or hyphens",
     })
-    .trim()
-    .nullable()
-    .optional(),
+    .trim(),
   username: z
     .string()
     .min(5, { message: "Username is required" })
     .max(10, { message: "Username must not exceed 10 characters" })
-    .regex(/^[a-zA-Z\s-]+$/, {
-      message: "Username must contain only letters, spaces, or hyphens",
+    .regex(/^[a-zA-Z0-9-]+$/, {
+      message: 'Username must contain only letters, numbers, or hyphens'
     })
-    .trim()
-    .nullable()
-    .optional(),
+    .trim(),
   phone: z
     .string()
     .min(10, { message: "Phone number must be at least 10 digits" })
@@ -235,30 +229,20 @@ export const updateProfileSchema = z.object({
   email: z
     .string()
     .email({ message: "Invalid email format" })
-    .trim()
-    .nullable()
-    .optional(),
+    .trim(),
   gender: z
     .preprocess((val) => {
       if (typeof val === "string" && genderMap[val]) {
         return genderMap[val];
       }
       return val;
-    }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]]))
-    .nullable()
-    .optional(),
+    }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]])),
   address: z.object({
-    street: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    zip: z.string().optional(),
-    county: z.string().optional(),
+    street: z.string().nullable().optional(),
+    city: z.string().nullable().optional(),
+    state: z.string().nullable().optional(),
+    zip: z.string().nullable().optional(),
+    county: z.string().nullable().optional(),
   }),
-  avatar: z
-    .string()
-    .url({ message: "Avatar must be a valid URL" })
-    .trim()
-    .nullable()
-    .optional(),
-  sessionId: z.string().uuid({ message: "Invalid UUID format" }),
+  avatar: z.string().url({ message: "Avatar must be a valid URL" }).trim().nullable().optional(),
 });

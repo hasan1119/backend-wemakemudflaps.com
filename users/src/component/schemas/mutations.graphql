@@ -34,8 +34,7 @@ type Mutation {
     phone: String # New phone of the user.
     avatar: String # New avatar of the user.
     gender: Gender # New gender value.
-    address: UserAddressInput # New gender value.
-    sessionId: String! # Session ID for the current user (required for authentication).
+    address: UserAddressInput # New address value.
   ): UserProfileUpdateResponseOrError!
 
   # Change the currently authenticated user's password.

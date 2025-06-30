@@ -772,7 +772,6 @@ export type MutationUpdateProfileArgs = {
   gender?: InputMaybe<Gender>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
-  sessionId: Scalars['String']['input'];
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2469,7 +2468,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'categoryType' | 'id'>>;
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryPositionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'categoryType' | 'id' | 'position'>>;
   updateMediaFileInfo?: Resolver<ResolversTypes['UpdateMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFileInfoArgs, 'inputs'>>;
-  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'sessionId'>>;
+  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, Partial<MutationUpdateProfileArgs>>;
   updateShippingClass?: Resolver<ResolversTypes['UpdateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingClassArgs, 'id'>>;
   updateTag?: Resolver<ResolversTypes['UpdateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTagArgs, 'id'>>;
   updateTaxClass?: Resolver<ResolversTypes['UpdateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxClassArgs, 'id'>>;

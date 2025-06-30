@@ -15,6 +15,7 @@ import {
   MutationUpdateProfileArgs,
   UserProfileUpdateResponseOrError,
   UserSession,
+  UserSessionById,
 } from "../../../types";
 import { updateProfileSchema } from "../../../utils/data-validation";
 import SendEmail from "../../../utils/email/send-email";
@@ -88,55 +89,49 @@ export const updateProfile = async (
     } = validationResult.data;
 
     // Attempt to retrieve cached user data from Redis
-    let userData;
+    let userData: UserSessionById;
 
     userData = await getUserInfoByUserIdFromRedis(user.id);
 
-    // Attempt to retrieve cached user username from Redis
-    let userUsername;
+    if (userData.username !== username) {
+      // Attempt to retrieve cached user username from Redis
+      let userUsername;
 
-    userUsername = await getUserUsernameFromRedis(username);
+      userUsername = await getUserUsernameFromRedis(username);
 
-    if (userUsername) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: "Username already in use",
-        __typename: "BaseResponse",
-      };
-    } else {
-      // On cache miss, query user username from database
-      const dbUser = await isUsernameAvailable(username);
+      if (!userUsername) {
+        // On cache miss, check if username is available
+        const isAvailable = await isUsernameAvailable(username);
 
-      if (dbUser) {
-        // Cache user username in Redis
-        await setUserUsernameInRedis(username, username);
+        if (!isAvailable) {
+          // Username is taken → cache and return error
+          await setUserUsernameInRedis(username, username);
 
-        return {
-          statusCode: 400,
-          success: false,
-          message: "Username already in use",
-          __typename: "BaseResponse",
-        };
+          return {
+            statusCode: 400,
+            success: false,
+            message: "Username already in use",
+            __typename: "BaseResponse",
+          };
+        }
+        userData.username = username;
       }
-
-      userData.username = username;
     }
 
     // Update user fields only if provided
-    if (firstName) userData.firstName = firstName;
+    if (firstName !== userData.firstName) userData.firstName = firstName;
 
-    if (lastName) userData.lastName = lastName;
+    if (lastName !== userData.lastName) userData.lastName = lastName;
 
-    if (gender) userData.gender = gender;
+    if (gender !== userData.gender) userData.gender = gender;
 
-    if (address) userData.address = address;
+    if (address !== userData.address) userData.address = address;
 
-    if (avatar) userData.avatar = avatar;
+    if (avatar !== userData.avatar) userData.avatar = avatar;
 
-    if (phone) userData.phone = phone;
+    if (phone !== userData.phone) userData.phone = phone;
 
-    if (email && email !== userData.email) {
+    if (email !== userData.email) {
       // Check if the new email is already in use
       if (await isEmailInUse(email, user.id)) {
         return {
@@ -189,7 +184,7 @@ export const updateProfile = async (
     };
 
     // Update user data in the database
-    const updatedUser = await updateUser(updatedData);
+    const updatedUser = await updateUser(updatedData as any);
 
     // Prepare user session data
     const userSessionData: UserSession = {
@@ -202,14 +197,14 @@ export const updateProfile = async (
       roles: updatedUser.roles.map((role) => role.name.toUpperCase()),
       emailVerified: updatedUser.emailVerified,
       isAccountActivated: updatedUser.isAccountActivated,
-      sessionId: args.sessionId,
+      sessionId: user.sessionId,
     };
 
     const userLoginInfoRaw = await getUserLoginInfoByUserId(user.id);
 
     // Filter out all sessions except the current one to delete others
     const sessionsToDelete = userLoginInfoRaw
-      .filter((info) => info.id !== args.sessionId)
+      .filter((info) => info.id !== user.sessionId)
       .map((info) => info.id);
 
     await deleteUserLoginInfoSessionsByIds(sessionsToDelete),
@@ -222,7 +217,7 @@ export const updateProfile = async (
     // Cache user data, session, and email in Redis with 30-day TTL
     const promises = [
       setUserTokenInfoByUserSessionIdInRedis(
-        args.sessionId,
+        user.sessionId,
         userSessionData,
         25920000
       ),
@@ -250,11 +245,10 @@ export const updateProfile = async (
       statusCode: 200,
       success: true,
       token,
-      message: `${
-        email
-          ? "Profile updated successfully, but please verify your updated email before using it as main email."
-          : "Profile updated successfully"
-      }`,
+      message: `${email !== userData.email
+        ? "Profile updated successfully, but please verify your updated email before using it as main email."
+        : "Profile updated successfully"
+        }`,
       __typename: "UserProfileUpdateResponse",
     };
   } catch (error: any) {
@@ -263,11 +257,10 @@ export const updateProfile = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${
-        CONFIG.NODE_ENV === "production"
-          ? "Something went wrong, please try again."
-          : error.message || "Internal server error"
-      }`,
+      message: `${CONFIG.NODE_ENV === "production"
+        ? "Something went wrong, please try again."
+        : error.message || "Internal server error"
+        }`,
       __typename: "ErrorResponse",
     };
   }

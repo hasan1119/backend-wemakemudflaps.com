@@ -57,11 +57,11 @@ export class User {
     default: null,
   })
   address: {
-    street?: string;
-    city?: string;
-    state?: string;
-    zip?: string;
-    county?: string;
+    street?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zip?: string | null;
+    county?: string | null;
   } | null;
 
   // Stores the user's username
