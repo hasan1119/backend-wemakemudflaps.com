@@ -70,49 +70,32 @@ export const getAddressBookEntryById = async (
         return {
           statusCode: 404,
           success: false,
-          message: `AddressBook not found with this id: ${id}, or it may have been deleted or moved to the trash`,
+          message: `Address book not found with this id: ${id} in you log`,
           __typename: "BaseResponse",
         };
       }
 
-      // Cache addressBook data in Redis
-      await setAddressBookInfoByIdInRedis(id, user.id, dbAddressBook);
-      addressBookData = dbAddressBook;
-    }
-
-    // Check ownership
-    if ((addressBookData.user as any).id !== user.id) {
-      return {
-        statusCode: 403,
-        success: false,
-        message: "Unauthorized to access this address book entry",
-        __typename: "ErrorResponse",
+      addressBookData = {
+        ...dbAddressBook,
+        type: dbAddressBook.type as any,
+        createdAt:
+          dbAddressBook.createdAt instanceof Date
+            ? dbAddressBook.createdAt.toISOString()
+            : dbAddressBook.createdAt,
+        updatedAt:
+          dbAddressBook.updatedAt instanceof Date
+            ? dbAddressBook.updatedAt.toISOString()
+            : dbAddressBook.updatedAt,
       };
+      // Cache addressBook data in Redis
+      await setAddressBookInfoByIdInRedis(id, user.id, addressBookData);
     }
 
     return {
       statusCode: 200,
       success: true,
       message: "AddressBook fetched successfully",
-      addressBook: {
-        id: addressBookData.id,
-        city: addressBookData.city,
-        isDefault: addressBookData.isDefault,
-        state: addressBookData.state,
-        type: addressBookData.type as any,
-        zip: addressBookData.zip,
-        houseNo: addressBookData.houseNo,
-        county: addressBookData.county,
-        street: addressBookData.street,
-        createdAt:
-          addressBookData.createdAt instanceof Date
-            ? addressBookData.createdAt.toISOString()
-            : addressBookData.createdAt,
-        updatedAt:
-          addressBookData.updatedAt instanceof Date
-            ? addressBookData.updatedAt.toISOString()
-            : addressBookData.updatedAt,
-      },
+      addressBook: addressBookData,
       __typename: "AddressResponseBook",
     };
   } catch (error: any) {

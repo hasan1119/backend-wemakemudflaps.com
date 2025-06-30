@@ -31,38 +31,21 @@ export const getAllMyAddressEntires = async (
   { user }: Context
 ): Promise<GetAddressesBookResponseOrError> => {
   try {
-    // Step 1: Check authentication
+    // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
     const { type } = args;
 
-    // Step 2: Try to fetch from Redis cache
+    // Attempt to retrieve cached addressBook data from Redis
     let addressBookList = await getAllAddressBooksFromRedis(user.id);
 
-    // Step 3: If Redis cache miss, fetch from DB
+    // On cache miss, fetch addressBook data from database
     if (!addressBookList) {
       const dbAddresses = await getAddressBooks(user.id, type);
 
-      // Cache in Redis
-      await setAllAddressBookByUserIdInRedis(type, user.id, dbAddresses);
-      addressBookList = dbAddresses;
-    }
-
-    // Step 5: Return formatted response
-    return {
-      statusCode: 200,
-      success: true,
-      message: "Address book entries fetched successfully",
-      addressBook: addressBookList.map((entry) => ({
-        id: entry.id,
-        houseNo: entry.houseNo,
-        street: entry.street,
-        city: entry.city,
-        state: entry.state,
-        zip: entry.zip,
-        county: entry.county,
-        isDefault: entry.isDefault,
+      addressBookList = dbAddresses.map((entry) => ({
+        ...entry,
         type: entry.type as any,
         createdAt:
           entry.createdAt instanceof Date
@@ -72,7 +55,18 @@ export const getAllMyAddressEntires = async (
           entry.updatedAt instanceof Date
             ? entry.updatedAt.toISOString()
             : entry.updatedAt,
-      })),
+      }));
+
+      // Cache in Redis
+      await setAllAddressBookByUserIdInRedis(type, user.id, addressBookList);
+    }
+
+    // Step 5: Return formatted response
+    return {
+      statusCode: 200,
+      success: true,
+      message: "Address book entries fetched successfully",
+      addressBook: addressBookList,
       __typename: "AddressesBookResponse",
     };
   } catch (error: any) {

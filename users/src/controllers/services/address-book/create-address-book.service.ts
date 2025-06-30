@@ -36,7 +36,18 @@ export const createAddressBookEntry = async (
 
     await Promise.all(
       affectedAddresses.map((address) =>
-        setAddressBookInfoByIdInRedis(address.id, userId, address)
+        setAddressBookInfoByIdInRedis(address.id, userId, {
+          ...address,
+          type: address.type as any,
+          createdAt:
+            address.createdAt instanceof Date
+              ? address.createdAt.toISOString()
+              : address.createdAt,
+          updatedAt:
+            address.updatedAt instanceof Date
+              ? address.updatedAt.toISOString()
+              : address.updatedAt,
+        })
       )
     );
   }
@@ -54,11 +65,22 @@ export const createAddressBookEntry = async (
     user: { id: userId } as any,
   });
 
-  const result = // Save address book entry to database
-    await addressBookRepository.save(addressBookEntry);
+  // Save address book entry to database
+  const result = await addressBookRepository.save(addressBookEntry);
 
   // Cache address-book information and existence in Redis
-  await setAddressBookInfoByIdInRedis(result.id, userId, result);
+  await setAddressBookInfoByIdInRedis(result.id, userId, {
+    ...result,
+    type: result.type as any,
+    createdAt:
+      result.createdAt instanceof Date
+        ? result.createdAt.toISOString()
+        : result.createdAt,
+    updatedAt:
+      result.updatedAt instanceof Date
+        ? result.updatedAt.toISOString()
+        : result.updatedAt,
+  });
 
   // Clear all the cache list of the user address book
   await removeAllAddressBookByUserIdFromRedis(data.type, userId);

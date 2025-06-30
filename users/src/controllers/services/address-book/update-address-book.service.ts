@@ -26,31 +26,39 @@ export const updateAddressBookEntry = async (
     where: { id, user: { id: userId } },
   });
 
-  if (!existing) {
-    return null;
-  }
+  if (!existing) return null;
 
-  // Handle isDefault logic: unmark all other entries for the same type
+  const targetType = data.type || existing.type;
+
+  // If updating to default, clear isDefault from others
   if (data.isDefault) {
     await addressBookRepository
       .createQueryBuilder()
       .update(AddressBook)
       .set({ isDefault: false })
       .where("userId = :userId", { userId })
-      .andWhere("type = :type", { type: data.type || existing.type }) // fallback to existing type
+      .andWhere("type = :type", { type: targetType })
       .andWhere("id != :id", { id })
       .execute();
 
     const affectedAddresses = await addressBookRepository.find({
-      where: {
-        user: { id: userId },
-        type: data.type || (existing.type as any),
-      },
+      where: { user: { id: userId }, type: targetType as any },
     });
 
     await Promise.all(
       affectedAddresses.map((address) =>
-        setAddressBookInfoByIdInRedis(address.id, userId, address)
+        setAddressBookInfoByIdInRedis(address.id, userId, {
+          ...address,
+          type: address.type as any,
+          createdAt:
+            address.createdAt instanceof Date
+              ? address.createdAt.toISOString()
+              : address.createdAt,
+          updatedAt:
+            address.updatedAt instanceof Date
+              ? address.updatedAt.toISOString()
+              : address.updatedAt,
+        })
       )
     );
   }
@@ -58,13 +66,24 @@ export const updateAddressBookEntry = async (
   // Merge updated fields
   Object.assign(existing, {
     ...data,
-    user: { id: userId } as any, // to ensure relation stays intact
+    user: { id: userId } as any,
   });
 
   const updated = await addressBookRepository.save(existing);
 
   await Promise.all([
-    setAddressBookInfoByIdInRedis(updated.id, userId, updated),
+    setAddressBookInfoByIdInRedis(updated.id, userId, {
+      ...updated,
+      type: updated.type as any,
+      createdAt:
+        updated.createdAt instanceof Date
+          ? updated.createdAt.toISOString()
+          : updated.createdAt,
+      updatedAt:
+        updated.updatedAt instanceof Date
+          ? updated.updatedAt.toISOString()
+          : updated.updatedAt,
+    }),
     removeAllAddressBookByUserIdFromRedis(updated.type, userId),
   ]);
 

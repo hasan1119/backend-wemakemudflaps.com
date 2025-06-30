@@ -66,7 +66,7 @@ export const updateAddressBookEntry = async (
         return {
           statusCode: 404,
           success: false,
-          message: `Address book not found with this id: ${id}, or it may have been deleted or moved to the trash.`,
+          message: `Address book not found with this id: ${id} in you log`,
           __typename: "BaseResponse",
         };
       }

@@ -223,6 +223,8 @@ type UserSessionByEmail @shareable {
   email: String!
   phone: String!
   address: UserAddress
+  username: String
+
   password: String!
   emailVerified: Boolean!
   gender: String!
@@ -245,6 +247,7 @@ type UserSessionById @shareable {
   lastName: String!
   email: String!
   address: UserAddress
+  username: String
   emailVerified: Boolean!
   gender: String!
   phone: String!
@@ -266,6 +269,7 @@ type User @key(fields: "id") {
   firstName: String
   lastName: String
   email: String
+  username: String
   address: UserAddress
   emailVerified: Boolean
   gender: String

@@ -1,4 +1,4 @@
-import { AddressBook } from "../../../../entities";
+import { AddressBook } from "../../../../types";
 import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for addressbook session and user count caching
