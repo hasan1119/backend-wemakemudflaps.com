@@ -10,13 +10,15 @@ import { addressBookRepository } from "../repositories/repositories";
  * 3. Returns the AddressBook entity or null if not found.
  *
  * @param id - The UUID of the addressBook to retrieve.
+ * @param userId - ID of the user.
  * @returns A promise that resolves to the AddressBook entity, or null if no match is found.
  */
 export const getAddressBookById = async (
-  id: string
+  id: string,
+  userId: string
 ): Promise<AddressBook | null> => {
   return await addressBookRepository.findOne({
-    where: { id },
+    where: { id, user: { id: userId } },
   });
 };
 

@@ -913,7 +913,7 @@ type Query
   getAllPermissionsByUserId(id: ID!): GetPermissionsResponseOrError! @join__field(graph: USER)
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError! @join__field(graph: USER)
   getAddressBookEntryById(id: String!): GetAddressBookByIdResponseOrError! @join__field(graph: USER)
-  getAllMyAddressEntires: GetAddressesBookResponseOrError! @join__field(graph: USER)
+  getAllMyAddressEntires(type: AddressType): GetAddressesBookResponseOrError! @join__field(graph: USER)
 }
 
 union RestoreBrandResponseOrError

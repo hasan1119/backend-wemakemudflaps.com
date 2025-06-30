@@ -1,15 +1,12 @@
 import { AddressBook } from "../../../entities";
+import { setAddressBookInfoByIdInRedis } from "../../../helper/redis";
 import { MutationCreateAddressBookEntryArgs } from "../../../types";
 import { addressBookRepository } from "../repositories/repositories";
 
 /**
  * Handles creation and saving of a new address book entry in the database.
  *
- * Workflow:
- * 1. Creates a new AddressBook entity using the provided data.
- * 2. Sets optional fields like addressLine2, notes, and createdBy with defaults if not provided.
- * 3. Saves the address book entry to the database using the addressBookRepository.
- * 4. Returns the newly created AddressBook entity.
+ * If isDefault is true, sets all other entries with the same type and user to isDefault = false.
  *
  * @param data - Partial AddressBook data for creating the new entry.
  * @param userId - Optional user ID of the creator.
@@ -17,8 +14,30 @@ import { addressBookRepository } from "../repositories/repositories";
  */
 export const createAddressBookEntry = async (
   data: MutationCreateAddressBookEntryArgs,
-  userId?: string
+  userId: string
 ): Promise<AddressBook> => {
+  if (data.isDefault) {
+    // Set isDefault = false for all other entries with same type and user
+    await addressBookRepository
+      .createQueryBuilder()
+      .update(AddressBook)
+      .set({ isDefault: false })
+      .where("userId = :userId", { userId })
+      .andWhere("type = :type", { type: data.type })
+      .execute();
+
+    // Fetch all affected addresses to update cache
+    const affectedAddresses = await addressBookRepository.find({
+      where: { user: { id: userId }, type: data.type as any },
+    });
+
+    await Promise.all(
+      affectedAddresses.map((address) =>
+        setAddressBookInfoByIdInRedis(address.id, address)
+      )
+    );
+  }
+
   // Create new address book entity with provided data
   const addressBookEntry = addressBookRepository.create({
     type: data.type as any,
@@ -32,6 +51,11 @@ export const createAddressBookEntry = async (
     user: { id: userId } as any,
   });
 
-  // Save address book entry to database
-  return await addressBookRepository.save(addressBookEntry);
+  const result = // Save address book entry to database
+    await addressBookRepository.save(addressBookEntry);
+
+  // Cache brand information and existence in Redis
+  await setAddressBookInfoByIdInRedis(result.id, result);
+
+  return result;
 };

@@ -30,7 +30,7 @@ export const setAllAddressBookByUserIdInRedis = async (
  * @param addressBookId - The ID of the address book.
  * @param data - The AddressBook entity to cache.
  */
-export const setAddressNookInfoByIdInRedis = async (
+export const setAddressBookInfoByIdInRedis = async (
   addressBookId: string,
   data: AddressBook
 ): Promise<void> => {

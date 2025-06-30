@@ -10,8 +10,8 @@ import { User } from "./user.entity";
 
 // Defines the types of addresses a customer can have
 export enum AddressType {
-  SHIPPING = "shipping",
-  BILLING = "billing",
+  SHIPPING = "SHIPPING",
+  BILLING = "BILLING",
 }
 
 @Entity()
@@ -41,7 +41,7 @@ export class AddressBook {
   zip: string;
 
   // U.S. county name (optional)
-  @Column({ nullable: true })
+  @Column()
   county: string;
 
   // Type of address: shipping or billing

@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 /**
  * Enum representing the types of addresses that can be stored in the address book.
  *
@@ -20,30 +22,13 @@
  * - isDefault: Required boolean indicating if this is the default address.
  */
 
-/**
- * Zod schema for validating the creation of a new address book entry.
- *
- * All required fields from the base schema must be provided, except for optional fields.
- *
- * @see addressBookBaseSchema
- */
-
-/**
- * Zod schema for validating updates to an address book entry.
- *
- * Allows partial updates: any subset of fields from the base schema may be provided,
- * but at least one field must be present in the update payload.
- *
- * @see addressBookBaseSchema
- */
-import { z } from "zod";
-
 export enum AddressType {
   SHIPPING = "SHIPPING",
   BILLING = "BILLING",
 }
 
-export const addressBookBaseSchema = z.object({
+// For create: all required except optional fields
+export const createAddressBookEntrySchema = z.object({
   street: z.string().min(1, "Street is required"),
   houseNo: z.string().optional(),
   city: z.string().min(1, "City is required"),
@@ -54,12 +39,26 @@ export const addressBookBaseSchema = z.object({
   isDefault: z.boolean(),
 });
 
-// For create: all required except optional fields
-export const createAddressBookEntrySchema = addressBookBaseSchema;
-
 // For update: allow partial updates, but require at least one field
-export const updateAddressBookEntrySchema = addressBookBaseSchema
-  .partial()
-  .refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field must be provided for update",
-  });
+export const updateAddressBookEntrySchema = z
+  .object({
+    id: z.string().uuid({ message: "Invalid UUID format" }),
+    street: z.string().min(1, "Street is required").optional(),
+    houseNo: z.string().optional(),
+    city: z.string().min(1, "City is required").optional(),
+    state: z.string().min(1, "State is required").optional(),
+    zip: z.string().min(1, "ZIP code is required").optional(),
+    county: z.string().optional(),
+    type: z.nativeEnum(AddressType).optional(),
+    isDefault: z.boolean().optional(),
+  })
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
+    }
+  );

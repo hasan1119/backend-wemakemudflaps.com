@@ -70,5 +70,7 @@ type Query {
   # Fetch all addresses for the authenticated user.
   # Retrieves all address book entries belonging to the authenticated user.
   # Returns a `GetAddressesBookResponseOrError` containing address data and request status.
-  getAllMyAddressEntires: GetAddressesBookResponseOrError!
+  getAllMyAddressEntires(
+    type: AddressType # Address type (SHIPPING or BILLING)
+  ): GetAddressesBookResponseOrError!
 }

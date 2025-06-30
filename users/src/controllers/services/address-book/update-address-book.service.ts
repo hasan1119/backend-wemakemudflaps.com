@@ -1,33 +1,66 @@
 import { AddressBook } from "../../../entities";
+import { setAddressBookInfoByIdInRedis } from "../../../helper/redis";
 import { MutationUpdateAddressBookEntryArgs } from "../../../types";
 import { addressBookRepository } from "../repositories/repositories";
-import { getAddressBookById } from "./get-address-book.service";
 
 /**
- * Directly updates a addressAddressBook with the given fields and returns the updated entity.
+ * Updates an existing address book entry with new data.
  *
- * @param addressAddressBookId - The UUID of the addressAddressBook to update.
- * @param data - Partial data to update (e.g., name, slug).
- * @returns A promise resolving to the updated AddressBook entity.
+ * If `isDefault` is true, ensures all other entries of the same type and user are set to `isDefault = false`.
+ * Redis cache is updated accordingly.
+ *
+ * @param id - ID of the address book entry to update.
+ * @param data - Fields to update (partial).
+ * @param userId - ID of the user performing the update.
+ * @returns The updated AddressBook entity.
  */
-export const updateAddressBook = async (
-  addressAddressBookId: string,
-  data: Partial<MutationUpdateAddressBookEntryArgs>
-): Promise<AddressBook> => {
-  await addressBookRepository.update(addressAddressBookId, {
-    ...(data.city !== undefined && data.city !== null && { city: data.city }),
-    ...(data.county !== undefined &&
-      data.county !== null && { county: data.county }),
-    ...(data.houseNo !== undefined &&
-      data.houseNo !== null && { houseNo: data.houseNo }),
-    ...(data.isDefault !== undefined &&
-      data.isDefault !== null && { isDefault: data.isDefault }),
-    ...(data.state !== undefined &&
-      data.state !== null && { state: data.state }),
-    ...(data.street !== undefined &&
-      data.street !== null && { street: data.street }),
-    ...(data.zip !== undefined && data.zip !== null && { zip: data.zip }),
+export const updateAddressBookEntry = async (
+  id: string,
+  data: MutationUpdateAddressBookEntryArgs,
+  userId: string
+): Promise<AddressBook | null> => {
+  const existing = await addressBookRepository.findOne({
+    where: { id, user: { id: userId } },
   });
 
-  return await getAddressBookById(addressAddressBookId);
+  if (!existing) {
+    return null;
+  }
+
+  // Handle isDefault logic: unmark all other entries for the same type
+  if (data.isDefault) {
+    await addressBookRepository
+      .createQueryBuilder()
+      .update(AddressBook)
+      .set({ isDefault: false })
+      .where("userId = :userId", { userId })
+      .andWhere("type = :type", { type: data.type || existing.type }) // fallback to existing type
+      .andWhere("id != :id", { id })
+      .execute();
+
+    const affectedAddresses = await addressBookRepository.find({
+      where: {
+        user: { id: userId },
+        type: data.type || (existing.type as any),
+      },
+    });
+
+    await Promise.all(
+      affectedAddresses.map((address) =>
+        setAddressBookInfoByIdInRedis(address.id, address)
+      )
+    );
+  }
+
+  // Merge updated fields
+  Object.assign(existing, {
+    ...data,
+    user: { id: userId } as any, // to ensure relation stays intact
+  });
+
+  const updated = await addressBookRepository.save(existing);
+
+  await setAddressBookInfoByIdInRedis(updated.id, updated);
+
+  return updated;
 };

@@ -23,7 +23,7 @@ export {
   getAddressBookInfoByIdFromRedis,
   getAllAddressBooksFromRedis,
   removeAddressBookInfoByIdFromRedis,
-  setAddressNookInfoByIdInRedis,
+  setAddressBookInfoByIdInRedis,
   setAllAddressBookByUserIdInRedis,
 } from "./utils/address-book/address-book-session-manage";
 

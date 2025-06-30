@@ -11,7 +11,7 @@ export {
   getAddressBookById,
   getAddressBooks,
 } from "./address-book/get-address-book.service";
-export { updateAddressBook } from "./address-book/update-address-book.service";
+export { updateAddressBookEntry } from "./address-book/update-address-book.service";
 
 /**
  * Exports services for managing user-related operations.

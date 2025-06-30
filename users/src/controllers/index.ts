@@ -79,3 +79,7 @@ export { getAllUsers } from "./queries/user/get-users";
  */
 export { getAllPermissionsByUserId } from "./queries/permission/get-all-permissions-by-user-id";
 export { getOwnPersonalizedPermissions } from "./queries/permission/get-own-personalized-permissions";
+
+export { createAddressBookEntry } from "./mutations/manage-address-book/create-address-book";
+export { deleteAddressBookEntry } from "./mutations/manage-address-book/delete-address-book";
+export { updateAddressBookEntry } from "./mutations/manage-address-book/update-address-book";
