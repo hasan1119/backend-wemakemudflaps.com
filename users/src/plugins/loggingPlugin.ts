@@ -8,11 +8,12 @@ const loggingPlugin: ApolloServerPlugin = {
     if (request.operationName === "SubgraphIntrospectQuery") {
       return {};
     }
-
+    // console.log(request);
     logger.info({
       query: request.query,
       variables: request.variables,
       operationName: request.operationName,
+      headers: request.http?.headers.get("authorization") || "<no-auth-header>", // log request headers if available
     }, "📥 Incoming GraphQL Request");
 
     return {
