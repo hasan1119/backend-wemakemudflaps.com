@@ -28,6 +28,47 @@ union ActiveAccountResponseOrError
   @join__unionMember(graph: USER, member: "ErrorResponse")
  = BaseResponse | ErrorResponse
 
+type AddressBook
+  @join__type(graph: USER)
+{
+  id: ID!
+  street: String!
+  houseNo: String
+  city: String!
+  state: String!
+  zip: String!
+  county: String
+  type: AddressType!
+  isDefault: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type AddressesBookResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  addressBook: [AddressBook!]!
+}
+
+type AddressResponseBook
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  addressBook: AddressBook
+}
+
+enum AddressType
+  @join__type(graph: USER)
+{
+  SHIPPING @join__enumValue(graph: USER)
+  BILLING @join__enumValue(graph: USER)
+}
+
 type BaseResponse
   @join__type(graph: MEDIA)
   @join__type(graph: PRODUCT)
@@ -163,6 +204,13 @@ enum CategoryType
   category @join__enumValue(graph: PRODUCT)
   subCategory @join__enumValue(graph: PRODUCT)
 }
+
+union CreateAddressBookResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "AddressResponseBook")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | AddressResponseBook | ErrorResponse
 
 union CreateBrandResponseOrError
   @join__type(graph: PRODUCT)
@@ -303,6 +351,20 @@ enum Gender
   Others @join__enumValue(graph: USER)
   Rather_not_to_say @join__enumValue(graph: USER)
 }
+
+union GetAddressBookByIdResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "AddressResponseBook")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | AddressResponseBook | ErrorResponse
+
+union GetAddressesBookResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "AddressesBookResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | AddressesBookResponse | ErrorResponse
 
 union GetBrandByIDResponseOrError
   @join__type(graph: PRODUCT)
@@ -716,7 +778,7 @@ type Mutation
   restoreTaxStatuses(ids: [ID!]!): RestoreTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
-  updateProfile(firstName: String, lastName: String, email: String, username: String, avatar: String, gender: Gender, address: UserAddressInput, sessionId: String!): UserProfileUpdateResponseOrError! @join__field(graph: USER)
+  updateProfile(firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput, sessionId: String!): UserProfileUpdateResponseOrError! @join__field(graph: USER)
   changePassword(oldPassword: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
   forgetPassword(email: String!): BaseResponseOrError! @join__field(graph: USER)
   resetPassword(token: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
@@ -730,6 +792,9 @@ type Mutation
   accountActivation(userId: ID!, email: String!): ActiveAccountResponseOrError! @join__field(graph: USER)
   logout: BaseResponseOrError! @join__field(graph: USER)
   deleteLoginSession(sessionIds: [String]!): BaseResponseOrError! @join__field(graph: USER)
+  createAddressBookEntry(street: String!, houseNo: String, city: String!, state: String!, zip: String!, county: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
+  updateAddressBookEntry(id: ID!, street: String, houseNo: String, city: String, state: String, zip: String, county: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
+  deleteAddressBookEntry(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
 }
 
 input PermissionAgainstRoleInput
@@ -847,6 +912,8 @@ type Query
   getAllRoles(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetRolesResponseOrError! @join__field(graph: USER)
   getAllPermissionsByUserId(id: ID!): GetPermissionsResponseOrError! @join__field(graph: USER)
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError! @join__field(graph: USER)
+  getAddressBookEntryById(id: String!): GetAddressBookByIdResponseOrError! @join__field(graph: USER)
+  getAllMyAddressEntires(type: AddressType): GetAddressesBookResponseOrError! @join__field(graph: USER)
 }
 
 union RestoreBrandResponseOrError
@@ -929,9 +996,9 @@ type RoleResponse
   @join__type(graph: USER)
 {
   statusCode: Int!
-  role: Role!
   success: Boolean!
   message: String!
+  role: Role
 }
 
 type RoleSession
@@ -1193,6 +1260,13 @@ type TaxStatusResponse
   taxStatus: TaxStatus!
 }
 
+union UpdateAddressBookResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "AddressResponseBook")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | AddressResponseBook | ErrorResponse
+
 union UpdateBrandResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
@@ -1347,7 +1421,6 @@ type UserAddress
 input UserAddressInput
   @join__type(graph: USER)
 {
-  houseNo: String
   street: String
   city: String
   state: String

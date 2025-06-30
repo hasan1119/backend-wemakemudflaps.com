@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { AddressBook } from "./address-book.entity";
 import { Permission } from "./permission.entity";
 import { UserLogin } from "./user-login.entity";
 import { Role } from "./user-role.entity";
@@ -79,6 +80,13 @@ export class User {
     inverseJoinColumn: { name: "roleId", referencedColumnName: "id" },
   })
   roles: Role[];
+
+  // Establishes a one-to-many relationship for addresses associated with the user
+  @OneToMany(() => AddressBook, (address) => address.user, {
+    cascade: true, // Automatically persist/remove addresses when user is saved/deleted
+    nullable: true,
+  })
+  addresses: AddressBook[] | null;
 
   // Stores the token for password reset (optional)
   @Column({ nullable: true, default: null })

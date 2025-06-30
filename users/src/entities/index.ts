@@ -7,6 +7,14 @@
 export { Permission } from "./permission.entity";
 
 /**
+ * Exports the Address entity for managing user-specific addresses.
+ *
+ * Workflow:
+ * 1. Provides the Address entity to define and store personalized addresses for individual users.
+ */
+export { AddressBook } from "./address-book.entity";
+
+/**
  * Exports the RolePermission entity for handling role-permission relationships.
  *
  * Workflow:

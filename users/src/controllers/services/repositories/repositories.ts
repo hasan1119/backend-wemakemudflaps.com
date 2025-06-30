@@ -1,4 +1,5 @@
 import {
+  AddressBook,
   Permission,
   Role,
   RolePermission,
@@ -6,6 +7,14 @@ import {
   UserLogin,
 } from "../../../entities";
 import { AppDataSource } from "../../../helper";
+
+/**
+ * Initializes repository for Address Book entity.
+ *
+ * Workflow:
+ * 1. Retrieves the Address book repository from AppDataSource for database operations.
+ */
+export const addressBookRepository = AppDataSource.getRepository(AddressBook);
 
 /**
  * Initializes repository for User entity.

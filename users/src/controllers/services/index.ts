@@ -1,4 +1,19 @@
 /**
+ * Exports services for managing address book operations.
+ *
+ * Workflow:
+ * 1. Provides functions for creating, update, getting and deleting address book.
+ * 2. Enables operations for address book management tasks.
+ */
+export { createAddressBookEntry } from "./address-book/create-address-book.service";
+export { hardDeleteAddressBook } from "./address-book/delete-address-book.service";
+export {
+  getAddressBookById,
+  getAddressBooks,
+} from "./address-book/get-address-book.service";
+export { updateAddressBookEntry } from "./address-book/update-address-book.service";
+
+/**
  * Exports services for managing user-related operations.
  *
  * Workflow:

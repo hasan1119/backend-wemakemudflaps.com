@@ -14,6 +14,21 @@ export {
 } from "./utils/login/login-session-manage";
 
 /**
+ * Exports utilities for managing address book reset session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting and setting the address book.
+ */
+export {
+  getAddressBookInfoByIdFromRedis,
+  getAllAddressBooksFromRedis,
+  removeAddressBookInfoByIdFromRedis,
+  removeAllAddressBookByUserIdFromRedis,
+  setAddressBookInfoByIdInRedis,
+  setAllAddressBookByUserIdInRedis,
+} from "./utils/address-book/address-book-session-manage";
+
+/**
  * Exports utilities for managing password reset session data in Redis.
  *
  * Workflow:

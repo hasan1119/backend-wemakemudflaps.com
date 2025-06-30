@@ -35,6 +35,12 @@ enum PermissionName {
   COUPON
 }
 
+# Enum defining address book type in the system.
+enum AddressType {
+  SHIPPING
+  BILLING
+}
+
 # Represents an error related to a specific field in input validation or business logic.
 type FieldError @shareable {
   field: String! # The specific field that caused the error (e.g., "email", "password").
@@ -56,29 +62,24 @@ type BaseResponse @shareable {
   message: String!
 }
 
-# ---------------------- User Login Info types ----------------------
+# ---------------------- Address Book types ----------------------
 
-# Represents a single user login record, including IP, geolocation, and session metadata.
-input LoginMetaInput {
-  ip: String # IP address used during login.
-  city: String # City (if available).
-  isp: String # Name of the Internet Service Provider.
-  country: String # Country name.
-  countryIso: String # Country ISO code.
-  postalCode: String # Postal or ZIP code.
-  subdivisionIso: String # ISO code of the subdivision/region.
-  timeZone: String # Timezone of the login location.
-  cityGeonameId: Int # GeoName ID of the city.
-  countryGeonameId: Int # GeoName ID of the country.
-  subdivisionGeonameId: Int # GeoName ID of the subdivision.
-  ispId: Int # Unique identifier of the ISP.
-  latitude: Float # Latitude coordinate of the login.
-  longitude: Float # Longitude coordinate of the login.
-  fingerprint: String! # Unique browser/device fingerprint hash.
-  session: String! # Unique session identifier.
-  fraud: Float! # Probability score indicating risk/fraud likelihood.
-  tor: Boolean! # Whether the login came through a Tor exit node.
+# Represents a single address record.
+type AddressBook {
+  id: ID! # Unique identifier of the address
+  street: String! # Street address
+  houseNo: String # Apartment/Suite/House No (optional)
+  city: String! # City
+  state: String! # State
+  zip: String! # ZIP code
+  county: String # County (optional)
+  type: AddressType! # Address type (SHIPPING or BILLING)
+  isDefault: Boolean! # Is this the default address for this type?
+  createdAt: String! # Created timestamp
+  updatedAt: String! # Last updated timestamp
 }
+
+# ---------------------- User Login Info types ----------------------
 
 type LoginMeta {
   id: ID! # Unique identifier of the login record.
@@ -113,26 +114,6 @@ type CreatedBy @shareable @key(fields: "id") {
 }
 
 # ---------------------- Permission Types ----------------------
-
-# Input for assigning a permission to a role. Used in role management.
-input RolePermissionInput {
-  name: PermissionName! # Target entity/resource for the permission.
-  description: String # Optional explanation of what the permission entails.
-  canCreate: Boolean!
-  canRead: Boolean!
-  canUpdate: Boolean!
-  canDelete: Boolean!
-}
-
-# Input used for assigning permission details against a role (usually for updates).
-input PermissionAgainstRoleInput {
-  name: String! # Name of the resource/module.
-  description: String # Description of the permission.
-  canCreate: Boolean!
-  canRead: Boolean!
-  canUpdate: Boolean!
-  canDelete: Boolean!
-}
 
 # Represents a full permission record stored in the database.
 type Permissions {
@@ -200,14 +181,6 @@ type RoleSession {
   deletedAt: String!
 }
 
-# Response returned when fetching a single role.
-type RoleResponse {
-  statusCode: Int!
-  role: Role!
-  success: Boolean!
-  message: String!
-}
-
 # ---------------------- User Types ----------------------
 
 # Enum for user gender selection, used in registration or profile setup.
@@ -226,6 +199,7 @@ type UserAddress {
   zip: String
   county: String
 }
+
 # Represents the authenticated user's session data (lightweight).
 type UserSession @shareable {
   id: ID!
@@ -306,6 +280,22 @@ type User @key(fields: "id") {
 }
 
 # ---------------------- Responses ----------------------
+
+# Single address response.
+type AddressResponseBook {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  addressBook: AddressBook
+}
+
+# Single addresses response.
+type AddressesBookResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  addressBook: [AddressBook!]!
+}
 
 # Response for single user fetch.
 type UserResponse {
@@ -392,9 +382,31 @@ type RoleResponse {
 }
 
 # ---------------------- Inputs ----------------------
+
+# Represents a single user login record, including IP, geolocation, and session metadata.
+input LoginMetaInput {
+  ip: String # IP address used during login.
+  city: String # City (if available).
+  isp: String # Name of the Internet Service Provider.
+  country: String # Country name.
+  countryIso: String # Country ISO code.
+  postalCode: String # Postal or ZIP code.
+  subdivisionIso: String # ISO code of the subdivision/region.
+  timeZone: String # Timezone of the login location.
+  cityGeonameId: Int # GeoName ID of the city.
+  countryGeonameId: Int # GeoName ID of the country.
+  subdivisionGeonameId: Int # GeoName ID of the subdivision.
+  ispId: Int # Unique identifier of the ISP.
+  latitude: Float # Latitude coordinate of the login.
+  longitude: Float # Longitude coordinate of the login.
+  fingerprint: String! # Unique browser/device fingerprint hash.
+  session: String! # Unique session identifier.
+  fraud: Float! # Probability score indicating risk/fraud likelihood.
+  tor: Boolean! # Whether the login came through a Tor exit node.
+}
+
 # Input to update user's address.
 input UserAddressInput {
-  houseNo: String
   street: String
   city: String
   state: String
@@ -421,6 +433,26 @@ input UpdateUserPermissionInput {
   password: String # Optional password for authorization (non-super admins).
 }
 
+# Input for assigning a permission to a role. Used in role management.
+input RolePermissionInput {
+  name: PermissionName! # Target entity/resource for the permission.
+  description: String # Optional explanation of what the permission entails.
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
+# Input used for assigning permission details against a role (usually for updates).
+input PermissionAgainstRoleInput {
+  name: String! # Name of the resource/module.
+  description: String # Description of the permission.
+  canCreate: Boolean!
+  canRead: Boolean!
+  canUpdate: Boolean!
+  canDelete: Boolean!
+}
+
 # ---------------------- Unions ----------------------
 
 # Generic union for mutation responses that can succeed or fail.
@@ -445,6 +477,30 @@ union EmailVerificationResponseOrError =
 
 # Union for activating an account.
 union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
+
+# Union for creating address in address book.
+union CreateAddressBookResponseOrError =
+    BaseResponse
+  | AddressResponseBook
+  | ErrorResponse
+
+# Union for updating address in address book.
+union UpdateAddressBookResponseOrError =
+    BaseResponse
+  | AddressResponseBook
+  | ErrorResponse
+
+# Union when fetching address book by ID.
+union GetAddressBookByIdResponseOrError =
+    BaseResponse
+  | AddressResponseBook
+  | ErrorResponse
+
+# Union for multiple addresses form the address book.
+union GetAddressesBookResponseOrError =
+    BaseResponse
+  | AddressesBookResponse
+  | ErrorResponse
 
 # Query result when fetching the current profile.
 union GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse

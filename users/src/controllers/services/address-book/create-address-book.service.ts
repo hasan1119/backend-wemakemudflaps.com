@@ -1,0 +1,67 @@
+import { AddressBook } from "../../../entities";
+import {
+  removeAllAddressBookByUserIdFromRedis,
+  setAddressBookInfoByIdInRedis,
+} from "../../../helper/redis";
+import { MutationCreateAddressBookEntryArgs } from "../../../types";
+import { addressBookRepository } from "../repositories/repositories";
+
+/**
+ * Handles creation and saving of a new address book entry in the database.
+ *
+ * If isDefault is true, sets all other entries with the same type and user to isDefault = false.
+ *
+ * @param data - Partial AddressBook data for creating the new entry.
+ * @param userId - Optional user ID of the creator.
+ * @returns A promise resolving to the newly created AddressBook entity.
+ */
+export const createAddressBookEntry = async (
+  data: MutationCreateAddressBookEntryArgs,
+  userId: string
+): Promise<AddressBook> => {
+  if (data.isDefault) {
+    // Set isDefault = false for all other entries with same type and user
+    await addressBookRepository
+      .createQueryBuilder()
+      .update(AddressBook)
+      .set({ isDefault: false })
+      .where("userId = :userId", { userId })
+      .andWhere("type = :type", { type: data.type })
+      .execute();
+
+    // Fetch all affected addresses to update cache
+    const affectedAddresses = await addressBookRepository.find({
+      where: { user: { id: userId }, type: data.type as any },
+    });
+
+    await Promise.all(
+      affectedAddresses.map((address) =>
+        setAddressBookInfoByIdInRedis(address.id, userId, address)
+      )
+    );
+  }
+
+  // Create new address book entity with provided data
+  const addressBookEntry = addressBookRepository.create({
+    type: data.type as any,
+    houseNo: data.houseNo,
+    street: data.street,
+    city: data.city,
+    zip: data.zip,
+    state: data.state,
+    county: data.county,
+    isDefault: data.isDefault,
+    user: { id: userId } as any,
+  });
+
+  const result = // Save address book entry to database
+    await addressBookRepository.save(addressBookEntry);
+
+  // Cache address-book information and existence in Redis
+  await setAddressBookInfoByIdInRedis(result.id, userId, result);
+
+  // Clear all the cache list of the user address book
+  await removeAllAddressBookByUserIdFromRedis(userId);
+
+  return result;
+};

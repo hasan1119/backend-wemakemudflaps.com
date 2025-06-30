@@ -20,6 +20,42 @@ export type Scalars = {
 
 export type ActiveAccountResponseOrError = BaseResponse | ErrorResponse;
 
+export type AddressBook = {
+  __typename?: 'AddressBook';
+  city: Scalars['String']['output'];
+  county?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['String']['output'];
+  houseNo?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isDefault: Scalars['Boolean']['output'];
+  state: Scalars['String']['output'];
+  street: Scalars['String']['output'];
+  type: AddressType;
+  updatedAt: Scalars['String']['output'];
+  zip: Scalars['String']['output'];
+};
+
+export type AddressResponseBook = {
+  __typename?: 'AddressResponseBook';
+  addressBook?: Maybe<AddressBook>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export enum AddressType {
+  Billing = 'BILLING',
+  Shipping = 'SHIPPING'
+}
+
+export type AddressesBookResponse = {
+  __typename?: 'AddressesBookResponse';
+  addressBook: Array<AddressBook>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
 export type BaseResponse = {
   __typename?: 'BaseResponse';
   message: Scalars['String']['output'];
@@ -134,6 +170,8 @@ export enum CategoryType {
   SubCategory = 'subCategory'
 }
 
+export type CreateAddressBookResponseOrError = AddressResponseBook | BaseResponse | ErrorResponse;
+
 export type CreateBrandResponseOrError = BaseResponse | BrandResponse | ErrorResponse;
 
 export type CreateCategoryResponseOrError = BaseResponse | CategoryResponse | ErrorResponse | SubCategoryResponse;
@@ -197,6 +235,10 @@ export enum Gender {
   Others = 'Others',
   RatherNotToSay = 'Rather_not_to_say'
 }
+
+export type GetAddressBookByIdResponseOrError = AddressResponseBook | BaseResponse | ErrorResponse;
+
+export type GetAddressesBookResponseOrError = AddressesBookResponse | BaseResponse | ErrorResponse;
 
 export type GetBrandByIdResponseOrError = BaseResponse | BrandResponseById | ErrorResponse;
 
@@ -423,6 +465,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   accountActivation: ActiveAccountResponseOrError;
   changePassword: BaseResponseOrError;
+  createAddressBookEntry: CreateAddressBookResponseOrError;
   createBrand: CreateBrandResponseOrError;
   createCategory: CreateCategoryResponseOrError;
   createProduct?: Maybe<Scalars['String']['output']>;
@@ -431,6 +474,7 @@ export type Mutation = {
   createTaxClass: CreateTaxClassResponseOrError;
   createTaxStatus: CreateTaxStatusResponseOrError;
   createUserRole: CreateRoleResponseOrError;
+  deleteAddressBookEntry: BaseResponseOrError;
   deleteBrand: DeleteBrandResponseOrError;
   deleteCategory?: Maybe<DeleteCategoryResponseOrError>;
   deleteLoginSession: BaseResponseOrError;
@@ -453,6 +497,7 @@ export type Mutation = {
   restoreTaxClasses: RestoreTaxClassResponseOrError;
   restoreTaxStatuses: RestoreTaxStatusResponseOrError;
   restoreUserRole: BaseResponseOrError;
+  updateAddressBookEntry: UpdateAddressBookResponseOrError;
   updateBrand: UpdateBrandResponseOrError;
   updateCategory: UpdateCategoryResponseOrError;
   updateCategoryPosition: UpdateCategoryPositionResponseOrError;
@@ -479,6 +524,18 @@ export type MutationAccountActivationArgs = {
 export type MutationChangePasswordArgs = {
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
+};
+
+
+export type MutationCreateAddressBookEntryArgs = {
+  city: Scalars['String']['input'];
+  county: Scalars['String']['input'];
+  houseNo?: InputMaybe<Scalars['String']['input']>;
+  isDefault: Scalars['Boolean']['input'];
+  state: Scalars['String']['input'];
+  street: Scalars['String']['input'];
+  type: AddressType;
+  zip: Scalars['String']['input'];
 };
 
 
@@ -531,6 +588,11 @@ export type MutationCreateUserRoleArgs = {
   systemPermanentDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
   systemPermanentUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
   systemUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type MutationDeleteAddressBookEntryArgs = {
+  ids: Array<Scalars['ID']['input']>;
 };
 
 
@@ -656,6 +718,19 @@ export type MutationRestoreTaxStatusesArgs = {
 
 export type MutationRestoreUserRoleArgs = {
   ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationUpdateAddressBookEntryArgs = {
+  city?: InputMaybe<Scalars['String']['input']>;
+  county?: InputMaybe<Scalars['String']['input']>;
+  houseNo?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  state?: InputMaybe<Scalars['String']['input']>;
+  street?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<AddressType>;
+  zip?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -846,9 +921,11 @@ export type Product = {
 
 export type Query = {
   __typename?: 'Query';
+  getAddressBookEntryById: GetAddressBookByIdResponseOrError;
   getAllBrands: GetBrandsResponseOrError;
   getAllCategories: GetCategoriesResponseOrError;
   getAllMedias: GetMediasResponseOrError;
+  getAllMyAddressEntires: GetAddressesBookResponseOrError;
   getAllPermissionsByUserId: GetPermissionsResponseOrError;
   getAllRoles: GetRolesResponseOrError;
   getAllShippingClass: GetShippingClassesResponseOrError;
@@ -870,6 +947,11 @@ export type Query = {
   getTaxStatusById: GetTaxStatusByIdResponseOrError;
   getUserById: GetUserByIdResponseOrError;
   getUserOwnLoginInfo: GetUserLoginInfoResponseOrError;
+};
+
+
+export type QueryGetAddressBookEntryByIdArgs = {
+  id: Scalars['String']['input'];
 };
 
 
@@ -897,6 +979,11 @@ export type QueryGetAllMediasArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllMyAddressEntiresArgs = {
+  type?: InputMaybe<AddressType>;
 };
 
 
@@ -1059,7 +1146,7 @@ export type RolePermissionSession = {
 export type RoleResponse = {
   __typename?: 'RoleResponse';
   message: Scalars['String']['output'];
-  role: Role;
+  role?: Maybe<Role>;
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
 };
@@ -1299,6 +1386,8 @@ export type TaxStatusResponse = {
   taxStatus: TaxStatus;
 };
 
+export type UpdateAddressBookResponseOrError = AddressResponseBook | BaseResponse | ErrorResponse;
+
 export type UpdateBrandResponseOrError = BaseResponse | BrandResponse | ErrorResponse;
 
 export type UpdateCategoryPositionResponseOrError = BaseResponse | CategoryResponse | ErrorResponse | SubCategoryResponse;
@@ -1392,7 +1481,6 @@ export type UserAddress = {
 export type UserAddressInput = {
   city?: InputMaybe<Scalars['String']['input']>;
   county?: InputMaybe<Scalars['String']['input']>;
-  houseNo?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   street?: InputMaybe<Scalars['String']['input']>;
   zip?: InputMaybe<Scalars['String']['input']>;
@@ -1574,6 +1662,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   ActiveAccountResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  CreateAddressBookResponseOrError: ( AddressResponseBook ) | ( BaseResponse ) | ( ErrorResponse );
   CreateBrandResponseOrError: ( BaseResponse ) | ( BrandResponse ) | ( ErrorResponse );
   CreateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
   CreateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
@@ -1588,6 +1677,8 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   DeleteTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   DeleteTaxStatusResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
+  GetAddressBookByIdResponseOrError: ( AddressResponseBook ) | ( BaseResponse ) | ( ErrorResponse );
+  GetAddressesBookResponseOrError: ( AddressesBookResponse ) | ( BaseResponse ) | ( ErrorResponse );
   GetBrandByIDResponseOrError: ( BaseResponse ) | ( BrandResponseById ) | ( ErrorResponse );
   GetBrandsResponseOrError: ( BaseResponse ) | ( BrandPaginationResponse ) | ( ErrorResponse );
   GetCategoriesResponseOrError: ( BaseResponse ) | ( CategoryPaginationResponse ) | ( ErrorResponse );
@@ -1618,6 +1709,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   RestoreTagResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   RestoreTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   RestoreTaxStatusResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  UpdateAddressBookResponseOrError: ( AddressResponseBook ) | ( BaseResponse ) | ( ErrorResponse );
   UpdateBrandResponseOrError: ( BaseResponse ) | ( BrandResponse ) | ( ErrorResponse );
   UpdateCategoryPositionResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
   UpdateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
@@ -1636,13 +1728,17 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   ActiveAccountResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ActiveAccountResponseOrError']>;
-  BaseResponse: ResolverTypeWrapper<BaseResponse>;
+  AddressBook: ResolverTypeWrapper<AddressBook>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
-  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  AddressResponseBook: ResolverTypeWrapper<AddressResponseBook>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  AddressType: AddressType;
+  AddressesBookResponse: ResolverTypeWrapper<AddressesBookResponse>;
+  BaseResponse: ResolverTypeWrapper<BaseResponse>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   Brand: ResolverTypeWrapper<Brand>;
-  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   BrandPaginationDataSession: ResolverTypeWrapper<BrandPaginationDataSession>;
   BrandPaginationResponse: ResolverTypeWrapper<BrandPaginationResponse>;
   BrandResponse: ResolverTypeWrapper<BrandResponse>;
@@ -1653,6 +1749,7 @@ export type ResolversTypes = {
   CategoryResponse: ResolverTypeWrapper<CategoryResponse>;
   CategoryResponseById: ResolverTypeWrapper<CategoryResponseById>;
   CategoryType: CategoryType;
+  CreateAddressBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateAddressBookResponseOrError']>;
   CreateBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateBrandResponseOrError']>;
   CreateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateCategoryResponseOrError']>;
   CreateRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateRoleResponseOrError']>;
@@ -1672,6 +1769,8 @@ export type ResolversTypes = {
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
   FieldError: ResolverTypeWrapper<FieldError>;
   Gender: Gender;
+  GetAddressBookByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetAddressBookByIdResponseOrError']>;
+  GetAddressesBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetAddressesBookResponseOrError']>;
   GetBrandByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetBrandByIDResponseOrError']>;
   GetBrandsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetBrandsResponseOrError']>;
   GetCategoriesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoriesResponseOrError']>;
@@ -1746,6 +1845,7 @@ export type ResolversTypes = {
   TaxStatusPaginationDataSession: ResolverTypeWrapper<TaxStatusPaginationDataSession>;
   TaxStatusPaginationResponse: ResolverTypeWrapper<TaxStatusPaginationResponse>;
   TaxStatusResponse: ResolverTypeWrapper<TaxStatusResponse>;
+  UpdateAddressBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateAddressBookResponseOrError']>;
   UpdateBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateBrandResponseOrError']>;
   UpdateCategoryPositionResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryPositionResponseOrError']>;
   UpdateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryResponseOrError']>;
@@ -1778,13 +1878,16 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   ActiveAccountResponseOrError: ResolversUnionTypes<ResolversParentTypes>['ActiveAccountResponseOrError'];
-  BaseResponse: BaseResponse;
+  AddressBook: AddressBook;
   String: Scalars['String']['output'];
-  Int: Scalars['Int']['output'];
+  ID: Scalars['ID']['output'];
   Boolean: Scalars['Boolean']['output'];
+  AddressResponseBook: AddressResponseBook;
+  Int: Scalars['Int']['output'];
+  AddressesBookResponse: AddressesBookResponse;
+  BaseResponse: BaseResponse;
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   Brand: Brand;
-  ID: Scalars['ID']['output'];
   BrandPaginationDataSession: BrandPaginationDataSession;
   BrandPaginationResponse: BrandPaginationResponse;
   BrandResponse: BrandResponse;
@@ -1794,6 +1897,7 @@ export type ResolversParentTypes = {
   CategoryPaginationResponse: CategoryPaginationResponse;
   CategoryResponse: CategoryResponse;
   CategoryResponseById: CategoryResponseById;
+  CreateAddressBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateAddressBookResponseOrError'];
   CreateBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateBrandResponseOrError'];
   CreateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateCategoryResponseOrError'];
   CreateRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateRoleResponseOrError'];
@@ -1812,6 +1916,8 @@ export type ResolversParentTypes = {
   EmailVerificationResponseOrError: ResolversUnionTypes<ResolversParentTypes>['EmailVerificationResponseOrError'];
   ErrorResponse: ErrorResponse;
   FieldError: FieldError;
+  GetAddressBookByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAddressBookByIdResponseOrError'];
+  GetAddressesBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAddressesBookResponseOrError'];
   GetBrandByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetBrandByIDResponseOrError'];
   GetBrandsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetBrandsResponseOrError'];
   GetCategoriesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoriesResponseOrError'];
@@ -1883,6 +1989,7 @@ export type ResolversParentTypes = {
   TaxStatusPaginationDataSession: TaxStatusPaginationDataSession;
   TaxStatusPaginationResponse: TaxStatusPaginationResponse;
   TaxStatusResponse: TaxStatusResponse;
+  UpdateAddressBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateAddressBookResponseOrError'];
   UpdateBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateBrandResponseOrError'];
   UpdateCategoryPositionResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryPositionResponseOrError'];
   UpdateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryResponseOrError'];
@@ -1921,6 +2028,37 @@ export type DeferDirectiveResolver<Result, Parent, ContextType = Context, Args =
 
 export type ActiveAccountResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ActiveAccountResponseOrError'] = ResolversParentTypes['ActiveAccountResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type AddressBookResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AddressBook'] = ResolversParentTypes['AddressBook']> = {
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  county?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  houseNo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isDefault?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  street?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['AddressType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  zip?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AddressResponseBookResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AddressResponseBook'] = ResolversParentTypes['AddressResponseBook']> = {
+  addressBook?: Resolver<Maybe<ResolversTypes['AddressBook']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AddressesBookResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AddressesBookResponse'] = ResolversParentTypes['AddressesBookResponse']> = {
+  addressBook?: Resolver<Array<ResolversTypes['AddressBook']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type BaseResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BaseResponse'] = ResolversParentTypes['BaseResponse']> = {
@@ -2034,6 +2172,10 @@ export type CategoryResponseByIdResolvers<ContextType = Context, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CreateAddressBookResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateAddressBookResponseOrError'] = ResolversParentTypes['CreateAddressBookResponseOrError']> = {
+  __resolveType: TypeResolveFn<'AddressResponseBook' | 'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
 export type CreateBrandResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateBrandResponseOrError'] = ResolversParentTypes['CreateBrandResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'BrandResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
@@ -2117,6 +2259,14 @@ export type FieldErrorResolvers<ContextType = Context, ParentType extends Resolv
   field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GetAddressBookByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetAddressBookByIdResponseOrError'] = ResolversParentTypes['GetAddressBookByIdResponseOrError']> = {
+  __resolveType: TypeResolveFn<'AddressResponseBook' | 'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type GetAddressesBookResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetAddressesBookResponseOrError'] = ResolversParentTypes['GetAddressesBookResponseOrError']> = {
+  __resolveType: TypeResolveFn<'AddressesBookResponse' | 'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type GetBrandByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetBrandByIDResponseOrError'] = ResolversParentTypes['GetBrandByIDResponseOrError']> = {
@@ -2278,6 +2428,7 @@ export type MediasResponseResolvers<ContextType = Context, ParentType extends Re
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
+  createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'county' | 'isDefault' | 'state' | 'street' | 'type' | 'zip'>>;
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createProduct?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -2286,6 +2437,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createTaxClass?: Resolver<ResolversTypes['CreateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxClassArgs, 'value'>>;
   createTaxStatus?: Resolver<ResolversTypes['CreateTaxStatusResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxStatusArgs, 'value'>>;
   createUserRole?: Resolver<ResolversTypes['CreateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
+  deleteAddressBookEntry?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteAddressBookEntryArgs, 'ids'>>;
   deleteBrand?: Resolver<ResolversTypes['DeleteBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteBrandArgs, 'ids' | 'skipTrash'>>;
   deleteCategory?: Resolver<Maybe<ResolversTypes['DeleteCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'categoryType' | 'id'>>;
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionIds'>>;
@@ -2308,6 +2460,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   restoreTaxClasses?: Resolver<ResolversTypes['RestoreTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTaxClassesArgs, 'ids'>>;
   restoreTaxStatuses?: Resolver<ResolversTypes['RestoreTaxStatusResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTaxStatusesArgs, 'ids'>>;
   restoreUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreUserRoleArgs, 'ids'>>;
+  updateAddressBookEntry?: Resolver<ResolversTypes['UpdateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateAddressBookEntryArgs, 'id'>>;
   updateBrand?: Resolver<ResolversTypes['UpdateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateBrandArgs, 'id'>>;
   updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'categoryType' | 'id'>>;
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryPositionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'categoryType' | 'id' | 'position'>>;
@@ -2369,9 +2522,11 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getAddressBookEntryById?: Resolver<ResolversTypes['GetAddressBookByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressBookEntryByIdArgs, 'id'>>;
   getAllBrands?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsArgs, 'limit' | 'page'>>;
   getAllCategories?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
+  getAllMyAddressEntires?: Resolver<ResolversTypes['GetAddressesBookResponseOrError'], ParentType, ContextType, Partial<QueryGetAllMyAddressEntiresArgs>>;
   getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
   getAllShippingClass?: Resolver<ResolversTypes['GetShippingClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingClassArgs, 'limit' | 'page'>>;
@@ -2448,7 +2603,7 @@ export type RolePermissionSessionResolvers<ContextType = Context, ParentType ext
 
 export type RoleResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RoleResponse'] = ResolversParentTypes['RoleResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
+  role?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -2680,6 +2835,10 @@ export type TaxStatusResponseResolvers<ContextType = Context, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpdateAddressBookResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateAddressBookResponseOrError'] = ResolversParentTypes['UpdateAddressBookResponseOrError']> = {
+  __resolveType: TypeResolveFn<'AddressResponseBook' | 'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
 export type UpdateBrandResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateBrandResponseOrError'] = ResolversParentTypes['UpdateBrandResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'BrandResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
@@ -2868,6 +3027,9 @@ export type UsersResponseResolvers<ContextType = Context, ParentType extends Res
 
 export type Resolvers<ContextType = Context> = {
   ActiveAccountResponseOrError?: ActiveAccountResponseOrErrorResolvers<ContextType>;
+  AddressBook?: AddressBookResolvers<ContextType>;
+  AddressResponseBook?: AddressResponseBookResolvers<ContextType>;
+  AddressesBookResponse?: AddressesBookResponseResolvers<ContextType>;
   BaseResponse?: BaseResponseResolvers<ContextType>;
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
   Brand?: BrandResolvers<ContextType>;
@@ -2880,6 +3042,7 @@ export type Resolvers<ContextType = Context> = {
   CategoryPaginationResponse?: CategoryPaginationResponseResolvers<ContextType>;
   CategoryResponse?: CategoryResponseResolvers<ContextType>;
   CategoryResponseById?: CategoryResponseByIdResolvers<ContextType>;
+  CreateAddressBookResponseOrError?: CreateAddressBookResponseOrErrorResolvers<ContextType>;
   CreateBrandResponseOrError?: CreateBrandResponseOrErrorResolvers<ContextType>;
   CreateCategoryResponseOrError?: CreateCategoryResponseOrErrorResolvers<ContextType>;
   CreateRoleResponseOrError?: CreateRoleResponseOrErrorResolvers<ContextType>;
@@ -2898,6 +3061,8 @@ export type Resolvers<ContextType = Context> = {
   EmailVerificationResponseOrError?: EmailVerificationResponseOrErrorResolvers<ContextType>;
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
+  GetAddressBookByIdResponseOrError?: GetAddressBookByIdResponseOrErrorResolvers<ContextType>;
+  GetAddressesBookResponseOrError?: GetAddressesBookResponseOrErrorResolvers<ContextType>;
   GetBrandByIDResponseOrError?: GetBrandByIdResponseOrErrorResolvers<ContextType>;
   GetBrandsResponseOrError?: GetBrandsResponseOrErrorResolvers<ContextType>;
   GetCategoriesResponseOrError?: GetCategoriesResponseOrErrorResolvers<ContextType>;
@@ -2964,6 +3129,7 @@ export type Resolvers<ContextType = Context> = {
   TaxStatusPaginationDataSession?: TaxStatusPaginationDataSessionResolvers<ContextType>;
   TaxStatusPaginationResponse?: TaxStatusPaginationResponseResolvers<ContextType>;
   TaxStatusResponse?: TaxStatusResponseResolvers<ContextType>;
+  UpdateAddressBookResponseOrError?: UpdateAddressBookResponseOrErrorResolvers<ContextType>;
   UpdateBrandResponseOrError?: UpdateBrandResponseOrErrorResolvers<ContextType>;
   UpdateCategoryPositionResponseOrError?: UpdateCategoryPositionResponseOrErrorResolvers<ContextType>;
   UpdateCategoryResponseOrError?: UpdateCategoryResponseOrErrorResolvers<ContextType>;

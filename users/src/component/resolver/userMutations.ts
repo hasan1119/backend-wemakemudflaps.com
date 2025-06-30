@@ -1,7 +1,9 @@
 import {
   accountActivation,
   changePassword,
+  createAddressBookEntry,
   createUserRole,
+  deleteAddressBookEntry,
   deleteLoginSession,
   deleteUserRole,
   forgetPassword,
@@ -10,6 +12,7 @@ import {
   register,
   resetPassword,
   restoreUserRole,
+  updateAddressBookEntry,
   updateProfile,
   updateUserPermission,
   updateUserRole,
@@ -106,5 +109,20 @@ export const userMutationsResolver = {
      * Deletes a user's login session, effectively logging them out.
      */
     deleteLoginSession,
+
+    /**
+     * Creates a new address book log for a specific user.
+     */
+    createAddressBookEntry,
+
+    /**
+     * Deletes address book log of a specific user.
+     */
+    deleteAddressBookEntry,
+
+    /**
+     * Updates address book log for a specific user.
+     */
+    updateAddressBookEntry,
   },
 };

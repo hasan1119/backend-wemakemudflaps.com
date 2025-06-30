@@ -1,4 +1,6 @@
 import {
+  getAddressBookEntryById,
+  getAllMyAddressEntires,
   getAllPermissionsByUserId,
   getAllRoles,
   getAllUsers,
@@ -59,6 +61,16 @@ export const userQueriesResolver = {
      * Fetches the authenticated user's login information.
      */
     getUserOwnLoginInfo,
+
+    /**
+     * Fetches the address from the address book information of the authenticated user.
+     */
+    getAddressBookEntryById,
+
+    /**
+     * Retrieves all address book information to a user by their ID.
+     */
+    getAllMyAddressEntires,
   },
 
   /**

@@ -123,21 +123,12 @@ export const register = async (
 
     userUsername = await getUserUsernameFromRedis(username);
 
-    console.log(userUsername);
+    if (!userUsername) {
+      // On cache miss, check if username is available
+      const isAvailable = await isUsernameAvailable(username);
 
-    if (userUsername) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: "Username already in use",
-        __typename: "BaseResponse",
-      };
-    } else {
-      // On cache miss, query user username from database
-      const dbUser = await isUsernameAvailable(username);
-
-      if (dbUser) {
-        // Cache user username in Redis
+      if (!isAvailable) {
+        // Username is taken → cache and return error
         await setUserUsernameInRedis(username, username);
 
         return {
@@ -267,8 +258,9 @@ export const register = async (
         };
       }
 
-      // Cache user data, email, and update counts in Redis
+      // Cache user data, username email, and update counts in Redis
       await Promise.all([
+        setUserUsernameInRedis(username, username),
         setUserEmailInRedis(email, email),
         setUserInfoByUserIdInRedis(savedUser.id, savedUser),
         setUserInfoByEmailInRedis(email, savedUser),
@@ -432,8 +424,9 @@ export const register = async (
         };
       }
 
-      // Cache user data, email, and update counts in Redis
+      // Cache user data, username, email, and update counts in Redis
       await Promise.all([
+        setUserUsernameInRedis(username, username),
         setUserEmailInRedis(email, email),
         setUserInfoByUserIdInRedis(savedUser.id, savedUser),
         setUserInfoByEmailInRedis(email, savedUser),
@@ -456,10 +449,11 @@ export const register = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${CONFIG.NODE_ENV === "production"
+      message: `${
+        CONFIG.NODE_ENV === "production"
           ? "Something went wrong, please try again."
           : error.message || "Internal server error"
-        }`,
+      }`,
       __typename: "BaseResponse",
     };
   }
