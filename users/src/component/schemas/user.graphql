@@ -276,6 +276,7 @@ type UserSessionById @shareable {
 # Represents a full user object fetched from the database.
 type User @key(fields: "id") {
   id: ID!
+  avatar: String
   firstName: String
   lastName: String
   email: String

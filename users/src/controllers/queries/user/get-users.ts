@@ -185,6 +185,7 @@ export const getAllUsers = async (
     // Map cached users to response format
     const responseUsers = usersData.map((user) => ({
       id: user.id,
+      avatar: user.avatar,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
