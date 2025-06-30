@@ -1465,6 +1465,7 @@ export type User = {
   isAccountActivated?: Maybe<Scalars['Boolean']['output']>;
   lastName?: Maybe<Scalars['String']['output']>;
   permissions?: Maybe<Array<Permissions>>;
+  phone?: Maybe<Scalars['String']['output']>;
   roles?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
@@ -1553,6 +1554,7 @@ export type UserSessionByEmail = {
   lastName: Scalars['String']['output'];
   password: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
+  phone: Scalars['String']['output'];
   roles: Array<Scalars['String']['output']>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
@@ -1574,6 +1576,7 @@ export type UserSessionById = {
   isAccountActivated: Scalars['Boolean']['output'];
   lastName: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
+  phone: Scalars['String']['output'];
   roles: Array<Scalars['String']['output']>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
@@ -2899,6 +2902,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   isAccountActivated?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   permissions?: Resolver<Maybe<Array<ResolversTypes['Permissions']>>, ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   roles?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -2983,6 +2987,7 @@ export type UserSessionByEmailResolvers<ContextType = Context, ParentType extend
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3004,6 +3009,7 @@ export type UserSessionByIdResolvers<ContextType = Context, ParentType extends R
   isAccountActivated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

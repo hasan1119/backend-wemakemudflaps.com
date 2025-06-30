@@ -30,6 +30,7 @@ export const mapUserToResponseByEmail = async (
     email: user.email,
     emailVerified: user.emailVerified,
     gender: user.gender,
+    phone: user.phone,
     roles: user.roles.map((role) => role.name.toUpperCase()),
     permissions: (await mapPermissions(
       user.permissions
@@ -71,6 +72,7 @@ export const mapUserToResponseById = async (
     email: user.email,
     emailVerified: user.emailVerified,
     gender: user.gender,
+    phone: user.phone,
     roles: user.roles.map((role) => role.name.toUpperCase()),
     permissions: (await mapPermissions(
       user.permissions

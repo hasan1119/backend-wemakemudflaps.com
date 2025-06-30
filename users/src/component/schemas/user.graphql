@@ -208,7 +208,6 @@ type UserSession @shareable {
   lastName: String!
   email: String!
   gender: String!
-  phone: String
   roles: [String!]!
   emailVerified: Boolean!
   isAccountActivated: Boolean!
@@ -222,11 +221,11 @@ type UserSessionByEmail @shareable {
   firstName: String!
   lastName: String!
   email: String!
+  phone: String!
   address: UserAddress
   password: String!
   emailVerified: Boolean!
   gender: String!
-  phone: String
   roles: [String!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!
@@ -248,7 +247,7 @@ type UserSessionById @shareable {
   address: UserAddress
   emailVerified: Boolean!
   gender: String!
-  phone: String
+  phone: String!
   roles: [String!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!

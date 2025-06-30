@@ -137,6 +137,8 @@ export const getAllUsers = async (
         email: user.email,
         emailVerified: user.emailVerified,
         gender: user.gender,
+        phone: user.phone,
+        address: user.address,
         avatar: user.avatar,
         roles: user.roles.map((role) => role.name.toUpperCase()),
         isAccountActivated: user.isAccountActivated,
@@ -191,6 +193,8 @@ export const getAllUsers = async (
       email: user.email,
       emailVerified: user.emailVerified,
       gender: user.gender,
+      phone: user.phone,
+      address: user.address,
       roles: user.roles.map((role) => role.toUpperCase()),
       isAccountActivated: user.isAccountActivated,
       permissions: user.permissions.map((permission) => ({

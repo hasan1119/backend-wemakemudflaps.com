@@ -1398,6 +1398,7 @@ type User
   address: UserAddress
   emailVerified: Boolean
   gender: String
+  phone: String
   roles: [String]
   isAccountActivated: Boolean
   permissions: [Permissions!]
@@ -1501,6 +1502,7 @@ type UserSessionByEmail
   firstName: String!
   lastName: String!
   email: String!
+  phone: String!
   address: UserAddress
   password: String!
   emailVerified: Boolean!
@@ -1527,6 +1529,7 @@ type UserSessionById
   address: UserAddress
   emailVerified: Boolean!
   gender: String!
+  phone: String!
   roles: [String!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!

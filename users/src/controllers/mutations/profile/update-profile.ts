@@ -76,8 +76,16 @@ export const updateProfile = async (
       };
     }
 
-    const { firstName, lastName, avatar, email, gender, address, username } =
-      validationResult.data;
+    const {
+      firstName,
+      lastName,
+      avatar,
+      email,
+      gender,
+      address,
+      phone,
+      username,
+    } = validationResult.data;
 
     // Attempt to retrieve cached user data from Redis
     let userData;
@@ -125,6 +133,8 @@ export const updateProfile = async (
     if (address) userData.address = address;
 
     if (avatar) userData.avatar = avatar;
+
+    if (phone) userData.phone = phone;
 
     if (email && email !== userData.email) {
       // Check if the new email is already in use
