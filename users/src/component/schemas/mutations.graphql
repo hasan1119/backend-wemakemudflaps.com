@@ -157,7 +157,7 @@ type Mutation {
     city: String! # City
     state: String! # State
     zip: String! # ZIP code
-    county: String! # County (optional)
+    country: String! # country (optional)
     type: AddressType! # Address type (SHIPPING or BILLING)
     isDefault: Boolean! # Is this the default address for this type?
   ): CreateAddressBookResponseOrError!
@@ -173,7 +173,7 @@ type Mutation {
     city: String # City (optional)
     state: String # State (optional)
     zip: String # ZIP code (optional)
-    county: String # County (optional)
+    country: String # country (optional)
     type: AddressType # Address type (SHIPPING or BILLING)
     isDefault: Boolean # Is this the default address for this type?
   ): UpdateAddressBookResponseOrError!

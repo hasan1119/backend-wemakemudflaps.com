@@ -40,9 +40,9 @@ export class AddressBook {
   @Column()
   zip: string;
 
-  // U.S. county name (optional)
+  // U.S. country name (optional)
   @Column()
-  county: string;
+  country: string;
 
   // Type of address: shipping or billing
   @Column({

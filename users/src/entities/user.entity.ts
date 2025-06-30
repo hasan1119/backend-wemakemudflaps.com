@@ -61,7 +61,7 @@ export class User {
     city?: string | null;
     state?: string | null;
     zip?: string | null;
-    county?: string | null;
+    country?: string | null;
   } | null;
 
   // Stores the user's username

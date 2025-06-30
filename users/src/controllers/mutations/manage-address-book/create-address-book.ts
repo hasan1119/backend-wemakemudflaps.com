@@ -15,7 +15,7 @@ import {
  *
  * Workflow:
  * 1. Verifies user authentication.
- * 2. Validates input (city, county, houseNo, isDefault, state, street, type, zip) using Zod schema.
+ * 2. Validates input (city, country, houseNo, isDefault, state, street, type, zip) using Zod schema.
  * 3. Creates the address book entry in the database with audit information from the authenticated user.
  * 4. Caches the new address book entry in Redis for future requests.
  * 5. Returns a success response or error if validation, permission, or creation fails.
@@ -53,14 +53,14 @@ export const createAddressBookEntry = async (
         __typename: "ErrorResponse",
       };
     }
-    const { city, county, houseNo, isDefault, state, street, type, zip } =
+    const { city, country, houseNo, isDefault, state, street, type, zip } =
       result.data;
 
     // Ensure type is cast to the correct AddressType from types
     const addressEntry = await createAddressBookEntryService(
       {
         city,
-        county,
+        country,
         houseNo,
         isDefault,
         state,
@@ -83,7 +83,7 @@ export const createAddressBookEntry = async (
         type: addressEntry.type as any,
         zip: addressEntry.zip,
         houseNo: addressEntry.houseNo,
-        county: addressEntry.county,
+        country: addressEntry.country,
         street: addressEntry.street,
         createdAt:
           addressEntry.createdAt instanceof Date

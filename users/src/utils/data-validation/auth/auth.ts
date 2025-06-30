@@ -242,7 +242,7 @@ export const updateProfileSchema = z.object({
     city: z.string().nullable().optional(),
     state: z.string().nullable().optional(),
     zip: z.string().nullable().optional(),
-    county: z.string().nullable().optional(),
+    country: z.string().nullable().optional(),
   }),
   avatar: z.string().url({ message: "Avatar must be a valid URL" }).trim().nullable().optional(),
 });

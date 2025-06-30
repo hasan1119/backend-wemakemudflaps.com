@@ -72,7 +72,7 @@ type AddressBook {
   city: String! # City
   state: String! # State
   zip: String! # ZIP code
-  county: String # County (optional)
+  country: String # country (optional)
   type: AddressType! # Address type (SHIPPING or BILLING)
   isDefault: Boolean! # Is this the default address for this type?
   createdAt: String! # Created timestamp
@@ -197,7 +197,7 @@ type UserAddress {
   city: String
   state: String
   zip: String
-  county: String
+  country: String
 }
 
 # Represents the authenticated user's session data (lightweight).
@@ -269,6 +269,7 @@ type User @key(fields: "id") {
   firstName: String
   lastName: String
   email: String
+  tempUpdatedEmail: String
   username: String
   address: UserAddress
   emailVerified: Boolean
@@ -415,7 +416,7 @@ input UserAddressInput {
   city: String
   state: String
   zip: String
-  county: String
+  country: String
 }
 
 # Input to define a single permission, typically for mutation to assign to a user.

@@ -37,7 +37,7 @@ type AddressBook
   city: String!
   state: String!
   zip: String!
-  county: String
+  country: String
   type: AddressType!
   isDefault: Boolean!
   createdAt: String!
@@ -792,8 +792,8 @@ type Mutation
   accountActivation(userId: ID!, email: String!): ActiveAccountResponseOrError! @join__field(graph: USER)
   logout: BaseResponseOrError! @join__field(graph: USER)
   deleteLoginSession(sessionIds: [String]!): BaseResponseOrError! @join__field(graph: USER)
-  createAddressBookEntry(street: String!, houseNo: String, city: String!, state: String!, zip: String!, county: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
-  updateAddressBookEntry(id: ID!, street: String, houseNo: String, city: String, state: String, zip: String, county: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
+  createAddressBookEntry(street: String!, houseNo: String, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
+  updateAddressBookEntry(id: ID!, street: String, houseNo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
   deleteAddressBookEntry(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
 }
 
@@ -1416,7 +1416,7 @@ type UserAddress
   city: String
   state: String
   zip: String
-  county: String
+  country: String
 }
 
 input UserAddressInput
@@ -1426,7 +1426,7 @@ input UserAddressInput
   city: String
   state: String
   zip: String
-  county: String
+  country: String
 }
 
 type UserLoginInfoResponse

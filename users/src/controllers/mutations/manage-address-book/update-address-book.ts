@@ -20,7 +20,7 @@ import {
  *
  * Workflow:
  * 1. Verifies user authentication.
- * 2. Validates input (id, city, county, houseNo, isDefault, state, street, type, zip) using Zod schema.
+ * 2. Validates input (id, city, country, houseNo, isDefault, state, street, type, zip) using Zod schema.
  * 3. Handles isDefault logic (unset others if new one is default).
  * 4. Updates the entry in DB and cache.
  * 5. Returns a structured success or error response.
@@ -50,7 +50,7 @@ export const updateAddressBookEntry = async (
       };
     }
 
-    const { id, city, county, houseNo, isDefault, state, street, type, zip } =
+    const { id, city, country, houseNo, isDefault, state, street, type, zip } =
       result.data;
 
     // Attempt to retrieve cached addressBook data from Redis
@@ -84,7 +84,7 @@ export const updateAddressBookEntry = async (
       {
         id,
         city,
-        county,
+        country,
         houseNo,
         isDefault,
         state,
@@ -102,7 +102,7 @@ export const updateAddressBookEntry = async (
       addressBook: {
         id: resultEntity.id,
         city: resultEntity.city,
-        county: resultEntity.county,
+        country: resultEntity.country,
         houseNo: resultEntity.houseNo,
         isDefault: resultEntity.isDefault,
         state: resultEntity.state,

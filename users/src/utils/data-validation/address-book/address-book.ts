@@ -17,7 +17,7 @@ import { z } from "zod";
  * - city: Required string for the city name.
  * - state: Required string for the state or region.
  * - zip: Required string for the ZIP or postal code.
- * - county: Optional string for the county or district.
+ * - country: Optional string for the country or district.
  * - type: Required enum value indicating the address type (SHIPPING or BILLING).
  * - isDefault: Required boolean indicating if this is the default address.
  */
@@ -34,7 +34,7 @@ export const createAddressBookEntrySchema = z.object({
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   zip: z.string().min(1, "ZIP code is required"),
-  county: z.string().optional(),
+  country: z.string().optional(),
   type: z.nativeEnum(AddressType),
   isDefault: z.boolean(),
 });
@@ -48,7 +48,7 @@ export const updateAddressBookEntrySchema = z
     city: z.string().min(1, "City is required").optional(),
     state: z.string().min(1, "State is required").optional(),
     zip: z.string().min(1, "ZIP code is required").optional(),
-    county: z.string().optional(),
+    country: z.string().optional(),
     type: z.nativeEnum(AddressType).optional(),
     isDefault: z.boolean().optional(),
   })

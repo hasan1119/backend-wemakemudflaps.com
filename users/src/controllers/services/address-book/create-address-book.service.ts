@@ -60,7 +60,7 @@ export const createAddressBookEntry = async (
     city: data.city,
     zip: data.zip,
     state: data.state,
-    county: data.county,
+    country: data.country,
     isDefault: data.isDefault,
     user: { id: userId } as any,
   });

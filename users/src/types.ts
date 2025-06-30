@@ -23,7 +23,7 @@ export type ActiveAccountResponseOrError = BaseResponse | ErrorResponse;
 export type AddressBook = {
   __typename?: 'AddressBook';
   city: Scalars['String']['output'];
-  county?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['String']['output'];
   houseNo?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -529,7 +529,7 @@ export type MutationChangePasswordArgs = {
 
 export type MutationCreateAddressBookEntryArgs = {
   city: Scalars['String']['input'];
-  county: Scalars['String']['input'];
+  country: Scalars['String']['input'];
   houseNo?: InputMaybe<Scalars['String']['input']>;
   isDefault: Scalars['Boolean']['input'];
   state: Scalars['String']['input'];
@@ -723,7 +723,7 @@ export type MutationRestoreUserRoleArgs = {
 
 export type MutationUpdateAddressBookEntryArgs = {
   city?: InputMaybe<Scalars['String']['input']>;
-  county?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
   houseNo?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1473,7 +1473,7 @@ export type User = {
 export type UserAddress = {
   __typename?: 'UserAddress';
   city?: Maybe<Scalars['String']['output']>;
-  county?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
   state?: Maybe<Scalars['String']['output']>;
   street?: Maybe<Scalars['String']['output']>;
   zip?: Maybe<Scalars['String']['output']>;
@@ -1481,7 +1481,7 @@ export type UserAddress = {
 
 export type UserAddressInput = {
   city?: InputMaybe<Scalars['String']['input']>;
-  county?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   street?: InputMaybe<Scalars['String']['input']>;
   zip?: InputMaybe<Scalars['String']['input']>;
@@ -2035,7 +2035,7 @@ export type ActiveAccountResponseOrErrorResolvers<ContextType = Context, ParentT
 
 export type AddressBookResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AddressBook'] = ResolversParentTypes['AddressBook']> = {
   city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  county?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   houseNo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -2431,7 +2431,7 @@ export type MediasResponseResolvers<ContextType = Context, ParentType extends Re
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
-  createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'county' | 'isDefault' | 'state' | 'street' | 'type' | 'zip'>>;
+  createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'country' | 'isDefault' | 'state' | 'street' | 'type' | 'zip'>>;
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createProduct?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -2913,7 +2913,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 
 export type UserAddressResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserAddress'] = ResolversParentTypes['UserAddress']> = {
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  county?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   street?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   zip?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

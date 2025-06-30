@@ -95,27 +95,28 @@ export const updateProfile = async (
 
     if (userData.username !== username) {
       // Attempt to retrieve cached user username from Redis
-      let userUsername;
+      let isAvailable;
+      isAvailable = await getUserUsernameFromRedis(username);
 
-      userUsername = await getUserUsernameFromRedis(username);
-
-      if (!userUsername) {
+      if (!isAvailable) {
         // On cache miss, check if username is available
-        const isAvailable = await isUsernameAvailable(username);
-
-        if (!isAvailable) {
-          // Username is taken → cache and return error
-          await setUserUsernameInRedis(username, username);
-
-          return {
-            statusCode: 400,
-            success: false,
-            message: "Username already in use",
-            __typename: "BaseResponse",
-          };
-        }
-        userData.username = username;
+        isAvailable = !await isUsernameAvailable(username);
       }
+
+      console.log(isAvailable);
+
+      if (isAvailable) {
+        // Username is taken → cache and return error
+        await setUserUsernameInRedis(username, username);
+
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Username already in use",
+          __typename: "BaseResponse",
+        };
+      }
+      userData.username = username;
     }
 
     // Update user fields only if provided
@@ -143,7 +144,7 @@ export const updateProfile = async (
       }
 
       // Generate email verification link
-      const verifyEmail = `${CONFIG.FRONTEND_URL}/verify-email/?userId=${userData.id}&email=${email}`;
+      const verifyEmail = `${CONFIG.FRONTEND_URL}/verify-email/?userId=${userData.id}&email=${email}&sessionId=${user.sessionId}`;
 
       // Prepare email content for verification
       const subject = "Verify Email Request";

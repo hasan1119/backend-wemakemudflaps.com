@@ -135,6 +135,7 @@ export const getAllUsers = async (
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        tempUpdatedEmail: user.tempUpdatedEmail,
         emailVerified: user.emailVerified,
         gender: user.gender,
         phone: user.phone,
@@ -191,6 +192,7 @@ export const getAllUsers = async (
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      tempUpdatedEmail: user.tempUpdatedEmail,
       emailVerified: user.emailVerified,
       gender: user.gender,
       phone: user.phone,
@@ -228,11 +230,10 @@ export const getAllUsers = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${
-        CONFIG.NODE_ENV === "production"
+      message: `${CONFIG.NODE_ENV === "production"
           ? "Something went wrong, please try again."
           : error.message || "Internal server error"
-      }`,
+        }`,
       __typename: "BaseResponse",
     };
   }
