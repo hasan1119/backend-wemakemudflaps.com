@@ -45,7 +45,7 @@ export const getAllMyAddressEntires = async (
       const dbAddresses = await getAddressBooks(user.id, type);
 
       // Cache in Redis
-      await setAllAddressBookByUserIdInRedis(user.id, dbAddresses);
+      await setAllAddressBookByUserIdInRedis(type, user.id, dbAddresses);
       addressBookList = dbAddresses;
     }
 

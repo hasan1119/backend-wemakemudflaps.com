@@ -9,15 +9,17 @@ const PREFIX = {
 /**
  * Caches all address books for a user in Redis.
  *
+ * @param type - The address type ID.
  * @param userId - The user's ID.
  * @param data - Array of AddressBook entities.
  */
 export const setAllAddressBookByUserIdInRedis = async (
+  type: string,
   userId: string,
   data: AddressBook[]
 ): Promise<void> => {
   await redis.setSession(
-    `${PREFIX.ADDRESS_BOOK}user:${userId}`,
+    `${PREFIX.ADDRESS_BOOK}type:${type}user:${userId}`,
     data,
     "user-app"
   );
@@ -76,12 +78,17 @@ export const getAddressBookInfoByIdFromRedis = async (
 /**
  * Handles removal of address book information list from Redis user ID.
  *
- * @param addressBookId - The ID of the address book.
+ * @param type - The address type ID.
+ * @param userId - The user's ID.
  */
 export const removeAllAddressBookByUserIdFromRedis = async (
+  type: string,
   userId: string
 ): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.ADDRESS_BOOK}user:${userId}`, "user-app");
+  await redis.deleteSession(
+    `${PREFIX.ADDRESS_BOOK}type:${type}user:${userId}`,
+    "user-app"
+  );
 };
 
 /**

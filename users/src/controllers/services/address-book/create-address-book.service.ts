@@ -61,7 +61,7 @@ export const createAddressBookEntry = async (
   await setAddressBookInfoByIdInRedis(result.id, userId, result);
 
   // Clear all the cache list of the user address book
-  await removeAllAddressBookByUserIdFromRedis(userId);
+  await removeAllAddressBookByUserIdFromRedis(data.type, userId);
 
   return result;
 };

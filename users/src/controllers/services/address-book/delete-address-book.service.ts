@@ -65,12 +65,21 @@ export const hardDeleteAddressBook = async (
     }
   }
 
-  // Remove deleted entries from Redis cache
-  await Promise.all([
-    existingAddresses.map((addr) =>
-      removeAddressBookInfoByIdFromRedis(addr.id, (addr.user as any).id)
-    ),
-    // Clear all the cache list of the user address book
-    removeAllAddressBookByUserIdFromRedis((addr.user as any).id),
-  ]);
+  // Get the unique user ID (assuming all addresses belong to the same user)
+  const userId = (existingAddresses[0].user as any).id;
+
+  // Extract unique types from deleted addresses
+  const uniqueTypes = new Set(existingAddresses.map((addr) => addr.type));
+
+  // Prepare cache clearing promises
+  const removeItemCachePromises = existingAddresses.map((addr) =>
+    removeAddressBookInfoByIdFromRedis(addr.id, userId)
+  );
+
+  const removeListCachePromises = Array.from(uniqueTypes).map((type) =>
+    removeAllAddressBookByUserIdFromRedis(type, userId)
+  );
+
+  // Remove item and list caches in parallel
+  await Promise.all([...removeItemCachePromises, ...removeListCachePromises]);
 };

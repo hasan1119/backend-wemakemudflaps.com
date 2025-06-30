@@ -65,7 +65,7 @@ export const updateAddressBookEntry = async (
 
   await Promise.all([
     setAddressBookInfoByIdInRedis(updated.id, userId, updated),
-    removeAllAddressBookByUserIdFromRedis(userId),
+    removeAllAddressBookByUserIdFromRedis(updated.type, userId),
   ]);
 
   return updated;
