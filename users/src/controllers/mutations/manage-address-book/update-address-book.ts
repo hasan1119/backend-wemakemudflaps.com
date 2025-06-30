@@ -56,11 +56,11 @@ export const updateAddressBookEntry = async (
     // Attempt to retrieve cached addressBook data from Redis
     let addressBookData;
 
-    addressBookData = await getAddressBookInfoByIdFromRedis(id);
+    addressBookData = await getAddressBookInfoByIdFromRedis(id, user.id);
 
     if (!addressBookData) {
       // On cache miss, fetch addressBook data from database
-      addressBookData = await getAddressBookById(id);
+      addressBookData = await getAddressBookById(id, user.id);
 
       if (!addressBookData) {
         return {
@@ -72,7 +72,11 @@ export const updateAddressBookEntry = async (
       }
 
       // Cache addressBook data in Redis
-      await setAddressBookInfoByIdInRedis(addressBookData.id, addressBookData);
+      await setAddressBookInfoByIdInRedis(
+        addressBookData.id,
+        user.id,
+        addressBookData
+      );
     }
 
     const resultEntity = await updateAddressBookEntryService(

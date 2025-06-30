@@ -32,16 +32,18 @@ export const getAddressBookById = async (
  * 4. Includes the "products" relation for each addressBook.
  * 5. Returns an array of matching AddressBook entities.
  *
- * @param ids - An array of addressBook UUIDs to retrieve.
+ * @param userId - ID of the user.
+ * @param type - Type of the address book to retrieve.
  * @returns A promise resolving to an array of AddressBook entities.
  */
 export const getAddressBooks = async (
-  userId: string
+  userId: string,
+  type: string
 ): Promise<AddressBook[]> => {
   return await addressBookRepository.find({
     where: {
       user: { id: userId },
+      type: type as any,
     },
-    relations: ["products"],
   });
 };

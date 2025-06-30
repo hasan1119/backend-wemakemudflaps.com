@@ -2,10 +2,11 @@
  * Exports address-book-related schemas for user operations.
  *
  * Workflow:
- * 1. Provides schemas for validating address book creation and updates.
+ * 1. Provides schemas for validating address book creation, getting and updates.
  */
 export {
   createAddressBookEntrySchema,
+  getAddressBookSchema,
   updateAddressBookEntrySchema,
 } from "./address-book/address-book";
 

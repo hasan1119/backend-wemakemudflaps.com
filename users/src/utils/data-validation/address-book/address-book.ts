@@ -62,3 +62,9 @@ export const updateAddressBookEntrySchema = z
       path: [],
     }
   );
+
+// For get: get all the address depends on the user id and type
+export const getAddressBookSchema = z.object({
+  userId: z.string().uuid({ message: "Invalid UUID format" }),
+  type: z.nativeEnum(AddressType),
+});

@@ -15,10 +15,10 @@ import {
 } from "../../services";
 
 /**
- * Handles retrieving a addressBook by its ID with validation and permission checks.
+ * Handles retrieving a addressBook by of a user by, its ID with validation.
  *
  * Workflow:
- * 1. Verifies user authentication and checks permission to view addressBooks.
+ * 1. Verifies user authentication.
  * 2. Validates input addressBook ID using Zod schema.
  * 3. Attempts to retrieve addressBook data from Redis for performance optimization.
  * 4. Fetches addressBook data from the database if not found in Redis and caches it.
@@ -60,17 +60,7 @@ export const getAddressBookEntryById = async (
     const { id } = args;
 
     // Attempt to retrieve cached addressBook data from Redis
-    let addressBookData = await getAddressBookInfoByIdFromRedis(id);
-
-    // Check ownership
-    if ((addressBookData.user as any).id !== user.id) {
-      return {
-        statusCode: 403,
-        success: false,
-        message: "Unauthorized to access this address book entry",
-        __typename: "ErrorResponse",
-      };
-    }
+    let addressBookData = await getAddressBookInfoByIdFromRedis(id, user.id);
 
     if (!addressBookData) {
       // On cache miss, fetch addressBook data from database
@@ -86,8 +76,18 @@ export const getAddressBookEntryById = async (
       }
 
       // Cache addressBook data in Redis
-      await setAddressBookInfoByIdInRedis(id, dbAddressBook);
+      await setAddressBookInfoByIdInRedis(id, user.id, dbAddressBook);
       addressBookData = dbAddressBook;
+    }
+
+    // Check ownership
+    if ((addressBookData.user as any).id !== user.id) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "Unauthorized to access this address book entry",
+        __typename: "ErrorResponse",
+      };
     }
 
     return {

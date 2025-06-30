@@ -110,8 +110,19 @@ export const userMutationsResolver = {
      */
     deleteLoginSession,
 
+    /**
+     * Creates a new address book log for a specific user.
+     */
     createAddressBookEntry,
+
+    /**
+     * Deletes address book log of a specific user.
+     */
     deleteAddressBookEntry,
+
+    /**
+     * Updates address book log for a specific user.
+     */
     updateAddressBookEntry,
   },
 };

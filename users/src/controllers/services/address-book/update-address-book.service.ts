@@ -1,5 +1,8 @@
 import { AddressBook } from "../../../entities";
-import { setAddressBookInfoByIdInRedis } from "../../../helper/redis";
+import {
+  removeAllAddressBookByUserIdFromRedis,
+  setAddressBookInfoByIdInRedis,
+} from "../../../helper/redis";
 import { MutationUpdateAddressBookEntryArgs } from "../../../types";
 import { addressBookRepository } from "../repositories/repositories";
 
@@ -47,7 +50,7 @@ export const updateAddressBookEntry = async (
 
     await Promise.all(
       affectedAddresses.map((address) =>
-        setAddressBookInfoByIdInRedis(address.id, address)
+        setAddressBookInfoByIdInRedis(address.id, userId, address)
       )
     );
   }
@@ -60,7 +63,10 @@ export const updateAddressBookEntry = async (
 
   const updated = await addressBookRepository.save(existing);
 
-  await setAddressBookInfoByIdInRedis(updated.id, updated);
+  await Promise.all([
+    setAddressBookInfoByIdInRedis(updated.id, userId, updated),
+    removeAllAddressBookByUserIdFromRedis(userId),
+  ]);
 
   return updated;
 };

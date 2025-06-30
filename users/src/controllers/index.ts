@@ -80,6 +80,23 @@ export { getAllUsers } from "./queries/user/get-users";
 export { getAllPermissionsByUserId } from "./queries/permission/get-all-permissions-by-user-id";
 export { getOwnPersonalizedPermissions } from "./queries/permission/get-own-personalized-permissions";
 
+/**
+ * Exports GraphQL mutations for managing address book.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating address to address book.
+ * 2. Enables deletion of address that are no longer needed.
+ * 5. Facilitates modification of address information.
+ */
 export { createAddressBookEntry } from "./mutations/manage-address-book/create-address-book";
 export { deleteAddressBookEntry } from "./mutations/manage-address-book/delete-address-book";
 export { updateAddressBookEntry } from "./mutations/manage-address-book/update-address-book";
+
+/**
+ * Exports GraphQL queries for retrieving address book.
+ *
+ * Workflow:
+ * 1. Provides queries for fetching all address/single one by from address book assigned to a user.
+ */
+export { getAddressBookEntryById } from "./queries/address-book/get-address-book-by-id";
+export { getAllMyAddressEntires } from "./queries/address-book/get-all-my-address-entires";

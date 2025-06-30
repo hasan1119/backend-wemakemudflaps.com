@@ -1,6 +1,7 @@
 import { In } from "typeorm";
 import {
   removeAddressBookInfoByIdFromRedis,
+  removeAllAddressBookByUserIdFromRedis,
   setAddressBookInfoByIdInRedis,
 } from "../../../helper/redis";
 import { addressBookRepository } from "../repositories/repositories";
@@ -60,12 +61,16 @@ export const hardDeleteAddressBook = async (
       const toPromote = otherAddresses[0];
       toPromote.isDefault = true;
       await addressBookRepository.save(toPromote);
-      await setAddressBookInfoByIdInRedis(toPromote.id, toPromote);
+      await setAddressBookInfoByIdInRedis(toPromote.id, userId, toPromote);
     }
   }
 
   // Remove deleted entries from Redis cache
-  await Promise.all(
-    idsToDelete.map((id) => removeAddressBookInfoByIdFromRedis(id))
-  );
+  await Promise.all([
+    existingAddresses.map((addr) =>
+      removeAddressBookInfoByIdFromRedis(addr.id, (addr.user as any).id)
+    ),
+    // Clear all the cache list of the user address book
+    removeAllAddressBookByUserIdFromRedis((addr.user as any).id),
+  ]);
 };

@@ -14,8 +14,7 @@ const PREFIX = {
  */
 export const setAllAddressBookByUserIdInRedis = async (
   userId: string,
-  data: AddressBook[],
-  ttl: number = 3600
+  data: AddressBook[]
 ): Promise<void> => {
   await redis.setSession(
     `${PREFIX.ADDRESS_BOOK}user:${userId}`,
@@ -28,14 +27,16 @@ export const setAllAddressBookByUserIdInRedis = async (
  * Handles caching address book information in Redis by address book ID.
  *
  * @param addressBookId - The ID of the address book.
+ * @param userId - The user's ID.
  * @param data - The AddressBook entity to cache.
  */
 export const setAddressBookInfoByIdInRedis = async (
   addressBookId: string,
+  userId: string,
   data: AddressBook
 ): Promise<void> => {
   await redis.setSession(
-    `${PREFIX.ADDRESS_BOOK}${addressBookId}`,
+    `${PREFIX.ADDRESS_BOOK}address-id:${addressBookId}user:${userId}`,
     data,
     "user-app"
   );
@@ -63,12 +64,24 @@ export const getAllAddressBooksFromRedis = async (
  * @returns The AddressBook or null if not found.
  */
 export const getAddressBookInfoByIdFromRedis = async (
-  addressBookId: string
+  addressBookId: string,
+  userId: string
 ): Promise<AddressBook | null> => {
   return redis.getSession<AddressBook | null>(
-    `${PREFIX.ADDRESS_BOOK}${addressBookId}`,
+    `${PREFIX.ADDRESS_BOOK}address-id:${addressBookId}user:${userId}`,
     "user-app"
   );
+};
+
+/**
+ * Handles removal of address book information list from Redis user ID.
+ *
+ * @param addressBookId - The ID of the address book.
+ */
+export const removeAllAddressBookByUserIdFromRedis = async (
+  userId: string
+): Promise<void> => {
+  await redis.deleteSession(`${PREFIX.ADDRESS_BOOK}user:${userId}`, "user-app");
 };
 
 /**
@@ -77,10 +90,11 @@ export const getAddressBookInfoByIdFromRedis = async (
  * @param addressBookId - The ID of the address book.
  */
 export const removeAddressBookInfoByIdFromRedis = async (
-  addressBookId: string
+  addressBookId: string,
+  userId: string
 ): Promise<void> => {
   await redis.deleteSession(
-    `${PREFIX.ADDRESS_BOOK}${addressBookId}`,
+    `${PREFIX.ADDRESS_BOOK}address-id:${addressBookId}user:${userId}`,
     "user-app"
   );
 };
