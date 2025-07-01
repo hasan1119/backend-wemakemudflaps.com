@@ -65,7 +65,7 @@ type UserSessionByEmail @shareable {
   email: String!
   phone: String!
   address: UserAddress
-  username: String
+  username: String!
   password: String!
   emailVerified: Boolean!
   gender: String!
@@ -88,7 +88,7 @@ type UserSessionById @shareable {
   lastName: String!
   email: String!
   address: UserAddress
-  username: String
+  username: String!
   emailVerified: Boolean!
   gender: String!
   phone: String!
@@ -226,7 +226,8 @@ union UserProfileUpdateResponseOrError =
 
 # Union for email verification result.
 union EmailVerificationResponseOrError =
-    EmailVerificationResponse
+    BaseResponse
+  | EmailVerificationResponse
   | ErrorResponse
 
 # Union for activating an account.

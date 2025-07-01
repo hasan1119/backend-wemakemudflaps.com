@@ -165,6 +165,7 @@ type CategoryDataResponse
   slug: String!
   description: String
   thumbnail: String
+  totalProducts: Int
   position: Int!
   createdBy: CreatedBy
   createdAt: String
@@ -320,9 +321,10 @@ type EmailVerificationResponse
 
 union EmailVerificationResponseOrError
   @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
   @join__unionMember(graph: USER, member: "EmailVerificationResponse")
   @join__unionMember(graph: USER, member: "ErrorResponse")
- = EmailVerificationResponse | ErrorResponse
+ = BaseResponse | EmailVerificationResponse | ErrorResponse
 
 type ErrorResponse
   @join__type(graph: MEDIA)
@@ -1099,7 +1101,6 @@ type SubCategory
   category: Category!
   parentSubCategory: SubCategoryDataResponse
   subCategories: [SubCategoryDataResponse!]
-  totalProducts: Int
   position: Int!
   createdBy: CreatedBy
   createdAt: String

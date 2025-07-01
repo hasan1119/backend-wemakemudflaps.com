@@ -139,6 +139,7 @@ export type CategoryDataResponse = {
   position: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
   thumbnail?: Maybe<Scalars['String']['output']>;
+  totalProducts?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CategoryPaginationResponse = {
@@ -214,7 +215,7 @@ export type EmailVerificationResponse = {
   token?: Maybe<Scalars['String']['output']>;
 };
 
-export type EmailVerificationResponseOrError = EmailVerificationResponse | ErrorResponse;
+export type EmailVerificationResponseOrError = BaseResponse | EmailVerificationResponse | ErrorResponse;
 
 export type ErrorResponse = {
   __typename?: 'ErrorResponse';
@@ -688,8 +689,7 @@ export type MutationRestoreBrandsArgs = {
 
 
 export type MutationRestoreCategoryArgs = {
-  categoryType: CategoryType;
-  ids: Array<Scalars['ID']['input']>;
+  idsWithType: Array<RestoreCategoryType>;
 };
 
 
@@ -1239,7 +1239,6 @@ export type SubCategory = {
   slug: Scalars['String']['output'];
   subCategories?: Maybe<Array<SubCategoryDataResponse>>;
   thumbnail?: Maybe<Scalars['String']['output']>;
-  totalProducts?: Maybe<Scalars['Int']['output']>;
 };
 
 export type SubCategoryDataResponse = {
@@ -1563,7 +1562,7 @@ export type UserSessionByEmail = {
   roles: Array<Scalars['String']['output']>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
-  username?: Maybe<Scalars['String']['output']>;
+  username: Scalars['String']['output'];
 };
 
 export type UserSessionById = {
@@ -1586,7 +1585,7 @@ export type UserSessionById = {
   roles: Array<Scalars['String']['output']>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
-  username?: Maybe<Scalars['String']['output']>;
+  username: Scalars['String']['output'];
 };
 
 export type UsersResponse = {
@@ -1596,6 +1595,11 @@ export type UsersResponse = {
   success: Scalars['Boolean']['output'];
   total: Scalars['Int']['output'];
   users: Array<User>;
+};
+
+export type RestoreCategoryType = {
+  ids: Scalars['String']['input'];
+  type: CategoryType;
 };
 
 
@@ -1683,7 +1687,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   DeleteTagResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   DeleteTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   DeleteTaxStatusResponseOrError: ( BaseResponse ) | ( ErrorResponse );
-  EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
+  EmailVerificationResponseOrError: ( BaseResponse ) | ( EmailVerificationResponse ) | ( ErrorResponse );
   GetAddressBookByIdResponseOrError: ( AddressResponseBook ) | ( BaseResponse ) | ( ErrorResponse );
   GetAddressesBookResponseOrError: ( AddressesBookResponse ) | ( BaseResponse ) | ( ErrorResponse );
   GetBrandByIDResponseOrError: ( BaseResponse ) | ( BrandResponseById ) | ( ErrorResponse );
@@ -1880,6 +1884,7 @@ export type ResolversTypes = {
   UserSessionByEmail: ResolverTypeWrapper<UserSessionByEmail>;
   UserSessionById: ResolverTypeWrapper<UserSessionById>;
   UsersResponse: ResolverTypeWrapper<UsersResponse>;
+  restoreCategoryType: RestoreCategoryType;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -2024,6 +2029,7 @@ export type ResolversParentTypes = {
   UserSessionByEmail: UserSessionByEmail;
   UserSessionById: UserSessionById;
   UsersResponse: UsersResponse;
+  restoreCategoryType: RestoreCategoryType;
 };
 
 export type DeferDirectiveArgs = {
@@ -2152,6 +2158,7 @@ export type CategoryDataResponseResolvers<ContextType = Context, ParentType exte
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2252,7 +2259,7 @@ export type EmailVerificationResponseResolvers<ContextType = Context, ParentType
 };
 
 export type EmailVerificationResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EmailVerificationResponseOrError'] = ResolversParentTypes['EmailVerificationResponseOrError']> = {
-  __resolveType: TypeResolveFn<'EmailVerificationResponse' | 'ErrorResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'EmailVerificationResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type ErrorResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ErrorResponse'] = ResolversParentTypes['ErrorResponse']> = {
@@ -2461,7 +2468,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password' | 'username'>>;
   resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   restoreBrands?: Resolver<ResolversTypes['RestoreBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreBrandsArgs, 'ids'>>;
-  restoreCategory?: Resolver<Maybe<ResolversTypes['RestoreCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationRestoreCategoryArgs, 'categoryType' | 'ids'>>;
+  restoreCategory?: Resolver<Maybe<ResolversTypes['RestoreCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationRestoreCategoryArgs, 'idsWithType'>>;
   restoreMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreMediaFilesArgs, 'ids'>>;
   restoreShippingClasses?: Resolver<ResolversTypes['RestoreShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreShippingClassesArgs, 'ids'>>;
   restoreTags?: Resolver<ResolversTypes['RestoreTagResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTagsArgs, 'ids'>>;
@@ -2692,7 +2699,6 @@ export type SubCategoryResolvers<ContextType = Context, ParentType extends Resol
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategoryDataResponse']>>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3001,7 +3007,7 @@ export type UserSessionByEmailResolvers<ContextType = Context, ParentType extend
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3024,7 +3030,7 @@ export type UserSessionByIdResolvers<ContextType = Context, ParentType extends R
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
