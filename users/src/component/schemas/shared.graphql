@@ -1,0 +1,76 @@
+# ---------------------- Apollo Federation Link ----------------------
+
+# Importing Apollo Federation specification directives for composing multiple services into a single graph.
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.7"
+    import: ["@key", "@shareable"]
+  )
+
+# ---------------------- Basic Types ----------------------
+
+# Enum defining all possible permission targets in the system.
+# These correspond to different resources/modules that users can be granted access to.
+enum PermissionName {
+  USER
+  BRAND
+  CATEGORY
+  PRODUCT
+  PERMISSION
+  PRODUCT_REVIEW
+  SHIPPING_CLASS
+  SUB_CATEGORY
+  TAG
+  TAX_CLASS
+  TAX_STATUS
+  FAQ
+  NEWS_LETTER
+  POP_UP_BANNER
+  PRIVACY_POLICY
+  TERMS_CONDITIONS
+  ORDER
+  ROLE
+  NOTIFICATION
+  MEDIA
+  COUPON
+}
+
+# Enum defining address book type in the system.
+enum AddressType {
+  SHIPPING
+  BILLING
+}
+
+# Represents an error related to a specific field in input validation or business logic.
+type FieldError @shareable {
+  field: String! # The specific field that caused the error (e.g., "email", "password").
+  message: String! # Descriptive message explaining the reason for the error.
+}
+
+# Generic error response type returned when a mutation or query fails.
+type ErrorResponse @shareable {
+  statusCode: Int! # HTTP-like status code (e.g., 400, 401, 500).
+  success: Boolean! # Whether the operation was successful (always false here).
+  message: String! # General error message.
+  errors: [FieldError!] # Optional list of field-specific errors.
+}
+
+# Standard response structure used when only status and message are returned (e.g., success/failure).
+type BaseResponse @shareable {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+}
+
+# ---------------------- CreatedBy ----------------------
+
+# Minimal user information stored with entities to track who created them.
+type CreatedBy @shareable @key(fields: "id") {
+  id: ID! # Unique identifier of the creator.
+  name: String! # Full name of the creator.
+  roles: [String!]! # List of roles the creator holds.
+}
+
+# ---------------------- Unions ----------------------
+# Generic union for mutation responses that can succeed or fail.
+union BaseResponseOrError = BaseResponse | ErrorResponse

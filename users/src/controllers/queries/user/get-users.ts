@@ -134,6 +134,7 @@ export const getAllUsers = async (
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
+        username: user.username,
         email: user.email,
         tempUpdatedEmail: user.tempUpdatedEmail,
         emailVerified: user.emailVerified,
@@ -173,6 +174,7 @@ export const getAllUsers = async (
         where.push(
           { firstName: ILike(searchTerm), deletedAt: null },
           { lastName: ILike(searchTerm), deletedAt: null },
+          { username: ILike(searchTerm), deletedAt: null },
           { email: ILike(searchTerm), deletedAt: null },
           { roles: { name: ILike(searchTerm) }, deletedAt: null }
         );
@@ -191,6 +193,7 @@ export const getAllUsers = async (
       avatar: user.avatar,
       firstName: user.firstName,
       lastName: user.lastName,
+      username: user.username,
       email: user.email,
       tempUpdatedEmail: user.tempUpdatedEmail,
       emailVerified: user.emailVerified,
@@ -230,10 +233,11 @@ export const getAllUsers = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${CONFIG.NODE_ENV === "production"
+      message: `${
+        CONFIG.NODE_ENV === "production"
           ? "Something went wrong, please try again."
           : error.message || "Internal server error"
-        }`,
+      }`,
       __typename: "BaseResponse",
     };
   }

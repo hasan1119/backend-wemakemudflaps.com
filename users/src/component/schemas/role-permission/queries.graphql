@@ -1,0 +1,33 @@
+# Queries to fetch users and related data from the system.
+type Query {
+  # Fetch user role by ID.
+  # Only accessible by authorized users.
+  # Retrieves a specific role's information using its ID.
+  # Returns a `GetRoleByIDResponseOrError` containing role data and request status.
+  getRoleById(id: String!): GetRoleByIDResponseOrError!
+
+  # Fetch all roles with pagination, filtering, and sorting.
+  # Only accessible by authorized users.
+  # Retrieves a paginated list of user roles.
+  # Supports filtering by search term (name or description) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetRolesResponseOrError` containing roles data and request status.
+  getAllRoles(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of roles per page.
+    search: String # Optional search term (matches name or description).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetRolesResponseOrError!
+
+  # Fetch permissions for a specific user.
+  # Only accessible by authorized users.
+  # Retrieves all permissions assigned to a user by their user ID.
+  # Returns a `GetPermissionsResponseOrError` containing permission data and request status.
+  getAllPermissionsByUserId(id: ID!): GetPermissionsResponseOrError!
+
+  # Fetch own permissions.
+  # Retrieves all permissions assigned to the authenticated user.
+  # Returns a `GetPermissionsResponseOrError` containing permission data and request status.
+  getOwnPersonalizedPermissions: GetPermissionsResponseOrError!
+}

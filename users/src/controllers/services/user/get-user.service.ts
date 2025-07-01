@@ -238,6 +238,7 @@ export const getPaginatedUsers = async ({
       new Brackets((qb) => {
         qb.where("user.firstName ILIKE :searchTerm", { searchTerm })
           .orWhere("user.lastName ILIKE :searchTerm", { searchTerm })
+          .orWhere("user.username ILIKE :searchTerm", { searchTerm })
           .orWhere("user.email ILIKE :searchTerm", { searchTerm })
           .orWhere("role.name ILIKE :searchTerm", { searchTerm });
       })

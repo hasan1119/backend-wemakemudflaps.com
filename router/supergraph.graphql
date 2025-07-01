@@ -763,7 +763,7 @@ type Mutation
   updateCategory(id: ID!, thumbnail: String, slug: String, name: String, description: String, categoryType: CategoryType!): UpdateCategoryResponseOrError! @join__field(graph: PRODUCT)
   updateCategoryPosition(id: ID!, position: Int!, categoryType: CategoryType!): UpdateCategoryPositionResponseOrError! @join__field(graph: PRODUCT)
   deleteCategory(id: ID!, categoryType: CategoryType!, skipTrash: Boolean): DeleteCategoryResponseOrError @join__field(graph: PRODUCT)
-  restoreCategory(ids: [ID!]!, categoryType: CategoryType!): RestoreCategoryResponseOrError @join__field(graph: PRODUCT)
+  restoreCategory(idsWithType: [restoreCategoryType!]!): RestoreCategoryResponseOrError @join__field(graph: PRODUCT)
   createProduct: String @join__field(graph: PRODUCT)
   createShippingClass(value: String!, description: String): CreateShippingClassResponseOrError! @join__field(graph: PRODUCT)
   updateShippingClass(id: ID!, value: String, description: String): UpdateShippingClassResponseOrError! @join__field(graph: PRODUCT)
@@ -783,16 +783,16 @@ type Mutation
   changePassword(oldPassword: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
   forgetPassword(email: String!): BaseResponseOrError! @join__field(graph: USER)
   resetPassword(token: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
-  updateUserRole(roleAddIds: [String], roleRemoveIds: [String], userId: String!, password: String): BaseResponseOrError! @join__field(graph: USER)
-  deleteUserRole(ids: [ID!]!, skipTrash: Boolean!, password: String): BaseResponseOrError! @join__field(graph: USER)
-  restoreUserRole(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
-  createUserRole(name: String!, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, systemPermanentDeleteProtection: Boolean, systemPermanentUpdateProtection: Boolean): CreateRoleResponseOrError! @join__field(graph: USER)
-  updateUserRoleInfo(id: ID!, name: String, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, systemPermanentDeleteProtection: Boolean, systemPermanentUpdateProtection: Boolean, password: String): UpdateRoleResponseOrError! @join__field(graph: USER)
-  updateUserPermission(input: UpdateUserPermissionInput!): BaseResponseOrError! @join__field(graph: USER)
   verifyEmail(userId: ID!, email: String!, sessionId: String!): EmailVerificationResponseOrError! @join__field(graph: USER)
   accountActivation(userId: ID!, email: String!): ActiveAccountResponseOrError! @join__field(graph: USER)
   logout: BaseResponseOrError! @join__field(graph: USER)
   deleteLoginSession(sessionIds: [String]!): BaseResponseOrError! @join__field(graph: USER)
+  createUserRole(name: String!, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, systemPermanentDeleteProtection: Boolean, systemPermanentUpdateProtection: Boolean): CreateRoleResponseOrError! @join__field(graph: USER)
+  updateUserRole(roleAddIds: [String], roleRemoveIds: [String], userId: String!, password: String): BaseResponseOrError! @join__field(graph: USER)
+  deleteUserRole(ids: [ID!]!, skipTrash: Boolean!, password: String): BaseResponseOrError! @join__field(graph: USER)
+  restoreUserRole(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
+  updateUserRoleInfo(id: ID!, name: String, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, systemPermanentDeleteProtection: Boolean, systemPermanentUpdateProtection: Boolean, password: String): UpdateRoleResponseOrError! @join__field(graph: USER)
+  updateUserPermission(input: UpdateUserPermissionInput!): BaseResponseOrError! @join__field(graph: USER)
   createAddressBookEntry(company: String!, streetOne: String!, streetTwo: String!, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
   updateAddressBookEntry(id: ID!, company: String, streetOne: String, streetTwo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
   deleteAddressBookEntry(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
@@ -908,8 +908,8 @@ type Query
   getProfile: GetProfileResponseOrError! @join__field(graph: USER)
   getUserById(id: String!): GetUserByIDResponseOrError! @join__field(graph: USER)
   getAllUsers(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetUsersResponseOrError! @join__field(graph: USER)
-  getRoleById(id: String!): GetRoleByIDResponseOrError! @join__field(graph: USER)
   getUserOwnLoginInfo: GetUserLoginInfoResponseOrError! @join__field(graph: USER)
+  getRoleById(id: String!): GetRoleByIDResponseOrError! @join__field(graph: USER)
   getAllRoles(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetRolesResponseOrError! @join__field(graph: USER)
   getAllPermissionsByUserId(id: ID!): GetPermissionsResponseOrError! @join__field(graph: USER)
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError! @join__field(graph: USER)
@@ -928,6 +928,13 @@ union RestoreCategoryResponseOrError
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | ErrorResponse
+
+input restoreCategoryType
+  @join__type(graph: PRODUCT)
+{
+  ids: String!
+  type: CategoryType!
+}
 
 union RestoreShippingClassResponseOrError
   @join__type(graph: PRODUCT)

@@ -163,7 +163,7 @@ export async function findCategoryByNameOrSlugToUpdateScoped(
 export async function getCategoryById(id: string): Promise<Category | null> {
   return await categoryRepository.findOne({
     where: { id },
-    relations: ["subCategories"],
+    relations: ["subCategories", "products"],
   });
 }
 

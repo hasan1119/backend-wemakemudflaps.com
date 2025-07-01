@@ -2,6 +2,12 @@ import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  getCategoriesCountFromRedis,
+  getCategoriesFromRedis,
+  setCategoriesCountInRedis,
+  setCategoriesInRedis,
+} from "../../../helper/redis";
+import {
   GetCategoriesResponseOrError,
   QueryGetAllCategoriesArgs,
 } from "../../../types";
@@ -12,6 +18,7 @@ import {
 import {
   checkUserAuth,
   checkUserPermission,
+  countCategoriesWithSearch,
   paginateCategories,
 } from "../../services";
 import { subCategoryRepository } from "../../services/repositories/repositories";
@@ -93,8 +100,12 @@ const mapSubCategory = async (
  * 1. Authenticates the user and verifies their permission to view categories.
  * 2. Validates pagination and sorting inputs using Zod schemas.
  * 3. Queries the database using pagination, sorting, and optional search.
+ * 4. On cache miss, fetches categories from the database with pagination, search, and sorting.
+* 5. Maps database categories to cached format, including creator details.
+ * 6. Caches categories and total count in Redis, excluding user counts.
+
  * 4. Recursively maps each category and all levels of nested subcategories.
- * 5. Returns a structured success response with categories and total count,
+ * 5. Returns a structured success response with categories, total count and cache result,
  *    or an error response if validation or permission fails.
  *
  * @param _ - Unused GraphQL root/resolver parameter.
@@ -150,59 +161,104 @@ export const getAllCategories = async (
 
     const { page, limit, search, sortBy, sortOrder } = mappedArgs;
 
-    const allowedSortFields = ["name", "createdAt", "position"] as const;
-    const safeSortBy = allowedSortFields.includes(sortBy as any)
-      ? (sortBy as (typeof allowedSortFields)[number])
-      : "createdAt";
+    /* getCategoriesFromRedis */
 
-    const allowedSortOrders = ["asc", "desc"] as const;
-    const safeSortOrder = allowedSortOrders.includes(sortOrder as any)
-      ? (sortOrder as (typeof allowedSortOrders)[number])
-      : "desc";
+    // Attempt to retrieve cached categories and total count from Redis
+    let categoriesData;
 
-    const { categories: dbCategories, total } = await paginateCategories({
+    categoriesData = await getCategoriesFromRedis(
       page,
       limit,
       search,
-      sortBy: safeSortBy,
-      sortOrder: safeSortOrder,
-    });
-
-    const categories = await Promise.all(
-      dbCategories.map(async (cat) => {
-        const visited = new Set<string>();
-        const mappedSubCategories = await Promise.all(
-          (cat.subCategories ?? []).map((subCat) =>
-            mapSubCategory(subCat, visited)
-          )
-        );
-
-        return {
-          id: cat.id,
-          name: cat.name,
-          slug: cat.slug,
-          description: cat.description || null,
-          thumbnail: cat.thumbnail || null,
-          position: cat.position,
-          createdBy: cat.createdBy as any,
-          createdAt:
-            cat.createdAt instanceof Date
-              ? cat.createdAt.toISOString()
-              : cat.createdAt,
-          deletedAt:
-            cat.deletedAt instanceof Date
-              ? cat.deletedAt.toISOString()
-              : cat.deletedAt,
-          subCategories: mappedSubCategories.filter((sc) => sc !== null),
-        };
-      })
+      sortBy,
+      sortOrder
     );
+
+    let total;
+
+    total = await getCategoriesCountFromRedis(search, sortBy, sortOrder);
+
+    if (!categoriesData) {
+      // On cache miss, fetch categories from database
+
+      const allowedSortFields = ["name", "createdAt", "position"] as const;
+      const safeSortBy = allowedSortFields.includes(sortBy as any)
+        ? (sortBy as (typeof allowedSortFields)[number])
+        : "createdAt";
+
+      const allowedSortOrders = ["asc", "desc"] as const;
+      const safeSortOrder = allowedSortOrders.includes(sortOrder as any)
+        ? (sortOrder as (typeof allowedSortOrders)[number])
+        : "desc";
+
+      const { categories: dbCategories, total: queryTotal } =
+        await paginateCategories({
+          page,
+          limit,
+          search,
+          sortBy: safeSortBy,
+          sortOrder: safeSortOrder,
+        });
+
+      total = queryTotal;
+
+      categoriesData = await Promise.all(
+        dbCategories.map(async (cat) => {
+          const visited = new Set<string>();
+          const mappedSubCategories = await Promise.all(
+            (cat.subCategories ?? []).map((subCat) =>
+              mapSubCategory(subCat, visited)
+            )
+          );
+
+          return {
+            id: cat.id,
+            name: cat.name,
+            slug: cat.slug,
+            description: cat.description || null,
+            thumbnail: cat.thumbnail || null,
+            position: cat.position,
+            createdBy: cat.createdBy as any,
+            createdAt:
+              cat.createdAt instanceof Date
+                ? cat.createdAt.toISOString()
+                : cat.createdAt,
+            deletedAt:
+              cat.deletedAt instanceof Date
+                ? cat.deletedAt.toISOString()
+                : cat.deletedAt,
+            subCategories: mappedSubCategories.filter((sc) => sc !== null),
+          };
+        })
+      );
+
+      // Cache categories and total count in Redis
+      await Promise.all([
+        setCategoriesInRedis(
+          page,
+          limit,
+          search,
+          sortBy,
+          sortOrder,
+          categoriesData
+        ),
+        setCategoriesCountInRedis(search, sortBy, sortOrder, total),
+      ]);
+    }
+
+    // Calculate total categories count if not cached
+    if (total === 0) {
+      total = await countCategoriesWithSearch(search);
+
+      // Cache total count in Redis
+      await setCategoriesCountInRedis(search, sortBy, sortOrder, total);
+    }
 
     return {
       statusCode: 200,
       success: true,
       message: "Categories fetched successfully",
-      category: categories,
+      category: categoriesData,
       total,
       __typename: "CategoryPaginationResponse",
     };

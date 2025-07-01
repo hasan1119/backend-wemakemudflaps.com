@@ -1,0 +1,88 @@
+# Root Mutation type defining all user-related operations.
+type Mutation {
+  # Register a new user.
+  # Allows a new user to create an account by submitting their personal details.
+  # Input includes user's first name, last name, unique email, and a secure password.
+  # Gender is optional. The password is securely hashed server-side before storage.
+  # Response returns a status indicating success or failure of registration.
+  register(
+    firstName: String! # User's first name (required).
+    lastName: String! # User's last name (required).
+    email: String! # Unique email address of the user (required).
+    username: String! # Unique username of the user (required).
+    password: String! # User's raw password to be hashed by server (required).
+    gender: Gender # Optional gender of the user.
+  ): BaseResponseOrError!
+
+  # Authenticate and log in an existing user.
+  # Accepts the user's registered email and password to generate a login session.
+  # Also records metadata about the login for auditing and security.
+  login(
+    email: String! # Registered email address of the user.
+    password: String! # User's login password.
+    meta: LoginMetaInput! # Metadata such as IP, device fingerprint, and location.
+  ): UserLoginResponseOrError!
+
+  # Update the profile of the currently authenticated user.
+  # Allows partial updates to fields like first name, last name, email, or gender.
+  # Returns a response with the updated profile or error if operation fails.
+  updateProfile(
+    firstName: String # New first name of the user.
+    lastName: String # New last name of the user.
+    email: String # New email address of the user.
+    username: String # New username of the user.
+    phone: String # New phone of the user.
+    avatar: String # New avatar of the user.
+    gender: Gender # New gender value.
+    address: UserAddressInput # New address value.
+  ): UserProfileUpdateResponseOrError!
+
+  # Change the currently authenticated user's password.
+  # Requires old (current) password and new password for verification.
+  # Validates old password and applies new password after hashing.
+  changePassword(
+    oldPassword: String! # User's current password (required for verification).
+    newPassword: String! # New password to replace the old one.
+  ): BaseResponseOrError!
+
+  # Initiate password reset flow via email.
+  # Sends a password reset link to the user's registered email if valid.
+  forgetPassword(
+    email: String! # Registered email address to send reset link.
+  ): BaseResponseOrError!
+
+  # Complete password reset using a secure token.
+  # The user provides a token received in email and the new password.
+  # If token is valid and not expired, the password is updated.
+  resetPassword(
+    token: String! # Token from password reset email.
+    newPassword: String! # New password to set for the user.
+  ): BaseResponseOrError!
+
+  # Verify user's email using a verification link.
+  # Usually triggered from an email sent during registration.
+  verifyEmail(
+    userId: ID! # User ID provided in verification email.
+    email: String! # User's email to verify.
+    sessionId: String! # Session ID for the current user (required for authentication).
+  ): EmailVerificationResponseOrError!
+
+  # Activate a user account via email verification.
+  # This is similar to verifyEmail, but may include additional checks or updates.
+  accountActivation(
+    userId: ID! # User ID provided in activation email.
+    email: String! # User's email associated with account.
+  ): ActiveAccountResponseOrError!
+
+  # Logout the currently authenticated user.
+  # Clears authentication tokens (e.g., cookies or headers) to end the session.
+  # Ensures the user is securely logged out of the system.
+  logout: BaseResponseOrError!
+
+  # Delete a users's login session.
+  # Allows the user to delete a specific login session by its ID.
+  # This is useful for managing active sessions, especially in case of security concerns.
+  deleteLoginSession(
+    sessionIds: [String]! # ID of the login session to be deleted.
+  ): BaseResponseOrError!
+}

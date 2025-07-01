@@ -157,12 +157,12 @@ export const deleteCategorySchema = z.object({
  * @property ids - Array of category IDs (UUID format, minimum 1).
  * @property categoryType - Category type (category or subCategory).
  */
-export const restoreCategorySchema = z.object({
-  ids: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .min(1, { message: "At least one UUID is required" }),
-  categoryType: CategoryTypeEnum,
-});
+export const restoreCategorySchema = z.array(
+  z.object({
+    id: z.string().uuid({ message: "Invalid UUID format" }),
+    categoryType: CategoryTypeEnum,
+  })
+);
 
 /**
  * Defines the schema for validating category sorting parameters.

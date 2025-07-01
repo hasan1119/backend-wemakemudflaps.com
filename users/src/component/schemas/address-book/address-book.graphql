@@ -1,0 +1,60 @@
+# ---------------------- Address Book types ----------------------
+
+# Represents a single address record.
+type AddressBook {
+  id: ID! # Unique identifier of the address
+  company: String! # Company name
+  streetOne: String! # Street one address
+  streetTwo: String! # Street two address
+  city: String! # City
+  state: String! # State
+  zip: String! # ZIP code
+  country: String # country (optional)
+  type: AddressType! # Address type (SHIPPING or BILLING)
+  isDefault: Boolean! # Is this the default address for this type?
+  createdAt: String! # Created timestamp
+  updatedAt: String! # Last updated timestamp
+}
+
+# ---------------------- Responses ----------------------
+
+# Single address response.
+type AddressResponseBook {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  addressBook: AddressBook
+}
+
+# Single addresses response.
+type AddressesBookResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  addressBook: [AddressBook!]!
+}
+
+# ---------------------- Unions ----------------------
+# Union for creating address in address book.
+union CreateAddressBookResponseOrError =
+    BaseResponse
+  | AddressResponseBook
+  | ErrorResponse
+
+# Union for updating address in address book.
+union UpdateAddressBookResponseOrError =
+    BaseResponse
+  | AddressResponseBook
+  | ErrorResponse
+
+# Union when fetching address book by ID.
+union GetAddressBookByIdResponseOrError =
+    BaseResponse
+  | AddressResponseBook
+  | ErrorResponse
+
+# Union for multiple addresses form the address book.
+union GetAddressesBookResponseOrError =
+    BaseResponse
+  | AddressesBookResponse
+  | ErrorResponse
