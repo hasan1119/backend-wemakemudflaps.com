@@ -43,7 +43,6 @@ type Mutation {
   # Mutation to restore a soft-deleted category or subcategory
   # Only accessible by authorized users.
   restoreCategory(
-    ids: [ID!]! # List of soft-deleted role IDs to be restored.
-    categoryType: CategoryType! # "category" or "subcategory"
+    idsWithType: [restoreCategoryType!]! # List of soft-deleted role IDs and type to be restored.
   ): RestoreCategoryResponseOrError
 }

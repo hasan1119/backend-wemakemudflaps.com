@@ -1,7 +1,7 @@
 import {
+  CategoryDataResponse,
   Category as CategoryPaginationDataSession,
-  CategoryResponse,
-  SubCategoryResponse,
+  SubCategoryDataResponse,
 } from "../../../../types";
 import { redis } from "../../redis";
 
@@ -148,8 +148,8 @@ export const getSubCategorySlugExistFromRedis = async (
  */
 export const getCategoryInfoByIdFromRedis = async (
   categoryId: string
-): Promise<CategoryResponse | null> => {
-  return redis.getSession<CategoryResponse | null>(
+): Promise<CategoryDataResponse | null> => {
+  return redis.getSession<CategoryDataResponse | null>(
     `${PREFIX.CATEGORY}${categoryId}`,
     "product-app"
   );
@@ -168,8 +168,8 @@ export const getCategoryInfoByIdFromRedis = async (
  */
 export const getSubCategoryInfoByIdFromRedis = async (
   id: string
-): Promise<SubCategoryResponse | null> => {
-  return redis.getSession<SubCategoryResponse | null>(
+): Promise<SubCategoryDataResponse | null> => {
+  return redis.getSession<SubCategoryDataResponse | null>(
     `${PREFIX.SUB_CATEGORY}${id}`,
     "product-app"
   );
@@ -301,7 +301,7 @@ export const setSubCategorySlugExistInRedis = async (
  */
 export const setCategoryInfoByIdInRedis = async (
   categoryId: string,
-  data: CategoryResponse
+  data: CategoryDataResponse
 ): Promise<void> => {
   await redis.setSession(
     `${PREFIX.CATEGORY}${categoryId}`,
@@ -322,7 +322,7 @@ export const setCategoryInfoByIdInRedis = async (
  */
 export const setSubCategoryInfoByIdInRedis = async (
   id: string,
-  data: SubCategoryResponse
+  data: SubCategoryDataResponse
 ): Promise<void> => {
   await redis.setSession(`${PREFIX.SUB_CATEGORY}${id}`, data, "product-app");
 };

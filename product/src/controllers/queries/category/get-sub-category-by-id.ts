@@ -1,6 +1,10 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  getSubCategoryInfoByIdFromRedis,
+  setSubCategoryInfoByIdInRedis,
+} from "../../../helper/redis";
+import {
   GetSubCategoryByIdResponseOrError,
   QueryGetCategoryByIdArgs,
 } from "../../../types";
@@ -15,13 +19,13 @@ import {
  * Handles retrieving a sub category by its ID with validation and permission checks.
  *
  * Workflow:
- * 1. Verifies user authentication and checks permission to view sub category.
+ * 1. Verifies user authentication and checks permission to view category.
  * 2. Validates input sub category ID using Zod schema.
- * 3. Fetches sub category data from the database.
+ * 3. Fetches sub category data from the database if not found in Redis and caches it.
  * 4. Returns a success response with sub category data or an error if validation, permission, or retrieval fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
- * @param args - Input arguments containing the sub category ID.
+ * @param args - Input arguments containing the category ID.
  * @param context - GraphQL context containing authenticated user information.
  * @returns A promise resolving to a GetSubCategoryByIdResponseOrError object containing status, message, sub category data, and errors if applicable.
  */
@@ -72,50 +76,64 @@ export const getSubCategoryById = async (
 
     const { id } = args;
 
-    const subCategoryData = await getSubCategoryByIdService(id);
+    // Attempt to retrieve cached category data from Redis
+    let subCategoryExist;
 
-    if (!subCategoryData) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: "Category not found",
-        __typename: "BaseResponse",
+    subCategoryExist = await getSubCategoryInfoByIdFromRedis(id);
+
+    if (!subCategoryExist) {
+      const dbSubCategoryExist = await getSubCategoryByIdService(id);
+
+      if (!dbSubCategoryExist) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "Category not found",
+          __typename: "BaseResponse",
+        };
+      }
+      subCategoryExist = {
+        ...dbSubCategoryExist,
+        subCategories: dbSubCategoryExist.subCategories
+          ? dbSubCategoryExist.subCategories.map((subCat: any) => ({
+              ...subCat,
+              createdBy: dbSubCategoryExist.createdBy as any,
+              category: undefined,
+            }))
+          : null,
+        category:
+          dbSubCategoryExist.category &&
+          typeof dbSubCategoryExist.category === "object"
+            ? (await dbSubCategoryExist.category)?.id ?? null
+            : null,
+        parentSubCategory:
+          dbSubCategoryExist.parentSubCategory &&
+          typeof dbSubCategoryExist.parentSubCategory === "object"
+            ? (await dbSubCategoryExist.parentSubCategory)?.id ?? null
+            : null,
+        createdBy: dbSubCategoryExist.createdBy as any,
+        createdAt:
+          dbSubCategoryExist.createdAt instanceof Date
+            ? dbSubCategoryExist.createdAt.toISOString()
+            : dbSubCategoryExist.createdAt,
+        deletedAt:
+          dbSubCategoryExist.deletedAt instanceof Date
+            ? dbSubCategoryExist.deletedAt.toISOString()
+            : dbSubCategoryExist.deletedAt,
       };
+
+      // Cache sub category data in Redis
+      await setSubCategoryInfoByIdInRedis(
+        subCategoryExist.id,
+        subCategoryExist
+      );
     }
 
     return {
       statusCode: 200,
       success: true,
       message: "Sub Category fetched successfully",
-      subcategory: {
-        ...subCategoryData,
-        subCategories: subCategoryData.subCategories
-          ? subCategoryData.subCategories.map((subCat: any) => ({
-              ...subCat,
-              createdBy: subCategoryData.createdBy as any,
-              category: undefined,
-            }))
-          : null,
-        category:
-          subCategoryData.category &&
-          typeof subCategoryData.category === "object"
-            ? (await subCategoryData.category)?.id ?? null
-            : null,
-        parentSubCategory:
-          subCategoryData.parentSubCategory &&
-          typeof subCategoryData.parentSubCategory === "object"
-            ? (await subCategoryData.parentSubCategory)?.id ?? null
-            : null,
-        createdBy: subCategoryData.createdBy as any,
-        createdAt:
-          subCategoryData.createdAt instanceof Date
-            ? subCategoryData.createdAt.toISOString()
-            : subCategoryData.createdAt,
-        deletedAt:
-          subCategoryData.deletedAt instanceof Date
-            ? subCategoryData.deletedAt.toISOString()
-            : subCategoryData.deletedAt,
-      },
+      subcategory: subCategoryExist,
       __typename: "SubCategoryResponseById",
     };
   } catch (error: any) {
