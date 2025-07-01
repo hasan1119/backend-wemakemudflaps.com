@@ -1515,7 +1515,7 @@ type UserSessionByEmail
   email: String!
   phone: String!
   address: UserAddress
-  username: String
+  username: String!
   password: String!
   emailVerified: Boolean!
   gender: String!
@@ -1539,7 +1539,7 @@ type UserSessionById
   lastName: String!
   email: String!
   address: UserAddress
-  username: String
+  username: String!
   emailVerified: Boolean!
   gender: String!
   phone: String!

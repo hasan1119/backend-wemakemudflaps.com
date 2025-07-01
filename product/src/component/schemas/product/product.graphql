@@ -1,4 +1,273 @@
 # ---------------------- Product Types ----------------------
+
+enum ProductTypeEnum {
+  SIMPLE_PRODUCT
+  VARIABLE_PRODUCT
+  CUSTOMIZED_PRODUCT
+}
+
+enum WarrantyPeriodEnum {
+  DAY
+  DAYS
+  WEEK
+  WEEKS
+  MONTH
+  MONTHS
+  YEAR
+  YEARS
+  LIFE_TIME
+}
+
+enum BackOrderOptionEnum {
+  DONT_ALLOW
+  ALLOW_BUT_NOTIFY_CUSTOMER
+  ALLOW
+}
+
+enum StockStatusEnum {
+  IN_STOCK
+  OUT_OF_STOCK
+  ON_BACKORDER
+}
+
+enum WeightUnitEnum {
+  MILLIGRAM
+  GRAM
+  KILOGRAM
+  TON
+  POUND
+  OUNCE
+  STONE
+  CARAT
+  GRAIN
+  QUINTAL
+  METRIC_TON
+}
+
+enum DimensionUnitEnum {
+  MILLIMETER
+  CENTIMETER
+  METER
+  KILOMETER
+  INCH
+  FOOT
+  YARD
+}
+
 type Product @key(fields: "id") {
   id: ID! # Unique identifier for the product item.
+  # Product type: "Simple product" or "Variable product"
+  productType: ProductTypeEnum!
+
+  # Product name
+  name: String!
+
+  # Default thumbnail image url (nullable)
+  defaultImage: String
+
+  # Additional image url (nullable list)
+  images: [String!]
+
+  # Related video url (nullable list)
+  videos: [String!]
+
+  # Associated brand (nullable)
+  brand: Brand
+
+  # Associated tags (nullable list)
+  tags: [Tag!]
+
+  # Main product description
+  defaultMainDescription: String!
+
+  # Short description (nullable)
+  defaultShortDescription: String
+
+  # Comma-separated default tags (nullable list)
+  defaultTags: [String!]
+
+  # Primary category (nullable)
+  category: Category
+
+  # Multiple sub-categories (nullable list)
+  subCategories: [SubCategory!]
+
+  # Warranty information (nullable)
+  warrantyDigit: Int
+  defaultWarrantyPeriod: WarrantyPeriodEnum
+  warrantyPolicy: String
+
+  # Pricing info for simple product
+  regularPrice: Float!
+  salePrice: Float
+  salePriceStartAt: String
+  salePriceEndAt: String
+  tierPricingInfo: ProductPrice
+
+  # Sale quantity limit (nullable)
+  saleQuantity: Int
+
+  # Tax information
+  taxStatus: TaxStatus
+  taxClass: TaxClass
+
+  # Quantity settings
+  minQuantity: Int
+  defaultQuantity: Int
+  maxQuantity: Int
+  quantityStep: Int!
+
+  # Inventory info
+  sku: String
+  model: String
+  manageStock: Boolean
+  stockQuantity: Int
+  allowBackOrders: BackOrderOptionEnum
+  lowStockThresHold: Int
+  stockStatus: StockStatusEnum
+  soldIndividually: Boolean!
+  initialNumberInStock: String
+
+  # Shipping info
+  weightUnit: WeightUnitEnum
+  weight: Float
+  dimensionUnit: DimensionUnitEnum
+  length: Float
+  width: Float
+  height: Float
+  shippingClass: ShippingClass
+
+  # Linked products
+  upsells: [Product!]
+  crossSells: [Product!]
+
+  # Attributes
+  attributes: [ProductAttribute!]
+
+  # Variations (nullable list)
+  variations: [ProductVariation!]
+
+  # Advanced settings
+  purchaseNote: String
+  enableReviews: Boolean!
+  reviews: [ProductReview!]
+  customBadge: String
+  isPreview: Boolean!
+  isVisible: Boolean!
+
+  # Metadata
+  createdBy: String!
+  createdAt: String!
+  deletedAt: String
+}
+
+# ---------------------- Inputs ----------------------
+# Input to create product.
+input CreateProductInput {
+  productType: ProductTypeEnum!
+  name: String!
+  defaultImage: String
+  images: [String!]
+  videos: [String!]
+  brandId: ID
+  tagIds: [ID!]
+  defaultMainDescription: String!
+  defaultShortDescription: String
+  defaultTags: [String!]
+  categoryId: ID
+  subCategoryIds: [ID!]
+  warrantyDigit: Int
+  defaultWarrantyPeriod: WarrantyPeriodEnum
+  warrantyPolicy: String
+  regularPrice: Float!
+  salePrice: Float
+  salePriceStartAt: String
+  salePriceEndAt: String
+  tierPricingInfoId: ID
+  saleQuantity: Int
+  taxStatusId: ID
+  taxClassId: ID
+  minQuantity: Int
+  defaultQuantity: Int
+  maxQuantity: Int
+  quantityStep: Int
+  sku: String
+  model: String
+  manageStock: Boolean
+  stockQuantity: Int
+  allowBackOrders: BackOrderOptionEnum
+  lowStockThresHold: Int
+  stockStatus: StockStatusEnum
+  soldIndividually: Boolean
+  initialNumberInStock: String
+  weightUnit: WeightUnitEnum
+  weight: Float
+  dimensionUnit: DimensionUnitEnum
+  length: Float
+  width: Float
+  height: Float
+  shippingClassId: ID
+  upsellIds: [ID!]
+  crossSellIds: [ID!]
+  attributeIds: [ID!]
+  purchaseNote: String
+  enableReviews: Boolean
+  customBadge: String
+  isPreview: Boolean
+  isVisible: Boolean
+  createdBy: String!
+}
+
+# Input to update product.
+input ProductUpdateInput {
+  name: String
+  defaultImageId: String
+  imageIds: [String!]
+  videoIds: [String!]
+  brandId: ID
+  tagIds: [ID!]
+  defaultMainDescription: String
+  defaultShortDescription: String
+  defaultTags: [String!]
+  categoryId: ID
+  subCategoryIds: [ID!]
+  warrantyDigit: Int
+  defaultWarrantyPeriod: WarrantyPeriodEnum
+  warrantyPolicy: String
+  regularPrice: Float
+  salePrice: Float
+  salePriceStartAt: String
+  salePriceEndAt: String
+  tierPricingInfoId: ID
+  saleQuantity: Int
+  taxStatusId: ID
+  taxClassId: ID
+  minQuantity: Int
+  defaultQuantity: Int
+  maxQuantity: Int
+  quantityStep: Int
+  sku: String
+  model: String
+  manageStock: Boolean
+  stockQuantity: Int
+  allowBackOrders: BackOrderOptionEnum
+  lowStockThresHold: Int
+  stockStatus: StockStatusEnum
+  soldIndividually: Boolean
+  initialNumberInStock: String
+  weightUnit: WeightUnitEnum
+  weight: Float
+  dimensionUnit: DimensionUnitEnum
+  length: Float
+  width: Float
+  height: Float
+  shippingClassId: ID
+  upsellIds: [ID!]
+  crossSellIds: [ID!]
+  attributeIds: [ID!]
+  purchaseNote: String
+  enableReviews: Boolean
+  customBadge: String
+  isPreview: Boolean
+  isVisible: Boolean
 }

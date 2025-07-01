@@ -88,7 +88,7 @@ export const verifyEmail = async (
     // Attempt to retrieve cached user data from Redis
     let userData;
 
-    userData = await getUserInfoByEmailFromRedis(email);
+    userData = await getUserInfoByEmailFromRedis(user.email);
 
     // Store the old email for Redis cleanup
     const oldEmail = user.email;

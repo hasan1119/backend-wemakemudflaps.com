@@ -13,6 +13,7 @@ import { Brand } from "./brand.entity";
 import { Category } from "./category.entity";
 import { ProductAttribute } from "./product-attribute.entity";
 import { ProductPrice } from "./product-price.entity";
+import { ProductReview } from "./product-review.entity";
 import { ProductVariation } from "./product-variation.entity";
 import { ShippingClass } from "./shipping-class.entity";
 import { SubCategory } from "./sub-category.entity";
@@ -30,7 +31,7 @@ export class Product {
   // Product type: either "Simple product" or "Variable product"
   @Column({
     type: "enum",
-    enum: ["Simple product", "Variable product"],
+    enum: ["Simple product", "Variable product", "Customized product"],
   })
   productType: string;
 
@@ -40,15 +41,15 @@ export class Product {
 
   // Default thumbnail image for the product (string only for Apollo Federation compatibility)
   @Column({ nullable: true })
-  defaultImageId: string | null;
+  defaultImage: string | null;
 
   // Additional images related to the product (string only for Apollo Federation compatibility)
   @Column("text", { array: true, nullable: true })
-  imageIds: string[] | null;
+  images: string[] | null;
 
   // Related videos for the product (string only for Apollo Federation compatibility)
   @Column("text", { array: true, nullable: true })
-  videoIds: string[] | null;
+  videos: string[] | null;
 
   // Associated brand for the product
   @ManyToOne(() => Brand, (brand) => brand.products, {
@@ -349,6 +350,14 @@ export class Product {
   // Enable or disable product reviews
   @Column({ type: "boolean", default: true })
   enableReviews: boolean;
+
+  // Product review list
+  @ManyToOne(() => ProductReview, (review) => review.product, {
+    cascade: true,
+    nullable: true,
+  })
+  @JoinColumn({ name: "review_id" })
+  reviews: ProductReview[] | null;
 
   // Custom badge text for the product (e.g., "New", "Sale")
   @Column({ nullable: true })

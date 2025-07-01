@@ -32,7 +32,7 @@ export class ProductReview {
 
   // This field stores the product being reviewed
   @ManyToOne(() => Product, (product) => product.reviews, { nullable: false })
-  product: Product;
+  product: Promise<Product>;
 
   // Timestamp when the product review was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
