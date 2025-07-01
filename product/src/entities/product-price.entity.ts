@@ -19,7 +19,7 @@ export class ProductPrice {
     type: "enum",
     enum: ["Fixed", "Percentage"],
   })
-  productType: string;
+  pricingType: string;
 
   // Tiered pricing rules for bulk or quantity-based pricing
   @OneToMany(
