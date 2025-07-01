@@ -1,11 +1,95 @@
-# ---------------------- Product Types ----------------------
+# ---------------------- Product Attribute Types ----------------------
 
-enum ProductTypeEnum {
-  SIMPLE_PRODUCT
-  VARIABLE_PRODUCT
-  CUSTOMIZED_PRODUCT
+# Represents a product attribute (e.g., color, size)
+type ProductAttribute {
+  id: ID! # Unique identifier of the attribute
+  name: String! # Name of the attribute (e.g., "Color")
+  values: [ProductVariationAttributeValue!]! # Possible values for this attribute (e.g., "Red", "Blue")
+  createdAt: String! # Timestamp when created
+  deletedAt: String # Timestamp when deleted (soft delete)
 }
 
+# Represents a specific value of a product attribute
+type ProductVariationAttributeValue {
+  id: ID! # Unique identifier of the attribute value
+  value: String! # Value string (e.g., "Red")
+  attribute: ProductAttribute! # Reference back to the attribute this value belongs to
+  createdAt: String! # Timestamp when created
+  deletedAt: String # Timestamp when deleted (soft delete)
+}
+
+# ---------------------- Product Pricing Types ----------------------
+
+# Represents tiered or quantity-based pricing for products or variations
+type ProductPrice {
+  id: ID! # Unique identifier of the price tier
+  minQuantity: Int! # Minimum quantity for this price tier to apply
+  maxQuantity: Int # Maximum quantity for this price tier (nullable)
+  price: Float! # Price amount for this tier
+  product: Product # Product this pricing belongs to (nullable)
+  productVariation: ProductVariation # Product variation this pricing belongs to (nullable)
+  createdAt: String! # Timestamp when created
+  deletedAt: String # Timestamp when deleted (soft delete)
+}
+
+# ---------------------- Product Review Types ----------------------
+
+# Represents a customer review for a product
+type ProductReview {
+  id: ID! # Unique review identifier
+  authorName: String! # Name of the reviewer
+  rating: Int! # Numeric rating (e.g., 1-5 stars)
+  comment: String # Optional textual comment
+  product: Product! # Product being reviewed
+  createdAt: String! # Timestamp when review was created
+  deletedAt: String # Timestamp when deleted (soft delete)
+}
+
+# ---------------------- Product Variation Types ----------------------
+
+# Represents a specific variation of a product (e.g., size/color variant)
+type ProductVariation {
+  id: ID! # Unique identifier for the variation
+  sku: String # Stock keeping unit code
+  minQuantity: Int # Minimum quantity allowed to purchase
+  defaultQuantity: Int # Default purchase quantity
+  maxQuantity: Int # Maximum quantity allowed to purchase
+  quantityStep: Int! # Step increment for quantity selection
+  regularPrice: Float! # Base price before discount
+  salePrice: Float # Discounted sale price
+  salePriceStartAt: String # Sale start date/time
+  salePriceEndAt: String # Sale end date/time
+  tierPricingInfo: ProductPrice # Tiered pricing info for this variation
+  stockStatus: StockStatusEnum # Stock availability status
+  weightUnit: WeightUnitEnum # Unit of weight measurement
+  weight: Float # Weight of this variation
+  product: Product! # Parent product
+  attributeValues: [ProductVariationAttributeValue!]! # Attribute values defining this variation
+  warrantyDigit: Int # Warranty duration number
+  defaultWarrantyPeriod: WarrantyPeriodEnum # Warranty period unit
+  warrantyPolicy: String # Textual warranty policy
+  dimensionUnit: DimensionUnitEnum # Unit for dimension measurements
+  length: Float # Length dimension
+  width: Float # Width dimension
+  height: Float # Height dimension
+  shippingClass: ShippingClass # Shipping class info
+  taxStatus: TaxStatus # Tax status info
+  taxClass: TaxClass # Tax classification
+  description: String # Variation-specific description
+  createdAt: String! # Timestamp when created
+  deletedAt: String # Timestamp when deleted (soft delete)
+}
+
+# ---------------------- Product Types ----------------------
+
+# Enum describing type of product
+enum ProductTypeEnum {
+  SIMPLE_PRODUCT # Simple product with no variations
+  VARIABLE_PRODUCT # Product with variations
+  CUSTOMIZED_PRODUCT # Customizable product
+}
+
+# Enum for warranty period units
 enum WarrantyPeriodEnum {
   DAY
   DAYS
@@ -18,18 +102,21 @@ enum WarrantyPeriodEnum {
   LIFE_TIME
 }
 
+# Enum for backorder options
 enum BackOrderOptionEnum {
-  DONT_ALLOW
-  ALLOW_BUT_NOTIFY_CUSTOMER
-  ALLOW
+  DONT_ALLOW # Do not allow backorders
+  ALLOW_BUT_NOTIFY_CUSTOMER # Allow backorders but notify customers
+  ALLOW # Allow backorders without notification
 }
 
+# Enum for stock status
 enum StockStatusEnum {
-  IN_STOCK
-  OUT_OF_STOCK
-  ON_BACKORDER
+  IN_STOCK # Item is in stock
+  OUT_OF_STOCK # Item is out of stock
+  ON_BACKORDER # Item is on backorder
 }
 
+# Enum for weight units
 enum WeightUnitEnum {
   MILLIGRAM
   GRAM
@@ -44,6 +131,7 @@ enum WeightUnitEnum {
   METRIC_TON
 }
 
+# Enum for dimension units
 enum DimensionUnitEnum {
   MILLIMETER
   CENTIMETER
@@ -54,220 +142,221 @@ enum DimensionUnitEnum {
   YARD
 }
 
+# ---------------------- Product Main Entity Type ----------------------
+
 type Product @key(fields: "id") {
-  id: ID! # Unique identifier for the product item.
-  # Product type: "Simple product" or "Variable product"
-  productType: ProductTypeEnum!
-
-  # Product name
-  name: String!
-
-  # Default thumbnail image url (nullable)
-  defaultImage: String
-
-  # Additional image url (nullable list)
-  images: [String!]
-
-  # Related video url (nullable list)
-  videos: [String!]
-
-  # Associated brand (nullable)
-  brand: Brand
-
-  # Associated tags (nullable list)
-  tags: [Tag!]
-
-  # Main product description
-  defaultMainDescription: String!
-
-  # Short description (nullable)
-  defaultShortDescription: String
-
-  # Comma-separated default tags (nullable list)
-  defaultTags: [String!]
-
-  # Primary category (nullable)
-  category: Category
-
-  # Multiple sub-categories (nullable list)
-  subCategories: [SubCategory!]
-
-  # Warranty information (nullable)
-  warrantyDigit: Int
-  defaultWarrantyPeriod: WarrantyPeriodEnum
-  warrantyPolicy: String
-
-  # Pricing info for simple product
-  regularPrice: Float!
-  salePrice: Float
-  salePriceStartAt: String
-  salePriceEndAt: String
-  tierPricingInfo: ProductPrice
-
-  # Sale quantity limit (nullable)
-  saleQuantity: Int
-
-  # Tax information
-  taxStatus: TaxStatus
-  taxClass: TaxClass
-
-  # Quantity settings
-  minQuantity: Int
-  defaultQuantity: Int
-  maxQuantity: Int
-  quantityStep: Int!
-
-  # Inventory info
-  sku: String
-  model: String
-  manageStock: Boolean
-  stockQuantity: Int
-  allowBackOrders: BackOrderOptionEnum
-  lowStockThresHold: Int
-  stockStatus: StockStatusEnum
-  soldIndividually: Boolean!
-  initialNumberInStock: String
-
-  # Shipping info
-  weightUnit: WeightUnitEnum
-  weight: Float
-  dimensionUnit: DimensionUnitEnum
-  length: Float
-  width: Float
-  height: Float
-  shippingClass: ShippingClass
-
-  # Linked products
-  upsells: [Product!]
-  crossSells: [Product!]
-
-  # Attributes
-  attributes: [ProductAttribute!]
-
-  # Variations (nullable list)
-  variations: [ProductVariation!]
-
-  # Advanced settings
-  purchaseNote: String
-  enableReviews: Boolean!
-  reviews: [ProductReview!]
-  customBadge: String
-  isPreview: Boolean!
-  isVisible: Boolean!
-
-  # Metadata
-  createdBy: String!
-  createdAt: String!
-  deletedAt: String
+  # ---------------------- Basic Info ----------------------
+  id: ID! # Unique identifier for the product item
+  productType: ProductTypeEnum! # Product type: simple, variable, or customized
+  name: String! # Product name
+  # ---------------------- Media ----------------------
+  defaultImage: String # Default thumbnail image URL (nullable)
+  images: [String!] # Additional image URLs (nullable list)
+  videos: [String!] # Related video URLs (nullable list)
+  # ---------------------- Associations ----------------------
+  brand: Brand # Associated brand (nullable)
+  tags: [Tag!] # Associated tags (nullable list)
+  # ---------------------- Descriptions ----------------------
+  defaultMainDescription: String! # Main product description
+  defaultShortDescription: String # Short description (nullable)
+  defaultTags: [String!] # Default tags as strings (nullable list)
+  # ---------------------- Categorization ----------------------
+  category: Category # Primary category (nullable)
+  subCategories: [SubCategory!] # Multiple sub-categories (nullable list)
+  # ---------------------- Warranty Information ----------------------
+  warrantyDigit: Int # Warranty duration number (nullable)
+  defaultWarrantyPeriod: WarrantyPeriodEnum # Warranty period unit (nullable)
+  warrantyPolicy: String # Warranty policy text (nullable)
+  # ---------------------- Pricing ----------------------
+  regularPrice: Float! # Base regular price
+  salePrice: Float # Sale price (nullable)
+  salePriceStartAt: String # Sale start date/time (nullable)
+  salePriceEndAt: String # Sale end date/time (nullable)
+  tierPricingInfo: ProductPrice # Tiered pricing info (nullable)
+  saleQuantity: Int # Sale quantity limit (nullable)
+  # ---------------------- Tax Information ----------------------
+  taxStatus: TaxStatus # Tax status (nullable)
+  taxClass: TaxClass # Tax classification (nullable)
+  # ---------------------- Quantity Settings ----------------------
+  minQuantity: Int # Minimum order quantity (nullable)
+  defaultQuantity: Int # Default order quantity (nullable)
+  maxQuantity: Int # Maximum order quantity (nullable)
+  quantityStep: Int! # Quantity step increment
+  # ---------------------- Inventory & Stock ----------------------
+  sku: String # Stock keeping unit (nullable)
+  model: String # Model identifier (nullable)
+  manageStock: Boolean # Whether stock is managed
+  stockQuantity: Int # Quantity in stock (nullable)
+  allowBackOrders: BackOrderOptionEnum # Backorder option
+  lowStockThresHold: Int # Threshold for low stock warning (nullable)
+  stockStatus: StockStatusEnum # Current stock status
+  soldIndividually: Boolean! # Whether sold individually
+  initialNumberInStock: String # Initial stock count (nullable)
+  # ---------------------- Shipping Information ----------------------
+  weightUnit: WeightUnitEnum # Unit of weight measurement
+  weight: Float # Weight amount (nullable)
+  dimensionUnit: DimensionUnitEnum # Unit of dimension measurement
+  length: Float # Product length (nullable)
+  width: Float # Product width (nullable)
+  height: Float # Product height (nullable)
+  shippingClass: ShippingClass # Shipping classification (nullable)
+  # ---------------------- Product Relations ----------------------
+  upsells: [Product!] # Linked upsell products
+  crossSells: [Product!] # Linked cross-sell products
+  # ---------------------- Product Attributes & Variations ----------------------
+  attributes: [ProductAttribute!] # Product attributes (e.g., color, size)
+  variations: [ProductVariation!] # Product variations (nullable list)
+  # ---------------------- Advanced Settings ----------------------
+  purchaseNote: String # Optional purchase note
+  enableReviews: Boolean! # Whether reviews are enabled
+  reviews: [ProductReview!] # Product reviews
+  customBadge: String # Custom badge label (nullable)
+  isPreview: Boolean! # Whether product is in preview mode
+  isVisible: Boolean! # Whether product is visible
+  # ---------------------- Metadata ----------------------
+  createdBy: String! # Creator user ID
+  createdAt: String! # Timestamp when created
+  deletedAt: String # Timestamp when deleted (soft delete)
 }
 
 # ---------------------- Inputs ----------------------
-# Input to create product.
+
 input CreateProductInput {
-  productType: ProductTypeEnum!
-  name: String!
-  defaultImage: String
-  images: [String!]
-  videos: [String!]
-  brandId: ID
-  tagIds: [ID!]
-  defaultMainDescription: String!
-  defaultShortDescription: String
-  defaultTags: [String!]
-  categoryId: ID
-  subCategoryIds: [ID!]
-  warrantyDigit: Int
-  defaultWarrantyPeriod: WarrantyPeriodEnum
-  warrantyPolicy: String
-  regularPrice: Float!
-  salePrice: Float
-  salePriceStartAt: String
-  salePriceEndAt: String
-  tierPricingInfoId: ID
-  saleQuantity: Int
-  taxStatusId: ID
-  taxClassId: ID
-  minQuantity: Int
-  defaultQuantity: Int
-  maxQuantity: Int
-  quantityStep: Int
-  sku: String
-  model: String
-  manageStock: Boolean
-  stockQuantity: Int
-  allowBackOrders: BackOrderOptionEnum
-  lowStockThresHold: Int
-  stockStatus: StockStatusEnum
-  soldIndividually: Boolean
-  initialNumberInStock: String
-  weightUnit: WeightUnitEnum
-  weight: Float
-  dimensionUnit: DimensionUnitEnum
-  length: Float
-  width: Float
-  height: Float
-  shippingClassId: ID
-  upsellIds: [ID!]
-  crossSellIds: [ID!]
-  attributeIds: [ID!]
-  purchaseNote: String
-  enableReviews: Boolean
-  customBadge: String
-  isPreview: Boolean
-  isVisible: Boolean
-  createdBy: String!
+  # ---------------------- Basic Info ----------------------
+  productType: ProductTypeEnum! # Product type: simple, variable, or customized
+  name: String! # Product name
+  # ---------------------- Media ----------------------
+  defaultImage: String # Default thumbnail image URL (nullable)
+  images: [String!] # Additional image URLs (nullable list)
+  videos: [String!] # Related video URLs (nullable list)
+  # ---------------------- Associations ----------------------
+  brandId: ID # Associated brand ID (nullable)
+  tagIds: [ID!] # Associated tag IDs (nullable list)
+  # ---------------------- Descriptions ----------------------
+  defaultMainDescription: String! # Main product description
+  defaultShortDescription: String # Short description (nullable)
+  defaultTags: [String!] # Default tags as strings (nullable list)
+  # ---------------------- Categorization ----------------------
+  categoryId: ID # Primary category ID (nullable)
+  subCategoryIds: [ID!] # Multiple sub-category IDs (nullable list)
+  # ---------------------- Warranty Information ----------------------
+  warrantyDigit: Int # Warranty duration number (nullable)
+  defaultWarrantyPeriod: WarrantyPeriodEnum # Warranty period unit (nullable)
+  warrantyPolicy: String # Warranty policy text (nullable)
+  # ---------------------- Pricing ----------------------
+  regularPrice: Float! # Base regular price
+  salePrice: Float # Sale price (nullable)
+  salePriceStartAt: String # Sale start date/time (nullable)
+  salePriceEndAt: String # Sale end date/time (nullable)
+  tierPricingId: ID # Tiered pricing info ID (nullable)
+  saleQuantity: Int # Sale quantity limit (nullable)
+  # ---------------------- Tax Information ----------------------
+  taxStatusId: ID # Tax status ID (nullable)
+  taxClassId: ID # Tax classification ID (nullable)
+  # ---------------------- Quantity Settings ----------------------
+  minQuantity: Int # Minimum order quantity (nullable)
+  defaultQuantity: Int # Default order quantity (nullable)
+  maxQuantity: Int # Maximum order quantity (nullable)
+  quantityStep: Int! # Quantity step increment
+  # ---------------------- Inventory & Stock ----------------------
+  sku: String # Stock keeping unit (nullable)
+  model: String # Model identifier (nullable)
+  manageStock: Boolean # Whether stock is managed
+  stockQuantity: Int # Quantity in stock (nullable)
+  allowBackOrders: BackOrderOptionEnum # Backorder option
+  lowStockThresHold: Int # Threshold for low stock warning (nullable)
+  stockStatus: StockStatusEnum # Current stock status
+  soldIndividually: Boolean! # Whether sold individually
+  initialNumberInStock: String # Initial stock count (nullable)
+  # ---------------------- Shipping Information ----------------------
+  weightUnit: WeightUnitEnum # Unit of weight measurement
+  weight: Float # Weight amount (nullable)
+  dimensionUnit: DimensionUnitEnum # Unit of dimension measurement
+  length: Float # Product length (nullable)
+  width: Float # Product width (nullable)
+  height: Float # Product height (nullable)
+  shippingClassId: ID # Shipping classification ID (nullable)
+  # ---------------------- Product Relations ----------------------
+  upsellIds: [ID!] # Linked upsell product IDs
+  crossSellIds: [ID!] # Linked cross-sell product IDs
+  # ---------------------- Product Attributes & Variations ----------------------
+  attributeIds: [ID!] # Product attribute IDs (nullable list)
+  variations: [ID!] # Product attribute IDs (nullable list)
+  # ---------------------- Advanced Settings ----------------------
+  purchaseNote: String # Optional purchase note
+  enableReviews: Boolean! # Whether reviews are enabled
+  customBadge: String # Custom badge label (nullable)
+  isPreview: Boolean! # Whether product is in preview mode
+  isVisible: Boolean! # Whether product is visible
+  # ---------------------- Metadata ----------------------
+  createdBy: String! # Creator user ID
 }
 
-# Input to update product.
-input ProductUpdateInput {
-  name: String
-  defaultImageId: String
-  imageIds: [String!]
-  videoIds: [String!]
-  brandId: ID
-  tagIds: [ID!]
-  defaultMainDescription: String
-  defaultShortDescription: String
-  defaultTags: [String!]
-  categoryId: ID
-  subCategoryIds: [ID!]
-  warrantyDigit: Int
-  defaultWarrantyPeriod: WarrantyPeriodEnum
-  warrantyPolicy: String
-  regularPrice: Float
-  salePrice: Float
-  salePriceStartAt: String
-  salePriceEndAt: String
-  tierPricingInfoId: ID
-  saleQuantity: Int
-  taxStatusId: ID
-  taxClassId: ID
-  minQuantity: Int
-  defaultQuantity: Int
-  maxQuantity: Int
-  quantityStep: Int
-  sku: String
-  model: String
-  manageStock: Boolean
-  stockQuantity: Int
-  allowBackOrders: BackOrderOptionEnum
-  lowStockThresHold: Int
-  stockStatus: StockStatusEnum
-  soldIndividually: Boolean
-  initialNumberInStock: String
-  weightUnit: WeightUnitEnum
-  weight: Float
-  dimensionUnit: DimensionUnitEnum
-  length: Float
-  width: Float
-  height: Float
-  shippingClassId: ID
-  upsellIds: [ID!]
-  crossSellIds: [ID!]
-  attributeIds: [ID!]
-  purchaseNote: String
-  enableReviews: Boolean
-  customBadge: String
-  isPreview: Boolean
-  isVisible: Boolean
+input UpdateProductInput {
+  # ---------------------- Basic Info ----------------------
+  productType: ProductTypeEnum # Product type: simple, variable, or customized
+  name: String # Product name
+  # ---------------------- Media ----------------------
+  defaultImage: String # Default thumbnail image URL (nullable)
+  images: [String!] # Additional image URLs (nullable list)
+  videos: [String!] # Related video URLs (nullable list)
+  # ---------------------- Associations ----------------------
+  brandId: ID # Associated brand ID (nullable)
+  tagIds: [ID!] # Associated tag IDs (nullable list)
+  # ---------------------- Descriptions ----------------------
+  defaultMainDescription: String # Main product description
+  defaultShortDescription: String # Short description (nullable)
+  defaultTags: [String!] # Default tags as strings (nullable list)
+  # ---------------------- Categorization ----------------------
+  categoryId: ID # Primary category ID (nullable)
+  subCategoryIds: [ID!] # Multiple sub-category IDs (nullable list)
+  # ---------------------- Warranty Information ----------------------
+  warrantyDigit: Int # Warranty duration number (nullable)
+  defaultWarrantyPeriod: WarrantyPeriodEnum # Warranty period unit (nullable)
+  warrantyPolicy: String # Warranty policy text (nullable)
+  # ---------------------- Pricing ----------------------
+  regularPrice: Float # Base regular price
+  salePrice: Float # Sale price (nullable)
+  salePriceStartAt: String # Sale start date/time (nullable)
+  salePriceEndAt: String # Sale end date/time (nullable)
+  tierPricingId: ID # Tiered pricing info ID (nullable)
+  saleQuantity: Int # Sale quantity limit (nullable)
+  # ---------------------- Tax Information ----------------------
+  taxStatusId: ID # Tax status ID (nullable)
+  taxClassId: ID # Tax classification ID (nullable)
+  # ---------------------- Quantity Settings ----------------------
+  minQuantity: Int # Minimum order quantity (nullable)
+  defaultQuantity: Int # Default order quantity (nullable)
+  maxQuantity: Int # Maximum order quantity (nullable)
+  quantityStep: Int # Quantity step increment
+  # ---------------------- Inventory & Stock ----------------------
+  sku: String # Stock keeping unit (nullable)
+  model: String # Model identifier (nullable)
+  manageStock: Boolean # Whether stock is managed
+  stockQuantity: Int # Quantity in stock (nullable)
+  allowBackOrders: BackOrderOptionEnum # Backorder option
+  lowStockThresHold: Int # Threshold for low stock warning (nullable)
+  stockStatus: StockStatusEnum # Current stock status
+  soldIndividually: Boolean # Whether sold individually
+  initialNumberInStock: String # Initial stock count (nullable)
+  # ---------------------- Shipping Information ----------------------
+  weightUnit: WeightUnitEnum # Unit of weight measurement
+  weight: Float # Weight amount (nullable)
+  dimensionUnit: DimensionUnitEnum # Unit of dimension measurement
+  length: Float # Product length (nullable)
+  width: Float # Product width (nullable)
+  height: Float # Product height (nullable)
+  shippingClassId: ID # Shipping classification ID (nullable)
+  # ---------------------- Product Relations ----------------------
+  upsellIds: [ID!] # Linked upsell product IDs
+  crossSellIds: [ID!] # Linked cross-sell product IDs
+  # ---------------------- Product Attributes & Variations ----------------------
+  attributeIds: [ID!] # Product attribute IDs (nullable list)
+  variations: [ID!] # Product attribute IDs (nullable list)
+  # ---------------------- Advanced Settings ----------------------
+  purchaseNote: String # Optional purchase note
+  enableReviews: Boolean # Whether reviews are enabled
+  customBadge: String # Custom badge label (nullable)
+  isPreview: Boolean # Whether product is in preview mode
+  isVisible: Boolean # Whether product is visible
 }
