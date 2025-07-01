@@ -102,7 +102,7 @@ export const verifyEmail = async (
         __typename: "EmailVerificationResponse",
       };
     }
-
+    delete userData.roles;
     // Update user with verified email in the database
     const updateResult = await updateUser({
       ...userData,
