@@ -1,0 +1,248 @@
+# ---------------------- User Login Info types ----------------------
+
+type LoginMeta {
+  id: ID! # Unique identifier of the login record.
+  ip: String # IP address used during login.
+  city: String # City (if available).
+  isp: String # Name of the Internet Service Provider.
+  country: String # Country name.
+  countryIso: String # Country ISO code.
+  postalCode: String # Postal or ZIP code.
+  subdivisionIso: String # ISO code of the subdivision/region.
+  timeZone: String # Timezone of the login location.
+  cityGeonameId: Int # GeoName ID of the city.
+  countryGeonameId: Int # GeoName ID of the country.
+  subdivisionGeonameId: Int # GeoName ID of the subdivision.
+  ispId: Int # Unique identifier of the ISP.
+  latitude: Float # Latitude coordinate of the login.
+  longitude: Float # Longitude coordinate of the login.
+  fingerprint: String! # Unique browser/device fingerprint hash.
+  session: String! # Unique session identifier.
+  fraud: Float! # Probability score indicating risk/fraud likelihood.
+  tor: Boolean! # Whether the login came through a Tor exit node.
+  createdAt: String! # Timestamp when the login occurred.
+}
+
+# ---------------------- User Types ----------------------
+
+# Enum for user gender selection, used in registration or profile setup.
+enum Gender {
+  Male
+  Female
+  Others
+  Rather_not_to_say
+}
+
+# Type for structured user address fields
+type UserAddress {
+  street: String
+  city: String
+  state: String
+  zip: String
+  country: String
+}
+
+# Represents the authenticated user's session data (lightweight).
+type UserSession @shareable {
+  id: ID!
+  avatar: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  gender: String!
+  roles: [String!]!
+  emailVerified: Boolean!
+  isAccountActivated: Boolean!
+  sessionId: String! # Unique session identifier.
+}
+
+# Cached user session indexed by email, stored in Redis.
+type UserSessionByEmail @shareable {
+  id: ID!
+  avatar: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  address: UserAddress
+  username: String
+  password: String!
+  emailVerified: Boolean!
+  gender: String!
+  roles: [String!]!
+  permissions: [PermissionSession!]!
+  canUpdatePermissions: Boolean!
+  canUpdateRole: Boolean!
+  isAccountActivated: Boolean!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
+  createdAt: String!
+  deletedAt: String!
+}
+
+# Cached user session indexed by ID, stored in Redis.
+type UserSessionById @shareable {
+  id: ID!
+  avatar: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  address: UserAddress
+  username: String
+  emailVerified: Boolean!
+  gender: String!
+  phone: String!
+  roles: [String!]!
+  permissions: [PermissionSession!]!
+  canUpdatePermissions: Boolean!
+  canUpdateRole: Boolean!
+  isAccountActivated: Boolean!
+  tempUpdatedEmail: String!
+  tempEmailVerified: Boolean!
+  createdAt: String!
+  deletedAt: String!
+}
+
+# Represents a full user object fetched from the database.
+type User @key(fields: "id") {
+  id: ID!
+  avatar: String
+  firstName: String
+  lastName: String
+  email: String
+  tempUpdatedEmail: String
+  username: String
+  address: UserAddress
+  emailVerified: Boolean
+  gender: String
+  phone: String
+  roles: [String]
+  isAccountActivated: Boolean
+  permissions: [Permissions!]
+  canUpdatePermissions: Boolean
+  canUpdateRole: Boolean
+  createdAt: String
+  deletedAt: String
+}
+
+# ---------------------- Responses ----------------------
+
+# Response for single user fetch.
+type UserResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  user: User!
+}
+
+# Response when fetching multiple users.
+type UsersResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  users: [User!]!
+  total: Int! # Total users matching the query.
+}
+
+# Returned after successful login with an access token.
+type UserLoginResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  token: String!
+  sessionId: String! # Unique session identifier.
+}
+
+# Response of the user login information by user ID.
+type UserLoginInfoResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  userLoginInfo: [LoginMeta!]! # List of login records for the user.
+}
+
+# Response when user profile is updated, possibly with a new token.
+type UserProfileUpdateResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  token: String!
+}
+
+# Response when verifying user email, might include new access token.
+type EmailVerificationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  token: String
+}
+
+# ---------------------- Inputs ----------------------
+
+# Represents a single user login record, including IP, geolocation, and session metadata.
+input LoginMetaInput {
+  ip: String # IP address used during login.
+  city: String # City (if available).
+  isp: String # Name of the Internet Service Provider.
+  country: String # Country name.
+  countryIso: String # Country ISO code.
+  postalCode: String # Postal or ZIP code.
+  subdivisionIso: String # ISO code of the subdivision/region.
+  timeZone: String # Timezone of the login location.
+  cityGeonameId: Int # GeoName ID of the city.
+  countryGeonameId: Int # GeoName ID of the country.
+  subdivisionGeonameId: Int # GeoName ID of the subdivision.
+  ispId: Int # Unique identifier of the ISP.
+  latitude: Float # Latitude coordinate of the login.
+  longitude: Float # Longitude coordinate of the login.
+  fingerprint: String! # Unique browser/device fingerprint hash.
+  session: String! # Unique session identifier.
+  fraud: Float! # Probability score indicating risk/fraud likelihood.
+  tor: Boolean! # Whether the login came through a Tor exit node.
+}
+
+# Input to update user's address.
+input UserAddressInput {
+  street: String
+  city: String
+  state: String
+  zip: String
+  country: String
+}
+
+# ---------------------- Unions ----------------------
+
+# Union return type for login mutation.
+union UserLoginResponseOrError =
+    BaseResponse
+  | UserLoginResponse
+  | ErrorResponse
+
+# Union for user profile update result.
+union UserProfileUpdateResponseOrError =
+    BaseResponse
+  | UserProfileUpdateResponse
+  | ErrorResponse
+
+# Union for email verification result.
+union EmailVerificationResponseOrError =
+    EmailVerificationResponse
+  | ErrorResponse
+
+# Union for activating an account.
+union ActiveAccountResponseOrError = BaseResponse | ErrorResponse
+
+# Query result when fetching the current profile.
+union GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse
+
+# Union when fetching user by ID.
+union GetUserByIDResponseOrError = BaseResponse | UserResponse | ErrorResponse
+
+# Union for multiple users fetch query.
+union GetUsersResponseOrError = BaseResponse | UsersResponse | ErrorResponse
+
+# Union when retrieving a single role.
+union GetUserLoginInfoResponseOrError =
+    BaseResponse
+  | UserLoginInfoResponse
+  | ErrorResponse
