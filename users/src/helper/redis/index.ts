@@ -98,7 +98,6 @@ export {
   getUsersCountFromRedis,
   getUsersFromRedis,
   getUserTokenInfoByUserSessionIdFromRedis,
-  getUserUsernameFromRedis,
   removeUserCountInDBFromRedis,
   removeUserEmailFromRedis,
   removeUserInfoByEmailFromRedis,
@@ -112,5 +111,4 @@ export {
   setUsersCountInRedis,
   setUsersInRedis,
   setUserTokenInfoByUserSessionIdInRedis,
-  setUserUsernameInRedis,
 } from "./utils/user/user-session-manage";

@@ -58,7 +58,7 @@ export const getProfile = async (
       // Cache user data in Redis
       await setUserInfoByUserIdInRedis(userExist.id, userExist);
     }
-    console.log(userExist);
+
     return {
       statusCode: 200,
       success: true,
@@ -72,10 +72,11 @@ export const getProfile = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${CONFIG.NODE_ENV === "production"
+      message: `${
+        CONFIG.NODE_ENV === "production"
           ? "Something went wrong, please try again."
           : error.message || "Internal server error"
-        }`,
+      }`,
       __typename: "BaseResponse",
     };
   }

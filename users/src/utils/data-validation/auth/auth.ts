@@ -46,7 +46,7 @@ export const registerSchema = z.object({
     .min(5, { message: "Username is required" })
     .max(10, { message: "Username must not exceed 10 characters" })
     .regex(/^[a-zA-Z0-9-]+$/, {
-      message: 'Username must contain only letters, numbers, or hyphens'
+      message: "Username must contain only letters, numbers, or hyphens",
     })
     .trim(),
   email: z
@@ -212,7 +212,7 @@ export const updateProfileSchema = z.object({
     .min(5, { message: "Username is required" })
     .max(10, { message: "Username must not exceed 10 characters" })
     .regex(/^[a-zA-Z0-9-]+$/, {
-      message: 'Username must contain only letters, numbers, or hyphens'
+      message: "Username must contain only letters, numbers, or hyphens",
     })
     .trim(),
   phone: z
@@ -226,23 +226,27 @@ export const updateProfileSchema = z.object({
     .trim()
     .nullable()
     .optional(),
-  email: z
+  email: z.string().email({ message: "Invalid email format" }).trim(),
+  gender: z.preprocess((val) => {
+    if (typeof val === "string" && genderMap[val]) {
+      return genderMap[val];
+    }
+    return val;
+  }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]])),
+  address: z
+    .object({
+      street: z.string().nullable().optional(),
+      city: z.string().nullable().optional(),
+      state: z.string().nullable().optional(),
+      zip: z.string().nullable().optional(),
+      country: z.string().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
+  avatar: z
     .string()
-    .email({ message: "Invalid email format" })
-    .trim(),
-  gender: z
-    .preprocess((val) => {
-      if (typeof val === "string" && genderMap[val]) {
-        return genderMap[val];
-      }
-      return val;
-    }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]])),
-  address: z.object({
-    street: z.string().nullable().optional(),
-    city: z.string().nullable().optional(),
-    state: z.string().nullable().optional(),
-    zip: z.string().nullable().optional(),
-    country: z.string().nullable().optional(),
-  }),
-  avatar: z.string().url({ message: "Avatar must be a valid URL" }).trim().nullable().optional(),
+    .url({ message: "Avatar must be a valid URL" })
+    .trim()
+    .nullable()
+    .optional(),
 });

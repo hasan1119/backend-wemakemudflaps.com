@@ -3,13 +3,11 @@ import { Context } from "../../../context";
 import {
   clearAllUserSearchCache,
   getUserInfoByUserIdFromRedis,
-  getUserUsernameFromRedis,
   removeUserTokenInfoByUserSessionIdFromRedis,
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
   setUserTokenInfoByUserSessionIdInRedis,
-  setUserUsernameInRedis,
 } from "../../../helper/redis";
 import {
   MutationUpdateProfileArgs,
@@ -94,21 +92,10 @@ export const updateProfile = async (
     userData = await getUserInfoByUserIdFromRedis(user.id);
 
     if (userData.username !== username) {
-      // Attempt to retrieve cached user username from Redis
-      let isAvailable;
-      isAvailable = await getUserUsernameFromRedis(username);
-
-      if (!isAvailable) {
-        // On cache miss, check if username is available
-        isAvailable = !await isUsernameAvailable(username);
-      }
-
-      console.log(isAvailable);
+      // Check if username is available
+      const isAvailable = !(await isUsernameAvailable(username, user.id));
 
       if (isAvailable) {
-        // Username is taken → cache and return error
-        await setUserUsernameInRedis(username, username);
-
         return {
           statusCode: 400,
           success: false,
@@ -246,10 +233,11 @@ export const updateProfile = async (
       statusCode: 200,
       success: true,
       token,
-      message: `${email !== userData.email
-        ? "Profile updated successfully, but please verify your updated email before using it as main email."
-        : "Profile updated successfully"
-        }`,
+      message: `${
+        email !== userData.email
+          ? "Profile updated successfully, but please verify your updated email before using it as main email."
+          : "Profile updated successfully"
+      }`,
       __typename: "UserProfileUpdateResponse",
     };
   } catch (error: any) {
@@ -258,10 +246,11 @@ export const updateProfile = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${CONFIG.NODE_ENV === "production"
-        ? "Something went wrong, please try again."
-        : error.message || "Internal server error"
-        }`,
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "ErrorResponse",
     };
   }

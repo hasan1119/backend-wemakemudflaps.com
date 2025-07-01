@@ -32,8 +32,9 @@ type AddressBook
   @join__type(graph: USER)
 {
   id: ID!
-  street: String!
-  houseNo: String
+  company: String!
+  streetOne: String!
+  streetTwo: String!
   city: String!
   state: String!
   zip: String!
@@ -778,7 +779,7 @@ type Mutation
   restoreTaxStatuses(ids: [ID!]!): RestoreTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
-  updateProfile(firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput, sessionId: String!): UserProfileUpdateResponseOrError! @join__field(graph: USER)
+  updateProfile(firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput): UserProfileUpdateResponseOrError! @join__field(graph: USER)
   changePassword(oldPassword: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
   forgetPassword(email: String!): BaseResponseOrError! @join__field(graph: USER)
   resetPassword(token: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
@@ -792,8 +793,8 @@ type Mutation
   accountActivation(userId: ID!, email: String!): ActiveAccountResponseOrError! @join__field(graph: USER)
   logout: BaseResponseOrError! @join__field(graph: USER)
   deleteLoginSession(sessionIds: [String]!): BaseResponseOrError! @join__field(graph: USER)
-  createAddressBookEntry(street: String!, houseNo: String, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
-  updateAddressBookEntry(id: ID!, street: String, houseNo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
+  createAddressBookEntry(company: String!, streetOne: String!, streetTwo: String!, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
+  updateAddressBookEntry(id: ID!, company: String, streetOne: String, streetTwo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
   deleteAddressBookEntry(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
 }
 
@@ -1395,6 +1396,7 @@ type User
   firstName: String
   lastName: String
   email: String
+  tempUpdatedEmail: String
   username: String
   address: UserAddress
   emailVerified: Boolean

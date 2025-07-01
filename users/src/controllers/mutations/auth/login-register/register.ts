@@ -7,7 +7,6 @@ import {
   getTotalUserCountByRoleIdFromRedis,
   getUserCountInDBFromRedis,
   getUserEmailFromRedis,
-  getUserUsernameFromRedis,
   setPermissionAgainstRoleInRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
@@ -17,7 +16,6 @@ import {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUserUsernameInRedis,
 } from "../../../../helper/redis";
 import {
   BaseResponseOrError,
@@ -118,26 +116,16 @@ export const register = async (
       }
     }
 
-    // Attempt to retrieve cached user username from Redis
-    let userUsername;
+    // Check if username is available
+    const isAvailable = await isUsernameAvailable(username);
 
-    userUsername = await getUserUsernameFromRedis(username);
-
-    if (!userUsername) {
-      // On cache miss, check if username is available
-      const isAvailable = await isUsernameAvailable(username);
-
-      if (!isAvailable) {
-        // Username is taken → cache and return error
-        await setUserUsernameInRedis(username, username);
-
-        return {
-          statusCode: 400,
-          success: false,
-          message: "Username already in use",
-          __typename: "BaseResponse",
-        };
-      }
+    if (!isAvailable) {
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Username already in use",
+        __typename: "BaseResponse",
+      };
     }
 
     // Hash the password using bcrypt
@@ -258,9 +246,8 @@ export const register = async (
         };
       }
 
-      // Cache user data, username email, and update counts in Redis
+      // Cache user data, email, and update counts in Redis
       await Promise.all([
-        setUserUsernameInRedis(username, username),
         setUserEmailInRedis(email, email),
         setUserInfoByUserIdInRedis(savedUser.id, savedUser),
         setUserInfoByEmailInRedis(email, savedUser),
@@ -424,9 +411,8 @@ export const register = async (
         };
       }
 
-      // Cache user data, username, email, and update counts in Redis
+      // Cache user data, email, and update counts in Redis
       await Promise.all([
-        setUserUsernameInRedis(username, username),
         setUserEmailInRedis(email, email),
         setUserInfoByUserIdInRedis(savedUser.id, savedUser),
         setUserInfoByEmailInRedis(email, savedUser),

@@ -29,11 +29,12 @@ export enum AddressType {
 
 // For create: all required except optional fields
 export const createAddressBookEntrySchema = z.object({
-  street: z.string().min(1, "Street is required"),
-  houseNo: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zip: z.string().min(1, "ZIP code is required"),
+  company: z.string().min(3, "Company name is required"),
+  streetOne: z.string().min(3, "Street one is required"),
+  streetTwo: z.string().min(3, "Street two is required"),
+  city: z.string().min(3, "City is required"),
+  state: z.string().min(3, "State is required"),
+  zip: z.string().min(3, "ZIP code is required"),
   country: z.string().optional(),
   type: z.nativeEnum(AddressType),
   isDefault: z.boolean(),
@@ -43,14 +44,27 @@ export const createAddressBookEntrySchema = z.object({
 export const updateAddressBookEntrySchema = z
   .object({
     id: z.string().uuid({ message: "Invalid UUID format" }),
-    street: z.string().min(1, "Street is required").optional(),
-    houseNo: z.string().optional(),
-    city: z.string().min(1, "City is required").optional(),
-    state: z.string().min(1, "State is required").optional(),
-    zip: z.string().min(1, "ZIP code is required").optional(),
-    country: z.string().optional(),
-    type: z.nativeEnum(AddressType).optional(),
-    isDefault: z.boolean().optional(),
+    company: z
+      .string()
+      .min(3, "Company name is required")
+      .nullable()
+      .optional(),
+    streetOne: z
+      .string()
+      .min(3, "Street one is required")
+      .nullable()
+      .optional(),
+    streetTwo: z
+      .string()
+      .min(3, "Street two is required")
+      .nullable()
+      .optional(),
+    city: z.string().min(3, "City is required").nullable().optional(),
+    state: z.string().min(3, "State is required").nullable().optional(),
+    zip: z.string().min(3, "ZIP code is required").nullable().optional(),
+    country: z.string().nullable().optional(),
+    type: z.nativeEnum(AddressType).nullable().optional(),
+    isDefault: z.boolean().nullable().optional(),
   })
   .refine(
     (data) =>

@@ -67,8 +67,9 @@ type BaseResponse @shareable {
 # Represents a single address record.
 type AddressBook {
   id: ID! # Unique identifier of the address
-  street: String! # Street address
-  houseNo: String # Apartment/Suite/House No (optional)
+  company: String! # Company name
+  streetOne: String! # Street one address
+  streetTwo: String! # Street two address
   city: String! # City
   state: String! # State
   zip: String! # ZIP code

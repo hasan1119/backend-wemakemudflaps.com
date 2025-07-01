@@ -65,8 +65,8 @@ export class User {
   } | null;
 
   // Stores the user's username
-  @Column({ unique: true, nullable: true })
-  username: string | null;
+  @Column({ unique: true })
+  username: string;
 
   // Stores the user's phone number (optional)
   @Column({ nullable: true })

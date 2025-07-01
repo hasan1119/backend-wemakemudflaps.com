@@ -55,8 +55,9 @@ export const createAddressBookEntry = async (
   // Create new address book entity with provided data
   const addressBookEntry = addressBookRepository.create({
     type: data.type as any,
-    houseNo: data.houseNo,
-    street: data.street,
+    company: data.company,
+    streetOne: data.streetOne,
+    streetTwo: data.streetTwo,
     city: data.city,
     zip: data.zip,
     state: data.state,

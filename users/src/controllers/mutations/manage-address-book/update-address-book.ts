@@ -50,8 +50,18 @@ export const updateAddressBookEntry = async (
       };
     }
 
-    const { id, city, country, houseNo, isDefault, state, street, type, zip } =
-      result.data;
+    const {
+      id,
+      city,
+      country,
+      company,
+      isDefault,
+      state,
+      streetOne,
+      streetTwo,
+      type,
+      zip,
+    } = result.data;
 
     // Attempt to retrieve cached addressBook data from Redis
     let addressBookData;
@@ -85,10 +95,10 @@ export const updateAddressBookEntry = async (
         id,
         city,
         country,
-        houseNo,
+        streetOne,
         isDefault,
         state,
-        street,
+        streetTwo,
         type: type as any,
         zip,
       },

@@ -1,4 +1,4 @@
-import { Brackets, In } from "typeorm";
+import { Brackets, In, Not } from "typeorm";
 import { Permission, User, UserLogin } from "../../../entities";
 import {
   getUserInfoByUserIdFromRedis,
@@ -20,15 +20,22 @@ import {
  * 3. If user is not found → return true.
  *
  * @param username - The username to check.
+ * @param userId - The user's id.
  * @returns A promise resolving to `true` if available, `false` if taken.
  */
 export const isUsernameAvailable = async (
-  username: string
+  username: string,
+  userId?: string
 ): Promise<boolean> => {
-  const user = await userRepository.findOne({
-    where: { username, deletedAt: null },
-    select: { id: true },
-  });
+  const user = !userId
+    ? await userRepository.findOne({
+        where: { username, deletedAt: null },
+        select: { id: true },
+      })
+    : await userRepository.findOne({
+        where: { id: Not(userId), username, deletedAt: null },
+        select: { id: true },
+      });
 
   return !user;
 };

@@ -53,18 +53,29 @@ export const createAddressBookEntry = async (
         __typename: "ErrorResponse",
       };
     }
-    const { city, country, houseNo, isDefault, state, street, type, zip } =
-      result.data;
+
+    const {
+      city,
+      country,
+      company,
+      isDefault,
+      state,
+      streetOne,
+      streetTwo,
+      type,
+      zip,
+    } = result.data;
 
     // Ensure type is cast to the correct AddressType from types
     const addressEntry = await createAddressBookEntryService(
       {
+        company,
+        streetOne,
+        streetTwo,
         city,
         country,
-        houseNo,
         isDefault,
         state,
-        street,
         type: type as any,
         zip,
       },

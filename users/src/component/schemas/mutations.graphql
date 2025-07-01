@@ -152,8 +152,9 @@ type Mutation {
   # Input includes address details such as street, city, state, country, and postal code.
   # Returns a response indicating success or failure of the operation.
   createAddressBookEntry(
-    street: String! # Street address
-    houseNo: String # Apartment/Suite/House No (optional)
+    company: String! # Company name
+    streetOne: String! # Street one address
+    streetTwo: String! # Street two address
     city: String! # City
     state: String! # State
     zip: String! # ZIP code
@@ -168,8 +169,9 @@ type Mutation {
   # Returns a response with the updated address or error if operation fails.
   updateAddressBookEntry(
     id: ID! # Unique ID of the address book entry to update.
-    street: String # Street address (optional)
-    houseNo: String # Apartment/Suite/House No (optional)
+    company: String # Company name (optional)
+    streetOne: String # Street one address (optional)
+    streetTwo: String # Street two address (optional)
     city: String # City (optional)
     state: String # State (optional)
     zip: String # ZIP code (optional)

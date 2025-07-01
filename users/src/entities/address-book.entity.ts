@@ -20,13 +20,17 @@ export class AddressBook {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // Street address line (e.g., "123 Main St")
-  @Column()
-  street: string;
-
-  // Optional apartment, suite, or unit number (e.g., "Apt 4B")
+  // Company name (e.g., "XYZ CORPORATE")
   @Column({ nullable: true })
-  houseNo: string;
+  company: string | null;
+
+  // Street address one line (e.g., "123 Main St")
+  @Column()
+  streetOne: string;
+
+  // Street address two line (e.g., "123 Main St")
+  @Column({ nullable: true })
+  streetTwo: string | null;
 
   // City where the address is located
   @Column()
@@ -40,7 +44,7 @@ export class AddressBook {
   @Column()
   zip: string;
 
-  // U.S. country name (optional)
+  // U.S. county name (optional)
   @Column()
   country: string;
 
