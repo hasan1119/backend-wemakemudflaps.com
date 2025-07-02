@@ -1,0 +1,4 @@
+# Queries to fetch product reviews from the system.
+type Query {
+  getReview: String
+}

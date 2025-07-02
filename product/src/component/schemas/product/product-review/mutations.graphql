@@ -1,0 +1,4 @@
+# Mutations to manage product reviews operations.
+type Mutation {
+  createReview: String
+}

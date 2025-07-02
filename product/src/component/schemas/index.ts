@@ -358,6 +358,42 @@ export const productReviewDef = gql(
 );
 
 /**
+ * Loads and parses GraphQL queries for tax product-review-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `product/product-review/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` product-review.
+ *
+ * @returns The parsed GraphQL queries for tax classes as a DocumentNode.
+ */
+export const productReviewQueriesDef = gql(
+  readFileSync(
+    path.join(__dirname, "./product/product-review/queries.graphql"),
+    {
+      encoding: "utf-8",
+    }
+  )
+);
+
+/**
+ * Loads and parses GraphQL mutations for tax product-review-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `product/product-review/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` product-review.
+ *
+ * @returns The parsed GraphQL mutations for tax classes as a DocumentNode.
+ */
+export const productReviewMutationsDef = gql(
+  readFileSync(
+    path.join(__dirname, "./product/product-review/mutations.graphql"),
+    {
+      encoding: "utf-8",
+    }
+  )
+);
+
+/**
  * Loads and parses the GraphQL schema for product-related types.
  *
  * Workflow:

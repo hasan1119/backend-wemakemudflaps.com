@@ -12,6 +12,8 @@ import {
   productPricingDef,
   productQueriesDef,
   productReviewDef,
+  productReviewMutationsDef,
+  productReviewQueriesDef,
   productVariationDef,
   sharedDef,
   shippingClassDef,
@@ -94,9 +96,22 @@ export const typeDefs = mergeTypeDefs([
   // Schema for taxStatus mutations (modifying tax status data)
   taxStatusMutationsDef,
 
+  // Product attribute schema definition
   productAttributeDef,
+
+  // Product pricing schema definition
   productPricingDef,
+
+  // Product review schema definition
   productReviewDef,
+
+  // Schema for product review mutations (modifying product review data)
+  productReviewMutationsDef,
+
+  // Schema for product review queries (fetching product review data)
+  productReviewQueriesDef,
+
+  // Product variation schema definition
   productVariationDef,
 
   // Product schema definition
