@@ -20,14 +20,14 @@ export { checkUserPermission } from "./permission/get-user-permission.service";
  * Workflow:
  * 1. Provides functions to get a single media file by ID or multiple by IDs.
  * 2. Supports paginated and searchable media file retrieval.
- * 3. Resolve media entity references (e.g., for Apollo Federation via `resolveMediaReference`).
+ * 3. Resolve media entity references (e.g., for Apollo Federation via `MediaData`).
  *
  */
 export {
   getAllMedias,
   getMediaById,
   getMediaByIds,
-  resolveMediaReference,
+  MediaData,
 } from "./get-media/get-media.service";
 
 /**

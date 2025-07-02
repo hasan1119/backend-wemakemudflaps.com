@@ -1,5 +1,5 @@
 import { getAllMedias, getMediaById } from "../../controllers";
-import { resolveMediaReference } from "../../controllers/services";
+import { MediaData } from "../../controllers/services";
 
 /**
  * Defines GraphQL query resolvers for media-related operations.
@@ -23,11 +23,7 @@ export const mediaQueriesResolver = {
   },
 
   Media: {
-    /**
-     * Resolver for federated reference to the `Media` entity,
-     * allowing other subgraphs to fetch user data by ID.
-     */
-    __resolveReference: resolveMediaReference,
+    __resolveReference: MediaData.__resolveReference,
 
     /**
      * Resolver for federated reference to the `CreatedBy` entity,

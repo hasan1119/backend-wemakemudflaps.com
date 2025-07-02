@@ -48,24 +48,34 @@ export const getMediaByIds = async (ids: string[]): Promise<Media[]> => {
  * @param id - ID of the media to resolve
  * @returns Resolved Media object or null
  */
-export const resolveMediaReference = async ({ id }) => {
-  let mediaData = await getMediaByMediaIdFromRedis(id);
 
-  if (!mediaData) {
-    const dbMedia = await getMediaById(id);
-    if (!dbMedia) return null;
+/**
+ * Federated reference resolver for the Media entity.
+ * Used by Apollo Federation to resolve media entities by ID from other subgraphs.
+ *
+ * @param id - ID of the media to resolve
+ * @returns Resolved Media object or null
+ */
+export const MediaData = {
+  __resolveReference: async ({ id }) => {
+    let mediaData = await getMediaByMediaIdFromRedis(id);
 
-    mediaData = {
-      ...dbMedia,
-      createdBy: dbMedia.createdBy as any,
-      createdAt: dbMedia.createdAt.toISOString(),
-      deletedAt: dbMedia.deletedAt ? dbMedia.deletedAt.toISOString() : null,
-    };
+    if (!mediaData) {
+      const dbMedia = await getMediaById(id);
+      if (!dbMedia) return null;
 
-    await setMediaByMediaIdInRedis(id, mediaData);
-  }
+      mediaData = {
+        ...dbMedia,
+        createdBy: dbMedia.createdBy as any,
+        createdAt: dbMedia.createdAt.toISOString(),
+        deletedAt: dbMedia.deletedAt ? dbMedia.deletedAt.toISOString() : null,
+      };
 
-  return mediaData;
+      await setMediaByMediaIdInRedis(id, mediaData);
+    }
+
+    return mediaData;
+  },
 };
 
 /**

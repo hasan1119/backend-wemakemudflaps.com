@@ -45,7 +45,7 @@ type UserAddress {
 # Represents the authenticated user's session data (lightweight).
 type UserSession @shareable {
   id: ID!
-  avatar: String!
+  avatar: ID
   firstName: String!
   lastName: String!
   email: String!
@@ -59,7 +59,7 @@ type UserSession @shareable {
 # Cached user session indexed by email, stored in Redis.
 type UserSessionByEmail @shareable {
   id: ID!
-  avatar: String!
+  avatar: ID
   firstName: String!
   lastName: String!
   email: String!
@@ -83,7 +83,7 @@ type UserSessionByEmail @shareable {
 # Cached user session indexed by ID, stored in Redis.
 type UserSessionById @shareable {
   id: ID!
-  avatar: String!
+  avatar: ID
   firstName: String!
   lastName: String!
   email: String!
@@ -106,7 +106,7 @@ type UserSessionById @shareable {
 # Represents a full user object fetched from the database.
 type User @key(fields: "id") {
   id: ID!
-  avatar: String
+  avatar: Media
   firstName: String
   lastName: String
   email: String

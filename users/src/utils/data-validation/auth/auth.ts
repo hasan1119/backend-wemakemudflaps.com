@@ -240,8 +240,7 @@ export const updateProfileSchema = z.object({
     .optional(),
   avatar: z
     .string()
-    .url({ message: "Avatar must be a valid URL" })
-    .trim()
+    .uuid({ message: "Invalid UUID format" })
     .nullable()
     .optional(),
 });

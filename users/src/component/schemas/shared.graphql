@@ -4,7 +4,7 @@
 extend schema
   @link(
     url: "https://specs.apollo.dev/federation/v2.7"
-    import: ["@key", "@shareable"]
+    import: ["@key", "@shareable", "@external"]
   )
 
 # ---------------------- Basic Types ----------------------
@@ -69,6 +69,13 @@ type CreatedBy @shareable @key(fields: "id") {
   id: ID! # Unique identifier of the creator.
   name: String! # Full name of the creator.
   roles: [String!]! # List of roles the creator holds.
+}
+
+# ---------------------- Media ----------------------
+
+# Extends the Media entity to support federated references.
+extend type Media @key(fields: "id") {
+  id: ID! @external
 }
 
 # ---------------------- Unions ----------------------

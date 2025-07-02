@@ -73,6 +73,19 @@ export const userQueriesResolver = {
     getAllMyAddressEntires,
   },
 
+  User: {
+    /**
+     * Resolver for federated reference to the `CreatedBy` entity,
+     * allowing other subgraphs to fetch media creator data by ID.
+     */
+    avatar: ({ avatar }) => {
+      return {
+        __typename: "MediaData",
+        id: avatar,
+      };
+    },
+  },
+
   /**
    * Resolver for federated reference to the `CreatedBy` entity,
    * allowing other subgraphs to fetch user data by ID.

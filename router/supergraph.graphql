@@ -256,9 +256,9 @@ input CreateProductInput
   sku: String
   model: String
   createdBy: String!
-  defaultImage: String
-  images: [String!]
-  videos: [String!]
+  defaultImage: ID
+  images: [ID!]
+  videos: [ID!]
   defaultMainDescription: String!
   defaultShortDescription: String
   defaultTags: [String!]
@@ -744,22 +744,24 @@ input LoginMetaInput
 
 type Media
   @join__type(graph: MEDIA, key: "id")
+  @join__type(graph: PRODUCT, key: "id", extension: true)
+  @join__type(graph: USER, key: "id", extension: true)
 {
   id: ID!
-  mediaType: String
-  url: String
-  fileName: String
-  title: String
-  description: String
-  altText: String
-  dimension: String
-  length: Int
-  category: String
-  size: Int
-  bucketName: String
-  createdBy: CreatedBy
-  createdAt: String
-  deletedAt: String
+  mediaType: String @join__field(graph: MEDIA)
+  url: String @join__field(graph: MEDIA)
+  fileName: String @join__field(graph: MEDIA)
+  title: String @join__field(graph: MEDIA)
+  description: String @join__field(graph: MEDIA)
+  altText: String @join__field(graph: MEDIA)
+  dimension: String @join__field(graph: MEDIA)
+  length: Int @join__field(graph: MEDIA)
+  category: String @join__field(graph: MEDIA)
+  size: Int @join__field(graph: MEDIA)
+  bucketName: String @join__field(graph: MEDIA)
+  createdBy: CreatedBy @join__field(graph: MEDIA)
+  createdAt: String @join__field(graph: MEDIA)
+  deletedAt: String @join__field(graph: MEDIA)
 }
 
 enum MediaCategory
@@ -1031,9 +1033,9 @@ type Product
   sku: String
   model: String
   createdBy: CreatedBy
-  defaultImage: String
-  images: [String!]
-  videos: [String!]
+  defaultImage: Media
+  images: [Media!]
+  videos: [Media!]
   defaultMainDescription: String!
   defaultShortDescription: String
   defaultTags: [String!]
@@ -1278,6 +1280,8 @@ type ProductVariation
   taxStatusId: ID
   taxClassId: ID
   description: String
+  images: [Media!]
+  videos: [Media!]
   createdAt: String!
   deletedAt: String
 }
@@ -1352,6 +1356,8 @@ input ProductVariationInput
   taxStatusId: ID
   taxClassId: ID
   description: String
+  images: [ID!]
+  videos: [ID!]
   deletedAt: String
 }
 
@@ -1817,9 +1823,9 @@ input UpdateProductInput
   name: String
   sku: String
   model: String
-  defaultImage: String
-  images: [String!]
-  videos: [String!]
+  defaultImage: ID
+  images: [ID!]
+  videos: [ID!]
   defaultMainDescription: String
   defaultShortDescription: String
   defaultTags: [String!]
@@ -1964,7 +1970,7 @@ type User
   @join__type(graph: USER, key: "id")
 {
   id: ID!
-  avatar: String
+  avatar: Media
   firstName: String
   lastName: String
   email: String
@@ -2058,7 +2064,7 @@ type UserSession
   @join__type(graph: USER)
 {
   id: ID!
-  avatar: String!
+  avatar: ID
   firstName: String!
   lastName: String!
   email: String!
@@ -2073,7 +2079,7 @@ type UserSessionByEmail
   @join__type(graph: USER)
 {
   id: ID!
-  avatar: String!
+  avatar: ID
   firstName: String!
   lastName: String!
   email: String!
@@ -2098,7 +2104,7 @@ type UserSessionById
   @join__type(graph: USER)
 {
   id: ID!
-  avatar: String!
+  avatar: ID
   firstName: String!
   lastName: String!
   email: String!

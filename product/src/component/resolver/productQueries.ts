@@ -25,23 +25,21 @@ const resolveCreatedBy = ({ createdBy }: { createdBy: string }) => ({
 });
 
 /**
- * Shared resolver for Media reference fields
+ * Shared resolver for single Media reference by id.
  */
-const resolveMediaReference = (id: string) =>
-  id
-    ? {
-        __typename: "Media",
-        id,
-      }
-    : null;
+const resolveMediaReference = (id: string) => ({
+  __typename: "Media",
+  id,
+});
 
+/**
+ * Shared resolver for multiple Media references.
+ */
 const resolveMediaArray = (ids: string[]) =>
-  Array.isArray(ids)
-    ? ids.map((id) => ({
-        __typename: "Media",
-        id,
-      }))
-    : [];
+  ids?.map((id) => ({
+    __typename: "Media",
+    id,
+  })) || [];
 
 // List of types that use the `resolveCreatedBy` resolver
 const typesWithCreatedBy = [
@@ -61,6 +59,27 @@ const typesWithCreatedBy = [
   "SubCategory",
   "SubCategoryDataResponse",
 ];
+
+// List of types that use the `resolveMedia` resolver
+const typesWithMedia = ["Product", "ProductVariation"];
+
+/**
+ * Dynamically create resolvers for media fields on types.
+ */
+function buildMediaResolvers() {
+  const mediaFieldResolvers = {
+    defaultImage: ({ defaultImageId }: { defaultImageId: string }) =>
+      resolveMediaReference(defaultImageId),
+    images: ({ imageIds }: { imageIds: string[] }) =>
+      resolveMediaArray(imageIds),
+    videos: ({ videoIds }: { videoIds: string[] }) =>
+      resolveMediaArray(videoIds),
+  };
+
+  return Object.fromEntries(
+    typesWithMedia.map((type) => [type, mediaFieldResolvers])
+  );
+}
 
 /**
  * Defines GraphQL query resolvers for product-related operations.
@@ -145,10 +164,6 @@ export const productQueriesResolver = {
     typesWithCreatedBy.map((type) => [type, { createdBy: resolveCreatedBy }])
   ),
 
-  // Media-resolving fields inside Product
-  Product: {
-    defaultImage: ({ defaultImageId }) => resolveMediaReference(defaultImageId),
-    images: ({ imageIds }) => resolveMediaArray(imageIds),
-    videos: ({ videoIds }) => resolveMediaArray(videoIds),
-  },
+  // Assign media resolvers dynamically
+  ...buildMediaResolvers(),
 };
