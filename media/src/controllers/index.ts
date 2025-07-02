@@ -10,6 +10,7 @@
 export { restoreMediaFiles } from "./mutations/restore-media-files/restore-media-files";
 export { updateMediaFileInfo } from "./mutations/update-media-file-info/update-media-file-info";
 export { deleteMediaFiles } from "./mutations/upload-and-delete/delete-media-files";
+export { uploadAvatar } from "./mutations/upload-and-delete/upload-avatar";
 export { uploadMediaFiles } from "./mutations/upload-and-delete/upload-media-files";
 
 /**

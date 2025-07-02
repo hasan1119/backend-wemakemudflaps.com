@@ -20,6 +20,49 @@ export type Scalars = {
 
 export type ActiveAccountResponseOrError = BaseResponse | ErrorResponse;
 
+export type AddressBook = {
+  __typename?: 'AddressBook';
+  city: Scalars['String']['output'];
+  company: Scalars['String']['output'];
+  country?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isDefault: Scalars['Boolean']['output'];
+  state: Scalars['String']['output'];
+  streetOne: Scalars['String']['output'];
+  streetTwo: Scalars['String']['output'];
+  type: AddressType;
+  updatedAt: Scalars['String']['output'];
+  zip: Scalars['String']['output'];
+};
+
+export type AddressResponseBook = {
+  __typename?: 'AddressResponseBook';
+  addressBook?: Maybe<AddressBook>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export enum AddressType {
+  Billing = 'BILLING',
+  Shipping = 'SHIPPING'
+}
+
+export type AddressesBookResponse = {
+  __typename?: 'AddressesBookResponse';
+  addressBook: Array<AddressBook>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export enum BackOrderOptionEnum {
+  Allow = 'ALLOW',
+  AllowButNotifyCustomer = 'ALLOW_BUT_NOTIFY_CUSTOMER',
+  DontAllow = 'DONT_ALLOW'
+}
+
 export type BaseResponse = {
   __typename?: 'BaseResponse';
   message: Scalars['String']['output'];
@@ -29,7 +72,188 @@ export type BaseResponse = {
 
 export type BaseResponseOrError = BaseResponse | ErrorResponse;
 
+export type Brand = {
+  __typename?: 'Brand';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  thumbnail?: Maybe<Media>;
+};
+
+export type BrandPaginationDataSession = {
+  __typename?: 'BrandPaginationDataSession';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  thumbnail?: Maybe<Media>;
+  totalProducts?: Maybe<Scalars['Int']['output']>;
+};
+
+export type BrandPaginationResponse = {
+  __typename?: 'BrandPaginationResponse';
+  brands: Array<BrandPaginationDataSession>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type BrandResponse = {
+  __typename?: 'BrandResponse';
+  brand: Brand;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type BrandResponseById = {
+  __typename?: 'BrandResponseById';
+  brand: Brand;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type Category = {
+  __typename?: 'Category';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  position: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
+  subCategories: Array<SubCategory>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+};
+
+export type CategoryDataResponse = {
+  __typename?: 'CategoryDataResponse';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  position: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
+  thumbnail?: Maybe<Scalars['String']['output']>;
+  totalProducts?: Maybe<Scalars['Int']['output']>;
+};
+
+export type CategoryPaginationResponse = {
+  __typename?: 'CategoryPaginationResponse';
+  category: Array<Category>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type CategoryResponse = {
+  __typename?: 'CategoryResponse';
+  category: CategoryDataResponse;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type CategoryResponseById = {
+  __typename?: 'CategoryResponseById';
+  category: Category;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export enum CategoryType {
+  Category = 'category',
+  SubCategory = 'subCategory'
+}
+
+export type CreateAddressBookResponseOrError = AddressResponseBook | BaseResponse | ErrorResponse;
+
+export type CreateBrandResponseOrError = BaseResponse | BrandResponse | ErrorResponse;
+
+export type CreateCategoryResponseOrError = BaseResponse | CategoryResponse | ErrorResponse | SubCategoryResponse;
+
+export type CreateProductInput = {
+  allowBackOrders?: InputMaybe<BackOrderOptionEnum>;
+  attributes?: InputMaybe<Array<ProductAttributeInput>>;
+  brandId?: InputMaybe<Scalars['ID']['input']>;
+  categoryId: Scalars['ID']['input'];
+  createdBy: Scalars['String']['input'];
+  crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  customBadge?: InputMaybe<Scalars['String']['input']>;
+  defaultImage?: InputMaybe<Scalars['ID']['input']>;
+  defaultMainDescription: Scalars['String']['input'];
+  defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
+  defaultShortDescription?: InputMaybe<Scalars['String']['input']>;
+  defaultTags?: InputMaybe<Array<Scalars['String']['input']>>;
+  defaultWarrantyPeriod?: InputMaybe<WarrantyPeriodEnum>;
+  dimensionUnit?: InputMaybe<DimensionUnitEnum>;
+  enableReviews?: InputMaybe<Scalars['Boolean']['input']>;
+  height?: InputMaybe<Scalars['Float']['input']>;
+  images?: InputMaybe<Array<Scalars['ID']['input']>>;
+  initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
+  isPreview?: InputMaybe<Scalars['Boolean']['input']>;
+  isVisible?: InputMaybe<Scalars['Boolean']['input']>;
+  length?: InputMaybe<Scalars['Float']['input']>;
+  lowStockThresHold?: InputMaybe<Scalars['Int']['input']>;
+  manageStock?: InputMaybe<Scalars['Boolean']['input']>;
+  maxQuantity?: InputMaybe<Scalars['Int']['input']>;
+  minQuantity?: InputMaybe<Scalars['Int']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  productConfigurationType: ProductTypeEnum;
+  productDeliveryType: Array<ProductDeliveryTypeEnum>;
+  purchaseNote?: InputMaybe<Scalars['String']['input']>;
+  quantityStep?: InputMaybe<Scalars['Int']['input']>;
+  regularPrice: Scalars['Float']['input'];
+  salePrice?: InputMaybe<Scalars['Float']['input']>;
+  salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
+  salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
+  saleQuantity?: InputMaybe<Scalars['Int']['input']>;
+  shippingClassId?: InputMaybe<Scalars['ID']['input']>;
+  sku?: InputMaybe<Scalars['String']['input']>;
+  soldIndividually?: InputMaybe<Scalars['Boolean']['input']>;
+  stockQuantity?: InputMaybe<Scalars['Int']['input']>;
+  stockStatus?: InputMaybe<StockStatusEnum>;
+  subCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  taxClassId?: InputMaybe<Scalars['ID']['input']>;
+  taxStatusId?: InputMaybe<Scalars['ID']['input']>;
+  tierPricingInfo?: InputMaybe<ProductPriceInput>;
+  upsellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  variations?: InputMaybe<Array<ProductVariationInput>>;
+  videos?: InputMaybe<Array<Scalars['ID']['input']>>;
+  warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
+  warrantyPolicy?: InputMaybe<Scalars['String']['input']>;
+  weight?: InputMaybe<Scalars['Float']['input']>;
+  weightUnit?: InputMaybe<WeightUnitEnum>;
+  width?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type CreateProductResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
+
+export type CreateProductReviewResponseOrError = BaseResponse | ErrorResponse | ProductReviewResponse;
+
 export type CreateRoleResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
+
+export type CreateShippingClassResponseOrError = BaseResponse | ErrorResponse | ShippingClassResponse;
+
+export type CreateTagResponseOrError = BaseResponse | ErrorResponse | TagResponse;
+
+export type CreateTaxClassResponseOrError = BaseResponse | ErrorResponse | TaxClassResponse;
+
+export type CreateTaxStatusResponseOrError = BaseResponse | ErrorResponse | TaxStatusResponse;
 
 export type CreatedBy = {
   __typename?: 'CreatedBy';
@@ -37,6 +261,32 @@ export type CreatedBy = {
   name: Scalars['String']['output'];
   roles: Array<Scalars['String']['output']>;
 };
+
+export type DeleteBrandResponseOrError = BaseResponse | ErrorResponse;
+
+export type DeleteCategoryResponseOrError = BaseResponse | ErrorResponse;
+
+export type DeleteProductResponseOrError = BaseResponse | ErrorResponse;
+
+export type DeleteProductReviewResponseOrError = BaseResponse | ErrorResponse;
+
+export type DeleteShippingClassResponseOrError = BaseResponse | ErrorResponse;
+
+export type DeleteTagResponseOrError = BaseResponse | ErrorResponse;
+
+export type DeleteTaxClassResponseOrError = BaseResponse | ErrorResponse;
+
+export type DeleteTaxStatusResponseOrError = BaseResponse | ErrorResponse;
+
+export enum DimensionUnitEnum {
+  Centimeter = 'CENTIMETER',
+  Foot = 'FOOT',
+  Inch = 'INCH',
+  Kilometer = 'KILOMETER',
+  Meter = 'METER',
+  Millimeter = 'MILLIMETER',
+  Yard = 'YARD'
+}
 
 export type EmailVerificationResponse = {
   __typename?: 'EmailVerificationResponse';
@@ -46,7 +296,7 @@ export type EmailVerificationResponse = {
   token?: Maybe<Scalars['String']['output']>;
 };
 
-export type EmailVerificationResponseOrError = EmailVerificationResponse | ErrorResponse;
+export type EmailVerificationResponseOrError = BaseResponse | EmailVerificationResponse | ErrorResponse;
 
 export type ErrorResponse = {
   __typename?: 'ErrorResponse';
@@ -69,6 +319,18 @@ export enum Gender {
   RatherNotToSay = 'Rather_not_to_say'
 }
 
+export type GetAddressBookByIdResponseOrError = AddressResponseBook | BaseResponse | ErrorResponse;
+
+export type GetAddressesBookResponseOrError = AddressesBookResponse | BaseResponse | ErrorResponse;
+
+export type GetBrandByIdResponseOrError = BaseResponse | BrandResponseById | ErrorResponse;
+
+export type GetBrandsResponseOrError = BaseResponse | BrandPaginationResponse | ErrorResponse;
+
+export type GetCategoriesResponseOrError = BaseResponse | CategoryPaginationResponse | ErrorResponse;
+
+export type GetCategoryByIdResponseOrError = BaseResponse | CategoryResponseById | ErrorResponse;
+
 export type GetMediaByIdResponseOrError = BaseResponse | ErrorResponse | MediaResponse;
 
 export type GetMediasResponseOrError = BaseResponse | ErrorResponse | MediasResponse;
@@ -77,6 +339,14 @@ export type GetPermissionsResponseOrError = BaseResponse | ErrorResponse | Perso
 
 export type GetPersonalizedPermissionsResponseOrError = BaseResponse | ErrorResponse | PermissionsResponse;
 
+export type GetProductByIdResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
+
+export type GetProductReviewByIdResponseOrError = BaseResponse | ErrorResponse | ProductReviewResponse;
+
+export type GetProductReviewsResponseOrError = BaseResponse | ErrorResponse | ProductReviewPaginationResponse;
+
+export type GetProductsResponseOrError = BaseResponse | ErrorResponse | ProductPaginationResponse;
+
 export type GetProfileResponseOrError = BaseResponse | ErrorResponse | UserResponse;
 
 export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
@@ -84,6 +354,24 @@ export type GetRoleByIdResponseOrError = BaseResponse | ErrorResponse | RoleResp
 export type GetRoleResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
 
 export type GetRolesResponseOrError = BaseResponse | ErrorResponse | RolesResponse;
+
+export type GetShippingClassByIdResponseOrError = BaseResponse | ErrorResponse | ShippingClassResponse;
+
+export type GetShippingClassesResponseOrError = BaseResponse | ErrorResponse | ShippingClassPaginationResponse;
+
+export type GetSubCategoryByIdResponseOrError = BaseResponse | ErrorResponse | SubCategoryResponseById;
+
+export type GetTagByIdResponseOrError = BaseResponse | ErrorResponse | TagResponse;
+
+export type GetTagsResponseOrError = BaseResponse | ErrorResponse | TagPaginationResponse;
+
+export type GetTaxClassByIdResponseOrError = BaseResponse | ErrorResponse | TaxClassResponse;
+
+export type GetTaxClassesResponseOrError = BaseResponse | ErrorResponse | TaxClassPaginationResponse;
+
+export type GetTaxStatusByIdResponseOrError = BaseResponse | ErrorResponse | TaxStatusResponse;
+
+export type GetTaxStatusesResponseOrError = BaseResponse | ErrorResponse | TaxStatusPaginationResponse;
 
 export type GetUserByIdResponseOrError = BaseResponse | ErrorResponse | UserResponse;
 
@@ -268,22 +556,53 @@ export type Mutation = {
   __typename?: 'Mutation';
   accountActivation: ActiveAccountResponseOrError;
   changePassword: BaseResponseOrError;
+  createAddressBookEntry: CreateAddressBookResponseOrError;
+  createBrand: CreateBrandResponseOrError;
+  createCategory: CreateCategoryResponseOrError;
+  createProduct?: Maybe<Scalars['String']['output']>;
+  createReview?: Maybe<Scalars['String']['output']>;
+  createShippingClass: CreateShippingClassResponseOrError;
+  createTag: CreateTagResponseOrError;
+  createTaxClass: CreateTaxClassResponseOrError;
+  createTaxStatus: CreateTaxStatusResponseOrError;
   createUserRole: CreateRoleResponseOrError;
+  deleteAddressBookEntry: BaseResponseOrError;
+  deleteBrand: DeleteBrandResponseOrError;
+  deleteCategory?: Maybe<DeleteCategoryResponseOrError>;
   deleteLoginSession: BaseResponseOrError;
   deleteMediaFiles: BaseResponseOrError;
+  deleteShippingClass: DeleteShippingClassResponseOrError;
+  deleteTag: DeleteTagResponseOrError;
+  deleteTaxClass: DeleteTaxClassResponseOrError;
+  deleteTaxStatus: DeleteTaxStatusResponseOrError;
   deleteUserRole: BaseResponseOrError;
   forgetPassword: BaseResponseOrError;
   login: UserLoginResponseOrError;
   logout: BaseResponseOrError;
   register: BaseResponseOrError;
   resetPassword: BaseResponseOrError;
+  restoreBrands: RestoreBrandResponseOrError;
+  restoreCategory?: Maybe<RestoreCategoryResponseOrError>;
   restoreMediaFiles: BaseResponseOrError;
+  restoreShippingClasses: RestoreShippingClassResponseOrError;
+  restoreTags: RestoreTagResponseOrError;
+  restoreTaxClasses: RestoreTaxClassResponseOrError;
+  restoreTaxStatuses: RestoreTaxStatusResponseOrError;
   restoreUserRole: BaseResponseOrError;
+  updateAddressBookEntry: UpdateAddressBookResponseOrError;
+  updateBrand: UpdateBrandResponseOrError;
+  updateCategory: UpdateCategoryResponseOrError;
+  updateCategoryPosition: UpdateCategoryPositionResponseOrError;
   updateMediaFileInfo: UpdateMediaResponseOrError;
   updateProfile: UserProfileUpdateResponseOrError;
+  updateShippingClass: UpdateShippingClassResponseOrError;
+  updateTag: UpdateTagResponseOrError;
+  updateTaxClass: UpdateTaxClassResponseOrError;
+  updateTaxStatus: UpdateTaxStatusResponseOrError;
   updateUserPermission: BaseResponseOrError;
   updateUserRole: BaseResponseOrError;
   updateUserRoleInfo: UpdateRoleResponseOrError;
+  uploadAvatar: UploadMediaResponseOrError;
   uploadMediaFiles: UploadMediaResponseOrError;
   verifyEmail: EmailVerificationResponseOrError;
 };
@@ -301,6 +620,60 @@ export type MutationChangePasswordArgs = {
 };
 
 
+export type MutationCreateAddressBookEntryArgs = {
+  city: Scalars['String']['input'];
+  company: Scalars['String']['input'];
+  country: Scalars['String']['input'];
+  isDefault: Scalars['Boolean']['input'];
+  state: Scalars['String']['input'];
+  streetOne: Scalars['String']['input'];
+  streetTwo: Scalars['String']['input'];
+  type: AddressType;
+  zip: Scalars['String']['input'];
+};
+
+
+export type MutationCreateBrandArgs = {
+  name: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+  thumbnail?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationCreateCategoryArgs = {
+  categoryId?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  parentSubCategoryId?: InputMaybe<Scalars['String']['input']>;
+  slug: Scalars['String']['input'];
+  thumbnail?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationCreateShippingClassArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  value: Scalars['String']['input'];
+};
+
+
+export type MutationCreateTagArgs = {
+  name: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+};
+
+
+export type MutationCreateTaxClassArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  value: Scalars['String']['input'];
+};
+
+
+export type MutationCreateTaxStatusArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  value: Scalars['String']['input'];
+};
+
+
 export type MutationCreateUserRoleArgs = {
   defaultPermissions?: InputMaybe<Array<RolePermissionInput>>;
   description?: InputMaybe<Scalars['String']['input']>;
@@ -312,14 +685,56 @@ export type MutationCreateUserRoleArgs = {
 };
 
 
+export type MutationDeleteAddressBookEntryArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationDeleteBrandArgs = {
+  ids: Array<InputMaybe<Scalars['ID']['input']>>;
+  skipTrash: Scalars['Boolean']['input'];
+};
+
+
+export type MutationDeleteCategoryArgs = {
+  categoryType: CategoryType;
+  id: Scalars['ID']['input'];
+  skipTrash?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type MutationDeleteLoginSessionArgs = {
-  sessionId: Scalars['String']['input'];
+  sessionIds: Array<InputMaybe<Scalars['String']['input']>>;
 };
 
 
 export type MutationDeleteMediaFilesArgs = {
   ids: Array<Scalars['ID']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
+  skipTrash: Scalars['Boolean']['input'];
+};
+
+
+export type MutationDeleteShippingClassArgs = {
+  ids: Array<InputMaybe<Scalars['ID']['input']>>;
+  skipTrash: Scalars['Boolean']['input'];
+};
+
+
+export type MutationDeleteTagArgs = {
+  ids: Array<InputMaybe<Scalars['ID']['input']>>;
+  skipTrash: Scalars['Boolean']['input'];
+};
+
+
+export type MutationDeleteTaxClassArgs = {
+  ids: Array<InputMaybe<Scalars['ID']['input']>>;
+  skipTrash: Scalars['Boolean']['input'];
+};
+
+
+export type MutationDeleteTaxStatusArgs = {
+  ids: Array<InputMaybe<Scalars['ID']['input']>>;
   skipTrash: Scalars['Boolean']['input'];
 };
 
@@ -349,6 +764,7 @@ export type MutationRegisterArgs = {
   gender?: InputMaybe<Gender>;
   lastName: Scalars['String']['input'];
   password: Scalars['String']['input'];
+  username: Scalars['String']['input'];
 };
 
 
@@ -358,7 +774,37 @@ export type MutationResetPasswordArgs = {
 };
 
 
+export type MutationRestoreBrandsArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationRestoreCategoryArgs = {
+  idsWithType: Array<RestoreCategoryType>;
+};
+
+
 export type MutationRestoreMediaFilesArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationRestoreShippingClassesArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationRestoreTagsArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationRestoreTaxClassesArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationRestoreTaxStatusesArgs = {
   ids: Array<Scalars['ID']['input']>;
 };
 
@@ -368,17 +814,87 @@ export type MutationRestoreUserRoleArgs = {
 };
 
 
+export type MutationUpdateAddressBookEntryArgs = {
+  city?: InputMaybe<Scalars['String']['input']>;
+  company?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  state?: InputMaybe<Scalars['String']['input']>;
+  streetOne?: InputMaybe<Scalars['String']['input']>;
+  streetTwo?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<AddressType>;
+  zip?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateBrandArgs = {
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  thumbnail?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateCategoryArgs = {
+  categoryType: CategoryType;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  thumbnail?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateCategoryPositionArgs = {
+  categoryType: CategoryType;
+  id: Scalars['ID']['input'];
+  position: Scalars['Int']['input'];
+};
+
+
 export type MutationUpdateMediaFileInfoArgs = {
   inputs: UpdateMediaInput;
 };
 
 
 export type MutationUpdateProfileArgs = {
+  address?: InputMaybe<UserAddressInput>;
+  avatar?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   gender?: InputMaybe<Gender>;
   lastName?: InputMaybe<Scalars['String']['input']>;
-  sessionId: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateShippingClassArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateTagArgs = {
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateTaxClassArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateTaxStatusArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  value?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -405,6 +921,12 @@ export type MutationUpdateUserRoleInfoArgs = {
   systemPermanentDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
   systemPermanentUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
   systemUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type MutationUploadAvatarArgs = {
+  inputs: UploadMediaInput;
+  userId: Scalars['String']['input'];
 };
 
 
@@ -446,6 +968,7 @@ export enum PermissionName {
   Role = 'ROLE',
   ShippingClass = 'SHIPPING_CLASS',
   SubCategory = 'SUB_CATEGORY',
+  Tag = 'TAG',
   TaxClass = 'TAX_CLASS',
   TaxStatus = 'TAX_STATUS',
   TermsConditions = 'TERMS_CONDITIONS',
@@ -491,18 +1014,368 @@ export type PersonalizedWithRolePermissionResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export enum PricingTypeEnum {
+  Fixed = 'Fixed',
+  Percentage = 'Percentage'
+}
+
+export type Product = {
+  __typename?: 'Product';
+  allowBackOrders?: Maybe<Scalars['String']['output']>;
+  attributes?: Maybe<Array<ProductAttribute>>;
+  brand?: Maybe<Brand>;
+  category: Category;
+  createdBy?: Maybe<CreatedBy>;
+  crossSell?: Maybe<Array<Product>>;
+  customBadge?: Maybe<Scalars['String']['output']>;
+  defaultImage?: Maybe<Media>;
+  defaultMainDescription: Scalars['String']['output'];
+  defaultQuantity?: Maybe<Scalars['Int']['output']>;
+  defaultShortDescription?: Maybe<Scalars['String']['output']>;
+  defaultTags?: Maybe<Array<Scalars['String']['output']>>;
+  defaultWarrantyPeriod?: Maybe<Scalars['String']['output']>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  dimensionUnit?: Maybe<Scalars['String']['output']>;
+  enableReviews?: Maybe<Scalars['Boolean']['output']>;
+  height?: Maybe<Scalars['Float']['output']>;
+  id?: Maybe<Scalars['ID']['output']>;
+  images?: Maybe<Array<Media>>;
+  initialNumberInStock?: Maybe<Scalars['String']['output']>;
+  isPreview?: Maybe<Scalars['Boolean']['output']>;
+  isVisible?: Maybe<Scalars['Boolean']['output']>;
+  length?: Maybe<Scalars['Float']['output']>;
+  lowStockThresHold?: Maybe<Scalars['Int']['output']>;
+  manageStock?: Maybe<Scalars['Boolean']['output']>;
+  maxQuantity?: Maybe<Scalars['Int']['output']>;
+  minQuantity?: Maybe<Scalars['Int']['output']>;
+  model?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  productConfigurationType: Scalars['String']['output'];
+  productDeliveryType: Array<Scalars['String']['output']>;
+  purchaseNote?: Maybe<Scalars['String']['output']>;
+  quantityStep?: Maybe<Scalars['Int']['output']>;
+  regularPrice: Scalars['Float']['output'];
+  reviews?: Maybe<Array<ProductReview>>;
+  salePrice?: Maybe<Scalars['Float']['output']>;
+  salePriceEndAt?: Maybe<Scalars['String']['output']>;
+  salePriceStartAt?: Maybe<Scalars['String']['output']>;
+  saleQuantity?: Maybe<Scalars['Int']['output']>;
+  shippingClass?: Maybe<ShippingClass>;
+  sku?: Maybe<Scalars['String']['output']>;
+  soldIndividually?: Maybe<Scalars['Boolean']['output']>;
+  stockQuantity?: Maybe<Scalars['Int']['output']>;
+  stockStatus?: Maybe<Scalars['String']['output']>;
+  subCategory?: Maybe<Array<SubCategory>>;
+  tags?: Maybe<Array<Tag>>;
+  taxClass?: Maybe<TaxClass>;
+  taxStatus?: Maybe<TaxStatus>;
+  tierPricingInfo?: Maybe<ProductPrice>;
+  upsells?: Maybe<Array<Product>>;
+  variations?: Maybe<Array<ProductVariation>>;
+  videos?: Maybe<Array<Media>>;
+  warrantyDigit?: Maybe<Scalars['Int']['output']>;
+  warrantyPolicy?: Maybe<Scalars['String']['output']>;
+  weight?: Maybe<Scalars['Float']['output']>;
+  weightUnit?: Maybe<Scalars['String']['output']>;
+  width?: Maybe<Scalars['Float']['output']>;
+};
+
+export type ProductAttribute = {
+  __typename?: 'ProductAttribute';
+  createdAt: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  values: Array<ProductAttributeValue>;
+};
+
+export type ProductAttributeInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type ProductAttributeValue = {
+  __typename?: 'ProductAttributeValue';
+  attribute: ProductAttribute;
+  createdAt: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type ProductAttributeValueInput = {
+  attributeId: Scalars['ID']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+  value: Scalars['String']['input'];
+};
+
+export enum ProductDeliveryTypeEnum {
+  Downloadable = 'DOWNLOADABLE',
+  Physical = 'PHYSICAL',
+  Virtual = 'VIRTUAL'
+}
+
+export type ProductPaginationResponse = {
+  __typename?: 'ProductPaginationResponse';
+  message: Scalars['String']['output'];
+  products: Array<Product>;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type ProductPrice = {
+  __typename?: 'ProductPrice';
+  createdAt: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  pricingType: PricingTypeEnum;
+  product?: Maybe<Product>;
+  productVariation?: Maybe<ProductVariation>;
+  tieredPrices: Array<ProductTieredPrice>;
+};
+
+export type ProductPriceInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  pricingType: PricingTypeEnum;
+  productId?: InputMaybe<Scalars['ID']['input']>;
+  productVariationId?: InputMaybe<Scalars['ID']['input']>;
+  tieredPrices?: InputMaybe<Array<ProductTieredPriceInput>>;
+};
+
+export type ProductResponse = {
+  __typename?: 'ProductResponse';
+  message: Scalars['String']['output'];
+  product: Product;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type ProductReview = {
+  __typename?: 'ProductReview';
+  comment: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  guestEmail?: Maybe<Scalars['String']['output']>;
+  guestName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isApproved: Scalars['Boolean']['output'];
+  product: Product;
+  rating: Scalars['Int']['output'];
+  reviewedBy: Scalars['String']['output'];
+};
+
+export type ProductReviewInput = {
+  comment: Scalars['String']['input'];
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  guestEmail?: InputMaybe<Scalars['String']['input']>;
+  guestName?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  isApproved?: InputMaybe<Scalars['Boolean']['input']>;
+  productId: Scalars['ID']['input'];
+  rating: Scalars['Int']['input'];
+  reviewedBy: Scalars['String']['input'];
+};
+
+export type ProductReviewPaginationResponse = {
+  __typename?: 'ProductReviewPaginationResponse';
+  message: Scalars['String']['output'];
+  reviews: Array<ProductReview>;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type ProductReviewResponse = {
+  __typename?: 'ProductReviewResponse';
+  message: Scalars['String']['output'];
+  reviews: ProductReview;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type ProductTieredPrice = {
+  __typename?: 'ProductTieredPrice';
+  createdAt: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  fixedPrice?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['ID']['output'];
+  maxQuantity: Scalars['Int']['output'];
+  minQuantity: Scalars['Int']['output'];
+  percentageDiscount?: Maybe<Scalars['Float']['output']>;
+  productPrice?: Maybe<ProductPrice>;
+};
+
+export type ProductTieredPriceInput = {
+  fixedPrice?: InputMaybe<Scalars['Float']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  maxQuantity: Scalars['Int']['input'];
+  minQuantity: Scalars['Int']['input'];
+  percentageDiscount?: InputMaybe<Scalars['Float']['input']>;
+  productPriceId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export enum ProductTypeEnum {
+  CustomizedProduct = 'CUSTOMIZED_PRODUCT',
+  SimpleProduct = 'SIMPLE_PRODUCT',
+  VariableProduct = 'VARIABLE_PRODUCT'
+}
+
+export type ProductVariation = {
+  __typename?: 'ProductVariation';
+  attributeValues: Array<ProductVariationAttributeValue>;
+  createdAt: Scalars['String']['output'];
+  defaultQuantity?: Maybe<Scalars['Int']['output']>;
+  defaultWarrantyPeriod?: Maybe<Scalars['String']['output']>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  dimensionUnit?: Maybe<Scalars['String']['output']>;
+  height?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['ID']['output'];
+  images?: Maybe<Array<Media>>;
+  length?: Maybe<Scalars['Float']['output']>;
+  maxQuantity?: Maybe<Scalars['Int']['output']>;
+  minQuantity?: Maybe<Scalars['Int']['output']>;
+  product: Product;
+  productDeliveryType: Array<Scalars['String']['output']>;
+  quantityStep: Scalars['Int']['output'];
+  regularPrice: Scalars['Float']['output'];
+  salePrice?: Maybe<Scalars['Float']['output']>;
+  salePriceEndAt?: Maybe<Scalars['String']['output']>;
+  salePriceStartAt?: Maybe<Scalars['String']['output']>;
+  shippingClassId?: Maybe<Scalars['ID']['output']>;
+  sku?: Maybe<Scalars['String']['output']>;
+  stockStatus?: Maybe<Scalars['String']['output']>;
+  taxClassId?: Maybe<Scalars['ID']['output']>;
+  taxStatusId?: Maybe<Scalars['ID']['output']>;
+  tierPricingInfo?: Maybe<ProductPrice>;
+  videos?: Maybe<Array<Media>>;
+  warrantyDigit?: Maybe<Scalars['Int']['output']>;
+  warrantyPolicy?: Maybe<Scalars['String']['output']>;
+  weight?: Maybe<Scalars['Float']['output']>;
+  weightUnit?: Maybe<Scalars['String']['output']>;
+  width?: Maybe<Scalars['Float']['output']>;
+};
+
+export type ProductVariationAttribute = {
+  __typename?: 'ProductVariationAttribute';
+  createdAt: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  values: Array<ProductVariationAttributeValue>;
+};
+
+export type ProductVariationAttributeInput = {
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  name: Scalars['String']['input'];
+};
+
+export type ProductVariationAttributeValue = {
+  __typename?: 'ProductVariationAttributeValue';
+  attribute: ProductVariationAttribute;
+  createdAt: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  value: Scalars['String']['output'];
+  variation: ProductVariation;
+};
+
+export type ProductVariationAttributeValueInput = {
+  attributeId: Scalars['ID']['input'];
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  value: Scalars['String']['input'];
+  variationId: Scalars['ID']['input'];
+};
+
+export type ProductVariationInput = {
+  attributeValues?: InputMaybe<Array<ProductVariationAttributeValueInput>>;
+  defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
+  defaultWarrantyPeriod?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  dimensionUnit?: InputMaybe<Scalars['String']['input']>;
+  height?: InputMaybe<Scalars['Float']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  images?: InputMaybe<Array<Scalars['ID']['input']>>;
+  length?: InputMaybe<Scalars['Float']['input']>;
+  maxQuantity?: InputMaybe<Scalars['Int']['input']>;
+  minQuantity?: InputMaybe<Scalars['Int']['input']>;
+  productDeliveryType?: InputMaybe<Array<ProductDeliveryTypeEnum>>;
+  productId: Scalars['ID']['input'];
+  quantityStep?: InputMaybe<Scalars['Int']['input']>;
+  regularPrice: Scalars['Float']['input'];
+  salePrice?: InputMaybe<Scalars['Float']['input']>;
+  salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
+  salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
+  shippingClassId?: InputMaybe<Scalars['ID']['input']>;
+  sku?: InputMaybe<Scalars['String']['input']>;
+  stockStatus?: InputMaybe<Scalars['String']['input']>;
+  taxClassId?: InputMaybe<Scalars['ID']['input']>;
+  taxStatusId?: InputMaybe<Scalars['ID']['input']>;
+  tierPricingInfoId?: InputMaybe<Scalars['ID']['input']>;
+  videos?: InputMaybe<Array<Scalars['ID']['input']>>;
+  warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
+  warrantyPolicy?: InputMaybe<Scalars['String']['input']>;
+  weight?: InputMaybe<Scalars['Float']['input']>;
+  weightUnit?: InputMaybe<Scalars['String']['input']>;
+  width?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type Query = {
   __typename?: 'Query';
+  getAddressBookEntryById: GetAddressBookByIdResponseOrError;
+  getAllBrands: GetBrandsResponseOrError;
+  getAllCategories: GetCategoriesResponseOrError;
   getAllMedias: GetMediasResponseOrError;
+  getAllMyAddressEntires: GetAddressesBookResponseOrError;
   getAllPermissionsByUserId: GetPermissionsResponseOrError;
   getAllRoles: GetRolesResponseOrError;
+  getAllShippingClass: GetShippingClassesResponseOrError;
+  getAllTags: GetTagsResponseOrError;
+  getAllTaxClass: GetTaxClassesResponseOrError;
+  getAllTaxStatus: GetTaxStatusesResponseOrError;
   getAllUsers: GetUsersResponseOrError;
+  getBrandById: GetBrandByIdResponseOrError;
+  getCategoryById: GetCategoryByIdResponseOrError;
   getMediaById: GetMediaByIdResponseOrError;
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError;
+  getProduct?: Maybe<Scalars['String']['output']>;
   getProfile: GetProfileResponseOrError;
+  getReview?: Maybe<Scalars['String']['output']>;
   getRoleById: GetRoleByIdResponseOrError;
+  getShippingClassById: GetShippingClassByIdResponseOrError;
+  getSubCategoryById: GetSubCategoryByIdResponseOrError;
+  getTagById: GetTagByIdResponseOrError;
+  getTaxClassById: GetTaxClassByIdResponseOrError;
+  getTaxStatusById: GetTaxStatusByIdResponseOrError;
   getUserById: GetUserByIdResponseOrError;
   getUserOwnLoginInfo: GetUserLoginInfoResponseOrError;
+};
+
+
+export type QueryGetAddressBookEntryByIdArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryGetAllBrandsArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllCategoriesArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -512,6 +1385,11 @@ export type QueryGetAllMediasArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllMyAddressEntiresArgs = {
+  type?: InputMaybe<AddressType>;
 };
 
 
@@ -529,12 +1407,58 @@ export type QueryGetAllRolesArgs = {
 };
 
 
+export type QueryGetAllShippingClassArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllTagsArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllTaxClassArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllTaxStatusArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryGetAllUsersArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetBrandByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetCategoryByIdArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -548,9 +1472,50 @@ export type QueryGetRoleByIdArgs = {
 };
 
 
+export type QueryGetShippingClassByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetSubCategoryByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetTagByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetTaxClassByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetTaxStatusByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetUserByIdArgs = {
   id: Scalars['String']['input'];
 };
+
+export type RestoreBrandResponseOrError = BaseResponse | ErrorResponse;
+
+export type RestoreCategoryResponseOrError = BaseResponse | ErrorResponse;
+
+export type RestoreProductResponseOrError = BaseResponse | ErrorResponse;
+
+export type RestoreProductReviewResponseOrError = BaseResponse | ErrorResponse;
+
+export type RestoreShippingClassResponseOrError = BaseResponse | ErrorResponse;
+
+export type RestoreTagResponseOrError = BaseResponse | ErrorResponse;
+
+export type RestoreTaxClassResponseOrError = BaseResponse | ErrorResponse;
+
+export type RestoreTaxStatusResponseOrError = BaseResponse | ErrorResponse;
 
 export type Role = {
   __typename?: 'Role';
@@ -591,7 +1556,7 @@ export type RolePermissionSession = {
 export type RoleResponse = {
   __typename?: 'RoleResponse';
   message: Scalars['String']['output'];
-  role: Role;
+  role?: Maybe<Role>;
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
 };
@@ -620,6 +1585,44 @@ export type RolesResponse = {
   total: Scalars['Int']['output'];
 };
 
+export type ShippingClass = {
+  __typename?: 'ShippingClass';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type ShippingClassPaginationDataSession = {
+  __typename?: 'ShippingClassPaginationDataSession';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  totalProducts?: Maybe<Scalars['Int']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type ShippingClassPaginationResponse = {
+  __typename?: 'ShippingClassPaginationResponse';
+  message: Scalars['String']['output'];
+  shippingClasses: Array<ShippingClassPaginationDataSession>;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type ShippingClassResponse = {
+  __typename?: 'ShippingClassResponse';
+  message: Scalars['String']['output'];
+  shippingClass: ShippingClass;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
 export type SinglePermissionInput = {
   canCreate?: InputMaybe<Scalars['Boolean']['input']>;
   canDelete?: InputMaybe<Scalars['Boolean']['input']>;
@@ -628,6 +1631,183 @@ export type SinglePermissionInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   name: PermissionName;
 };
+
+export enum StockStatusEnum {
+  InStock = 'IN_STOCK',
+  OnBackorder = 'ON_BACKORDER',
+  OutOfStock = 'OUT_OF_STOCK'
+}
+
+export type SubCategory = {
+  __typename?: 'SubCategory';
+  category: Category;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  parentSubCategory?: Maybe<SubCategoryDataResponse>;
+  position: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
+  subCategories?: Maybe<Array<SubCategoryDataResponse>>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+};
+
+export type SubCategoryDataResponse = {
+  __typename?: 'SubCategoryDataResponse';
+  category?: Maybe<Scalars['ID']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  parentSubCategory?: Maybe<Scalars['ID']['output']>;
+  position: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
+  subCategories?: Maybe<Array<SubCategoryDataResponse>>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
+  totalProducts?: Maybe<Scalars['Int']['output']>;
+};
+
+export type SubCategoryResponse = {
+  __typename?: 'SubCategoryResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  subcategory: SubCategoryDataResponse;
+  success: Scalars['Boolean']['output'];
+};
+
+export type SubCategoryResponseById = {
+  __typename?: 'SubCategoryResponseById';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  subcategory: SubCategoryDataResponse;
+  success: Scalars['Boolean']['output'];
+};
+
+export type Tag = {
+  __typename?: 'Tag';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+};
+
+export type TagPaginationDataSession = {
+  __typename?: 'TagPaginationDataSession';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  totalProducts?: Maybe<Scalars['Int']['output']>;
+};
+
+export type TagPaginationResponse = {
+  __typename?: 'TagPaginationResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  tags: Array<TagPaginationDataSession>;
+  total: Scalars['Int']['output'];
+};
+
+export type TagResponse = {
+  __typename?: 'TagResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  tag: Tag;
+};
+
+export type TaxClass = {
+  __typename?: 'TaxClass';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type TaxClassPaginationDataSession = {
+  __typename?: 'TaxClassPaginationDataSession';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  totalProducts?: Maybe<Scalars['Int']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type TaxClassPaginationResponse = {
+  __typename?: 'TaxClassPaginationResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  taxClasses: Array<TaxClassPaginationDataSession>;
+  total: Scalars['Int']['output'];
+};
+
+export type TaxClassResponse = {
+  __typename?: 'TaxClassResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  taxClass: TaxClass;
+};
+
+export type TaxStatus = {
+  __typename?: 'TaxStatus';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type TaxStatusPaginationDataSession = {
+  __typename?: 'TaxStatusPaginationDataSession';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  totalProducts?: Maybe<Scalars['Int']['output']>;
+  value: Scalars['String']['output'];
+};
+
+export type TaxStatusPaginationResponse = {
+  __typename?: 'TaxStatusPaginationResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  taxStatuses: Array<TaxStatusPaginationDataSession>;
+  total: Scalars['Int']['output'];
+};
+
+export type TaxStatusResponse = {
+  __typename?: 'TaxStatusResponse';
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  taxStatus: TaxStatus;
+};
+
+export type UpdateAddressBookResponseOrError = AddressResponseBook | BaseResponse | ErrorResponse;
+
+export type UpdateBrandResponseOrError = BaseResponse | BrandResponse | ErrorResponse;
+
+export type UpdateCategoryPositionResponseOrError = BaseResponse | CategoryResponse | ErrorResponse | SubCategoryResponse;
+
+export type UpdateCategoryResponseOrError = BaseResponse | CategoryResponse | ErrorResponse | SubCategoryResponse;
 
 export type UpdateMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
@@ -641,7 +1821,77 @@ export type UpdateMediaInput = {
 
 export type UpdateMediaResponseOrError = BaseResponse | ErrorResponse | MediaResponse;
 
+export type UpdateProductInput = {
+  allowBackOrders?: InputMaybe<BackOrderOptionEnum>;
+  attributes?: InputMaybe<Array<ProductAttributeInput>>;
+  brandId?: InputMaybe<Scalars['ID']['input']>;
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  customBadge?: InputMaybe<Scalars['String']['input']>;
+  defaultImage?: InputMaybe<Scalars['ID']['input']>;
+  defaultMainDescription?: InputMaybe<Scalars['String']['input']>;
+  defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
+  defaultShortDescription?: InputMaybe<Scalars['String']['input']>;
+  defaultTags?: InputMaybe<Array<Scalars['String']['input']>>;
+  defaultWarrantyPeriod?: InputMaybe<WarrantyPeriodEnum>;
+  dimensionUnit?: InputMaybe<DimensionUnitEnum>;
+  enableReviews?: InputMaybe<Scalars['Boolean']['input']>;
+  height?: InputMaybe<Scalars['Float']['input']>;
+  id: Scalars['ID']['input'];
+  images?: InputMaybe<Array<Scalars['ID']['input']>>;
+  initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
+  isPreview?: InputMaybe<Scalars['Boolean']['input']>;
+  isVisible?: InputMaybe<Scalars['Boolean']['input']>;
+  length?: InputMaybe<Scalars['Float']['input']>;
+  lowStockThresHold?: InputMaybe<Scalars['Int']['input']>;
+  manageStock?: InputMaybe<Scalars['Boolean']['input']>;
+  maxQuantity?: InputMaybe<Scalars['Int']['input']>;
+  minQuantity?: InputMaybe<Scalars['Int']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  productConfigurationType?: InputMaybe<ProductTypeEnum>;
+  productDeliveryType?: InputMaybe<Array<ProductDeliveryTypeEnum>>;
+  purchaseNote?: InputMaybe<Scalars['String']['input']>;
+  quantityStep?: InputMaybe<Scalars['Int']['input']>;
+  regularPrice?: InputMaybe<Scalars['Float']['input']>;
+  reviews?: InputMaybe<Array<ProductReviewInput>>;
+  salePrice?: InputMaybe<Scalars['Float']['input']>;
+  salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
+  salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
+  saleQuantity?: InputMaybe<Scalars['Int']['input']>;
+  shippingClassId?: InputMaybe<Scalars['ID']['input']>;
+  sku?: InputMaybe<Scalars['String']['input']>;
+  soldIndividually?: InputMaybe<Scalars['Boolean']['input']>;
+  stockQuantity?: InputMaybe<Scalars['Int']['input']>;
+  stockStatus?: InputMaybe<StockStatusEnum>;
+  subCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  taxClassId?: InputMaybe<Scalars['ID']['input']>;
+  taxStatusId?: InputMaybe<Scalars['ID']['input']>;
+  tierPricingInfo?: InputMaybe<ProductPriceInput>;
+  upsellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  variations?: InputMaybe<Array<ProductVariationInput>>;
+  videos?: InputMaybe<Array<Scalars['ID']['input']>>;
+  warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
+  warrantyPolicy?: InputMaybe<Scalars['String']['input']>;
+  weight?: InputMaybe<Scalars['Float']['input']>;
+  weightUnit?: InputMaybe<WeightUnitEnum>;
+  width?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type UpdateProductResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
+
+export type UpdateProductReviewResponseOrError = BaseResponse | ErrorResponse | ProductReviewResponse;
+
 export type UpdateRoleResponseOrError = BaseResponse | ErrorResponse | RoleResponse;
+
+export type UpdateShippingClassResponseOrError = BaseResponse | ErrorResponse | ShippingClassResponse;
+
+export type UpdateTagResponseOrError = BaseResponse | ErrorResponse | TagResponse;
+
+export type UpdateTaxClassResponseOrError = BaseResponse | ErrorResponse | TaxClassResponse;
+
+export type UpdateTaxStatusResponseOrError = BaseResponse | ErrorResponse | TaxStatusResponse;
 
 export type UpdateUserPermissionInput = {
   accessAll?: InputMaybe<Scalars['Boolean']['input']>;
@@ -678,6 +1928,8 @@ export type UploadMediaResponseOrError = BaseResponse | ErrorResponse | UploadMe
 
 export type User = {
   __typename?: 'User';
+  address?: Maybe<UserAddress>;
+  avatar?: Maybe<Media>;
   canUpdatePermissions?: Maybe<Scalars['Boolean']['output']>;
   canUpdateRole?: Maybe<Scalars['Boolean']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
@@ -690,7 +1942,27 @@ export type User = {
   isAccountActivated?: Maybe<Scalars['Boolean']['output']>;
   lastName?: Maybe<Scalars['String']['output']>;
   permissions?: Maybe<Array<Permissions>>;
+  phone?: Maybe<Scalars['String']['output']>;
   roles?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  tempUpdatedEmail?: Maybe<Scalars['String']['output']>;
+  username?: Maybe<Scalars['String']['output']>;
+};
+
+export type UserAddress = {
+  __typename?: 'UserAddress';
+  city?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  state?: Maybe<Scalars['String']['output']>;
+  street?: Maybe<Scalars['String']['output']>;
+  zip?: Maybe<Scalars['String']['output']>;
+};
+
+export type UserAddressInput = {
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  state?: InputMaybe<Scalars['String']['input']>;
+  street?: InputMaybe<Scalars['String']['input']>;
+  zip?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UserLoginInfoResponse = {
@@ -732,7 +2004,7 @@ export type UserResponse = {
 
 export type UserSession = {
   __typename?: 'UserSession';
-  avatar: Scalars['String']['output'];
+  avatar?: Maybe<Scalars['ID']['output']>;
   email: Scalars['String']['output'];
   emailVerified: Scalars['Boolean']['output'];
   firstName: Scalars['String']['output'];
@@ -746,7 +2018,8 @@ export type UserSession = {
 
 export type UserSessionByEmail = {
   __typename?: 'UserSessionByEmail';
-  avatar: Scalars['String']['output'];
+  address?: Maybe<UserAddress>;
+  avatar?: Maybe<Scalars['ID']['output']>;
   canUpdatePermissions: Scalars['Boolean']['output'];
   canUpdateRole: Scalars['Boolean']['output'];
   createdAt: Scalars['String']['output'];
@@ -760,14 +2033,17 @@ export type UserSessionByEmail = {
   lastName: Scalars['String']['output'];
   password: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
+  phone: Scalars['String']['output'];
   roles: Array<Scalars['String']['output']>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
+  username: Scalars['String']['output'];
 };
 
 export type UserSessionById = {
   __typename?: 'UserSessionById';
-  avatar: Scalars['String']['output'];
+  address?: Maybe<UserAddress>;
+  avatar?: Maybe<Scalars['ID']['output']>;
   canUpdatePermissions: Scalars['Boolean']['output'];
   canUpdateRole: Scalars['Boolean']['output'];
   createdAt: Scalars['String']['output'];
@@ -780,9 +2056,11 @@ export type UserSessionById = {
   isAccountActivated: Scalars['Boolean']['output'];
   lastName: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
+  phone: Scalars['String']['output'];
   roles: Array<Scalars['String']['output']>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
+  username: Scalars['String']['output'];
 };
 
 export type UsersResponse = {
@@ -792,6 +2070,37 @@ export type UsersResponse = {
   success: Scalars['Boolean']['output'];
   total: Scalars['Int']['output'];
   users: Array<User>;
+};
+
+export enum WarrantyPeriodEnum {
+  Day = 'DAY',
+  Days = 'DAYS',
+  LifeTime = 'LIFE_TIME',
+  Month = 'MONTH',
+  Months = 'MONTHS',
+  Week = 'WEEK',
+  Weeks = 'WEEKS',
+  Year = 'YEAR',
+  Years = 'YEARS'
+}
+
+export enum WeightUnitEnum {
+  Carat = 'CARAT',
+  Grain = 'GRAIN',
+  Gram = 'GRAM',
+  Kilogram = 'KILOGRAM',
+  MetricTon = 'METRIC_TON',
+  Milligram = 'MILLIGRAM',
+  Ounce = 'OUNCE',
+  Pound = 'POUND',
+  Quintal = 'QUINTAL',
+  Stone = 'STONE',
+  Ton = 'TON'
+}
+
+export type RestoreCategoryType = {
+  ids: Scalars['String']['input'];
+  type: CategoryType;
 };
 
 
@@ -865,21 +2174,75 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   ActiveAccountResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   BaseResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  CreateAddressBookResponseOrError: ( AddressResponseBook ) | ( BaseResponse ) | ( ErrorResponse );
+  CreateBrandResponseOrError: ( BaseResponse ) | ( BrandResponse ) | ( ErrorResponse );
+  CreateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
+  CreateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
+  CreateProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
   CreateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
-  EmailVerificationResponseOrError: ( EmailVerificationResponse ) | ( ErrorResponse );
+  CreateShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
+  CreateTagResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagResponse );
+  CreateTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxClassResponse );
+  CreateTaxStatusResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxStatusResponse );
+  DeleteBrandResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  DeleteCategoryResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  DeleteProductResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  DeleteProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  DeleteShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  DeleteTagResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  DeleteTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  DeleteTaxStatusResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  EmailVerificationResponseOrError: ( BaseResponse ) | ( EmailVerificationResponse ) | ( ErrorResponse );
+  GetAddressBookByIdResponseOrError: ( AddressResponseBook ) | ( BaseResponse ) | ( ErrorResponse );
+  GetAddressesBookResponseOrError: ( AddressesBookResponse ) | ( BaseResponse ) | ( ErrorResponse );
+  GetBrandByIDResponseOrError: ( BaseResponse ) | ( BrandResponseById ) | ( ErrorResponse );
+  GetBrandsResponseOrError: ( BaseResponse ) | ( BrandPaginationResponse ) | ( ErrorResponse );
+  GetCategoriesResponseOrError: ( BaseResponse ) | ( CategoryPaginationResponse ) | ( ErrorResponse );
+  GetCategoryByIDResponseOrError: ( BaseResponse ) | ( CategoryResponseById ) | ( ErrorResponse );
   GetMediaByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
   GetMediasResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediasResponse );
   GetPermissionsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( PersonalizedWithRolePermissionResponse );
   GetPersonalizedPermissionsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( PermissionsResponse );
+  GetProductByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
+  GetProductReviewByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
+  GetProductReviewsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewPaginationResponse );
+  GetProductsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductPaginationResponse );
   GetProfileResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
   GetRoleByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   GetRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   GetRolesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RolesResponse );
+  GetShippingClassByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
+  GetShippingClassesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassPaginationResponse );
+  GetSubCategoryByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( SubCategoryResponseById );
+  GetTagByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagResponse );
+  GetTagsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagPaginationResponse );
+  GetTaxClassByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxClassResponse );
+  GetTaxClassesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxClassPaginationResponse );
+  GetTaxStatusByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxStatusResponse );
+  GetTaxStatusesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxStatusPaginationResponse );
   GetUserByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserResponse );
   GetUserLoginInfoResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserLoginInfoResponse );
   GetUsersResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UsersResponse );
+  RestoreBrandResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  RestoreCategoryResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  RestoreProductResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  RestoreProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  RestoreShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  RestoreTagResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  RestoreTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  RestoreTaxStatusResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  UpdateAddressBookResponseOrError: ( AddressResponseBook ) | ( BaseResponse ) | ( ErrorResponse );
+  UpdateBrandResponseOrError: ( BaseResponse ) | ( BrandResponse ) | ( ErrorResponse );
+  UpdateCategoryPositionResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
+  UpdateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
   UpdateMediaResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
+  UpdateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
+  UpdateProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
   UpdateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
+  UpdateShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
+  UpdateTagResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagResponse );
+  UpdateTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxClassResponse );
+  UpdateTaxStatusResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxStatusResponse );
   UploadMediaResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UploadMediaResponse );
   UserLoginResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserLoginResponse );
   UserProfileUpdateResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserProfileUpdateResponse );
@@ -889,32 +2252,86 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   ActiveAccountResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ActiveAccountResponseOrError']>;
-  BaseResponse: ResolverTypeWrapper<BaseResponse>;
+  AddressBook: ResolverTypeWrapper<AddressBook>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
-  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
-  BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
-  CreateRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateRoleResponseOrError']>;
-  CreatedBy: ResolverTypeWrapper<CreatedBy>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  AddressResponseBook: ResolverTypeWrapper<AddressResponseBook>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  AddressType: AddressType;
+  AddressesBookResponse: ResolverTypeWrapper<AddressesBookResponse>;
+  BackOrderOptionEnum: BackOrderOptionEnum;
+  BaseResponse: ResolverTypeWrapper<BaseResponse>;
+  BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
+  Brand: ResolverTypeWrapper<Brand>;
+  BrandPaginationDataSession: ResolverTypeWrapper<BrandPaginationDataSession>;
+  BrandPaginationResponse: ResolverTypeWrapper<BrandPaginationResponse>;
+  BrandResponse: ResolverTypeWrapper<BrandResponse>;
+  BrandResponseById: ResolverTypeWrapper<BrandResponseById>;
+  Category: ResolverTypeWrapper<Category>;
+  CategoryDataResponse: ResolverTypeWrapper<CategoryDataResponse>;
+  CategoryPaginationResponse: ResolverTypeWrapper<CategoryPaginationResponse>;
+  CategoryResponse: ResolverTypeWrapper<CategoryResponse>;
+  CategoryResponseById: ResolverTypeWrapper<CategoryResponseById>;
+  CategoryType: CategoryType;
+  CreateAddressBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateAddressBookResponseOrError']>;
+  CreateBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateBrandResponseOrError']>;
+  CreateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateCategoryResponseOrError']>;
+  CreateProductInput: CreateProductInput;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  CreateProductResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateProductResponseOrError']>;
+  CreateProductReviewResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateProductReviewResponseOrError']>;
+  CreateRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateRoleResponseOrError']>;
+  CreateShippingClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateShippingClassResponseOrError']>;
+  CreateTagResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTagResponseOrError']>;
+  CreateTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTaxClassResponseOrError']>;
+  CreateTaxStatusResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTaxStatusResponseOrError']>;
+  CreatedBy: ResolverTypeWrapper<CreatedBy>;
+  DeleteBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteBrandResponseOrError']>;
+  DeleteCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteCategoryResponseOrError']>;
+  DeleteProductResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteProductResponseOrError']>;
+  DeleteProductReviewResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteProductReviewResponseOrError']>;
+  DeleteShippingClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteShippingClassResponseOrError']>;
+  DeleteTagResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteTagResponseOrError']>;
+  DeleteTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteTaxClassResponseOrError']>;
+  DeleteTaxStatusResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteTaxStatusResponseOrError']>;
+  DimensionUnitEnum: DimensionUnitEnum;
   EmailVerificationResponse: ResolverTypeWrapper<EmailVerificationResponse>;
   EmailVerificationResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EmailVerificationResponseOrError']>;
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
   FieldError: ResolverTypeWrapper<FieldError>;
   Gender: Gender;
+  GetAddressBookByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetAddressBookByIdResponseOrError']>;
+  GetAddressesBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetAddressesBookResponseOrError']>;
+  GetBrandByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetBrandByIDResponseOrError']>;
+  GetBrandsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetBrandsResponseOrError']>;
+  GetCategoriesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoriesResponseOrError']>;
+  GetCategoryByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoryByIDResponseOrError']>;
   GetMediaByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediaByIdResponseOrError']>;
   GetMediasResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediasResponseOrError']>;
   GetPermissionsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetPermissionsResponseOrError']>;
   GetPersonalizedPermissionsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetPersonalizedPermissionsResponseOrError']>;
+  GetProductByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductByIdResponseOrError']>;
+  GetProductReviewByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductReviewByIdResponseOrError']>;
+  GetProductReviewsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductReviewsResponseOrError']>;
+  GetProductsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductsResponseOrError']>;
   GetProfileResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProfileResponseOrError']>;
   GetRoleByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRoleByIDResponseOrError']>;
   GetRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRoleResponseOrError']>;
   GetRolesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetRolesResponseOrError']>;
+  GetShippingClassByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetShippingClassByIDResponseOrError']>;
+  GetShippingClassesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetShippingClassesResponseOrError']>;
+  GetSubCategoryByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetSubCategoryByIDResponseOrError']>;
+  GetTagByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTagByIDResponseOrError']>;
+  GetTagsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTagsResponseOrError']>;
+  GetTaxClassByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTaxClassByIDResponseOrError']>;
+  GetTaxClassesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTaxClassesResponseOrError']>;
+  GetTaxStatusByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTaxStatusByIDResponseOrError']>;
+  GetTaxStatusesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTaxStatusesResponseOrError']>;
   GetUserByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUserByIDResponseOrError']>;
   GetUserLoginInfoResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUserLoginInfoResponseOrError']>;
   GetUsersResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUsersResponseOrError']>;
   LoginMeta: ResolverTypeWrapper<LoginMeta>;
-  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   LoginMetaInput: LoginMetaInput;
   Media: ResolverTypeWrapper<Media>;
   MediaCategory: MediaCategory;
@@ -928,22 +2345,88 @@ export type ResolversTypes = {
   Permissions: ResolverTypeWrapper<Permissions>;
   PermissionsResponse: ResolverTypeWrapper<PermissionsResponse>;
   PersonalizedWithRolePermissionResponse: ResolverTypeWrapper<PersonalizedWithRolePermissionResponse>;
+  PricingTypeEnum: PricingTypeEnum;
+  Product: ResolverTypeWrapper<Product>;
+  ProductAttribute: ResolverTypeWrapper<ProductAttribute>;
+  ProductAttributeInput: ProductAttributeInput;
+  ProductAttributeValue: ResolverTypeWrapper<ProductAttributeValue>;
+  ProductAttributeValueInput: ProductAttributeValueInput;
+  ProductDeliveryTypeEnum: ProductDeliveryTypeEnum;
+  ProductPaginationResponse: ResolverTypeWrapper<ProductPaginationResponse>;
+  ProductPrice: ResolverTypeWrapper<ProductPrice>;
+  ProductPriceInput: ProductPriceInput;
+  ProductResponse: ResolverTypeWrapper<ProductResponse>;
+  ProductReview: ResolverTypeWrapper<ProductReview>;
+  ProductReviewInput: ProductReviewInput;
+  ProductReviewPaginationResponse: ResolverTypeWrapper<ProductReviewPaginationResponse>;
+  ProductReviewResponse: ResolverTypeWrapper<ProductReviewResponse>;
+  ProductTieredPrice: ResolverTypeWrapper<ProductTieredPrice>;
+  ProductTieredPriceInput: ProductTieredPriceInput;
+  ProductTypeEnum: ProductTypeEnum;
+  ProductVariation: ResolverTypeWrapper<ProductVariation>;
+  ProductVariationAttribute: ResolverTypeWrapper<ProductVariationAttribute>;
+  ProductVariationAttributeInput: ProductVariationAttributeInput;
+  ProductVariationAttributeValue: ResolverTypeWrapper<ProductVariationAttributeValue>;
+  ProductVariationAttributeValueInput: ProductVariationAttributeValueInput;
+  ProductVariationInput: ProductVariationInput;
   Query: ResolverTypeWrapper<{}>;
+  RestoreBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RestoreBrandResponseOrError']>;
+  RestoreCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RestoreCategoryResponseOrError']>;
+  RestoreProductResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RestoreProductResponseOrError']>;
+  RestoreProductReviewResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RestoreProductReviewResponseOrError']>;
+  RestoreShippingClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RestoreShippingClassResponseOrError']>;
+  RestoreTagResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RestoreTagResponseOrError']>;
+  RestoreTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RestoreTaxClassResponseOrError']>;
+  RestoreTaxStatusResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['RestoreTaxStatusResponseOrError']>;
   Role: ResolverTypeWrapper<Role>;
   RolePermissionInput: RolePermissionInput;
   RolePermissionSession: ResolverTypeWrapper<RolePermissionSession>;
   RoleResponse: ResolverTypeWrapper<RoleResponse>;
   RoleSession: ResolverTypeWrapper<RoleSession>;
   RolesResponse: ResolverTypeWrapper<RolesResponse>;
+  ShippingClass: ResolverTypeWrapper<ShippingClass>;
+  ShippingClassPaginationDataSession: ResolverTypeWrapper<ShippingClassPaginationDataSession>;
+  ShippingClassPaginationResponse: ResolverTypeWrapper<ShippingClassPaginationResponse>;
+  ShippingClassResponse: ResolverTypeWrapper<ShippingClassResponse>;
   SinglePermissionInput: SinglePermissionInput;
+  StockStatusEnum: StockStatusEnum;
+  SubCategory: ResolverTypeWrapper<SubCategory>;
+  SubCategoryDataResponse: ResolverTypeWrapper<SubCategoryDataResponse>;
+  SubCategoryResponse: ResolverTypeWrapper<SubCategoryResponse>;
+  SubCategoryResponseById: ResolverTypeWrapper<SubCategoryResponseById>;
+  Tag: ResolverTypeWrapper<Tag>;
+  TagPaginationDataSession: ResolverTypeWrapper<TagPaginationDataSession>;
+  TagPaginationResponse: ResolverTypeWrapper<TagPaginationResponse>;
+  TagResponse: ResolverTypeWrapper<TagResponse>;
+  TaxClass: ResolverTypeWrapper<TaxClass>;
+  TaxClassPaginationDataSession: ResolverTypeWrapper<TaxClassPaginationDataSession>;
+  TaxClassPaginationResponse: ResolverTypeWrapper<TaxClassPaginationResponse>;
+  TaxClassResponse: ResolverTypeWrapper<TaxClassResponse>;
+  TaxStatus: ResolverTypeWrapper<TaxStatus>;
+  TaxStatusPaginationDataSession: ResolverTypeWrapper<TaxStatusPaginationDataSession>;
+  TaxStatusPaginationResponse: ResolverTypeWrapper<TaxStatusPaginationResponse>;
+  TaxStatusResponse: ResolverTypeWrapper<TaxStatusResponse>;
+  UpdateAddressBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateAddressBookResponseOrError']>;
+  UpdateBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateBrandResponseOrError']>;
+  UpdateCategoryPositionResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryPositionResponseOrError']>;
+  UpdateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryResponseOrError']>;
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateMediaResponseOrError']>;
+  UpdateProductInput: UpdateProductInput;
+  UpdateProductResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateProductResponseOrError']>;
+  UpdateProductReviewResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateProductReviewResponseOrError']>;
   UpdateRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateRoleResponseOrError']>;
+  UpdateShippingClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateShippingClassResponseOrError']>;
+  UpdateTagResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTagResponseOrError']>;
+  UpdateTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxClassResponseOrError']>;
+  UpdateTaxStatusResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxStatusResponseOrError']>;
   UpdateUserPermissionInput: UpdateUserPermissionInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: ResolverTypeWrapper<UploadMediaResponse>;
   UploadMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UploadMediaResponseOrError']>;
   User: ResolverTypeWrapper<User>;
+  UserAddress: ResolverTypeWrapper<UserAddress>;
+  UserAddressInput: UserAddressInput;
   UserLoginInfoResponse: ResolverTypeWrapper<UserLoginInfoResponse>;
   UserLoginResponse: ResolverTypeWrapper<UserLoginResponse>;
   UserLoginResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserLoginResponseOrError']>;
@@ -954,36 +2437,89 @@ export type ResolversTypes = {
   UserSessionByEmail: ResolverTypeWrapper<UserSessionByEmail>;
   UserSessionById: ResolverTypeWrapper<UserSessionById>;
   UsersResponse: ResolverTypeWrapper<UsersResponse>;
+  WarrantyPeriodEnum: WarrantyPeriodEnum;
+  WeightUnitEnum: WeightUnitEnum;
+  restoreCategoryType: RestoreCategoryType;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   ActiveAccountResponseOrError: ResolversUnionTypes<ResolversParentTypes>['ActiveAccountResponseOrError'];
-  BaseResponse: BaseResponse;
+  AddressBook: AddressBook;
   String: Scalars['String']['output'];
-  Int: Scalars['Int']['output'];
-  Boolean: Scalars['Boolean']['output'];
-  BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
-  CreateRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateRoleResponseOrError'];
-  CreatedBy: CreatedBy;
   ID: Scalars['ID']['output'];
+  Boolean: Scalars['Boolean']['output'];
+  AddressResponseBook: AddressResponseBook;
+  Int: Scalars['Int']['output'];
+  AddressesBookResponse: AddressesBookResponse;
+  BaseResponse: BaseResponse;
+  BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
+  Brand: Brand;
+  BrandPaginationDataSession: BrandPaginationDataSession;
+  BrandPaginationResponse: BrandPaginationResponse;
+  BrandResponse: BrandResponse;
+  BrandResponseById: BrandResponseById;
+  Category: Category;
+  CategoryDataResponse: CategoryDataResponse;
+  CategoryPaginationResponse: CategoryPaginationResponse;
+  CategoryResponse: CategoryResponse;
+  CategoryResponseById: CategoryResponseById;
+  CreateAddressBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateAddressBookResponseOrError'];
+  CreateBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateBrandResponseOrError'];
+  CreateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateCategoryResponseOrError'];
+  CreateProductInput: CreateProductInput;
+  Float: Scalars['Float']['output'];
+  CreateProductResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateProductResponseOrError'];
+  CreateProductReviewResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateProductReviewResponseOrError'];
+  CreateRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateRoleResponseOrError'];
+  CreateShippingClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateShippingClassResponseOrError'];
+  CreateTagResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateTagResponseOrError'];
+  CreateTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateTaxClassResponseOrError'];
+  CreateTaxStatusResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateTaxStatusResponseOrError'];
+  CreatedBy: CreatedBy;
+  DeleteBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteBrandResponseOrError'];
+  DeleteCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteCategoryResponseOrError'];
+  DeleteProductResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteProductResponseOrError'];
+  DeleteProductReviewResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteProductReviewResponseOrError'];
+  DeleteShippingClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteShippingClassResponseOrError'];
+  DeleteTagResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteTagResponseOrError'];
+  DeleteTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteTaxClassResponseOrError'];
+  DeleteTaxStatusResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteTaxStatusResponseOrError'];
   EmailVerificationResponse: EmailVerificationResponse;
   EmailVerificationResponseOrError: ResolversUnionTypes<ResolversParentTypes>['EmailVerificationResponseOrError'];
   ErrorResponse: ErrorResponse;
   FieldError: FieldError;
+  GetAddressBookByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAddressBookByIdResponseOrError'];
+  GetAddressesBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAddressesBookResponseOrError'];
+  GetBrandByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetBrandByIDResponseOrError'];
+  GetBrandsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetBrandsResponseOrError'];
+  GetCategoriesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoriesResponseOrError'];
+  GetCategoryByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoryByIDResponseOrError'];
   GetMediaByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediaByIdResponseOrError'];
   GetMediasResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediasResponseOrError'];
   GetPermissionsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetPermissionsResponseOrError'];
   GetPersonalizedPermissionsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetPersonalizedPermissionsResponseOrError'];
+  GetProductByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductByIdResponseOrError'];
+  GetProductReviewByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductReviewByIdResponseOrError'];
+  GetProductReviewsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductReviewsResponseOrError'];
+  GetProductsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductsResponseOrError'];
   GetProfileResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProfileResponseOrError'];
   GetRoleByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRoleByIDResponseOrError'];
   GetRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRoleResponseOrError'];
   GetRolesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetRolesResponseOrError'];
+  GetShippingClassByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetShippingClassByIDResponseOrError'];
+  GetShippingClassesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetShippingClassesResponseOrError'];
+  GetSubCategoryByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetSubCategoryByIDResponseOrError'];
+  GetTagByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTagByIDResponseOrError'];
+  GetTagsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTagsResponseOrError'];
+  GetTaxClassByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTaxClassByIDResponseOrError'];
+  GetTaxClassesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTaxClassesResponseOrError'];
+  GetTaxStatusByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTaxStatusByIDResponseOrError'];
+  GetTaxStatusesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTaxStatusesResponseOrError'];
   GetUserByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUserByIDResponseOrError'];
   GetUserLoginInfoResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUserLoginInfoResponseOrError'];
   GetUsersResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUsersResponseOrError'];
   LoginMeta: LoginMeta;
-  Float: Scalars['Float']['output'];
   LoginMetaInput: LoginMetaInput;
   Media: Media;
   MediaResponse: MediaResponse;
@@ -994,22 +2530,84 @@ export type ResolversParentTypes = {
   Permissions: Permissions;
   PermissionsResponse: PermissionsResponse;
   PersonalizedWithRolePermissionResponse: PersonalizedWithRolePermissionResponse;
+  Product: Product;
+  ProductAttribute: ProductAttribute;
+  ProductAttributeInput: ProductAttributeInput;
+  ProductAttributeValue: ProductAttributeValue;
+  ProductAttributeValueInput: ProductAttributeValueInput;
+  ProductPaginationResponse: ProductPaginationResponse;
+  ProductPrice: ProductPrice;
+  ProductPriceInput: ProductPriceInput;
+  ProductResponse: ProductResponse;
+  ProductReview: ProductReview;
+  ProductReviewInput: ProductReviewInput;
+  ProductReviewPaginationResponse: ProductReviewPaginationResponse;
+  ProductReviewResponse: ProductReviewResponse;
+  ProductTieredPrice: ProductTieredPrice;
+  ProductTieredPriceInput: ProductTieredPriceInput;
+  ProductVariation: ProductVariation;
+  ProductVariationAttribute: ProductVariationAttribute;
+  ProductVariationAttributeInput: ProductVariationAttributeInput;
+  ProductVariationAttributeValue: ProductVariationAttributeValue;
+  ProductVariationAttributeValueInput: ProductVariationAttributeValueInput;
+  ProductVariationInput: ProductVariationInput;
   Query: {};
+  RestoreBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['RestoreBrandResponseOrError'];
+  RestoreCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['RestoreCategoryResponseOrError'];
+  RestoreProductResponseOrError: ResolversUnionTypes<ResolversParentTypes>['RestoreProductResponseOrError'];
+  RestoreProductReviewResponseOrError: ResolversUnionTypes<ResolversParentTypes>['RestoreProductReviewResponseOrError'];
+  RestoreShippingClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['RestoreShippingClassResponseOrError'];
+  RestoreTagResponseOrError: ResolversUnionTypes<ResolversParentTypes>['RestoreTagResponseOrError'];
+  RestoreTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['RestoreTaxClassResponseOrError'];
+  RestoreTaxStatusResponseOrError: ResolversUnionTypes<ResolversParentTypes>['RestoreTaxStatusResponseOrError'];
   Role: Role;
   RolePermissionInput: RolePermissionInput;
   RolePermissionSession: RolePermissionSession;
   RoleResponse: RoleResponse;
   RoleSession: RoleSession;
   RolesResponse: RolesResponse;
+  ShippingClass: ShippingClass;
+  ShippingClassPaginationDataSession: ShippingClassPaginationDataSession;
+  ShippingClassPaginationResponse: ShippingClassPaginationResponse;
+  ShippingClassResponse: ShippingClassResponse;
   SinglePermissionInput: SinglePermissionInput;
+  SubCategory: SubCategory;
+  SubCategoryDataResponse: SubCategoryDataResponse;
+  SubCategoryResponse: SubCategoryResponse;
+  SubCategoryResponseById: SubCategoryResponseById;
+  Tag: Tag;
+  TagPaginationDataSession: TagPaginationDataSession;
+  TagPaginationResponse: TagPaginationResponse;
+  TagResponse: TagResponse;
+  TaxClass: TaxClass;
+  TaxClassPaginationDataSession: TaxClassPaginationDataSession;
+  TaxClassPaginationResponse: TaxClassPaginationResponse;
+  TaxClassResponse: TaxClassResponse;
+  TaxStatus: TaxStatus;
+  TaxStatusPaginationDataSession: TaxStatusPaginationDataSession;
+  TaxStatusPaginationResponse: TaxStatusPaginationResponse;
+  TaxStatusResponse: TaxStatusResponse;
+  UpdateAddressBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateAddressBookResponseOrError'];
+  UpdateBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateBrandResponseOrError'];
+  UpdateCategoryPositionResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryPositionResponseOrError'];
+  UpdateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryResponseOrError'];
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateMediaResponseOrError'];
+  UpdateProductInput: UpdateProductInput;
+  UpdateProductResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateProductResponseOrError'];
+  UpdateProductReviewResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateProductReviewResponseOrError'];
   UpdateRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateRoleResponseOrError'];
+  UpdateShippingClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateShippingClassResponseOrError'];
+  UpdateTagResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTagResponseOrError'];
+  UpdateTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxClassResponseOrError'];
+  UpdateTaxStatusResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxStatusResponseOrError'];
   UpdateUserPermissionInput: UpdateUserPermissionInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: UploadMediaResponse;
   UploadMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UploadMediaResponseOrError'];
   User: User;
+  UserAddress: UserAddress;
+  UserAddressInput: UserAddressInput;
   UserLoginInfoResponse: UserLoginInfoResponse;
   UserLoginResponse: UserLoginResponse;
   UserLoginResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UserLoginResponseOrError'];
@@ -1020,6 +2618,7 @@ export type ResolversParentTypes = {
   UserSessionByEmail: UserSessionByEmail;
   UserSessionById: UserSessionById;
   UsersResponse: UsersResponse;
+  restoreCategoryType: RestoreCategoryType;
 };
 
 export type DeferDirectiveArgs = {
@@ -1033,6 +2632,38 @@ export type ActiveAccountResponseOrErrorResolvers<ContextType = Context, ParentT
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
+export type AddressBookResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AddressBook'] = ResolversParentTypes['AddressBook']> = {
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  company?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isDefault?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  streetOne?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  streetTwo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['AddressType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  zip?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AddressResponseBookResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AddressResponseBook'] = ResolversParentTypes['AddressResponseBook']> = {
+  addressBook?: Resolver<Maybe<ResolversTypes['AddressBook']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AddressesBookResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AddressesBookResponse'] = ResolversParentTypes['AddressesBookResponse']> = {
+  addressBook?: Resolver<Array<ResolversTypes['AddressBook']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type BaseResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BaseResponse'] = ResolversParentTypes['BaseResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -1044,8 +2675,145 @@ export type BaseResponseOrErrorResolvers<ContextType = Context, ParentType exten
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
+export type BrandResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Brand'] = ResolversParentTypes['Brand']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type BrandPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BrandPaginationDataSession'] = ResolversParentTypes['BrandPaginationDataSession']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type BrandPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BrandPaginationResponse'] = ResolversParentTypes['BrandPaginationResponse']> = {
+  brands?: Resolver<Array<ResolversTypes['BrandPaginationDataSession']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type BrandResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BrandResponse'] = ResolversParentTypes['BrandResponse']> = {
+  brand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type BrandResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BrandResponseById'] = ResolversParentTypes['BrandResponseById']> = {
+  brand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CategoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subCategories?: Resolver<Array<ResolversTypes['SubCategory']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CategoryDataResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryDataResponse'] = ResolversParentTypes['CategoryDataResponse']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CategoryPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryPaginationResponse'] = ResolversParentTypes['CategoryPaginationResponse']> = {
+  category?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CategoryResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryResponse'] = ResolversParentTypes['CategoryResponse']> = {
+  category?: Resolver<ResolversTypes['CategoryDataResponse'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CategoryResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryResponseById'] = ResolversParentTypes['CategoryResponseById']> = {
+  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateAddressBookResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateAddressBookResponseOrError'] = ResolversParentTypes['CreateAddressBookResponseOrError']> = {
+  __resolveType: TypeResolveFn<'AddressResponseBook' | 'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type CreateBrandResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateBrandResponseOrError'] = ResolversParentTypes['CreateBrandResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'BrandResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type CreateCategoryResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateCategoryResponseOrError'] = ResolversParentTypes['CreateCategoryResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryResponse' | 'ErrorResponse' | 'SubCategoryResponse', ParentType, ContextType>;
+};
+
+export type CreateProductResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateProductResponseOrError'] = ResolversParentTypes['CreateProductResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
+};
+
+export type CreateProductReviewResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateProductReviewResponseOrError'] = ResolversParentTypes['CreateProductReviewResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductReviewResponse', ParentType, ContextType>;
+};
+
 export type CreateRoleResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateRoleResponseOrError'] = ResolversParentTypes['CreateRoleResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
+};
+
+export type CreateShippingClassResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateShippingClassResponseOrError'] = ResolversParentTypes['CreateShippingClassResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingClassResponse', ParentType, ContextType>;
+};
+
+export type CreateTagResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTagResponseOrError'] = ResolversParentTypes['CreateTagResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TagResponse', ParentType, ContextType>;
+};
+
+export type CreateTaxClassResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTaxClassResponseOrError'] = ResolversParentTypes['CreateTaxClassResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TaxClassResponse', ParentType, ContextType>;
+};
+
+export type CreateTaxStatusResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTaxStatusResponseOrError'] = ResolversParentTypes['CreateTaxStatusResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TaxStatusResponse', ParentType, ContextType>;
 };
 
 export type CreatedByResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatedBy'] = ResolversParentTypes['CreatedBy']> = {
@@ -1053,6 +2821,38 @@ export type CreatedByResolvers<ContextType = Context, ParentType extends Resolve
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteBrandResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteBrandResponseOrError'] = ResolversParentTypes['DeleteBrandResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type DeleteCategoryResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteCategoryResponseOrError'] = ResolversParentTypes['DeleteCategoryResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type DeleteProductResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteProductResponseOrError'] = ResolversParentTypes['DeleteProductResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type DeleteProductReviewResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteProductReviewResponseOrError'] = ResolversParentTypes['DeleteProductReviewResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type DeleteShippingClassResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteShippingClassResponseOrError'] = ResolversParentTypes['DeleteShippingClassResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type DeleteTagResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTagResponseOrError'] = ResolversParentTypes['DeleteTagResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type DeleteTaxClassResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTaxClassResponseOrError'] = ResolversParentTypes['DeleteTaxClassResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type DeleteTaxStatusResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteTaxStatusResponseOrError'] = ResolversParentTypes['DeleteTaxStatusResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type EmailVerificationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EmailVerificationResponse'] = ResolversParentTypes['EmailVerificationResponse']> = {
@@ -1064,7 +2864,7 @@ export type EmailVerificationResponseResolvers<ContextType = Context, ParentType
 };
 
 export type EmailVerificationResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['EmailVerificationResponseOrError'] = ResolversParentTypes['EmailVerificationResponseOrError']> = {
-  __resolveType: TypeResolveFn<'EmailVerificationResponse' | 'ErrorResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'EmailVerificationResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type ErrorResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ErrorResponse'] = ResolversParentTypes['ErrorResponse']> = {
@@ -1079,6 +2879,30 @@ export type FieldErrorResolvers<ContextType = Context, ParentType extends Resolv
   field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GetAddressBookByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetAddressBookByIdResponseOrError'] = ResolversParentTypes['GetAddressBookByIdResponseOrError']> = {
+  __resolveType: TypeResolveFn<'AddressResponseBook' | 'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type GetAddressesBookResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetAddressesBookResponseOrError'] = ResolversParentTypes['GetAddressesBookResponseOrError']> = {
+  __resolveType: TypeResolveFn<'AddressesBookResponse' | 'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type GetBrandByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetBrandByIDResponseOrError'] = ResolversParentTypes['GetBrandByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'BrandResponseById' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type GetBrandsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetBrandsResponseOrError'] = ResolversParentTypes['GetBrandsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'BrandPaginationResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type GetCategoriesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetCategoriesResponseOrError'] = ResolversParentTypes['GetCategoriesResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryPaginationResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type GetCategoryByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetCategoryByIDResponseOrError'] = ResolversParentTypes['GetCategoryByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryResponseById' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type GetMediaByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetMediaByIdResponseOrError'] = ResolversParentTypes['GetMediaByIdResponseOrError']> = {
@@ -1097,6 +2921,22 @@ export type GetPersonalizedPermissionsResponseOrErrorResolvers<ContextType = Con
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'PermissionsResponse', ParentType, ContextType>;
 };
 
+export type GetProductByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProductByIdResponseOrError'] = ResolversParentTypes['GetProductByIdResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
+};
+
+export type GetProductReviewByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProductReviewByIdResponseOrError'] = ResolversParentTypes['GetProductReviewByIdResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductReviewResponse', ParentType, ContextType>;
+};
+
+export type GetProductReviewsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProductReviewsResponseOrError'] = ResolversParentTypes['GetProductReviewsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductReviewPaginationResponse', ParentType, ContextType>;
+};
+
+export type GetProductsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProductsResponseOrError'] = ResolversParentTypes['GetProductsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductPaginationResponse', ParentType, ContextType>;
+};
+
 export type GetProfileResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProfileResponseOrError'] = ResolversParentTypes['GetProfileResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UserResponse', ParentType, ContextType>;
 };
@@ -1111,6 +2951,42 @@ export type GetRoleResponseOrErrorResolvers<ContextType = Context, ParentType ex
 
 export type GetRolesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetRolesResponseOrError'] = ResolversParentTypes['GetRolesResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RolesResponse', ParentType, ContextType>;
+};
+
+export type GetShippingClassByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetShippingClassByIDResponseOrError'] = ResolversParentTypes['GetShippingClassByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingClassResponse', ParentType, ContextType>;
+};
+
+export type GetShippingClassesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetShippingClassesResponseOrError'] = ResolversParentTypes['GetShippingClassesResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingClassPaginationResponse', ParentType, ContextType>;
+};
+
+export type GetSubCategoryByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetSubCategoryByIDResponseOrError'] = ResolversParentTypes['GetSubCategoryByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'SubCategoryResponseById', ParentType, ContextType>;
+};
+
+export type GetTagByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetTagByIDResponseOrError'] = ResolversParentTypes['GetTagByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TagResponse', ParentType, ContextType>;
+};
+
+export type GetTagsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetTagsResponseOrError'] = ResolversParentTypes['GetTagsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TagPaginationResponse', ParentType, ContextType>;
+};
+
+export type GetTaxClassByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetTaxClassByIDResponseOrError'] = ResolversParentTypes['GetTaxClassByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TaxClassResponse', ParentType, ContextType>;
+};
+
+export type GetTaxClassesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetTaxClassesResponseOrError'] = ResolversParentTypes['GetTaxClassesResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TaxClassPaginationResponse', ParentType, ContextType>;
+};
+
+export type GetTaxStatusByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetTaxStatusByIDResponseOrError'] = ResolversParentTypes['GetTaxStatusByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TaxStatusResponse', ParentType, ContextType>;
+};
+
+export type GetTaxStatusesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetTaxStatusesResponseOrError'] = ResolversParentTypes['GetTaxStatusesResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TaxStatusPaginationResponse', ParentType, ContextType>;
 };
 
 export type GetUserByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetUserByIDResponseOrError'] = ResolversParentTypes['GetUserByIDResponseOrError']> = {
@@ -1188,22 +3064,53 @@ export type MediasResponseResolvers<ContextType = Context, ParentType extends Re
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
+  createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'company' | 'country' | 'isDefault' | 'state' | 'streetOne' | 'streetTwo' | 'type' | 'zip'>>;
+  createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
+  createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
+  createProduct?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
+  createTag?: Resolver<ResolversTypes['CreateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTagArgs, 'name' | 'slug'>>;
+  createTaxClass?: Resolver<ResolversTypes['CreateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxClassArgs, 'value'>>;
+  createTaxStatus?: Resolver<ResolversTypes['CreateTaxStatusResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxStatusArgs, 'value'>>;
   createUserRole?: Resolver<ResolversTypes['CreateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
-  deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionId'>>;
+  deleteAddressBookEntry?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteAddressBookEntryArgs, 'ids'>>;
+  deleteBrand?: Resolver<ResolversTypes['DeleteBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteBrandArgs, 'ids' | 'skipTrash'>>;
+  deleteCategory?: Resolver<Maybe<ResolversTypes['DeleteCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'categoryType' | 'id'>>;
+  deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionIds'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
+  deleteShippingClass?: Resolver<ResolversTypes['DeleteShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingClassArgs, 'ids' | 'skipTrash'>>;
+  deleteTag?: Resolver<ResolversTypes['DeleteTagResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTagArgs, 'ids' | 'skipTrash'>>;
+  deleteTaxClass?: Resolver<ResolversTypes['DeleteTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTaxClassArgs, 'ids' | 'skipTrash'>>;
+  deleteTaxStatus?: Resolver<ResolversTypes['DeleteTaxStatusResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTaxStatusArgs, 'ids' | 'skipTrash'>>;
   deleteUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteUserRoleArgs, 'ids' | 'skipTrash'>>;
   forgetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationForgetPasswordArgs, 'email'>>;
   login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'meta' | 'password'>>;
   logout?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType>;
-  register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password'>>;
+  register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password' | 'username'>>;
   resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
+  restoreBrands?: Resolver<ResolversTypes['RestoreBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreBrandsArgs, 'ids'>>;
+  restoreCategory?: Resolver<Maybe<ResolversTypes['RestoreCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationRestoreCategoryArgs, 'idsWithType'>>;
   restoreMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreMediaFilesArgs, 'ids'>>;
+  restoreShippingClasses?: Resolver<ResolversTypes['RestoreShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreShippingClassesArgs, 'ids'>>;
+  restoreTags?: Resolver<ResolversTypes['RestoreTagResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTagsArgs, 'ids'>>;
+  restoreTaxClasses?: Resolver<ResolversTypes['RestoreTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTaxClassesArgs, 'ids'>>;
+  restoreTaxStatuses?: Resolver<ResolversTypes['RestoreTaxStatusResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTaxStatusesArgs, 'ids'>>;
   restoreUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreUserRoleArgs, 'ids'>>;
+  updateAddressBookEntry?: Resolver<ResolversTypes['UpdateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateAddressBookEntryArgs, 'id'>>;
+  updateBrand?: Resolver<ResolversTypes['UpdateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateBrandArgs, 'id'>>;
+  updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'categoryType' | 'id'>>;
+  updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryPositionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'categoryType' | 'id' | 'position'>>;
   updateMediaFileInfo?: Resolver<ResolversTypes['UpdateMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFileInfoArgs, 'inputs'>>;
-  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'sessionId'>>;
+  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, Partial<MutationUpdateProfileArgs>>;
+  updateShippingClass?: Resolver<ResolversTypes['UpdateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingClassArgs, 'id'>>;
+  updateTag?: Resolver<ResolversTypes['UpdateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTagArgs, 'id'>>;
+  updateTaxClass?: Resolver<ResolversTypes['UpdateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxClassArgs, 'id'>>;
+  updateTaxStatus?: Resolver<ResolversTypes['UpdateTaxStatusResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxStatusArgs, 'id'>>;
   updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'userId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['UpdateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id'>>;
+  uploadAvatar?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'inputs' | 'userId'>>;
   uploadMediaFiles?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadMediaFilesArgs, 'inputs' | 'userId'>>;
   verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email' | 'sessionId' | 'userId'>>;
 };
@@ -1247,17 +3154,271 @@ export type PersonalizedWithRolePermissionResponseResolvers<ContextType = Contex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ProductResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Product'] = ResolversParentTypes['Product']> = {
+  allowBackOrders?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  attributes?: Resolver<Maybe<Array<ResolversTypes['ProductAttribute']>>, ParentType, ContextType>;
+  brand?: Resolver<Maybe<ResolversTypes['Brand']>, ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  crossSell?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
+  customBadge?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  defaultImage?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
+  defaultMainDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  defaultQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  defaultShortDescription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  defaultTags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  defaultWarrantyPeriod?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  dimensionUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  enableReviews?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
+  initialNumberInStock?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  isPreview?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  isVisible?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  lowStockThresHold?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  manageStock?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  maxQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  minQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  model?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  productConfigurationType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  productDeliveryType?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  purchaseNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  quantityStep?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  regularPrice?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  reviews?: Resolver<Maybe<Array<ResolversTypes['ProductReview']>>, ParentType, ContextType>;
+  salePrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  salePriceEndAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  salePriceStartAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  saleQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  shippingClass?: Resolver<Maybe<ResolversTypes['ShippingClass']>, ParentType, ContextType>;
+  sku?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  soldIndividually?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  stockQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  stockStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subCategory?: Resolver<Maybe<Array<ResolversTypes['SubCategory']>>, ParentType, ContextType>;
+  tags?: Resolver<Maybe<Array<ResolversTypes['Tag']>>, ParentType, ContextType>;
+  taxClass?: Resolver<Maybe<ResolversTypes['TaxClass']>, ParentType, ContextType>;
+  taxStatus?: Resolver<Maybe<ResolversTypes['TaxStatus']>, ParentType, ContextType>;
+  tierPricingInfo?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
+  upsells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
+  variations?: Resolver<Maybe<Array<ResolversTypes['ProductVariation']>>, ParentType, ContextType>;
+  videos?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
+  warrantyDigit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  warrantyPolicy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  weightUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  width?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductAttributeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductAttribute'] = ResolversParentTypes['ProductAttribute']> = {
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  values?: Resolver<Array<ResolversTypes['ProductAttributeValue']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductAttributeValueResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductAttributeValue'] = ResolversParentTypes['ProductAttributeValue']> = {
+  attribute?: Resolver<ResolversTypes['ProductAttribute'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductPaginationResponse'] = ResolversParentTypes['ProductPaginationResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  products?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductPriceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductPrice'] = ResolversParentTypes['ProductPrice']> = {
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  pricingType?: Resolver<ResolversTypes['PricingTypeEnum'], ParentType, ContextType>;
+  product?: Resolver<Maybe<ResolversTypes['Product']>, ParentType, ContextType>;
+  productVariation?: Resolver<Maybe<ResolversTypes['ProductVariation']>, ParentType, ContextType>;
+  tieredPrices?: Resolver<Array<ResolversTypes['ProductTieredPrice']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductResponse'] = ResolversParentTypes['ProductResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  product?: Resolver<ResolversTypes['Product'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductReviewResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductReview'] = ResolversParentTypes['ProductReview']> = {
+  comment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  guestEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  guestName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isApproved?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  product?: Resolver<ResolversTypes['Product'], ParentType, ContextType>;
+  rating?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  reviewedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductReviewPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductReviewPaginationResponse'] = ResolversParentTypes['ProductReviewPaginationResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reviews?: Resolver<Array<ResolversTypes['ProductReview']>, ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductReviewResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductReviewResponse'] = ResolversParentTypes['ProductReviewResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reviews?: Resolver<ResolversTypes['ProductReview'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductTieredPriceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductTieredPrice'] = ResolversParentTypes['ProductTieredPrice']> = {
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  fixedPrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  maxQuantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  minQuantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  percentageDiscount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  productPrice?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductVariationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductVariation'] = ResolversParentTypes['ProductVariation']> = {
+  attributeValues?: Resolver<Array<ResolversTypes['ProductVariationAttributeValue']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  defaultQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  defaultWarrantyPeriod?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  dimensionUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
+  length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  maxQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  minQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  product?: Resolver<ResolversTypes['Product'], ParentType, ContextType>;
+  productDeliveryType?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  quantityStep?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  regularPrice?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  salePrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  salePriceEndAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  salePriceStartAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  shippingClassId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  sku?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  stockStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  taxClassId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  taxStatusId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  tierPricingInfo?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
+  videos?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
+  warrantyDigit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  warrantyPolicy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  weightUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  width?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductVariationAttributeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductVariationAttribute'] = ResolversParentTypes['ProductVariationAttribute']> = {
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  values?: Resolver<Array<ResolversTypes['ProductVariationAttributeValue']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ProductVariationAttributeValueResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductVariationAttributeValue'] = ResolversParentTypes['ProductVariationAttributeValue']> = {
+  attribute?: Resolver<ResolversTypes['ProductVariationAttribute'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  variation?: Resolver<ResolversTypes['ProductVariation'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getAddressBookEntryById?: Resolver<ResolversTypes['GetAddressBookByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressBookEntryByIdArgs, 'id'>>;
+  getAllBrands?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsArgs, 'limit' | 'page'>>;
+  getAllCategories?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
+  getAllMyAddressEntires?: Resolver<ResolversTypes['GetAddressesBookResponseOrError'], ParentType, ContextType, Partial<QueryGetAllMyAddressEntiresArgs>>;
   getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
+  getAllShippingClass?: Resolver<ResolversTypes['GetShippingClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingClassArgs, 'limit' | 'page'>>;
+  getAllTags?: Resolver<ResolversTypes['GetTagsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTagsArgs, 'limit' | 'page'>>;
+  getAllTaxClass?: Resolver<ResolversTypes['GetTaxClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxClassArgs, 'limit' | 'page'>>;
+  getAllTaxStatus?: Resolver<ResolversTypes['GetTaxStatusesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxStatusArgs, 'limit' | 'page'>>;
   getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'limit' | 'page'>>;
+  getBrandById?: Resolver<ResolversTypes['GetBrandByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetBrandByIdArgs, 'id'>>;
+  getCategoryById?: Resolver<ResolversTypes['GetCategoryByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetCategoryByIdArgs, 'id'>>;
   getMediaById?: Resolver<ResolversTypes['GetMediaByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetMediaByIdArgs, 'id'>>;
   getOwnPersonalizedPermissions?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType>;
+  getProduct?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
+  getReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getRoleById?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleByIdArgs, 'id'>>;
+  getShippingClassById?: Resolver<ResolversTypes['GetShippingClassByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetShippingClassByIdArgs, 'id'>>;
+  getSubCategoryById?: Resolver<ResolversTypes['GetSubCategoryByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetSubCategoryByIdArgs, 'id'>>;
+  getTagById?: Resolver<ResolversTypes['GetTagByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTagByIdArgs, 'id'>>;
+  getTaxClassById?: Resolver<ResolversTypes['GetTaxClassByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxClassByIdArgs, 'id'>>;
+  getTaxStatusById?: Resolver<ResolversTypes['GetTaxStatusByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxStatusByIdArgs, 'id'>>;
   getUserById?: Resolver<ResolversTypes['GetUserByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetUserByIdArgs, 'id'>>;
   getUserOwnLoginInfo?: Resolver<ResolversTypes['GetUserLoginInfoResponseOrError'], ParentType, ContextType>;
+};
+
+export type RestoreBrandResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RestoreBrandResponseOrError'] = ResolversParentTypes['RestoreBrandResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type RestoreCategoryResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RestoreCategoryResponseOrError'] = ResolversParentTypes['RestoreCategoryResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type RestoreProductResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RestoreProductResponseOrError'] = ResolversParentTypes['RestoreProductResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type RestoreProductReviewResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RestoreProductReviewResponseOrError'] = ResolversParentTypes['RestoreProductReviewResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type RestoreShippingClassResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RestoreShippingClassResponseOrError'] = ResolversParentTypes['RestoreShippingClassResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type RestoreTagResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RestoreTagResponseOrError'] = ResolversParentTypes['RestoreTagResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type RestoreTaxClassResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RestoreTaxClassResponseOrError'] = ResolversParentTypes['RestoreTaxClassResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type RestoreTaxStatusResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RestoreTaxStatusResponseOrError'] = ResolversParentTypes['RestoreTaxStatusResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type RoleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Role'] = ResolversParentTypes['Role']> = {
@@ -1289,7 +3450,7 @@ export type RolePermissionSessionResolvers<ContextType = Context, ParentType ext
 
 export type RoleResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RoleResponse'] = ResolversParentTypes['RoleResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
+  role?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1319,12 +3480,253 @@ export type RolesResponseResolvers<ContextType = Context, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ShippingClassResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingClass'] = ResolversParentTypes['ShippingClass']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ShippingClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingClassPaginationDataSession'] = ResolversParentTypes['ShippingClassPaginationDataSession']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ShippingClassPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingClassPaginationResponse'] = ResolversParentTypes['ShippingClassPaginationResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  shippingClasses?: Resolver<Array<ResolversTypes['ShippingClassPaginationDataSession']>, ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ShippingClassResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingClassResponse'] = ResolversParentTypes['ShippingClassResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  shippingClass?: Resolver<ResolversTypes['ShippingClass'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubCategoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategory'] = ResolversParentTypes['SubCategory']> = {
+  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  parentSubCategory?: Resolver<Maybe<ResolversTypes['SubCategoryDataResponse']>, ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategoryDataResponse']>>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubCategoryDataResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryDataResponse'] = ResolversParentTypes['SubCategoryDataResponse']> = {
+  category?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  parentSubCategory?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategoryDataResponse']>>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubCategoryResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryResponse'] = ResolversParentTypes['SubCategoryResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  subcategory?: Resolver<ResolversTypes['SubCategoryDataResponse'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubCategoryResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryResponseById'] = ResolversParentTypes['SubCategoryResponseById']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  subcategory?: Resolver<ResolversTypes['SubCategoryDataResponse'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TagResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Tag'] = ResolversParentTypes['Tag']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TagPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TagPaginationDataSession'] = ResolversParentTypes['TagPaginationDataSession']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TagPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TagPaginationResponse'] = ResolversParentTypes['TagPaginationResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  tags?: Resolver<Array<ResolversTypes['TagPaginationDataSession']>, ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TagResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TagResponse'] = ResolversParentTypes['TagResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  tag?: Resolver<ResolversTypes['Tag'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TaxClassResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxClass'] = ResolversParentTypes['TaxClass']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TaxClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxClassPaginationDataSession'] = ResolversParentTypes['TaxClassPaginationDataSession']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TaxClassPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxClassPaginationResponse'] = ResolversParentTypes['TaxClassPaginationResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  taxClasses?: Resolver<Array<ResolversTypes['TaxClassPaginationDataSession']>, ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TaxClassResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxClassResponse'] = ResolversParentTypes['TaxClassResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  taxClass?: Resolver<ResolversTypes['TaxClass'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TaxStatusResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxStatus'] = ResolversParentTypes['TaxStatus']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TaxStatusPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxStatusPaginationDataSession'] = ResolversParentTypes['TaxStatusPaginationDataSession']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TaxStatusPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxStatusPaginationResponse'] = ResolversParentTypes['TaxStatusPaginationResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  taxStatuses?: Resolver<Array<ResolversTypes['TaxStatusPaginationDataSession']>, ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TaxStatusResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxStatusResponse'] = ResolversParentTypes['TaxStatusResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  taxStatus?: Resolver<ResolversTypes['TaxStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateAddressBookResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateAddressBookResponseOrError'] = ResolversParentTypes['UpdateAddressBookResponseOrError']> = {
+  __resolveType: TypeResolveFn<'AddressResponseBook' | 'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type UpdateBrandResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateBrandResponseOrError'] = ResolversParentTypes['UpdateBrandResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'BrandResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
+export type UpdateCategoryPositionResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateCategoryPositionResponseOrError'] = ResolversParentTypes['UpdateCategoryPositionResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryResponse' | 'ErrorResponse' | 'SubCategoryResponse', ParentType, ContextType>;
+};
+
+export type UpdateCategoryResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateCategoryResponseOrError'] = ResolversParentTypes['UpdateCategoryResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryResponse' | 'ErrorResponse' | 'SubCategoryResponse', ParentType, ContextType>;
+};
+
 export type UpdateMediaResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMediaResponseOrError'] = ResolversParentTypes['UpdateMediaResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'MediaResponse', ParentType, ContextType>;
 };
 
+export type UpdateProductResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateProductResponseOrError'] = ResolversParentTypes['UpdateProductResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
+};
+
+export type UpdateProductReviewResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateProductReviewResponseOrError'] = ResolversParentTypes['UpdateProductReviewResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductReviewResponse', ParentType, ContextType>;
+};
+
 export type UpdateRoleResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateRoleResponseOrError'] = ResolversParentTypes['UpdateRoleResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'RoleResponse', ParentType, ContextType>;
+};
+
+export type UpdateShippingClassResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateShippingClassResponseOrError'] = ResolversParentTypes['UpdateShippingClassResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingClassResponse', ParentType, ContextType>;
+};
+
+export type UpdateTagResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTagResponseOrError'] = ResolversParentTypes['UpdateTagResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TagResponse', ParentType, ContextType>;
+};
+
+export type UpdateTaxClassResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTaxClassResponseOrError'] = ResolversParentTypes['UpdateTaxClassResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TaxClassResponse', ParentType, ContextType>;
+};
+
+export type UpdateTaxStatusResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTaxStatusResponseOrError'] = ResolversParentTypes['UpdateTaxStatusResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TaxStatusResponse', ParentType, ContextType>;
 };
 
 export type UploadMediaResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UploadMediaResponse'] = ResolversParentTypes['UploadMediaResponse']> = {
@@ -1340,6 +3742,8 @@ export type UploadMediaResponseOrErrorResolvers<ContextType = Context, ParentTyp
 };
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   canUpdatePermissions?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   canUpdateRole?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1352,7 +3756,19 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   isAccountActivated?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   permissions?: Resolver<Maybe<Array<ResolversTypes['Permissions']>>, ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   roles?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  tempUpdatedEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserAddressResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserAddress'] = ResolversParentTypes['UserAddress']> = {
+  city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  street?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  zip?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1398,7 +3814,7 @@ export type UserResponseResolvers<ContextType = Context, ParentType extends Reso
 };
 
 export type UserSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSession'] = ResolversParentTypes['UserSession']> = {
-  avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   firstName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1412,7 +3828,8 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
 };
 
 export type UserSessionByEmailResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSessionByEmail'] = ResolversParentTypes['UserSessionByEmail']> = {
-  avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   canUpdatePermissions?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canUpdateRole?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1426,14 +3843,17 @@ export type UserSessionByEmailResolvers<ContextType = Context, ParentType extend
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserSessionByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSessionById'] = ResolversParentTypes['UserSessionById']> = {
-  avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   canUpdatePermissions?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canUpdateRole?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1446,9 +3866,11 @@ export type UserSessionByIdResolvers<ContextType = Context, ParentType extends R
   isAccountActivated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1463,22 +3885,71 @@ export type UsersResponseResolvers<ContextType = Context, ParentType extends Res
 
 export type Resolvers<ContextType = Context> = {
   ActiveAccountResponseOrError?: ActiveAccountResponseOrErrorResolvers<ContextType>;
+  AddressBook?: AddressBookResolvers<ContextType>;
+  AddressResponseBook?: AddressResponseBookResolvers<ContextType>;
+  AddressesBookResponse?: AddressesBookResponseResolvers<ContextType>;
   BaseResponse?: BaseResponseResolvers<ContextType>;
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
+  Brand?: BrandResolvers<ContextType>;
+  BrandPaginationDataSession?: BrandPaginationDataSessionResolvers<ContextType>;
+  BrandPaginationResponse?: BrandPaginationResponseResolvers<ContextType>;
+  BrandResponse?: BrandResponseResolvers<ContextType>;
+  BrandResponseById?: BrandResponseByIdResolvers<ContextType>;
+  Category?: CategoryResolvers<ContextType>;
+  CategoryDataResponse?: CategoryDataResponseResolvers<ContextType>;
+  CategoryPaginationResponse?: CategoryPaginationResponseResolvers<ContextType>;
+  CategoryResponse?: CategoryResponseResolvers<ContextType>;
+  CategoryResponseById?: CategoryResponseByIdResolvers<ContextType>;
+  CreateAddressBookResponseOrError?: CreateAddressBookResponseOrErrorResolvers<ContextType>;
+  CreateBrandResponseOrError?: CreateBrandResponseOrErrorResolvers<ContextType>;
+  CreateCategoryResponseOrError?: CreateCategoryResponseOrErrorResolvers<ContextType>;
+  CreateProductResponseOrError?: CreateProductResponseOrErrorResolvers<ContextType>;
+  CreateProductReviewResponseOrError?: CreateProductReviewResponseOrErrorResolvers<ContextType>;
   CreateRoleResponseOrError?: CreateRoleResponseOrErrorResolvers<ContextType>;
+  CreateShippingClassResponseOrError?: CreateShippingClassResponseOrErrorResolvers<ContextType>;
+  CreateTagResponseOrError?: CreateTagResponseOrErrorResolvers<ContextType>;
+  CreateTaxClassResponseOrError?: CreateTaxClassResponseOrErrorResolvers<ContextType>;
+  CreateTaxStatusResponseOrError?: CreateTaxStatusResponseOrErrorResolvers<ContextType>;
   CreatedBy?: CreatedByResolvers<ContextType>;
+  DeleteBrandResponseOrError?: DeleteBrandResponseOrErrorResolvers<ContextType>;
+  DeleteCategoryResponseOrError?: DeleteCategoryResponseOrErrorResolvers<ContextType>;
+  DeleteProductResponseOrError?: DeleteProductResponseOrErrorResolvers<ContextType>;
+  DeleteProductReviewResponseOrError?: DeleteProductReviewResponseOrErrorResolvers<ContextType>;
+  DeleteShippingClassResponseOrError?: DeleteShippingClassResponseOrErrorResolvers<ContextType>;
+  DeleteTagResponseOrError?: DeleteTagResponseOrErrorResolvers<ContextType>;
+  DeleteTaxClassResponseOrError?: DeleteTaxClassResponseOrErrorResolvers<ContextType>;
+  DeleteTaxStatusResponseOrError?: DeleteTaxStatusResponseOrErrorResolvers<ContextType>;
   EmailVerificationResponse?: EmailVerificationResponseResolvers<ContextType>;
   EmailVerificationResponseOrError?: EmailVerificationResponseOrErrorResolvers<ContextType>;
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
+  GetAddressBookByIdResponseOrError?: GetAddressBookByIdResponseOrErrorResolvers<ContextType>;
+  GetAddressesBookResponseOrError?: GetAddressesBookResponseOrErrorResolvers<ContextType>;
+  GetBrandByIDResponseOrError?: GetBrandByIdResponseOrErrorResolvers<ContextType>;
+  GetBrandsResponseOrError?: GetBrandsResponseOrErrorResolvers<ContextType>;
+  GetCategoriesResponseOrError?: GetCategoriesResponseOrErrorResolvers<ContextType>;
+  GetCategoryByIDResponseOrError?: GetCategoryByIdResponseOrErrorResolvers<ContextType>;
   GetMediaByIdResponseOrError?: GetMediaByIdResponseOrErrorResolvers<ContextType>;
   GetMediasResponseOrError?: GetMediasResponseOrErrorResolvers<ContextType>;
   GetPermissionsResponseOrError?: GetPermissionsResponseOrErrorResolvers<ContextType>;
   GetPersonalizedPermissionsResponseOrError?: GetPersonalizedPermissionsResponseOrErrorResolvers<ContextType>;
+  GetProductByIdResponseOrError?: GetProductByIdResponseOrErrorResolvers<ContextType>;
+  GetProductReviewByIdResponseOrError?: GetProductReviewByIdResponseOrErrorResolvers<ContextType>;
+  GetProductReviewsResponseOrError?: GetProductReviewsResponseOrErrorResolvers<ContextType>;
+  GetProductsResponseOrError?: GetProductsResponseOrErrorResolvers<ContextType>;
   GetProfileResponseOrError?: GetProfileResponseOrErrorResolvers<ContextType>;
   GetRoleByIDResponseOrError?: GetRoleByIdResponseOrErrorResolvers<ContextType>;
   GetRoleResponseOrError?: GetRoleResponseOrErrorResolvers<ContextType>;
   GetRolesResponseOrError?: GetRolesResponseOrErrorResolvers<ContextType>;
+  GetShippingClassByIDResponseOrError?: GetShippingClassByIdResponseOrErrorResolvers<ContextType>;
+  GetShippingClassesResponseOrError?: GetShippingClassesResponseOrErrorResolvers<ContextType>;
+  GetSubCategoryByIDResponseOrError?: GetSubCategoryByIdResponseOrErrorResolvers<ContextType>;
+  GetTagByIDResponseOrError?: GetTagByIdResponseOrErrorResolvers<ContextType>;
+  GetTagsResponseOrError?: GetTagsResponseOrErrorResolvers<ContextType>;
+  GetTaxClassByIDResponseOrError?: GetTaxClassByIdResponseOrErrorResolvers<ContextType>;
+  GetTaxClassesResponseOrError?: GetTaxClassesResponseOrErrorResolvers<ContextType>;
+  GetTaxStatusByIDResponseOrError?: GetTaxStatusByIdResponseOrErrorResolvers<ContextType>;
+  GetTaxStatusesResponseOrError?: GetTaxStatusesResponseOrErrorResolvers<ContextType>;
   GetUserByIDResponseOrError?: GetUserByIdResponseOrErrorResolvers<ContextType>;
   GetUserLoginInfoResponseOrError?: GetUserLoginInfoResponseOrErrorResolvers<ContextType>;
   GetUsersResponseOrError?: GetUsersResponseOrErrorResolvers<ContextType>;
@@ -1491,17 +3962,69 @@ export type Resolvers<ContextType = Context> = {
   Permissions?: PermissionsResolvers<ContextType>;
   PermissionsResponse?: PermissionsResponseResolvers<ContextType>;
   PersonalizedWithRolePermissionResponse?: PersonalizedWithRolePermissionResponseResolvers<ContextType>;
+  Product?: ProductResolvers<ContextType>;
+  ProductAttribute?: ProductAttributeResolvers<ContextType>;
+  ProductAttributeValue?: ProductAttributeValueResolvers<ContextType>;
+  ProductPaginationResponse?: ProductPaginationResponseResolvers<ContextType>;
+  ProductPrice?: ProductPriceResolvers<ContextType>;
+  ProductResponse?: ProductResponseResolvers<ContextType>;
+  ProductReview?: ProductReviewResolvers<ContextType>;
+  ProductReviewPaginationResponse?: ProductReviewPaginationResponseResolvers<ContextType>;
+  ProductReviewResponse?: ProductReviewResponseResolvers<ContextType>;
+  ProductTieredPrice?: ProductTieredPriceResolvers<ContextType>;
+  ProductVariation?: ProductVariationResolvers<ContextType>;
+  ProductVariationAttribute?: ProductVariationAttributeResolvers<ContextType>;
+  ProductVariationAttributeValue?: ProductVariationAttributeValueResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  RestoreBrandResponseOrError?: RestoreBrandResponseOrErrorResolvers<ContextType>;
+  RestoreCategoryResponseOrError?: RestoreCategoryResponseOrErrorResolvers<ContextType>;
+  RestoreProductResponseOrError?: RestoreProductResponseOrErrorResolvers<ContextType>;
+  RestoreProductReviewResponseOrError?: RestoreProductReviewResponseOrErrorResolvers<ContextType>;
+  RestoreShippingClassResponseOrError?: RestoreShippingClassResponseOrErrorResolvers<ContextType>;
+  RestoreTagResponseOrError?: RestoreTagResponseOrErrorResolvers<ContextType>;
+  RestoreTaxClassResponseOrError?: RestoreTaxClassResponseOrErrorResolvers<ContextType>;
+  RestoreTaxStatusResponseOrError?: RestoreTaxStatusResponseOrErrorResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;
   RolePermissionSession?: RolePermissionSessionResolvers<ContextType>;
   RoleResponse?: RoleResponseResolvers<ContextType>;
   RoleSession?: RoleSessionResolvers<ContextType>;
   RolesResponse?: RolesResponseResolvers<ContextType>;
+  ShippingClass?: ShippingClassResolvers<ContextType>;
+  ShippingClassPaginationDataSession?: ShippingClassPaginationDataSessionResolvers<ContextType>;
+  ShippingClassPaginationResponse?: ShippingClassPaginationResponseResolvers<ContextType>;
+  ShippingClassResponse?: ShippingClassResponseResolvers<ContextType>;
+  SubCategory?: SubCategoryResolvers<ContextType>;
+  SubCategoryDataResponse?: SubCategoryDataResponseResolvers<ContextType>;
+  SubCategoryResponse?: SubCategoryResponseResolvers<ContextType>;
+  SubCategoryResponseById?: SubCategoryResponseByIdResolvers<ContextType>;
+  Tag?: TagResolvers<ContextType>;
+  TagPaginationDataSession?: TagPaginationDataSessionResolvers<ContextType>;
+  TagPaginationResponse?: TagPaginationResponseResolvers<ContextType>;
+  TagResponse?: TagResponseResolvers<ContextType>;
+  TaxClass?: TaxClassResolvers<ContextType>;
+  TaxClassPaginationDataSession?: TaxClassPaginationDataSessionResolvers<ContextType>;
+  TaxClassPaginationResponse?: TaxClassPaginationResponseResolvers<ContextType>;
+  TaxClassResponse?: TaxClassResponseResolvers<ContextType>;
+  TaxStatus?: TaxStatusResolvers<ContextType>;
+  TaxStatusPaginationDataSession?: TaxStatusPaginationDataSessionResolvers<ContextType>;
+  TaxStatusPaginationResponse?: TaxStatusPaginationResponseResolvers<ContextType>;
+  TaxStatusResponse?: TaxStatusResponseResolvers<ContextType>;
+  UpdateAddressBookResponseOrError?: UpdateAddressBookResponseOrErrorResolvers<ContextType>;
+  UpdateBrandResponseOrError?: UpdateBrandResponseOrErrorResolvers<ContextType>;
+  UpdateCategoryPositionResponseOrError?: UpdateCategoryPositionResponseOrErrorResolvers<ContextType>;
+  UpdateCategoryResponseOrError?: UpdateCategoryResponseOrErrorResolvers<ContextType>;
   UpdateMediaResponseOrError?: UpdateMediaResponseOrErrorResolvers<ContextType>;
+  UpdateProductResponseOrError?: UpdateProductResponseOrErrorResolvers<ContextType>;
+  UpdateProductReviewResponseOrError?: UpdateProductReviewResponseOrErrorResolvers<ContextType>;
   UpdateRoleResponseOrError?: UpdateRoleResponseOrErrorResolvers<ContextType>;
+  UpdateShippingClassResponseOrError?: UpdateShippingClassResponseOrErrorResolvers<ContextType>;
+  UpdateTagResponseOrError?: UpdateTagResponseOrErrorResolvers<ContextType>;
+  UpdateTaxClassResponseOrError?: UpdateTaxClassResponseOrErrorResolvers<ContextType>;
+  UpdateTaxStatusResponseOrError?: UpdateTaxStatusResponseOrErrorResolvers<ContextType>;
   UploadMediaResponse?: UploadMediaResponseResolvers<ContextType>;
   UploadMediaResponseOrError?: UploadMediaResponseOrErrorResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  UserAddress?: UserAddressResolvers<ContextType>;
   UserLoginInfoResponse?: UserLoginInfoResponseResolvers<ContextType>;
   UserLoginResponse?: UserLoginResponseResolvers<ContextType>;
   UserLoginResponseOrError?: UserLoginResponseOrErrorResolvers<ContextType>;
