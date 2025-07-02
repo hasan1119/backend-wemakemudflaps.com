@@ -172,7 +172,7 @@ type CategoryDataResponse
   name: String!
   slug: String!
   description: String
-  thumbnail: String
+  thumbnail: Media
   totalProducts: Int
   position: Int!
   createdBy: CreatedBy
@@ -1616,7 +1616,7 @@ type SubCategoryDataResponse
   name: String!
   slug: String!
   description: String
-  thumbnail: String
+  thumbnail: Media
   category: ID
   parentSubCategory: ID
   subCategories: [SubCategoryDataResponse!]
