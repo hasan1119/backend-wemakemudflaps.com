@@ -19,17 +19,20 @@ import { getProduct } from "../../controllers/queries/product/get-product";
  * Shared resolver function for federated `CreatedBy` references.
  * Returns a reference to the `CreatedBy` entity using the `createdBy` ID.
  */
-const resolveCreatedBy = ({ createdBy }: { createdBy: string }) => ({
-  __typename: "CreatedBy",
-  id: createdBy,
-});
+const resolveCreatedBy = ({ createdBy }) => {
+  if (!createdBy) null;
+  return {
+    __typename: "CreatedBy",
+    id: createdBy,
+  };
+};
 
 /**
  * Shared resolver function for federated `thumbnail, images, videos and so on` references.
  * Returns a reference to the `Media` entity using the `media` ID.
  */
 const resolveThumbnail = ({ thumbnail }) => {
-  console.log(thumbnail);
+  if (!thumbnail) null;
   return {
     __typename: "Media",
     id: thumbnail,

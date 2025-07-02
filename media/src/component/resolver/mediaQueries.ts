@@ -30,6 +30,7 @@ export const mediaQueriesResolver = {
      * allowing other subgraphs to fetch media creator data by ID.
      */
     createdBy: ({ createdBy }) => {
+      if (!createdBy) null;
       return {
         __typename: "CreatedBy",
         id: createdBy, // Just references the creator's unique ID.
