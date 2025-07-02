@@ -30,7 +30,7 @@ export class User {
   email: string;
 
   // Stores the URL for the user's avatar (optional)
-  @Column({ unique: true, nullable: true, default: null })
+  @Column({ unique: false, nullable: true, default: null })
   avatar: string | null;
 
   // Stores a temporary email address during profile updates
