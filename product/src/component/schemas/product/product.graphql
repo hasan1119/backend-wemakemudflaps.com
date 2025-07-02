@@ -64,15 +64,16 @@ enum DimensionUnitEnum {
 type Product @key(fields: "id") {
   # ---------------------- Identification ----------------------
   id: ID # Optional product ID (used for updates)
-  productType: String! # Product type (e.g., simple, variable and customized)
+  productConfigurationType: String! # Product type (e.g., simple, variable and customized)
+  productDeliveryType: [String!]! # Product type (e.g., physical, virtual and downloadable)
   name: String! # Product name
   sku: String # Stock keeping unit
   model: String # Product model
   createdBy: CreatedBy # Creator identifier
   # ---------------------- Media ----------------------
-  defaultImage: String # Primary product image URL
-  images: [String!] # Gallery images
-  videos: [String!] # Video URLs
+  defaultImage: Media # Primary product image
+  images: [Media!] # Gallery images
+  videos: [Media!] # Videos
   # ---------------------- Descriptions & Tags ----------------------
   defaultMainDescription: String! # Full product description
   defaultShortDescription: String # Short description
@@ -137,15 +138,16 @@ type Product @key(fields: "id") {
 # Input for creating a new product
 input CreateProductInput {
   # ---------------------- Identification ----------------------
-  productType: ProductTypeEnum! # Product type (simple/variable)
+  productConfigurationType: ProductTypeEnum! # Product type (simple/variable/customized)
+  productDeliveryType: [ProductDeliveryTypeEnum!]! # Product type (e.g., physical, virtual and downloadable)
   name: String! # Product name
   sku: String # SKU code
   model: String # Product model identifier
   createdBy: String! # User creating the product
   # ---------------------- Media ----------------------
-  defaultImage: String # Primary image URL
-  images: [String!] # Image gallery
-  videos: [String!] # Video links
+  defaultImage: ID # Default image ID
+  images: [ID!] # Product gallery IDs
+  videos: [ID!] # Product video IDs
   # ---------------------- Descriptions & Tags ----------------------
   defaultMainDescription: String! # Long description
   defaultShortDescription: String # Short description
@@ -208,14 +210,15 @@ input CreateProductInput {
 input UpdateProductInput {
   # ---------------------- Identification ----------------------
   id: ID! # ID of the product to update
-  productType: ProductTypeEnum # Optional product type
+  productConfigurationType: ProductTypeEnum # Optional product type
+  productDeliveryType: [ProductDeliveryTypeEnum!] # Optional product type (e.g., physical, virtual and downloadable)
   name: String # Product name
   sku: String # Product SKU
   model: String # Model identifier
   # ---------------------- Media ----------------------
-  defaultImage: String # Default image URL
-  images: [String!] # Product gallery
-  videos: [String!] # Product video URLs
+  defaultImage: ID # Default image ID
+  images: [ID!] # Product gallery IDs
+  videos: [ID!] # Product video IDs
   # ---------------------- Descriptions & Tags ----------------------
   defaultMainDescription: String # Long description
   defaultShortDescription: String # Short description

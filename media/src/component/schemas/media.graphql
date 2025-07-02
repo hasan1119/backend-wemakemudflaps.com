@@ -134,7 +134,7 @@ extend type CreatedBy @key(fields: "id") {
 # ---------------------- Media Types ----------------------
 
 # Represents a media file stored in the system.
-type Media @key(fields: "id") {
+type Media @key(fields: "id") @shareable {
   id: ID! # Unique identifier for the media item.
   mediaType: String # MIME type of the media (e.g., "image/jpeg").
   url: String # URL where the media is accessible.

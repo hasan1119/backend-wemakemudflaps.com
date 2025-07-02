@@ -21,6 +21,12 @@ import { Tag } from "./tag.entity";
 import { TaxClass } from "./tax-class.entity";
 import { TaxStatus } from "./tax-status.entity";
 
+export enum ProductDeliveryTypeEnum {
+  PHYSICAL = "Physical Product",
+  DOWNLOADABLE = "Downloadable Product",
+  VIRTUAL = "Virtual Product",
+}
+
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn("uuid")
@@ -28,16 +34,30 @@ export class Product {
 
   /* ====================== Basic Info ====================== */
 
-  // Product type: either "Simple product" or "Variable product"
+  // Product categorization by configuration
   @Column({
     type: "enum",
-    enum: ["Simple product", "Variable product", "Customized product"],
+    enum: ["Simple Product", "Variable Product", "Customized Product"],
   })
-  productType: string;
+  productConfigurationType: string;
+
+  // Product categorization by delivery method
+  @Column({
+    type: "enum",
+    enum: ProductDeliveryTypeEnum,
+    enumName: "product_delivery_type_enum",
+    array: true,
+    nullable: true,
+  })
+  productDeliveryType: ProductDeliveryTypeEnum[];
 
   // Product name
   @Column()
   name: string;
+
+  // Product slug
+  @Column({ unique: true })
+  slug: string;
 
   // Default thumbnail image for the product (string only for Apollo Federation compatibility)
   @Column({ nullable: true })
@@ -57,7 +77,7 @@ export class Product {
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "product_brand" })
-  brand: Promise<Brand> | null;
+  brand: Promise<Brand[]> | null;
 
   // Associated tags for the product
   @ManyToOne(() => Tag, (tag) => tag.products, {
@@ -87,9 +107,12 @@ export class Product {
   category: Category;
 
   // Multiple sub-categories associated with the product
-  @ManyToMany(() => SubCategory, (subCategory) => subCategory.products)
+  @ManyToMany(() => SubCategory, (subCategory) => subCategory.products, {
+    onDelete: "SET NULL",
+    nullable: true,
+  })
   @JoinTable({ name: "product_subcategory_ids" })
-  subCategories: SubCategory[];
+  subCategories: SubCategory[] | null;
 
   // Warranty digit for the variation (nullable)
   @Column({ nullable: true })
@@ -146,6 +169,10 @@ export class Product {
   // Sale quantity limit (if the product is a deal)
   @Column({ nullable: true })
   saleQuantity: number | null;
+
+  // Quantity type (e.g., piece, liter and so on)
+  @Column()
+  saleQuantityUnit: string;
 
   // Tax status (controls whether the product cost or shipping is taxable)
   @ManyToOne(() => TaxStatus, (taxStatus) => taxStatus.products, {

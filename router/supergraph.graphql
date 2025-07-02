@@ -250,7 +250,8 @@ type CreatedBy
 input CreateProductInput
   @join__type(graph: PRODUCT)
 {
-  productType: ProductTypeEnum!
+  productConfigurationType: ProductTypeEnum!
+  productDeliveryType: [ProductDeliveryTypeEnum!]!
   name: String!
   sku: String
   model: String
@@ -910,6 +911,7 @@ type Mutation
   updateTaxStatus(id: ID!, value: String, description: String): UpdateTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   deleteTaxStatus(ids: [ID]!, skipTrash: Boolean!): DeleteTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   restoreTaxStatuses(ids: [ID!]!): RestoreTaxStatusResponseOrError! @join__field(graph: PRODUCT)
+  createReview: String @join__field(graph: PRODUCT)
   createProduct: String @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
@@ -1023,7 +1025,8 @@ type Product
   @join__type(graph: PRODUCT, key: "id")
 {
   id: ID
-  productType: String!
+  productConfigurationType: String!
+  productDeliveryType: [String!]!
   name: String!
   sku: String
   model: String
@@ -1113,6 +1116,14 @@ input ProductAttributeValueInput
   id: ID
   value: String!
   attributeId: ID!
+}
+
+enum ProductDeliveryTypeEnum
+  @join__type(graph: PRODUCT)
+{
+  PHYSICAL @join__enumValue(graph: PRODUCT)
+  DOWNLOADABLE @join__enumValue(graph: PRODUCT)
+  VIRTUAL @join__enumValue(graph: PRODUCT)
 }
 
 type ProductPaginationResponse
@@ -1241,6 +1252,7 @@ type ProductVariation
 {
   id: ID!
   sku: String
+  productDeliveryType: [String!]!
   minQuantity: Int
   defaultQuantity: Int
   maxQuantity: Int
@@ -1314,6 +1326,7 @@ input ProductVariationInput
 {
   id: ID
   sku: String
+  productDeliveryType: [ProductDeliveryTypeEnum!]
   minQuantity: Int
   defaultQuantity: Int
   maxQuantity: Int
@@ -1362,6 +1375,7 @@ type Query
   getAllTaxClass(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTaxClassesResponseOrError! @join__field(graph: PRODUCT)
   getTaxStatusById(id: ID!): GetTaxStatusByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllTaxStatus(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTaxStatusesResponseOrError! @join__field(graph: PRODUCT)
+  getReview: String @join__field(graph: PRODUCT)
   getProduct: String @join__field(graph: PRODUCT)
   getProfile: GetProfileResponseOrError! @join__field(graph: USER)
   getUserById(id: String!): GetUserByIDResponseOrError! @join__field(graph: USER)
@@ -1798,7 +1812,8 @@ input UpdateProductInput
   @join__type(graph: PRODUCT)
 {
   id: ID!
-  productType: ProductTypeEnum
+  productConfigurationType: ProductTypeEnum
+  productDeliveryType: [ProductDeliveryTypeEnum!]
   name: String
   sku: String
   model: String

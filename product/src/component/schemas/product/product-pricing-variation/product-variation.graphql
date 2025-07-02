@@ -1,5 +1,12 @@
 # ---------------------- Product Variation Attribute Types ----------------------
 
+# Enum describing type of product delivery
+enum ProductDeliveryTypeEnum {
+  PHYSICAL
+  DOWNLOADABLE
+  VIRTUAL
+}
+
 # Attributes that define variations (e.g., Color)
 type ProductVariationAttribute {
   id: ID! # Unique identifier
@@ -42,6 +49,7 @@ type ProductVariation {
   # ---------------------- Identification ----------------------
   id: ID! # Unique identifier
   sku: String # Stock Keeping Unit (optional)
+  productDeliveryType: [String!]! # Product type (e.g., physical, virtual and downloadable)
   # ---------------------- Quantity Rules ----------------------
   minQuantity: Int # Minimum quantity allowed in order
   defaultQuantity: Int # Default quantity for this variation
@@ -74,6 +82,9 @@ type ProductVariation {
   taxStatusId: ID # Related tax status ID
   taxClassId: ID # Related tax class ID
   description: String # Optional description specific to the variation
+  # ---------------------- Media ----------------------
+  images: [Media!] # Gallery images
+  videos: [Media!] # Videos
   # ---------------------- Meta ----------------------
   createdAt: String! # Creation timestamp
   deletedAt: String # Soft deletion timestamp
@@ -83,7 +94,8 @@ type ProductVariation {
 input ProductVariationInput {
   # ---------------------- Identification ----------------------
   id: ID # Optional ID for update
-  sku: String # SKU for inventory tracking
+  sku: String # Optional SKU for inventory tracking
+  productDeliveryType: [ProductDeliveryTypeEnum!] # Optional Product type (e.g., physical, virtual and downloadable)
   # ---------------------- Quantity Rules ----------------------
   minQuantity: Int # Minimum purchase quantity
   defaultQuantity: Int # Default quantity selected
@@ -116,6 +128,9 @@ input ProductVariationInput {
   taxStatusId: ID # Tax status reference
   taxClassId: ID # Tax class reference
   description: String # Optional description
+  # ---------------------- Media ----------------------
+  images: [ID!] # Product gallery IDs
+  videos: [ID!] # Product video IDs
   # ---------------------- Meta ----------------------
   deletedAt: String # Optional deletion timestamp
 }

@@ -14,10 +14,26 @@ import { ShippingClass } from "./shipping-class.entity";
 import { TaxClass } from "./tax-class.entity";
 import { TaxStatus } from "./tax-status.entity";
 
+enum ProductDeliveryTypeEnum {
+  PHYSICAL = "Physical Product",
+  DOWNLOADABLE = "Downloadable Product",
+  VIRTUAL = "Virtual Product",
+}
+
 @Entity()
 export class ProductVariation {
   @PrimaryGeneratedColumn("uuid")
   id: string;
+
+  // Product categorization by delivery method
+  @Column({
+    type: "enum",
+    enum: ProductDeliveryTypeEnum,
+    enumName: "product_delivery_type_enum",
+    array: true,
+    nullable: true,
+  })
+  productDeliveryType: ProductDeliveryTypeEnum[];
 
   // SKU for the product variation (nullable)
   @Column({ unique: true, nullable: true })
@@ -193,6 +209,14 @@ export class ProductVariation {
   // Description of the product variation
   @Column({ type: "text", nullable: true, default: null })
   description: string | null;
+
+  // Additional images related to the product (string only for Apollo Federation compatibility)
+  @Column("text", { array: true, nullable: true })
+  images: string[] | null;
+
+  // Related videos for the product (string only for Apollo Federation compatibility)
+  @Column("text", { array: true, nullable: true })
+  videos: string[] | null;
 
   // Timestamp when the product variation was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

@@ -33,3 +33,10 @@ type BaseResponse @shareable {
 extend type CreatedBy @key(fields: "id") {
   id: ID! @external
 }
+
+# ---------------------- Media ----------------------
+
+# Extends the Media entity to support federated references.
+extend type Media @key(fields: "id") {
+  id: ID! @external
+}

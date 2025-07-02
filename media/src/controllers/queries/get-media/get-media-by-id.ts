@@ -10,7 +10,7 @@ import {
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
 import { checkUserAuth, checkUserPermission } from "../../services";
-import { getMediaById as getMedia } from "./../../services/get-media/get-media";
+import { getMediaById as getMedia } from "../../services/get-media/get-media.service";
 
 /**
  * Retrieves a media file by its ID.

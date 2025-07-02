@@ -1,6 +1,10 @@
 import { ILike, In, Raw } from "typeorm";
 import { Media } from "../../../entities/media.entity";
 import { AppDataSource } from "../../../helper";
+import {
+  getMediaByMediaIdFromRedis,
+  setMediaByMediaIdInRedis,
+} from "../../../helper/redis";
 
 // Initialize repository once
 const mediaRepository = AppDataSource.getRepository(Media);
@@ -35,6 +39,33 @@ export const getMediaByIds = async (ids: string[]): Promise<Media[]> => {
   return await mediaRepository.find({
     where: { id: In(ids), deletedAt: null },
   });
+};
+
+/**
+ * Federated reference resolver for the Media entity.
+ * Used by Apollo Federation to resolve media entities by ID from other subgraphs.
+ *
+ * @param id - ID of the media to resolve
+ * @returns Resolved Media object or null
+ */
+export const resolveMediaReference = async ({ id }) => {
+  let mediaData = await getMediaByMediaIdFromRedis(id);
+
+  if (!mediaData) {
+    const dbMedia = await getMediaById(id);
+    if (!dbMedia) return null;
+
+    mediaData = {
+      ...dbMedia,
+      createdBy: dbMedia.createdBy as any,
+      createdAt: dbMedia.createdAt.toISOString(),
+      deletedAt: dbMedia.deletedAt ? dbMedia.deletedAt.toISOString() : null,
+    };
+
+    await setMediaByMediaIdInRedis(id, mediaData);
+  }
+
+  return mediaData;
 };
 
 /**

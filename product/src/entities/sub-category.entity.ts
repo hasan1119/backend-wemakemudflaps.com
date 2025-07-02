@@ -31,8 +31,10 @@ export class SubCategory {
   description: string | null;
 
   // Relationship to the category to which this subcategory belongs
-  @ManyToOne(() => Category, (category) => category.subCategories)
-  category: Promise<Category>;
+  @ManyToOne(() => Category, (category) => category.subCategories, {
+    nullable: true,
+  })
+  category: Promise<Category> | null;
 
   // Relationship to the products associated with this subcategory
   @ManyToMany(() => Product, (product) => product.subCategories, {

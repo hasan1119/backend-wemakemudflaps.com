@@ -17,6 +17,10 @@ export class ProductAttribute {
   )
   values: ProductAttributeValue[];
 
+  // For customer visibility
+  @Column({ type: "boolean", default: false })
+  isVisible: boolean;
+
   // Timestamp when the product attribute was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;

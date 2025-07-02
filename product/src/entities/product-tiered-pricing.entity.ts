@@ -14,6 +14,10 @@ export class ProductTieredPrice {
   @Column()
   maxQuantity: number;
 
+  // Quantity type (e.g., piece, liter and so on)
+  @Column()
+  quantityUnit: string;
+
   // Fixed price for this tier (if applicable)
   @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
   fixedPrice: number | null;

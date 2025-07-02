@@ -24,6 +24,25 @@ const resolveCreatedBy = ({ createdBy }: { createdBy: string }) => ({
   id: createdBy,
 });
 
+/**
+ * Shared resolver for Media reference fields
+ */
+const resolveMediaReference = (id: string) =>
+  id
+    ? {
+        __typename: "Media",
+        id,
+      }
+    : null;
+
+const resolveMediaArray = (ids: string[]) =>
+  Array.isArray(ids)
+    ? ids.map((id) => ({
+        __typename: "Media",
+        id,
+      }))
+    : [];
+
 // List of types that use the `resolveCreatedBy` resolver
 const typesWithCreatedBy = [
   "Brand",
@@ -125,4 +144,11 @@ export const productQueriesResolver = {
   ...Object.fromEntries(
     typesWithCreatedBy.map((type) => [type, { createdBy: resolveCreatedBy }])
   ),
+
+  // Media-resolving fields inside Product
+  Product: {
+    defaultImage: ({ defaultImageId }) => resolveMediaReference(defaultImageId),
+    images: ({ imageIds }) => resolveMediaArray(imageIds),
+    videos: ({ videoIds }) => resolveMediaArray(videoIds),
+  },
 };
