@@ -1,0 +1,34 @@
+# ---------------------- Product Attribute Types ----------------------
+
+# Represents a product attribute such as "Color" or "Size"
+type ProductAttribute {
+  id: ID! # Unique identifier
+  name: String! # Name of the attribute
+  values: [ProductAttributeValue!]! # List of possible values for this attribute
+  createdAt: String! # Timestamp of creation
+  deletedAt: String # Timestamp of soft deletion (if any)
+}
+
+# Input type for creating or updating product attributes
+input ProductAttributeInput {
+  id: ID # Optional ID for update
+  name: String! # Attribute name
+}
+
+# ---------------------- Product Attribute Value Types ----------------------
+
+# Represents a value for a specific attribute (e.g., "Red" for color)
+type ProductAttributeValue {
+  id: ID! # Unique identifier
+  value: String! # The value (e.g., "Red")
+  attribute: ProductAttribute! # The related attribute
+  createdAt: String! # Timestamp of creation
+  deletedAt: String # Timestamp of soft deletion
+}
+
+# Input type for creating or updating attribute values
+input ProductAttributeValueInput {
+  id: ID # Optional ID for update
+  value: String! # The value text
+  attributeId: ID! # Related attribute ID
+}

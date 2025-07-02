@@ -6,9 +6,13 @@ import {
   categoryDef,
   categoryMutationsDef,
   categoryQueriesDef,
+  productAttributeDef,
   productDef,
   productMutationsDef,
+  productPricingDef,
   productQueriesDef,
+  productReviewDef,
+  productVariationDef,
   sharedDef,
   shippingClassDef,
   shippingClassMutationsDef,
@@ -63,15 +67,6 @@ export const typeDefs = mergeTypeDefs([
   // Schema for category mutations (modifying category and subcategory data)
   categoryMutationsDef,
 
-  // Product schema definition
-  productDef,
-
-  // Schema for product queries (fetching product data)
-  productQueriesDef,
-
-  // Schema for product mutations (modifying product data)
-  productMutationsDef,
-
   // Shipping Class schema definition
   shippingClassDef,
 
@@ -98,4 +93,18 @@ export const typeDefs = mergeTypeDefs([
 
   // Schema for taxStatus mutations (modifying tax status data)
   taxStatusMutationsDef,
+
+  productAttributeDef,
+  productPricingDef,
+  productReviewDef,
+  productVariationDef,
+
+  // Product schema definition
+  productDef,
+
+  // Schema for product queries (fetching product data)
+  productQueriesDef,
+
+  // Schema for product mutations (modifying product data)
+  productMutationsDef,
 ]);

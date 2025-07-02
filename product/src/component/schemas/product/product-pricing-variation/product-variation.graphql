@@ -1,0 +1,121 @@
+# ---------------------- Product Variation Attribute Types ----------------------
+
+# Attributes that define variations (e.g., Color)
+type ProductVariationAttribute {
+  id: ID! # Unique identifier
+  name: String! # Attribute name
+  values: [ProductVariationAttributeValue!]! # Possible values
+  createdAt: String! # Creation time
+  deletedAt: String # Soft deletion timestamp
+}
+
+# Input type for variation attribute
+input ProductVariationAttributeInput {
+  id: ID # Optional ID
+  name: String! # Attribute name
+  deletedAt: String # Soft deletion
+}
+
+# Represents a value of a variation attribute (e.g., "Red")
+type ProductVariationAttributeValue {
+  id: ID! # Unique identifier
+  value: String! # Value text
+  attribute: ProductVariationAttribute! # Related attribute
+  variation: ProductVariation! # Related variation
+  createdAt: String! # Creation time
+  deletedAt: String # Soft deletion
+}
+
+# Input for variation attribute value
+input ProductVariationAttributeValueInput {
+  id: ID # Optional ID
+  value: String! # Value
+  attributeId: ID! # Related attribute
+  variationId: ID! # Related variation
+  deletedAt: String # Soft deletion
+}
+
+# ---------------------- Product Variation Types ----------------------
+
+# Represents a variation of a product (e.g., "T-Shirt - Red - L")
+type ProductVariation {
+  # ---------------------- Identification ----------------------
+  id: ID! # Unique identifier
+  sku: String # Stock Keeping Unit (optional)
+  # ---------------------- Quantity Rules ----------------------
+  minQuantity: Int # Minimum quantity allowed in order
+  defaultQuantity: Int # Default quantity for this variation
+  maxQuantity: Int # Maximum quantity allowed in order
+  quantityStep: Int! # Step value for quantity increments
+  # ---------------------- Pricing ----------------------
+  regularPrice: Float! # Regular price of the variation
+  salePrice: Float # Sale price if applicable
+  salePriceStartAt: String # Start time for sale pricing
+  salePriceEndAt: String # End time for sale pricing
+  tierPricingInfo: ProductPrice # Related tiered pricing info
+  # ---------------------- Stock & Inventory ----------------------
+  stockStatus: String # Stock status (e.g., "in_stock", "out_of_stock")
+  # ---------------------- Physical Attributes ----------------------
+  weightUnit: String # Unit of weight (e.g., kg, lb)
+  weight: Float # Weight value
+  dimensionUnit: String # Unit for dimensions (e.g., cm, inch)
+  length: Float # Length of the product
+  width: Float # Width of the product
+  height: Float # Height of the product
+  # ---------------------- Relations ----------------------
+  product: Product! # The parent product
+  attributeValues: [ProductVariationAttributeValue!]! # List of variation-specific attribute values (e.g., Color: Red)
+  # ---------------------- Warranty Info ----------------------
+  warrantyDigit: Int # Numeric part of warranty duration
+  defaultWarrantyPeriod: String # Period string (e.g., "months", "years")
+  warrantyPolicy: String # Description of the warranty policy
+  # ---------------------- Miscellaneous ----------------------
+  shippingClassId: ID # Shipping class ID for rates
+  taxStatusId: ID # Related tax status ID
+  taxClassId: ID # Related tax class ID
+  description: String # Optional description specific to the variation
+  # ---------------------- Meta ----------------------
+  createdAt: String! # Creation timestamp
+  deletedAt: String # Soft deletion timestamp
+}
+
+# Input type for creating/updating a product variation
+input ProductVariationInput {
+  # ---------------------- Identification ----------------------
+  id: ID # Optional ID for update
+  sku: String # SKU for inventory tracking
+  # ---------------------- Quantity Rules ----------------------
+  minQuantity: Int # Minimum purchase quantity
+  defaultQuantity: Int # Default quantity selected
+  maxQuantity: Int # Maximum allowed quantity
+  quantityStep: Int # Step value for quantity increments
+  # ---------------------- Pricing ----------------------
+  regularPrice: Float! # Required regular price
+  salePrice: Float # Optional sale price
+  salePriceStartAt: String # Sale start datetime
+  salePriceEndAt: String # Sale end datetime
+  tierPricingInfoId: ID # Associated tier pricing ID
+  # ---------------------- Stock & Inventory ----------------------
+  stockStatus: String # Stock status
+  # ---------------------- Physical Attributes ----------------------
+  weightUnit: String # Unit for weight
+  weight: Float # Weight value
+  dimensionUnit: String # Unit of dimension
+  length: Float # Length of item
+  width: Float # Width of item
+  height: Float # Height of item
+  # ---------------------- Relations ----------------------
+  productId: ID! # Parent product ID (required)
+  attributeValues: [ProductVariationAttributeValueInput!] # List of variation attribute values
+  # ---------------------- Warranty Info ----------------------
+  warrantyDigit: Int # Duration number for warranty
+  defaultWarrantyPeriod: String # Period type (e.g., "months")
+  warrantyPolicy: String # Warranty policy description
+  # ---------------------- Miscellaneous ----------------------
+  shippingClassId: ID # Shipping class relation
+  taxStatusId: ID # Tax status reference
+  taxClassId: ID # Tax class reference
+  description: String # Optional description
+  # ---------------------- Meta ----------------------
+  deletedAt: String # Optional deletion timestamp
+}

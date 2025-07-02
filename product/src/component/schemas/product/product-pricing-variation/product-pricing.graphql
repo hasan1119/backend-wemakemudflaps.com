@@ -1,0 +1,51 @@
+# ---------------------- Product Price Types ----------------------
+
+# Enum describing type of pricing
+enum PricingTypeEnum {
+  Fixed # "Fixed" (fixed price per unit)
+  Percentage # "Percentage" (discount percentage)
+}
+
+# Represents product price and pricing model
+type ProductPrice {
+  id: ID! # Unique identifier
+  pricingType: PricingTypeEnum! # Type of pricing (e.g., fixed, tiered)
+  tieredPrices: [ProductTieredPrice!]! # List of tiered prices
+  product: Product # Related product
+  productVariation: ProductVariation # Related variation
+  createdAt: String! # Timestamp of creation
+  deletedAt: String # Timestamp of soft deletion
+}
+
+# Input type for product price
+input ProductPriceInput {
+  id: ID # Optional ID for update
+  pricingType: PricingTypeEnum! # Type of pricing
+  tieredPrices: [ProductTieredPriceInput!] # Tiered pricing details
+  productId: ID # Related product ID
+  productVariationId: ID # Related variation ID
+}
+
+# ---------------------- Product Tiered Price Types ----------------------
+
+# Tiered pricing per quantity brackets
+type ProductTieredPrice {
+  id: ID! # Unique identifier
+  minQuantity: Int! # Minimum quantity for this price tier
+  maxQuantity: Int! # Maximum quantity
+  fixedPrice: Float # Fixed price
+  percentageDiscount: Float # Discount percentage
+  productPrice: ProductPrice # Related product price
+  createdAt: String! # Timestamp of creation
+  deletedAt: String # Timestamp of soft deletion
+}
+
+# Input for creating or updating tiered price brackets
+input ProductTieredPriceInput {
+  id: ID # Optional ID for update
+  minQuantity: Int! # Minimum quantity
+  maxQuantity: Int! # Maximum quantity
+  fixedPrice: Float # Price value
+  percentageDiscount: Float # Discount value
+  productPriceId: ID # Related price ID
+}

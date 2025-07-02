@@ -1,0 +1,63 @@
+# ---------------------- Product Review Types ----------------------
+
+# Represents a customer review
+type ProductReview {
+  id: ID! # Unique identifier
+  comment: String! # Review comment
+  rating: Int! # Rating value
+  isApproved: Boolean! # Approval status
+  reviewedBy: String! # Reviewer identifier
+  guestName: String # Guest's name (optional)
+  guestEmail: String # Guest's email (optional)
+  product: Product! # Related product
+  createdAt: String! # Timestamp of creation
+  deletedAt: String # Timestamp of soft deletion
+}
+
+# Input for creating or updating a review
+input ProductReviewInput {
+  id: ID # Optional ID for update
+  comment: String! # Review comment
+  rating: Int! # Rating value
+  isApproved: Boolean # Optional approval status
+  reviewedBy: String! # Reviewer ID
+  guestName: String # Guest name
+  guestEmail: String # Guest email
+  productId: ID! # Related product ID
+  deletedAt: String # Soft deletion timestamp
+}
+
+type ProductReviewResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  reviews: ProductReview!
+}
+
+type ProductReviewPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  reviews: [ProductReview!]!
+  total: Int!
+}
+
+# ---------------------- Product Review Response Unions ----------------------
+union CreateProductReviewResponseOrError =
+    BaseResponse
+  | ProductReviewResponse
+  | ErrorResponse
+union UpdateProductReviewResponseOrError =
+    BaseResponse
+  | ProductReviewResponse
+  | ErrorResponse
+union DeleteProductReviewResponseOrError = BaseResponse | ErrorResponse
+union RestoreProductReviewResponseOrError = BaseResponse | ErrorResponse
+union GetProductReviewByIdResponseOrError =
+    BaseResponse
+  | ProductReviewResponse
+  | ErrorResponse
+union GetProductReviewsResponseOrError =
+    BaseResponse
+  | ProductReviewPaginationResponse
+  | ErrorResponse

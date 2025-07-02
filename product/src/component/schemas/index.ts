@@ -149,51 +149,6 @@ export const categoryMutationsDef = gql(
 );
 
 /**
- * Loads and parses the GraphQL schema for product-related types.
- *
- * Workflow:
- * 1. Reads the schema definition from the `product/product.graphql` file.
- * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
- *
- * @returns The parsed GraphQL schema for products as a DocumentNode.
- */
-export const productDef = gql(
-  readFileSync(path.join(__dirname, "./product/product.graphql"), {
-    encoding: "utf-8",
-  })
-);
-
-/**
- * Loads and parses GraphQL queries for product-related operations.
- *
- * Workflow:
- * 1. Reads the query definitions from the `product/queries.graphql` file.
- * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
- *
- * @returns The parsed GraphQL queries for products as a DocumentNode.
- */
-export const productQueriesDef = gql(
-  readFileSync(path.join(__dirname, "./product/queries.graphql"), {
-    encoding: "utf-8",
-  })
-);
-
-/**
- * Loads and parses GraphQL mutations for product-related operations.
- *
- * Workflow:
- * 1. Reads the mutation definitions from the `product/mutations.graphql` file.
- * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
- *
- * @returns The parsed GraphQL mutations for products as a DocumentNode.
- */
-export const productMutationsDef = gql(
-  readFileSync(path.join(__dirname, "./product/mutations.graphql"), {
-    encoding: "utf-8",
-  })
-);
-
-/**
  * Loads and parses the GraphQL schema for shipping class-related types.
  *
  * Workflow:
@@ -327,6 +282,122 @@ export const taxStatusQueriesDef = gql(
  */
 export const taxStatusMutationsDef = gql(
   readFileSync(path.join(__dirname, "./tax-status/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses the GraphQL schema for tax product-attribute-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `product/product-attribute/product-attribute.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` product-attribute.
+ *
+ * @returns The parsed GraphQL schema for tax statuses as a DocumentNode.
+ */
+export const productAttributeDef = gql(
+  readFileSync(
+    path.join(
+      __dirname,
+      "./product/product-attribute/product-attribute.graphql"
+    ),
+    {
+      encoding: "utf-8",
+    }
+  )
+);
+
+/**
+ * Loads and parses the GraphQL schema for tax product-pricing-variation-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `product/product-pricing-variation/product-pricing.graphql` and `product/product-pricing-variation/product-variation.graphql` file.
+ * 2. Parses the files content into a GraphQL DocumentNode using the `gql` product-pricing and product-variation.
+ *
+ * @returns The parsed GraphQL schema for tax statuses as a DocumentNode.
+ */
+export const productPricingDef = gql(
+  readFileSync(
+    path.join(
+      __dirname,
+      "./product/product-pricing-variation/product-pricing.graphql"
+    ),
+    {
+      encoding: "utf-8",
+    }
+  )
+);
+export const productVariationDef = gql(
+  readFileSync(
+    path.join(
+      __dirname,
+      "./product/product-pricing-variation/product-variation.graphql"
+    ),
+    {
+      encoding: "utf-8",
+    }
+  )
+);
+
+/**
+ * Loads and parses the GraphQL schema for tax product-review-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `product/product-review/product-review.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` product-review.
+ *
+ * @returns The parsed GraphQL schema for tax statuses as a DocumentNode.
+ */
+export const productReviewDef = gql(
+  readFileSync(
+    path.join(__dirname, "./product/product-review/product-review.graphql"),
+    {
+      encoding: "utf-8",
+    }
+  )
+);
+
+/**
+ * Loads and parses the GraphQL schema for product-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `product/product.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for products as a DocumentNode.
+ */
+export const productDef = gql(
+  readFileSync(path.join(__dirname, "./product/product.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL queries for product-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `product/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for products as a DocumentNode.
+ */
+export const productQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./product/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for product-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `product/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for products as a DocumentNode.
+ */
+export const productMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./product/mutations.graphql"), {
     encoding: "utf-8",
   })
 );
