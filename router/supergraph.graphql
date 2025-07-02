@@ -253,6 +253,7 @@ input CreateProductInput
   productConfigurationType: ProductTypeEnum!
   productDeliveryType: [ProductDeliveryTypeEnum!]!
   name: String!
+  slug: String!
   sku: String
   model: String
   createdBy: String!
@@ -1031,6 +1032,7 @@ type Product
   productConfigurationType: String!
   productDeliveryType: [String!]!
   name: String!
+  slug: String!
   sku: String
   model: String
   createdBy: CreatedBy
@@ -1045,7 +1047,7 @@ type Product
   brand: Brand
   tags: [Tag!]
   category: Category!
-  subCategory: [SubCategory!]
+  subCategories: [SubCategory!]
   warrantyDigit: Int
   defaultWarrantyPeriod: String
   warrantyPolicy: String
@@ -1055,6 +1057,7 @@ type Product
   salePriceEndAt: String
   tierPricingInfo: ProductPrice
   saleQuantity: Int
+  saleQuantityUnit: String
   taxStatus: TaxStatus
   taxClass: TaxClass
   minQuantity: Int
@@ -1094,6 +1097,7 @@ type ProductAttribute
   values: [ProductAttributeValue!]!
   createdAt: String!
   deletedAt: String
+  isVisible: Boolean!
 }
 
 input ProductAttributeInput
@@ -1226,6 +1230,7 @@ type ProductTieredPrice
   maxQuantity: Int!
   fixedPrice: Float
   percentageDiscount: Float
+  quantityUnit: String!
   productPrice: ProductPrice
   createdAt: String!
   deletedAt: String
@@ -1277,9 +1282,9 @@ type ProductVariation
   warrantyDigit: Int
   defaultWarrantyPeriod: String
   warrantyPolicy: String
-  shippingClassId: ID
-  taxStatusId: ID
-  taxClassId: ID
+  shippingClass: ShippingClass
+  taxStatus: TaxStatus
+  taxClass: TaxClass
   description: String
   images: [Media!]
   videos: [Media!]
@@ -1822,6 +1827,7 @@ input UpdateProductInput
   productConfigurationType: ProductTypeEnum
   productDeliveryType: [ProductDeliveryTypeEnum!]
   name: String
+  slug: String
   sku: String
   model: String
   defaultImage: ID
@@ -1869,7 +1875,6 @@ input UpdateProductInput
   crossSellIds: [ID!]
   attributes: [ProductAttributeInput!]
   variations: [ProductVariationInput!]
-  reviews: [ProductReviewInput!]
   enableReviews: Boolean
   isPreview: Boolean
   isVisible: Boolean

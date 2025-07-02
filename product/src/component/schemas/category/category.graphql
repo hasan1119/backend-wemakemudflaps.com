@@ -37,7 +37,7 @@ type CategoryDataResponse {
   name: String!
   slug: String!
   description: String
-  thumbnail: String
+  thumbnail: Media
   totalProducts: Int # Optional total product count associate with this sub category.
   position: Int! # Display order/position of the category.
   createdBy: CreatedBy # Metadata on who created the category.
@@ -50,7 +50,7 @@ type SubCategoryDataResponse {
   name: String!
   slug: String!
   description: String
-  thumbnail: String
+  thumbnail: Media
   category: ID # The category to which this subcategory belongs.
   parentSubCategory: ID # The parent subcategory if nested.
   subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).

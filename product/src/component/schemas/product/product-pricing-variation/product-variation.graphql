@@ -78,9 +78,9 @@ type ProductVariation {
   defaultWarrantyPeriod: String # Period string (e.g., "months", "years")
   warrantyPolicy: String # Description of the warranty policy
   # ---------------------- Miscellaneous ----------------------
-  shippingClassId: ID # Shipping class ID for rates
-  taxStatusId: ID # Related tax status ID
-  taxClassId: ID # Related tax class ID
+  shippingClass: ShippingClass # Shipping class ID for rates
+  taxStatus: TaxStatus # Related tax status ID
+  taxClass: TaxClass # Related tax class ID
   description: String # Optional description specific to the variation
   # ---------------------- Media ----------------------
   images: [Media!] # Gallery images

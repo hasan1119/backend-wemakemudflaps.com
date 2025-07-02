@@ -35,6 +35,7 @@ type ProductTieredPrice {
   maxQuantity: Int! # Maximum quantity
   fixedPrice: Float # Fixed price
   percentageDiscount: Float # Discount percentage
+  quantityUnit: String! # Quantity type (e.g., piece, liter and so on)
   productPrice: ProductPrice # Related product price
   createdAt: String! # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion

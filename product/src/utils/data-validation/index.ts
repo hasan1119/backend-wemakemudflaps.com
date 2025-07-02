@@ -77,8 +77,16 @@ export {
  * Workflow:
  * 1. Provides schemas for creating, and updating tag.
  */
+export { createTaxStatusSchema, taxStatusSortingSchema, updateTaxStatusSchema, } from "./tax-status/tax-status";
+
+/**
+ * Exports product-related schemas for product management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, and updating product.
+ */
 export {
-  createTaxStatusSchema,
-  taxStatusSortingSchema,
-  updateTaxStatusSchema,
-} from "./tax-status/tax-status";
+  createProductSchema,
+  productSortingSchema,
+  updateProductSchema,
+} from "./product/product";

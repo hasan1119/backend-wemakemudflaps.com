@@ -67,6 +67,7 @@ type Product @key(fields: "id") {
   productConfigurationType: String! # Product type (e.g., simple, variable and customized)
   productDeliveryType: [String!]! # Product type (e.g., physical, virtual and downloadable)
   name: String! # Product name
+  slug: String! # Product slug
   sku: String # Stock keeping unit
   model: String # Product model
   createdBy: CreatedBy # Creator identifier
@@ -84,7 +85,7 @@ type Product @key(fields: "id") {
   brand: Brand # Associated brand
   tags: [Tag!] # List of tag
   category: Category! # Main category
-  subCategory: [SubCategory!] # List of sub-category
+  subCategories: [SubCategory!] # List of sub-category
   # ---------------------- Warranty Info ----------------------
   warrantyDigit: Int # Warranty duration (digit part)
   defaultWarrantyPeriod: String # Warranty period (e.g., day, days, week, weeks, month, months, year, years, life_time)
@@ -96,6 +97,7 @@ type Product @key(fields: "id") {
   salePriceEndAt: String # Sale end date (ISO format)
   tierPricingInfo: ProductPrice # Associated tier pricing
   saleQuantity: Int # Sale quantity limit
+  saleQuantityUnit: String # Quantity type (e.g., piece, liter and so on)
   # ---------------------- Tax ----------------------
   taxStatus: TaxStatus # Tax status reference
   taxClass: TaxClass # Tax class reference
@@ -141,6 +143,7 @@ input CreateProductInput {
   productConfigurationType: ProductTypeEnum! # Product type (simple/variable/customized)
   productDeliveryType: [ProductDeliveryTypeEnum!]! # Product type (e.g., physical, virtual and downloadable)
   name: String! # Product name
+  slug: String! # Product slug
   sku: String # SKU code
   model: String # Product model identifier
   createdBy: String! # User creating the product
@@ -213,6 +216,7 @@ input UpdateProductInput {
   productConfigurationType: ProductTypeEnum # Optional product type
   productDeliveryType: [ProductDeliveryTypeEnum!] # Optional product type (e.g., physical, virtual and downloadable)
   name: String # Product name
+  slug: String # Product slug
   sku: String # Product SKU
   model: String # Model identifier
   # ---------------------- Media ----------------------
@@ -269,7 +273,6 @@ input UpdateProductInput {
   crossSellIds: [ID!] # Cross-sell products
   attributes: [ProductAttributeInput!] # Attribute set
   variations: [ProductVariationInput!] # List of variations
-  reviews: [ProductReviewInput!] # Review inputs
   # ---------------------- Display ----------------------
   enableReviews: Boolean # Toggle reviews
   isPreview: Boolean # Preview mode flag

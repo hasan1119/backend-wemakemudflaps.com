@@ -32,10 +32,22 @@ const resolveCreatedBy = ({ createdBy }) => {
  * Returns a reference to the `Media` entity using the `media` ID.
  */
 const resolveThumbnail = ({ thumbnail }) => {
-  if (!thumbnail) null;
+  if (!thumbnail) return null;
   return {
     __typename: "Media",
     id: thumbnail,
+  };
+};
+
+/**
+ * Shared resolver function for federated `Media` references (images, videos, etc.).
+ * Returns a reference to the `Media` entity using the provided media ID.
+ */
+const resolveMedia = (mediaId) => {
+  if (!mediaId) return null;
+  return {
+    __typename: "Media",
+    id: mediaId,
   };
 };
 
@@ -59,7 +71,14 @@ const typesWithCreatedBy = [
 ];
 
 // List of types that use the thumbnail field
-const typesWithThumbnail = ["Brand"];
+const typesWithThumbnail = [
+  "Brand",
+  "CategoryDataResponse",
+  "SubCategoryDataResponse",
+];
+
+// List of types that use the media fields (defaultImage, images, videos)
+const typesWithMedia = ["Product", "ProductVariation"];
 
 /**
  * Defines GraphQL query resolvers for product-related operations.
@@ -141,7 +160,13 @@ export const productQueriesResolver = {
 
   // Dynamically assign resolvers for createdBy and thumbnail
   ...Object.fromEntries(
-    [...new Set([...typesWithCreatedBy, ...typesWithThumbnail])].map((type) => [
+    [
+      ...new Set([
+        ...typesWithCreatedBy,
+        ...typesWithThumbnail,
+        ...typesWithMedia,
+      ]),
+    ].map((type) => [
       type,
       {
         ...(typesWithCreatedBy.includes(type) && {
@@ -149,6 +174,11 @@ export const productQueriesResolver = {
         }),
         ...(typesWithThumbnail.includes(type) && {
           thumbnail: resolveThumbnail,
+        }),
+        ...(typesWithMedia.includes(type) && {
+          defaultImage: (parent) => resolveMedia(parent.defaultImage),
+          images: (parent) => parent.images?.map(resolveMedia),
+          videos: (parent) => parent.videos?.map(resolveMedia),
         }),
       },
     ])

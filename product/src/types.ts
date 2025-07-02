@@ -223,6 +223,7 @@ export type CreateProductInput = {
   saleQuantity?: InputMaybe<Scalars['Int']['input']>;
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
+  slug: Scalars['String']['input'];
   soldIndividually?: InputMaybe<Scalars['Boolean']['input']>;
   stockQuantity?: InputMaybe<Scalars['Int']['input']>;
   stockStatus?: InputMaybe<StockStatusEnum>;
@@ -602,6 +603,7 @@ export type Mutation = {
   updateUserPermission: BaseResponseOrError;
   updateUserRole: BaseResponseOrError;
   updateUserRoleInfo: UpdateRoleResponseOrError;
+  uploadAvatar: UploadMediaResponseOrError;
   uploadMediaFiles: UploadMediaResponseOrError;
   verifyEmail: EmailVerificationResponseOrError;
 };
@@ -923,6 +925,11 @@ export type MutationUpdateUserRoleInfoArgs = {
 };
 
 
+export type MutationUploadAvatarArgs = {
+  inputs: UploadAvatarInput;
+};
+
+
 export type MutationUploadMediaFilesArgs = {
   inputs: Array<InputMaybe<UploadMediaInput>>;
   userId: Scalars['String']['input'];
@@ -1053,12 +1060,14 @@ export type Product = {
   salePriceEndAt?: Maybe<Scalars['String']['output']>;
   salePriceStartAt?: Maybe<Scalars['String']['output']>;
   saleQuantity?: Maybe<Scalars['Int']['output']>;
+  saleQuantityUnit?: Maybe<Scalars['String']['output']>;
   shippingClass?: Maybe<ShippingClass>;
   sku?: Maybe<Scalars['String']['output']>;
+  slug: Scalars['String']['output'];
   soldIndividually?: Maybe<Scalars['Boolean']['output']>;
   stockQuantity?: Maybe<Scalars['Int']['output']>;
   stockStatus?: Maybe<Scalars['String']['output']>;
-  subCategory?: Maybe<Array<SubCategory>>;
+  subCategories?: Maybe<Array<SubCategory>>;
   tags?: Maybe<Array<Tag>>;
   taxClass?: Maybe<TaxClass>;
   taxStatus?: Maybe<TaxStatus>;
@@ -1078,6 +1087,7 @@ export type ProductAttribute = {
   createdAt: Scalars['String']['output'];
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  isVisible: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   values: Array<ProductAttributeValue>;
 };
@@ -1197,6 +1207,7 @@ export type ProductTieredPrice = {
   minQuantity: Scalars['Int']['output'];
   percentageDiscount?: Maybe<Scalars['Float']['output']>;
   productPrice?: Maybe<ProductPrice>;
+  quantityUnit: Scalars['String']['output'];
 };
 
 export type ProductTieredPriceInput = {
@@ -1236,11 +1247,11 @@ export type ProductVariation = {
   salePrice?: Maybe<Scalars['Float']['output']>;
   salePriceEndAt?: Maybe<Scalars['String']['output']>;
   salePriceStartAt?: Maybe<Scalars['String']['output']>;
-  shippingClassId?: Maybe<Scalars['ID']['output']>;
+  shippingClass?: Maybe<ShippingClass>;
   sku?: Maybe<Scalars['String']['output']>;
   stockStatus?: Maybe<Scalars['String']['output']>;
-  taxClassId?: Maybe<Scalars['ID']['output']>;
-  taxStatusId?: Maybe<Scalars['ID']['output']>;
+  taxClass?: Maybe<TaxClass>;
+  taxStatus?: Maybe<TaxStatus>;
   tierPricingInfo?: Maybe<ProductPrice>;
   videos?: Maybe<Array<Media>>;
   warrantyDigit?: Maybe<Scalars['Int']['output']>;
@@ -1847,13 +1858,13 @@ export type UpdateProductInput = {
   purchaseNote?: InputMaybe<Scalars['String']['input']>;
   quantityStep?: InputMaybe<Scalars['Int']['input']>;
   regularPrice?: InputMaybe<Scalars['Float']['input']>;
-  reviews?: InputMaybe<Array<ProductReviewInput>>;
   salePrice?: InputMaybe<Scalars['Float']['input']>;
   salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
   salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
   saleQuantity?: InputMaybe<Scalars['Int']['input']>;
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
   soldIndividually?: InputMaybe<Scalars['Boolean']['input']>;
   stockQuantity?: InputMaybe<Scalars['Int']['input']>;
   stockStatus?: InputMaybe<StockStatusEnum>;
@@ -1894,10 +1905,24 @@ export type UpdateUserPermissionInput = {
   userId: Scalars['ID']['input'];
 };
 
+export type UploadAvatarInput = {
+  altText?: InputMaybe<Scalars['String']['input']>;
+  bucketName: Scalars['String']['input'];
+  createdBy: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  dimension?: InputMaybe<Scalars['String']['input']>;
+  fileName: Scalars['String']['input'];
+  length?: InputMaybe<Scalars['Int']['input']>;
+  mediaType: MediaMimeType;
+  size: Scalars['Int']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
+};
+
 export type UploadMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
   bucketName: Scalars['String']['input'];
-  category: MediaCategory;
+  category?: InputMaybe<MediaCategory>;
   createdBy: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   dimension?: InputMaybe<Scalars['String']['input']>;
@@ -2414,6 +2439,7 @@ export type ResolversTypes = {
   UpdateTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxClassResponseOrError']>;
   UpdateTaxStatusResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxStatusResponseOrError']>;
   UpdateUserPermissionInput: UpdateUserPermissionInput;
+  UploadAvatarInput: UploadAvatarInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: ResolverTypeWrapper<UploadMediaResponse>;
   UploadMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UploadMediaResponseOrError']>;
@@ -2595,6 +2621,7 @@ export type ResolversParentTypes = {
   UpdateTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxClassResponseOrError'];
   UpdateTaxStatusResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxStatusResponseOrError'];
   UpdateUserPermissionInput: UpdateUserPermissionInput;
+  UploadAvatarInput: UploadAvatarInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: UploadMediaResponse;
   UploadMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UploadMediaResponseOrError'];
@@ -3103,6 +3130,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'userId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['UpdateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id'>>;
+  uploadAvatar?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'inputs'>>;
   uploadMediaFiles?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadMediaFilesArgs, 'inputs' | 'userId'>>;
   verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email' | 'sessionId' | 'userId'>>;
 };
@@ -3186,12 +3214,14 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   salePriceEndAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   salePriceStartAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   saleQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  saleQuantityUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   shippingClass?: Resolver<Maybe<ResolversTypes['ShippingClass']>, ParentType, ContextType>;
   sku?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   soldIndividually?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   stockQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   stockStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  subCategory?: Resolver<Maybe<Array<ResolversTypes['SubCategory']>>, ParentType, ContextType>;
+  subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategory']>>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<ResolversTypes['Tag']>>, ParentType, ContextType>;
   taxClass?: Resolver<Maybe<ResolversTypes['TaxClass']>, ParentType, ContextType>;
   taxStatus?: Resolver<Maybe<ResolversTypes['TaxStatus']>, ParentType, ContextType>;
@@ -3211,6 +3241,7 @@ export type ProductAttributeResolvers<ContextType = Context, ParentType extends 
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isVisible?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   values?: Resolver<Array<ResolversTypes['ProductAttributeValue']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3293,6 +3324,7 @@ export type ProductTieredPriceResolvers<ContextType = Context, ParentType extend
   minQuantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   percentageDiscount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   productPrice?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
+  quantityUnit?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3317,11 +3349,11 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   salePrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   salePriceEndAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   salePriceStartAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  shippingClassId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  shippingClass?: Resolver<Maybe<ResolversTypes['ShippingClass']>, ParentType, ContextType>;
   sku?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   stockStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  taxClassId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  taxStatusId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  taxClass?: Resolver<Maybe<ResolversTypes['TaxClass']>, ParentType, ContextType>;
+  taxStatus?: Resolver<Maybe<ResolversTypes['TaxStatus']>, ParentType, ContextType>;
   tierPricingInfo?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
   videos?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   warrantyDigit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;

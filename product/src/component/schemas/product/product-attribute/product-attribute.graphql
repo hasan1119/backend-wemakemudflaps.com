@@ -7,6 +7,7 @@ type ProductAttribute {
   values: [ProductAttributeValue!]! # List of possible values for this attribute
   createdAt: String! # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion (if any)
+  isVisible: Boolean! # For customer visibility
 }
 
 # Input type for creating or updating product attributes
