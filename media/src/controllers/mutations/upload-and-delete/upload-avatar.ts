@@ -2,6 +2,7 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearAllMediaSearchCache,
+  removeMediaByMediaIdFromRedis,
   setMediaByMediaIdInRedis,
 } from "../../../helper/redis";
 import {
@@ -72,6 +73,9 @@ export const uploadAvatar = async (
     // delete if the old avatar available
     if (user.avatar) {
       await deleteMediaFiles([user.avatar]);
+
+      // Remove the previous avatar from cache
+      await removeMediaByMediaIdFromRedis(user.avatar);
     }
 
     // Cache the new medias in Redis and clear the medias paginated list
