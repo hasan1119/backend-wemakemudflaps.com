@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllMediaSearchCache,
   getMediaByMediaIdFromRedis,
   setMediaByMediaIdInRedis,
 } from "../../../helper/redis";
@@ -135,13 +136,17 @@ export const updateMediaFileInfo = async (
     // Update media files in the database
     await updateMedia(existingMedia);
 
-    // Cache the updated media in Redis
-    await setMediaByMediaIdInRedis(id, {
-      ...existingMedia,
-      createdBy: existingMedia.createdBy as any,
-      createdAt: existingMedia.createdAt,
-      deletedAt: existingMedia.deletedAt ? existingMedia.deletedAt : null,
-    });
+    // Cache the updated media in Redis and clear the medias paginated list
+
+    await Promise.all([
+      setMediaByMediaIdInRedis(id, {
+        ...existingMedia,
+        createdBy: existingMedia.createdBy as any,
+        createdAt: existingMedia.createdAt,
+        deletedAt: existingMedia.deletedAt ? existingMedia.deletedAt : null,
+      }),
+      clearAllMediaSearchCache(),
+    ]);
 
     return {
       statusCode: 200,

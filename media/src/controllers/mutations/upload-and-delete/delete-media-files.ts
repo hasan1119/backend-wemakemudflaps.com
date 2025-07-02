@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllMediaSearchCache,
   getUserInfoByEmailFromRedis,
   removeMediaByMediaIdFromRedis,
   setMediaByMediaIdInRedis,
@@ -118,11 +119,12 @@ export const deleteMediaFiles = async (
 
       // Clear media-related cache entries in Redis
       await Promise.all(ids.map((id) => removeMediaByMediaIdFromRedis(id)));
+      await clearAllMediaSearchCache();
     } else {
       const result = await deleteSoftMedia(ids);
 
-      // Update media-related cache entities update cache
-      await Promise.all(
+      // Update media-related cache entities update cache and clear the medias paginated list
+      await Promise.all([
         result.map((media) =>
           setMediaByMediaIdInRedis(media.id, {
             ...media,
@@ -130,8 +132,9 @@ export const deleteMediaFiles = async (
             createdAt: media.createdAt.toISOString(),
             deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
           })
-        )
-      );
+        ),
+        clearAllMediaSearchCache(),
+      ]);
     }
 
     return {

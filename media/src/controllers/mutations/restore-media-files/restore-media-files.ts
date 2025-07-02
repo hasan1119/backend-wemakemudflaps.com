@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllMediaSearchCache,
   getMediaByMediaIdFromRedis,
   setMediaByMediaIdInRedis,
 } from "../../../helper/redis";
@@ -132,8 +133,8 @@ export const restoreMediaFiles = async (
     // Restore soft-deleted medias
     const result = await restoreMedia(ids);
 
-    // Update Redis cache with restored role data
-    await Promise.all(
+    // Update Redis cache with restored role data and clear the medias paginated list
+    await Promise.all([
       result.map((media) =>
         setMediaByMediaIdInRedis(media.id, {
           ...media,
@@ -141,8 +142,9 @@ export const restoreMediaFiles = async (
           createdAt: media.createdAt.toISOString(),
           deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
         })
-      )
-    );
+      ),
+      clearAllMediaSearchCache(),
+    ]);
 
     return {
       statusCode: 200,

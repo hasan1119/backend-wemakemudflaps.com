@@ -1,6 +1,9 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { setMediaByMediaIdInRedis } from "../../../helper/redis";
+import {
+  clearAllMediaSearchCache,
+  setMediaByMediaIdInRedis,
+} from "../../../helper/redis";
 import {
   MutationUploadMediaFilesArgs,
   UploadMediaResponseOrError,
@@ -77,8 +80,8 @@ export const uploadMediaFiles = async (
 
     const result = await uploadFiles(validationResult.data);
 
-    // Cache the new medias in Redis
-    await Promise.all(
+    // Cache the new medias in Redis and clear the medias paginated list
+    await Promise.all([
       result.map((media) =>
         setMediaByMediaIdInRedis(media.id, {
           ...media,
@@ -86,8 +89,9 @@ export const uploadMediaFiles = async (
           createdAt: media.createdAt.toISOString(),
           deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
         })
-      )
-    );
+      ),
+      clearAllMediaSearchCache(),
+    ]);
 
     return {
       statusCode: 200,
