@@ -3,7 +3,7 @@ type Brand {
   id: ID!
   name: String!
   slug: String!
-  thumbnail: String
+  thumbnail: Media
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String
@@ -22,7 +22,7 @@ type BrandPaginationDataSession {
   id: ID!
   name: String!
   slug: String!
-  thumbnail: String
+  thumbnail: Media
   totalProducts: Int
   createdBy: CreatedBy
   createdAt: String

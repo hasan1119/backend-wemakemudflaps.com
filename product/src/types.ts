@@ -80,7 +80,7 @@ export type Brand = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   slug: Scalars['String']['output'];
-  thumbnail?: Maybe<Scalars['String']['output']>;
+  thumbnail?: Maybe<Media>;
 };
 
 export type BrandPaginationDataSession = {
@@ -91,7 +91,7 @@ export type BrandPaginationDataSession = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   slug: Scalars['String']['output'];
-  thumbnail?: Maybe<Scalars['String']['output']>;
+  thumbnail?: Maybe<Media>;
   totalProducts?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -192,7 +192,7 @@ export type CreateProductInput = {
   createdBy: Scalars['String']['input'];
   crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   customBadge?: InputMaybe<Scalars['String']['input']>;
-  defaultImage?: InputMaybe<Scalars['String']['input']>;
+  defaultImage?: InputMaybe<Scalars['ID']['input']>;
   defaultMainDescription: Scalars['String']['input'];
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultShortDescription?: InputMaybe<Scalars['String']['input']>;
@@ -201,7 +201,7 @@ export type CreateProductInput = {
   dimensionUnit?: InputMaybe<DimensionUnitEnum>;
   enableReviews?: InputMaybe<Scalars['Boolean']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
-  images?: InputMaybe<Array<Scalars['String']['input']>>;
+  images?: InputMaybe<Array<Scalars['ID']['input']>>;
   initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
   isPreview?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
@@ -233,7 +233,7 @@ export type CreateProductInput = {
   tierPricingInfo?: InputMaybe<ProductPriceInput>;
   upsellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   variations?: InputMaybe<Array<ProductVariationInput>>;
-  videos?: InputMaybe<Array<Scalars['String']['input']>>;
+  videos?: InputMaybe<Array<Scalars['ID']['input']>>;
   warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
   warrantyPolicy?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
@@ -1021,7 +1021,7 @@ export type Product = {
   createdBy?: Maybe<CreatedBy>;
   crossSell?: Maybe<Array<Product>>;
   customBadge?: Maybe<Scalars['String']['output']>;
-  defaultImage?: Maybe<Scalars['String']['output']>;
+  defaultImage?: Maybe<Media>;
   defaultMainDescription: Scalars['String']['output'];
   defaultQuantity?: Maybe<Scalars['Int']['output']>;
   defaultShortDescription?: Maybe<Scalars['String']['output']>;
@@ -1032,7 +1032,7 @@ export type Product = {
   enableReviews?: Maybe<Scalars['Boolean']['output']>;
   height?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['ID']['output']>;
-  images?: Maybe<Array<Scalars['String']['output']>>;
+  images?: Maybe<Array<Media>>;
   initialNumberInStock?: Maybe<Scalars['String']['output']>;
   isPreview?: Maybe<Scalars['Boolean']['output']>;
   isVisible?: Maybe<Scalars['Boolean']['output']>;
@@ -1065,7 +1065,7 @@ export type Product = {
   tierPricingInfo?: Maybe<ProductPrice>;
   upsells?: Maybe<Array<Product>>;
   variations?: Maybe<Array<ProductVariation>>;
-  videos?: Maybe<Array<Scalars['String']['output']>>;
+  videos?: Maybe<Array<Media>>;
   warrantyDigit?: Maybe<Scalars['Int']['output']>;
   warrantyPolicy?: Maybe<Scalars['String']['output']>;
   weight?: Maybe<Scalars['Float']['output']>;
@@ -1225,6 +1225,7 @@ export type ProductVariation = {
   dimensionUnit?: Maybe<Scalars['String']['output']>;
   height?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
+  images?: Maybe<Array<Media>>;
   length?: Maybe<Scalars['Float']['output']>;
   maxQuantity?: Maybe<Scalars['Int']['output']>;
   minQuantity?: Maybe<Scalars['Int']['output']>;
@@ -1241,6 +1242,7 @@ export type ProductVariation = {
   taxClassId?: Maybe<Scalars['ID']['output']>;
   taxStatusId?: Maybe<Scalars['ID']['output']>;
   tierPricingInfo?: Maybe<ProductPrice>;
+  videos?: Maybe<Array<Media>>;
   warrantyDigit?: Maybe<Scalars['Int']['output']>;
   warrantyPolicy?: Maybe<Scalars['String']['output']>;
   weight?: Maybe<Scalars['Float']['output']>;
@@ -1290,6 +1292,7 @@ export type ProductVariationInput = {
   dimensionUnit?: InputMaybe<Scalars['String']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
+  images?: InputMaybe<Array<Scalars['ID']['input']>>;
   length?: InputMaybe<Scalars['Float']['input']>;
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity?: InputMaybe<Scalars['Int']['input']>;
@@ -1306,6 +1309,7 @@ export type ProductVariationInput = {
   taxClassId?: InputMaybe<Scalars['ID']['input']>;
   taxStatusId?: InputMaybe<Scalars['ID']['input']>;
   tierPricingInfoId?: InputMaybe<Scalars['ID']['input']>;
+  videos?: InputMaybe<Array<Scalars['ID']['input']>>;
   warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
   warrantyPolicy?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
@@ -1817,7 +1821,7 @@ export type UpdateProductInput = {
   categoryId?: InputMaybe<Scalars['ID']['input']>;
   crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   customBadge?: InputMaybe<Scalars['String']['input']>;
-  defaultImage?: InputMaybe<Scalars['String']['input']>;
+  defaultImage?: InputMaybe<Scalars['ID']['input']>;
   defaultMainDescription?: InputMaybe<Scalars['String']['input']>;
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultShortDescription?: InputMaybe<Scalars['String']['input']>;
@@ -1827,7 +1831,7 @@ export type UpdateProductInput = {
   enableReviews?: InputMaybe<Scalars['Boolean']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
   id: Scalars['ID']['input'];
-  images?: InputMaybe<Array<Scalars['String']['input']>>;
+  images?: InputMaybe<Array<Scalars['ID']['input']>>;
   initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
   isPreview?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1860,7 +1864,7 @@ export type UpdateProductInput = {
   tierPricingInfo?: InputMaybe<ProductPriceInput>;
   upsellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   variations?: InputMaybe<Array<ProductVariationInput>>;
-  videos?: InputMaybe<Array<Scalars['String']['input']>>;
+  videos?: InputMaybe<Array<Scalars['ID']['input']>>;
   warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
   warrantyPolicy?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
@@ -1918,7 +1922,7 @@ export type UploadMediaResponseOrError = BaseResponse | ErrorResponse | UploadMe
 export type User = {
   __typename?: 'User';
   address?: Maybe<UserAddress>;
-  avatar?: Maybe<Scalars['String']['output']>;
+  avatar?: Maybe<Media>;
   canUpdatePermissions?: Maybe<Scalars['Boolean']['output']>;
   canUpdateRole?: Maybe<Scalars['Boolean']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
@@ -1993,7 +1997,7 @@ export type UserResponse = {
 
 export type UserSession = {
   __typename?: 'UserSession';
-  avatar: Scalars['String']['output'];
+  avatar?: Maybe<Scalars['ID']['output']>;
   email: Scalars['String']['output'];
   emailVerified: Scalars['Boolean']['output'];
   firstName: Scalars['String']['output'];
@@ -2008,7 +2012,7 @@ export type UserSession = {
 export type UserSessionByEmail = {
   __typename?: 'UserSessionByEmail';
   address?: Maybe<UserAddress>;
-  avatar: Scalars['String']['output'];
+  avatar?: Maybe<Scalars['ID']['output']>;
   canUpdatePermissions: Scalars['Boolean']['output'];
   canUpdateRole: Scalars['Boolean']['output'];
   createdAt: Scalars['String']['output'];
@@ -2032,7 +2036,7 @@ export type UserSessionByEmail = {
 export type UserSessionById = {
   __typename?: 'UserSessionById';
   address?: Maybe<UserAddress>;
-  avatar: Scalars['String']['output'];
+  avatar?: Maybe<Scalars['ID']['output']>;
   canUpdatePermissions: Scalars['Boolean']['output'];
   canUpdateRole: Scalars['Boolean']['output'];
   createdAt: Scalars['String']['output'];
@@ -2671,7 +2675,7 @@ export type BrandResolvers<ContextType = Context, ParentType extends ResolversPa
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2682,7 +2686,7 @@ export type BrandPaginationDataSessionResolvers<ContextType = Context, ParentTyp
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3150,7 +3154,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   crossSell?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
   customBadge?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  defaultImage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  defaultImage?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   defaultMainDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   defaultShortDescription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3161,7 +3165,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   enableReviews?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  images?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   initialNumberInStock?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isPreview?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isVisible?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -3194,7 +3198,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   tierPricingInfo?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
   upsells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
   variations?: Resolver<Maybe<Array<ResolversTypes['ProductVariation']>>, ParentType, ContextType>;
-  videos?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  videos?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   warrantyDigit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   warrantyPolicy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -3302,6 +3306,7 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   dimensionUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   maxQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   minQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -3318,6 +3323,7 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   taxClassId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   taxStatusId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   tierPricingInfo?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
+  videos?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   warrantyDigit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   warrantyPolicy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -3729,7 +3735,7 @@ export type UploadMediaResponseOrErrorResolvers<ContextType = Context, ParentTyp
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
-  avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   canUpdatePermissions?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   canUpdateRole?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3800,7 +3806,7 @@ export type UserResponseResolvers<ContextType = Context, ParentType extends Reso
 };
 
 export type UserSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSession'] = ResolversParentTypes['UserSession']> = {
-  avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   firstName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3815,7 +3821,7 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
 
 export type UserSessionByEmailResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSessionByEmail'] = ResolversParentTypes['UserSessionByEmail']> = {
   address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
-  avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   canUpdatePermissions?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canUpdateRole?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3839,7 +3845,7 @@ export type UserSessionByEmailResolvers<ContextType = Context, ParentType extend
 
 export type UserSessionByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSessionById'] = ResolversParentTypes['UserSessionById']> = {
   address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
-  avatar?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   canUpdatePermissions?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canUpdateRole?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

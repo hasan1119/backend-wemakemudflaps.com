@@ -25,21 +25,16 @@ const resolveCreatedBy = ({ createdBy }: { createdBy: string }) => ({
 });
 
 /**
- * Shared resolver for single Media reference by id.
+ * Shared resolver function for federated `thumbnail, images, videos and so on` references.
+ * Returns a reference to the `Media` entity using the `media` ID.
  */
-const resolveMediaReference = (id: string) => ({
-  __typename: "Media",
-  id,
-});
-
-/**
- * Shared resolver for multiple Media references.
- */
-const resolveMediaArray = (ids: string[]) =>
-  ids?.map((id) => ({
+const resolveThumbnail = ({ thumbnail }) => {
+  console.log(thumbnail);
+  return {
     __typename: "Media",
-    id,
-  })) || [];
+    id: thumbnail,
+  };
+};
 
 // List of types that use the `resolveCreatedBy` resolver
 const typesWithCreatedBy = [
@@ -60,26 +55,8 @@ const typesWithCreatedBy = [
   "SubCategoryDataResponse",
 ];
 
-// List of types that use the `resolveMedia` resolver
-const typesWithMedia = ["Product", "ProductVariation"];
-
-/**
- * Dynamically create resolvers for media fields on types.
- */
-function buildMediaResolvers() {
-  const mediaFieldResolvers = {
-    defaultImage: ({ defaultImageId }: { defaultImageId: string }) =>
-      resolveMediaReference(defaultImageId),
-    images: ({ imageIds }: { imageIds: string[] }) =>
-      resolveMediaArray(imageIds),
-    videos: ({ videoIds }: { videoIds: string[] }) =>
-      resolveMediaArray(videoIds),
-  };
-
-  return Object.fromEntries(
-    typesWithMedia.map((type) => [type, mediaFieldResolvers])
-  );
-}
+// List of types that use the thumbnail field
+const typesWithThumbnail = ["Brand"];
 
 /**
  * Defines GraphQL query resolvers for product-related operations.
@@ -159,11 +136,18 @@ export const productQueriesResolver = {
     getAllTaxStatus,
   },
 
-  // Dynamically assign resolveCreatedBy to all relevant types
+  // Dynamically assign resolvers for createdBy and thumbnail
   ...Object.fromEntries(
-    typesWithCreatedBy.map((type) => [type, { createdBy: resolveCreatedBy }])
+    [...new Set([...typesWithCreatedBy, ...typesWithThumbnail])].map((type) => [
+      type,
+      {
+        ...(typesWithCreatedBy.includes(type) && {
+          createdBy: resolveCreatedBy,
+        }),
+        ...(typesWithThumbnail.includes(type) && {
+          thumbnail: resolveThumbnail,
+        }),
+      },
+    ])
   ),
-
-  // Assign media resolvers dynamically
-  ...buildMediaResolvers(),
 };

@@ -29,7 +29,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  // Stores the URL for the user's avatar (optional)
+  // Media ID who for the avatar (string only for Apollo Federation compatibility)
   @Column({ unique: false, nullable: true, default: null })
   avatar: string | null;
 

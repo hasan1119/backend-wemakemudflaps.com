@@ -75,8 +75,8 @@ export const userQueriesResolver = {
 
   User: {
     /**
-     * Resolver for federated reference to the `CreatedBy` entity,
-     * allowing other subgraphs to fetch media creator data by ID.
+     * Resolver for federated reference to the `Media` entity,
+     * allowing other subgraphs to fetch media media data by ID.
      */
     avatar: ({ avatar }) => {
       return {

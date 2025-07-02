@@ -182,7 +182,7 @@ export const updateBrand = async (
         id: updatedBrand.id,
         name: updatedBrand.name,
         slug: updatedBrand.slug,
-        thumbnail: updatedBrand.thumbnail,
+        thumbnail: updatedBrand.thumbnail as any,
         createdBy: updatedBrand.createdBy as any,
         createdAt: updatedBrand.createdAt.toISOString(),
         deletedAt:

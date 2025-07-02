@@ -114,7 +114,7 @@ export const getBrandById = async (
         id: brandData.id,
         name: brandData.name,
         slug: brandData.slug,
-        thumbnail: brandData.thumbnail,
+        thumbnail: brandData.thumbnail as any,
         createdBy: brandData.createdBy as any,
         createdAt:
           brandData.createdAt instanceof Date

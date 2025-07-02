@@ -83,7 +83,7 @@ export const createBrand = async (
       };
     }
 
-    const { name, slug } = result.data;
+    const { name, slug, thumbnail } = result.data;
 
     // Attempt to check for existing brand in Redis
     let brandExists = await getBrandNameExistFromRedis(name);
@@ -140,7 +140,7 @@ export const createBrand = async (
     }
 
     // Create the brand in the database
-    const brand = await createBrandService({ name, slug }, user.id);
+    const brand = await createBrandService({ name, slug, thumbnail }, user.id);
 
     // Cache brand information and existence in Redis
     await Promise.all([
@@ -158,7 +158,7 @@ export const createBrand = async (
         id: brand.id,
         name: brand.name,
         slug: brand.slug,
-        thumbnail: brand.thumbnail,
+        thumbnail: brand.thumbnail as any,
         createdBy: brand.createdBy as any,
         createdAt:
           brand.createdAt instanceof Date

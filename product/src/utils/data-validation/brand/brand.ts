@@ -8,12 +8,16 @@ import { SortOrderTypeEnum } from "../common/common";
  * 1. Validates thumbnail as an optional URL.
  * 2. Ensures name and slug are non-empty strings with a minimum length of 3 characters.
  *
- * @property thumbnail - Optional URL for the brand's thumbnail image.
+ * @property thumbnail - Optional ID for the brand's thumbnail image.
  * @property name - Brand name (minimum 3 characters).
  * @property slug - Brand slug (minimum 3 characters).
  */
 export const createBrandSchema = z.object({
-  thumbnail: z.string().url("Invalid URL format").nullable().optional(),
+  thumbnail: z
+    .string()
+    .uuid({ message: "Invalid UUID format" })
+    .nullable()
+    .optional(),
   name: z.string().min(3, "Brand name must be at least 3 characters").trim(),
   slug: z.string().min(3, "Brand slug must be at least 3 characters").trim(),
 });
@@ -27,13 +31,17 @@ export const createBrandSchema = z.object({
  * 3. Ensures name and slug are optional strings with a minimum length of 3 characters if provided.
  *
  * @property id - Unique identifier of the brand (UUID format).
- * @property thumbnail - Optional URL for the brand's thumbnail image.
+ * @property thumbnail - Optional ID for the brand's thumbnail image.
  * @property name - Optional brand name (minimum 3 characters).
  * @property slug - Optional brand slug (minimum 3 characters).
  */
 export const updateBrandSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
-  thumbnail: z.string().url("Invalid URL format").nullable().optional(),
+  thumbnail: z
+    .string()
+    .uuid({ message: "Invalid UUID format" })
+    .nullable()
+    .optional(),
   name: z
     .string()
     .min(3, "Brand name must be at least 3 characters")

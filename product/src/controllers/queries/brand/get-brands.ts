@@ -128,6 +128,7 @@ export const getAllBrands = async (
       brandsData = dbBrands.map((brand) => ({
         id: brand.id,
         name: brand.name,
+        thumbnail: brand.thumbnail as any,
         slug: brand.slug,
         totalProducts: brand?.products.length || 0,
         createdBy: brand.createdBy as any,
