@@ -89,13 +89,14 @@ export const createAddressBookEntry = async (
       addressBook: {
         id: addressEntry.id,
         city: addressEntry.city,
+        country: addressEntry.country,
         isDefault: addressEntry.isDefault,
         state: addressEntry.state,
-        type: addressEntry.type as any,
+        company: addressEntry.company,
+        streetOne: addressEntry.streetOne,
+        streetTwo: addressEntry.streetTwo,
         zip: addressEntry.zip,
-        houseNo: addressEntry.houseNo,
-        country: addressEntry.country,
-        street: addressEntry.street,
+        type: addressEntry.type as any,
         createdAt:
           addressEntry.createdAt instanceof Date
             ? addressEntry.createdAt.toISOString()
