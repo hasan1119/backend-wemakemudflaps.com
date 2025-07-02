@@ -103,7 +103,7 @@ type Brand
   id: ID!
   name: String!
   slug: String!
-  thumbnail: String
+  thumbnail: Media
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String
@@ -115,7 +115,7 @@ type BrandPaginationDataSession
   id: ID!
   name: String!
   slug: String!
-  thumbnail: String
+  thumbnail: Media
   totalProducts: Int
   createdBy: CreatedBy
   createdAt: String
@@ -885,6 +885,7 @@ type Mutation
   @join__type(graph: USER)
 {
   uploadMediaFiles(inputs: [UploadMediaInput]!, userId: String!): UploadMediaResponseOrError! @join__field(graph: MEDIA)
+  uploadAvatar(inputs: UploadAvatarInput!): UploadMediaResponseOrError! @join__field(graph: MEDIA)
   updateMediaFileInfo(inputs: UpdateMediaInput!): UpdateMediaResponseOrError! @join__field(graph: MEDIA)
   deleteMediaFiles(ids: [ID!]!, skipTrash: Boolean!, password: String): BaseResponseOrError! @join__field(graph: MEDIA)
   restoreMediaFiles(ids: [ID!]!): BaseResponseOrError! @join__field(graph: MEDIA)
@@ -1933,6 +1934,22 @@ input UpdateUserPermissionInput
   password: String
 }
 
+input UploadAvatarInput
+  @join__type(graph: MEDIA)
+{
+  mediaType: MediaMimeType!
+  fileName: String!
+  title: String
+  description: String
+  altText: String
+  dimension: String
+  length: Int
+  size: Int!
+  url: String!
+  bucketName: String!
+  createdBy: String!
+}
+
 input UploadMediaInput
   @join__type(graph: MEDIA)
 {
@@ -1943,7 +1960,7 @@ input UploadMediaInput
   altText: String
   dimension: String
   length: Int
-  category: MediaCategory!
+  category: MediaCategory
   size: Int!
   url: String!
   bucketName: String!

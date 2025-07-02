@@ -85,6 +85,7 @@ export const uploadMediaFiles = async (
       result.map((media) =>
         setMediaByMediaIdInRedis(media.id, {
           ...media,
+          category: typeof media.category === "string" ? media.category : null,
           createdBy: media.createdBy as any,
           createdAt: media.createdAt.toISOString(),
           deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
@@ -99,6 +100,7 @@ export const uploadMediaFiles = async (
       message: "Media files uploaded successfully",
       medias: result.map((media) => ({
         ...media,
+        category: typeof media.category === "string" ? media.category : null,
         createdBy: media.createdBy as any,
         createdAt: media.createdAt.toISOString(),
         deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,

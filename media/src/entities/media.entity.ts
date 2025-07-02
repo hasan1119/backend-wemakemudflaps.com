@@ -46,8 +46,9 @@ export class Media {
   @Column({
     type: "enum",
     enum: categories,
+    nullable: true,
   })
-  category: Category;
+  category: Category | true;
 
   // Media file Size
   @Column({ type: "int" })

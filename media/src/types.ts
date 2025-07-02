@@ -925,8 +925,7 @@ export type MutationUpdateUserRoleInfoArgs = {
 
 
 export type MutationUploadAvatarArgs = {
-  inputs: UploadMediaInput;
-  userId: Scalars['String']['input'];
+  inputs: UploadAvatarInput;
 };
 
 
@@ -1901,10 +1900,24 @@ export type UpdateUserPermissionInput = {
   userId: Scalars['ID']['input'];
 };
 
+export type UploadAvatarInput = {
+  altText?: InputMaybe<Scalars['String']['input']>;
+  bucketName: Scalars['String']['input'];
+  createdBy: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  dimension?: InputMaybe<Scalars['String']['input']>;
+  fileName: Scalars['String']['input'];
+  length?: InputMaybe<Scalars['Int']['input']>;
+  mediaType: MediaMimeType;
+  size: Scalars['Int']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
+};
+
 export type UploadMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
   bucketName: Scalars['String']['input'];
-  category: MediaCategory;
+  category?: InputMaybe<MediaCategory>;
   createdBy: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   dimension?: InputMaybe<Scalars['String']['input']>;
@@ -2421,6 +2434,7 @@ export type ResolversTypes = {
   UpdateTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxClassResponseOrError']>;
   UpdateTaxStatusResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxStatusResponseOrError']>;
   UpdateUserPermissionInput: UpdateUserPermissionInput;
+  UploadAvatarInput: UploadAvatarInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: ResolverTypeWrapper<UploadMediaResponse>;
   UploadMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UploadMediaResponseOrError']>;
@@ -2602,6 +2616,7 @@ export type ResolversParentTypes = {
   UpdateTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxClassResponseOrError'];
   UpdateTaxStatusResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxStatusResponseOrError'];
   UpdateUserPermissionInput: UpdateUserPermissionInput;
+  UploadAvatarInput: UploadAvatarInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: UploadMediaResponse;
   UploadMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UploadMediaResponseOrError'];
@@ -3110,7 +3125,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'userId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['UpdateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id'>>;
-  uploadAvatar?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'inputs' | 'userId'>>;
+  uploadAvatar?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'inputs'>>;
   uploadMediaFiles?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadMediaFilesArgs, 'inputs' | 'userId'>>;
   verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email' | 'sessionId' | 'userId'>>;
 };

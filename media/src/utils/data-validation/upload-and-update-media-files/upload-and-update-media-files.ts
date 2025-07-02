@@ -159,12 +159,14 @@ export const uploadMediaInputSchema = z.object({
     z.number().nonnegative().optional()
   ),
   url: z.string().url("Invalid URL format"),
-  category: z.preprocess((val) => {
-    if (typeof val === "string" && categoryMap[val]) {
-      return categoryMap[val];
-    }
-    return val;
-  }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
+  category: z
+    .preprocess((val) => {
+      if (typeof val === "string" && categoryMap[val]) {
+        return categoryMap[val];
+      }
+      return val;
+    }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]]).nullable())
+    .optional(),
   size: z.number().int().positive("Size must be a positive integer"),
   bucketName: z.string().min(1, "Bucket name is required"),
   createdBy: z.string().uuid({ message: "Invalid UUID format" }),
@@ -246,6 +248,6 @@ export const UpdateMediaFilesSchema = z.object({
         return categoryMap[val];
       }
       return val;
-    }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]]))
+    }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]]).nullable())
     .optional(),
 });

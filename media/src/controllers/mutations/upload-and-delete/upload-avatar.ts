@@ -40,9 +40,15 @@ export const uploadAvatar = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
+    // Args with type
+    const avatarArgs = {
+      ...args.inputs,
+      category: "Profile",
+    };
+
     // Validate input data using Zod schema
     const validationResult = await uploadMediaInputSchema.safeParseAsync(
-      args.inputs
+      avatarArgs
     );
 
     // If validation fails, return detailed error messages with field names
@@ -61,7 +67,7 @@ export const uploadAvatar = async (
       };
     }
 
-    const result = await uploadFiles([args.inputs]);
+    const result = await uploadFiles([avatarArgs]);
 
     // delete if the old avatar available
     if (user.avatar) {
@@ -73,6 +79,7 @@ export const uploadAvatar = async (
       result.map((media) =>
         setMediaByMediaIdInRedis(media.id, {
           ...media,
+          category: typeof media.category === "string" ? media.category : null,
           createdBy: media.createdBy as any,
           createdAt: media.createdAt.toISOString(),
           deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,
@@ -87,6 +94,7 @@ export const uploadAvatar = async (
       message: "Avatar updated successfully",
       medias: result.map((media) => ({
         ...media,
+        category: typeof media.category === "string" ? media.category : null,
         createdBy: media.createdBy as any,
         createdAt: media.createdAt.toISOString(),
         deletedAt: media.deletedAt ? media.deletedAt.toISOString() : null,

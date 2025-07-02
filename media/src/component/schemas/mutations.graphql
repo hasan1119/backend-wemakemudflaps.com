@@ -14,8 +14,7 @@ type Mutation {
   # Each file is stored securely and linked to the specified user.
   # Returns a status indicating success or failure of the upload.
   uploadAvatar(
-    inputs: UploadMediaInput! # List of media files and associated metadata.
-    userId: String! # ID of the user who is uploading the files.
+    inputs: UploadAvatarInput! # List of media files and associated metadata.
   ): UploadMediaResponseOrError!
 
   # Update information of an existing media file.
