@@ -82,7 +82,7 @@ type Product @key(fields: "id") {
   customBadge: String # Custom badge text (e.g., "New")
   purchaseNote: String # Note shown after purchase
   # ---------------------- Categorization ----------------------
-  brand: [Brand] # Associated brand
+  brands: [Brand] # Associated brands
   tags: [Tag!] # List of tag
   category: Category! # Main category
   subCategories: [SubCategory!] # List of sub-category

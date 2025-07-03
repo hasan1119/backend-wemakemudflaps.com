@@ -81,7 +81,7 @@ export class Product {
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "product_brand" })
-  brand: Promise<Brand[]> | null;
+  brands: Promise<Brand[]> | null;
 
   // Associated tags for the product
   @ManyToOne(() => Tag, (tag) => tag.products, {
@@ -230,7 +230,7 @@ export class Product {
   @Column({ nullable: true, default: null })
   stockQuantity: number | null;
 
-  // Backorder settings (defines if backorders are allowed)
+  // Back order settings (defines if back orders are allowed)
   @Column({
     type: "enum",
     enum: ["Don't allow", "Allow but notify customer", "Allow"],
@@ -325,7 +325,7 @@ export class Product {
 
   /* ====================== Linked Products ====================== */
 
-  // Upsell products (premium or higher-end alternatives)
+  // Up-sell products (premium or higher-end alternatives)
   @ManyToMany(() => Product, { nullable: true })
   @JoinTable({
     name: "product_upsells",
