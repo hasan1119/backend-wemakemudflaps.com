@@ -22,6 +22,10 @@ export class Media {
   @Column()
   fileName: string;
 
+  // Original file name (e.g., "image-one.jpg", "video-one.mp4", etc.)
+  @Column({ nullable: true, default: null })
+  originalFileName: string | null;
+
   // Media title name (e.g., "image-one", "video-one", etc.)
   @Column({ nullable: true, default: null })
   title: string | null;

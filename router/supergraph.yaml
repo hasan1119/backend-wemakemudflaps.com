@@ -8,7 +8,7 @@ subgraphs:
     routing_url: http://localhost:4002/
     schema:
       subgraph_url: http://localhost:4002/
-  product:
-    routing_url: http://localhost:4003/
-    schema:
-      subgraph_url: http://localhost:4003/
+  # product:
+  #   routing_url: http://localhost:4003/
+  #   schema:
+  #     subgraph_url: http://localhost:4003/

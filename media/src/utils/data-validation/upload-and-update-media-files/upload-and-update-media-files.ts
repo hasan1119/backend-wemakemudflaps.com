@@ -85,7 +85,7 @@ export const mimeTypeMap: Record<string, string> = {
 
 // Defines a mapping for category values used in media schemas
 export const categoryMap: Record<string, string> = {
-  Profile: "Profile",
+  Avatar: "Avatar",
   Product: "Product",
   Product_Review: "Product Review",
   Product_Return: "Product Return",
@@ -139,24 +139,28 @@ export const uploadMediaInputSchema = z.object({
   }, z.enum([...new Set(Object.values(mimeTypeMap))] as [string, ...string[]])),
   fileName: z.string().min(1, "File name is required"),
   title: z
-    .string({ required_error: "Title text is required" })
+    .string()
     .trim()
-    .optional(),
+    .optional()
+    .nullable(),
   description: z
-    .string({ required_error: "Description text is required" })
+    .string()
     .trim()
-    .optional(),
+    .optional()
+    .nullable(),
   altText: z
-    .string({ required_error: "Alt text is required" })
+    .string()
     .trim()
-    .optional(),
+    .optional()
+    .nullable(),
   dimension: z
-    .string({ required_error: "Dimension is required" })
+    .string()
     .trim()
+    .nullable()
     .optional(),
   length: z.preprocess(
     (val) => (typeof val === "string" ? parseFloat(val) : val),
-    z.number().nonnegative().optional()
+    z.number().nonnegative().optional().nullable()
   ),
   url: z.string().url("Invalid URL format"),
   category: z
@@ -168,8 +172,7 @@ export const uploadMediaInputSchema = z.object({
     }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]]).nullable())
     .optional(),
   size: z.number().int().positive("Size must be a positive integer"),
-  bucketName: z.string().min(1, "Bucket name is required"),
-  createdBy: z.string().uuid({ message: "Invalid UUID format" }),
+  bucketName: z.string().min(1, "Bucket name is required")
 });
 
 /**
@@ -191,17 +194,7 @@ export const UploadMediaFilesSchema = z.array(uploadMediaInputSchema);
  * @returns A schema that validates the array of media files.
  */
 export const createUploadMediaFilesSchema = (contextUserId: string) =>
-  z
-    .array(uploadMediaInputSchema)
-    .refine(
-      (mediaFiles) =>
-        mediaFiles.every((media) => media.createdBy === contextUserId),
-      {
-        message:
-          "One or more media files have a userId that does not match the authenticated user.",
-        path: ["userId"],
-      }
-    );
+  z.array(uploadMediaInputSchema);
 
 /**
  * Defines the schema for updating metadata of a single media file.

@@ -6,7 +6,6 @@ type Mutation {
   # Returns a status indicating success or failure of the upload.
   uploadMediaFiles(
     inputs: [UploadMediaInput]! # List of media files and associated metadata.
-    userId: String! # ID of the user who is uploading the files.
   ): UploadMediaResponseOrError!
 
   # Update information of an existing media file.

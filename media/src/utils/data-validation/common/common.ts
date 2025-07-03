@@ -77,7 +77,7 @@ export const mimeTypes = [
 
 // Defines an array of media category names used in media schemas
 export const categories = [
-  "Profile",
+  "Avatar",
   "Product",
   "Product Review",
   "Product Return",
@@ -173,7 +173,7 @@ export type MimeType =
 
 // Defines a TypeScript type for category names as a union of literals
 export type Category =
-  | "Profile"
+  | "Avatar"
   | "Product"
   | "Product Review"
   | "Product Return"

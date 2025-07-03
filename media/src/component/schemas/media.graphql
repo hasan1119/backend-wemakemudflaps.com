@@ -11,7 +11,7 @@ extend schema
 
 # Enum defining all possible media categories in the system.
 enum MediaCategory {
-  Profile
+  Avatar
   Product
   Product_Review
   Product_Return
@@ -182,6 +182,7 @@ type MediasResponse {
 input UploadMediaInput {
   mediaType: MediaMimeType! # MIME type of the media.
   fileName: String! # Original name of the uploaded file.
+  originalFileName: String! # Original name of the uploaded file.
   title: String # Optional title for the media.
   description: String # Optional description of the media.
   altText: String # Alternative text for accessibility.
@@ -191,7 +192,6 @@ input UploadMediaInput {
   size: Int! # Size of the media file in bytes.
   url: String! # URL where the media is accessible.
   bucketName: String! # Name of the storage bucket where media is stored.
-  createdBy: String! # ID of the user who uploaded the media.
 }
 
 # Input type for uploading a new media item for avatar.

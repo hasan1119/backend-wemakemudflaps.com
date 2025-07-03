@@ -5,6 +5,7 @@ import {
   setMediaByMediaIdInRedis,
 } from "../../../helper/redis";
 import {
+  MediaCategory,
   MutationUploadMediaFilesArgs,
   UploadMediaResponseOrError,
 } from "../../../types";
@@ -40,7 +41,8 @@ export const uploadMediaFiles = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    if (data[0].category !== "Profile") {
+    // Replace "Avatar" with the correct enum/type value if MediaCategory is an enum
+    if (data[0].category !== MediaCategory.Avatar) {
       // Check if user has permission to create a role
       const canCreate = await checkUserPermission({
         action: "canCreate",
@@ -80,7 +82,11 @@ export const uploadMediaFiles = async (
       };
     }
 
-    const result = await uploadFiles(validationResult.data);
+    const dataWithCreatedBy = (validationResult.data as any[]).map(item => ({
+      ...item,
+      createdBy: user.id as any,
+    }));
+    const result = await uploadFiles(dataWithCreatedBy);
 
     // Cache the new medias in Redis and clear the medias paginated list
     await Promise.all([
@@ -115,11 +121,10 @@ export const uploadMediaFiles = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${
-        CONFIG.NODE_ENV === "production"
-          ? "Something went wrong, please try again."
-          : error.message || "Internal server error"
-      }`,
+      message: `${CONFIG.NODE_ENV === "production"
+        ? "Something went wrong, please try again."
+        : error.message || "Internal server error"
+        }`,
       __typename: "ErrorResponse",
     };
   }
