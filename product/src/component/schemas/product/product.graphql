@@ -82,7 +82,7 @@ type Product @key(fields: "id") {
   customBadge: String # Custom badge text (e.g., "New")
   purchaseNote: String # Note shown after purchase
   # ---------------------- Categorization ----------------------
-  brand: Brand # Associated brand
+  brand: [Brand] # Associated brand
   tags: [Tag!] # List of tag
   category: Category! # Main category
   subCategories: [SubCategory!] # List of sub-category
@@ -159,7 +159,7 @@ input CreateProductInput {
   customBadge: String # Custom label/badge
   purchaseNote: String # Post-purchase note
   # ---------------------- Categorization ----------------------
-  brandId: ID # Brand ID
+  brandIds: [ID!] # Brand ID
   tagIds: [ID!] # Associated tag IDs
   categoryId: ID! # Primary category ID
   subCategoryIds: [ID!] # Related sub-categories
@@ -232,7 +232,7 @@ input UpdateProductInput {
   customBadge: String # Custom tag (e.g., HOT)
   purchaseNote: String # Order note
   # ---------------------- Categorization ----------------------
-  brandId: ID # Related brand ID
+  brandIds: [ID!] # Related brand ID
   tagIds: [ID!] # Tag IDs
   categoryId: ID # Parent category ID
   subCategoryIds: [ID!] # Sub-category IDs
