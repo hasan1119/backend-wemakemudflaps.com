@@ -203,6 +203,7 @@ export type CreateProductInput = {
   height?: InputMaybe<Scalars['Float']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
+  isCustomized: Scalars['Boolean']['input'];
   isPreview?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
@@ -1035,6 +1036,7 @@ export type Product = {
   id?: Maybe<Scalars['ID']['output']>;
   images?: Maybe<Array<Media>>;
   initialNumberInStock?: Maybe<Scalars['String']['output']>;
+  isCustomized: Scalars['Boolean']['output'];
   isPreview?: Maybe<Scalars['Boolean']['output']>;
   isVisible?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
@@ -1221,6 +1223,7 @@ export enum ProductTypeEnum {
 export type ProductVariation = {
   __typename?: 'ProductVariation';
   attributeValues: Array<ProductVariationAttributeValue>;
+  brand?: Maybe<Array<Brand>>;
   createdAt: Scalars['String']['output'];
   defaultQuantity?: Maybe<Scalars['Int']['output']>;
   defaultWarrantyPeriod?: Maybe<Scalars['String']['output']>;
@@ -1289,6 +1292,7 @@ export type ProductVariationAttributeValueInput = {
 
 export type ProductVariationInput = {
   attributeValues?: InputMaybe<Array<ProductVariationAttributeValueInput>>;
+  brand?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultWarrantyPeriod?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -1837,6 +1841,7 @@ export type UpdateProductInput = {
   id: Scalars['ID']['input'];
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
+  isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
   isPreview?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
@@ -1900,16 +1905,17 @@ export type UpdateUserPermissionInput = {
 
 export type UploadAvatarInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
-  bucketName: Scalars['String']['input'];
+  bucketName?: InputMaybe<Scalars['String']['input']>;
+  category?: InputMaybe<MediaCategory>;
   createdBy: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   dimension?: InputMaybe<Scalars['String']['input']>;
-  fileName: Scalars['String']['input'];
+  fileName?: InputMaybe<Scalars['String']['input']>;
   length?: InputMaybe<Scalars['Int']['input']>;
   mediaType: MediaMimeType;
-  size: Scalars['Int']['input'];
+  size?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
-  url: Scalars['String']['input'];
+  url?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UploadMediaInput = {
@@ -3187,6 +3193,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   initialNumberInStock?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  isCustomized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isPreview?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isVisible?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -3322,6 +3329,7 @@ export type ProductTieredPriceResolvers<ContextType = Context, ParentType extend
 
 export type ProductVariationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductVariation'] = ResolversParentTypes['ProductVariation']> = {
   attributeValues?: Resolver<Array<ResolversTypes['ProductVariationAttributeValue']>, ParentType, ContextType>;
+  brand?: Resolver<Maybe<Array<ResolversTypes['Brand']>>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   defaultWarrantyPeriod?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

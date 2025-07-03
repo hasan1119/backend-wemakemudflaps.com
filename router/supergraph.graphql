@@ -254,6 +254,7 @@ input CreateProductInput
   productDeliveryType: [ProductDeliveryTypeEnum!]!
   name: String!
   slug: String!
+  isCustomized: Boolean!
   sku: String
   model: String
   createdBy: String!
@@ -1030,6 +1031,7 @@ type Product
   id: ID
   productConfigurationType: String!
   productDeliveryType: [String!]!
+  isCustomized: Boolean!
   name: String!
   slug: String!
   sku: String
@@ -1259,6 +1261,7 @@ type ProductVariation
   id: ID!
   sku: String
   productDeliveryType: [String!]!
+  brand: [Brand!]
   minQuantity: Int
   defaultQuantity: Int
   maxQuantity: Int
@@ -1335,6 +1338,7 @@ input ProductVariationInput
   id: ID
   sku: String
   productDeliveryType: [ProductDeliveryTypeEnum!]
+  brand: [ID]
   minQuantity: Int
   defaultQuantity: Int
   maxQuantity: Int
@@ -1824,6 +1828,7 @@ input UpdateProductInput
   id: ID!
   productConfigurationType: ProductTypeEnum
   productDeliveryType: [ProductDeliveryTypeEnum!]
+  isCustomized: Boolean
   name: String
   slug: String
   sku: String
@@ -1941,15 +1946,16 @@ input UploadAvatarInput
   @join__type(graph: MEDIA)
 {
   mediaType: MediaMimeType!
-  fileName: String!
+  fileName: String
   title: String
   description: String
   altText: String
   dimension: String
   length: Int
-  size: Int!
-  url: String!
-  bucketName: String!
+  category: MediaCategory
+  size: Int
+  url: String
+  bucketName: String
   createdBy: String!
 }
 

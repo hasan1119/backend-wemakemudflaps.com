@@ -197,15 +197,16 @@ input UploadMediaInput {
 # Input type for uploading a new media item for avatar.
 input UploadAvatarInput {
   mediaType: MediaMimeType! # MIME type of the media.
-  fileName: String! # Original name of the uploaded file.
+  fileName: String # Original name of the uploaded file.
   title: String # Optional title for the media.
   description: String # Optional description of the media.
   altText: String # Alternative text for accessibility.
   dimension: String # Dimensions of the media (e.g., "1920x1080").
   length: Int # Duration in seconds for video/audio files.
-  size: Int! # Size of the media file in bytes.
-  url: String! # URL where the media is accessible.
-  bucketName: String! # Name of the storage bucket where media is stored.
+  category: MediaCategory # Category under which the media is classified.
+  size: Int # Size of the media file in bytes.
+  url: String # URL where the media is accessible.
+  bucketName: String # Name of the storage bucket where media is stored.
   createdBy: String! # ID of the user who uploaded the media.
 }
 

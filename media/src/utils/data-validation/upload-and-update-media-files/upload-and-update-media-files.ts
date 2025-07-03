@@ -238,10 +238,12 @@ export const UpdateMediaFilesSchema = z.object({
     .string({ required_error: "Dimension is required" })
     .nullable()
     .optional(),
-  length: z.preprocess(
-    (val) => (typeof val === "string" ? parseFloat(val) : val),
-    z.number().nonnegative().optional()
-  ),
+  length: z
+    .preprocess(
+      (val) => (typeof val === "string" ? parseFloat(val) : val),
+      z.number().nonnegative().optional()
+    )
+    .nullable(),
   category: z
     .preprocess((val) => {
       if (typeof val === "string" && categoryMap[val]) {
@@ -249,5 +251,6 @@ export const UpdateMediaFilesSchema = z.object({
       }
       return val;
     }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]]).nullable())
+    .nullable()
     .optional(),
 });
