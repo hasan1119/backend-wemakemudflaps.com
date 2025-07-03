@@ -68,6 +68,7 @@ const typesWithCreatedBy = [
   "CategoryDataResponse",
   "SubCategory",
   "SubCategoryDataResponse",
+  "SubCategoryDataResponse",
 ];
 
 // List of types that use the thumbnail field

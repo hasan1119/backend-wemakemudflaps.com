@@ -216,7 +216,7 @@ export const getAllCategories = async (
             name: cat.name,
             slug: cat.slug,
             description: cat.description || null,
-            thumbnail: cat.thumbnail || null,
+            thumbnail: (cat.thumbnail as any) || null,
             position: cat.position,
             createdBy: cat.createdBy as any,
             createdAt:

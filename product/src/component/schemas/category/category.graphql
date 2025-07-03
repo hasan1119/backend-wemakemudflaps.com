@@ -82,7 +82,7 @@ type CategoryResponseById {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: Category!
+  category: CategoryDataResponse!
 }
 
 # Response for fetching a sub category by ID.

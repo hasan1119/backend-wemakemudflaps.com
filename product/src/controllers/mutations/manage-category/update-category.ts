@@ -220,7 +220,7 @@ export const updateCategory = async (
         name: result.name,
         slug: result.slug,
         description: result.description,
-        thumbnail: result.thumbnail,
+        thumbnail: result.thumbnail as any,
         position: result.position,
         createdBy: result.createdBy as any,
         createdAt:
@@ -238,7 +238,7 @@ export const updateCategory = async (
         name: result.name,
         slug: result.slug,
         description: result.description,
-        thumbnail: result.thumbnail,
+        thumbnail: result.thumbnail as any,
         category: categoryId,
         parentSubCategory: parentSubCategoryId,
         position: result.position,

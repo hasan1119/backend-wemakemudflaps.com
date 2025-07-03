@@ -167,7 +167,7 @@ export type CategoryResponse = {
 
 export type CategoryResponseById = {
   __typename?: 'CategoryResponseById';
-  category: Category;
+  category: CategoryDataResponse;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
@@ -2789,7 +2789,7 @@ export type CategoryResponseResolvers<ContextType = Context, ParentType extends 
 };
 
 export type CategoryResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryResponseById'] = ResolversParentTypes['CategoryResponseById']> = {
-  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['CategoryDataResponse'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
