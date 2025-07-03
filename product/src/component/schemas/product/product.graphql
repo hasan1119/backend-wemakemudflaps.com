@@ -4,7 +4,6 @@
 enum ProductTypeEnum {
   SIMPLE_PRODUCT # Simple product with no variations
   VARIABLE_PRODUCT # Product with variations
-  CUSTOMIZED_PRODUCT # Customizable product
 }
 
 # Enum for warranty period units

@@ -37,7 +37,7 @@ export class Product {
   // Product categorization by configuration
   @Column({
     type: "enum",
-    enum: ["Simple Product", "Variable Product", "Customized Product"],
+    enum: ["Simple Product", "Variable Product"],
   })
   productConfigurationType: string;
 
@@ -50,6 +50,10 @@ export class Product {
     nullable: true,
   })
   productDeliveryType: ProductDeliveryTypeEnum[];
+
+  // Product customized
+  @Column({ default: false })
+  isCustomized: boolean;
 
   // Product name
   @Column()

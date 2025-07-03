@@ -2,7 +2,6 @@ import {
   deleteMediaFiles,
   restoreMediaFiles,
   updateMediaFileInfo,
-  uploadAvatar,
   uploadMediaFiles,
 } from "../../controllers";
 
@@ -20,11 +19,6 @@ export const mediaMutationsResolver = {
      * Uploads new media files and stores them in the system.
      */
     uploadMediaFiles,
-
-    /**
-     * Uploads new media file avatar and stores them in the system.
-     */
-    uploadAvatar,
 
     /**
      * Deletes specified media files, marking them as removed.

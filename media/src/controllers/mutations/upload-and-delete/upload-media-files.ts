@@ -40,20 +40,22 @@ export const uploadMediaFiles = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Check if user has permission to create a role
-    const canCreate = await checkUserPermission({
-      action: "canCreate",
-      entity: "media",
-      user,
-    });
+    if (data[0].category !== "Profile") {
+      // Check if user has permission to create a role
+      const canCreate = await checkUserPermission({
+        action: "canCreate",
+        entity: "media",
+        user,
+      });
 
-    if (!canCreate) {
-      return {
-        statusCode: 403,
-        success: false,
-        message: "You do not have permission to upload media files",
-        __typename: "BaseResponse",
-      };
+      if (!canCreate) {
+        return {
+          statusCode: 403,
+          success: false,
+          message: "You do not have permission to upload media files",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Create schema with context user.id for validation

@@ -603,7 +603,6 @@ export type Mutation = {
   updateUserPermission: BaseResponseOrError;
   updateUserRole: BaseResponseOrError;
   updateUserRoleInfo: UpdateRoleResponseOrError;
-  uploadAvatar: UploadMediaResponseOrError;
   uploadMediaFiles: UploadMediaResponseOrError;
   verifyEmail: EmailVerificationResponseOrError;
 };
@@ -925,11 +924,6 @@ export type MutationUpdateUserRoleInfoArgs = {
 };
 
 
-export type MutationUploadAvatarArgs = {
-  inputs: UploadAvatarInput;
-};
-
-
 export type MutationUploadMediaFilesArgs = {
   inputs: Array<InputMaybe<UploadMediaInput>>;
   userId: Scalars['String']['input'];
@@ -1220,7 +1214,6 @@ export type ProductTieredPriceInput = {
 };
 
 export enum ProductTypeEnum {
-  CustomizedProduct = 'CUSTOMIZED_PRODUCT',
   SimpleProduct = 'SIMPLE_PRODUCT',
   VariableProduct = 'VARIABLE_PRODUCT'
 }
@@ -3130,7 +3123,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'userId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['UpdateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id'>>;
-  uploadAvatar?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'inputs'>>;
   uploadMediaFiles?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadMediaFilesArgs, 'inputs' | 'userId'>>;
   verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email' | 'sessionId' | 'userId'>>;
 };

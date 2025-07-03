@@ -886,7 +886,6 @@ type Mutation
   @join__type(graph: USER)
 {
   uploadMediaFiles(inputs: [UploadMediaInput]!, userId: String!): UploadMediaResponseOrError! @join__field(graph: MEDIA)
-  uploadAvatar(inputs: UploadAvatarInput!): UploadMediaResponseOrError! @join__field(graph: MEDIA)
   updateMediaFileInfo(inputs: UpdateMediaInput!): UpdateMediaResponseOrError! @join__field(graph: MEDIA)
   deleteMediaFiles(ids: [ID!]!, skipTrash: Boolean!, password: String): BaseResponseOrError! @join__field(graph: MEDIA)
   restoreMediaFiles(ids: [ID!]!): BaseResponseOrError! @join__field(graph: MEDIA)
@@ -1252,7 +1251,6 @@ enum ProductTypeEnum
 {
   SIMPLE_PRODUCT @join__enumValue(graph: PRODUCT)
   VARIABLE_PRODUCT @join__enumValue(graph: PRODUCT)
-  CUSTOMIZED_PRODUCT @join__enumValue(graph: PRODUCT)
 }
 
 type ProductVariation

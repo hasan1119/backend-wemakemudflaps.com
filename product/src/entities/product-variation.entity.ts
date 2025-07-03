@@ -7,6 +7,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Brand } from "./brand.entity";
 import { ProductPrice } from "./product-price.entity";
 import { ProductVariationAttributeValue } from "./product-variation-attribute-value.entity";
 import { Product } from "./product.entity";
@@ -34,6 +35,14 @@ export class ProductVariation {
     nullable: true,
   })
   productDeliveryType: ProductDeliveryTypeEnum[];
+
+  // Associated brand for the product
+  @ManyToOne(() => Brand, (brand) => brand.products, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "product_variation_brand_id" })
+  brand: Promise<Brand[]> | null;
 
   // SKU for the product variation (nullable)
   @Column({ unique: true, nullable: true })

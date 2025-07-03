@@ -9,14 +9,6 @@ type Mutation {
     userId: String! # ID of the user who is uploading the files.
   ): UploadMediaResponseOrError!
 
-  # Upload media file for avatar.
-  # Accepts an obj of media file input, including metadata and file info.
-  # Each file is stored securely and linked to the specified user.
-  # Returns a status indicating success or failure of the upload.
-  uploadAvatar(
-    inputs: UploadAvatarInput! # List of media files and associated metadata.
-  ): UploadMediaResponseOrError!
-
   # Update information of an existing media file.
   # Allows changing metadata like name, description, tags, or other fields.
   # The file itself is not re-uploaded — only metadata is updated.
