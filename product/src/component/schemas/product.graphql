@@ -1,0 +1,69 @@
+enum ProductDeliveryTypeEnum {
+  PHYSICAL
+  DOWNLOADABLE
+  VIRTUAL
+}
+
+type Product {
+  id: ID!
+  productConfigurationType: String!
+  productDeliveryType: [ProductDeliveryTypeEnum]
+  isCustomized: Boolean!
+  name: String!
+  slug: String!
+  defaultImage: String
+  images: [String]
+  videos: [String]
+  brand: Brand
+  tags: [Tag]
+  defaultMainDescription: String!
+  defaultShortDescription: String
+  defaultTags: [String]
+  category: Category!
+  subCategories: [SubCategory]
+  warrantyDigit: Float
+  defaultWarrantyPeriod: String
+  warrantyPolicy: String
+  regularPrice: Float!
+  salePrice: Float
+  salePriceStartAt: String
+  salePriceEndAt: String
+  tierPricingInfo: ProductPrice
+  saleQuantity: Float
+  saleQuantityUnit: String!
+  taxStatus: TaxStatus
+  taxClass: TaxClass
+  minQuantity: Float
+  defaultQuantity: Float
+  maxQuantity: Float
+  quantityStep: Float!
+  sku: String
+  model: String
+  manageStock: Boolean
+  stockQuantity: Float
+  allowBackOrders: String
+  lowStockThresHold: Float
+  stockStatus: String
+  soldIndividually: Boolean!
+  initialNumberInStock: String
+  weightUnit: String
+  weight: Float
+  dimensionUnit: String
+  length: Float
+  width: Float
+  height: Float
+  shippingClass: String!
+  upsells: [Product]
+  crossSells: [Product]
+  attributes: [ProductAttribute]
+  variations: [ProductVariation]
+  purchaseNote: String
+  enableReviews: Boolean!
+  reviews: [ProductReview]
+  customBadge: String
+  isPreview: Boolean!
+  isVisible: Boolean!
+  createdBy: String!
+  createdAt: String!
+  deletedAt: String
+}

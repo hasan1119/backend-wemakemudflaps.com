@@ -65,6 +65,7 @@ type Product @key(fields: "id") {
   id: ID # Optional product ID (used for updates)
   productConfigurationType: String! # Product type (e.g., simple, variable and customized)
   productDeliveryType: [String!]! # Product type (e.g., physical, virtual and downloadable)
+  isCustomized: Boolean! # Product is customized or not
   name: String! # Product name
   slug: String! # Product slug
   sku: String # Stock keeping unit
@@ -143,6 +144,7 @@ input CreateProductInput {
   productDeliveryType: [ProductDeliveryTypeEnum!]! # Product type (e.g., physical, virtual and downloadable)
   name: String! # Product name
   slug: String! # Product slug
+  isCustomized: Boolean! # Product is customized or not
   sku: String # SKU code
   model: String # Product model identifier
   createdBy: String! # User creating the product
@@ -214,6 +216,7 @@ input UpdateProductInput {
   id: ID! # ID of the product to update
   productConfigurationType: ProductTypeEnum # Optional product type
   productDeliveryType: [ProductDeliveryTypeEnum!] # Optional product type (e.g., physical, virtual and downloadable)
+  isCustomized: Boolean # Product is customized or not
   name: String # Product name
   slug: String # Product slug
   sku: String # Product SKU

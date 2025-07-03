@@ -41,7 +41,7 @@ export class ProductVariation {
     nullable: true,
     onDelete: "SET NULL",
   })
-  @JoinColumn({ name: "product_variation_brand_id" })
+  @JoinColumn({ name: "variation_brand_id" })
   brand: Promise<Brand[]> | null;
 
   // SKU for the product variation (nullable)
@@ -126,7 +126,7 @@ export class ProductVariation {
   @ManyToOne(() => Product, (product) => product.variations, {
     onDelete: "CASCADE", // Ensures the associated variation is deleted if the product is deleted
   })
-  @JoinColumn({ name: "product_id" })
+  @JoinColumn({ name: "variation_product_id" })
   product: Promise<Product>;
 
   // To store attribute values for the variation
@@ -196,7 +196,7 @@ export class ProductVariation {
   @ManyToOne(() => ShippingClass, (shippingClass) => shippingClass.products, {
     onDelete: "SET NULL",
   })
-  @JoinColumn({ name: "shipping_class_id" })
+  @JoinColumn({ name: "variation_shipping_class_id" })
   shippingClass: string;
 
   // Many-to-one relationship with TaxStatus (nullable)
@@ -204,7 +204,7 @@ export class ProductVariation {
     nullable: true,
     onDelete: "SET NULL",
   })
-  @JoinColumn({ name: "tax_status_id" })
+  @JoinColumn({ name: "variation_tax_status_id" })
   taxStatus: TaxStatus | null;
 
   // Many-to-one relationship with TaxClass (nullable)
@@ -212,7 +212,7 @@ export class ProductVariation {
     nullable: true,
     onDelete: "SET NULL",
   })
-  @JoinColumn({ name: "tax_class_id" })
+  @JoinColumn({ name: "variation_tax_class_id" })
   taxClass: TaxClass | null;
 
   // Description of the product variation
