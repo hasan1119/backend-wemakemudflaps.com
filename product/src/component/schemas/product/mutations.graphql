@@ -1,4 +1,137 @@
 # Mutations to manage products operations.
 type Mutation {
-  createProduct: String
+  # Create a new product.
+  # Only accessible by authorized users.
+  createProduct(
+    productConfigurationType: String!
+    productDeliveryType: [String!]!
+    isCustomized: Boolean!
+    name: String!
+    slug: String!
+    defaultImage: ID
+    images: [ID!]
+    videos: [ID!]
+    brandIds: [ID!]
+    tagIds: [ID!]
+    defaultMainDescription: String!
+    defaultShortDescription: String
+    defaultTags: [String!]
+    categoryId: ID!
+    subCategoryIds: [ID!]
+    warrantyDigit: Int
+    defaultWarrantyPeriod: String
+    warrantyPolicy: String
+    regularPrice: Float!
+    salePrice: Float
+    salePriceStartAt: String
+    salePriceEndAt: String
+    tierPricingInfo: ProductPriceInput
+    saleQuantity: Int
+    saleQuantityUnit: String!
+    taxStatusId: ID
+    taxClassId: ID
+    minQuantity: Int
+    defaultQuantity: Int
+    maxQuantity: Int
+    quantityStep: Int
+    sku: String
+    model: String
+    manageStock: Boolean
+    stockQuantity: Int
+    allowBackOrders: String
+    lowStockThresHold: Int
+    stockStatus: String
+    soldIndividually: Boolean
+    initialNumberInStock: String
+    weightUnit: String
+    weight: Float
+    dimensionUnit: String
+    length: Float
+    width: Float
+    height: Float
+    shippingClassId: ID
+    upsellIds: [ID!]
+    crossSellIds: [ID!]
+    attributes: [ProductAttributeInput!]
+    variations: [ProductVariationInput!]
+    purchaseNote: String
+    enableReviews: Boolean
+    customBadge: String
+    isPreview: Boolean
+    isVisible: Boolean
+  ): CreateProductResponseOrError!
+
+  # Update an existing product.
+  # Only accessible by authorized users.
+  updateProduct(
+    id: ID!
+    productConfigurationType: String
+    productDeliveryType: [String!]
+    isCustomized: Boolean
+    name: String
+    slug: String
+    defaultImage: ID
+    images: [ID!]
+    videos: [ID!]
+    brandIds: [ID!]
+    tagIds: [ID!]
+    defaultMainDescription: String
+    defaultShortDescription: String
+    defaultTags: [String!]
+    categoryId: ID
+    subCategoryIds: [ID!]
+    warrantyDigit: Int
+    defaultWarrantyPeriod: String
+    warrantyPolicy: String
+    regularPrice: Float
+    salePrice: Float
+    salePriceStartAt: String
+    salePriceEndAt: String
+    tierPricingInfo: ProductPriceInput
+    saleQuantity: Int
+    saleQuantityUnit: String
+    taxStatusId: ID
+    taxClassId: ID
+    minQuantity: Int
+    defaultQuantity: Int
+    maxQuantity: Int
+    quantityStep: Int
+    sku: String
+    model: String
+    manageStock: Boolean
+    stockQuantity: Int
+    allowBackOrders: String
+    lowStockThresHold: Int
+    stockStatus: String
+    soldIndividually: Boolean
+    initialNumberInStock: String
+    weightUnit: String
+    weight: Float
+    dimensionUnit: String
+    length: Float
+    width: Float
+    height: Float
+    shippingClassId: ID
+    upsellIds: [ID!]
+    crossSellIds: [ID!]
+    attributes: [ProductAttributeInput!]
+    variations: [ProductVariationInput!]
+    purchaseNote: String
+    enableReviews: Boolean
+    customBadge: String
+    isPreview: Boolean
+    isVisible: Boolean
+  ): UpdateProductResponseOrError!
+
+  # Deletes a product by IDs.
+  # Performs a soft delete by default (marks as deleted).
+  # If skipTrash is true, performs a permanent delete.
+  # Only accessible by authorized users.
+  deleteProduct(ids: [ID]!, skipTrash: Boolean!): DeleteProductResponseOrError!
+
+  # Mutation to restore a soft-deleted product.
+  # Only accessible by authorized users.
+  restoreProducts(
+    ids: [ID!]! # List of soft-deleted product IDs to be restored.
+  ): RestoreProductResponseOrError!
 }

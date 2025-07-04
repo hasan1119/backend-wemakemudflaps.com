@@ -370,6 +370,7 @@ export const ProductVariationInputSchema = z.object({
     .number()
     .int()
     .positive("Quantity step must be a positive integer")
+    .nullable()
     .optional(),
   regularPrice: z.number().positive("Regular price must be a positive number"),
   salePrice: z
@@ -662,6 +663,7 @@ export const createProductSchema = z.object({
     .number()
     .int()
     .positive("Quantity step must be a positive integer")
+    .nullable()
     .optional(),
   manageStock: z.boolean().optional().nullable(),
   stockQuantity: z

@@ -1,4 +1,22 @@
 # Queries to fetch products from the system.
 type Query {
-  getProduct: String
+  # Fetch product by ID.
+  # Retrieves a specific product details by its unique ID.
+  # Returns a `GetProductByIDResponseOrError` containing product data and request status.
+  getProduct(
+    id: ID! # Unique identifier of the product to retrieve.
+  ): GetProductByIdResponseOrError!
+
+  # Fetch all products with pagination, filtering, and sorting.
+  # Retrieves a paginated list of products.
+  # Supports filtering by search term (name or slug) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetProductsResponseOrError` containing product data and request status.
+  getAllProducts(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of products per page.
+    search: String # Optional search term (matches name or slug).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetProductsResponseOrError!
 }

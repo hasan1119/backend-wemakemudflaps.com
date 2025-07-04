@@ -89,3 +89,14 @@ export { restoreTaxStatuses } from "./mutations/manage-tax-status/restore-tax-st
 export { updateTaxStatus } from "./mutations/manage-tax-status/update-tax-status";
 export { getAllTaxStatus } from "./queries/tax-status/get-tax-status";
 export { getTaxStatusById } from "./queries/tax-status/get-tax-status-by-id";
+
+/**
+ * Exports GraphQL queries and mutations for managing tax status data.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating, updating, deleting, and restoring tax statuses.
+ * 2. Enables retrieval of a specific tax status by its ID.
+ * 3. Facilitates listing all tags in the system.
+ */
+export { createProduct } from "./mutations/manage-product/create-product";
+export { getProduct } from "./queries/product/get-product";
