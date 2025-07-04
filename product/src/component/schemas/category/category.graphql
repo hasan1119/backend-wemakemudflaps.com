@@ -87,8 +87,6 @@ type SubCategoryDataResponseById {
 }
 
 # ---------------------- Responses ----------------------
-
-# Response for fetching a category.
 type CategoryResponse {
   statusCode: Int!
   success: Boolean!
@@ -96,7 +94,6 @@ type CategoryResponse {
   category: CategoryDataResponse!
 }
 
-# Response for fetching a subcategory.
 type SubCategoryResponse {
   statusCode: Int!
   success: Boolean!
@@ -104,7 +101,6 @@ type SubCategoryResponse {
   subcategory: SubCategoryDataResponse!
 }
 
-# Response for fetching a category by ID.
 type CategoryResponseById {
   statusCode: Int!
   success: Boolean!
@@ -112,7 +108,6 @@ type CategoryResponseById {
   category: CategoryDataResponseById!
 }
 
-# Response for fetching a sub category by ID.
 type SubCategoryResponseById {
   statusCode: Int!
   success: Boolean!
@@ -120,7 +115,6 @@ type SubCategoryResponseById {
   subcategory: SubCategoryDataResponseById!
 }
 
-# Response for fetching a categories list.
 type CategoryPaginationResponse {
   statusCode: Int!
   success: Boolean!
@@ -130,7 +124,6 @@ type CategoryPaginationResponse {
 }
 
 # ---------------------- Inputs ----------------------
-
 input restoreCategoryType {
   ids: String!
   type: CategoryType!

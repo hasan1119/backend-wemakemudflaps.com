@@ -27,12 +27,13 @@ const mapArgsToPagination = (args: QueryGetAllCategoriesArgs) => ({
   sortOrder: args.sortOrder || "asc",
 });
 
-// Recursively fetch and map all nested subcategories
-const mapSubCategory = async (
+// Recursively build subcategory tree from pre-fetched subcategories
+const buildSubCategoryTree = (
   subCat: any,
-  visited: Set<string> = new Set(),
-  depth: number = 0 // For debugging depth
-): Promise<any> => {
+  allSubCategories: any[],
+  visited: Set<string>,
+  depth: number = 0
+): any => {
   if (!subCat || visited.has(subCat.id)) {
     console.log(
       `Skipping subcategory ${subCat?.id} at depth ${depth} (already visited or null)`
@@ -41,44 +42,28 @@ const mapSubCategory = async (
   }
   visited.add(subCat.id);
 
-  // Fetch nested subcategories from the database
-  const children = await subCategoryRepository.find({
-    where: {
-      parentSubCategory: { id: subCat.id },
-      deletedAt: null,
-    },
-    relations: ["parentSubCategory", "category", "subCategories"],
-  });
+  // Find children from pre-fetched subcategories
+  const children = allSubCategories.filter(
+    (sc) => sc.parentSubCategory?.id === subCat.id && !visited.has(sc.id)
+  );
 
-  // Log the fetched children for debugging
+  // Log children for debugging
   console.log(
-    `Fetched ${children.length} children for subcategory ${subCat.name} (ID: ${subCat.id}) at depth ${depth}:`,
+    `Found ${children.length} children for subcategory ${subCat.name} (ID: ${subCat.id}) at depth ${depth}:`,
     children.map((c) => ({ id: c.id, name: c.name }))
   );
 
   // Recursively map children
-  const mappedChildren = await Promise.all(
-    children.map((child: any) => mapSubCategory(child, visited, depth + 1))
-  );
+  const mappedChildren = children
+    .map((child) =>
+      buildSubCategoryTree(child, allSubCategories, visited, depth + 1)
+    )
+    .filter((sc) => sc !== null);
 
-  // Fetch parent subcategory if not preloaded and not visited
-  let parent = null;
-  if (
-    subCat.parentSubCategory &&
-    typeof subCat.parentSubCategory === "object" &&
-    subCat.parentSubCategory.id &&
-    !visited.has(subCat.parentSubCategory.id)
-  ) {
-    const parentData = await subCategoryRepository.findOne({
-      where: { id: subCat.parentSubCategory.id, deletedAt: null },
-      relations: ["parentSubCategory", "category", "subCategories"],
-    });
-    if (parentData) {
-      parent = await mapSubCategory(parentData, visited, depth + 1);
-    }
-  }
+  // Sort children by position
+  mappedChildren.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 
-  const mappedSubCat = {
+  return {
     id: subCat.id,
     name: subCat.name,
     slug: subCat.slug,
@@ -95,19 +80,21 @@ const mapSubCategory = async (
         ? subCat.deletedAt.toISOString()
         : subCat.deletedAt || null,
     category: subCat.category?.id || null,
-    parentSubCategory: parent ? parent : subCat.parentSubCategory?.id || null,
-    subCategories: mappedChildren.filter((sc) => sc !== null),
+    parentSubCategory: subCat.parentSubCategory?.id || null,
+    subCategories: mappedChildren,
   };
-
-  console.log(
-    `Mapped subcategory ${subCat.name} (ID: ${subCat.id}) at depth ${depth} with ${mappedChildren.length} children`
-  );
-
-  return mappedSubCat;
 };
 
 /**
  * Fetches a paginated list of categories with deeply nested subcategories.
+ *
+ * Workflow:
+ * 1. Authenticates the user and verifies their permission to view categories.
+ * 2. Validates pagination and sorting inputs using Zod schemas.
+ * 3. Queries all subcategories once to build the hierarchy in memory.
+ * 4. Fetches paginated categories with immediate subcategories.
+ * 5. Maps categories and subcategories to match the GraphQL schema.
+ * 6. Returns a structured response with categories and total count.
  *
  * @param _ - Unused GraphQL root/resolver parameter.
  * @param args - GraphQL arguments including pagination, sorting, and search.
@@ -171,6 +158,27 @@ export const getAllCategories = async (
       ? (sortOrder as (typeof allowedSortOrders)[number])
       : "desc";
 
+    // Fetch all subcategories once to build the hierarchy
+    const allSubCategories = await subCategoryRepository.find({
+      where: { deletedAt: null },
+      relations: ["parentSubCategory", "category"],
+    });
+
+    // Log all subcategories for debugging
+    const util = require("util");
+    console.log(
+      "All subcategories fetched:",
+      util.inspect(
+        allSubCategories.map((sc) => ({
+          id: sc.id,
+          name: sc.name,
+          parentSubCategoryId: sc.parentSubCategory?.id,
+          categoryId: sc.category?.id,
+        })),
+        { depth: null, colors: true }
+      )
+    );
+
     // Fetch categories with immediate subcategories
     const { categories: dbCategories, total } = await paginateCategories({
       page,
@@ -181,7 +189,6 @@ export const getAllCategories = async (
     });
 
     // Log raw categories for debugging
-    const util = require("util");
     console.log(
       "Raw categories from paginateCategories:",
       util.inspect(dbCategories, { depth: null, colors: true })
@@ -190,10 +197,8 @@ export const getAllCategories = async (
     const categories = await Promise.all(
       dbCategories.map(async (cat) => {
         const visited = new Set<string>();
-        const mappedSubCategories = await Promise.all(
-          (cat.subCategories ?? []).map((subCat) =>
-            mapSubCategory(subCat, visited, 0)
-          )
+        const mappedSubCategories = (cat.subCategories ?? []).map((subCat) =>
+          buildSubCategoryTree(subCat, allSubCategories, visited, 0)
         );
 
         return {

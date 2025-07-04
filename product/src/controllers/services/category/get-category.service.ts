@@ -267,7 +267,7 @@ export const paginateCategories = async ({
     .leftJoinAndSelect(
       "category.subCategories",
       "subCategory",
-      "subCategory.deletedAt IS NULL" // Only join non-deleted subCategories
+      "subCategory.deletedAt IS NULL"
     )
     .where("category.deletedAt IS NULL");
 
