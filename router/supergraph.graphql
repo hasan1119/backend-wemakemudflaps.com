@@ -157,10 +157,10 @@ type Category
   name: String!
   slug: String!
   description: String
-  thumbnail: String
+  thumbnail: Media
   position: Int!
   createdBy: CreatedBy
-  subCategories: [SubCategory!]!
+  subCategories: [SubCategory]
   createdAt: String
   deletedAt: String
 }
@@ -173,7 +173,6 @@ type CategoryDataResponse
   slug: String!
   description: String
   thumbnail: Media
-  totalProducts: Int
   position: Int!
   createdBy: CreatedBy
   createdAt: String
@@ -205,7 +204,7 @@ type CategoryResponseById
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: CategoryDataResponse!
+  category: Category!
 }
 
 enum CategoryType
@@ -1617,10 +1616,10 @@ type SubCategory
   name: String!
   slug: String!
   description: String
-  thumbnail: String
+  thumbnail: Media
   category: Category!
   parentSubCategory: SubCategoryDataResponse
-  subCategories: [SubCategoryDataResponse!]
+  subCategories: [SubCategoryDataResponse]
   position: Int!
   createdBy: CreatedBy
   createdAt: String
@@ -1637,8 +1636,23 @@ type SubCategoryDataResponse
   thumbnail: Media
   category: ID
   parentSubCategory: ID
-  subCategories: [SubCategoryDataResponse!]
-  totalProducts: Int
+  subCategories: [SubCategoryDataResponse]
+  position: Int!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type SubCategoryDataResponseById
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: Media
+  category: ID
+  parentSubCategory: ID
   position: Int!
   createdBy: CreatedBy
   createdAt: String
@@ -1660,7 +1674,7 @@ type SubCategoryResponseById
   statusCode: Int!
   success: Boolean!
   message: String!
-  subcategory: SubCategoryDataResponse!
+  subcategory: SubCategoryDataResponseById!
 }
 
 type Tag

@@ -1,11 +1,5 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { SubCategory } from "../../../entities";
-import {
-  clearAllCategorySearchCache,
-  setCategoryInfoByIdInRedis,
-  setSubCategoryInfoByIdInRedis,
-} from "../../../helper/redis";
 import {
   MutationRestoreCategoryArgs,
   RestoreCategoryResponseOrError,
@@ -18,73 +12,23 @@ import {
 } from "../../services";
 
 /**
- * Recursively normalizes a SubCategory to a flat JSON structure with nested subcategories.
- *
- * @param subCategory - The subcategory entity to normalize.
- * @returns A fully normalized SubCategoryDataResponse with nested children.
- */
-async function normalizeSubCategory(subCategory: SubCategory) {
-  const resolvedCategory =
-    subCategory.category && typeof subCategory.category === "object"
-      ? await subCategory.category
-      : null;
-
-  const resolvedParent =
-    subCategory.parentSubCategory &&
-    typeof subCategory.parentSubCategory === "object"
-      ? subCategory.parentSubCategory
-      : null;
-
-  const nestedSubCategories = subCategory.subCategories
-    ? await Promise.all(
-        subCategory.subCategories.map((child) => normalizeSubCategory(child))
-      )
-    : [];
-
-  return {
-    id: subCategory.id,
-    name: subCategory.name,
-    slug: subCategory.slug,
-    description: subCategory.description,
-    thumbnail: subCategory.thumbnail as any,
-    position: subCategory.position,
-    totalProducts: subCategory?.products?.length ?? 0,
-    category: resolvedCategory ? resolvedCategory.id : null,
-    parentSubCategory: resolvedParent ? resolvedParent.id : null,
-    subCategories: nestedSubCategories,
-    createdBy: subCategory.createdBy as any,
-    createdAt:
-      subCategory.createdAt instanceof Date
-        ? subCategory.createdAt.toISOString()
-        : subCategory.createdAt,
-    deletedAt:
-      subCategory.deletedAt instanceof Date
-        ? subCategory.deletedAt.toISOString()
-        : subCategory.deletedAt,
-  };
-}
-
-/**
- * GraphQL Mutation Resolver to restore soft-deleted categories or subcategories with Redis caching.
+ * GraphQL Mutation Resolver to restore a soft-deleted category or subcategory.
  *
  * Workflow:
- * 1. Verifies user authentication and permission to restore categories.
- * 2. Validates input (ids, categoryType) using Zod schema.
- * 3. Attempts to retrieve category/subcategory data from Redis.
- * 4. Fetches missing data from the database if not found in Redis.
- * 5. Ensures all entities are soft-deleted before restoration.
- * 6. Restores entities in the database by clearing `deletedAt`.
- * 8. Clears the category search cache.
- * 9. Returns a success response or error if validation, permission, or restoration fails.
+ * 1. Verifies user authentication and authorization to perform update operations.
+ * 2. Validates the input arguments using Zod schema.
+ * 3. Normalizes `categoryType` to match service expectations (e.g., converts "subCategory" to "subcategory").
+ * 4. Invokes the service function to restore the soft-deleted entity by clearing `deletedAt`.
+ * 5. Returns a success message on successful restoration, or error response if any failure occurs.
  *
  * Notes:
- * - Handles both `category` and `subCategory` types via a shared resolver.
- * - Supports multiple IDs for batch restoration.
+ * - This handles both `category` and `subcategory` restoration using the same resolver.
+ * - A permission check for `canUpdate` is used since restore is a form of update.
  *
  * @param _ - Unused resolver root parameter.
- * @param args - Input arguments: ids (array of UUIDs), categoryType ("category" or "subCategory").
- * @param context - GraphQL context with authenticated user info.
- * @returns A `RestoreCategoryResponseOrError` indicating success or detailed error info.
+ * @param args - Input arguments including ID of the entity to restore and its category type.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A `RestoreCategoryResponseOrError` indicating operation success or failure details.
  */
 export const restoreCategory = async (
   _: any,
@@ -148,44 +92,6 @@ export const restoreCategory = async (
     const restoredSubCategories = subCategoryIds.length
       ? await restoreCategoryOrSubCategoryById(subCategoryIds, "subCategory")
       : [];
-
-    // Cache restored categories
-    if (restoredCategories.length) {
-      await Promise.all(
-        restoredCategories.map((category) =>
-          setCategoryInfoByIdInRedis(category.id, {
-            id: category.id,
-            name: category.name,
-            slug: category.slug,
-            description: category.description,
-            thumbnail: category.thumbnail as any,
-            position: category.position,
-            totalProducts: category?.products?.length ?? 0,
-            createdBy: category.createdBy as any,
-            createdAt:
-              category.createdAt instanceof Date
-                ? category.createdAt.toISOString()
-                : category.createdAt,
-            deletedAt:
-              category.deletedAt instanceof Date
-                ? category.deletedAt.toISOString()
-                : category.deletedAt,
-          })
-        )
-      );
-    }
-
-    // Recursively normalize and cache restored subcategories
-    if (restoredSubCategories.length) {
-      await Promise.all(
-        restoredSubCategories.map(async (subCategory: SubCategory) => {
-          const normalized = await normalizeSubCategory(subCategory);
-          return setSubCategoryInfoByIdInRedis(subCategory.id, normalized);
-        })
-      );
-    }
-
-    await clearAllCategorySearchCache();
 
     const totalCategories = restoredCategories.length;
     const totalSubCategories = restoredSubCategories.length;

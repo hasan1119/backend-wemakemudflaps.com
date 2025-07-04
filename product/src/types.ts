@@ -130,8 +130,8 @@ export type Category = {
   name: Scalars['String']['output'];
   position: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
-  subCategories: Array<SubCategory>;
-  thumbnail?: Maybe<Scalars['String']['output']>;
+  subCategories?: Maybe<Array<Maybe<SubCategory>>>;
+  thumbnail?: Maybe<Media>;
 };
 
 export type CategoryDataResponse = {
@@ -145,7 +145,6 @@ export type CategoryDataResponse = {
   position: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
   thumbnail?: Maybe<Media>;
-  totalProducts?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CategoryPaginationResponse = {
@@ -167,7 +166,7 @@ export type CategoryResponse = {
 
 export type CategoryResponseById = {
   __typename?: 'CategoryResponseById';
-  category: CategoryDataResponse;
+  category: Category;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
@@ -187,7 +186,7 @@ export type CreateCategoryResponseOrError = BaseResponse | CategoryResponse | Er
 export type CreateProductInput = {
   allowBackOrders?: InputMaybe<BackOrderOptionEnum>;
   attributes?: InputMaybe<Array<ProductAttributeInput>>;
-  brandId?: InputMaybe<Scalars['ID']['input']>;
+  brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   categoryId: Scalars['ID']['input'];
   createdBy: Scalars['String']['input'];
   crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -203,6 +202,7 @@ export type CreateProductInput = {
   height?: InputMaybe<Scalars['Float']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
+  isCustomized: Scalars['Boolean']['input'];
   isPreview?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
@@ -434,7 +434,7 @@ export type Media = {
   createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
-  dimension?: Maybe<Scalars['String']['output']>;
+  dimension?: Maybe<MediaDimension>;
   fileName?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   length?: Maybe<Scalars['Int']['output']>;
@@ -445,6 +445,7 @@ export type Media = {
 };
 
 export enum MediaCategory {
+  Avatar = 'Avatar',
   Banner = 'Banner',
   Brand = 'Brand',
   Carousel = 'Carousel',
@@ -455,7 +456,6 @@ export enum MediaCategory {
   Product = 'Product',
   ProductReturn = 'Product_Return',
   ProductReview = 'Product_Review',
-  Profile = 'Profile',
   Promotion = 'Promotion',
   ShippingLabel = 'Shipping_Label',
   SiteFavicon = 'Site_Favicon',
@@ -463,6 +463,19 @@ export enum MediaCategory {
   SiteSettings = 'Site_Settings',
   SubCategory = 'Sub_Category'
 }
+
+export type MediaDimension = {
+  __typename?: 'MediaDimension';
+  height: Scalars['Int']['output'];
+  unit: Scalars['String']['output'];
+  width: Scalars['Int']['output'];
+};
+
+export type MediaDimensionInput = {
+  height: Scalars['Int']['input'];
+  unit: Scalars['String']['input'];
+  width: Scalars['Int']['input'];
+};
 
 export enum MediaMimeType {
   ApplicationMsword = 'application_msword',
@@ -926,7 +939,6 @@ export type MutationUpdateUserRoleInfoArgs = {
 
 export type MutationUploadMediaFilesArgs = {
   inputs: Array<InputMaybe<UploadMediaInput>>;
-  userId: Scalars['String']['input'];
 };
 
 
@@ -1017,7 +1029,7 @@ export type Product = {
   __typename?: 'Product';
   allowBackOrders?: Maybe<Scalars['String']['output']>;
   attributes?: Maybe<Array<ProductAttribute>>;
-  brand?: Maybe<Brand>;
+  brands?: Maybe<Array<Maybe<Brand>>>;
   category: Category;
   createdBy?: Maybe<CreatedBy>;
   crossSell?: Maybe<Array<Product>>;
@@ -1035,6 +1047,7 @@ export type Product = {
   id?: Maybe<Scalars['ID']['output']>;
   images?: Maybe<Array<Media>>;
   initialNumberInStock?: Maybe<Scalars['String']['output']>;
+  isCustomized: Scalars['Boolean']['output'];
   isPreview?: Maybe<Scalars['Boolean']['output']>;
   isVisible?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
@@ -1221,6 +1234,7 @@ export enum ProductTypeEnum {
 export type ProductVariation = {
   __typename?: 'ProductVariation';
   attributeValues: Array<ProductVariationAttributeValue>;
+  brands?: Maybe<Array<Brand>>;
   createdAt: Scalars['String']['output'];
   defaultQuantity?: Maybe<Scalars['Int']['output']>;
   defaultWarrantyPeriod?: Maybe<Scalars['String']['output']>;
@@ -1289,6 +1303,7 @@ export type ProductVariationAttributeValueInput = {
 
 export type ProductVariationInput = {
   attributeValues?: InputMaybe<Array<ProductVariationAttributeValueInput>>;
+  brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultWarrantyPeriod?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -1647,8 +1662,8 @@ export type SubCategory = {
   parentSubCategory?: Maybe<SubCategoryDataResponse>;
   position: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
-  subCategories?: Maybe<Array<SubCategoryDataResponse>>;
-  thumbnail?: Maybe<Scalars['String']['output']>;
+  subCategories?: Maybe<Array<Maybe<SubCategoryDataResponse>>>;
+  thumbnail?: Maybe<Media>;
 };
 
 export type SubCategoryDataResponse = {
@@ -1663,9 +1678,23 @@ export type SubCategoryDataResponse = {
   parentSubCategory?: Maybe<Scalars['ID']['output']>;
   position: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
-  subCategories?: Maybe<Array<SubCategoryDataResponse>>;
+  subCategories?: Maybe<Array<Maybe<SubCategoryDataResponse>>>;
   thumbnail?: Maybe<Media>;
-  totalProducts?: Maybe<Scalars['Int']['output']>;
+};
+
+export type SubCategoryDataResponseById = {
+  __typename?: 'SubCategoryDataResponseById';
+  category?: Maybe<Scalars['ID']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  parentSubCategory?: Maybe<Scalars['ID']['output']>;
+  position: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
+  thumbnail?: Maybe<Media>;
 };
 
 export type SubCategoryResponse = {
@@ -1680,7 +1709,7 @@ export type SubCategoryResponseById = {
   __typename?: 'SubCategoryResponseById';
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
-  subcategory: SubCategoryDataResponse;
+  subcategory: SubCategoryDataResponseById;
   success: Scalars['Boolean']['output'];
 };
 
@@ -1810,7 +1839,7 @@ export type UpdateMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
   category: MediaCategory;
   description?: InputMaybe<Scalars['String']['input']>;
-  dimension?: InputMaybe<Scalars['String']['input']>;
+  dimension?: InputMaybe<MediaDimensionInput>;
   id: Scalars['ID']['input'];
   length?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -1821,7 +1850,7 @@ export type UpdateMediaResponseOrError = BaseResponse | ErrorResponse | MediaRes
 export type UpdateProductInput = {
   allowBackOrders?: InputMaybe<BackOrderOptionEnum>;
   attributes?: InputMaybe<Array<ProductAttributeInput>>;
-  brandId?: InputMaybe<Scalars['ID']['input']>;
+  brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   categoryId?: InputMaybe<Scalars['ID']['input']>;
   crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   customBadge?: InputMaybe<Scalars['String']['input']>;
@@ -1837,6 +1866,7 @@ export type UpdateProductInput = {
   id: Scalars['ID']['input'];
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
+  isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
   isPreview?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
@@ -1898,30 +1928,16 @@ export type UpdateUserPermissionInput = {
   userId: Scalars['ID']['input'];
 };
 
-export type UploadAvatarInput = {
-  altText?: InputMaybe<Scalars['String']['input']>;
-  bucketName: Scalars['String']['input'];
-  createdBy: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
-  dimension?: InputMaybe<Scalars['String']['input']>;
-  fileName: Scalars['String']['input'];
-  length?: InputMaybe<Scalars['Int']['input']>;
-  mediaType: MediaMimeType;
-  size: Scalars['Int']['input'];
-  title?: InputMaybe<Scalars['String']['input']>;
-  url: Scalars['String']['input'];
-};
-
 export type UploadMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
   bucketName: Scalars['String']['input'];
   category?: InputMaybe<MediaCategory>;
-  createdBy: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
-  dimension?: InputMaybe<Scalars['String']['input']>;
+  dimension?: InputMaybe<MediaDimensionInput>;
   fileName: Scalars['String']['input'];
   length?: InputMaybe<Scalars['Int']['input']>;
   mediaType: MediaMimeType;
+  originalFileName: Scalars['String']['input'];
   size: Scalars['Int']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
   url: Scalars['String']['input'];
@@ -2346,6 +2362,8 @@ export type ResolversTypes = {
   LoginMetaInput: LoginMetaInput;
   Media: ResolverTypeWrapper<Media>;
   MediaCategory: MediaCategory;
+  MediaDimension: ResolverTypeWrapper<MediaDimension>;
+  MediaDimensionInput: MediaDimensionInput;
   MediaMimeType: MediaMimeType;
   MediaResponse: ResolverTypeWrapper<MediaResponse>;
   MediasResponse: ResolverTypeWrapper<MediasResponse>;
@@ -2403,6 +2421,7 @@ export type ResolversTypes = {
   StockStatusEnum: StockStatusEnum;
   SubCategory: ResolverTypeWrapper<SubCategory>;
   SubCategoryDataResponse: ResolverTypeWrapper<SubCategoryDataResponse>;
+  SubCategoryDataResponseById: ResolverTypeWrapper<SubCategoryDataResponseById>;
   SubCategoryResponse: ResolverTypeWrapper<SubCategoryResponse>;
   SubCategoryResponseById: ResolverTypeWrapper<SubCategoryResponseById>;
   Tag: ResolverTypeWrapper<Tag>;
@@ -2432,7 +2451,6 @@ export type ResolversTypes = {
   UpdateTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxClassResponseOrError']>;
   UpdateTaxStatusResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxStatusResponseOrError']>;
   UpdateUserPermissionInput: UpdateUserPermissionInput;
-  UploadAvatarInput: UploadAvatarInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: ResolverTypeWrapper<UploadMediaResponse>;
   UploadMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UploadMediaResponseOrError']>;
@@ -2534,6 +2552,8 @@ export type ResolversParentTypes = {
   LoginMeta: LoginMeta;
   LoginMetaInput: LoginMetaInput;
   Media: Media;
+  MediaDimension: MediaDimension;
+  MediaDimensionInput: MediaDimensionInput;
   MediaResponse: MediaResponse;
   MediasResponse: MediasResponse;
   Mutation: {};
@@ -2585,6 +2605,7 @@ export type ResolversParentTypes = {
   SinglePermissionInput: SinglePermissionInput;
   SubCategory: SubCategory;
   SubCategoryDataResponse: SubCategoryDataResponse;
+  SubCategoryDataResponseById: SubCategoryDataResponseById;
   SubCategoryResponse: SubCategoryResponse;
   SubCategoryResponseById: SubCategoryResponseById;
   Tag: Tag;
@@ -2614,7 +2635,6 @@ export type ResolversParentTypes = {
   UpdateTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxClassResponseOrError'];
   UpdateTaxStatusResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxStatusResponseOrError'];
   UpdateUserPermissionInput: UpdateUserPermissionInput;
-  UploadAvatarInput: UploadAvatarInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: UploadMediaResponse;
   UploadMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UploadMediaResponseOrError'];
@@ -2745,8 +2765,8 @@ export type CategoryResolvers<ContextType = Context, ParentType extends Resolver
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  subCategories?: Resolver<Array<ResolversTypes['SubCategory']>, ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subCategories?: Resolver<Maybe<Array<Maybe<ResolversTypes['SubCategory']>>>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2760,7 +2780,6 @@ export type CategoryDataResponseResolvers<ContextType = Context, ParentType exte
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
-  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2782,7 +2801,7 @@ export type CategoryResponseResolvers<ContextType = Context, ParentType extends 
 };
 
 export type CategoryResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryResponseById'] = ResolversParentTypes['CategoryResponseById']> = {
-  category?: Resolver<ResolversTypes['CategoryDataResponse'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -3046,7 +3065,7 @@ export type MediaResolvers<ContextType = Context, ParentType extends ResolversPa
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  dimension?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  dimension?: Resolver<Maybe<ResolversTypes['MediaDimension']>, ParentType, ContextType>;
   fileName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -3054,6 +3073,13 @@ export type MediaResolvers<ContextType = Context, ParentType extends ResolversPa
   size?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MediaDimensionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MediaDimension'] = ResolversParentTypes['MediaDimension']> = {
+  height?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unit?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  width?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3123,7 +3149,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'userId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['UpdateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id'>>;
-  uploadMediaFiles?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadMediaFilesArgs, 'inputs' | 'userId'>>;
+  uploadMediaFiles?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadMediaFilesArgs, 'inputs'>>;
   verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email' | 'sessionId' | 'userId'>>;
 };
 
@@ -3169,7 +3195,7 @@ export type PersonalizedWithRolePermissionResponseResolvers<ContextType = Contex
 export type ProductResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Product'] = ResolversParentTypes['Product']> = {
   allowBackOrders?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   attributes?: Resolver<Maybe<Array<ResolversTypes['ProductAttribute']>>, ParentType, ContextType>;
-  brand?: Resolver<Maybe<ResolversTypes['Brand']>, ParentType, ContextType>;
+  brands?: Resolver<Maybe<Array<Maybe<ResolversTypes['Brand']>>>, ParentType, ContextType>;
   category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   crossSell?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
@@ -3187,6 +3213,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   initialNumberInStock?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  isCustomized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isPreview?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isVisible?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -3322,6 +3349,7 @@ export type ProductTieredPriceResolvers<ContextType = Context, ParentType extend
 
 export type ProductVariationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductVariation'] = ResolversParentTypes['ProductVariation']> = {
   attributeValues?: Resolver<Array<ResolversTypes['ProductVariationAttributeValue']>, ParentType, ContextType>;
+  brands?: Resolver<Maybe<Array<ResolversTypes['Brand']>>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   defaultWarrantyPeriod?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3545,8 +3573,8 @@ export type SubCategoryResolvers<ContextType = Context, ParentType extends Resol
   parentSubCategory?: Resolver<Maybe<ResolversTypes['SubCategoryDataResponse']>, ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategoryDataResponse']>>, ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subCategories?: Resolver<Maybe<Array<Maybe<ResolversTypes['SubCategoryDataResponse']>>>, ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3561,9 +3589,23 @@ export type SubCategoryDataResponseResolvers<ContextType = Context, ParentType e
   parentSubCategory?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategoryDataResponse']>>, ParentType, ContextType>;
+  subCategories?: Resolver<Maybe<Array<Maybe<ResolversTypes['SubCategoryDataResponse']>>>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
-  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubCategoryDataResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryDataResponseById'] = ResolversParentTypes['SubCategoryDataResponseById']> = {
+  category?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  parentSubCategory?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3578,7 +3620,7 @@ export type SubCategoryResponseResolvers<ContextType = Context, ParentType exten
 export type SubCategoryResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryResponseById'] = ResolversParentTypes['SubCategoryResponseById']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  subcategory?: Resolver<ResolversTypes['SubCategoryDataResponse'], ParentType, ContextType>;
+  subcategory?: Resolver<ResolversTypes['SubCategoryDataResponseById'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3971,6 +4013,7 @@ export type Resolvers<ContextType = Context> = {
   GetUsersResponseOrError?: GetUsersResponseOrErrorResolvers<ContextType>;
   LoginMeta?: LoginMetaResolvers<ContextType>;
   Media?: MediaResolvers<ContextType>;
+  MediaDimension?: MediaDimensionResolvers<ContextType>;
   MediaResponse?: MediaResponseResolvers<ContextType>;
   MediasResponse?: MediasResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
@@ -4011,6 +4054,7 @@ export type Resolvers<ContextType = Context> = {
   ShippingClassResponse?: ShippingClassResponseResolvers<ContextType>;
   SubCategory?: SubCategoryResolvers<ContextType>;
   SubCategoryDataResponse?: SubCategoryDataResponseResolvers<ContextType>;
+  SubCategoryDataResponseById?: SubCategoryDataResponseByIdResolvers<ContextType>;
   SubCategoryResponse?: SubCategoryResponseResolvers<ContextType>;
   SubCategoryResponseById?: SubCategoryResponseByIdResolvers<ContextType>;
   Tag?: TagResolvers<ContextType>;

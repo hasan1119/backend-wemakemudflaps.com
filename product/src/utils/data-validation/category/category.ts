@@ -17,7 +17,7 @@ export const CategoryTypeEnum = z.enum(["category", "subCategory"], {
  * 3. Validates optional description with a minimum length of 3 characters if provided.
  * 4. Validates optional categoryId and parentSubCategoryId as UUIDs, ensuring only one is provided.
  *
- * @property thumbnail - URL for the category's thumbnail image.
+ * @property thumbnail - UUID for the category's thumbnail image.
  * @property name - Category name (minimum 3 characters).
  * @property slug - Category slug (minimum 3 characters).
  * @property description - Optional category description (minimum 3 characters).
@@ -26,7 +26,11 @@ export const CategoryTypeEnum = z.enum(["category", "subCategory"], {
  */
 export const createCategorySchema = z
   .object({
-    thumbnail: z.string().url("Invalid URL format").nullable().optional(),
+    thumbnail: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .nullable()
+      .optional(),
     name: z
       .string()
       .min(3, "Category name must be at least 3 characters")
@@ -70,7 +74,7 @@ export const createCategorySchema = z
  * 4. Validates categoryType as either 'category' or 'subCategory'.
  *
  * @property id - Unique identifier of the category (UUID format).
- * @property thumbnail - Optional URL for the category's thumbnail image.
+ * @property thumbnail - Optional UUID for the category's thumbnail image.
  * @property name - Optional category name (minimum 3 characters).
  * @property slug - Optional category slug (minimum 3 characters).
  * @property description - Optional category description (minimum 3 characters).
@@ -78,7 +82,11 @@ export const createCategorySchema = z
  */
 export const updateCategorySchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
-  thumbnail: z.string().url("Invalid URL format").nullable().optional(),
+  thumbnail: z
+    .string()
+    .uuid({ message: "Invalid UUID format" })
+    .nullable()
+    .optional(),
   name: z
     .string()
     .min(3, "Category name must be at least 3 characters")

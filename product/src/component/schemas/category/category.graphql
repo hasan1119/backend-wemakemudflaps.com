@@ -12,20 +12,20 @@ type Category {
   thumbnail: Media
   position: Int! # Display order/position of the category.
   createdBy: CreatedBy # Metadata on who created the category.
-  subCategories: [SubCategory!]! # List of subcategories under this category.
+  subCategories: [SubCategory] # List of subcategories under this category.
   createdAt: String
   deletedAt: String
 }
 
 type SubCategory {
-  id: ID!
+  id: ID! #
   name: String!
   slug: String!
   description: String
   thumbnail: Media
   category: Category! # The category to which this subcategory belongs.
   parentSubCategory: SubCategoryDataResponse # Optional parent subcategory if nested.
-  subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
+  subCategories: [SubCategoryDataResponse] # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
@@ -38,7 +38,6 @@ type CategoryDataResponse {
   slug: String!
   description: String
   thumbnail: Media
-  totalProducts: Int # Optional total product count associate with this sub category.
   position: Int! # Display order/position of the category.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
@@ -53,13 +52,28 @@ type SubCategoryDataResponse {
   thumbnail: Media
   category: ID # The category to which this subcategory belongs.
   parentSubCategory: ID # The parent subcategory if nested.
-  subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
-  totalProducts: Int # Optional total product count associate with this sub category.
+  subCategories: [SubCategoryDataResponse] # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
   deletedAt: String
 }
+
+type SubCategoryDataResponseById {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: Media
+  category: ID # The category to which this subcategory belongs.
+  parentSubCategory: ID # The parent subcategory if nested.
+  position: Int! # Display order/position of the subcategory.
+  createdBy: CreatedBy # Metadata on who created the category.
+  createdAt: String
+  deletedAt: String
+}
+
+# ---------------------- Responses ----------------------
 
 # Response for fetching a category.
 type CategoryResponse {
@@ -82,7 +96,7 @@ type CategoryResponseById {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: CategoryDataResponse!
+  category: Category!
 }
 
 # Response for fetching a sub category by ID.
@@ -90,7 +104,7 @@ type SubCategoryResponseById {
   statusCode: Int!
   success: Boolean!
   message: String!
-  subcategory: SubCategoryDataResponse!
+  subcategory: SubCategoryDataResponseById!
 }
 
 # Response for fetching a categories list.

@@ -96,7 +96,10 @@ export const uploadMediaFiles = async (
 
     // Delete the previous avatar if the avatar is upload form the database and cache
     if (!isNotAvatar) {
-      await deleteMediaFiles([user.avatar]);
+      if (user.avatar) {
+        await deleteMediaFiles([user.avatar]);
+      }
+
       await removeMediaByMediaIdFromRedis(user.avatar);
     }
 
