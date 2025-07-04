@@ -1,10 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getCategoryInfoByIdFromRedis,
-  setCategoryInfoByIdInRedis,
-} from "../../../helper/redis";
-import {
   GetCategoryByIdResponseOrError,
   QueryGetCategoryByIdArgs,
 } from "../../../types";
@@ -22,7 +18,7 @@ import {
  * 1. Verifies user authentication and checks permission to view category.
  * 2. Validates input category ID using Zod schema.
  * 3. Fetches category data from the database if not found in Redis and caches it.
- * 4. Returns a success response with category data or an error if validation, permission, or retrieval fails.
+ * 4. Returns a success response with category data and user count or an error if validation, permission, or retrieval fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
  * @param args - Input arguments containing the category ID.
@@ -76,53 +72,41 @@ export const getCategoryById = async (
 
     const { id } = args;
 
-    // Attempt to retrieve cached category data from Redis
-    let categoryExist;
+    const category = await getCategoryByIdService(id);
 
-    categoryExist = getCategoryInfoByIdFromRedis(id);
-
-    if (!categoryExist) {
-      // On cache miss, fetch category data from database
-      const dbCategoryExist = await getCategoryByIdService(id);
-
-      if (!dbCategoryExist) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Category not found",
-          __typename: "BaseResponse",
-        };
-      }
-
-      categoryExist = {
-        ...dbCategoryExist,
-        subCategories: dbCategoryExist.subCategories
-          ? dbCategoryExist.subCategories.map((subCat: any) => ({
-              ...subCat,
-              createdBy: dbCategoryExist.createdBy as any,
-              category: undefined,
-            }))
-          : null,
-        createdBy: dbCategoryExist.createdBy as any,
-        createdAt:
-          dbCategoryExist.createdAt instanceof Date
-            ? dbCategoryExist.createdAt.toISOString()
-            : dbCategoryExist.createdAt,
-        deletedAt:
-          dbCategoryExist.deletedAt instanceof Date
-            ? dbCategoryExist.deletedAt.toISOString()
-            : dbCategoryExist.deletedAt,
+    if (!category) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: "Category not found",
+        __typename: "BaseResponse",
       };
-
-      // Cache category data in Redis
-      await setCategoryInfoByIdInRedis(categoryExist.id, categoryExist);
     }
 
     return {
       statusCode: 200,
       success: true,
       message: "Category fetched successfully",
-      category: categoryExist,
+      category: {
+        ...category,
+        thumbnail: category.thumbnail as any,
+        subCategories: category.subCategories
+          ? category.subCategories.map((subCat: any) => ({
+              ...subCat,
+              createdBy: category.createdBy as any,
+              category: undefined,
+            }))
+          : null,
+        createdBy: category.createdBy as any,
+        createdAt:
+          category.createdAt instanceof Date
+            ? category.createdAt.toISOString()
+            : category.createdAt,
+        deletedAt:
+          category.deletedAt instanceof Date
+            ? category.deletedAt.toISOString()
+            : category.deletedAt,
+      },
       __typename: "CategoryResponseById",
     };
   } catch (error: any) {

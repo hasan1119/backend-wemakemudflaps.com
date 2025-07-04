@@ -69,6 +69,7 @@ const typesWithCreatedBy = [
   "SubCategory",
   "SubCategoryDataResponse",
   "SubCategoryDataResponse",
+  "SubCategoryDataResponseById",
 ];
 
 // List of types that use the thumbnail field
@@ -79,6 +80,7 @@ const typesWithThumbnail = [
   "CategoryDataResponse",
   "SubCategory",
   "SubCategoryDataResponse",
+  "SubCategoryDataResponseById",
 ];
 
 // List of types that use the media fields (defaultImage, images, videos)

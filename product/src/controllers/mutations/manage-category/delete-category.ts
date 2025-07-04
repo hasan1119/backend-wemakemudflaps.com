@@ -1,22 +1,10 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Category, SubCategory } from "../../../entities";
-import {
-  clearAllCategorySearchCache,
-  getCategoryInfoByIdFromRedis,
-  getSubCategoryInfoByIdFromRedis,
-  removeCategoryInfoByIdFromRedis,
-  removeCategoryNameExistFromRedis,
-  removeCategorySlugExistFromRedis,
-  removeSubCategoryInfoByIdFromRedis,
-  removeSubCategoryNameExistFromRedis,
-  removeSubCategorySlugExistFromRedis,
-  setCategoryInfoByIdInRedis,
-  setSubCategoryInfoByIdInRedis,
-} from "../../../helper/redis";
+import { Category } from "../../../entities";
 import {
   BaseResponseOrError,
   MutationDeleteCategoryArgs,
+  SubCategory,
 } from "../../../types";
 import { deleteCategorySchema } from "../../../utils/data-validation";
 import {
@@ -29,104 +17,19 @@ import {
   softDeleteCategoryOrSubCategory,
 } from "../../services";
 
-// Clear category/subcategory-related cache entries in Redis
-const clearCategoryCache = async (
-  id: string,
-  name: string,
-  slug: string,
-  categoryType: "category" | "subCategory",
-  parentId?: string
-) => {
-  await Promise.all([
-    categoryType === "category"
-      ? removeCategoryInfoByIdFromRedis(id)
-      : removeSubCategoryInfoByIdFromRedis(id),
-    categoryType === "category"
-      ? removeCategoryNameExistFromRedis(name)
-      : removeSubCategoryNameExistFromRedis(name, parentId),
-    categoryType === "category"
-      ? removeCategorySlugExistFromRedis(slug)
-      : removeSubCategorySlugExistFromRedis(slug, parentId),
-    clearAllCategorySearchCache(),
-  ]);
-};
-
-// Perform soft delete and update cache
-const softDeleteAndCache = async (
-  id: string,
-  categoryType: "category" | "subCategory",
-  categoryId?: string,
-  parentSubCategoryId?: string
-) => {
-  const deletedData = await softDeleteCategoryOrSubCategory(id, categoryType);
-  // Construct the response object
-  let categoryResponse: any;
-  if (categoryType === "category") {
-    // Top-level category
-    categoryResponse = {
-      id: deletedData.id,
-      name: deletedData.name,
-      slug: deletedData.slug,
-      description: deletedData.description,
-      thumbnail: deletedData.thumbnail as any,
-      position: deletedData.position,
-      totalProducts: deletedData?.products?.length ?? 0,
-      createdBy: deletedData.createdBy as any,
-      createdAt:
-        deletedData.createdAt instanceof Date
-          ? deletedData.createdAt.toISOString()
-          : deletedData.createdAt,
-      deletedAt:
-        deletedData.deletedAt instanceof Date
-          ? deletedData.deletedAt.toISOString()
-          : deletedData.deletedAt,
-    };
-  } else {
-    // Subcategory
-    categoryResponse = {
-      id: deletedData.id,
-      name: deletedData.name,
-      slug: deletedData.slug,
-      description: deletedData.description,
-      thumbnail: deletedData.thumbnail as any,
-      position: deletedData.position,
-      totalProducts: deletedData?.products?.length ?? 0,
-      category: categoryId,
-      parentSubCategory: parentSubCategoryId || null,
-      createdBy: deletedData.createdBy as any,
-      createdAt:
-        deletedData.createdAt instanceof Date
-          ? deletedData.createdAt.toISOString()
-          : deletedData.createdAt,
-      deletedAt:
-        deletedData.deletedAt instanceof Date
-          ? deletedData.deletedAt.toISOString()
-          : deletedData.deletedAt,
-    };
-  }
-
-  if (categoryType === "category") {
-    await setCategoryInfoByIdInRedis(id, categoryResponse);
-  } else {
-    await setSubCategoryInfoByIdInRedis(id, categoryResponse);
-  }
-  await clearAllCategorySearchCache();
-};
-
 /**
- * GraphQL Mutation Resolver to delete a category or subcategory with Redis caching.
+ * GraphQL Mutation Resolver to delete a category or subcategory.
  *
  * Workflow:
  * 1. Authenticates the user and checks for delete permissions.
  * 2. Validates input arguments using Zod schema.
- * 3. Retrieves the category or subcategory by ID from Redis or database and ensures it exists.
+ * 3. Retrieves the category or subcategory by ID and ensures it exists.
  * 4. Verifies the entity has no associated products (for safe deletion).
  * 5. Performs a soft delete (move to trash) or hard delete (permanent) based on `skipTrash`.
- * 6. Updates Redis cache (clears name/slug for hard delete, updates entity for soft delete).
- * 7. If subcategory, ensures position realignment within its parent scope.
+ * 6. If subcategory, ensures position realignment within its parent scope.
  *
  * Notes:
- * - For subcategories, determines whether it's nested under a parent subcategory or directly under a category.
+ * - For subcategories, the function determines whether it's nested under a parent subcategory or directly under a category.
  * - Handles both `category` and `subcategory` types via a shared resolver.
  *
  * @param _ - Unused resolver root parameter.
@@ -180,39 +83,17 @@ export const deleteCategory = async (
 
     const { id, categoryType, skipTrash } = validationResult.data;
 
-    // Check Redis for category/subcategory existence
-    let categoryExist = null;
-    if (categoryType === "category") {
-      categoryExist = await getCategoryInfoByIdFromRedis(id);
-    } else {
-      categoryExist = await getSubCategoryInfoByIdFromRedis(id);
-    }
+    // Check database for category existence
+    const categoryExist =
+      categoryType === "category"
+        ? await getCategoryById(id)
+        : await getSubCategoryById(id);
 
-    // If not found in Redis, fall back to the database
     if (!categoryExist) {
-      categoryExist =
-        categoryType === "category"
-          ? await getCategoryById(id)
-          : await getSubCategoryById(id);
-
-      if (!categoryExist) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Category not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    // Check if the category was soft deleted
-    if (categoryExist.deletedAt && !skipTrash) {
       return {
-        statusCode: 400,
+        statusCode: 404,
         success: false,
-        message: `${
-          categoryType.charAt(0).toUpperCase() + categoryType.slice(1)
-        }: ${categoryExist.name} already in the trash`,
+        message: "Category not found",
         __typename: "BaseResponse",
       };
     }
@@ -244,44 +125,32 @@ export const deleteCategory = async (
       };
     }
 
-    const { name, slug } = categoryExist;
-
-    // Perform soft or hard deletion based on skipTrash
     if (skipTrash) {
       await hardDeleteCategoryOrSubCategory(id, categoryType, {
         categoryId,
         parentSubCategoryId,
       });
-      await clearCategoryCache(
-        id,
-        name,
-        slug,
-        categoryType,
-        parentSubCategoryId
-      );
-    } else {
-      await softDeleteAndCache(
-        id,
-        categoryType,
-        categoryId,
-        parentSubCategoryId
-      );
-    }
 
-    return {
-      statusCode: 200,
-      success: true,
-      message: `${
-        skipTrash
-          ? `${
-              categoryType.charAt(0).toUpperCase() + categoryType.slice(1)
-            } permanently deleted`
-          : `${
-              categoryType.charAt(0).toUpperCase() + categoryType.slice(1)
-            } moved to trash`
-      } successfully: ${name}`,
-      __typename: "BaseResponse",
-    };
+      return {
+        statusCode: 200,
+        success: true,
+        message: `${
+          categoryType.charAt(0).toUpperCase() + categoryType.slice(1)
+        } permanently deleted successfully`,
+        __typename: "BaseResponse",
+      };
+    } else {
+      // Soft delete
+      await softDeleteCategoryOrSubCategory(id, categoryType);
+      return {
+        statusCode: 200,
+        success: true,
+        message: `${
+          categoryType.charAt(0).toUpperCase() + categoryType.slice(1)
+        } moved to trash successfully`,
+        __typename: "BaseResponse",
+      };
+    }
   } catch (error: any) {
     console.error("Error deleting category/subcategory:", error);
 

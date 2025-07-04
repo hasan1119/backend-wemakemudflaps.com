@@ -1,19 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllCategorySearchCache,
-  getCategoryNameExistFromRedis,
-  getCategorySlugExistFromRedis,
-  getSubCategoryNameExistFromRedis,
-  getSubCategorySlugExistFromRedis,
-  setCategoryInfoByIdInRedis,
-  setCategoryNameExistInRedis,
-  setCategorySlugExistInRedis,
-  setSubCategoryInfoByIdInRedis,
-  setSubCategoryNameExistInRedis,
-  setSubCategorySlugExistInRedis,
-} from "../../../helper/redis";
-import {
   CreateCategoryResponseOrError,
   MutationCreateCategoryArgs,
 } from "../../../types";
@@ -28,21 +15,19 @@ import {
 } from "../../services";
 
 /**
- * Handles the creation of a new category or sub-category in the system.
+ * Handles the creation of a new category for product in the system.
  *
  * Workflow:
  * 1. Verifies user authentication and permission to create categories.
- * 2. Validates input (categoryId, description, name, parentSubCategoryId, thumbnail, slug) using Zod schema.
- * 3. Checks Redis for existing category/sub-category name and slug to prevent duplicates.
- * 4. Queries the database for category/sub-category existence if not found in Redis.
- * 5. Creates the category/sub-category in the database with audit information from the authenticated user.
- * 6. Caches the new category/sub-category, its name and slug existence in Redis for future requests.
- * 7. Returns a success response or error if validation, permission, or creation fails.
+ * 2. Validates input (categoryId, description, name, parentSubCategoryId, thumbnail) using Zod schema.
+ * 3. Queries the database for category existence.
+ * 4. Creates the category in the database.
+ * 5. Returns a success response or error if validation, permission, or creation fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
- * @param args - Input arguments containing categoryId, description, name, parentSubCategoryId, thumbnail, and slug.
+ * @param args - Input arguments containing role categoryId, description, name, parentSubCategoryId and thumbnail.
  * @param context - GraphQL context containing authenticated user information.
- * @returns A promise resolving to a CreateCategoryResponseOrError object.
+ * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
  */
 export const createCategory = async (
   _: any,
@@ -98,69 +83,34 @@ export const createCategory = async (
       slug,
     } = validationResult.data;
 
-    const isSubCategory = categoryId || parentSubCategoryId;
-    const scopeType = isSubCategory ? "subCategory" : "category";
-
-    // Attempt to check for existing name in Redis
-    const nameExists = isSubCategory
-      ? categoryId
-        ? await getSubCategoryNameExistFromRedis(name)
-        : await getSubCategoryNameExistFromRedis(name, parentSubCategoryId)
-      : await getCategoryNameExistFromRedis(name);
-
-    if (nameExists) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: `${
-          scopeType === "category" ? "Category" : "Subcategory"
-        } with this name already exists`,
-        __typename: "BaseResponse",
-      };
-    }
-
-    // Attempt to check for existing slug in Redis
-    const slugExists = isSubCategory
-      ? categoryId
-        ? await getSubCategorySlugExistFromRedis(slug)
-        : await getSubCategorySlugExistFromRedis(slug, parentSubCategoryId)
-      : await getCategorySlugExistFromRedis(slug);
-
-    if (slugExists) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: `${
-          scopeType === "category" ? "Category" : "Subcategory"
-        } with this slug already exists`,
-        __typename: "BaseResponse",
-      };
-    }
-
-    // Check database for category/subcategory existence
+    // Check database for category existence
     const categoryExists = await findCategoryByNameOrSlug(
       name,
       slug,
-      scopeType,
-      categoryId,
-      parentSubCategoryId
+      categoryId || parentSubCategoryId ? "subCategory" : "category",
+      categoryId ? categoryId : undefined,
+      parentSubCategoryId ? parentSubCategoryId : undefined
     );
 
     if (categoryExists) {
       return {
         statusCode: 400,
         success: false,
-        message: isSubCategory
-          ? "Subcategory with this name/slug already exists in parent"
-          : "Category with this name/slug already exists",
+        message:
+          categoryId || parentSubCategoryId
+            ? "Subcategory with this name/slug already exists in parent"
+            : "Category with this name/slug already exists",
         __typename: "BaseResponse",
       };
     }
 
     // Validate parent category if categoryId is provided
     let parentCategoryExist;
+
     if (categoryId) {
+      // Check database for category existence
       parentCategoryExist = await getCategoryById(categoryId);
+
       if (!parentCategoryExist) {
         return {
           statusCode: 404,
@@ -173,8 +123,11 @@ export const createCategory = async (
 
     // Validate parent subcategory if parentSubCategoryId is provided
     let subParentCategoryExist;
+
     if (parentSubCategoryId) {
+      // Check database for category existence
       subParentCategoryExist = await getSubCategoryById(parentSubCategoryId);
+
       if (!subParentCategoryExist) {
         return {
           statusCode: 404,
@@ -184,7 +137,6 @@ export const createCategory = async (
         };
       }
     }
-
     // Create the category or subcategory in the database
     const categoryResult = await createCategoryOrSubCategory(
       {
@@ -198,71 +150,69 @@ export const createCategory = async (
       user.id
     );
 
+    const isSubCategory = categoryId || parentSubCategoryId;
+
     // Construct the response object
     let categoryResponse: any;
+    if (!isSubCategory) {
+      // Top-level category
+      categoryResponse = {
+        id: categoryResult.id,
+        name: categoryResult.name,
+        slug: categoryResult.slug,
+        description: categoryResult.description,
+        thumbnail: categoryResult.thumbnail,
+        position: categoryResult.position,
+        createdBy: categoryResult.createdBy as any,
+        createdAt:
+          categoryResult.createdAt instanceof Date
+            ? categoryResult.createdAt.toISOString()
+            : categoryResult.createdAt,
+        deletedAt:
+          categoryResult.deletedAt instanceof Date
+            ? categoryResult.deletedAt.toISOString()
+            : categoryResult.deletedAt,
+      };
+    } else {
+      // Subcategory
+      categoryResponse = {
+        id: categoryResult.id,
+        name: categoryResult.name,
+        slug: categoryResult.slug,
+        description: categoryResult.description,
+        thumbnail: categoryResult.thumbnail,
+        position: categoryResult.position,
+        category: categoryId ? categoryId : subParentCategoryExist.category,
+        parentSubCategory: subParentCategoryExist?.id || null,
+        createdBy: categoryResult.createdBy as any,
+        createdAt:
+          categoryResult.createdAt instanceof Date
+            ? categoryResult.createdAt.toISOString()
+            : categoryResult.createdAt,
+        deletedAt:
+          categoryResult.deletedAt instanceof Date
+            ? categoryResult.deletedAt.toISOString()
+            : categoryResult.deletedAt,
+      };
+    }
 
-    categoryResponse = {
-      id: categoryResult.id,
-      name: categoryResult.name,
-      slug: categoryResult.slug,
-      description: categoryResult.description,
-      thumbnail: categoryResult.thumbnail as any,
-      position: categoryResult.position,
-      totalProducts: 0,
-      createdBy: categoryResult.createdBy as any,
-      createdAt:
-        categoryResult.createdAt instanceof Date
-          ? categoryResult.createdAt.toISOString()
-          : categoryResult.createdAt,
-      deletedAt:
-        categoryResult.deletedAt instanceof Date
-          ? categoryResult.deletedAt.toISOString()
-          : categoryResult.deletedAt,
-    };
-
-    // Cache category/sub-category information and existence in Redis
-    await Promise.all([
-      isSubCategory
-        ? // Cache sub-category information and existence in Redis await
-          Promise.all([
-            setSubCategoryInfoByIdInRedis(
-              categoryResponse.id,
-              categoryResponse
-            ),
-            ...(categoryId
-              ? [
-                  setSubCategoryNameExistInRedis(categoryResponse.name),
-                  setSubCategorySlugExistInRedis(categoryResponse.slug),
-                ]
-              : [
-                  setSubCategoryNameExistInRedis(
-                    categoryResponse.name,
-                    parentSubCategoryId
-                  ),
-                  setSubCategorySlugExistInRedis(
-                    categoryResponse.slug,
-                    parentSubCategoryId
-                  ),
-                ]),
-          ])
-        : // Cache category information and existence in Redis await
-          Promise.all([
-            setCategoryInfoByIdInRedis(categoryResponse.id, categoryResponse),
-            setCategoryNameExistInRedis(categoryResponse.name),
-            setCategorySlugExistInRedis(categoryResponse.slug),
-          ]),
-      clearAllCategorySearchCache(),
-    ]);
-
-    return {
-      statusCode: 201,
-      success: true,
-      message: `${
-        isSubCategory ? "Sub category" : "Category"
-      } created successfully`,
-      category: categoryResponse,
-      __typename: "CategoryResponse",
-    };
+    if (isSubCategory) {
+      return {
+        statusCode: 201,
+        success: true,
+        message: "Subcategory created successfully",
+        subcategory: categoryResponse,
+        __typename: "SubCategoryResponse",
+      };
+    } else {
+      return {
+        statusCode: 201,
+        success: true,
+        message: "Category created successfully",
+        category: categoryResponse,
+        __typename: "CategoryResponse",
+      };
+    }
   } catch (error: any) {
     console.error("Error creating category:", error);
     return {
