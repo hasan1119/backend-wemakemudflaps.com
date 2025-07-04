@@ -179,6 +179,20 @@ type CategoryDataResponse
   deletedAt: String
 }
 
+type CategoryDataResponseById
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: Media
+  position: Int!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
 type CategoryPaginationResponse
   @join__type(graph: PRODUCT)
 {
@@ -204,7 +218,7 @@ type CategoryResponseById
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: Category!
+  category: CategoryDataResponseById!
 }
 
 enum CategoryType
@@ -1618,8 +1632,8 @@ type SubCategory
   description: String
   thumbnail: Media
   category: Category!
-  parentSubCategory: SubCategoryDataResponse
-  subCategories: [SubCategoryDataResponse]
+  parentSubCategory: SubCategory
+  subCategories: [SubCategory]
   position: Int!
   createdBy: CreatedBy
   createdAt: String

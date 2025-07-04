@@ -65,9 +65,9 @@ const typesWithCreatedBy = [
   "TaxStatusPaginationDataSession",
   "Product",
   "Category",
+  "CategoryDataResponseById",
   "CategoryDataResponse",
   "SubCategory",
-  "SubCategoryDataResponse",
   "SubCategoryDataResponse",
   "SubCategoryDataResponseById",
 ];
@@ -80,6 +80,7 @@ const typesWithThumbnail = [
   "CategoryDataResponse",
   "SubCategory",
   "SubCategoryDataResponse",
+  "CategoryDataResponseById",
   "SubCategoryDataResponseById",
 ];
 

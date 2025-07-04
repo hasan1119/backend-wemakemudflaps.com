@@ -23,9 +23,10 @@ type SubCategory {
   slug: String!
   description: String
   thumbnail: Media
-  category: Category! # The category to which this subcategory belongs.
-  parentSubCategory: SubCategoryDataResponse # Optional parent subcategory if nested.
-  subCategories: [SubCategoryDataResponse] # List of child subcategories (if any).
+  category: Category # The category to which this subcategory belongs.
+  parentSubCategory: SubCategory
+  # Optional parent subcategory if nested.
+  subCategories: [SubCategory] # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
@@ -53,6 +54,18 @@ type SubCategoryDataResponse {
   category: ID # The category to which this subcategory belongs.
   parentSubCategory: ID # The parent subcategory if nested.
   subCategories: [SubCategoryDataResponse] # List of child subcategories (if any).
+  position: Int! # Display order/position of the subcategory.
+  createdBy: CreatedBy # Metadata on who created the category.
+  createdAt: String
+  deletedAt: String
+}
+
+type CategoryDataResponseById {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: Media
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
@@ -96,7 +109,7 @@ type CategoryResponseById {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: Category!
+  category: CategoryDataResponseById!
 }
 
 # Response for fetching a sub category by ID.

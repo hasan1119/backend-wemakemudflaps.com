@@ -217,16 +217,16 @@ export async function getSubCategoryByIds(
   });
 }
 
-interface GetPaginatedCategoriesInput {
+export interface GetPaginatedCategoriesInput {
   page: number;
   limit: number;
-  search?: string | null;
-  sortBy?: string | null;
-  sortOrder: "asc" | "desc";
+  search?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 /**
- * Handles pagination of categories including their subCategories.
+ * Handles pagination of categories including their immediate subCategories.
  *
  * Workflow:
  * 1. Calculates the number of records to skip based on page and limit.
@@ -269,12 +269,11 @@ export const paginateCategories = async ({
       "subCategory",
       "subCategory.deletedAt IS NULL" // Only join non-deleted subCategories
     )
-    .where("category.deletedAt IS NULL"); // Only fetch non-deleted categories
+    .where("category.deletedAt IS NULL");
 
   // Apply optional search on name/description of both categories and subcategories
   if (search && search.trim() !== "") {
     const searchTerm = `%${search.trim()}%`;
-
     query.andWhere(
       new Brackets((qb) => {
         qb.where("category.name ILIKE :searchTerm", { searchTerm })

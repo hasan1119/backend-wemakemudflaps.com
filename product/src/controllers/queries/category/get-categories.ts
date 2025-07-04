@@ -30,48 +30,62 @@ const mapArgsToPagination = (args: QueryGetAllCategoriesArgs) => ({
 // Recursively fetch and map all nested subcategories
 const mapSubCategory = async (
   subCat: any,
-  visited: Set<string> = new Set()
+  visited: Set<string> = new Set(),
+  depth: number = 0 // For debugging depth
 ): Promise<any> => {
-  if (!subCat || visited.has(subCat.id)) return null;
+  if (!subCat || visited.has(subCat.id)) {
+    console.log(
+      `Skipping subcategory ${subCat?.id} at depth ${depth} (already visited or null)`
+    );
+    return null;
+  }
   visited.add(subCat.id);
 
-  // Fetch nested subcategories explicitly from the DB
+  // Fetch nested subcategories from the database
   const children = await subCategoryRepository.find({
     where: {
       parentSubCategory: { id: subCat.id },
       deletedAt: null,
     },
-    relations: ["parentSubCategory", "category"],
+    relations: ["parentSubCategory", "category", "subCategories"],
   });
 
-  const mappedChildren = await Promise.all(
-    children.map((child) => mapSubCategory(child, visited))
+  // Log the fetched children for debugging
+  console.log(
+    `Fetched ${children.length} children for subcategory ${subCat.name} (ID: ${subCat.id}) at depth ${depth}:`,
+    children.map((c) => ({ id: c.id, name: c.name }))
   );
 
-  // Optionally fetch and map parentSubCategory
+  // Recursively map children
+  const mappedChildren = await Promise.all(
+    children.map((child: any) => mapSubCategory(child, visited, depth + 1))
+  );
+
+  // Fetch parent subcategory if not preloaded and not visited
   let parent = null;
   if (
     subCat.parentSubCategory &&
     typeof subCat.parentSubCategory === "object" &&
+    subCat.parentSubCategory.id &&
     !visited.has(subCat.parentSubCategory.id)
   ) {
     const parentData = await subCategoryRepository.findOne({
       where: { id: subCat.parentSubCategory.id, deletedAt: null },
-      relations: ["parentSubCategory", "category"],
+      relations: ["parentSubCategory", "category", "subCategories"],
     });
     if (parentData) {
-      parent = await mapSubCategory(parentData, visited);
+      parent = await mapSubCategory(parentData, visited, depth + 1);
     }
   }
 
-  return {
+  const mappedSubCat = {
     id: subCat.id,
     name: subCat.name,
     slug: subCat.slug,
     description: subCat.description || null,
     thumbnail: subCat.thumbnail || null,
     position: subCat.position,
-    createdBy: subCat.createdBy ? { id: subCat.createdBy } : null, // <-- wrapped here
+    createdBy: subCat.createdBy || null,
     createdAt:
       subCat.createdAt instanceof Date
         ? subCat.createdAt.toISOString()
@@ -79,23 +93,21 @@ const mapSubCategory = async (
     deletedAt:
       subCat.deletedAt instanceof Date
         ? subCat.deletedAt.toISOString()
-        : subCat.deletedAt,
+        : subCat.deletedAt || null,
     category: subCat.category?.id || null,
-    parentSubCategory: parent,
+    parentSubCategory: parent ? parent : subCat.parentSubCategory?.id || null,
     subCategories: mappedChildren.filter((sc) => sc !== null),
   };
+
+  console.log(
+    `Mapped subcategory ${subCat.name} (ID: ${subCat.id}) at depth ${depth} with ${mappedChildren.length} children`
+  );
+
+  return mappedSubCat;
 };
 
 /**
  * Fetches a paginated list of categories with deeply nested subcategories.
- *
- * Workflow:
- * 1. Authenticates the user and verifies their permission to view categories.
- * 2. Validates pagination and sorting inputs using Zod schemas.
- * 3. Queries the database using pagination, sorting, and optional search.
- * 4. Recursively maps each category and all levels of nested subcategories.
- * 5. Returns a structured success response with categories and total count,
- *    or an error response if validation or permission fails.
  *
  * @param _ - Unused GraphQL root/resolver parameter.
  * @param args - GraphQL arguments including pagination, sorting, and search.
@@ -112,7 +124,7 @@ export const getAllCategories = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Check if user has permission to delete a category
+    // Check if user has permission to view categories
     const canRead = await checkUserPermission({
       action: "canRead",
       entity: "category",
@@ -132,7 +144,6 @@ export const getAllCategories = async (
     const mappedArgs = mapArgsToPagination(args);
     const validationResult = await combinedSchema.safeParseAsync(mappedArgs);
 
-    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
         field: error.path.join("."),
@@ -160,6 +171,7 @@ export const getAllCategories = async (
       ? (sortOrder as (typeof allowedSortOrders)[number])
       : "desc";
 
+    // Fetch categories with immediate subcategories
     const { categories: dbCategories, total } = await paginateCategories({
       page,
       limit,
@@ -168,12 +180,19 @@ export const getAllCategories = async (
       sortOrder: safeSortOrder,
     });
 
+    // Log raw categories for debugging
+    const util = require("util");
+    console.log(
+      "Raw categories from paginateCategories:",
+      util.inspect(dbCategories, { depth: null, colors: true })
+    );
+
     const categories = await Promise.all(
       dbCategories.map(async (cat) => {
         const visited = new Set<string>();
         const mappedSubCategories = await Promise.all(
           (cat.subCategories ?? []).map((subCat) =>
-            mapSubCategory(subCat, visited)
+            mapSubCategory(subCat, visited, 0)
           )
         );
 
@@ -184,7 +203,7 @@ export const getAllCategories = async (
           description: cat.description || null,
           thumbnail: cat.thumbnail || null,
           position: cat.position,
-          createdBy: cat.createdBy as any,
+          createdBy: cat.createdBy || null,
           createdAt:
             cat.createdAt instanceof Date
               ? cat.createdAt.toISOString()
@@ -192,10 +211,16 @@ export const getAllCategories = async (
           deletedAt:
             cat.deletedAt instanceof Date
               ? cat.deletedAt.toISOString()
-              : cat.deletedAt,
+              : cat.deletedAt || null,
           subCategories: mappedSubCategories.filter((sc) => sc !== null),
         };
       })
+    );
+
+    // Log final mapped categories
+    console.log(
+      "Categories with subcategories:",
+      util.inspect(categories, { depth: null, colors: true })
     );
 
     return {

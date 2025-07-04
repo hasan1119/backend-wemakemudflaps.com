@@ -90,13 +90,6 @@ export const getCategoryById = async (
       category: {
         ...category,
         thumbnail: category.thumbnail as any,
-        subCategories: category.subCategories
-          ? category.subCategories.map((subCat: any) => ({
-              ...subCat,
-              createdBy: category.createdBy as any,
-              category: undefined,
-            }))
-          : null,
         createdBy: category.createdBy as any,
         createdAt:
           category.createdAt instanceof Date
