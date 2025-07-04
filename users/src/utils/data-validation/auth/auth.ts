@@ -240,7 +240,6 @@ export const updateProfileSchema = z.object({
     .optional(),
   avatar: z
     .string()
-    .uuid({ message: "Invalid UUID format" })
     .nullable()
     .optional(),
 });
