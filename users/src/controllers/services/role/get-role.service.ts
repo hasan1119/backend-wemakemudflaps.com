@@ -122,7 +122,7 @@ export const getRolesByIds = async (ids: string[]): Promise<Role[]> => {
 
 interface GetPaginatedRolesInput {
   page: number;
-  limit?: number | null;
+  limit: number;
   search?: string | null;
   sortBy?: string | null;
   sortOrder?: string | null;
@@ -152,6 +152,8 @@ export const paginateRoles = async ({
   sortBy = "createdAt",
   sortOrder = "desc",
 }: GetPaginatedRolesInput) => {
+  const skip = (page - 1) * limit;
+
   // Create query builder for roles
   const query = roleRepository
     .createQueryBuilder("role")
@@ -177,10 +179,7 @@ export const paginateRoles = async ({
   query.orderBy(`role.${sortBy}`, sortOrder.toUpperCase() as "ASC" | "DESC");
 
   // Apply pagination
-  if (limit !== undefined && limit !== null) {
-    const skip = (page - 1) * limit;
-    query.skip(skip).take(limit);
-  }
+  query.skip(skip).take(limit);
 
   const [roles, total] = await query.getManyAndCount();
 

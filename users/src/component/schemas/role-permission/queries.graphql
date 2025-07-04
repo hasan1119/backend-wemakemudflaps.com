@@ -14,7 +14,7 @@ type Query {
   # Returns a `GetRolesResponseOrError` containing roles data and request status.
   getAllRoles(
     page: Int! # Page number to retrieve (1-based index).
-    limit: Int # Number of roles per page.
+    limit: Int! # Number of roles per page.
     search: String # Optional search term (matches name or description).
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort direction: "asc" or "desc".
