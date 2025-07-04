@@ -172,9 +172,7 @@ export const paginationSchema = z.object({
   limit: z
     .number()
     .min(1, { message: "Limit must be at least 1" })
-    .max(100, { message: "Limit must not exceed 100" })
-    .optional()
-    .nullable(),
+    .max(100, { message: "Limit must not exceed 100" }),
   search: z
     .string()
     .min(0, { message: "Search term is required" })
