@@ -79,7 +79,7 @@ export const userQueriesResolver = {
      * allowing other subgraphs to fetch media media data by ID.
      */
     avatar: ({ avatar }) => {
-      if (!avatar) null;
+      if (!avatar) return null;
       return {
         __typename: "Media",
         id: avatar,

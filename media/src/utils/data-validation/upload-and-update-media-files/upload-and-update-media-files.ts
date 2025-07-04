@@ -105,6 +105,34 @@ export const categoryMap: Record<string, string> = {
 };
 
 /**
+ * Defines the schema for validating media dimension information.
+ *
+ * Workflow:
+ * 1. Ensures width and height are non-negative numbers.
+ * 2. Validates unit as a required non-empty string (e.g., "px", "cm", "in").
+ *
+ * Example:
+ * {
+ *   width: 1920,
+ *   height: 1080,
+ *   unit: "px"
+ * }
+ *
+ * @property width - Width of the media in given unit.
+ * @property height - Height of the media in given unit.
+ * @property unit - Unit of measurement (e.g., "px", "cm").
+ */
+export const mediaDimensionSchema = z.object({
+  width: z
+    .number()
+    .nonnegative({ message: "Width must be a non-negative number" }),
+  height: z
+    .number()
+    .nonnegative({ message: "Height must be a non-negative number" }),
+  unit: z.string().min(1, "Unit is required (e.g., 'px', 'cm')"),
+});
+
+/**
  * Defines the schema for validating input data for a single media file upload.
  *
  * Workflow:
@@ -138,26 +166,10 @@ export const uploadMediaInputSchema = z.object({
     return val;
   }, z.enum([...new Set(Object.values(mimeTypeMap))] as [string, ...string[]])),
   fileName: z.string().min(1, "File name is required"),
-  title: z
-    .string()
-    .trim()
-    .optional()
-    .nullable(),
-  description: z
-    .string()
-    .trim()
-    .optional()
-    .nullable(),
-  altText: z
-    .string()
-    .trim()
-    .optional()
-    .nullable(),
-  dimension: z
-    .string()
-    .trim()
-    .nullable()
-    .optional(),
+  title: z.string().trim().optional().nullable(),
+  description: z.string().trim().optional().nullable(),
+  altText: z.string().trim().optional().nullable(),
+  dimension: mediaDimensionSchema.nullable().optional(),
   length: z.preprocess(
     (val) => (typeof val === "string" ? parseFloat(val) : val),
     z.number().nonnegative().optional().nullable()
@@ -172,7 +184,7 @@ export const uploadMediaInputSchema = z.object({
     }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]]).nullable())
     .optional(),
   size: z.number().int().positive("Size must be a positive integer"),
-  bucketName: z.string().min(1, "Bucket name is required")
+  bucketName: z.string().min(1, "Bucket name is required"),
 });
 
 /**
@@ -227,10 +239,7 @@ export const UpdateMediaFilesSchema = z.object({
     .string({ required_error: "Alt text is required" })
     .nullable()
     .optional(),
-  dimension: z
-    .string({ required_error: "Dimension is required" })
-    .nullable()
-    .optional(),
+  dimension: mediaDimensionSchema.nullable().optional(),
   length: z
     .preprocess(
       (val) => (typeof val === "string" ? parseFloat(val) : val),

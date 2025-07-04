@@ -20,7 +20,7 @@ import { getProduct } from "../../controllers/queries/product/get-product";
  * Returns a reference to the `CreatedBy` entity using the `createdBy` ID.
  */
 const resolveCreatedBy = ({ createdBy }) => {
-  if (!createdBy) null;
+  if (!createdBy) return null;
   return {
     __typename: "CreatedBy",
     id: createdBy,
@@ -74,7 +74,10 @@ const typesWithCreatedBy = [
 // List of types that use the thumbnail field
 const typesWithThumbnail = [
   "Brand",
+  "BrandPaginationDataSession",
+  "Category",
   "CategoryDataResponse",
+  "SubCategory",
   "SubCategoryDataResponse",
 ];
 

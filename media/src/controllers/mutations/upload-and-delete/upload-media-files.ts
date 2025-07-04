@@ -2,6 +2,7 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearAllMediaSearchCache,
+  removeMediaByMediaIdFromRedis,
   setMediaByMediaIdInRedis,
 } from "../../../helper/redis";
 import {
@@ -12,7 +13,10 @@ import {
 import { createUploadMediaFilesSchema } from "../../../utils/data-validation";
 import { checkUserPermission } from "../../services";
 import { checkUserAuth } from "../../services/session-check/session-check";
-import { uploadMediaFiles as uploadFiles } from "../../services/upload-and-delete/upload-and-delete-media-files";
+import {
+  deleteMediaFiles,
+  uploadMediaFiles as uploadFiles,
+} from "../../services/upload-and-delete/upload-and-delete-media-files";
 
 /**
  * Handles uploading of media files.
@@ -41,8 +45,10 @@ export const uploadMediaFiles = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
+    const isNotAvatar = data[0].category !== MediaCategory.Avatar;
+
     // Replace "Avatar" with the correct enum/type value if MediaCategory is an enum
-    if (data[0].category !== MediaCategory.Avatar) {
+    if (isNotAvatar) {
       // Check if user has permission to create a role
       const canCreate = await checkUserPermission({
         action: "canCreate",
@@ -82,11 +88,17 @@ export const uploadMediaFiles = async (
       };
     }
 
-    const dataWithCreatedBy = (validationResult.data as any[]).map(item => ({
+    const dataWithCreatedBy = (validationResult.data as any[]).map((item) => ({
       ...item,
       createdBy: user.id as any,
     }));
     const result = await uploadFiles(dataWithCreatedBy);
+
+    // Delete the previous avatar if the avatar is upload form the database and cache
+    if (!isNotAvatar) {
+      await deleteMediaFiles([user.avatar]);
+      await removeMediaByMediaIdFromRedis(user.avatar);
+    }
 
     // Cache the new medias in Redis and clear the medias paginated list
     await Promise.all([
@@ -121,10 +133,11 @@ export const uploadMediaFiles = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${CONFIG.NODE_ENV === "production"
-        ? "Something went wrong, please try again."
-        : error.message || "Internal server error"
-        }`,
+      message: `${
+        CONFIG.NODE_ENV === "production"
+          ? "Something went wrong, please try again."
+          : error.message || "Internal server error"
+      }`,
       __typename: "ErrorResponse",
     };
   }

@@ -266,7 +266,7 @@ input CreateProductInput
   defaultTags: [String!]
   customBadge: String
   purchaseNote: String
-  brandId: ID
+  brandIds: [ID!]
   tagIds: [ID!]
   categoryId: ID!
   subCategoryIds: [ID!]
@@ -756,7 +756,7 @@ type Media
   title: String @join__field(graph: MEDIA)
   description: String @join__field(graph: MEDIA)
   altText: String @join__field(graph: MEDIA)
-  dimension: String @join__field(graph: MEDIA)
+  dimension: MediaDimension @join__field(graph: MEDIA)
   length: Int @join__field(graph: MEDIA)
   category: String @join__field(graph: MEDIA)
   size: Int @join__field(graph: MEDIA)
@@ -769,7 +769,7 @@ type Media
 enum MediaCategory
   @join__type(graph: MEDIA)
 {
-  Profile @join__enumValue(graph: MEDIA)
+  Avatar @join__enumValue(graph: MEDIA)
   Product @join__enumValue(graph: MEDIA)
   Product_Review @join__enumValue(graph: MEDIA)
   Product_Return @join__enumValue(graph: MEDIA)
@@ -786,6 +786,22 @@ enum MediaCategory
   Invoice @join__enumValue(graph: MEDIA)
   Shipping_Label @join__enumValue(graph: MEDIA)
   Site_Settings @join__enumValue(graph: MEDIA)
+}
+
+type MediaDimension
+  @join__type(graph: MEDIA)
+{
+  width: Int!
+  height: Int!
+  unit: String!
+}
+
+input MediaDimensionInput
+  @join__type(graph: MEDIA)
+{
+  width: Int!
+  height: Int!
+  unit: String!
 }
 
 enum MediaMimeType
@@ -886,7 +902,7 @@ type Mutation
   @join__type(graph: PRODUCT)
   @join__type(graph: USER)
 {
-  uploadMediaFiles(inputs: [UploadMediaInput]!, userId: String!): UploadMediaResponseOrError! @join__field(graph: MEDIA)
+  uploadMediaFiles(inputs: [UploadMediaInput]!): UploadMediaResponseOrError! @join__field(graph: MEDIA)
   updateMediaFileInfo(inputs: UpdateMediaInput!): UpdateMediaResponseOrError! @join__field(graph: MEDIA)
   deleteMediaFiles(ids: [ID!]!, skipTrash: Boolean!, password: String): BaseResponseOrError! @join__field(graph: MEDIA)
   restoreMediaFiles(ids: [ID!]!): BaseResponseOrError! @join__field(graph: MEDIA)
@@ -1045,7 +1061,7 @@ type Product
   defaultTags: [String!]
   customBadge: String
   purchaseNote: String
-  brand: Brand
+  brands: [Brand]
   tags: [Tag!]
   category: Category!
   subCategories: [SubCategory!]
@@ -1261,7 +1277,7 @@ type ProductVariation
   id: ID!
   sku: String
   productDeliveryType: [String!]!
-  brand: [Brand!]
+  brands: [Brand!]
   minQuantity: Int
   defaultQuantity: Int
   maxQuantity: Int
@@ -1338,7 +1354,7 @@ input ProductVariationInput
   id: ID
   sku: String
   productDeliveryType: [ProductDeliveryTypeEnum!]
-  brand: [ID]
+  brandIds: [ID!]
   minQuantity: Int
   defaultQuantity: Int
   maxQuantity: Int
@@ -1810,7 +1826,7 @@ input UpdateMediaInput
   title: String
   description: String
   altText: String
-  dimension: String
+  dimension: MediaDimensionInput
   length: Int
   category: MediaCategory!
 }
@@ -1841,7 +1857,7 @@ input UpdateProductInput
   defaultTags: [String!]
   customBadge: String
   purchaseNote: String
-  brandId: ID
+  brandIds: [ID!]
   tagIds: [ID!]
   categoryId: ID
   subCategoryIds: [ID!]
@@ -1942,38 +1958,21 @@ input UpdateUserPermissionInput
   password: String
 }
 
-input UploadAvatarInput
-  @join__type(graph: MEDIA)
-{
-  mediaType: MediaMimeType!
-  fileName: String
-  title: String
-  description: String
-  altText: String
-  dimension: String
-  length: Int
-  category: MediaCategory
-  size: Int
-  url: String
-  bucketName: String
-  createdBy: String!
-}
-
 input UploadMediaInput
   @join__type(graph: MEDIA)
 {
   mediaType: MediaMimeType!
   fileName: String!
+  originalFileName: String!
   title: String
   description: String
   altText: String
-  dimension: String
+  dimension: MediaDimensionInput
   length: Int
   category: MediaCategory
   size: Int!
   url: String!
   bucketName: String!
-  createdBy: String!
 }
 
 type UploadMediaResponse

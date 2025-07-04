@@ -188,7 +188,7 @@ export type Media = {
   createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
-  dimension?: Maybe<Scalars['String']['output']>;
+  dimension?: Maybe<MediaDimension>;
   fileName?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   length?: Maybe<Scalars['Int']['output']>;
@@ -217,6 +217,19 @@ export enum MediaCategory {
   SiteSettings = 'Site_Settings',
   SubCategory = 'Sub_Category'
 }
+
+export type MediaDimension = {
+  __typename?: 'MediaDimension';
+  height: Scalars['Int']['output'];
+  unit: Scalars['String']['output'];
+  width: Scalars['Int']['output'];
+};
+
+export type MediaDimensionInput = {
+  height: Scalars['Int']['input'];
+  unit: Scalars['String']['input'];
+  width: Scalars['Int']['input'];
+};
 
 export enum MediaMimeType {
   ApplicationMsword = 'application_msword',
@@ -729,7 +742,7 @@ export type UpdateMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
   category: MediaCategory;
   description?: InputMaybe<Scalars['String']['input']>;
-  dimension?: InputMaybe<Scalars['String']['input']>;
+  dimension?: InputMaybe<MediaDimensionInput>;
   id: Scalars['ID']['input'];
   length?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -747,27 +760,12 @@ export type UpdateUserPermissionInput = {
   userId: Scalars['ID']['input'];
 };
 
-export type UploadAvatarInput = {
-  altText?: InputMaybe<Scalars['String']['input']>;
-  bucketName?: InputMaybe<Scalars['String']['input']>;
-  category?: InputMaybe<MediaCategory>;
-  createdBy: Scalars['String']['input'];
-  description?: InputMaybe<Scalars['String']['input']>;
-  dimension?: InputMaybe<Scalars['String']['input']>;
-  fileName?: InputMaybe<Scalars['String']['input']>;
-  length?: InputMaybe<Scalars['Int']['input']>;
-  mediaType: MediaMimeType;
-  size?: InputMaybe<Scalars['Int']['input']>;
-  title?: InputMaybe<Scalars['String']['input']>;
-  url?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type UploadMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
   bucketName: Scalars['String']['input'];
   category?: InputMaybe<MediaCategory>;
   description?: InputMaybe<Scalars['String']['input']>;
-  dimension?: InputMaybe<Scalars['String']['input']>;
+  dimension?: InputMaybe<MediaDimensionInput>;
   fileName: Scalars['String']['input'];
   length?: InputMaybe<Scalars['Int']['input']>;
   mediaType: MediaMimeType;
@@ -1068,6 +1066,8 @@ export type ResolversTypes = {
   LoginMetaInput: LoginMetaInput;
   Media: ResolverTypeWrapper<Media>;
   MediaCategory: MediaCategory;
+  MediaDimension: ResolverTypeWrapper<MediaDimension>;
+  MediaDimensionInput: MediaDimensionInput;
   MediaMimeType: MediaMimeType;
   MediaResponse: ResolverTypeWrapper<MediaResponse>;
   MediasResponse: ResolverTypeWrapper<MediasResponse>;
@@ -1091,7 +1091,6 @@ export type ResolversTypes = {
   UpdateMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateMediaResponseOrError']>;
   UpdateRoleResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateRoleResponseOrError']>;
   UpdateUserPermissionInput: UpdateUserPermissionInput;
-  UploadAvatarInput: UploadAvatarInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: ResolverTypeWrapper<UploadMediaResponse>;
   UploadMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UploadMediaResponseOrError']>;
@@ -1146,6 +1145,8 @@ export type ResolversParentTypes = {
   Float: Scalars['Float']['output'];
   LoginMetaInput: LoginMetaInput;
   Media: Media;
+  MediaDimension: MediaDimension;
+  MediaDimensionInput: MediaDimensionInput;
   MediaResponse: MediaResponse;
   MediasResponse: MediasResponse;
   Mutation: {};
@@ -1167,7 +1168,6 @@ export type ResolversParentTypes = {
   UpdateMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateMediaResponseOrError'];
   UpdateRoleResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateRoleResponseOrError'];
   UpdateUserPermissionInput: UpdateUserPermissionInput;
-  UploadAvatarInput: UploadAvatarInput;
   UploadMediaInput: UploadMediaInput;
   UploadMediaResponse: UploadMediaResponse;
   UploadMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UploadMediaResponseOrError'];
@@ -1365,7 +1365,7 @@ export type MediaResolvers<ContextType = Context, ParentType extends ResolversPa
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  dimension?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  dimension?: Resolver<Maybe<ResolversTypes['MediaDimension']>, ParentType, ContextType>;
   fileName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -1373,6 +1373,13 @@ export type MediaResolvers<ContextType = Context, ParentType extends ResolversPa
   size?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MediaDimensionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MediaDimension'] = ResolversParentTypes['MediaDimension']> = {
+  height?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unit?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  width?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1727,6 +1734,7 @@ export type Resolvers<ContextType = Context> = {
   GetUsersResponseOrError?: GetUsersResponseOrErrorResolvers<ContextType>;
   LoginMeta?: LoginMetaResolvers<ContextType>;
   Media?: MediaResolvers<ContextType>;
+  MediaDimension?: MediaDimensionResolvers<ContextType>;
   MediaResponse?: MediaResponseResolvers<ContextType>;
   MediasResponse?: MediasResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;

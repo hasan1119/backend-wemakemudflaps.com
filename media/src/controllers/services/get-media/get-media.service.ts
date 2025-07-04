@@ -73,7 +73,6 @@ export const MediaData = {
 
       await setMediaByMediaIdInRedis(id, mediaData);
     }
-
     return mediaData;
   },
 };

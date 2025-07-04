@@ -133,6 +133,13 @@ extend type CreatedBy @key(fields: "id") {
 
 # ---------------------- Media Types ----------------------
 
+# Represents the dimensions of a media item, such as width, height, and unit (e.g., "px").
+type MediaDimension {
+  width: Int! # Width of the media in pixels.
+  height: Int! # Height of the media in pixels.
+  unit: String! # Unit of measurement (e.g., "px").
+}
+
 # Represents a media file stored in the system.
 type Media @key(fields: "id") @shareable {
   id: ID! # Unique identifier for the media item.
@@ -142,7 +149,7 @@ type Media @key(fields: "id") @shareable {
   title: String # Optional title for the media.
   description: String # Optional description of the media.
   altText: String # Alternative text for accessibility.
-  dimension: String # Dimensions of the media (e.g., "1920x1080").
+  dimension: MediaDimension # Dimensions of the media (e.g., "1920x1080").
   length: Int # Duration in seconds for video/audio files.
   category: String # Category under which the media is classified.
   size: Int # Size of the media file in bytes.
@@ -178,6 +185,13 @@ type MediasResponse {
 
 # ---------------------- Inputs ----------------------
 
+# Input version of MediaDimension, used in mutations.
+input MediaDimensionInput {
+  width: Int! # Width of the media in pixels.
+  height: Int! # Height of the media in pixels.
+  unit: String! # Unit of measurement (e.g., "px").
+}
+
 # Input type for uploading a new media item.
 input UploadMediaInput {
   mediaType: MediaMimeType! # MIME type of the media.
@@ -186,28 +200,12 @@ input UploadMediaInput {
   title: String # Optional title for the media.
   description: String # Optional description of the media.
   altText: String # Alternative text for accessibility.
-  dimension: String # Dimensions of the media (e.g., "1920x1080").
+  dimension: MediaDimensionInput # Dimensions of the media.
   length: Int # Duration in seconds for video/audio files.
   category: MediaCategory # Category under which the media is classified.
   size: Int! # Size of the media file in bytes.
   url: String! # URL where the media is accessible.
   bucketName: String! # Name of the storage bucket where media is stored.
-}
-
-# Input type for uploading a new media item for avatar.
-input UploadAvatarInput {
-  mediaType: MediaMimeType! # MIME type of the media.
-  fileName: String # Original name of the uploaded file.
-  title: String # Optional title for the media.
-  description: String # Optional description of the media.
-  altText: String # Alternative text for accessibility.
-  dimension: String # Dimensions of the media (e.g., "1920x1080").
-  length: Int # Duration in seconds for video/audio files.
-  category: MediaCategory # Category under which the media is classified.
-  size: Int # Size of the media file in bytes.
-  url: String # URL where the media is accessible.
-  bucketName: String # Name of the storage bucket where media is stored.
-  createdBy: String! # ID of the user who uploaded the media.
 }
 
 # Input type for updating an existing media item.
@@ -216,7 +214,7 @@ input UpdateMediaInput {
   title: String # Optional new title for the media.
   description: String # Optional new description of the media.
   altText: String # Optional new alternative text for accessibility.
-  dimension: String # Optional new dimensions of the media (e.g., "1920x1080").
+  dimension: MediaDimensionInput # Optional new dimensions of the media.
   length: Int # Optional new duration in seconds for video/audio files.
   category: MediaCategory! # New category under which the media is classified.
 }

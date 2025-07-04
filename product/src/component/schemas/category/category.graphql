@@ -9,7 +9,7 @@ type Category {
   name: String!
   slug: String!
   description: String
-  thumbnail: String
+  thumbnail: Media
   position: Int! # Display order/position of the category.
   createdBy: CreatedBy # Metadata on who created the category.
   subCategories: [SubCategory!]! # List of subcategories under this category.
@@ -22,7 +22,7 @@ type SubCategory {
   name: String!
   slug: String!
   description: String
-  thumbnail: String
+  thumbnail: Media
   category: Category! # The category to which this subcategory belongs.
   parentSubCategory: SubCategoryDataResponse # Optional parent subcategory if nested.
   subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).

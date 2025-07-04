@@ -39,8 +39,12 @@ export class Media {
   altText: string | null;
 
   // Media dimension
-  @Column({ nullable: true, default: null })
-  dimension: string | null;
+  @Column({ type: "jsonb", nullable: true, default: null })
+  dimension: {
+    width: number;
+    height: number;
+    unit: string;
+  } | null;
 
   // Media length for videos and audios
   @Column({ type: "float", nullable: true, default: null })
