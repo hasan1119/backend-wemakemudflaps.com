@@ -182,7 +182,7 @@ export const createCategory = async (
         description: categoryResult.description,
         thumbnail: categoryResult.thumbnail,
         position: categoryResult.position,
-        category: categoryId ? categoryId : subParentCategoryExist.category,
+        category: categoryId ? categoryId : subParentCategoryExist.category.id,
         parentSubCategory: subParentCategoryExist?.id || null,
         createdBy: categoryResult.createdBy as any,
         createdAt:
