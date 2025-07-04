@@ -156,11 +156,11 @@ type Category
   id: ID!
   name: String!
   slug: String!
-  description: String
+  description: Media
   thumbnail: String
   position: Int!
   createdBy: CreatedBy
-  subCategories: [SubCategory!]!
+  subCategories: [SubCategory]
   createdAt: String
   deletedAt: String
 }
@@ -232,10 +232,9 @@ union CreateBrandResponseOrError
 union CreateCategoryResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
-  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryDataResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | CategoryResponse | SubCategoryResponse | ErrorResponse
+ = BaseResponse | CategoryDataResponse | ErrorResponse
 
 type CreatedBy
   @join__type(graph: MEDIA, key: "id", extension: true)
@@ -1617,10 +1616,10 @@ type SubCategory
   name: String!
   slug: String!
   description: String
-  thumbnail: String
-  category: Category!
+  thumbnail: Media
+  category: Category
   parentSubCategory: SubCategoryDataResponse
-  subCategories: [SubCategoryDataResponse!]
+  subCategories: [SubCategoryDataResponse]
   position: Int!
   createdBy: CreatedBy
   createdAt: String
@@ -1635,9 +1634,9 @@ type SubCategoryDataResponse
   slug: String!
   description: String
   thumbnail: Media
-  category: ID
-  parentSubCategory: ID
-  subCategories: [SubCategoryDataResponse!]
+  category: CategoryDataResponse
+  parentSubCategory: SubCategoryDataResponse
+  subCategories: [SubCategoryDataResponse]
   totalProducts: Int
   position: Int!
   createdBy: CreatedBy
@@ -1807,9 +1806,8 @@ union UpdateCategoryPositionResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
-  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | CategoryResponse | SubCategoryResponse | ErrorResponse
+ = BaseResponse | CategoryResponse | ErrorResponse
 
 union UpdateCategoryResponseOrError
   @join__type(graph: PRODUCT)

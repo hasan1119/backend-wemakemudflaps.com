@@ -8,11 +8,11 @@ type Category {
   id: ID!
   name: String!
   slug: String!
-  description: String
-  thumbnail: Media
+  description: Media
+  thumbnail: String
   position: Int! # Display order/position of the category.
   createdBy: CreatedBy # Metadata on who created the category.
-  subCategories: [SubCategory!]! # List of subcategories under this category.
+  subCategories: [SubCategory] # List of subcategories under this category.
   createdAt: String
   deletedAt: String
 }
@@ -23,9 +23,9 @@ type SubCategory {
   slug: String!
   description: String
   thumbnail: Media
-  category: Category! # The category to which this subcategory belongs.
+  category: Category # The category to which this subcategory belongs.
   parentSubCategory: SubCategoryDataResponse # Optional parent subcategory if nested.
-  subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
+  subCategories: [SubCategoryDataResponse] # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
@@ -51,9 +51,10 @@ type SubCategoryDataResponse {
   slug: String!
   description: String
   thumbnail: Media
-  category: ID # The category to which this subcategory belongs.
-  parentSubCategory: ID # The parent subcategory if nested.
-  subCategories: [SubCategoryDataResponse!] # List of child subcategories (if any).
+  category: CategoryDataResponse # The category to which this subcategory belongs.
+  parentSubCategory: SubCategoryDataResponse
+  # The parent subcategory if nested.
+  subCategories: [SubCategoryDataResponse] # List of child subcategories (if any).
   totalProducts: Int # Optional total product count associate with this sub category.
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
@@ -113,7 +114,6 @@ input restoreCategoryType {
 union CreateCategoryResponseOrError =
     BaseResponse
   | CategoryResponse
-  | SubCategoryResponse
   | ErrorResponse
 union GetCategoryByIDResponseOrError =
     BaseResponse
@@ -135,7 +135,6 @@ union UpdateCategoryResponseOrError =
 union UpdateCategoryPositionResponseOrError =
     BaseResponse
   | CategoryResponse
-  | SubCategoryResponse
   | ErrorResponse
 union DeleteCategoryResponseOrError = BaseResponse | ErrorResponse
 union RestoreCategoryResponseOrError = BaseResponse | ErrorResponse

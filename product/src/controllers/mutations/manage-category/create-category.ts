@@ -100,7 +100,6 @@ export const createCategory = async (
 
     const isSubCategory = categoryId || parentSubCategoryId;
     const scopeType = isSubCategory ? "subCategory" : "category";
-    const parentId = categoryId || parentSubCategoryId;
 
     // Attempt to check for existing name in Redis
     const nameExists = isSubCategory
@@ -201,49 +200,25 @@ export const createCategory = async (
 
     // Construct the response object
     let categoryResponse: any;
-    if (!isSubCategory) {
-      // Top-level category
-      categoryResponse = {
-        id: categoryResult.id,
-        name: categoryResult.name,
-        slug: categoryResult.slug,
-        description: categoryResult.description,
-        thumbnail: categoryResult.thumbnail as any,
-        position: categoryResult.position,
-        totalProducts: categoryResult?.products?.length ?? 0,
-        createdBy: categoryResult.createdBy as any,
-        createdAt:
-          categoryResult.createdAt instanceof Date
-            ? categoryResult.createdAt.toISOString()
-            : categoryResult.createdAt,
-        deletedAt:
-          categoryResult.deletedAt instanceof Date
-            ? categoryResult.deletedAt.toISOString()
-            : categoryResult.deletedAt,
-      };
-    } else {
-      // Subcategory
-      categoryResponse = {
-        id: categoryResult.id,
-        name: categoryResult.name,
-        slug: categoryResult.slug,
-        description: categoryResult.description,
-        thumbnail: categoryResult.thumbnail as any,
-        position: categoryResult.position,
-        totalProducts: categoryResult?.products?.length ?? 0,
-        category: categoryId ? categoryId : subParentCategoryExist?.category,
-        parentSubCategory: subParentCategoryExist?.id || null,
-        createdBy: categoryResult.createdBy as any,
-        createdAt:
-          categoryResult.createdAt instanceof Date
-            ? categoryResult.createdAt.toISOString()
-            : categoryResult.createdAt,
-        deletedAt:
-          categoryResult.deletedAt instanceof Date
-            ? categoryResult.deletedAt.toISOString()
-            : categoryResult.deletedAt,
-      };
-    }
+
+    categoryResponse = {
+      id: categoryResult.id,
+      name: categoryResult.name,
+      slug: categoryResult.slug,
+      description: categoryResult.description,
+      thumbnail: categoryResult.thumbnail as any,
+      position: categoryResult.position,
+      totalProducts: 0,
+      createdBy: categoryResult.createdBy as any,
+      createdAt:
+        categoryResult.createdAt instanceof Date
+          ? categoryResult.createdAt.toISOString()
+          : categoryResult.createdAt,
+      deletedAt:
+        categoryResult.deletedAt instanceof Date
+          ? categoryResult.deletedAt.toISOString()
+          : categoryResult.deletedAt,
+    };
 
     // Cache category/sub-category information and existence in Redis
     await Promise.all([
@@ -279,23 +254,15 @@ export const createCategory = async (
       clearAllCategorySearchCache(),
     ]);
 
-    if (isSubCategory) {
-      return {
-        statusCode: 201,
-        success: true,
-        message: "Subcategory created successfully",
-        subcategory: categoryResponse,
-        __typename: "SubCategoryResponse",
-      };
-    } else {
-      return {
-        statusCode: 201,
-        success: true,
-        message: "Category created successfully",
-        category: categoryResponse,
-        __typename: "CategoryResponse",
-      };
-    }
+    return {
+      statusCode: 201,
+      success: true,
+      message: `${
+        isSubCategory ? "Sub category" : "Category"
+      } created successfully`,
+      category: categoryResponse,
+      __typename: "CategoryResponse",
+    };
   } catch (error: any) {
     console.error("Error creating category:", error);
     return {
