@@ -35,6 +35,8 @@ export const createAddressBookEntry = async (
     const authError = checkUserAuth(user);
     if (authError) return authError;
 
+    console.log(args);
+
     // Validate input data with Zod schema
     const result = await createAddressBookEntrySchema.safeParseAsync(args);
 
