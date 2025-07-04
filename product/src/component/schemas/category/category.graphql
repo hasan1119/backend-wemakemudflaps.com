@@ -23,9 +23,10 @@ type SubCategory {
   slug: String!
   description: String
   thumbnail: Media
-  category: Category! # The category to which this subcategory belongs.
-  parentSubCategory: SubCategoryDataResponse # Optional parent subcategory if nested.
-  subCategories: [SubCategoryDataResponse] # List of child subcategories (if any).
+  category: Category # The category to which this subcategory belongs.
+  parentSubCategory: SubCategory
+  # Optional parent subcategory if nested.
+  subCategories: [SubCategory] # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy # Metadata on who created the category.
   createdAt: String
@@ -59,6 +60,18 @@ type SubCategoryDataResponse {
   deletedAt: String
 }
 
+type CategoryDataResponseById {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: Media
+  position: Int! # Display order/position of the subcategory.
+  createdBy: CreatedBy # Metadata on who created the category.
+  createdAt: String
+  deletedAt: String
+}
+
 type SubCategoryDataResponseById {
   id: ID!
   name: String!
@@ -74,8 +87,6 @@ type SubCategoryDataResponseById {
 }
 
 # ---------------------- Responses ----------------------
-
-# Response for fetching a category.
 type CategoryResponse {
   statusCode: Int!
   success: Boolean!
@@ -83,7 +94,6 @@ type CategoryResponse {
   category: CategoryDataResponse!
 }
 
-# Response for fetching a subcategory.
 type SubCategoryResponse {
   statusCode: Int!
   success: Boolean!
@@ -91,15 +101,13 @@ type SubCategoryResponse {
   subcategory: SubCategoryDataResponse!
 }
 
-# Response for fetching a category by ID.
 type CategoryResponseById {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: Category!
+  category: CategoryDataResponseById!
 }
 
-# Response for fetching a sub category by ID.
 type SubCategoryResponseById {
   statusCode: Int!
   success: Boolean!
@@ -107,7 +115,6 @@ type SubCategoryResponseById {
   subcategory: SubCategoryDataResponseById!
 }
 
-# Response for fetching a categories list.
 type CategoryPaginationResponse {
   statusCode: Int!
   success: Boolean!
@@ -117,7 +124,6 @@ type CategoryPaginationResponse {
 }
 
 # ---------------------- Inputs ----------------------
-
 input restoreCategoryType {
   ids: String!
   type: CategoryType!

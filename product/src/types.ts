@@ -147,6 +147,19 @@ export type CategoryDataResponse = {
   thumbnail?: Maybe<Media>;
 };
 
+export type CategoryDataResponseById = {
+  __typename?: 'CategoryDataResponseById';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  position: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
+  thumbnail?: Maybe<Media>;
+};
+
 export type CategoryPaginationResponse = {
   __typename?: 'CategoryPaginationResponse';
   category: Array<Category>;
@@ -166,7 +179,7 @@ export type CategoryResponse = {
 
 export type CategoryResponseById = {
   __typename?: 'CategoryResponseById';
-  category: Category;
+  category: CategoryDataResponseById;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
@@ -1659,10 +1672,10 @@ export type SubCategory = {
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  parentSubCategory?: Maybe<SubCategoryDataResponse>;
+  parentSubCategory?: Maybe<SubCategory>;
   position: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
-  subCategories?: Maybe<Array<Maybe<SubCategoryDataResponse>>>;
+  subCategories?: Maybe<Array<Maybe<SubCategory>>>;
   thumbnail?: Maybe<Media>;
 };
 
@@ -2297,6 +2310,7 @@ export type ResolversTypes = {
   BrandResponseById: ResolverTypeWrapper<BrandResponseById>;
   Category: ResolverTypeWrapper<Category>;
   CategoryDataResponse: ResolverTypeWrapper<CategoryDataResponse>;
+  CategoryDataResponseById: ResolverTypeWrapper<CategoryDataResponseById>;
   CategoryPaginationResponse: ResolverTypeWrapper<CategoryPaginationResponse>;
   CategoryResponse: ResolverTypeWrapper<CategoryResponse>;
   CategoryResponseById: ResolverTypeWrapper<CategoryResponseById>;
@@ -2491,6 +2505,7 @@ export type ResolversParentTypes = {
   BrandResponseById: BrandResponseById;
   Category: Category;
   CategoryDataResponse: CategoryDataResponse;
+  CategoryDataResponseById: CategoryDataResponseById;
   CategoryPaginationResponse: CategoryPaginationResponse;
   CategoryResponse: CategoryResponse;
   CategoryResponseById: CategoryResponseById;
@@ -2783,6 +2798,19 @@ export type CategoryDataResponseResolvers<ContextType = Context, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CategoryDataResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryDataResponseById'] = ResolversParentTypes['CategoryDataResponseById']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CategoryPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryPaginationResponse'] = ResolversParentTypes['CategoryPaginationResponse']> = {
   category?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -2801,7 +2829,7 @@ export type CategoryResponseResolvers<ContextType = Context, ParentType extends 
 };
 
 export type CategoryResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryResponseById'] = ResolversParentTypes['CategoryResponseById']> = {
-  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['CategoryDataResponseById'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -3570,10 +3598,10 @@ export type SubCategoryResolvers<ContextType = Context, ParentType extends Resol
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  parentSubCategory?: Resolver<Maybe<ResolversTypes['SubCategoryDataResponse']>, ParentType, ContextType>;
+  parentSubCategory?: Resolver<Maybe<ResolversTypes['SubCategory']>, ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  subCategories?: Resolver<Maybe<Array<Maybe<ResolversTypes['SubCategoryDataResponse']>>>, ParentType, ContextType>;
+  subCategories?: Resolver<Maybe<Array<Maybe<ResolversTypes['SubCategory']>>>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3955,6 +3983,7 @@ export type Resolvers<ContextType = Context> = {
   BrandResponseById?: BrandResponseByIdResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CategoryDataResponse?: CategoryDataResponseResolvers<ContextType>;
+  CategoryDataResponseById?: CategoryDataResponseByIdResolvers<ContextType>;
   CategoryPaginationResponse?: CategoryPaginationResponseResolvers<ContextType>;
   CategoryResponse?: CategoryResponseResolvers<ContextType>;
   CategoryResponseById?: CategoryResponseByIdResolvers<ContextType>;
