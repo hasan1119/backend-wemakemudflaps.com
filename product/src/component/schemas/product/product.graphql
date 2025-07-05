@@ -64,7 +64,7 @@ type Product @key(fields: "id") {
   # ---------------------- Associations ----------------------
   shippingClass: ShippingClass # Related shipping class
   upsells: [Product!] # List of upsell product
-  crossSell: [Product!] # List of cross-sell product
+  crossSells: [Product!] # List of cross-sell product
   attributes: [ProductAttribute] # Product attribute
   variations: [ProductVariation] # Associated variations
   reviews: [ProductReview!] # List of review

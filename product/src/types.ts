@@ -1106,7 +1106,7 @@ export type Product = {
   category?: Maybe<Category>;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
-  crossSell?: Maybe<Array<Product>>;
+  crossSells?: Maybe<Array<Product>>;
   customBadge?: Maybe<Scalars['String']['output']>;
   defaultImage?: Maybe<Media>;
   defaultMainDescription: Scalars['String']['output'];
@@ -3200,7 +3200,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   category?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
-  crossSell?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
+  crossSells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
   customBadge?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   defaultImage?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   defaultMainDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

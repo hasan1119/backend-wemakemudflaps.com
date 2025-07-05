@@ -2,12 +2,6 @@ import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getProductsCountFromRedis,
-  getProductsFromRedis,
-  setProductsCountInRedis,
-  setProductsInRedis,
-} from "../../../helper/redis";
-import {
   GetProductsResponseOrError,
   QueryGetAllProductsArgs,
 } from "../../../types";
@@ -18,7 +12,6 @@ import {
 import {
   checkUserAuth,
   checkUserPermission,
-  countProductsWithSearch,
   paginateProducts,
 } from "../../services";
 
@@ -101,114 +94,79 @@ export const getAllProducts = async (
     // Ensure sortOrder is "asc" or "desc"
     const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
-    // Attempt to retrieve cached products and total count from Redis
-    let productsData = await getProductsFromRedis(
+    // Fetch products from database directly
+    const { products: dbProducts, total } = await paginateProducts({
       page,
       limit,
       search,
       sortBy,
-      safeSortOrder
-    );
+      sortOrder: safeSortOrder,
+    });
 
-    let total = await getProductsCountFromRedis(search, sortBy, safeSortOrder);
-
-    if (!productsData) {
-      // On cache miss, fetch products from database
-      const { products: dbProducts, total: queryTotal } =
-        await paginateProducts({
-          page,
-          limit,
-          search,
-          sortBy,
-          sortOrder: safeSortOrder,
-        });
-
-      total = queryTotal;
-
-      // Map database products to response format
-      productsData = dbProducts.map((product) => ({
-        id: product.id,
-        productConfigurationType: product.productConfigurationType,
-        productDeliveryType: product.productDeliveryType,
-        isCustomized: product.isCustomized,
-        name: product.name,
-        slug: product.slug,
-        defaultImage: product.defaultImage as any,
-        images: product.images as any,
-        videos: product.videos as any,
-        brand: product.brands as any,
-        tags: product.tags as any,
-        defaultMainDescription: product.defaultMainDescription,
-        defaultShortDescription: product.defaultShortDescription,
-        defaultTags: product.defaultTags,
-        category: product.category as any,
-        subCategories: product.subCategories as any,
-        warrantyDigit: product.warrantyDigit,
-        defaultWarrantyPeriod: product.defaultWarrantyPeriod,
-        warrantyPolicy: product.warrantyPolicy,
-        regularPrice: product.regularPrice,
-        salePrice: product.salePrice,
-        salePriceStartAt: product.salePriceStartAt?.toISOString(),
-        salePriceEndAt: product.salePriceEndAt?.toISOString(),
-        tierPricingInfo: product.tierPricingInfo as any,
-        saleQuantity: product.saleQuantity,
-        saleQuantityUnit: product.saleQuantityUnit,
-        taxStatus: product.taxStatus as any,
-        taxClass: product.taxClass as any,
-        minQuantity: product.minQuantity,
-        defaultQuantity: product.defaultQuantity,
-        maxQuantity: product.maxQuantity,
-        quantityStep: product.quantityStep,
-        sku: product.sku,
-        model: product.model,
-        manageStock: product.manageStock,
-        stockQuantity: product.stockQuantity,
-        allowBackOrders: product.allowBackOrders,
-        lowStockThresHold: product.lowStockThresHold,
-        stockStatus: product.stockStatus,
-        soldIndividually: product.soldIndividually,
-        initialNumberInStock: product.initialNumberInStock,
-        weightUnit: product.weightUnit,
-        weight: product.weight,
-        dimensionUnit: product.dimensionUnit,
-        length: product.length,
-        width: product.width,
-        height: product.height,
-        shippingClass: product.shippingClass as any,
-        upsells: product.upsells as any,
-        crossSells: product.crossSells as any,
-        attributes: product.attributes as any,
-        variations: product.variations as any,
-        purchaseNote: product.purchaseNote,
-        enableReviews: product.enableReviews,
-        reviews: product.reviews as any,
-        customBadge: product.customBadge,
-        isPreview: product.isPreview,
-        isVisible: product.isVisible,
-        createdBy: product.createdBy as any,
-        createdAt: product.createdAt.toISOString(),
-        deletedAt: product.deletedAt?.toISOString(),
-      }));
-
-      // Cache products and total count in Redis
-      await Promise.all([
-        setProductsInRedis(
-          page,
-          limit,
-          search,
-          sortBy,
-          safeSortOrder,
-          productsData
-        ),
-        setProductsCountInRedis(search, sortBy, safeSortOrder, total),
-      ]);
-    }
-
-    // Calculate total if not found in Redis
-    if (!total || total === 0) {
-      total = await countProductsWithSearch(search);
-      await setProductsCountInRedis(search, sortBy, safeSortOrder, total);
-    }
+    // Map database products to response format
+    const productsData = dbProducts.map((product) => ({
+      id: product.id,
+      productConfigurationType: product.productConfigurationType,
+      productDeliveryType: product.productDeliveryType,
+      isCustomized: product.isCustomized,
+      name: product.name,
+      slug: product.slug,
+      defaultImage: product.defaultImage as any,
+      images: product.images as any,
+      videos: product.videos as any,
+      brands: product.brands as any,
+      tags: product.tags as any,
+      defaultMainDescription: product.defaultMainDescription,
+      defaultShortDescription: product.defaultShortDescription,
+      defaultTags: product.defaultTags,
+      category: product.category as any,
+      subCategories: product.subCategories as any,
+      warrantyDigit: product.warrantyDigit,
+      defaultWarrantyPeriod: product.defaultWarrantyPeriod,
+      warrantyPolicy: product.warrantyPolicy,
+      regularPrice: product.regularPrice,
+      salePrice: product.salePrice,
+      salePriceStartAt: product.salePriceStartAt?.toISOString(),
+      salePriceEndAt: product.salePriceEndAt?.toISOString(),
+      tierPricingInfo: product.tierPricingInfo as any,
+      saleQuantity: product.saleQuantity,
+      saleQuantityUnit: product.saleQuantityUnit,
+      taxStatus: product.taxStatus as any,
+      taxClass: product.taxClass as any,
+      minQuantity: product.minQuantity,
+      defaultQuantity: product.defaultQuantity,
+      maxQuantity: product.maxQuantity,
+      quantityStep: product.quantityStep,
+      sku: product.sku,
+      model: product.model,
+      manageStock: product.manageStock,
+      stockQuantity: product.stockQuantity,
+      allowBackOrders: product.allowBackOrders,
+      lowStockThresHold: product.lowStockThresHold,
+      stockStatus: product.stockStatus,
+      soldIndividually: product.soldIndividually,
+      initialNumberInStock: product.initialNumberInStock,
+      weightUnit: product.weightUnit,
+      weight: product.weight,
+      dimensionUnit: product.dimensionUnit,
+      length: product.length,
+      width: product.width,
+      height: product.height,
+      shippingClass: product.shippingClass as any,
+      upsells: product.upsells as any,
+      crossSells: product.crossSells as any,
+      attributes: product.attributes as any,
+      variations: product.variations as any,
+      purchaseNote: product.purchaseNote,
+      enableReviews: product.enableReviews,
+      reviews: product.reviews as any,
+      customBadge: product.customBadge,
+      isPreview: product.isPreview,
+      isVisible: product.isVisible,
+      createdBy: product.createdBy as any,
+      createdAt: product.createdAt.toISOString(),
+      deletedAt: product.deletedAt?.toISOString(),
+    }));
 
     return {
       statusCode: 200,

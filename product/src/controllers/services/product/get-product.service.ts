@@ -8,7 +8,9 @@ import { productRepository } from "../repositories/repositories";
  * @param name - The name of the product to find.
  * @returns A promise resolving to the Product entity or null if not found.
  */
-export const findProductByName = async (name: string): Promise<Product | null> => {
+export const findProductByName = async (
+  name: string
+): Promise<Product | null> => {
   return await productRepository.findOne({
     where: {
       name: ILike(name),
@@ -23,7 +25,9 @@ export const findProductByName = async (name: string): Promise<Product | null> =
  * @param slug - The slug of the product to find.
  * @returns A promise resolving to the Product entity or null if not found.
  */
-export const findProductBySlug = async (slug: string): Promise<Product | null> => {
+export const findProductBySlug = async (
+  slug: string
+): Promise<Product | null> => {
   return await productRepository.findOne({
     where: {
       slug: ILike(slug),
@@ -140,7 +144,33 @@ export const paginateProducts = async ({
 
   const queryBuilder = productRepository
     .createQueryBuilder("product")
-    .where("product.deletedAt IS NULL");
+    .where("product.deletedAt IS NULL")
+    // Relations eager loading via left joins
+    .leftJoinAndSelect("product.brands", "brands")
+    .leftJoinAndSelect("product.tags", "tags")
+    .leftJoinAndSelect("product.category", "category")
+    .leftJoinAndSelect("product.subCategories", "subCategories")
+    .leftJoinAndSelect("product.attributes", "attributes")
+    .leftJoinAndSelect("product.variations", "variations")
+    .leftJoinAndSelect("product.shippingClass", "shippingClass")
+    .leftJoinAndSelect("product.upsells", "upsells")
+    .leftJoinAndSelect("product.crossSells", "crossSells")
+    .leftJoinAndSelect("product.reviews", "reviews")
+    .leftJoinAndSelect("product.taxStatus", "taxStatus")
+    .leftJoinAndSelect("product.taxClass", "taxClass")
+    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
+
+    .leftJoinAndSelect("variation.brand", "brand")
+    .leftJoinAndSelect("variation.tierPricingInfo", "tierPricingInfo")
+    .leftJoinAndSelect("tierPricingInfo.tieredPrices", "tieredPrices")
+
+    .leftJoinAndSelect("variation.product", "product")
+    .leftJoinAndSelect("variation.attributeValues", "attributeValues")
+    .leftJoinAndSelect("attributeValues.attribute", "attribute")
+
+    .leftJoinAndSelect("variation.shippingClass", "shippingClass")
+    .leftJoinAndSelect("variation.taxStatus", "taxStatus")
+    .leftJoinAndSelect("variation.taxClass", "taxClass");
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;

@@ -1,10 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getProductInfoByIdFromRedis,
-  setProductInfoByIdInRedis,
-} from "../../../helper/redis";
-import {
   GetProductByIdResponseOrError,
   QueryGetProductArgs,
 } from "../../../types";
@@ -21,9 +17,8 @@ import {
  * Workflow:
  * 1. Verifies user authentication and checks permission to view products.
  * 2. Validates input product ID using Zod schema.
- * 3. Attempts to retrieve product data from Redis for performance optimization.
- * 4. Fetches product data from the database if not found in Redis and caches it.
- * 5. Returns a success response with product data or an error if validation, permission, or retrieval fails.
+ * 3. Fetches product data from the database.
+ * 4. Returns a success response with product data or an error if validation, permission, or retrieval fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
  * @param args - Input arguments containing the product ID.
@@ -76,34 +71,16 @@ export const getProduct = async (
 
     const { id } = args;
 
-    // Attempt to retrieve cached product data from Redis
-    let productData = await getProductInfoByIdFromRedis(id);
+    // Fetch product data from database
+    const productData = await getProductByIdService(id);
 
-    if (productData?.deletedAt) {
+    if (!productData || productData.deletedAt) {
       return {
         statusCode: 404,
         success: false,
         message: `Product not found with this id: ${id}, or it may have been deleted or moved to the trash`,
         __typename: "BaseResponse",
       };
-    }
-
-    if (!productData) {
-      // On cache miss, fetch product data from database
-      const dbProduct = await getProductByIdService(id);
-
-      if (!dbProduct) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `Product not found with this id: ${id}, or it may have been deleted or moved to the trash`,
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Cache product data in Redis
-      await setProductInfoByIdInRedis(id, dbProduct);
-      productData = dbProduct;
     }
 
     return {
@@ -120,7 +97,7 @@ export const getProduct = async (
         defaultImage: productData.defaultImage as any,
         images: productData.images as any,
         videos: productData.videos as any,
-        brand: productData.brands as any,
+        brands: productData.brands as any,
         tags: productData.tags as any,
         defaultMainDescription: productData.defaultMainDescription,
         defaultShortDescription: productData.defaultShortDescription,

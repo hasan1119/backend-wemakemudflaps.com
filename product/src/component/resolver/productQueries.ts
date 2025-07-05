@@ -8,13 +8,13 @@ import {
   getAllTaxStatus,
   getBrandById,
   getCategoryById,
+  getProduct,
   getShippingClassById,
   getSubCategoryById,
   getTagById,
   getTaxClassById,
   getTaxStatusById,
 } from "../../controllers";
-import { getProduct } from "../../controllers/queries/product/get-product";
 
 /**
  * Shared resolver function for federated `CreatedBy` references.
