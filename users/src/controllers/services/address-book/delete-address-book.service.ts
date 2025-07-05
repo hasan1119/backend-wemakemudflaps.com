@@ -56,7 +56,7 @@ export const hardDeleteAddressBook = async (
         user: { id: userId },
         type: type as any,
       },
-      order: { updatedAt: "DESC" },
+      order: { createdAt: "DESC" },
     });
 
     if (otherAddresses.length > 0) {

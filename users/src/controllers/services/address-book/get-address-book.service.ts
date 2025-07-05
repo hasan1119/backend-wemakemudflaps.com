@@ -45,5 +45,9 @@ export const getAddressBooks = async (
       user: { id: userId },
       type: type as any,
     },
+    order: {
+      isDefault: "DESC", // default one first
+      updatedAt: "DESC", // most recently updated next
+    },
   });
 };
