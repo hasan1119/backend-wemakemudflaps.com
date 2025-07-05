@@ -70,14 +70,6 @@ enum AddressType
   BILLING @join__enumValue(graph: USER)
 }
 
-enum BackOrderOptionEnum
-  @join__type(graph: PRODUCT)
-{
-  DONT_ALLOW @join__enumValue(graph: PRODUCT)
-  ALLOW_BUT_NOTIFY_CUSTOMER @join__enumValue(graph: PRODUCT)
-  ALLOW @join__enumValue(graph: PRODUCT)
-}
-
 type BaseResponse
   @join__type(graph: MEDIA)
   @join__type(graph: PRODUCT)
@@ -260,73 +252,11 @@ type CreatedBy
   roles: [String!]! @join__field(graph: USER)
 }
 
-input CreateProductInput
-  @join__type(graph: PRODUCT)
-{
-  productConfigurationType: ProductTypeEnum!
-  productDeliveryType: [ProductDeliveryTypeEnum!]!
-  name: String!
-  slug: String!
-  isCustomized: Boolean!
-  sku: String
-  model: String
-  createdBy: String!
-  defaultImage: ID
-  images: [ID!]
-  videos: [ID!]
-  defaultMainDescription: String!
-  defaultShortDescription: String
-  defaultTags: [String!]
-  customBadge: String
-  purchaseNote: String
-  brandIds: [ID!]
-  tagIds: [ID!]
-  categoryId: ID!
-  subCategoryIds: [ID!]
-  warrantyDigit: Int
-  defaultWarrantyPeriod: WarrantyPeriodEnum
-  warrantyPolicy: String
-  regularPrice: Float!
-  salePrice: Float
-  salePriceStartAt: String
-  salePriceEndAt: String
-  tierPricingInfo: ProductPriceInput
-  saleQuantity: Int
-  taxStatusId: ID
-  taxClassId: ID
-  minQuantity: Int
-  defaultQuantity: Int
-  maxQuantity: Int
-  quantityStep: Int
-  manageStock: Boolean
-  stockQuantity: Int
-  allowBackOrders: BackOrderOptionEnum
-  lowStockThresHold: Int
-  stockStatus: StockStatusEnum
-  soldIndividually: Boolean
-  initialNumberInStock: String
-  weightUnit: WeightUnitEnum
-  weight: Float
-  dimensionUnit: DimensionUnitEnum
-  length: Float
-  width: Float
-  height: Float
-  shippingClassId: ID
-  upsellIds: [ID!]
-  crossSellIds: [ID!]
-  attributes: [ProductAttributeInput!]
-  variations: [ProductVariationInput!]
-  enableReviews: Boolean
-  isPreview: Boolean
-  isVisible: Boolean
-}
-
 union CreateProductResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "ProductResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | ProductResponse | ErrorResponse
+ = BaseResponse | ErrorResponse
 
 union CreateProductReviewResponseOrError
   @join__type(graph: PRODUCT)
@@ -417,18 +347,6 @@ union DeleteTaxStatusResponseOrError
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | ErrorResponse
-
-enum DimensionUnitEnum
-  @join__type(graph: PRODUCT)
-{
-  MILLIMETER @join__enumValue(graph: PRODUCT)
-  CENTIMETER @join__enumValue(graph: PRODUCT)
-  METER @join__enumValue(graph: PRODUCT)
-  KILOMETER @join__enumValue(graph: PRODUCT)
-  INCH @join__enumValue(graph: PRODUCT)
-  FOOT @join__enumValue(graph: PRODUCT)
-  YARD @join__enumValue(graph: PRODUCT)
-}
 
 type EmailVerificationResponse
   @join__type(graph: USER)
@@ -945,7 +863,10 @@ type Mutation
   deleteTaxStatus(ids: [ID]!, skipTrash: Boolean!): DeleteTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   restoreTaxStatuses(ids: [ID!]!): RestoreTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   createReview: String @join__field(graph: PRODUCT)
-  createProduct: String @join__field(graph: PRODUCT)
+  createProduct(productConfigurationType: String!, productDeliveryType: [String!]!, isCustomized: Boolean!, name: String!, slug: String!, defaultImage: ID, images: [ID!], videos: [ID!], brandIds: [ID!], tagIds: [ID!], defaultMainDescription: String!, defaultShortDescription: String, defaultTags: [String!], categoryId: ID!, subCategoryIds: [ID!], warrantyDigit: Int, defaultWarrantyPeriod: String, warrantyPolicy: String, regularPrice: Float!, salePrice: Float, salePriceStartAt: String, salePriceEndAt: String, tierPricingInfo: ProductPriceInput, saleQuantity: Int, saleQuantityUnit: String!, taxStatusId: ID, taxClassId: ID, minQuantity: Int, defaultQuantity: Int, maxQuantity: Int, quantityStep: Int, sku: String, model: String, manageStock: Boolean, stockQuantity: Int, allowBackOrders: String, lowStockThresHold: Int, stockStatus: String, soldIndividually: Boolean, initialNumberInStock: String, weightUnit: String, weight: Float, dimensionUnit: String, length: Float, width: Float, height: Float, shippingClassId: ID, upsellIds: [ID!], crossSellIds: [ID!], attributes: [ProductAttributeInput!], variations: [ProductVariationInput!], purchaseNote: String, enableReviews: Boolean, customBadge: String, isPreview: Boolean, isVisible: Boolean): CreateProductResponseOrError! @join__field(graph: PRODUCT)
+  updateProduct(id: ID!, productConfigurationType: String, productDeliveryType: [String!], isCustomized: Boolean, name: String, slug: String, defaultImage: ID, images: [ID!], videos: [ID!], brandIds: [ID!], tagIds: [ID!], defaultMainDescription: String, defaultShortDescription: String, defaultTags: [String!], categoryId: ID, subCategoryIds: [ID!], warrantyDigit: Int, defaultWarrantyPeriod: String, warrantyPolicy: String, regularPrice: Float, salePrice: Float, salePriceStartAt: String, salePriceEndAt: String, tierPricingInfo: ProductPriceInput, saleQuantity: Int, saleQuantityUnit: String, taxStatusId: ID, taxClassId: ID, minQuantity: Int, defaultQuantity: Int, maxQuantity: Int, quantityStep: Int, sku: String, model: String, manageStock: Boolean, stockQuantity: Int, allowBackOrders: String, lowStockThresHold: Int, stockStatus: String, soldIndividually: Boolean, initialNumberInStock: String, weightUnit: String, weight: Float, dimensionUnit: String, length: Float, width: Float, height: Float, shippingClassId: ID, upsellIds: [ID!], crossSellIds: [ID!], attributes: [ProductAttributeInput!], variations: [ProductVariationInput!], purchaseNote: String, enableReviews: Boolean, customBadge: String, isPreview: Boolean, isVisible: Boolean): UpdateProductResponseOrError! @join__field(graph: PRODUCT)
+  deleteProduct(ids: [ID]!, skipTrash: Boolean!): DeleteProductResponseOrError! @join__field(graph: PRODUCT)
+  restoreProducts(ids: [ID!]!): RestoreProductResponseOrError! @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
   updateProfile(firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput): UserProfileUpdateResponseOrError! @join__field(graph: USER)
@@ -1058,8 +979,8 @@ type Product
   @join__type(graph: PRODUCT, key: "id")
 {
   id: ID
-  productConfigurationType: String!
-  productDeliveryType: [String!]!
+  productConfigurationType: String
+  productDeliveryType: [String]
   isCustomized: Boolean!
   name: String!
   slug: String!
@@ -1076,8 +997,8 @@ type Product
   purchaseNote: String
   brands: [Brand]
   tags: [Tag!]
-  category: Category!
-  subCategories: [SubCategory!]
+  category: Category
+  subCategories: [SubCategory]
   warrantyDigit: Int
   defaultWarrantyPeriod: String
   warrantyPolicy: String
@@ -1109,13 +1030,14 @@ type Product
   height: Float
   shippingClass: ShippingClass
   upsells: [Product!]
-  crossSell: [Product!]
-  attributes: [ProductAttribute!]
-  variations: [ProductVariation!]
+  crossSells: [Product!]
+  attributes: [ProductAttribute]
+  variations: [ProductVariation]
   reviews: [ProductReview!]
   enableReviews: Boolean
   isPreview: Boolean
   isVisible: Boolean
+  createdAt: String
   deletedAt: String
 }
 
@@ -1277,13 +1199,6 @@ input ProductTieredPriceInput
   productPriceId: ID
 }
 
-enum ProductTypeEnum
-  @join__type(graph: PRODUCT)
-{
-  SIMPLE_PRODUCT @join__enumValue(graph: PRODUCT)
-  VARIABLE_PRODUCT @join__enumValue(graph: PRODUCT)
-}
-
 type ProductVariation
   @join__type(graph: PRODUCT)
 {
@@ -1419,7 +1334,8 @@ type Query
   getTaxStatusById(id: ID!): GetTaxStatusByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllTaxStatus(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTaxStatusesResponseOrError! @join__field(graph: PRODUCT)
   getReview: String @join__field(graph: PRODUCT)
-  getProduct: String @join__field(graph: PRODUCT)
+  getProduct(id: ID!): GetProductByIdResponseOrError! @join__field(graph: PRODUCT)
+  getAllProducts(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetProductsResponseOrError! @join__field(graph: PRODUCT)
   getProfile: GetProfileResponseOrError! @join__field(graph: USER)
   getUserById(id: String!): GetUserByIDResponseOrError! @join__field(graph: USER)
   getAllUsers(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetUsersResponseOrError! @join__field(graph: USER)
@@ -1615,14 +1531,6 @@ input SinglePermissionInput
   description: String
 }
 
-enum StockStatusEnum
-  @join__type(graph: PRODUCT)
-{
-  IN_STOCK @join__enumValue(graph: PRODUCT)
-  OUT_OF_STOCK @join__enumValue(graph: PRODUCT)
-  ON_BACKORDER @join__enumValue(graph: PRODUCT)
-}
-
 type SubCategory
   @join__type(graph: PRODUCT)
 {
@@ -1631,7 +1539,7 @@ type SubCategory
   slug: String!
   description: String
   thumbnail: Media
-  category: Category!
+  category: Category
   parentSubCategory: SubCategory
   subCategories: [SubCategory]
   position: Int!
@@ -1866,73 +1774,11 @@ union UpdateMediaResponseOrError
   @join__unionMember(graph: MEDIA, member: "ErrorResponse")
  = BaseResponse | MediaResponse | ErrorResponse
 
-input UpdateProductInput
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  productConfigurationType: ProductTypeEnum
-  productDeliveryType: [ProductDeliveryTypeEnum!]
-  isCustomized: Boolean
-  name: String
-  slug: String
-  sku: String
-  model: String
-  defaultImage: ID
-  images: [ID!]
-  videos: [ID!]
-  defaultMainDescription: String
-  defaultShortDescription: String
-  defaultTags: [String!]
-  customBadge: String
-  purchaseNote: String
-  brandIds: [ID!]
-  tagIds: [ID!]
-  categoryId: ID
-  subCategoryIds: [ID!]
-  warrantyDigit: Int
-  defaultWarrantyPeriod: WarrantyPeriodEnum
-  warrantyPolicy: String
-  regularPrice: Float
-  salePrice: Float
-  salePriceStartAt: String
-  salePriceEndAt: String
-  tierPricingInfo: ProductPriceInput
-  saleQuantity: Int
-  taxStatusId: ID
-  taxClassId: ID
-  minQuantity: Int
-  defaultQuantity: Int
-  maxQuantity: Int
-  quantityStep: Int
-  manageStock: Boolean
-  stockQuantity: Int
-  allowBackOrders: BackOrderOptionEnum
-  lowStockThresHold: Int
-  stockStatus: StockStatusEnum
-  soldIndividually: Boolean
-  initialNumberInStock: String
-  weightUnit: WeightUnitEnum
-  weight: Float
-  dimensionUnit: DimensionUnitEnum
-  length: Float
-  width: Float
-  height: Float
-  shippingClassId: ID
-  upsellIds: [ID!]
-  crossSellIds: [ID!]
-  attributes: [ProductAttributeInput!]
-  variations: [ProductVariationInput!]
-  enableReviews: Boolean
-  isPreview: Boolean
-  isVisible: Boolean
-}
-
 union UpdateProductResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "ProductResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | ProductResponse | ErrorResponse
+ = BaseResponse | ErrorResponse
 
 union UpdateProductReviewResponseOrError
   @join__type(graph: PRODUCT)
@@ -2185,34 +2031,4 @@ type UsersResponse
   message: String!
   users: [User!]!
   total: Int!
-}
-
-enum WarrantyPeriodEnum
-  @join__type(graph: PRODUCT)
-{
-  DAY @join__enumValue(graph: PRODUCT)
-  DAYS @join__enumValue(graph: PRODUCT)
-  WEEK @join__enumValue(graph: PRODUCT)
-  WEEKS @join__enumValue(graph: PRODUCT)
-  MONTH @join__enumValue(graph: PRODUCT)
-  MONTHS @join__enumValue(graph: PRODUCT)
-  YEAR @join__enumValue(graph: PRODUCT)
-  YEARS @join__enumValue(graph: PRODUCT)
-  LIFE_TIME @join__enumValue(graph: PRODUCT)
-}
-
-enum WeightUnitEnum
-  @join__type(graph: PRODUCT)
-{
-  MILLIGRAM @join__enumValue(graph: PRODUCT)
-  GRAM @join__enumValue(graph: PRODUCT)
-  KILOGRAM @join__enumValue(graph: PRODUCT)
-  TON @join__enumValue(graph: PRODUCT)
-  POUND @join__enumValue(graph: PRODUCT)
-  OUNCE @join__enumValue(graph: PRODUCT)
-  STONE @join__enumValue(graph: PRODUCT)
-  CARAT @join__enumValue(graph: PRODUCT)
-  GRAIN @join__enumValue(graph: PRODUCT)
-  QUINTAL @join__enumValue(graph: PRODUCT)
-  METRIC_TON @join__enumValue(graph: PRODUCT)
 }

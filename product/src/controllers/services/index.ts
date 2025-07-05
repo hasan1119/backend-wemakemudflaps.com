@@ -339,3 +339,55 @@ export { restoreTaxStatus } from "./tax-status/restore-tax-status.service";
  * 1. Provides functions to update basic fields (value, description).
  */
 export { updateTaxStatus } from "./tax-status/update-tax-status.service";
+
+/**
+ * Exports services for creating product.
+ *
+ * Workflow:
+ * 1. Provides a function to create a product based on input.
+ */
+export { createProduct } from "./product/create-product.service";
+
+/**
+ * Exports services for deleting products.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export { hardDeleteProduct, softDeleteProduct } from "./product/delete-product.service";
+
+/**
+ * Exports services for fetching and counting products.
+ *
+ * Workflow:
+ * 1. Provides counting of products matching optional search criteria.
+ * 2. Provides functions to fetch product by ID/name with relations.
+ * 3. Supports paginated retrieval of products.
+ */
+export {
+  countProductsWithSearch,
+  findProductByName,
+  findProductByNameToUpdate,
+  findProductBySlug,
+  findProductBySlugToUpdate,
+  getProductById,
+  getProductsByIds,
+  paginateProducts,
+} from "./product/get-product.service";
+
+/**
+ * Exports service for restoring soft-deleted products by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { restoreProduct } from "./product/restore-product.service";
+
+/**
+ * Exports services for updating products.
+ *
+ * Workflow:
+ * 1. Provides functions to update basic fields.
+ */
+export { updateProduct } from "./product/update-product.service";
+

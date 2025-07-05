@@ -82,3 +82,15 @@ export {
   taxStatusSortingSchema,
   updateTaxStatusSchema,
 } from "./tax-status/tax-status";
+
+/**
+ * Exports product-related schemas for product management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, and updating categories.
+ */
+export {
+  createProductSchema,
+  productSortingSchema,
+  updateProductSchema,
+} from "./product/product";

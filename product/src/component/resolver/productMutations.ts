@@ -1,18 +1,21 @@
 import {
   createBrand,
   createCategory,
+  createProduct,
   createShippingClass,
   createTag,
   createTaxClass,
   createTaxStatus,
   deleteBrand,
   deleteCategory,
+  deleteProduct,
   deleteShippingClass,
   deleteTag,
   deleteTaxClass,
   deleteTaxStatus,
   restoreBrands,
   restoreCategory,
+  restoreProducts,
   restoreShippingClasses,
   restoreTags,
   restoreTaxClasses,
@@ -20,12 +23,12 @@ import {
   updateBrand,
   updateCategory,
   updateCategoryPosition,
+  updateProduct,
   updateShippingClass,
   updateTag,
   updateTaxClass,
   updateTaxStatus,
 } from "../../controllers";
-import { createProduct } from "../../controllers/mutations/manage-product/create-product";
 
 /**
  * Defines GraphQL mutation resolvers for product-related operations.
@@ -159,6 +162,24 @@ export const productMutationsResolver = {
      */
     restoreTaxStatuses,
 
+    /**
+     * Creates a product.
+     */
     createProduct,
+
+    /**
+     * Updates detailed information for a specific product.
+     */
+    updateProduct,
+
+    /**
+     * Deletes specified product from the system.
+     */
+    deleteProduct,
+
+    /**
+     * Restores previously deleted product.
+     */
+    restoreProducts,
   },
 };

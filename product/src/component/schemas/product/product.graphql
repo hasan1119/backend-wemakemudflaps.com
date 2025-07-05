@@ -1,70 +1,11 @@
 # ---------------------- Product Types ----------------------
 
-# Enum describing type of product
-enum ProductTypeEnum {
-  SIMPLE_PRODUCT # Simple product with no variations
-  VARIABLE_PRODUCT # Product with variations
-}
-
-# Enum for warranty period units
-enum WarrantyPeriodEnum {
-  DAY
-  DAYS
-  WEEK
-  WEEKS
-  MONTH
-  MONTHS
-  YEAR
-  YEARS
-  LIFE_TIME
-}
-
-# Enum for backorder options
-enum BackOrderOptionEnum {
-  DONT_ALLOW # Do not allow backorders
-  ALLOW_BUT_NOTIFY_CUSTOMER # Allow backorders but notify customers
-  ALLOW # Allow backorders without notification
-}
-
-# Enum for stock status
-enum StockStatusEnum {
-  IN_STOCK # Item is in stock
-  OUT_OF_STOCK # Item is out of stock
-  ON_BACKORDER # Item is on backorder
-}
-
-# Enum for weight units
-enum WeightUnitEnum {
-  MILLIGRAM
-  GRAM
-  KILOGRAM
-  TON
-  POUND
-  OUNCE
-  STONE
-  CARAT
-  GRAIN
-  QUINTAL
-  METRIC_TON
-}
-
-# Enum for dimension units
-enum DimensionUnitEnum {
-  MILLIMETER
-  CENTIMETER
-  METER
-  KILOMETER
-  INCH
-  FOOT
-  YARD
-}
-
 # Represents a full product object fetched from the database.
 type Product @key(fields: "id") {
   # ---------------------- Identification ----------------------
   id: ID # Optional product ID (used for updates)
-  productConfigurationType: String! # Product type (e.g., simple, variable and customized)
-  productDeliveryType: [String!]! # Product type (e.g., physical, virtual and downloadable)
+  productConfigurationType: String # Product type (e.g., simple, variable and customized)
+  productDeliveryType: [String] # Product type (e.g., physical, virtual and downloadable)
   isCustomized: Boolean! # Product is customized or not
   name: String! # Product name
   slug: String! # Product slug
@@ -84,8 +25,8 @@ type Product @key(fields: "id") {
   # ---------------------- Categorization ----------------------
   brands: [Brand] # Associated brands
   tags: [Tag!] # List of tag
-  category: Category! # Main category
-  subCategories: [SubCategory!] # List of sub-category
+  category: Category # Main category
+  subCategories: [SubCategory] # List of sub-category
   # ---------------------- Warranty Info ----------------------
   warrantyDigit: Int # Warranty duration (digit part)
   defaultWarrantyPeriod: String # Warranty period (e.g., day, days, week, weeks, month, months, year, years, life_time)
@@ -123,162 +64,17 @@ type Product @key(fields: "id") {
   # ---------------------- Associations ----------------------
   shippingClass: ShippingClass # Related shipping class
   upsells: [Product!] # List of upsell product
-  crossSell: [Product!] # List of cross-sell product
-  attributes: [ProductAttribute!] # Product attribute
-  variations: [ProductVariation!] # Associated variations
+  crossSells: [Product!] # List of cross-sell product
+  attributes: [ProductAttribute] # Product attribute
+  variations: [ProductVariation] # Associated variations
   reviews: [ProductReview!] # List of review
   # ---------------------- Display ----------------------
   enableReviews: Boolean # Enable product reviews
   isPreview: Boolean # Marks as preview-only
   isVisible: Boolean # Determines frontend visibility
   # ---------------------- Meta ----------------------
+  createdAt: String # Creation timestamp
   deletedAt: String # Soft deletion timestamp
-}
-
-# ---------------------- Create Product Input ----------------------
-
-# Input for creating a new product
-input CreateProductInput {
-  # ---------------------- Identification ----------------------
-  productConfigurationType: ProductTypeEnum! # Product type (simple/variable/customized)
-  productDeliveryType: [ProductDeliveryTypeEnum!]! # Product type (e.g., physical, virtual and downloadable)
-  name: String! # Product name
-  slug: String! # Product slug
-  isCustomized: Boolean! # Product is customized or not
-  sku: String # SKU code
-  model: String # Product model identifier
-  createdBy: String! # User creating the product
-  # ---------------------- Media ----------------------
-  defaultImage: ID # Default image ID
-  images: [ID!] # Product gallery IDs
-  videos: [ID!] # Product video IDs
-  # ---------------------- Descriptions & Tags ----------------------
-  defaultMainDescription: String! # Long description
-  defaultShortDescription: String # Short description
-  defaultTags: [String!] # List of keyword tags
-  customBadge: String # Custom label/badge
-  purchaseNote: String # Post-purchase note
-  # ---------------------- Categorization ----------------------
-  brandIds: [ID!] # Brand ID
-  tagIds: [ID!] # Associated tag IDs
-  categoryId: ID! # Primary category ID
-  subCategoryIds: [ID!] # Related sub-categories
-  # ---------------------- Warranty Info ----------------------
-  warrantyDigit: Int # Warranty duration
-  defaultWarrantyPeriod: WarrantyPeriodEnum # Warranty period unit
-  warrantyPolicy: String # Warranty terms
-  # ---------------------- Pricing ----------------------
-  regularPrice: Float! # Base price
-  salePrice: Float # Discounted price
-  salePriceStartAt: String # Discount start date
-  salePriceEndAt: String # Discount end date
-  tierPricingInfo: ProductPriceInput # Tier pricing block
-  saleQuantity: Int # Max quantity for sale price
-  # ---------------------- Tax ----------------------
-  taxStatusId: ID # Tax status reference
-  taxClassId: ID # Tax class reference
-  # ---------------------- Quantity & Stock ----------------------
-  minQuantity: Int # Minimum purchase quantity
-  defaultQuantity: Int # Default quantity
-  maxQuantity: Int # Maximum allowed quantity
-  quantityStep: Int # Quantity increment step
-  manageStock: Boolean # Enable inventory management
-  stockQuantity: Int # Number in stock
-  allowBackOrders: BackOrderOptionEnum # Backorder rules
-  lowStockThresHold: Int # Threshold for low stock alert
-  stockStatus: StockStatusEnum # In-stock / out-of-stock
-  soldIndividually: Boolean # Limit one per order
-  initialNumberInStock: String # Initial stock amount
-  # ---------------------- Physical Attributes ----------------------
-  weightUnit: WeightUnitEnum # Unit of measure for weight
-  weight: Float # Product weight
-  dimensionUnit: DimensionUnitEnum # Unit of measure for dimensions
-  length: Float # Length of product
-  width: Float # Width of product
-  height: Float # Height of product
-  # ---------------------- Associations ----------------------
-  shippingClassId: ID # Shipping class ID
-  upsellIds: [ID!] # Upsell product IDs
-  crossSellIds: [ID!] # Cross-sell product IDs
-  attributes: [ProductAttributeInput!] # Full attribute structure
-  variations: [ProductVariationInput!] # List of variations
-  # ---------------------- Display ----------------------
-  enableReviews: Boolean # Enable or disable reviews
-  isPreview: Boolean # Mark as preview
-  isVisible: Boolean # Toggle visibility on site
-}
-
-# ---------------------- Update Product Input ----------------------
-
-# Input for updating an existing product
-input UpdateProductInput {
-  # ---------------------- Identification ----------------------
-  id: ID! # ID of the product to update
-  productConfigurationType: ProductTypeEnum # Optional product type
-  productDeliveryType: [ProductDeliveryTypeEnum!] # Optional product type (e.g., physical, virtual and downloadable)
-  isCustomized: Boolean # Product is customized or not
-  name: String # Product name
-  slug: String # Product slug
-  sku: String # Product SKU
-  model: String # Model identifier
-  # ---------------------- Media ----------------------
-  defaultImage: ID # Default image ID
-  images: [ID!] # Product gallery IDs
-  videos: [ID!] # Product video IDs
-  # ---------------------- Descriptions & Tags ----------------------
-  defaultMainDescription: String # Long description
-  defaultShortDescription: String # Short description
-  defaultTags: [String!] # Product keywords
-  customBadge: String # Custom tag (e.g., HOT)
-  purchaseNote: String # Order note
-  # ---------------------- Categorization ----------------------
-  brandIds: [ID!] # Related brand ID
-  tagIds: [ID!] # Tag IDs
-  categoryId: ID # Parent category ID
-  subCategoryIds: [ID!] # Sub-category IDs
-  # ---------------------- Warranty Info ----------------------
-  warrantyDigit: Int # Warranty value (numeric)
-  defaultWarrantyPeriod: WarrantyPeriodEnum # Warranty period (e.g., year)
-  warrantyPolicy: String # Warranty policy
-  # ---------------------- Pricing ----------------------
-  regularPrice: Float # Regular price
-  salePrice: Float # Discounted price
-  salePriceStartAt: String # Start of sale
-  salePriceEndAt: String # End of sale
-  tierPricingInfo: ProductPriceInput # Tier pricing input
-  saleQuantity: Int # Sale quantity cap
-  # ---------------------- Tax ----------------------
-  taxStatusId: ID # Tax status ID
-  taxClassId: ID # Tax class ID
-  # ---------------------- Quantity & Stock ----------------------
-  minQuantity: Int # Minimum quantity
-  defaultQuantity: Int # Default quantity
-  maxQuantity: Int # Maximum quantity
-  quantityStep: Int # Step size for quantity
-  manageStock: Boolean # Inventory management flag
-  stockQuantity: Int # Stock available
-  allowBackOrders: BackOrderOptionEnum # Backorder rules
-  lowStockThresHold: Int # Low stock threshold
-  stockStatus: StockStatusEnum # Stock availability
-  soldIndividually: Boolean # Restrict to one unit
-  initialNumberInStock: String # Initial inventory count
-  # ---------------------- Physical Attributes ----------------------
-  weightUnit: WeightUnitEnum # Unit for weight
-  weight: Float # Product weight
-  dimensionUnit: DimensionUnitEnum # Unit for dimensions
-  length: Float # Length
-  width: Float # Width
-  height: Float # Height
-  # ---------------------- Associations ----------------------
-  shippingClassId: ID # Shipping class link
-  upsellIds: [ID!] # Upsell products
-  crossSellIds: [ID!] # Cross-sell products
-  attributes: [ProductAttributeInput!] # Attribute set
-  variations: [ProductVariationInput!] # List of variations
-  # ---------------------- Display ----------------------
-  enableReviews: Boolean # Toggle reviews
-  isPreview: Boolean # Preview mode flag
-  isVisible: Boolean # Visibility status
 }
 
 type ProductResponse {
@@ -297,14 +93,8 @@ type ProductPaginationResponse {
 }
 
 # ---------------------- Product Response Unions ----------------------
-union CreateProductResponseOrError =
-    BaseResponse
-  | ProductResponse
-  | ErrorResponse
-union UpdateProductResponseOrError =
-    BaseResponse
-  | ProductResponse
-  | ErrorResponse
+union CreateProductResponseOrError = BaseResponse | ErrorResponse
+union UpdateProductResponseOrError = BaseResponse | ErrorResponse
 union DeleteProductResponseOrError = BaseResponse | ErrorResponse
 union RestoreProductResponseOrError = BaseResponse | ErrorResponse
 union GetProductByIdResponseOrError =

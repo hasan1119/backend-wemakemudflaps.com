@@ -158,3 +158,26 @@ export {
   getUserPermissionsByUserIdFromRedis,
   getUserRolesInfoFromRedis,
 } from "./utils/permissions/permission-session-manage";
+
+/**
+ * Exports utilities for managing product session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllProductSearchCache,
+  getProductInfoByIdFromRedis,
+  getProductNameExistFromRedis,
+  getProductsCountFromRedis,
+  getProductsFromRedis,
+  getProductSlugExistFromRedis,
+  removeProductInfoByIdFromRedis,
+  removeProductNameExistFromRedis,
+  removeProductSlugExistFromRedis,
+  setProductInfoByIdInRedis,
+  setProductNameExistInRedis,
+  setProductsCountInRedis,
+  setProductsInRedis,
+  setProductSlugExistInRedis,
+} from "./utils/product/product-session-manage";

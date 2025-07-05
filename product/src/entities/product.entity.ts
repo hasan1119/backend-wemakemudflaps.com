@@ -21,12 +21,6 @@ import { Tag } from "./tag.entity";
 import { TaxClass } from "./tax-class.entity";
 import { TaxStatus } from "./tax-status.entity";
 
-export enum ProductDeliveryTypeEnum {
-  PHYSICAL = "Physical Product",
-  DOWNLOADABLE = "Downloadable Product",
-  VIRTUAL = "Virtual Product",
-}
-
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn("uuid")
@@ -44,12 +38,12 @@ export class Product {
   // Product categorization by delivery method
   @Column({
     type: "enum",
-    enum: ProductDeliveryTypeEnum,
+    enum: ["Physical Product", "Downloadable Product", "Virtual Product"],
     enumName: "product_delivery_type_enum",
     array: true,
     nullable: true,
   })
-  productDeliveryType: ProductDeliveryTypeEnum[];
+  productDeliveryType: string[] | null;
 
   // Product customized
   @Column({ default: false })
@@ -84,11 +78,10 @@ export class Product {
   brands: Promise<Brand[]> | null;
 
   // Associated tags for the product
-  @ManyToOne(() => Tag, (tag) => tag.products, {
+  @ManyToMany(() => Tag, (tag) => tag.products, {
     nullable: true,
-    onDelete: "SET NULL",
   })
-  @JoinColumn({ name: "product_tags" })
+  @JoinTable({ name: "product_tags" })
   tags: Tag[] | null;
 
   // Main product description
@@ -209,8 +202,8 @@ export class Product {
   maxQuantity: number | null;
 
   // Step increment when adding product to cart
-  @Column({ default: 1 })
-  quantityStep: number;
+  @Column({ nullable: true })
+  quantityStep: number | null;
 
   /* ====================== Inventory Info ====================== */
 
@@ -321,7 +314,7 @@ export class Product {
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "shipping_class_id" })
-  shippingClass: string;
+  shippingClass: ShippingClass | null;
 
   /* ====================== Linked Products ====================== */
 
@@ -383,11 +376,10 @@ export class Product {
   enableReviews: boolean;
 
   // Product review list
-  @ManyToOne(() => ProductReview, (review) => review.product, {
+  @OneToMany(() => ProductReview, (review) => review.product, {
     cascade: true,
     nullable: true,
   })
-  @JoinColumn({ name: "review_id" })
   reviews: ProductReview[] | null;
 
   // Custom badge text for the product (e.g., "New", "Sale")

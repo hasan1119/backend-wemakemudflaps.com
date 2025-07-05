@@ -1,19 +1,20 @@
 import {
   getAllBrands,
   getAllCategories,
+  getAllProducts,
   getAllShippingClass,
   getAllTags,
   getAllTaxClass,
   getAllTaxStatus,
   getBrandById,
   getCategoryById,
+  getProduct,
   getShippingClassById,
   getSubCategoryById,
   getTagById,
   getTaxClassById,
   getTaxStatusById,
 } from "../../controllers";
-import { getProduct } from "../../controllers/queries/product/get-product";
 
 /**
  * Shared resolver function for federated `CreatedBy` references.
@@ -64,6 +65,7 @@ const typesWithCreatedBy = [
   "TaxStatus",
   "TaxStatusPaginationDataSession",
   "Product",
+  "ProductPaginationDataSession",
   "Category",
   "CategoryDataResponseById",
   "CategoryDataResponse",
@@ -85,7 +87,11 @@ const typesWithThumbnail = [
 ];
 
 // List of types that use the media fields (defaultImage, images, videos)
-const typesWithMedia = ["Product", "ProductVariation"];
+const typesWithMedia = [
+  "Product",
+  "ProductVariation",
+  "ProductPaginationDataSession",
+];
 
 /**
  * Defines GraphQL query resolvers for product-related operations.
@@ -98,6 +104,11 @@ const typesWithMedia = ["Product", "ProductVariation"];
 export const productQueriesResolver = {
   Query: {
     getProduct,
+
+    /**
+     * Fetches a paginated list of all products in the system.
+     */
+    getAllProducts,
 
     /**
      * Retrieves detailed information for a category by their unique ID.

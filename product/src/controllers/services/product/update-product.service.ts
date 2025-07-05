@@ -1,0 +1,239 @@
+import { Product } from "../../../entities";
+import { MutationUpdateProductArgs } from "../../../types";
+import {
+  productPriceRepository,
+  productRepository,
+} from "../repositories/repositories";
+import { getProductById } from "./get-product.service";
+
+/**
+ * Updates a product and its related entities including variations and tier pricing.
+ *
+ * Handles:
+ * - Scalar fields update
+ * - Relations update (category, subcategories, brands, tags, tax, shipping, etc.)
+ * - Variations update with proper create/update/delete and tierPricingInfo association by ID
+ * - Tier pricing for main product update
+ *
+ * @param productId - UUID of product to update
+ * @param data - Partial data to update the product
+ * @returns Updated Product entity
+ */
+export const updateProduct = async (
+  productId: string,
+  data: Partial<MutationUpdateProductArgs>
+): Promise<Product> => {
+  const product = await getProductById(productId);
+
+  // Update scalar fields if provided, else keep existing
+  product.name = data.name ?? product.name;
+  product.slug = data.slug ?? product.slug;
+  product.defaultImage = data.defaultImage ?? product.defaultImage;
+  product.images = data.images ?? product.images;
+  product.videos = data.videos ?? product.videos;
+  product.defaultMainDescription =
+    data.defaultMainDescription ?? product.defaultMainDescription;
+  product.defaultShortDescription =
+    data.defaultShortDescription ?? product.defaultShortDescription;
+  product.defaultTags = data.defaultTags ?? product.defaultTags;
+  product.regularPrice = data.regularPrice ?? product.regularPrice;
+  product.salePrice = data.salePrice ?? product.salePrice;
+
+  if (data.salePriceStartAt !== undefined) {
+    product.salePriceStartAt =
+      typeof data.salePriceStartAt === "string"
+        ? new Date(data.salePriceStartAt)
+        : data.salePriceStartAt;
+  }
+
+  if (data.salePriceEndAt !== undefined) {
+    product.salePriceEndAt =
+      typeof data.salePriceEndAt === "string"
+        ? new Date(data.salePriceEndAt)
+        : data.salePriceEndAt;
+  }
+
+  product.saleQuantity = data.saleQuantity ?? product.saleQuantity;
+  product.saleQuantityUnit = data.saleQuantityUnit ?? product.saleQuantityUnit;
+  product.minQuantity = data.minQuantity ?? product.minQuantity;
+  product.defaultQuantity = data.defaultQuantity ?? product.defaultQuantity;
+  product.maxQuantity = data.maxQuantity ?? product.maxQuantity;
+  product.quantityStep = data.quantityStep ?? product.quantityStep;
+  product.sku = data.sku ?? product.sku;
+  product.model = data.model ?? product.model;
+  product.manageStock = data.manageStock ?? product.manageStock;
+  product.stockQuantity = data.stockQuantity ?? product.stockQuantity;
+  product.allowBackOrders = data.allowBackOrders ?? product.allowBackOrders;
+  product.lowStockThresHold =
+    data.lowStockThresHold ?? product.lowStockThresHold;
+  product.stockStatus = data.stockStatus ?? product.stockStatus;
+  product.soldIndividually = data.soldIndividually ?? product.soldIndividually;
+  product.initialNumberInStock =
+    data.initialNumberInStock ?? product.initialNumberInStock;
+  product.weightUnit = data.weightUnit ?? product.weightUnit;
+  product.weight = data.weight ?? product.weight;
+  product.dimensionUnit = data.dimensionUnit ?? product.dimensionUnit;
+  product.length = data.length ?? product.length;
+  product.width = data.width ?? product.width;
+  product.height = data.height ?? product.height;
+  product.purchaseNote = data.purchaseNote ?? product.purchaseNote;
+  product.enableReviews = data.enableReviews ?? product.enableReviews;
+  product.customBadge = data.customBadge ?? product.customBadge;
+  product.isPreview = data.isPreview ?? product.isPreview;
+  product.isVisible = data.isVisible ?? product.isVisible;
+  product.productConfigurationType =
+    data.productConfigurationType ?? product.productConfigurationType;
+  product.productDeliveryType =
+    data.productDeliveryType ?? product.productDeliveryType;
+  product.isCustomized = data.isCustomized ?? product.isCustomized;
+  product.warrantyDigit = data.warrantyDigit ?? product.warrantyDigit;
+  product.defaultWarrantyPeriod =
+    data.defaultWarrantyPeriod ?? product.defaultWarrantyPeriod;
+  product.warrantyPolicy = data.warrantyPolicy ?? product.warrantyPolicy;
+
+  // Update relational fields
+  if (data.categoryId !== undefined) {
+    product.category = data.categoryId
+      ? ({ id: data.categoryId } as any)
+      : null;
+  }
+
+  if (data.subCategoryIds !== undefined) {
+    product.subCategories = data.subCategoryIds.map((id) => ({ id })) as any;
+  }
+
+  if (data.brandIds !== undefined) {
+    product.brands =
+      data.brandIds.length > 0 ? ({ id: data.brandIds[0] } as any) : null;
+  }
+
+  if (data.tagIds !== undefined) {
+    product.tags = data.tagIds.map((id) => ({ id })) as any;
+  }
+
+  if (data.taxClassId !== undefined) {
+    product.taxClass = data.taxClassId
+      ? ({ id: data.taxClassId } as any)
+      : null;
+  }
+
+  if (data.taxStatusId !== undefined) {
+    product.taxStatus = data.taxStatusId
+      ? ({ id: data.taxStatusId } as any)
+      : null;
+  }
+
+  if (data.shippingClassId !== undefined) {
+    product.shippingClass = data.shippingClassId
+      ? ({ id: data.shippingClassId } as any)
+      : null;
+  }
+
+  if (data.attributes !== undefined) {
+    product.attributes = data.attributes.map((attr) => ({
+      id: attr.id,
+    })) as any;
+  }
+
+  // Handle variations update
+  if (data.variations !== undefined) {
+    // Load existing variations from DB
+    const existingVariations = await productRepository
+      .createQueryBuilder("product")
+      .relation(Product, "variations")
+      .of(product)
+      .loadMany();
+
+    const newVariationIds = data.variations
+      .filter((v: any) => v.id)
+      .map((v: any) => v.id);
+
+    const oldVariationIds = existingVariations.map((v) => v.id);
+
+    // Determine variations to delete (present in DB but missing in update data)
+    const toDeleteIds = oldVariationIds.filter(
+      (id) => !newVariationIds.includes(id)
+    );
+
+    if (toDeleteIds.length > 0) {
+      // Delete variations from DB (hard delete)
+      await productRepository.manager
+        .getRepository("ProductVariation")
+        .delete(toDeleteIds);
+    }
+
+    const variationRepo =
+      productRepository.manager.getRepository("ProductVariation");
+    const tierPriceRepo =
+      productRepository.manager.getRepository("ProductPrice");
+
+    // Process each variation input for update or create
+    for (const variationInput of data.variations) {
+      let variationEntity;
+
+      if (variationInput.id) {
+        // Existing variation - find entity to update
+        variationEntity = existingVariations.find(
+          (v) => v.id === variationInput.id
+        );
+        if (!variationEntity) continue; // Skip if not found
+
+        // Handle tierPricingInfo association by ID only
+        if (variationInput.tierPricingInfoId) {
+          const tierPricing = await tierPriceRepo.findOne({
+            where: { id: variationInput.tierPricingInfoId },
+          });
+
+          if (tierPricing) {
+            variationEntity.tierPricingInfo = Promise.resolve(tierPricing);
+          } else {
+            // Invalid ID given, clear association
+            variationEntity.tierPricingInfo = null;
+          }
+        } else {
+          // No tierPricingInfoId provided, clear association
+          variationEntity.tierPricingInfo = null;
+        }
+
+        // Save updated variation entity
+        await variationRepo.save(variationEntity);
+      } else {
+        // New variation - create entity
+        variationEntity = variationRepo.create(variationInput);
+
+        // Associate existing tierPricingInfo if tierPricingInfoId is provided
+        if (variationInput.tierPricingInfoId) {
+          const tierPricing = await tierPriceRepo.findOne({
+            where: { id: variationInput.tierPricingInfoId },
+          });
+          if (tierPricing) {
+            variationEntity.tierPricingInfo = Promise.resolve(tierPricing);
+          }
+        }
+
+        // Save new variation entity
+        await variationRepo.save(variationEntity);
+      }
+    }
+  }
+
+  // Update upsells if provided
+  if (data.upsellIds !== undefined) {
+    product.upsells = data.upsellIds.map((id) => ({ id })) as any;
+  }
+
+  // Update cross sells if provided
+  if (data.crossSellIds !== undefined) {
+    product.crossSells = data.crossSellIds.map((id) => ({ id })) as any;
+  }
+
+  // Handle tier pricing for the main product (not variations)
+  if (data.tierPricingInfo !== undefined) {
+    const newTier = productPriceRepository.create(data.tierPricingInfo);
+    const savedTier = await productPriceRepository.save(newTier);
+    product.tierPricingInfo = Promise.resolve(savedTier);
+  }
+
+  // Save and return updated product entity
+  return await productRepository.save(product);
+};
