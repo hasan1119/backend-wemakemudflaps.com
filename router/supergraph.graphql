@@ -1030,7 +1030,7 @@ type Product
   height: Float
   shippingClass: ShippingClass
   upsells: [Product!]
-  crossSell: [Product!]
+  crossSells: [Product!]
   attributes: [ProductAttribute]
   variations: [ProductVariation]
   reviews: [ProductReview!]
