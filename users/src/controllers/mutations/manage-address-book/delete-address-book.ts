@@ -1,7 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  BaseResponseOrError,
+  DeleteAddressesBookResponseOrError,
   MutationDeleteAddressBookEntryArgs,
 } from "../../../types";
 import { idsSchema } from "../../../utils/data-validation";
@@ -23,7 +23,7 @@ export const deleteAddressBookEntry = async (
   _: any,
   args: MutationDeleteAddressBookEntryArgs,
   { user }: Context
-): Promise<BaseResponseOrError> => {
+): Promise<DeleteAddressesBookResponseOrError> => {
   try {
     const authError = checkUserAuth(user);
     if (authError) return authError;
@@ -49,13 +49,14 @@ export const deleteAddressBookEntry = async (
     const { ids } = args;
 
     // Delete entry using service
-    await hardDeleteAddressBook(ids);
+    const result = await hardDeleteAddressBook(ids);
 
     return {
       statusCode: 200,
       success: true,
       message: "Address book entry deleted successfully",
-      __typename: "BaseResponse",
+      newDefaultAddressId: result,
+      __typename: "DeleteAddressResponseBook",
     };
   } catch (error: any) {
     console.error("Error deleting address book entry:", error);

@@ -34,6 +34,14 @@ type AddressesBookResponse {
   addressBook: [AddressBook!]!
 }
 
+# Delete address response.
+type DeleteAddressResponseBook {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  newDefaultAddressId: String
+}
+
 # ---------------------- Unions ----------------------
 # Union for creating address in address book.
 union CreateAddressBookResponseOrError =
@@ -57,4 +65,9 @@ union GetAddressBookByIdResponseOrError =
 union GetAddressesBookResponseOrError =
     BaseResponse
   | AddressesBookResponse
+  | ErrorResponse
+
+union DeleteAddressesBookResponseOrError =
+    BaseResponse
+  | DeleteAddressResponseBook
   | ErrorResponse

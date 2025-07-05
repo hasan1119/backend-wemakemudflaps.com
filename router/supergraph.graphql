@@ -300,6 +300,22 @@ union CreateTaxStatusResponseOrError
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | TaxStatusResponse | ErrorResponse
 
+union DeleteAddressesBookResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "DeleteAddressResponseBook")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | DeleteAddressResponseBook | ErrorResponse
+
+type DeleteAddressResponseBook
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  promotedId: String
+}
+
 union DeleteBrandResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
@@ -885,7 +901,7 @@ type Mutation
   updateUserPermission(input: UpdateUserPermissionInput!): BaseResponseOrError! @join__field(graph: USER)
   createAddressBookEntry(company: String!, streetOne: String!, streetTwo: String!, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
   updateAddressBookEntry(id: ID!, company: String, streetOne: String, streetTwo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
-  deleteAddressBookEntry(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
+  deleteAddressBookEntry(ids: [ID!]!): DeleteAddressesBookResponseOrError! @join__field(graph: USER)
 }
 
 input PermissionAgainstRoleInput

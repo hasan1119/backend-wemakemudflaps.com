@@ -15,7 +15,7 @@ import { addressBookRepository } from "../repositories/repositories";
  */
 export const hardDeleteAddressBook = async (
   addressBookIds: string[]
-): Promise<void> => {
+): Promise<string | undefined> => {
   if (!addressBookIds.length) return;
 
   // Fetch all addresses with users and types for given IDs
@@ -47,6 +47,8 @@ export const hardDeleteAddressBook = async (
   // Delete all specified addresses in one go
   await addressBookRepository.delete(idsToDelete);
 
+  let promotedId: string | undefined;
+
   // For each userId/type combo that lost a default, promote a new default if possible
   for (const { userId, type } of defaultCandidatesMap.values()) {
     const otherAddresses = await addressBookRepository.find({
@@ -61,7 +63,20 @@ export const hardDeleteAddressBook = async (
       const toPromote = otherAddresses[0];
       toPromote.isDefault = true;
       await addressBookRepository.save(toPromote);
-      await setAddressBookInfoByIdInRedis(toPromote.id, userId, toPromote);
+      await setAddressBookInfoByIdInRedis(toPromote.id, userId, {
+        ...toPromote,
+        type: toPromote.type as any,
+        createdAt:
+          toPromote.createdAt instanceof Date
+            ? toPromote.createdAt.toISOString()
+            : toPromote.createdAt,
+        updatedAt:
+          toPromote.updatedAt instanceof Date
+            ? toPromote.updatedAt.toISOString()
+            : toPromote.updatedAt,
+      });
+
+      promotedId = toPromote.id;
     }
   }
 
@@ -82,4 +97,6 @@ export const hardDeleteAddressBook = async (
 
   // Remove item and list caches in parallel
   await Promise.all([...removeItemCachePromises, ...removeListCachePromises]);
+
+  return promotedId;
 };

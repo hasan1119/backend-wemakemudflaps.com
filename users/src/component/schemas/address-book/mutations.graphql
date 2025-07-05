@@ -39,5 +39,5 @@ type Mutation {
   # Returns a response indicating success or failure of the deletion.
   deleteAddressBookEntry(
     ids: [ID!]! # List of address book entry IDs to be deleted.
-  ): BaseResponseOrError!
+  ): DeleteAddressesBookResponseOrError!
 }
