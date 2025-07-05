@@ -7,11 +7,17 @@ import {
 import { getProductById } from "./get-product.service";
 
 /**
- * Directly updates a product with the given fields and returns the updated entity.
+ * Updates a product and its related entities including variations and tier pricing.
  *
- * @param productId - The UUID of the product to update.
- * @param data - Partial data to update.
- * @returns A promise resolving to the updated Product entity.
+ * Handles:
+ * - Scalar fields update
+ * - Relations update (category, subcategories, brands, tags, tax, shipping, etc.)
+ * - Variations update with proper create/update/delete and tierPricingInfo association by ID
+ * - Tier pricing for main product update
+ *
+ * @param productId - UUID of product to update
+ * @param data - Partial data to update the product
+ * @returns Updated Product entity
  */
 export const updateProduct = async (
   productId: string,
@@ -19,7 +25,7 @@ export const updateProduct = async (
 ): Promise<Product> => {
   const product = await getProductById(productId);
 
-  // Handle scalar fields
+  // Update scalar fields if provided, else keep existing
   product.name = data.name ?? product.name;
   product.slug = data.slug ?? product.slug;
   product.defaultImage = data.defaultImage ?? product.defaultImage;
@@ -32,6 +38,7 @@ export const updateProduct = async (
   product.defaultTags = data.defaultTags ?? product.defaultTags;
   product.regularPrice = data.regularPrice ?? product.regularPrice;
   product.salePrice = data.salePrice ?? product.salePrice;
+
   if (data.salePriceStartAt !== undefined) {
     product.salePriceStartAt =
       typeof data.salePriceStartAt === "string"
@@ -45,6 +52,7 @@ export const updateProduct = async (
         ? new Date(data.salePriceEndAt)
         : data.salePriceEndAt;
   }
+
   product.saleQuantity = data.saleQuantity ?? product.saleQuantity;
   product.saleQuantityUnit = data.saleQuantityUnit ?? product.saleQuantityUnit;
   product.minQuantity = data.minQuantity ?? product.minQuantity;
@@ -83,7 +91,7 @@ export const updateProduct = async (
     data.defaultWarrantyPeriod ?? product.defaultWarrantyPeriod;
   product.warrantyPolicy = data.warrantyPolicy ?? product.warrantyPolicy;
 
-  // Handle relational fields
+  // Update relational fields
   if (data.categoryId !== undefined) {
     product.category = data.categoryId
       ? ({ id: data.categoryId } as any)
@@ -127,24 +135,105 @@ export const updateProduct = async (
     })) as any;
   }
 
+  // Handle variations update
   if (data.variations !== undefined) {
-    product.variations = data.variations as any;
+    // Load existing variations from DB
+    const existingVariations = await productRepository
+      .createQueryBuilder("product")
+      .relation(Product, "variations")
+      .of(product)
+      .loadMany();
+
+    const newVariationIds = data.variations
+      .filter((v: any) => v.id)
+      .map((v: any) => v.id);
+
+    const oldVariationIds = existingVariations.map((v) => v.id);
+
+    // Determine variations to delete (present in DB but missing in update data)
+    const toDeleteIds = oldVariationIds.filter(
+      (id) => !newVariationIds.includes(id)
+    );
+
+    if (toDeleteIds.length > 0) {
+      // Delete variations from DB (hard delete)
+      await productRepository.manager
+        .getRepository("ProductVariation")
+        .delete(toDeleteIds);
+    }
+
+    const variationRepo =
+      productRepository.manager.getRepository("ProductVariation");
+    const tierPriceRepo =
+      productRepository.manager.getRepository("ProductPrice");
+
+    // Process each variation input for update or create
+    for (const variationInput of data.variations) {
+      let variationEntity;
+
+      if (variationInput.id) {
+        // Existing variation - find entity to update
+        variationEntity = existingVariations.find(
+          (v) => v.id === variationInput.id
+        );
+        if (!variationEntity) continue; // Skip if not found
+
+        // Handle tierPricingInfo association by ID only
+        if (variationInput.tierPricingInfoId) {
+          const tierPricing = await tierPriceRepo.findOne({
+            where: { id: variationInput.tierPricingInfoId },
+          });
+
+          if (tierPricing) {
+            variationEntity.tierPricingInfo = Promise.resolve(tierPricing);
+          } else {
+            // Invalid ID given, clear association
+            variationEntity.tierPricingInfo = null;
+          }
+        } else {
+          // No tierPricingInfoId provided, clear association
+          variationEntity.tierPricingInfo = null;
+        }
+
+        // Save updated variation entity
+        await variationRepo.save(variationEntity);
+      } else {
+        // New variation - create entity
+        variationEntity = variationRepo.create(variationInput);
+
+        // Associate existing tierPricingInfo if tierPricingInfoId is provided
+        if (variationInput.tierPricingInfoId) {
+          const tierPricing = await tierPriceRepo.findOne({
+            where: { id: variationInput.tierPricingInfoId },
+          });
+          if (tierPricing) {
+            variationEntity.tierPricingInfo = Promise.resolve(tierPricing);
+          }
+        }
+
+        // Save new variation entity
+        await variationRepo.save(variationEntity);
+      }
+    }
   }
 
+  // Update upsells if provided
   if (data.upsellIds !== undefined) {
     product.upsells = data.upsellIds.map((id) => ({ id })) as any;
   }
 
+  // Update cross sells if provided
   if (data.crossSellIds !== undefined) {
     product.crossSells = data.crossSellIds.map((id) => ({ id })) as any;
   }
 
-  // Tier pricing update
+  // Handle tier pricing for the main product (not variations)
   if (data.tierPricingInfo !== undefined) {
     const newTier = productPriceRepository.create(data.tierPricingInfo);
     const savedTier = await productPriceRepository.save(newTier);
     product.tierPricingInfo = Promise.resolve(savedTier);
   }
 
+  // Save and return updated product entity
   return await productRepository.save(product);
 };

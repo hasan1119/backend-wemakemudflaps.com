@@ -541,189 +541,217 @@ export const ProductVariationInputSchema = z.object({
  * @property isPreview - Optional flag to mark as preview-only.
  * @property isVisible - Optional flag to determine frontend visibility.
  */
-export const createProductSchema = z.object({
-  productConfigurationType: ProductConfigurationTypeEnum,
-  productDeliveryType: z.array(ProductDeliveryTypeEnum),
-  name: z.string().min(3, "Product name must be at least 3 characters").trim(),
-  slug: z.string().min(3, "Product slug must be at least 3 characters").trim(),
-  sku: z.string().min(1, "SKU cannot be empty").optional().nullable(),
-  model: z.string().min(1, "Model cannot be empty").optional().nullable(),
-  defaultImage: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  images: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  videos: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  defaultMainDescription: z
-    .string()
-    .min(1, "Main description cannot be empty")
-    .trim(),
-  defaultShortDescription: z
-    .string()
-    .min(1, "Short description cannot be empty")
-    .optional()
-    .nullable(),
-  defaultTags: z
-    .array(z.string().min(1, "Tag cannot be empty"))
-    .optional()
-    .nullable(),
-  customBadge: z
-    .string()
-    .min(1, "Custom badge cannot be empty")
-    .optional()
-    .nullable(),
-  purchaseNote: z
-    .string()
-    .min(1, "Purchase note cannot be empty")
-    .optional()
-    .nullable(),
-  brandIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  tagIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  categoryId: z.string().uuid({ message: "Invalid UUID format" }),
-  subCategoryIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  warrantyDigit: z
-    .number()
-    .int()
-    .positive("Warranty digit must be a positive integer")
-    .optional()
-    .nullable(),
-  defaultWarrantyPeriod: WarrantyPeriodEnum.optional().nullable(),
-  warrantyPolicy: z
-    .string()
-    .min(1, "Warranty policy cannot be empty")
-    .optional()
-    .nullable(),
-  regularPrice: z.number().positive("Regular price must be a positive number"),
-  salePrice: z
-    .number()
-    .positive("Sale price must be a positive number")
-    .optional()
-    .nullable(),
-  salePriceStartAt: z.string().datetime().optional().nullable(),
-  salePriceEndAt: z.string().datetime().optional().nullable(),
-  tierPricingInfo: ProductPriceInputSchema.optional().nullable(),
-  saleQuantity: z
-    .number()
-    .int()
-    .positive("Sale quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  saleQuantityUnit: z
-    .string()
-    .min(1, "Sale quantity unit cannot be empty")
-    .trim(),
-  taxStatusId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  taxClassId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  minQuantity: z
-    .number()
-    .int()
-    .positive("Min quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  defaultQuantity: z
-    .number()
-    .int()
-    .positive("Default quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  maxQuantity: z
-    .number()
-    .int()
-    .positive("Max quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  quantityStep: z
-    .number()
-    .int()
-    .positive("Quantity step must be a positive integer")
-    .nullable()
-    .optional(),
-  manageStock: z.boolean().optional().nullable(),
-  stockQuantity: z
-    .number()
-    .int()
-    .positive("Stock quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  allowBackOrders: BackOrderOptionEnum.optional().nullable(),
-  lowStockThresHold: z
-    .number()
-    .int()
-    .positive("Low stock threshold must be a positive integer")
-    .optional()
-    .nullable(),
-  stockStatus: StockStatusEnum.optional().nullable(),
-  soldIndividually: z.boolean().optional(),
-  initialNumberInStock: z
-    .string()
-    .min(1, "Initial number in stock cannot be empty")
-    .optional()
-    .nullable(),
-  weightUnit: WeightUnitEnum.optional().nullable(),
-  weight: z
-    .number()
-    .positive("Weight must be a positive number")
-    .optional()
-    .nullable(),
-  dimensionUnit: DimensionUnitEnum.optional().nullable(),
-  length: z
-    .number()
-    .positive("Length must be a positive number")
-    .optional()
-    .nullable(),
-  width: z
-    .number()
-    .positive("Width must be a positive number")
-    .optional()
-    .nullable(),
-  height: z
-    .number()
-    .positive("Height must be a positive number")
-    .optional()
-    .nullable(),
-  shippingClassId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  upsellIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  crossSellIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  attributes: z.array(ProductAttributeInputSchema).optional().nullable(),
-  variations: z.array(ProductVariationInputSchema).optional().nullable(),
-  enableReviews: z.boolean().optional(),
-  isPreview: z.boolean().optional(),
-  isVisible: z.boolean().optional(),
-});
+export const createProductSchema = z
+  .object({
+    productConfigurationType: ProductConfigurationTypeEnum,
+    productDeliveryType: z.array(ProductDeliveryTypeEnum),
+    name: z
+      .string()
+      .min(3, "Product name must be at least 3 characters")
+      .trim(),
+    slug: z
+      .string()
+      .min(3, "Product slug must be at least 3 characters")
+      .trim(),
+    sku: z.string().min(1, "SKU cannot be empty").optional().nullable(),
+    model: z.string().min(1, "Model cannot be empty").optional().nullable(),
+    defaultImage: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+    images: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    videos: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    defaultMainDescription: z
+      .string()
+      .min(1, "Main description cannot be empty")
+      .trim(),
+    defaultShortDescription: z
+      .string()
+      .min(1, "Short description cannot be empty")
+      .optional()
+      .nullable(),
+    defaultTags: z
+      .array(z.string().min(1, "Tag cannot be empty"))
+      .optional()
+      .nullable(),
+    customBadge: z
+      .string()
+      .min(1, "Custom badge cannot be empty")
+      .optional()
+      .nullable(),
+    purchaseNote: z
+      .string()
+      .min(1, "Purchase note cannot be empty")
+      .optional()
+      .nullable(),
+    brandIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    tagIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    categoryId: z.string().uuid({ message: "Invalid UUID format" }),
+    subCategoryIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    warrantyDigit: z
+      .number()
+      .int()
+      .positive("Warranty digit must be a positive integer")
+      .optional()
+      .nullable(),
+    defaultWarrantyPeriod: WarrantyPeriodEnum.optional().nullable(),
+    warrantyPolicy: z
+      .string()
+      .min(1, "Warranty policy cannot be empty")
+      .optional()
+      .nullable(),
+    regularPrice: z
+      .number()
+      .positive("Regular price must be a positive number"),
+    salePrice: z
+      .number()
+      .positive("Sale price must be a positive number")
+      .optional()
+      .nullable(),
+    salePriceStartAt: z.string().datetime().optional().nullable(),
+    salePriceEndAt: z.string().datetime().optional().nullable(),
+    tierPricingInfo: ProductPriceInputSchema.optional().nullable(),
+    saleQuantity: z
+      .number()
+      .int()
+      .positive("Sale quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    saleQuantityUnit: z
+      .string()
+      .min(1, "Sale quantity unit cannot be empty")
+      .trim(),
+    taxStatusId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+    taxClassId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+    minQuantity: z
+      .number()
+      .int()
+      .positive("Min quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    defaultQuantity: z
+      .number()
+      .int()
+      .positive("Default quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    maxQuantity: z
+      .number()
+      .int()
+      .positive("Max quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    quantityStep: z
+      .number()
+      .int()
+      .positive("Quantity step must be a positive integer")
+      .nullable()
+      .optional(),
+    manageStock: z.boolean().optional().nullable(),
+    stockQuantity: z
+      .number()
+      .int()
+      .positive("Stock quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    allowBackOrders: BackOrderOptionEnum.optional().nullable(),
+    lowStockThresHold: z
+      .number()
+      .int()
+      .positive("Low stock threshold must be a positive integer")
+      .optional()
+      .nullable(),
+    stockStatus: StockStatusEnum.optional().nullable(),
+    soldIndividually: z.boolean().optional(),
+    initialNumberInStock: z
+      .string()
+      .min(1, "Initial number in stock cannot be empty")
+      .optional()
+      .nullable(),
+    weightUnit: WeightUnitEnum.optional().nullable(),
+    weight: z
+      .number()
+      .positive("Weight must be a positive number")
+      .optional()
+      .nullable(),
+    dimensionUnit: DimensionUnitEnum.optional().nullable(),
+    length: z
+      .number()
+      .positive("Length must be a positive number")
+      .optional()
+      .nullable(),
+    width: z
+      .number()
+      .positive("Width must be a positive number")
+      .optional()
+      .nullable(),
+    height: z
+      .number()
+      .positive("Height must be a positive number")
+      .optional()
+      .nullable(),
+    shippingClassId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+    upsellIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    crossSellIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    attributes: z.array(ProductAttributeInputSchema).optional().nullable(),
+    variations: z.array(ProductVariationInputSchema).optional().nullable(),
+    enableReviews: z.boolean().optional(),
+    isPreview: z.boolean().optional(),
+    isVisible: z.boolean().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.productConfigurationType === "Simple Product") {
+        // For simple product, variations must be null or undefined or empty
+        return (
+          data.variations === undefined ||
+          data.variations === null ||
+          (Array.isArray(data.variations) && data.variations.length === 0)
+        );
+      }
+      // For non-simple product types, no restriction on variations here
+      return true;
+    },
+    {
+      message:
+        "Variations are not allowed when productConfigurationType is 'Simple Product'",
+      path: ["variations"], // error reported on variations field
+    }
+  );
 
 /**
  * Defines the schema for validating the update of an existing product.
@@ -790,213 +818,234 @@ export const createProductSchema = z.object({
  * @property isVisible - Optional flag to determine frontend visibility.
  * @property deletedAt - Optional timestamp for soft deletion.
  */
-export const updateProductSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }),
-  productConfigurationType: ProductConfigurationTypeEnum.optional().nullable(),
-  productDeliveryType: z.array(ProductDeliveryTypeEnum).optional().nullable(),
-  name: z
-    .string()
-    .min(3, "Product name must be at least 3 characters")
-    .trim()
-    .optional()
-    .nullable(),
-  slug: z
-    .string()
-    .min(3, "Product slug must be at least 3 characters")
-    .trim()
-    .optional()
-    .nullable(),
-  sku: z.string().min(1, "SKU cannot be empty").optional().nullable(),
-  model: z.string().min(1, "Model cannot be empty").optional().nullable(),
-  defaultImage: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  images: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  videos: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  defaultMainDescription: z
-    .string()
-    .min(1, "Main description cannot be empty")
-    .trim()
-    .optional()
-    .nullable(),
-  defaultShortDescription: z
-    .string()
-    .min(1, "Short description cannot be empty")
-    .optional()
-    .nullable(),
-  defaultTags: z
-    .array(z.string().min(1, "Tag cannot be empty"))
-    .optional()
-    .nullable(),
-  customBadge: z
-    .string()
-    .min(1, "Custom badge cannot be empty")
-    .optional()
-    .nullable(),
-  purchaseNote: z
-    .string()
-    .min(1, "Purchase note cannot be empty")
-    .optional()
-    .nullable(),
-  brandIds: z
-    .array(z.string().uuid("Invalid brand ID format"))
-    .optional()
-    .nullable(),
-  tagIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  categoryId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  subCategoryIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  warrantyDigit: z
-    .number()
-    .int()
-    .positive("Warranty digit must be a positive integer")
-    .optional()
-    .nullable(),
-  defaultWarrantyPeriod: WarrantyPeriodEnum.optional().nullable(),
-  warrantyPolicy: z
-    .string()
-    .min(1, "Warranty policy cannot be empty")
-    .optional()
-    .nullable(),
-  regularPrice: z
-    .number()
-    .positive("Regular price must be a positive number")
-    .optional()
-    .nullable(),
-  salePrice: z
-    .number()
-    .positive("Sale price must be a positive number")
-    .optional()
-    .nullable(),
-  salePriceStartAt: z.string().datetime().optional().nullable(),
-  salePriceEndAt: z.string().datetime().optional().nullable(),
-  tierPricingInfo: ProductPriceInputSchema.optional().nullable(),
-  saleQuantity: z
-    .number()
-    .int()
-    .positive("Sale quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  saleQuantityUnit: z
-    .string()
-    .min(1, "Sale quantity unit cannot be empty")
-    .trim()
-    .optional()
-    .nullable(),
-  taxStatusId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  taxClassId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  minQuantity: z
-    .number()
-    .int()
-    .positive("Min quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  defaultQuantity: z
-    .number()
-    .int()
-    .positive("Default quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  maxQuantity: z
-    .number()
-    .int()
-    .positive("Max quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  quantityStep: z
-    .number()
-    .int()
-    .positive("Quantity step must be a positive integer")
-    .optional()
-    .nullable(),
-  manageStock: z.boolean().optional().nullable(),
-  stockQuantity: z
-    .number()
-    .int()
-    .positive("Stock quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  allowBackOrders: BackOrderOptionEnum.optional().nullable(),
-  lowStockThresHold: z
-    .number()
-    .int()
-    .positive("Low stock threshold must be a positive integer")
-    .optional()
-    .nullable(),
-  stockStatus: StockStatusEnum.optional().nullable(),
-  soldIndividually: z.boolean().optional().nullable(),
-  initialNumberInStock: z
-    .string()
-    .min(1, "Initial number in stock cannot be empty")
-    .optional()
-    .nullable(),
-  weightUnit: WeightUnitEnum.optional().nullable(),
-  weight: z
-    .number()
-    .positive("Weight must be a positive number")
-    .optional()
-    .nullable(),
-  dimensionUnit: DimensionUnitEnum.optional().nullable(),
-  length: z
-    .number()
-    .positive("Length must be a positive number")
-    .optional()
-    .nullable(),
-  width: z
-    .number()
-    .positive("Width must be a positive number")
-    .optional()
-    .nullable(),
-  height: z
-    .number()
-    .positive("Height must be a positive number")
-    .optional()
-    .nullable(),
-  shippingClassId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  upsellIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  crossSellIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional()
-    .nullable(),
-  attributes: z.array(ProductAttributeInputSchema).optional().nullable(),
-  variations: z.array(ProductVariationInputSchema).optional().nullable(),
-  enableReviews: z.boolean().optional().nullable(),
-  isPreview: z.boolean().optional().nullable(),
-  isVisible: z.boolean().optional().nullable(),
-  deletedAt: z.string().datetime().optional().nullable(),
-});
+export const updateProductSchema = z
+  .object({
+    id: z.string().uuid({ message: "Invalid UUID format" }),
+    productConfigurationType:
+      ProductConfigurationTypeEnum.optional().nullable(),
+    productDeliveryType: z.array(ProductDeliveryTypeEnum).optional().nullable(),
+    name: z
+      .string()
+      .min(3, "Product name must be at least 3 characters")
+      .trim()
+      .optional()
+      .nullable(),
+    slug: z
+      .string()
+      .min(3, "Product slug must be at least 3 characters")
+      .trim()
+      .optional()
+      .nullable(),
+    sku: z.string().min(1, "SKU cannot be empty").optional().nullable(),
+    model: z.string().min(1, "Model cannot be empty").optional().nullable(),
+    defaultImage: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+    images: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    videos: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    defaultMainDescription: z
+      .string()
+      .min(1, "Main description cannot be empty")
+      .trim()
+      .optional()
+      .nullable(),
+    defaultShortDescription: z
+      .string()
+      .min(1, "Short description cannot be empty")
+      .optional()
+      .nullable(),
+    defaultTags: z
+      .array(z.string().min(1, "Tag cannot be empty"))
+      .optional()
+      .nullable(),
+    customBadge: z
+      .string()
+      .min(1, "Custom badge cannot be empty")
+      .optional()
+      .nullable(),
+    purchaseNote: z
+      .string()
+      .min(1, "Purchase note cannot be empty")
+      .optional()
+      .nullable(),
+    brandIds: z
+      .array(z.string().uuid("Invalid brand ID format"))
+      .optional()
+      .nullable(),
+    tagIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    categoryId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+    subCategoryIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    warrantyDigit: z
+      .number()
+      .int()
+      .positive("Warranty digit must be a positive integer")
+      .optional()
+      .nullable(),
+    defaultWarrantyPeriod: WarrantyPeriodEnum.optional().nullable(),
+    warrantyPolicy: z
+      .string()
+      .min(1, "Warranty policy cannot be empty")
+      .optional()
+      .nullable(),
+    regularPrice: z
+      .number()
+      .positive("Regular price must be a positive number")
+      .optional()
+      .nullable(),
+    salePrice: z
+      .number()
+      .positive("Sale price must be a positive number")
+      .optional()
+      .nullable(),
+    salePriceStartAt: z.string().datetime().optional().nullable(),
+    salePriceEndAt: z.string().datetime().optional().nullable(),
+    tierPricingInfo: ProductPriceInputSchema.optional().nullable(),
+    saleQuantity: z
+      .number()
+      .int()
+      .positive("Sale quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    saleQuantityUnit: z
+      .string()
+      .min(1, "Sale quantity unit cannot be empty")
+      .trim()
+      .optional()
+      .nullable(),
+    taxStatusId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+    taxClassId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+    minQuantity: z
+      .number()
+      .int()
+      .positive("Min quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    defaultQuantity: z
+      .number()
+      .int()
+      .positive("Default quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    maxQuantity: z
+      .number()
+      .int()
+      .positive("Max quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    quantityStep: z
+      .number()
+      .int()
+      .positive("Quantity step must be a positive integer")
+      .optional()
+      .nullable(),
+    manageStock: z.boolean().optional().nullable(),
+    stockQuantity: z
+      .number()
+      .int()
+      .positive("Stock quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    allowBackOrders: BackOrderOptionEnum.optional().nullable(),
+    lowStockThresHold: z
+      .number()
+      .int()
+      .positive("Low stock threshold must be a positive integer")
+      .optional()
+      .nullable(),
+    stockStatus: StockStatusEnum.optional().nullable(),
+    soldIndividually: z.boolean().optional().nullable(),
+    initialNumberInStock: z
+      .string()
+      .min(1, "Initial number in stock cannot be empty")
+      .optional()
+      .nullable(),
+    weightUnit: WeightUnitEnum.optional().nullable(),
+    weight: z
+      .number()
+      .positive("Weight must be a positive number")
+      .optional()
+      .nullable(),
+    dimensionUnit: DimensionUnitEnum.optional().nullable(),
+    length: z
+      .number()
+      .positive("Length must be a positive number")
+      .optional()
+      .nullable(),
+    width: z
+      .number()
+      .positive("Width must be a positive number")
+      .optional()
+      .nullable(),
+    height: z
+      .number()
+      .positive("Height must be a positive number")
+      .optional()
+      .nullable(),
+    shippingClassId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+    upsellIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    crossSellIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+    attributes: z.array(ProductAttributeInputSchema).optional().nullable(),
+    variations: z.array(ProductVariationInputSchema).optional().nullable(),
+    enableReviews: z.boolean().optional().nullable(),
+    isPreview: z.boolean().optional().nullable(),
+    isVisible: z.boolean().optional().nullable(),
+    deletedAt: z.string().datetime().optional().nullable(),
+  })
+  .refine(
+    (data) => {
+      if (data.productConfigurationType === "Simple Product") {
+        // For simple product, variations must be null or undefined or empty
+        return (
+          data.variations === undefined ||
+          data.variations === null ||
+          (Array.isArray(data.variations) && data.variations.length === 0)
+        );
+      }
+      // For non-simple product types, no restriction on variations here
+      return true;
+    },
+    {
+      message:
+        "Variations are not allowed when productConfigurationType is 'Simple Product'",
+      path: ["variations"], // error reported on variations field
+    }
+  );
 
 /**
  * Defines the schema for validating product sorting parameters.
