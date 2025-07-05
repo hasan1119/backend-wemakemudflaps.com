@@ -83,23 +83,18 @@ export const getSubCategoryById = async (
       };
     }
 
+    console.log(subCategoryData);
+
     return {
       statusCode: 200,
       success: true,
       message: "Sub Category fetched successfully",
       subcategory: {
-        ...subCategoryData,
+        ...(subCategoryData as any),
+        category: subCategoryData.category as any,
+        parentSubCategory: subCategoryData.parentSubCategory as any,
+        subCategories: subCategoryData.subCategories as any,
         thumbnail: subCategoryData.thumbnail as any,
-        category:
-          subCategoryData.category &&
-          typeof subCategoryData.category === "object"
-            ? (await subCategoryData.category)?.id ?? null
-            : null,
-        parentSubCategory:
-          subCategoryData.parentSubCategory &&
-          typeof subCategoryData.parentSubCategory === "object"
-            ? (await subCategoryData.parentSubCategory)?.id ?? null
-            : null,
         createdBy: subCategoryData.createdBy as any,
         createdAt:
           subCategoryData.createdAt instanceof Date

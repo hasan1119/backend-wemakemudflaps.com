@@ -60,32 +60,6 @@ type SubCategoryDataResponse {
   deletedAt: String
 }
 
-type CategoryDataResponseById {
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  position: Int! # Display order/position of the subcategory.
-  createdBy: CreatedBy # Metadata on who created the category.
-  createdAt: String
-  deletedAt: String
-}
-
-type SubCategoryDataResponseById {
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  category: ID # The category to which this subcategory belongs.
-  parentSubCategory: ID # The parent subcategory if nested.
-  position: Int! # Display order/position of the subcategory.
-  createdBy: CreatedBy # Metadata on who created the category.
-  createdAt: String
-  deletedAt: String
-}
-
 # ---------------------- Responses ----------------------
 type CategoryResponse {
   statusCode: Int!
@@ -105,21 +79,21 @@ type CategoryResponseById {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: CategoryDataResponseById!
+  category: Category!
 }
 
 type SubCategoryResponseById {
   statusCode: Int!
   success: Boolean!
   message: String!
-  subcategory: SubCategoryDataResponseById!
+  subcategory: SubCategory!
 }
 
 type CategoryPaginationResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: [Category!]!
+  category: [Category!]
   total: Int!
 }
 

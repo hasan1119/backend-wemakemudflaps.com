@@ -88,9 +88,10 @@ export const getCategoryById = async (
       success: true,
       message: "Category fetched successfully",
       category: {
-        ...category,
+        ...(category as any),
         thumbnail: category.thumbnail as any,
         createdBy: category.createdBy as any,
+        subCategories: category.subCategories as any,
         createdAt:
           category.createdAt instanceof Date
             ? category.createdAt.toISOString()

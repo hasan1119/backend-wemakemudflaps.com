@@ -171,27 +171,13 @@ type CategoryDataResponse
   deletedAt: String
 }
 
-type CategoryDataResponseById
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  position: Int!
-  createdBy: CreatedBy
-  createdAt: String
-  deletedAt: String
-}
-
 type CategoryPaginationResponse
   @join__type(graph: PRODUCT)
 {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: [Category!]!
+  category: [Category!]
   total: Int!
 }
 
@@ -210,7 +196,7 @@ type CategoryResponseById
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: CategoryDataResponseById!
+  category: Category!
 }
 
 enum CategoryType
@@ -313,7 +299,7 @@ type DeleteAddressResponseBook
   statusCode: Int!
   success: Boolean!
   message: String!
-  promotedId: String
+  newDefaultAddressId: String
 }
 
 union DeleteBrandResponseOrError
@@ -1581,22 +1567,6 @@ type SubCategoryDataResponse
   deletedAt: String
 }
 
-type SubCategoryDataResponseById
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  category: ID
-  parentSubCategory: ID
-  position: Int!
-  createdBy: CreatedBy
-  createdAt: String
-  deletedAt: String
-}
-
 type SubCategoryResponse
   @join__type(graph: PRODUCT)
 {
@@ -1612,7 +1582,7 @@ type SubCategoryResponseById
   statusCode: Int!
   success: Boolean!
   message: String!
-  subcategory: SubCategoryDataResponseById!
+  subcategory: SubCategory!
 }
 
 type Tag

@@ -1,4 +1,4 @@
-import { Brackets, ILike, Not } from "typeorm";
+import { Brackets, ILike, Not, Repository } from "typeorm";
 import { Category, SubCategory } from "../../../entities";
 import {
   categoryRepository,
@@ -150,21 +150,30 @@ export async function findCategoryByNameOrSlugToUpdateScoped(
 }
 
 /**
- * Fetches a Category by its ID along with all relations defined in the entity.
- *
- * Workflow:
- * 1. Queries the categoryRepository by the given ID.
- * 2. Loads all relations automatically (eager or specified).
- * 3. Returns the Category entity or null if not found.
+ * Fetches a Category by its ID with all nested subcategories.
  *
  * @param id - UUID of the Category to fetch.
  * @returns Promise<Category | null>
  */
 export async function getCategoryById(id: string): Promise<Category | null> {
-  return await categoryRepository.findOne({
-    where: { id },
+  // Fetch the category with first-level subcategories and products
+  const category = await categoryRepository.findOne({
+    where: { id, deletedAt: null },
     relations: ["subCategories", "products"],
   });
+
+  if (!category) return null;
+
+  // Fetch nested subcategories recursively
+  category.subCategories = await fetchNestedSubCategories(
+    subCategoryRepository,
+    id
+  );
+
+  // Format dates to ISO strings
+  category.createdAt = new Date(category.createdAt).toISOString() as any;
+
+  return category;
 }
 
 /**
@@ -175,19 +184,74 @@ export async function getCategoryById(id: string): Promise<Category | null> {
  */
 export async function getCategoryByIds(ids: string[]): Promise<Category[]> {
   if (!ids.length) return [];
-  return categoryRepository.find({
+
+  // Fetch categories with first-level subcategories and products
+  const categories = await categoryRepository.find({
     where: ids.map((id) => ({ id, deletedAt: null })),
     relations: ["subCategories", "products"],
   });
+
+  // Fetch nested subcategories for each category
+  for (const category of categories) {
+    category.subCategories = await fetchNestedSubCategories(
+      subCategoryRepository,
+      category.id
+    );
+    category.createdAt = new Date(category.createdAt).toISOString() as any;
+  }
+
+  return categories;
 }
 
 /**
- * Fetches a SubCategory by its ID along with all relations defined in the entity.
+ * Recursively fetches subcategories for a given category or parent subcategory.
+ *
+ * @param subCategoryRepository - SubCategory repository.
+ * @param categoryId - UUID of the category (for first-level subcategories).
+ * @param parentSubCategoryId - UUID of the parent subcategory (for nested levels).
+ * @returns Promise<SubCategory[]>
+ */
+async function fetchNestedSubCategories(
+  subCategoryRepository: Repository<SubCategory>,
+  categoryId?: string,
+  parentSubCategoryId: string | null = null
+): Promise<SubCategory[]> {
+  // Fetch subcategories based on categoryId or parentSubCategoryId
+  const subCategories = await subCategoryRepository.find({
+    where: {
+      ...(categoryId ? { category: { id: categoryId } } : {}),
+      ...(parentSubCategoryId
+        ? { parentSubCategory: { id: parentSubCategoryId } }
+        : { parentSubCategory: null }),
+      deletedAt: null,
+    },
+    relations: ["category", "parentSubCategory"],
+  });
+
+  // Recursively fetch nested subcategories
+  for (const subCategory of subCategories) {
+    subCategory.subCategories = await fetchNestedSubCategories(
+      subCategoryRepository,
+      undefined,
+      subCategory.id
+    );
+    subCategory.createdAt = new Date(
+      subCategory.createdAt
+    ).toISOString() as any;
+  }
+
+  return subCategories;
+}
+
+/**
+ * Fetches a SubCategory by its ID along with all relations and nested subcategories.
  *
  * Workflow:
  * 1. Queries the subCategoryRepository by the given ID.
- * 2. Loads all relations automatically (eager or specified).
- * 3. Returns the SubCategory entity or null if not found.
+ * 2. Loads immediate relations (category, parentSubCategory, products).
+ * 3. Recursively fetches all nested subcategories.
+ * 4. Formats dates to ISO strings.
+ * 5. Returns the SubCategory entity or null if not found.
  *
  * @param id - UUID of the SubCategory to fetch.
  * @returns Promise<SubCategory | null>
@@ -195,26 +259,64 @@ export async function getCategoryByIds(ids: string[]): Promise<Category[]> {
 export async function getSubCategoryById(
   id: string
 ): Promise<SubCategory | null> {
-  return await subCategoryRepository.findOne({
-    where: { id },
-    relations: ["category", "parentSubCategory", "subCategories", "products"],
+  // Fetch the subcategory with immediate relations
+  const subCategory = await subCategoryRepository.findOne({
+    where: { id, deletedAt: null },
+    relations: ["category", "parentSubCategory", "products"],
   });
+
+  if (!subCategory) return null;
+
+  // Fetch nested subcategories recursively
+  subCategory.subCategories = await fetchNestedSubCategories(
+    subCategoryRepository,
+    undefined,
+    id
+  );
+
+  // Format dates to ISO strings
+  subCategory.createdAt = new Date(subCategory.createdAt).toISOString() as any;
+
+  return subCategory;
 }
 
 /**
  * Fetches multiple subcategories by their IDs (not soft-deleted).
  *
+ * Workflow:
+ * 1. Queries the subCategoryRepository for the given IDs.
+ * 2. Loads immediate relations (category, parentSubCategory, products).
+ * 3. Recursively fetches all nested subcategories for each subcategory.
+ * 4. Formats dates to ISO strings.
+ * 5. Returns an array of SubCategory entities.
+ *
  * @param ids - Array of subcategory UUIDs.
- * @returns Array of SubCategory entities.
+ * @returns Promise<SubCategory[]>
  */
 export async function getSubCategoryByIds(
   ids: string[]
 ): Promise<SubCategory[]> {
   if (!ids.length) return [];
-  return subCategoryRepository.find({
+
+  // Fetch subcategories with immediate relations
+  const subCategories = await subCategoryRepository.find({
     where: ids.map((id) => ({ id, deletedAt: null })),
-    relations: ["category", "parentSubCategory", "subCategories", "products"],
+    relations: ["category", "parentSubCategory", "products"],
   });
+
+  // Fetch nested subcategories for each subcategory
+  for (const subCategory of subCategories) {
+    subCategory.subCategories = await fetchNestedSubCategories(
+      subCategoryRepository,
+      undefined,
+      subCategory.id
+    );
+    subCategory.createdAt = new Date(
+      subCategory.createdAt
+    ).toISOString() as any;
+  }
+
+  return subCategories;
 }
 
 export interface GetPaginatedCategoriesInput {

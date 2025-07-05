@@ -1,6 +1,7 @@
 import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { SubCategory } from "../../../entities";
 import {
   GetCategoriesResponseOrError,
   QueryGetAllCategoriesArgs,
@@ -29,38 +30,27 @@ const mapArgsToPagination = (args: QueryGetAllCategoriesArgs) => ({
 
 // Recursively build subcategory tree from pre-fetched subcategories
 const buildSubCategoryTree = (
-  subCat: any,
-  allSubCategories: any[],
+  subCat: SubCategory,
+  allSubCategories: SubCategory[],
   visited: Set<string>,
   depth: number = 0
-): any => {
-  if (!subCat || visited.has(subCat.id)) {
-    console.log(
-      `Skipping subcategory ${subCat?.id} at depth ${depth} (already visited or null)`
-    );
+): any | null => {
+  if (!subCat || !subCat.id || visited.has(subCat.id)) {
     return null;
   }
+
   visited.add(subCat.id);
 
-  // Find children from pre-fetched subcategories
   const children = allSubCategories.filter(
     (sc) => sc.parentSubCategory?.id === subCat.id && !visited.has(sc.id)
   );
 
-  // Log children for debugging
-  console.log(
-    `Found ${children.length} children for subcategory ${subCat.name} (ID: ${subCat.id}) at depth ${depth}:`,
-    children.map((c) => ({ id: c.id, name: c.name }))
-  );
-
-  // Recursively map children
   const mappedChildren = children
     .map((child) =>
       buildSubCategoryTree(child, allSubCategories, visited, depth + 1)
     )
     .filter((sc) => sc !== null);
 
-  // Sort children by position
   mappedChildren.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 
   return {
