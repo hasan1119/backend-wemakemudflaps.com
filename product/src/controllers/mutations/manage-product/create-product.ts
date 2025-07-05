@@ -145,9 +145,11 @@ export const createProduct = async (
       }
     }
 
+    let existingCategory;
+
     if (categoryId) {
-      const category = await getCategoryById(categoryId);
-      if (!category) {
+      existingCategory = await getCategoryById(categoryId);
+      if (!existingCategory) {
         return {
           statusCode: 404,
           success: false,
@@ -170,9 +172,8 @@ export const createProduct = async (
 
       // Check if all sub-categories belong to the given category
       if (categoryId) {
-        const category = await getCategoryById(categoryId);
-        if (category) {
-          const categorySubCategoryIds = category.subCategories.map(
+        if (existingCategory) {
+          const categorySubCategoryIds = existingCategory.subCategories.map(
             (sc) => sc.id
           );
           for (const subCategoryId of subCategoryIds) {
