@@ -8,14 +8,14 @@ import {
   createTaxStatus,
   deleteBrand,
   deleteCategory,
-  // deleteProduct,
+  deleteProduct,
   deleteShippingClass,
   deleteTag,
   deleteTaxClass,
   deleteTaxStatus,
   restoreBrands,
   restoreCategory,
-  // restoreProducts,
+  restoreProducts,
   restoreShippingClasses,
   restoreTags,
   restoreTaxClasses,
@@ -23,7 +23,7 @@ import {
   updateBrand,
   updateCategory,
   updateCategoryPosition,
-  // updateProduct,
+  updateProduct,
   updateShippingClass,
   updateTag,
   updateTaxClass,
@@ -170,16 +170,16 @@ export const productMutationsResolver = {
     /**
      * Updates detailed information for a specific product.
      */
-    // updateProduct,
+    updateProduct,
 
     /**
      * Deletes specified product from the system.
      */
-    // deleteProduct,
+    deleteProduct,
 
     /**
      * Restores previously deleted product.
      */
-    // restoreProducts,
+    restoreProducts,
   },
 };

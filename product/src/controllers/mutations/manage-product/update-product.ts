@@ -1,55 +1,58 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  CreateProductResponseOrError,
-  MutationCreateProductArgs,
+  MutationUpdateProductArgs,
+  UpdateProductResponseOrError,
 } from "../../../types";
-import { createProductSchema } from "../../../utils/data-validation/product/product";
+import { updateProductSchema } from "../../../utils/data-validation/product/product";
 import {
   checkUserAuth,
   checkUserPermission,
-  createProduct as createProductService,
-  findProductByName,
-  findProductBySlug,
+  findProductByNameToUpdate,
+  findProductBySlugToUpdate,
   getBrandById,
   getCategoryById,
+  getProductById,
   getProductsByIds,
   getShippingClassById,
   getSubCategoryByIds,
   getTagsByIds,
   getTaxClassById,
   getTaxStatusById,
+  updateProduct as updateProductService,
 } from "../../services";
 
 /**
- * Handles the creation of a new product in the system.
+ * Handles updating product data with proper validation and permission checks.
  *
  * Workflow:
- * 1. Verifies user authentication and permission to create products.
- * 2. Validates input (name, slug, and other product details) using Zod schema.
- * 3. Checks database for product name and slug to prevent duplicates.
- * 4. Creates the product in the database with audit information from the authenticated user.
- * 5. Returns a success response or error if validation, permission, or creation fails.
+ * 1. Authenticates user and verifies permission to update products.
+ * 2. Validates input (id, and other product details) using Zod schema.
+ * 3. Fetches current product data from DB.
+ * 4. Checks if updated name or slug conflicts with existing products.
+ * 5. Validates existence of related entities (brands, tags, categories, shipping class, tax status, tax class, upsells, cross-sells).
+ * 6. Updates the product in the database.
+ * 7. Returns the updated product or error if validation or update fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
- * @param args - Input arguments containing product details.
+ * @param args - Input arguments containing product ID and updated fields.
  * @param context - GraphQL context containing authenticated user information.
- * @returns A promise resolving to a CreateProductResponseOrError object containing status, message, and errors if applicable.
+ * @returns A promise resolving to an UpdateProductResponseOrError.
  */
-export const createProduct = async (
+export const updateProduct = async (
   _: any,
-  args: MutationCreateProductArgs,
+  args: MutationUpdateProductArgs,
   { user }: Context
-): Promise<CreateProductResponseOrError> => {
+): Promise<UpdateProductResponseOrError> => {
   try {
-    // Verify user authentication
+    // Check user authentication
     const authError = checkUserAuth(user);
     if (authError) return authError;
 
-    // Check if user has permission to create a product
+    // Permission check
     const hasPermission = await checkUserPermission({
       user,
-      action: "canCreate",
+      action: "canUpdate",
       entity: "product",
     });
 
@@ -57,18 +60,13 @@ export const createProduct = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to create products",
+        message: "You do not have permission to update products",
         __typename: "BaseResponse",
       };
     }
 
-    // Validate input data with Zod schema
-    const result = await createProductSchema.safeParseAsync({
-      ...args,
-      createdBy: user.id,
-    });
-
-    // Return detailed validation errors if input is invalid
+    // Validate input
+    const result = await updateProductSchema.safeParseAsync(args);
     if (!result.success) {
       const errors = result.error.errors.map((e) => ({
         field: e.path.join("."),
@@ -85,6 +83,7 @@ export const createProduct = async (
     }
 
     const {
+      id,
       name,
       slug,
       brandIds,
@@ -98,26 +97,41 @@ export const createProduct = async (
       crossSellIds,
     } = result.data;
 
-    // Check database for existing product name
-    const existingProduct = await findProductByName(name);
-    if (existingProduct) {
+    // Get current product data from DB
+    let currentProduct = await getProductById(id);
+    if (!currentProduct) {
       return {
-        statusCode: 400,
+        statusCode: 404,
         success: false,
-        message: `A product with this name: ${name} already exists`,
+        message: `Product not found with this id: ${id}, or it may have been deleted or moved to the trash`,
         __typename: "BaseResponse",
       };
     }
 
-    // Check database for existing product slug
-    const existingSlugProduct = await findProductBySlug(slug);
-    if (existingSlugProduct) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: `A product with this slug: ${slug} already exists`,
-        __typename: "BaseResponse",
-      };
+    // Check for duplicate name (if changed)
+    if (name && name !== currentProduct.name) {
+      let nameExists = await findProductByNameToUpdate(id, name);
+      if (nameExists) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `Product name: "${name}" already exists`,
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
+    // Check for duplicate slug (if changed)
+    if (slug && slug !== currentProduct.slug) {
+      let slugExists = await findProductBySlugToUpdate(id, slug);
+      if (slugExists) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `Product slug: "${slug}" already exists`,
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Validate existence of related entities
@@ -207,7 +221,6 @@ export const createProduct = async (
 
     if (upsellIds && upsellIds.length > 0) {
       const upSellsProduct = await getProductsByIds(upsellIds);
-
       if (upSellsProduct.length !== upsellIds.length) {
         return {
           statusCode: 404,
@@ -220,7 +233,6 @@ export const createProduct = async (
 
     if (crossSellIds && crossSellIds.length > 0) {
       const crossSellProducts = await getProductsByIds(crossSellIds);
-
       if (crossSellProducts.length !== crossSellIds.length) {
         return {
           statusCode: 404,
@@ -231,17 +243,17 @@ export const createProduct = async (
       }
     }
 
-    // Create the product in the database
-    await createProductService(result.data as any, user.id);
+    // Update the product in the database
+    await updateProductService(id, result.data as any);
 
     return {
-      statusCode: 201,
+      statusCode: 200,
       success: true,
-      message: "Product created successfully",
+      message: "Product updated successfully",
       __typename: "BaseResponse",
     };
   } catch (error: any) {
-    console.error("Error creating product:", error);
+    console.error("Error updating product:", error);
     return {
       statusCode: 500,
       success: false,

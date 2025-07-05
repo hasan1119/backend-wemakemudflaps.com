@@ -1925,7 +1925,7 @@ export type UpdateMediaInput = {
 
 export type UpdateMediaResponseOrError = BaseResponse | ErrorResponse | MediaResponse;
 
-export type UpdateProductResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
+export type UpdateProductResponseOrError = BaseResponse | ErrorResponse;
 
 export type UpdateProductReviewResponseOrError = BaseResponse | ErrorResponse | ProductReviewResponse;
 
@@ -2256,7 +2256,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   UpdateCategoryPositionResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
   UpdateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse ) | ( SubCategoryResponse );
   UpdateMediaResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
-  UpdateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
+  UpdateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   UpdateProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
   UpdateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   UpdateShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
@@ -3763,7 +3763,7 @@ export type UpdateMediaResponseOrErrorResolvers<ContextType = Context, ParentTyp
 };
 
 export type UpdateProductResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateProductResponseOrError'] = ResolversParentTypes['UpdateProductResponseOrError']> = {
-  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
 export type UpdateProductReviewResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateProductReviewResponseOrError'] = ResolversParentTypes['UpdateProductReviewResponseOrError']> = {

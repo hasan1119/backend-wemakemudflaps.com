@@ -99,4 +99,8 @@ export { getTaxStatusById } from "./queries/tax-status/get-tax-status-by-id";
  * 3. Facilitates listing all tags in the system.
  */
 export { createProduct } from "./mutations/manage-product/create-product";
+export { deleteProduct } from "./mutations/manage-product/delete-product";
+export { restoreProducts } from "./mutations/manage-product/restore-product";
+export { updateProduct } from "./mutations/manage-product/update-product";
 export { getProduct } from "./queries/product/get-product";
+export { getAllProducts } from "./queries/product/get-all-products";

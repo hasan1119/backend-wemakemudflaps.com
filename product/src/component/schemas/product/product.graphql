@@ -94,10 +94,7 @@ type ProductPaginationResponse {
 
 # ---------------------- Product Response Unions ----------------------
 union CreateProductResponseOrError = BaseResponse | ErrorResponse
-union UpdateProductResponseOrError =
-    BaseResponse
-  | ProductResponse
-  | ErrorResponse
+union UpdateProductResponseOrError = BaseResponse | ErrorResponse
 union DeleteProductResponseOrError = BaseResponse | ErrorResponse
 union RestoreProductResponseOrError = BaseResponse | ErrorResponse
 union GetProductByIdResponseOrError =

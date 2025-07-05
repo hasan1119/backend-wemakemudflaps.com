@@ -1777,9 +1777,8 @@ union UpdateMediaResponseOrError
 union UpdateProductResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "ProductResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | ProductResponse | ErrorResponse
+ = BaseResponse | ErrorResponse
 
 union UpdateProductReviewResponseOrError
   @join__type(graph: PRODUCT)

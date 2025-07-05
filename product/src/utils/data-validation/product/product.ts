@@ -462,29 +462,28 @@ export const ProductVariationInputSchema = z.object({
  * 1. Validates `productConfigurationType` and `productDeliveryType` using their respective enums.
  * 2. Ensures `name` and `slug` are non-empty strings with a minimum length of 3 characters.
  * 3. Validates `sku` and `model` as optional non-empty strings.
- * 4. Validates `createdBy` as a UUID.
- * 5. Validates `defaultImage`, `images`, `videos` as optional arrays of UUIDs.
- * 6. Ensures `defaultMainDescription` is a non-empty string.
- * 7. Validates `defaultShortDescription`, `defaultTags`, `customBadge`, `purchaseNote` as optional non-empty strings or arrays of strings.
- * 8. Validates `brandIds`, `tagIds`, `categoryId`, `subCategoryIds` as optional UUIDs or arrays of UUIDs.
- * 9. Validates `warrantyDigit` as an optional positive integer and `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
- * 10. Validates `warrantyPolicy` as an optional non-empty string.
- * 11. Ensures `regularPrice` is a positive number.
- * 12. Validates `salePrice` as an optional positive number.
- * 13. Validates `salePriceStartAt` and `salePriceEndAt` as optional datetime strings.
- * 14. Validates `tierPricingInfo` as an optional `ProductPriceInputSchema`.
- * 15. Validates `saleQuantity` as an optional positive integer and `saleQuantityUnit` as a non-empty string.
- * 16. Validates `taxStatusId` and `taxClassId` as optional UUIDs.
- * 17. Validates `minQuantity`, `defaultQuantity`, `maxQuantity`, `quantityStep` as optional positive integers.
- * 18. Validates `manageStock`, `soldIndividually`, `enableReviews`, `isPreview`, `isVisible` as optional booleans.
- * 19. Validates `stockQuantity`, `lowStockThresHold` as optional positive integers.
- * 20. Validates `allowBackOrders` as an optional `BackOrderOptionEnum`.
- * 21. Validates `initialNumberInStock` as an optional non-empty string.
- * 22. Validates `weightUnit`, `dimensionUnit` using their respective enums.
- * 23. Validates `weight`, `length`, `width`, `height` as optional positive numbers.
- * 24. Validates `shippingClassId`, `upsellIds`, `crossSellIds` as optional UUIDs or arrays of UUIDs.
- * 25. Validates `attributes` as an optional array of `ProductAttributeInputSchema`.
- * 26. Validates `variations` as an optional array of `ProductVariationInputSchema`.
+ * 4. Validates `defaultImage`, `images`, `videos` as optional arrays of UUIDs.
+ * 5. Ensures `defaultMainDescription` is a non-empty string.
+ * 6. Validates `defaultShortDescription`, `defaultTags`, `customBadge`, `purchaseNote` as optional non-empty strings or arrays of strings.
+ * 7. Validates `brandIds`, `tagIds`, `categoryId`, `subCategoryIds` as optional UUIDs or arrays of UUIDs.
+ * 8. Validates `warrantyDigit` as an optional positive integer and `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
+ * 9. Validates `warrantyPolicy` as an optional non-empty string.
+ * 10. Ensures `regularPrice` is a positive number.
+ * 11. Validates `salePrice` as an optional positive number.
+ * 12. Validates `salePriceStartAt` and `salePriceEndAt` as optional datetime strings.
+ * 13. Validates `tierPricingInfo` as an optional `ProductPriceInputSchema`.
+ * 14. Validates `saleQuantity` as an optional positive integer and `saleQuantityUnit` as a non-empty string.
+ * 15. Validates `taxStatusId` and `taxClassId` as optional UUIDs.
+ * 16. Validates `minQuantity`, `defaultQuantity`, `maxQuantity`, `quantityStep` as optional positive integers.
+ * 17. Validates `manageStock`, `soldIndividually`, `enableReviews`, `isPreview`, `isVisible` as optional booleans.
+ * 18. Validates `stockQuantity`, `lowStockThresHold` as optional positive integers.
+ * 19. Validates `allowBackOrders` as an optional `BackOrderOptionEnum`.
+ * 20. Validates `initialNumberInStock` as an optional non-empty string.
+ * 21. Validates `weightUnit`, `dimensionUnit` using their respective enums.
+ * 22. Validates `weight`, `length`, `width`, `height` as optional positive numbers.
+ * 23. Validates `shippingClassId`, `upsellIds`, `crossSellIds` as optional UUIDs or arrays of UUIDs.
+ * 24. Validates `attributes` as an optional array of `ProductAttributeInputSchema`.
+ * 25. Validates `variations` as an optional array of `ProductVariationInputSchema`.
  *
  * @property productConfigurationType - The configuration type of the product.
  * @property productDeliveryType - The delivery type(s) of the product.
@@ -492,7 +491,6 @@ export const ProductVariationInputSchema = z.object({
  * @property slug - The URL-friendly slug of the product.
  * @property sku - Optional Stock Keeping Unit.
  * @property model - Optional product model identifier.
- * @property createdBy - The UUID of the user who created the product.
  * @property defaultImage - Optional UUID of the default image.
  * @property images - Optional array of image UUIDs.
  * @property videos - Optional array of video UUIDs.
@@ -550,7 +548,6 @@ export const createProductSchema = z.object({
   slug: z.string().min(3, "Product slug must be at least 3 characters").trim(),
   sku: z.string().min(1, "SKU cannot be empty").optional().nullable(),
   model: z.string().min(1, "Model cannot be empty").optional().nullable(),
-  createdBy: z.string().uuid({ message: "Invalid UUID format" }),
   defaultImage: z
     .string()
     .uuid({ message: "Invalid UUID format" })

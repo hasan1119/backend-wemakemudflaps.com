@@ -1,6 +1,7 @@
 import {
   getAllBrands,
   getAllCategories,
+  getAllProducts,
   getAllShippingClass,
   getAllTags,
   getAllTaxClass,
@@ -107,7 +108,7 @@ export const productQueriesResolver = {
     /**
      * Fetches a paginated list of all products in the system.
      */
-    // getAllProducts,
+    getAllProducts,
 
     /**
      * Retrieves detailed information for a category by their unique ID.
