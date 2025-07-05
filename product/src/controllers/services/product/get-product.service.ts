@@ -174,12 +174,17 @@ export const paginateProducts = async ({
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;
+
     queryBuilder.andWhere(
       new Brackets((qb) => {
-        qb.where("product.name ILIKE :search", { search: searchTerm }).orWhere(
-          "product.slug ILIKE :search",
-          { search: searchTerm }
-        );
+        qb.where("product.name ILIKE :search", { search: searchTerm })
+          .orWhere("product.slug ILIKE :search", { search: searchTerm })
+          .orWhere("brands.name ILIKE :search", { search: searchTerm })
+          .orWhere("category.name ILIKE :search", { search: searchTerm })
+          .orWhere("tags.name ILIKE :search", { search: searchTerm })
+          .orWhere("subCategories.name ILIKE :search", {
+            search: searchTerm,
+          });
       })
     );
   }
@@ -210,16 +215,23 @@ export const countProductsWithSearch = async (
 ): Promise<number> => {
   const queryBuilder = productRepository
     .createQueryBuilder("product")
-    .where("product.deletedAt IS NULL");
+    .where("product.deletedAt IS NULL")
+    .leftJoin("product.brands", "brands")
+    .leftJoin("product.category", "category")
+    .leftJoin("product.tags", "tags")
+    .leftJoin("product.subCategories", "subCategories");
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;
+
     queryBuilder.andWhere(
       new Brackets((qb) => {
-        qb.where("product.name ILIKE :search", { search: searchTerm }).orWhere(
-          "product.slug ILIKE :search",
-          { search: searchTerm }
-        );
+        qb.where("product.name ILIKE :search", { search: searchTerm })
+          .orWhere("product.slug ILIKE :search", { search: searchTerm })
+          .orWhere("brands.name ILIKE :search", { search: searchTerm })
+          .orWhere("category.name ILIKE :search", { search: searchTerm })
+          .orWhere("tags.name ILIKE :search", { search: searchTerm })
+          .orWhere("subCategories.name ILIKE :search", { search: searchTerm });
       })
     );
   }
