@@ -167,6 +167,26 @@ export const createProduct = async (
           __typename: "BaseResponse",
         };
       }
+
+      // Check if all sub-categories belong to the given category
+      if (categoryId) {
+        const category = await getCategoryById(categoryId);
+        if (category) {
+          const categorySubCategoryIds = category.subCategories.map(
+            (sc) => sc.id
+          );
+          for (const subCategoryId of subCategoryIds) {
+            if (!categorySubCategoryIds.includes(subCategoryId)) {
+              return {
+                statusCode: 400,
+                success: false,
+                message: `Sub-category with ID ${subCategoryId} does not belong to category with ID ${categoryId}`,
+                __typename: "BaseResponse",
+              };
+            }
+          }
+        }
+      }
     }
 
     if (shippingClassId) {
