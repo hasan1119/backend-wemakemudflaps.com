@@ -83,8 +83,6 @@ export const getSubCategoryById = async (
       };
     }
 
-    console.log(subCategoryData);
-
     return {
       statusCode: 200,
       success: true,

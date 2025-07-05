@@ -1,7 +1,7 @@
 import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { SubCategory } from "../../../entities";
+import { Category, SubCategory } from "../../../entities";
 import {
   GetCategoriesResponseOrError,
   QueryGetAllCategoriesArgs,
@@ -15,7 +15,6 @@ import {
   checkUserPermission,
   paginateCategories,
 } from "../../services";
-import { subCategoryRepository } from "../../services/repositories/repositories";
 
 // Combine pagination and sorting schemas for validation
 const combinedSchema = z.intersection(paginationSchema, categorySortingSchema);
@@ -28,30 +27,28 @@ const mapArgsToPagination = (args: QueryGetAllCategoriesArgs) => ({
   sortOrder: args.sortOrder || "asc",
 });
 
-// Recursively build subcategory tree from pre-fetched subcategories
+/**
+ * Recursively builds a subcategory tree for GraphQL response, ensuring schema compliance.
+ *
+ * @param subCat - The subcategory entity to map.
+ * @param visited - Set of visited subcategory IDs to prevent circular references.
+ * @returns A mapped subcategory object.
+ */
 const buildSubCategoryTree = (
   subCat: SubCategory,
-  allSubCategories: SubCategory[],
-  visited: Set<string>,
-  depth: number = 0
-): any | null => {
+  visited: Set<string>
+): any => {
   if (!subCat || !subCat.id || visited.has(subCat.id)) {
     return null;
   }
 
   visited.add(subCat.id);
 
-  const children = allSubCategories.filter(
-    (sc) => sc.parentSubCategory?.id === subCat.id && !visited.has(sc.id)
-  );
-
+  const children = subCat.subCategories ?? [];
   const mappedChildren = children
-    .map((child) =>
-      buildSubCategoryTree(child, allSubCategories, visited, depth + 1)
-    )
-    .filter((sc) => sc !== null);
-
-  mappedChildren.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    .map((child) => buildSubCategoryTree(child, visited))
+    .filter((sc) => sc !== null)
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 
   return {
     id: subCat.id,
@@ -69,8 +66,8 @@ const buildSubCategoryTree = (
       subCat.deletedAt instanceof Date
         ? subCat.deletedAt.toISOString()
         : subCat.deletedAt || null,
-    category: subCat.category?.id || null,
-    parentSubCategory: subCat.parentSubCategory?.id || null,
+    category: subCat.category || null,
+    parentSubCategory: subCat.parentSubCategory || null,
     subCategories: mappedChildren,
   };
 };
@@ -81,10 +78,9 @@ const buildSubCategoryTree = (
  * Workflow:
  * 1. Authenticates the user and verifies their permission to view categories.
  * 2. Validates pagination and sorting inputs using Zod schemas.
- * 3. Queries all subcategories once to build the hierarchy in memory.
- * 4. Fetches paginated categories with immediate subcategories.
- * 5. Maps categories and subcategories to match the GraphQL schema.
- * 6. Returns a structured response with categories and total count.
+ * 3. Fetches paginated categories with nested subcategories.
+ * 4. Maps categories and subcategories to match the GraphQL schema.
+ * 5. Returns a structured response with categories and total count.
  *
  * @param _ - Unused GraphQL root/resolver parameter.
  * @param args - GraphQL arguments including pagination, sorting, and search.
@@ -138,97 +134,52 @@ export const getAllCategories = async (
 
     const { page, limit, search, sortBy, sortOrder } = mappedArgs;
 
-    const allowedSortFields = ["name", "createdAt", "position"] as const;
-    const safeSortBy = allowedSortFields.includes(sortBy as any)
-      ? (sortBy as (typeof allowedSortFields)[number])
-      : "createdAt";
-
-    const allowedSortOrders = ["asc", "desc"] as const;
-    const safeSortOrder = allowedSortOrders.includes(sortOrder as any)
-      ? (sortOrder as (typeof allowedSortOrders)[number])
-      : "desc";
-
-    // Fetch all subcategories once to build the hierarchy
-    const allSubCategories = await subCategoryRepository.find({
-      where: { deletedAt: null },
-      relations: ["parentSubCategory", "category"],
-    });
-
-    // Log all subcategories for debugging
-    const util = require("util");
-    console.log(
-      "All subcategories fetched:",
-      util.inspect(
-        allSubCategories.map((sc) => ({
-          id: sc.id,
-          name: sc.name,
-          parentSubCategoryId: sc.parentSubCategory?.id,
-          categoryId: sc.category?.id,
-        })),
-        { depth: null, colors: true }
-      )
-    );
-
-    // Fetch categories with immediate subcategories
+    // Fetch paginated categories with nested subcategories
     const { categories: dbCategories, total } = await paginateCategories({
       page,
       limit,
       search,
-      sortBy: safeSortBy,
-      sortOrder: safeSortOrder,
+      sortBy,
+      sortOrder,
     });
 
-    // Log raw categories for debugging
-    console.log(
-      "Raw categories from paginateCategories:",
-      util.inspect(dbCategories, { depth: null, colors: true })
-    );
+    // Map categories to GraphQL schema
+    const visited = new Set<string>();
+    const categories = dbCategories.map((cat: Category) => {
+      const mappedSubCategories = (cat.subCategories ?? [])
+        .map((subCat) => buildSubCategoryTree(subCat, visited))
+        .filter((sc) => sc !== null);
 
-    const categories = await Promise.all(
-      dbCategories.map(async (cat) => {
-        const visited = new Set<string>();
-        const mappedSubCategories = (cat.subCategories ?? []).map((subCat) =>
-          buildSubCategoryTree(subCat, allSubCategories, visited, 0)
-        );
-
-        return {
-          id: cat.id,
-          name: cat.name,
-          slug: cat.slug,
-          description: cat.description || null,
-          thumbnail: cat.thumbnail || null,
-          position: cat.position,
-          createdBy: cat.createdBy || null,
-          createdAt:
-            cat.createdAt instanceof Date
-              ? cat.createdAt.toISOString()
-              : cat.createdAt,
-          deletedAt:
-            cat.deletedAt instanceof Date
-              ? cat.deletedAt.toISOString()
-              : cat.deletedAt || null,
-          subCategories: mappedSubCategories.filter((sc) => sc !== null),
-        };
-      })
-    );
-
-    // Log final mapped categories
-    console.log(
-      "Categories with subcategories:",
-      util.inspect(categories, { depth: null, colors: true })
-    );
+      return {
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        description: cat.description || null,
+        thumbnail: cat.thumbnail || null,
+        position: cat.position,
+        createdBy: cat.createdBy || null,
+        createdAt:
+          cat.createdAt instanceof Date
+            ? cat.createdAt.toISOString()
+            : cat.createdAt,
+        deletedAt:
+          cat.deletedAt instanceof Date
+            ? cat.deletedAt.toISOString()
+            : cat.deletedAt || null,
+        subCategories: mappedSubCategories,
+      };
+    });
 
     return {
       statusCode: 200,
       success: true,
       message: "Categories fetched successfully",
-      category: categories,
+      category: categories as any,
       total,
       __typename: "CategoryPaginationResponse",
     };
   } catch (error: any) {
     console.error("Error fetching categories:", error);
-
     return {
       statusCode: 500,
       success: false,

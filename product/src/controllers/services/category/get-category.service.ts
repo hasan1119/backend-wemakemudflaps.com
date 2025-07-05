@@ -226,10 +226,16 @@ async function fetchNestedSubCategories(
       deletedAt: null,
     },
     relations: ["category", "parentSubCategory"],
+    order: { position: "ASC" },
   });
 
+  // Filter out invalid subcategories (e.g., missing id)
+  const validSubCategories = subCategories.filter(
+    (subCat) => subCat && subCat.id
+  );
+
   // Recursively fetch nested subcategories
-  for (const subCategory of subCategories) {
+  for (const subCategory of validSubCategories) {
     subCategory.subCategories = await fetchNestedSubCategories(
       subCategoryRepository,
       undefined,
@@ -240,7 +246,7 @@ async function fetchNestedSubCategories(
     ).toISOString() as any;
   }
 
-  return subCategories;
+  return validSubCategories;
 }
 
 /**
@@ -328,15 +334,7 @@ export interface GetPaginatedCategoriesInput {
 }
 
 /**
- * Handles pagination of categories including their immediate subCategories.
- *
- * Workflow:
- * 1. Calculates the number of records to skip based on page and limit.
- * 2. Constructs a query to filter only non-deleted categories and subcategories.
- * 3. Applies optional search filters across category and subcategory fields.
- * 4. Sorts and paginates the result.
- * 5. Recursively sorts subCategories by position (ascending).
- * 6. Returns the filtered and paginated categories with total count.
+ * Handles pagination of categories including their nested subcategories.
  *
  * @param page - The current page number (1-based index).
  * @param limit - The number of categories to retrieve per page.
@@ -399,41 +397,20 @@ export const paginateCategories = async ({
 
   const [categories, total] = await query.getManyAndCount();
 
-  // Recursively sort subcategories by position ascending
-  const sortSubCategoriesRecursively = (
-    subs: SubCategory[] | null
-  ): SubCategory[] | null => {
-    if (!subs) return null;
+  // Fetch nested subcategories for each category
+  for (const category of categories) {
+    category.subCategories = await fetchNestedSubCategories(
+      subCategoryRepository,
+      category.id
+    );
+    category.createdAt = new Date(category.createdAt).toISOString() as any;
+  }
 
-    subs.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-
-    subs.forEach((sub) => {
-      if (sub.subCategories && sub.subCategories.length > 0) {
-        sub.subCategories = sortSubCategoriesRecursively(sub.subCategories);
-      }
-    });
-
-    return subs;
-  };
-
-  // Sort nested subcategories for each category
-  categories.forEach((cat) => {
-    cat.subCategories = sortSubCategoriesRecursively(cat.subCategories);
-  });
-
-  return {
-    categories,
-    total,
-  };
+  return { categories, total };
 };
 
 /**
  * Handles counting categories matching optional search criteria.
- *
- * Workflow:
- * 1. Constructs a where clause to filter non-deleted categories and apply search conditions if provided.
- * 2. Queries the categoryRepository to count categories matching the criteria.
- * 3. Returns the total number of matching categories.
  *
  * @param search - Optional search term to filter by name or description (case-insensitive).
  * @returns A promise resolving to the total number of matching categories.
