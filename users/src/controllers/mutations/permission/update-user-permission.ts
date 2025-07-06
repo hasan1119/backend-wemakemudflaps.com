@@ -169,8 +169,9 @@ export const updateUserPermission = async (
     }
 
     // Prevent permission changes for users with shared roles
-    const hasCommonRoles = targetUserEntity.roles.some((role) =>
-      userData.roles.includes(role.name)
+    const currentUserRoleIds = new Set(userData.roles.map((r) => r.id));
+    const hasCommonRoles = targetUserEntity.roles.some((r) =>
+      currentUserRoleIds.has(r.id)
     );
 
     if (hasCommonRoles) {

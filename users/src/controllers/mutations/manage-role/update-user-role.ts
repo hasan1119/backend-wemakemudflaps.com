@@ -200,9 +200,8 @@ export const updateUserRole = async (
       };
     }
     // Prevent modifications to users with shared roles
-    const hasCommonRoles = targetUser.roles.some((id: string) =>
-      user.roles.map((r) => r.id).includes(id)
-    );
+    const userRoleIds = new Set(user.roles.map((r) => r.id));
+    const hasCommonRoles = targetUser.roles.some((r) => userRoleIds.has(r.id));
 
     if (hasCommonRoles) {
       return {
