@@ -157,7 +157,7 @@ export const getAllCategories = async (
         description: cat.description || null,
         thumbnail: cat.thumbnail || null,
         position: cat.position,
-        createdBy: cat.createdBy || null,
+        createdBy: (cat.createdBy as any) || null,
         createdAt:
           cat.createdAt instanceof Date
             ? cat.createdAt.toISOString()

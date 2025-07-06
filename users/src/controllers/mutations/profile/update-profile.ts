@@ -182,7 +182,10 @@ export const updateProfile = async (
       lastName: updatedUser.lastName,
       email: updatedUser.email,
       gender: updatedUser.gender,
-      roles: updatedUser.roles.map((role) => role.name.toUpperCase()),
+      roles: user.roles.map((role) => ({
+        id: role.id,
+        name: role.name.toUpperCase(),
+      })),
       emailVerified: updatedUser.emailVerified,
       isAccountActivated: updatedUser.isAccountActivated,
       sessionId: user.sessionId,

@@ -32,7 +32,10 @@ export const mapUserToResponseByEmail = async (
     emailVerified: user.emailVerified,
     gender: user.gender,
     phone: user.phone,
-    roles: user.roles.map((role) => role.name.toUpperCase()),
+    roles: user.roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+    })),
     permissions: (await mapPermissions(
       user.permissions
     )) as PermissionSession[],
@@ -75,7 +78,10 @@ export const mapUserToResponseById = async (
     emailVerified: user.emailVerified,
     gender: user.gender,
     phone: user.phone,
-    roles: user.roles.map((role) => role.name.toUpperCase()),
+    roles: user.roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+    })),
     permissions: (await mapPermissions(
       user.permissions
     )) as PermissionSession[],
@@ -113,7 +119,10 @@ export const mapUserToTokenData = async (
     email: user.email,
     emailVerified: user.emailVerified,
     gender: user.gender,
-    roles: user.roles.map((role) => role.toUpperCase()),
+    roles: user.roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+    })),
     isAccountActivated: user.isAccountActivated,
     sessionId: user.sessionId,
   };

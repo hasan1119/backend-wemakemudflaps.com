@@ -3,7 +3,7 @@ import {
   getUserPermissionsByUserIdFromRedis,
   getUserRolesInfoFromRedis,
 } from "../../../helper/redis";
-import { RolePermissionSession } from "../../../types";
+import { RolePermissionSession, UserRoleObject } from "../../../types";
 import { mapPermissions } from "../../../utils/mapper";
 import { permissionRepository } from "../repositories/repositories";
 
@@ -32,7 +32,7 @@ export async function checkUserPermission({
 }: {
   action: "canCreate" | "canRead" | "canUpdate" | "canDelete";
   entity: string;
-  user: { id: string; roles: string[] };
+  user: { id: string; roles: UserRoleObject[] };
 }): Promise<boolean> {
   // Retrieve personalized permissions from Redis
   let personalizedPermissions = await getUserPermissionsByUserIdFromRedis(

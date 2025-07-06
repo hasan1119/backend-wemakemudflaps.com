@@ -113,8 +113,8 @@ export const login = async (
     let rolesInfoByName;
 
     rolesInfoByName = await Promise.all(
-      user.roles.map(async (roleName) => {
-        const roleInfo = await getRoleInfoByRoleNameFromRedis(roleName);
+      user.roles.map(async (role) => {
+        const roleInfo = await getRoleInfoByRoleNameFromRedis(role.name);
         return roleInfo ?? null; // Return null if not found
       })
     );
@@ -246,7 +246,10 @@ export const login = async (
       lastName: user.lastName,
       email: user.email,
       gender: user.gender,
-      roles: user.roles.map((role) => role.toUpperCase()),
+      roles: user.roles.map((role) => ({
+        id: role.id,
+        name: role.name.toUpperCase(),
+      })),
       emailVerified: user.emailVerified,
       isAccountActivated: user.isAccountActivated,
       sessionId: sessionData.id,

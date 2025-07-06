@@ -142,7 +142,10 @@ export const getAllUsers = async (
         phone: user.phone,
         address: user.address,
         avatar: user.avatar,
-        roles: user.roles.map((role) => role.name.toUpperCase()),
+        roles: user.roles.map((role) => ({
+          id: role.id,
+          name: role.name.toUpperCase(),
+        })),
         isAccountActivated: user.isAccountActivated,
         permissions: user.permissions.map((permission) => ({
           id: permission.id,
@@ -200,7 +203,10 @@ export const getAllUsers = async (
       gender: user.gender,
       phone: user.phone,
       address: user.address,
-      roles: user.roles.map((role) => role.toUpperCase()),
+      roles: user.roles.map((role) => ({
+        id: role.id,
+        name: role.name.toUpperCase(),
+      })),
       isAccountActivated: user.isAccountActivated,
       permissions: user.permissions.map((permission) => ({
         id: permission.id,

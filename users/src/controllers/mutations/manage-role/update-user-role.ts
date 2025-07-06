@@ -132,7 +132,9 @@ export const updateUserRole = async (
       };
     }
 
-    const isNotSuperAdmin = !user.roles.includes("SUPER ADMIN");
+    const isNotSuperAdmin = !user.roles
+      .map((role) => role.name)
+      .includes("SUPER ADMIN");
 
     // Validate password for non-Super Admin users
     if (isNotSuperAdmin) {
@@ -198,8 +200,8 @@ export const updateUserRole = async (
       };
     }
     // Prevent modifications to users with shared roles
-    const hasCommonRoles = targetUser.roles.some((r: string) =>
-      user.roles.includes(r)
+    const hasCommonRoles = targetUser.roles.some((id: string) =>
+      user.roles.map((r) => r.id).includes(id)
     );
 
     if (hasCommonRoles) {
@@ -318,8 +320,8 @@ export const updateUserRole = async (
     let existingRole;
 
     existingRole = await Promise.all(
-      targetUser.roles.map(async (roleName) => {
-        const roleInfo = await getRoleInfoByRoleNameFromRedis(roleName);
+      targetUser.roles.map(async (role) => {
+        const roleInfo = await getRoleInfoByRoleNameFromRedis(role.name);
         return roleInfo ?? null; // If not found, return null
       })
     );

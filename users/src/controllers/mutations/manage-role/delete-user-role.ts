@@ -121,7 +121,9 @@ export const deleteUserRole = async (
       };
     }
 
-    const isNotSuperAdmin = !user.roles.includes("SUPER ADMIN");
+    const isNotSuperAdmin = !user.roles
+      .map((role) => role.name)
+      .includes("SUPER ADMIN");
 
     // Validate password for non-Super Admin users
     if (isNotSuperAdmin) {

@@ -195,7 +195,7 @@ export type CreatedBy = {
   __typename?: 'CreatedBy';
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  roles: Array<Scalars['String']['output']>;
+  roles: Array<UserRoleObject>;
 };
 
 export type DeleteAddressResponseBook = {
@@ -1971,7 +1971,7 @@ export type User = {
   lastName?: Maybe<Scalars['String']['output']>;
   permissions?: Maybe<Array<Permissions>>;
   phone?: Maybe<Scalars['String']['output']>;
-  roles?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  roles?: Maybe<Array<Maybe<UserRoleObject>>>;
   tempUpdatedEmail?: Maybe<Scalars['String']['output']>;
   username?: Maybe<Scalars['String']['output']>;
 };
@@ -2030,6 +2030,12 @@ export type UserResponse = {
   user: User;
 };
 
+export type UserRoleObject = {
+  __typename?: 'UserRoleObject';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type UserSession = {
   __typename?: 'UserSession';
   avatar?: Maybe<Scalars['ID']['output']>;
@@ -2040,7 +2046,7 @@ export type UserSession = {
   id: Scalars['ID']['output'];
   isAccountActivated: Scalars['Boolean']['output'];
   lastName: Scalars['String']['output'];
-  roles: Array<Scalars['String']['output']>;
+  roles: Array<UserRoleObject>;
   sessionId: Scalars['String']['output'];
 };
 
@@ -2062,7 +2068,7 @@ export type UserSessionByEmail = {
   password: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
   phone: Scalars['String']['output'];
-  roles: Array<Scalars['String']['output']>;
+  roles: Array<UserRoleObject>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
   username: Scalars['String']['output'];
@@ -2085,7 +2091,7 @@ export type UserSessionById = {
   lastName: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
   phone: Scalars['String']['output'];
-  roles: Array<Scalars['String']['output']>;
+  roles: Array<UserRoleObject>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
   username: Scalars['String']['output'];
@@ -2434,6 +2440,7 @@ export type ResolversTypes = {
   UserProfileUpdateResponse: ResolverTypeWrapper<UserProfileUpdateResponse>;
   UserProfileUpdateResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserProfileUpdateResponseOrError']>;
   UserResponse: ResolverTypeWrapper<UserResponse>;
+  UserRoleObject: ResolverTypeWrapper<UserRoleObject>;
   UserSession: ResolverTypeWrapper<UserSession>;
   UserSessionByEmail: ResolverTypeWrapper<UserSessionByEmail>;
   UserSessionById: ResolverTypeWrapper<UserSessionById>;
@@ -2615,6 +2622,7 @@ export type ResolversParentTypes = {
   UserProfileUpdateResponse: UserProfileUpdateResponse;
   UserProfileUpdateResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UserProfileUpdateResponseOrError'];
   UserResponse: UserResponse;
+  UserRoleObject: UserRoleObject;
   UserSession: UserSession;
   UserSessionByEmail: UserSessionByEmail;
   UserSessionById: UserSessionById;
@@ -2819,7 +2827,7 @@ export type CreateTaxStatusResponseOrErrorResolvers<ContextType = Context, Paren
 export type CreatedByResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatedBy'] = ResolversParentTypes['CreatedBy']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3785,7 +3793,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   permissions?: Resolver<Maybe<Array<ResolversTypes['Permissions']>>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  roles?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  roles?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserRoleObject']>>>, ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3841,6 +3849,12 @@ export type UserResponseResolvers<ContextType = Context, ParentType extends Reso
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UserRoleObjectResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserRoleObject'] = ResolversParentTypes['UserRoleObject']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UserSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSession'] = ResolversParentTypes['UserSession']> = {
   avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3850,7 +3864,7 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isAccountActivated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3872,7 +3886,7 @@ export type UserSessionByEmailResolvers<ContextType = Context, ParentType extend
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3895,7 +3909,7 @@ export type UserSessionByIdResolvers<ContextType = Context, ParentType extends R
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4062,6 +4076,7 @@ export type Resolvers<ContextType = Context> = {
   UserProfileUpdateResponse?: UserProfileUpdateResponseResolvers<ContextType>;
   UserProfileUpdateResponseOrError?: UserProfileUpdateResponseOrErrorResolvers<ContextType>;
   UserResponse?: UserResponseResolvers<ContextType>;
+  UserRoleObject?: UserRoleObjectResolvers<ContextType>;
   UserSession?: UserSessionResolvers<ContextType>;
   UserSessionByEmail?: UserSessionByEmailResolvers<ContextType>;
   UserSessionById?: UserSessionByIdResolvers<ContextType>;

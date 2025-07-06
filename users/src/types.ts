@@ -141,22 +141,9 @@ export type CategoryDataResponse = {
   thumbnail?: Maybe<Media>;
 };
 
-export type CategoryDataResponseById = {
-  __typename?: 'CategoryDataResponseById';
-  createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
-  deletedAt?: Maybe<Scalars['String']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  position: Scalars['Int']['output'];
-  slug: Scalars['String']['output'];
-  thumbnail?: Maybe<Media>;
-};
-
 export type CategoryPaginationResponse = {
   __typename?: 'CategoryPaginationResponse';
-  category: Array<Category>;
+  category?: Maybe<Array<Category>>;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
@@ -173,7 +160,7 @@ export type CategoryResponse = {
 
 export type CategoryResponseById = {
   __typename?: 'CategoryResponseById';
-  category: CategoryDataResponseById;
+  category: Category;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
@@ -208,7 +195,7 @@ export type CreatedBy = {
   __typename?: 'CreatedBy';
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  roles: Array<Scalars['String']['output']>;
+  roles: Array<UserRoleObject>;
 };
 
 export type DeleteAddressResponseBook = {
@@ -1770,21 +1757,6 @@ export type SubCategoryDataResponse = {
   thumbnail?: Maybe<Media>;
 };
 
-export type SubCategoryDataResponseById = {
-  __typename?: 'SubCategoryDataResponseById';
-  category?: Maybe<Scalars['ID']['output']>;
-  createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
-  deletedAt?: Maybe<Scalars['String']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  parentSubCategory?: Maybe<Scalars['ID']['output']>;
-  position: Scalars['Int']['output'];
-  slug: Scalars['String']['output'];
-  thumbnail?: Maybe<Media>;
-};
-
 export type SubCategoryResponse = {
   __typename?: 'SubCategoryResponse';
   message: Scalars['String']['output'];
@@ -1797,7 +1769,7 @@ export type SubCategoryResponseById = {
   __typename?: 'SubCategoryResponseById';
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
-  subcategory: SubCategoryDataResponseById;
+  subcategory: SubCategory;
   success: Scalars['Boolean']['output'];
 };
 
@@ -1999,7 +1971,7 @@ export type User = {
   lastName?: Maybe<Scalars['String']['output']>;
   permissions?: Maybe<Array<Permissions>>;
   phone?: Maybe<Scalars['String']['output']>;
-  roles?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  roles?: Maybe<Array<Maybe<UserRoleObject>>>;
   tempUpdatedEmail?: Maybe<Scalars['String']['output']>;
   username?: Maybe<Scalars['String']['output']>;
 };
@@ -2058,6 +2030,12 @@ export type UserResponse = {
   user: User;
 };
 
+export type UserRoleObject = {
+  __typename?: 'UserRoleObject';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type UserSession = {
   __typename?: 'UserSession';
   avatar?: Maybe<Scalars['ID']['output']>;
@@ -2068,7 +2046,7 @@ export type UserSession = {
   id: Scalars['ID']['output'];
   isAccountActivated: Scalars['Boolean']['output'];
   lastName: Scalars['String']['output'];
-  roles: Array<Scalars['String']['output']>;
+  roles: Array<UserRoleObject>;
   sessionId: Scalars['String']['output'];
 };
 
@@ -2090,7 +2068,7 @@ export type UserSessionByEmail = {
   password: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
   phone: Scalars['String']['output'];
-  roles: Array<Scalars['String']['output']>;
+  roles: Array<UserRoleObject>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
   username: Scalars['String']['output'];
@@ -2113,7 +2091,7 @@ export type UserSessionById = {
   lastName: Scalars['String']['output'];
   permissions: Array<PermissionSession>;
   phone: Scalars['String']['output'];
-  roles: Array<Scalars['String']['output']>;
+  roles: Array<UserRoleObject>;
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
   username: Scalars['String']['output'];
@@ -2300,7 +2278,6 @@ export type ResolversTypes = {
   BrandResponseById: ResolverTypeWrapper<BrandResponseById>;
   Category: ResolverTypeWrapper<Category>;
   CategoryDataResponse: ResolverTypeWrapper<CategoryDataResponse>;
-  CategoryDataResponseById: ResolverTypeWrapper<CategoryDataResponseById>;
   CategoryPaginationResponse: ResolverTypeWrapper<CategoryPaginationResponse>;
   CategoryResponse: ResolverTypeWrapper<CategoryResponse>;
   CategoryResponseById: ResolverTypeWrapper<CategoryResponseById>;
@@ -2423,7 +2400,6 @@ export type ResolversTypes = {
   SinglePermissionInput: SinglePermissionInput;
   SubCategory: ResolverTypeWrapper<SubCategory>;
   SubCategoryDataResponse: ResolverTypeWrapper<SubCategoryDataResponse>;
-  SubCategoryDataResponseById: ResolverTypeWrapper<SubCategoryDataResponseById>;
   SubCategoryResponse: ResolverTypeWrapper<SubCategoryResponse>;
   SubCategoryResponseById: ResolverTypeWrapper<SubCategoryResponseById>;
   Tag: ResolverTypeWrapper<Tag>;
@@ -2464,6 +2440,7 @@ export type ResolversTypes = {
   UserProfileUpdateResponse: ResolverTypeWrapper<UserProfileUpdateResponse>;
   UserProfileUpdateResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UserProfileUpdateResponseOrError']>;
   UserResponse: ResolverTypeWrapper<UserResponse>;
+  UserRoleObject: ResolverTypeWrapper<UserRoleObject>;
   UserSession: ResolverTypeWrapper<UserSession>;
   UserSessionByEmail: ResolverTypeWrapper<UserSessionByEmail>;
   UserSessionById: ResolverTypeWrapper<UserSessionById>;
@@ -2490,7 +2467,6 @@ export type ResolversParentTypes = {
   BrandResponseById: BrandResponseById;
   Category: Category;
   CategoryDataResponse: CategoryDataResponse;
-  CategoryDataResponseById: CategoryDataResponseById;
   CategoryPaginationResponse: CategoryPaginationResponse;
   CategoryResponse: CategoryResponse;
   CategoryResponseById: CategoryResponseById;
@@ -2606,7 +2582,6 @@ export type ResolversParentTypes = {
   SinglePermissionInput: SinglePermissionInput;
   SubCategory: SubCategory;
   SubCategoryDataResponse: SubCategoryDataResponse;
-  SubCategoryDataResponseById: SubCategoryDataResponseById;
   SubCategoryResponse: SubCategoryResponse;
   SubCategoryResponseById: SubCategoryResponseById;
   Tag: Tag;
@@ -2647,6 +2622,7 @@ export type ResolversParentTypes = {
   UserProfileUpdateResponse: UserProfileUpdateResponse;
   UserProfileUpdateResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UserProfileUpdateResponseOrError'];
   UserResponse: UserResponse;
+  UserRoleObject: UserRoleObject;
   UserSession: UserSession;
   UserSessionByEmail: UserSessionByEmail;
   UserSessionById: UserSessionById;
@@ -2783,21 +2759,8 @@ export type CategoryDataResponseResolvers<ContextType = Context, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type CategoryDataResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryDataResponseById'] = ResolversParentTypes['CategoryDataResponseById']> = {
-  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
-  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type CategoryPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryPaginationResponse'] = ResolversParentTypes['CategoryPaginationResponse']> = {
-  category?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
+  category?: Resolver<Maybe<Array<ResolversTypes['Category']>>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -2814,7 +2777,7 @@ export type CategoryResponseResolvers<ContextType = Context, ParentType extends 
 };
 
 export type CategoryResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryResponseById'] = ResolversParentTypes['CategoryResponseById']> = {
-  category?: Resolver<ResolversTypes['CategoryDataResponseById'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -2864,7 +2827,7 @@ export type CreateTaxStatusResponseOrErrorResolvers<ContextType = Context, Paren
 export type CreatedByResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreatedBy'] = ResolversParentTypes['CreatedBy']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3624,21 +3587,6 @@ export type SubCategoryDataResponseResolvers<ContextType = Context, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SubCategoryDataResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryDataResponseById'] = ResolversParentTypes['SubCategoryDataResponseById']> = {
-  category?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
-  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  parentSubCategory?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type SubCategoryResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryResponse'] = ResolversParentTypes['SubCategoryResponse']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -3650,7 +3598,7 @@ export type SubCategoryResponseResolvers<ContextType = Context, ParentType exten
 export type SubCategoryResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryResponseById'] = ResolversParentTypes['SubCategoryResponseById']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  subcategory?: Resolver<ResolversTypes['SubCategoryDataResponseById'], ParentType, ContextType>;
+  subcategory?: Resolver<ResolversTypes['SubCategory'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3845,7 +3793,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   permissions?: Resolver<Maybe<Array<ResolversTypes['Permissions']>>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  roles?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  roles?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserRoleObject']>>>, ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3901,6 +3849,12 @@ export type UserResponseResolvers<ContextType = Context, ParentType extends Reso
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UserRoleObjectResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserRoleObject'] = ResolversParentTypes['UserRoleObject']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UserSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSession'] = ResolversParentTypes['UserSession']> = {
   avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3910,7 +3864,7 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isAccountActivated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3932,7 +3886,7 @@ export type UserSessionByEmailResolvers<ContextType = Context, ParentType extend
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3955,7 +3909,7 @@ export type UserSessionByIdResolvers<ContextType = Context, ParentType extends R
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3985,7 +3939,6 @@ export type Resolvers<ContextType = Context> = {
   BrandResponseById?: BrandResponseByIdResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CategoryDataResponse?: CategoryDataResponseResolvers<ContextType>;
-  CategoryDataResponseById?: CategoryDataResponseByIdResolvers<ContextType>;
   CategoryPaginationResponse?: CategoryPaginationResponseResolvers<ContextType>;
   CategoryResponse?: CategoryResponseResolvers<ContextType>;
   CategoryResponseById?: CategoryResponseByIdResolvers<ContextType>;
@@ -4087,7 +4040,6 @@ export type Resolvers<ContextType = Context> = {
   ShippingClassResponse?: ShippingClassResponseResolvers<ContextType>;
   SubCategory?: SubCategoryResolvers<ContextType>;
   SubCategoryDataResponse?: SubCategoryDataResponseResolvers<ContextType>;
-  SubCategoryDataResponseById?: SubCategoryDataResponseByIdResolvers<ContextType>;
   SubCategoryResponse?: SubCategoryResponseResolvers<ContextType>;
   SubCategoryResponseById?: SubCategoryResponseByIdResolvers<ContextType>;
   Tag?: TagResolvers<ContextType>;
@@ -4124,6 +4076,7 @@ export type Resolvers<ContextType = Context> = {
   UserProfileUpdateResponse?: UserProfileUpdateResponseResolvers<ContextType>;
   UserProfileUpdateResponseOrError?: UserProfileUpdateResponseOrErrorResolvers<ContextType>;
   UserResponse?: UserResponseResolvers<ContextType>;
+  UserRoleObject?: UserRoleObjectResolvers<ContextType>;
   UserSession?: UserSessionResolvers<ContextType>;
   UserSessionByEmail?: UserSessionByEmailResolvers<ContextType>;
   UserSessionById?: UserSessionByIdResolvers<ContextType>;

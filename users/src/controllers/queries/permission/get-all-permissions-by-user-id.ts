@@ -127,8 +127,8 @@ export const getAllPermissionsByUserId = async (
     let rolesInfoByName;
 
     rolesInfoByName = await Promise.all(
-      targetUser.roles.map(async (roleName) => {
-        const roleInfo = await getRoleInfoByRoleNameFromRedis(roleName);
+      targetUser.roles.map(async (role) => {
+        const roleInfo = await getRoleInfoByRoleNameFromRedis(role.name);
         return roleInfo ?? null; // Return null if not found
       })
     );

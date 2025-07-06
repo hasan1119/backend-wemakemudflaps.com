@@ -136,10 +136,14 @@ export async function findCategoryByNameOrSlugToUpdateScoped(
 
   if (
     current?.subCategories?.some((child) => {
-      const nameMatch = child.name.toLowerCase() === name.toLowerCase();
-      const slugMatch = slug
-        ? child.slug.toLowerCase() === slug.toLowerCase()
-        : false;
+      const nameMatch =
+        typeof child.name === "string" &&
+        typeof name === "string" &&
+        child.name.toLowerCase() === name.toLowerCase();
+      const slugMatch =
+        typeof child.slug === "string" &&
+        typeof slug === "string" &&
+        child.slug.toLowerCase() === slug.toLowerCase();
       return nameMatch || slugMatch;
     })
   ) {
