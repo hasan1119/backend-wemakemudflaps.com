@@ -11,7 +11,7 @@ import {
   createProduct as createProductService,
   findProductByName,
   findProductBySlug,
-  getBrandById,
+  getBrandsByIds,
   getCategoryById,
   getProductsByIds,
   getShippingClassById,
@@ -122,12 +122,12 @@ export const createProduct = async (
 
     // Validate existence of related entities
     if (brandIds && brandIds.length > 0) {
-      const brand = await getBrandById(brandIds[0]);
-      if (!brand) {
+      const brands = await getBrandsByIds(brandIds);
+      if (brands.length !== brandIds.length) {
         return {
           statusCode: 404,
           success: false,
-          message: `Brand with ID: ${brandIds[0]} not found`,
+          message: "One or more brands not found",
           __typename: "BaseResponse",
         };
       }
@@ -139,7 +139,7 @@ export const createProduct = async (
         return {
           statusCode: 404,
           success: false,
-          message: `One or more tags not found`,
+          message: "One or more tags not found",
           __typename: "BaseResponse",
         };
       }
@@ -165,7 +165,7 @@ export const createProduct = async (
         return {
           statusCode: 404,
           success: false,
-          message: `One or more subcategories not found`,
+          message: "One or more subcategories not found",
           __typename: "BaseResponse",
         };
       }
@@ -233,7 +233,7 @@ export const createProduct = async (
         return {
           statusCode: 404,
           success: false,
-          message: `One or more upsell products not found`,
+          message: "One or more upsell products not found",
           __typename: "BaseResponse",
         };
       }
