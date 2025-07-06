@@ -139,7 +139,7 @@ export const verifyEmail = async (
         gender: updateResult.gender,
         roles: user.roles.map((role) => ({
           id: role.id,
-          name: role.name,
+          name: role.name.toUpperCase(),
         })),
         emailVerified: updateResult.emailVerified,
         isAccountActivated: updateResult.isAccountActivated,
