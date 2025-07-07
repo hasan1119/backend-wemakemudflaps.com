@@ -43,7 +43,7 @@ export const registerSchema = z.object({
     .trim(),
   username: z
     .string()
-    .min(5, { message: "Username is required" })
+    .min(1, { message: "Username is required" })
     .max(50, { message: "Username must not exceed 50 characters" })
     .regex(/^[a-zA-Z0-9-]+$/, {
       message: "Username must contain only letters, numbers, or hyphens",
@@ -209,7 +209,7 @@ export const updateProfileSchema = z.object({
     .trim(),
   username: z
     .string()
-    .min(5, { message: "Username is required" })
+    .min(1, { message: "Username is required" })
     .max(50, { message: "Username must not exceed 50 characters" })
     .regex(/^[a-zA-Z0-9-]+$/, {
       message: "Username must contain only letters, numbers, or hyphens",
