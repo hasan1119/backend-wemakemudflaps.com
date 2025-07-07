@@ -13,7 +13,6 @@ type ProductVariationAttribute {
 input ProductVariationAttributeInput {
   id: ID # Optional ID
   name: String! # Attribute name
-  deletedAt: String # Soft deletion
 }
 
 # Represents a value of a variation attribute (e.g., "Red")
@@ -32,7 +31,6 @@ input ProductVariationAttributeValueInput {
   value: String! # Value
   attributeId: ID! # Related attribute
   variationId: ID! # Related variation
-  deletedAt: String # Soft deletion
 }
 
 # ---------------------- Product Variation Types ----------------------
@@ -105,7 +103,7 @@ input ProductVariationInput {
   # ---------------------- Stock & Inventory ----------------------
   stockStatus: String # Stock status
   # ---------------------- Physical Attributes ----------------------
-  weightUnit: String # Unit for weight
+  weightUnit: WeightUnit # Unit for weight
   weight: Float # Weight value
   dimensionUnit: String # Unit of dimension
   length: Float # Length of item
@@ -126,6 +124,4 @@ input ProductVariationInput {
   # ---------------------- Media ----------------------
   images: [ID!] # Product gallery IDs
   videos: [ID!] # Product video IDs
-  # ---------------------- Meta ----------------------
-  deletedAt: String # Optional deletion timestamp
 }

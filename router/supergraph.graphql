@@ -1295,7 +1295,6 @@ input ProductVariationAttributeInput
 {
   id: ID
   name: String!
-  deletedAt: String
 }
 
 type ProductVariationAttributeValue
@@ -1316,7 +1315,6 @@ input ProductVariationAttributeValueInput
   value: String!
   attributeId: ID!
   variationId: ID!
-  deletedAt: String
 }
 
 input ProductVariationInput
@@ -1336,7 +1334,7 @@ input ProductVariationInput
   salePriceEndAt: String
   tierPricingInfoId: ID
   stockStatus: String
-  weightUnit: String
+  weightUnit: WeightUnit
   weight: Float
   dimensionUnit: String
   length: Float
@@ -1353,7 +1351,6 @@ input ProductVariationInput
   description: String
   images: [ID!]
   videos: [ID!]
-  deletedAt: String
 }
 
 type Query

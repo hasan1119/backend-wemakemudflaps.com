@@ -1372,7 +1372,6 @@ export type ProductVariationAttribute = {
 };
 
 export type ProductVariationAttributeInput = {
-  deletedAt?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
   name: Scalars['String']['input'];
 };
@@ -1389,7 +1388,6 @@ export type ProductVariationAttributeValue = {
 
 export type ProductVariationAttributeValueInput = {
   attributeId: Scalars['ID']['input'];
-  deletedAt?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
   value: Scalars['String']['input'];
   variationId: Scalars['ID']['input'];
@@ -1400,7 +1398,6 @@ export type ProductVariationInput = {
   brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;
-  deletedAt?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   dimensionUnit?: InputMaybe<Scalars['String']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
@@ -1426,7 +1423,7 @@ export type ProductVariationInput = {
   warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
   warrantyPolicy?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
-  weightUnit?: InputMaybe<Scalars['String']['input']>;
+  weightUnit?: InputMaybe<WeightUnit>;
   width?: InputMaybe<Scalars['Float']['input']>;
 };
 
