@@ -1,12 +1,11 @@
 import { z } from "zod";
 import { SortOrderTypeEnum } from "../common/common";
 
-// Define enum for category type
-export const CategoryTypeEnum = z.enum(["category", "subCategory"], {
-  errorMap: () => ({
-    message: "Category type must be either 'category' or 'subCategory'",
-  }),
-});
+// Defines a mapping for category values used in category schemas
+export const categoryMap: Record<string, string> = {
+  Category: "category",
+  Sub_Category: "subCategory",
+};
 
 /**
  * Defines the schema for validating a single category object creation input.
@@ -105,7 +104,12 @@ export const updateCategorySchema = z.object({
     .trim()
     .nullable()
     .optional(),
-  categoryType: CategoryTypeEnum,
+  categoryType: z.preprocess((val) => {
+    if (typeof val === "string" && categoryMap[val]) {
+      return categoryMap[val];
+    }
+    return val;
+  }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
 });
 
 /**
@@ -129,7 +133,12 @@ export const updateCategoryPositionSchema = z.object({
     })
     .int("Position must be an integer")
     .nonnegative("Position must be 0 or a positive integer"),
-  categoryType: CategoryTypeEnum,
+  categoryType: z.preprocess((val) => {
+    if (typeof val === "string" && categoryMap[val]) {
+      return categoryMap[val];
+    }
+    return val;
+  }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
 });
 
 /**
@@ -149,7 +158,12 @@ export const updateCategoryPositionSchema = z.object({
  */
 export const deleteCategorySchema = z.object({
   id: z.string().uuid(),
-  categoryType: CategoryTypeEnum,
+  categoryType: z.preprocess((val) => {
+    if (typeof val === "string" && categoryMap[val]) {
+      return categoryMap[val];
+    }
+    return val;
+  }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
   skipTrash: z.boolean().optional().default(false),
   categoryId: z.string().uuid().optional(), // needed for subcategory position update
   parentSubCategoryId: z.string().uuid().optional(), // needed for nested subcategory
@@ -168,7 +182,12 @@ export const deleteCategorySchema = z.object({
 export const restoreCategorySchema = z.array(
   z.object({
     id: z.string().uuid({ message: "Invalid UUID format" }),
-    categoryType: CategoryTypeEnum,
+    categoryType: z.preprocess((val) => {
+      if (typeof val === "string" && categoryMap[val]) {
+        return categoryMap[val];
+      }
+      return val;
+    }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
   })
 );
 

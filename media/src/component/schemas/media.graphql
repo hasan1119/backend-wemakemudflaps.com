@@ -154,7 +154,7 @@ type Media @key(fields: "id") @shareable {
   category: String # Category under which the media is classified.
   size: Int # Size of the media file in bytes.
   bucketName: String # Name of the storage bucket where media is stored.
-  createdBy: CreatedBy # Metadata on who uploaded the media.
+  createdBy: CreatedBy! # Metadata on who uploaded the media.
   createdAt: String # Timestamp when the media was created.
   deletedAt: String # Timestamp when the media was deleted, if applicable.
 }
@@ -166,12 +166,13 @@ type MediaResponse {
   message: String!
   media: Media!
 }
+
 # Response returned when uploading multiple media items.
 type UploadMediaResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  medias: [Media]!
+  medias: [Media!]!
 }
 
 # Response returned when fetching multiple media items.

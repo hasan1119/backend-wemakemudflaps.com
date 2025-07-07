@@ -138,8 +138,9 @@ export const updateCategoryPosition = async (
         subcategory: {
           id: id,
           name: categoryExist.name,
+          slug: categoryExist.slug,
           description: categoryExist.description,
-          thumbnail: categoryExist.thumbnail,
+          thumbnail: categoryExist.thumbnail as any,
           position: position,
           category: categoryId,
           parentSubCategory: parentSubCategoryId,
@@ -169,8 +170,9 @@ export const updateCategoryPosition = async (
         category: {
           id: categoryExist.id,
           name: categoryExist.name,
+          slug: categoryExist.slug,
           description: categoryExist.description,
-          thumbnail: categoryExist.thumbnail,
+          thumbnail: categoryExist.thumbnail as any,
           position: position,
           createdBy: categoryExist.createdBy as any,
           createdAt:

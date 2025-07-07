@@ -69,7 +69,7 @@ export type BaseResponseOrError = BaseResponse | ErrorResponse;
 export type Brand = {
   __typename?: 'Brand';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -80,7 +80,7 @@ export type Brand = {
 export type BrandPaginationDataSession = {
   __typename?: 'BrandPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -117,7 +117,7 @@ export type BrandResponseById = {
 export type Category = {
   __typename?: 'Category';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -131,7 +131,7 @@ export type Category = {
 export type CategoryDataResponse = {
   __typename?: 'CategoryDataResponse';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -143,7 +143,7 @@ export type CategoryDataResponse = {
 
 export type CategoryPaginationResponse = {
   __typename?: 'CategoryPaginationResponse';
-  category?: Maybe<Array<Category>>;
+  category: Array<Category>;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
@@ -167,8 +167,8 @@ export type CategoryResponseById = {
 };
 
 export enum CategoryType {
-  Category = 'category',
-  SubCategory = 'subCategory'
+  Category = 'Category',
+  SubCategory = 'Sub_Category'
 }
 
 export type CreateAddressBookResponseOrError = AddressResponseBook | BaseResponse | ErrorResponse;
@@ -366,7 +366,7 @@ export type Media = {
   bucketName?: Maybe<Scalars['String']['output']>;
   category?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   dimension?: Maybe<MediaDimension>;
@@ -1102,7 +1102,7 @@ export type Product = {
   brands?: Maybe<Array<Maybe<Brand>>>;
   category?: Maybe<Category>;
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   crossSells?: Maybe<Array<Product>>;
   customBadge?: Maybe<Scalars['String']['output']>;
   defaultImage?: Maybe<Media>;
@@ -1614,7 +1614,7 @@ export type Role = {
   __typename?: 'Role';
   assignedUserCount?: Maybe<Scalars['Int']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   defaultPermissions?: Maybe<Array<RolePermissionSession>>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
@@ -1681,7 +1681,7 @@ export type RolesResponse = {
 export type ShippingClass = {
   __typename?: 'ShippingClass';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1691,7 +1691,7 @@ export type ShippingClass = {
 export type ShippingClassPaginationDataSession = {
   __typename?: 'ShippingClassPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1729,7 +1729,7 @@ export type SubCategory = {
   __typename?: 'SubCategory';
   category?: Maybe<Category>;
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1745,7 +1745,7 @@ export type SubCategoryDataResponse = {
   __typename?: 'SubCategoryDataResponse';
   category?: Maybe<Scalars['ID']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1776,7 +1776,7 @@ export type SubCategoryResponseById = {
 export type Tag = {
   __typename?: 'Tag';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -1786,7 +1786,7 @@ export type Tag = {
 export type TagPaginationDataSession = {
   __typename?: 'TagPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -1814,7 +1814,7 @@ export type TagResponse = {
 export type TaxClass = {
   __typename?: 'TaxClass';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1824,7 +1824,7 @@ export type TaxClass = {
 export type TaxClassPaginationDataSession = {
   __typename?: 'TaxClassPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1852,7 +1852,7 @@ export type TaxClassResponse = {
 export type TaxStatus = {
   __typename?: 'TaxStatus';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1862,7 +1862,7 @@ export type TaxStatus = {
 export type TaxStatusPaginationDataSession = {
   __typename?: 'TaxStatusPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1946,7 +1946,7 @@ export type UploadMediaInput = {
 
 export type UploadMediaResponse = {
   __typename?: 'UploadMediaResponse';
-  medias: Array<Maybe<Media>>;
+  medias: Array<Media>;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
@@ -2686,7 +2686,7 @@ export type BaseResponseOrErrorResolvers<ContextType = Context, ParentType exten
 
 export type BrandResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Brand'] = ResolversParentTypes['Brand']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -2697,7 +2697,7 @@ export type BrandResolvers<ContextType = Context, ParentType extends ResolversPa
 
 export type BrandPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BrandPaginationDataSession'] = ResolversParentTypes['BrandPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -2734,7 +2734,7 @@ export type BrandResponseByIdResolvers<ContextType = Context, ParentType extends
 
 export type CategoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -2748,7 +2748,7 @@ export type CategoryResolvers<ContextType = Context, ParentType extends Resolver
 
 export type CategoryDataResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryDataResponse'] = ResolversParentTypes['CategoryDataResponse']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -2760,7 +2760,7 @@ export type CategoryDataResponseResolvers<ContextType = Context, ParentType exte
 };
 
 export type CategoryPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryPaginationResponse'] = ResolversParentTypes['CategoryPaginationResponse']> = {
-  category?: Resolver<Maybe<Array<ResolversTypes['Category']>>, ParentType, ContextType>;
+  category?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -3050,7 +3050,7 @@ export type MediaResolvers<ContextType = Context, ParentType extends ResolversPa
   bucketName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   category?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   dimension?: Resolver<Maybe<ResolversTypes['MediaDimension']>, ParentType, ContextType>;
@@ -3189,7 +3189,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   brands?: Resolver<Maybe<Array<Maybe<ResolversTypes['Brand']>>>, ParentType, ContextType>;
   category?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   crossSells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
   customBadge?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   defaultImage?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
@@ -3461,7 +3461,7 @@ export type RestoreTaxStatusResponseOrErrorResolvers<ContextType = Context, Pare
 export type RoleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Role'] = ResolversParentTypes['Role']> = {
   assignedUserCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   defaultPermissions?: Resolver<Maybe<Array<ResolversTypes['RolePermissionSession']>>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3519,7 +3519,7 @@ export type RolesResponseResolvers<ContextType = Context, ParentType extends Res
 
 export type ShippingClassResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingClass'] = ResolversParentTypes['ShippingClass']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3529,7 +3529,7 @@ export type ShippingClassResolvers<ContextType = Context, ParentType extends Res
 
 export type ShippingClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingClassPaginationDataSession'] = ResolversParentTypes['ShippingClassPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3558,7 +3558,7 @@ export type ShippingClassResponseResolvers<ContextType = Context, ParentType ext
 export type SubCategoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategory'] = ResolversParentTypes['SubCategory']> = {
   category?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3574,7 +3574,7 @@ export type SubCategoryResolvers<ContextType = Context, ParentType extends Resol
 export type SubCategoryDataResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SubCategoryDataResponse'] = ResolversParentTypes['SubCategoryDataResponse']> = {
   category?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3605,7 +3605,7 @@ export type SubCategoryResponseByIdResolvers<ContextType = Context, ParentType e
 
 export type TagResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Tag'] = ResolversParentTypes['Tag']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3615,7 +3615,7 @@ export type TagResolvers<ContextType = Context, ParentType extends ResolversPare
 
 export type TagPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TagPaginationDataSession'] = ResolversParentTypes['TagPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3643,7 +3643,7 @@ export type TagResponseResolvers<ContextType = Context, ParentType extends Resol
 
 export type TaxClassResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxClass'] = ResolversParentTypes['TaxClass']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3653,7 +3653,7 @@ export type TaxClassResolvers<ContextType = Context, ParentType extends Resolver
 
 export type TaxClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxClassPaginationDataSession'] = ResolversParentTypes['TaxClassPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3681,7 +3681,7 @@ export type TaxClassResponseResolvers<ContextType = Context, ParentType extends 
 
 export type TaxStatusResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxStatus'] = ResolversParentTypes['TaxStatus']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3691,7 +3691,7 @@ export type TaxStatusResolvers<ContextType = Context, ParentType extends Resolve
 
 export type TaxStatusPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxStatusPaginationDataSession'] = ResolversParentTypes['TaxStatusPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3766,7 +3766,7 @@ export type UpdateTaxStatusResponseOrErrorResolvers<ContextType = Context, Paren
 };
 
 export type UploadMediaResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UploadMediaResponse'] = ResolversParentTypes['UploadMediaResponse']> = {
-  medias?: Resolver<Array<Maybe<ResolversTypes['Media']>>, ParentType, ContextType>;
+  medias?: Resolver<Array<ResolversTypes['Media']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;

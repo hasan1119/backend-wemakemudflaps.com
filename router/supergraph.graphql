@@ -96,7 +96,7 @@ type Brand
   name: String!
   slug: String!
   thumbnail: Media
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -109,7 +109,7 @@ type BrandPaginationDataSession
   slug: String!
   thumbnail: Media
   totalProducts: Int
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -151,7 +151,7 @@ type Category
   description: String
   thumbnail: Media
   position: Int!
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   subCategories: [SubCategory]
   createdAt: String
   deletedAt: String
@@ -166,7 +166,7 @@ type CategoryDataResponse
   description: String
   thumbnail: Media
   position: Int!
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -177,7 +177,7 @@ type CategoryPaginationResponse
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: [Category!]
+  category: [Category!]!
   total: Int!
 }
 
@@ -202,8 +202,8 @@ type CategoryResponseById
 enum CategoryType
   @join__type(graph: PRODUCT)
 {
-  category @join__enumValue(graph: PRODUCT)
-  subCategory @join__enumValue(graph: PRODUCT)
+  Category @join__enumValue(graph: PRODUCT)
+  Sub_Category @join__enumValue(graph: PRODUCT)
 }
 
 union CreateAddressBookResponseOrError
@@ -694,7 +694,7 @@ type Media
   category: String @join__field(graph: MEDIA)
   size: Int @join__field(graph: MEDIA)
   bucketName: String @join__field(graph: MEDIA)
-  createdBy: CreatedBy @join__field(graph: MEDIA)
+  createdBy: CreatedBy! @join__field(graph: MEDIA)
   createdAt: String @join__field(graph: MEDIA)
   deletedAt: String @join__field(graph: MEDIA)
 }
@@ -988,7 +988,7 @@ type Product
   slug: String!
   sku: String
   model: String
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   defaultImage: Media
   images: [Media!]
   videos: [Media!]
@@ -1417,7 +1417,7 @@ type Role
   systemPermanentDeleteProtection: Boolean
   systemPermanentUpdateProtection: Boolean
   assignedUserCount: Int
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1486,7 +1486,7 @@ type ShippingClass
   id: ID!
   value: String!
   description: String
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1498,7 +1498,7 @@ type ShippingClassPaginationDataSession
   value: String!
   description: String
   totalProducts: Int
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1545,7 +1545,7 @@ type SubCategory
   parentSubCategory: SubCategory
   subCategories: [SubCategory]
   position: Int!
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1562,7 +1562,7 @@ type SubCategoryDataResponse
   parentSubCategory: ID
   subCategories: [SubCategoryDataResponse]
   position: Int!
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1591,7 +1591,7 @@ type Tag
   id: ID!
   name: String!
   slug: String!
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1603,7 +1603,7 @@ type TagPaginationDataSession
   name: String!
   slug: String!
   totalProducts: Int
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1633,7 +1633,7 @@ type TaxClass
   id: ID!
   value: String!
   description: String
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1645,7 +1645,7 @@ type TaxClassPaginationDataSession
   value: String!
   description: String
   totalProducts: Int
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1675,7 +1675,7 @@ type TaxStatus
   id: ID!
   value: String!
   description: String
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1687,7 +1687,7 @@ type TaxStatusPaginationDataSession
   value: String!
   description: String
   totalProducts: Int
-  createdBy: CreatedBy
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
@@ -1841,7 +1841,7 @@ type UploadMediaResponse
   statusCode: Int!
   success: Boolean!
   message: String!
-  medias: [Media]!
+  medias: [Media!]!
 }
 
 union UploadMediaResponseOrError

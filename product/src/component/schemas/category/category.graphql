@@ -1,7 +1,7 @@
 # ---------------------- Category & Sub Category Types ----------------------
 enum CategoryType {
-  category
-  subCategory
+  Category
+  Sub_Category
 }
 
 type Category {
@@ -11,7 +11,7 @@ type Category {
   description: String
   thumbnail: Media
   position: Int! # Display order/position of the category.
-  createdBy: CreatedBy # Metadata on who created the category.
+  createdBy: CreatedBy! # Metadata on who created the category.
   subCategories: [SubCategory] # List of subcategories under this category.
   createdAt: String
   deletedAt: String
@@ -28,7 +28,7 @@ type SubCategory {
   # Optional parent subcategory if nested.
   subCategories: [SubCategory] # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
-  createdBy: CreatedBy # Metadata on who created the category.
+  createdBy: CreatedBy! # Metadata on who created the category.
   createdAt: String
   deletedAt: String
 }
@@ -40,7 +40,7 @@ type CategoryDataResponse {
   description: String
   thumbnail: Media
   position: Int! # Display order/position of the category.
-  createdBy: CreatedBy # Metadata on who created the category.
+  createdBy: CreatedBy! # Metadata on who created the category.
   createdAt: String
   deletedAt: String
 }
@@ -55,7 +55,7 @@ type SubCategoryDataResponse {
   parentSubCategory: ID # The parent subcategory if nested.
   subCategories: [SubCategoryDataResponse] # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
-  createdBy: CreatedBy # Metadata on who created the category.
+  createdBy: CreatedBy! # Metadata on who created the category.
   createdAt: String
   deletedAt: String
 }
@@ -93,7 +93,7 @@ type CategoryPaginationResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: [Category!]
+  category: [Category!]!
   total: Int!
 }
 

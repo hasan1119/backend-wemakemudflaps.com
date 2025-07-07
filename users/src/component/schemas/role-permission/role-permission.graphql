@@ -46,7 +46,7 @@ type Role {
   systemPermanentDeleteProtection: Boolean # Prevents deletion even by super admin.
   systemPermanentUpdateProtection: Boolean # Prevents update even by super admin.
   assignedUserCount: Int # Number of users currently assigned to this role.
-  createdBy: CreatedBy # Metadata on who created the role.
+  createdBy: CreatedBy! # Metadata on who created the role.
   createdAt: String
   deletedAt: String
 }
