@@ -25,7 +25,7 @@ type Product @key(fields: "id") {
   # ---------------------- Categorization ----------------------
   brands: [Brand] # Associated brands
   tags: [Tag!] # List of tag
-  category: Category # Main category
+  category: Category! # Main category
   subCategories: [SubCategory] # List of sub-category
   # ---------------------- Warranty Info ----------------------
   warrantyDigit: Int # Warranty duration (digit part)

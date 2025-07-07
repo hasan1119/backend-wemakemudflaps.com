@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { SortOrderTypeEnum } from "../common/common";
 
+// Defines a mapping for product configuration values
+export const productConfigurationTypeMap: Record<string, string> = {
+  SIMPLE_PRODUCT: "Simple Product",
+  VARIABLE_PRODUCT: "Variable Product",
+};
+
 /**
  * Enum for product configuration types.
  *
@@ -9,15 +15,19 @@ import { SortOrderTypeEnum } from "../common/common";
  *
  * @property {"Simple Product" | "Variable Product"} value - The type of product configuration.
  */
-export const ProductConfigurationTypeEnum = z.enum(
-  ["Simple Product", "Variable Product"],
-  {
-    errorMap: () => ({
-      message:
-        "Product configuration type must be 'Simple Product' or 'Variable Product',",
-    }),
+export const ProductConfigurationTypeEnum = z.preprocess((val) => {
+  if (typeof val === "string" && productConfigurationTypeMap[val]) {
+    return productConfigurationTypeMap[val];
   }
-);
+  return val;
+}, z.enum([...new Set(Object.values(productConfigurationTypeMap))] as [string, ...string[]]));
+
+// Defines a mapping for product delivery type values
+export const productDeliveryTypeMap: Record<string, string> = {
+  PHYSICAL_PRODUCT: "Physical Product",
+  DOWNLOADABLE_PRODUCT: "Downloadable Product",
+  VIRTUAL_PRODUCT: "Virtual Product",
+};
 
 /**
  * Enum for product delivery types.
@@ -27,15 +37,25 @@ export const ProductConfigurationTypeEnum = z.enum(
  *
  * @property {"Physical Product" | "Downloadable Product" | "Virtual Product"} value - The type of product delivery.
  */
-export const ProductDeliveryTypeEnum = z.enum(
-  ["Physical Product", "Downloadable Product", "Virtual Product"],
-  {
-    errorMap: () => ({
-      message:
-        "Product delivery type must be 'Physical Product', 'Downloadable Product', or 'Virtual Product'",
-    }),
+export const ProductDeliveryTypeEnum = z.preprocess((val) => {
+  if (typeof val === "string" && productDeliveryTypeMap[val]) {
+    return productDeliveryTypeMap[val];
   }
-);
+  return val;
+}, z.enum([...new Set(Object.values(productDeliveryTypeMap))] as [string, ...string[]]));
+
+// Defines a mapping for default warranty period values
+export const WarrantyPeriodTypeMap: Record<string, string> = {
+  DAY: "day",
+  DAYS: "days",
+  WEEK: "week",
+  WEEKS: "weeks",
+  MONTH: "month",
+  MONTHS: "months",
+  YEAR: "year",
+  YEARS: "years",
+  LIFETIME: "life-time",
+};
 
 /**
  * Enum for warranty period units.
@@ -45,25 +65,19 @@ export const ProductDeliveryTypeEnum = z.enum(
  *
  * @property {"day" | "days" | "week" | "weeks" | "month" | "months" | "year" | "years" | "life-time"} value - The unit of the warranty period.
  */
-export const WarrantyPeriodEnum = z.enum(
-  [
-    "day",
-    "days",
-    "week",
-    "weeks",
-    "month",
-    "months",
-    "year",
-    "years",
-    "life-time",
-  ],
-  {
-    errorMap: () => ({
-      message:
-        "Warranty period must be one of: day, days, week, weeks, month, months, year, years, life-time",
-    }),
+export const WarrantyPeriodEnum = z.preprocess((val) => {
+  if (typeof val === "string" && WarrantyPeriodTypeMap[val]) {
+    return WarrantyPeriodTypeMap[val];
   }
-);
+  return val;
+}, z.enum([...new Set(Object.values(WarrantyPeriodTypeMap))] as [string, ...string[]]));
+
+// Defines a mapping for backorder option values
+export const BackOrderOptionTypeMap: Record<string, string> = {
+  DONT_ALLOW: "Don't allow",
+  ALLOW_WITH_NOTIFICATION: "Allow but notify customer",
+  ALLOW: "Allow",
+};
 
 /**
  * Enum for backorder options.
@@ -73,15 +87,19 @@ export const WarrantyPeriodEnum = z.enum(
  *
  * @property {"Don't allow" | "Allow but notify customer" | "Allow"} value - The backorder option.
  */
-export const BackOrderOptionEnum = z.enum(
-  ["Don't allow", "Allow but notify customer", "Allow"],
-  {
-    errorMap: () => ({
-      message:
-        "Backorder option must be 'Don't allow', 'Allow but notify customer', or 'Allow'",
-    }),
+export const BackOrderOptionEnum = z.preprocess((val) => {
+  if (typeof val === "string" && BackOrderOptionTypeMap[val]) {
+    return BackOrderOptionTypeMap[val];
   }
-);
+  return val;
+}, z.enum([...new Set(Object.values(BackOrderOptionTypeMap))] as [string, ...string[]]));
+
+// Defines a mapping for stock status values
+export const StockStatusTypeMap: Record<string, string> = {
+  IN_STOCK: "In stock",
+  OUT_OF_STOCK: "Out of stock",
+  ON_BACKORDER: "On backorder",
+};
 
 /**
  * Enum for stock status.
@@ -91,15 +109,27 @@ export const BackOrderOptionEnum = z.enum(
  *
  * @property {"In stock" | "Out of stock" | "On backorder"} value - The stock status.
  */
-export const StockStatusEnum = z.enum(
-  ["In stock", "Out of stock", "On backorder"],
-  {
-    errorMap: () => ({
-      message:
-        "Stock status must be 'In stock', 'Out of stock', or 'On backorder'",
-    }),
+export const StockStatusEnum = z.preprocess((val) => {
+  if (typeof val === "string" && StockStatusTypeMap[val]) {
+    return StockStatusTypeMap[val];
   }
-);
+  return val;
+}, z.enum([...new Set(Object.values(StockStatusTypeMap))] as [string, ...string[]]));
+
+// Defines a mapping for weight unit values
+export const WeightUnitTypeMap: Record<string, string> = {
+  MILLIGRAM: "Milligram",
+  GRAM: "Gram",
+  KILOGRAM: "Kilogram",
+  TON: "Ton",
+  POUND: "Pound",
+  OUNCE: "Ounce",
+  STONE: "Stone",
+  CARAT: "Carat",
+  GRAIN: "Grain",
+  QUINTAL: "Quintal",
+  METRIC_TON: "Metric Ton",
+};
 
 /**
  * Enum for weight units.
@@ -109,26 +139,23 @@ export const StockStatusEnum = z.enum(
  *
  * @property {"Milligram" | "Gram" | "Kilogram" | "Ton" | "Pound" | "Ounce" | "Stone" | "Carat" | "Grain" | "Quintal" | "Metric Ton"} value - The unit of weight.
  */
-export const WeightUnitEnum = z.enum(
-  [
-    "Milligram",
-    "Gram",
-    "Kilogram",
-    "Ton",
-    "Pound",
-    "Ounce",
-    "Stone",
-    "Carat",
-    "Grain",
-    "Quintal",
-    "Metric Ton",
-  ],
-  {
-    errorMap: () => ({
-      message: "Weight unit must be a valid unit",
-    }),
+export const WeightUnitEnum = z.preprocess((val) => {
+  if (typeof val === "string" && WeightUnitTypeMap[val]) {
+    return WeightUnitTypeMap[val];
   }
-);
+  return val;
+}, z.enum([...new Set(Object.values(WeightUnitTypeMap))] as [string, ...string[]]));
+
+// Defines a mapping for dimension unit values
+export const DimensionUnitTypeMap: Record<string, string> = {
+  MILLIMETER: "Millimeter",
+  CENTIMETER: "Centimeter",
+  METER: "Meter",
+  KILOMETER: "Kilometer",
+  INCH: "Inch",
+  FOOT: "Foot",
+  YARD: "Yard",
+};
 
 /**
  * Enum for dimension units.
@@ -138,14 +165,12 @@ export const WeightUnitEnum = z.enum(
  *
  * @property {"Millimeter" | "Centimeter" | "Meter" | "Kilometer" | "Inch" | "Foot" | "Yard"} value - The unit of dimension.
  */
-export const DimensionUnitEnum = z.enum(
-  ["Millimeter", "Centimeter", "Meter", "Kilometer", "Inch", "Foot", "Yard"],
-  {
-    errorMap: () => ({
-      message: "Dimension unit must be a valid unit",
-    }),
+export const DimensionUnitEnum = z.preprocess((val) => {
+  if (typeof val === "string" && DimensionUnitTypeMap[val]) {
+    return DimensionUnitTypeMap[val];
   }
-);
+  return val;
+}, z.enum([...new Set(Object.values(DimensionUnitTypeMap))] as [string, ...string[]]));
 
 /**
  * Defines the schema for validating product attribute values input.

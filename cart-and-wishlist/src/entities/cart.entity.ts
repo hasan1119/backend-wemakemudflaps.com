@@ -17,8 +17,8 @@ export class Cart {
   // You could add a column like `variationId: string` or use another entity to link variations
 
   // User Id associated with the cart (string only for Apollo Federation compatibility))
-  @Column({ nullable: true })
-  createdBy: string | null;
+  @Column()
+  createdBy: string;
 
   @Column({ nullable: true })
   guestSessionId: string | null; // For guest carts

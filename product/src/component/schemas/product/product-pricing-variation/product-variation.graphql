@@ -1,12 +1,5 @@
 # ---------------------- Product Variation Attribute Types ----------------------
 
-# Enum describing type of product delivery
-enum ProductDeliveryTypeEnum {
-  PHYSICAL
-  DOWNLOADABLE
-  VIRTUAL
-}
-
 # Attributes that define variations (e.g., Color)
 type ProductVariationAttribute {
   id: ID! # Unique identifier
@@ -96,7 +89,7 @@ input ProductVariationInput {
   # ---------------------- Identification ----------------------
   id: ID # Optional ID for update
   sku: String # Optional SKU for inventory tracking
-  productDeliveryType: [ProductDeliveryTypeEnum!] # Optional Product type (e.g., physical, virtual and downloadable)
+  productDeliveryType: [ProductDeliveryType!] # Optional Product type (e.g., physical, virtual and downloadable)
   brandIds: [ID!] # Optional ID to update the brand
   # ---------------------- Quantity Rules ----------------------
   minQuantity: Int # Minimum purchase quantity
@@ -123,7 +116,7 @@ input ProductVariationInput {
   attributeValues: [ProductVariationAttributeValueInput!] # List of variation attribute values
   # ---------------------- Warranty Info ----------------------
   warrantyDigit: Int # Duration number for warranty
-  defaultWarrantyPeriod: String # Period type (e.g., "months")
+  defaultWarrantyPeriod: DefaultWarrantyPeriod # Period type (e.g., "months")
   warrantyPolicy: String # Warranty policy description
   # ---------------------- Miscellaneous ----------------------
   shippingClassId: ID # Shipping class relation

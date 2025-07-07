@@ -3,8 +3,8 @@ type Mutation {
   # Create a new product.
   # Only accessible by authorized users.
   createProduct(
-    productConfigurationType: String!
-    productDeliveryType: [String!]!
+    productConfigurationType: productConfigurationType!
+    productDeliveryType: [ProductDeliveryType!]
     isCustomized: Boolean!
     name: String!
     slug: String!
@@ -19,7 +19,7 @@ type Mutation {
     categoryId: ID!
     subCategoryIds: [ID!]
     warrantyDigit: Int
-    defaultWarrantyPeriod: String
+    defaultWarrantyPeriod: DefaultWarrantyPeriod
     warrantyPolicy: String
     regularPrice: Float!
     salePrice: Float
@@ -38,14 +38,14 @@ type Mutation {
     model: String
     manageStock: Boolean
     stockQuantity: Int
-    allowBackOrders: String
+    allowBackOrders: AllowBackOrders
     lowStockThresHold: Int
-    stockStatus: String
+    stockStatus: StockStatus
     soldIndividually: Boolean
     initialNumberInStock: String
-    weightUnit: String
+    weightUnit: WeightUnit
     weight: Float
-    dimensionUnit: String
+    dimensionUnit: DimensionUnit
     length: Float
     width: Float
     height: Float
@@ -65,8 +65,8 @@ type Mutation {
   # Only accessible by authorized users.
   updateProduct(
     id: ID!
-    productConfigurationType: String
-    productDeliveryType: [String!]
+    productConfigurationType: productConfigurationType
+    productDeliveryType: [ProductDeliveryType!]
     isCustomized: Boolean
     name: String
     slug: String
@@ -81,7 +81,7 @@ type Mutation {
     categoryId: ID
     subCategoryIds: [ID!]
     warrantyDigit: Int
-    defaultWarrantyPeriod: String
+    defaultWarrantyPeriod: DefaultWarrantyPeriod
     warrantyPolicy: String
     regularPrice: Float
     salePrice: Float
@@ -100,14 +100,14 @@ type Mutation {
     model: String
     manageStock: Boolean
     stockQuantity: Int
-    allowBackOrders: String
+    allowBackOrders: AllowBackOrders
     lowStockThresHold: Int
-    stockStatus: String
+    stockStatus: StockStatus
     soldIndividually: Boolean
     initialNumberInStock: String
-    weightUnit: String
+    weightUnit: WeightUnit
     weight: Float
-    dimensionUnit: String
+    dimensionUnit: DimensionUnit
     length: Float
     width: Float
     height: Float

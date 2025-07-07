@@ -62,8 +62,8 @@ export class SubCategory {
   position: number;
 
   // User ID who created the subcategory (string only for Apollo Federation compatibility)
-  @Column({ nullable: true, default: null })
-  createdBy: string | null;
+  @Column()
+  createdBy: string;
 
   // Timestamp when the subcategory was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

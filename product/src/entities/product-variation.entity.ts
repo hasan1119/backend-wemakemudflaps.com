@@ -15,12 +15,6 @@ import { ShippingClass } from "./shipping-class.entity";
 import { TaxClass } from "./tax-class.entity";
 import { TaxStatus } from "./tax-status.entity";
 
-enum ProductDeliveryTypeEnum {
-  PHYSICAL = "Physical Product",
-  DOWNLOADABLE = "Downloadable Product",
-  VIRTUAL = "Virtual Product",
-}
-
 @Entity()
 export class ProductVariation {
   @PrimaryGeneratedColumn("uuid")
@@ -29,12 +23,12 @@ export class ProductVariation {
   // Product categorization by delivery method
   @Column({
     type: "enum",
-    enum: ProductDeliveryTypeEnum,
+    enum: ["Physical Product", "Downloadable Product", "Virtual Product"],
     enumName: "product_delivery_type_enum",
     array: true,
     nullable: true,
   })
-  productDeliveryType: ProductDeliveryTypeEnum[];
+  productDeliveryType: string[] | null;
 
   // Associated brand for the product
   @ManyToOne(() => Brand, (brand) => brand.products, {

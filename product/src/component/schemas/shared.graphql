@@ -28,6 +28,72 @@ type BaseResponse @shareable {
   message: String!
 }
 
+# Enum for product configuration selection
+enum productConfigurationType {
+  SIMPLE_PRODUCT
+  VARIABLE_PRODUCT
+}
+
+# Enum for product delivery type selection
+enum ProductDeliveryType {
+  PHYSICAL_PRODUCT
+  DOWNLOADABLE_PRODUCT
+  VIRTUAL_PRODUCT
+}
+
+# Enum for product warranty period selection
+enum DefaultWarrantyPeriod {
+  DAY
+  DAYS
+  WEEK
+  WEEKS
+  MONTH
+  MONTHS
+  YEAR
+  YEARS
+  LIFETIME
+}
+
+# Enum for allowing backorders selection
+enum AllowBackOrders {
+  DONT_ALLOW
+  ALLOW_WITH_NOTIFICATION
+  ALLOW
+}
+
+# Enum for stock status selection
+enum StockStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  ON_BACKORDER
+}
+
+# Enum for weight units selection
+enum WeightUnit {
+  MILLIGRAM
+  GRAM
+  KILOGRAM
+  TON
+  POUND
+  OUNCE
+  STONE
+  CARAT
+  GRAIN
+  QUINTAL
+  METRIC_TON
+}
+
+# Enum for dimension units selection
+enum DimensionUnit {
+  MILLIMETER
+  CENTIMETER
+  METER
+  KILOMETER
+  INCH
+  FOOT
+  YARD
+}
+
 # ---------------------- CreatedBy ----------------------
 # Extends the CreatedBy entity to support federated references.
 extend type CreatedBy @key(fields: "id") {

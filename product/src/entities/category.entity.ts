@@ -41,8 +41,8 @@ export class Category {
   position: number;
 
   // User ID who created the category (string only for Apollo Federation compatibility)
-  @Column({ nullable: true, default: null })
-  createdBy: string | null;
+  @Column()
+  createdBy: string;
 
   // Timestamp when the category was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
