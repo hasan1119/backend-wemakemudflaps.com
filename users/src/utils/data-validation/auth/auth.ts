@@ -19,7 +19,7 @@ export const genderMap: Record<string, string> = {
  *
  * @property firstName - User's first name (letters, spaces, hyphens, max 50 chars).
  * @property lastName - User's last name (letters, spaces, hyphens, max 50 chars).
- * @property userName - User's user name (letters, spaces, hyphens, max 10 chars).
+ * @property userName - User's user name (letters, spaces, hyphens, max 50 chars).
  * @property email - User's email address (valid format).
  * @property password - User's password (complexity requirements).
  * @property gender - Optional gender value from genderMap.
@@ -44,7 +44,7 @@ export const registerSchema = z.object({
   username: z
     .string()
     .min(5, { message: "Username is required" })
-    .max(10, { message: "Username must not exceed 10 characters" })
+    .max(50, { message: "Username must not exceed 50 characters" })
     .regex(/^[a-zA-Z0-9-]+$/, {
       message: "Username must contain only letters, numbers, or hyphens",
     })
@@ -182,7 +182,7 @@ export const changePasswordSchema = z.object({
  *
  * @property firstName - Optional first name (letters, spaces, hyphens, max 50 chars).
  * @property lastName - Optional last name (letters, spaces, hyphens, max 50 chars).
- * @property username - Optional user name (letters, spaces, hyphens, max 10 chars).
+ * @property username - Optional user name (letters, spaces, hyphens, max 50 chars).
  * @property phone - Optional phone value.
  * @property email - Optional email address (valid format).
  * @property gender - Optional gender value from genderMap.
@@ -210,7 +210,7 @@ export const updateProfileSchema = z.object({
   username: z
     .string()
     .min(5, { message: "Username is required" })
-    .max(10, { message: "Username must not exceed 10 characters" })
+    .max(50, { message: "Username must not exceed 50 characters" })
     .regex(/^[a-zA-Z0-9-]+$/, {
       message: "Username must contain only letters, numbers, or hyphens",
     })
@@ -238,8 +238,5 @@ export const updateProfileSchema = z.object({
     })
     .nullable()
     .optional(),
-  avatar: z
-    .string()
-    .nullable()
-    .optional(),
+  avatar: z.string().nullable().optional(),
 });
