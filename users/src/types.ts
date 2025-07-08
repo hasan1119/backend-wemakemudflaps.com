@@ -828,6 +828,7 @@ export type MutationLoginArgs = {
 
 
 export type MutationRegisterArgs = {
+  company?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
   firstName: Scalars['String']['input'];
   gender?: InputMaybe<Gender>;
@@ -1928,7 +1929,7 @@ export type TaxExemption = {
   expiryDate: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   status: TaxExemptionStatus;
-  taxCertificate: Media;
+  taxCertificate?: Maybe<Media>;
   taxNumber: Scalars['String']['output'];
   updatedAt: Scalars['String']['output'];
 };
@@ -2059,8 +2060,10 @@ export type User = {
   __typename?: 'User';
   address?: Maybe<UserAddress>;
   avatar?: Maybe<Media>;
+  bio?: Maybe<Scalars['String']['output']>;
   canUpdatePermissions?: Maybe<Scalars['Boolean']['output']>;
   canUpdateRole?: Maybe<Scalars['Boolean']['output']>;
+  company?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
@@ -2075,6 +2078,7 @@ export type User = {
   roles: Array<UserRoleObject>;
   tempUpdatedEmail?: Maybe<Scalars['String']['output']>;
   username?: Maybe<Scalars['String']['output']>;
+  website?: Maybe<Scalars['String']['output']>;
 };
 
 export type UserAddress = {
@@ -3852,7 +3856,7 @@ export type TaxExemptionResolvers<ContextType = Context, ParentType extends Reso
   expiryDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['TaxExemptionStatus'], ParentType, ContextType>;
-  taxCertificate?: Resolver<ResolversTypes['Media'], ParentType, ContextType>;
+  taxCertificate?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   taxNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3971,8 +3975,10 @@ export type UploadMediaResponseOrErrorResolvers<ContextType = Context, ParentTyp
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
   avatar?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
+  bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   canUpdatePermissions?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   canUpdateRole?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  company?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3987,6 +3993,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

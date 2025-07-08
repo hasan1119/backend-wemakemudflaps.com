@@ -112,6 +112,9 @@ type User @key(fields: "id") {
   email: String
   tempUpdatedEmail: String
   username: String
+  website: String
+  company: String
+  bio: String
   address: UserAddress
   emailVerified: Boolean
   gender: String

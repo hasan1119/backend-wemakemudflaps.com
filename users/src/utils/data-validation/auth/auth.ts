@@ -12,17 +12,18 @@ export const genderMap: Record<string, string> = {
  * Defines the schema for validating user registration input.
  *
  * Workflow:
- * 1. Validates firstName, lastName, email, password, and optional gender fields.
+ * 1. Validates firstName, lastName, email, password, and optional gender and companyName fields.
  * 2. Ensures firstName and lastName contain only letters, spaces, or hyphens.
  * 3. Enforces password complexity (min 8 chars, uppercase, lowercase, number, special char).
  * 4. Maps gender values to predefined options using genderMap.
  *
  * @property firstName - User's first name (letters, spaces, hyphens, max 50 chars).
  * @property lastName - User's last name (letters, spaces, hyphens, max 50 chars).
- * @property userName - User's user name (letters, spaces, hyphens, max 50 chars).
+ * @property username - User's user name (letters, numbers, hyphens, max 50 chars).
  * @property email - User's email address (valid format).
  * @property password - User's password (complexity requirements).
  * @property gender - Optional gender value from genderMap.
+ * @property companyName - Optional company or organization name (max 100 characters).
  */
 export const registerSchema = z.object({
   firstName: z
@@ -72,6 +73,11 @@ export const registerSchema = z.object({
       }
       return val;
     }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]]))
+    .nullable()
+    .optional(),
+  companyName: z
+    .string()
+    .max(100, { message: "Company name must not exceed 100 characters" })
     .nullable()
     .optional(),
 });
@@ -176,21 +182,31 @@ export const changePasswordSchema = z.object({
  * Defines the schema for validating user profile update input.
  *
  * Workflow:
- * 1. Validates optional fields for firstName, lastName, email, and gender.
- * 2. Ensures firstName and lastName contain only letters, spaces, or hyphens if provided.
- * 3. Validates email format and maps gender to predefined options if provided.
+ * 1. Validates required fields like userId, firstName, lastName, username, and email.
+ * 2. Validates optional fields like phone, gender, address, avatar, website, bio, and companyName.
+ * 3. Ensures firstName and lastName contain only letters, spaces, or hyphens.
+ * 4. Validates username pattern and length.
+ * 5. Validates email format.
+ * 6. Maps gender string input to predefined options using genderMap.
+ * 7. Validates address structure and optional nested fields.
+ * 8. Validates website as a valid URL.
+ * 9. Enforces max length for bio and companyName.
  *
- * @property firstName - Optional first name (letters, spaces, hyphens, max 50 chars).
- * @property lastName - Optional last name (letters, spaces, hyphens, max 50 chars).
- * @property username - Optional user name (letters, spaces, hyphens, max 50 chars).
- * @property phone - Optional phone value.
- * @property email - Optional email address (valid format).
+ * @property userId - UUID of the user (required).
+ * @property firstName - First name (letters, spaces, hyphens, max 50 chars).
+ * @property lastName - Last name (letters, spaces, hyphens, max 50 chars).
+ * @property username - Unique username (letters, numbers, hyphens, max 50 chars).
+ * @property phone - Optional phone number (max 15 characters).
+ * @property email - Valid email address (required).
  * @property gender - Optional gender value from genderMap.
- * @property address - Optional address value.
- * @property avatar - Optional avatar value.
- * @property sessionId - User session id of the token.
+ * @property address - Optional structured address (street, city, state, zip, country).
+ * @property avatar - Optional media ID representing user's avatar.
+ * @property website - Optional personal or professional website (valid URL).
+ * @property bio - Optional short biography (max 1000 characters).
+ * @property companyName - Optional company or organization name (max 100 characters).
  */
 export const updateProfileSchema = z.object({
+  userId: z.string().uuid({ message: "Invalid UUID format" }),
   firstName: z
     .string()
     .min(1, { message: "First name is required" })
@@ -239,4 +255,19 @@ export const updateProfileSchema = z.object({
     .nullable()
     .optional(),
   avatar: z.string().nullable().optional(),
+  website: z
+    .string()
+    .url({ message: "Website must be a valid URL" })
+    .nullable()
+    .optional(),
+  bio: z
+    .string()
+    .max(1000, { message: "Bio must not exceed 1000 characters" })
+    .nullable()
+    .optional(),
+  companyName: z
+    .string()
+    .max(100, { message: "Company name must not exceed 100 characters" })
+    .nullable()
+    .optional(),
 });

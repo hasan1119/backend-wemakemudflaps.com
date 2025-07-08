@@ -12,6 +12,7 @@ type Mutation {
     username: String! # Unique username of the user (required).
     password: String! # User's raw password to be hashed by server (required).
     gender: Gender # Optional gender of the user.
+    company: String # Optional company name of the user.
   ): BaseResponseOrError!
 
   # Authenticate and log in an existing user.

@@ -84,8 +84,15 @@ export const register = async (
       };
     }
 
-    const { firstName, lastName, email, username, password, gender } =
-      validationResult.data;
+    const {
+      firstName,
+      lastName,
+      email,
+      username,
+      password,
+      gender,
+      companyName,
+    } = validationResult.data;
 
     // Attempt to retrieve cached user email from Redis
     let userEmail;
@@ -216,6 +223,7 @@ export const register = async (
         roles: [role], // expects an array of Role entities
         canUpdatePermissions: false,
         canUpdateRole: false,
+        company: companyName,
       })) as User;
 
       // Generate account activation link
@@ -380,6 +388,7 @@ export const register = async (
         roles: [role], // expects an array of Role entities
         canUpdatePermissions: true,
         canUpdateRole: true,
+        company: companyName,
       })) as User;
 
       // Generate account activation link
