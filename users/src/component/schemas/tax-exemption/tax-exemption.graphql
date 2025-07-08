@@ -1,0 +1,72 @@
+# ---------------------- Tax exemption types ----------------------
+
+# Enum defining the possible statuses of a tax exemption request.
+enum TaxExemptionStatus {
+  Pending # Awaiting review
+  Approved # Approved and currently valid
+  Rejected # Rejected and not valid
+  Expired # Previously approved but now expired
+}
+
+# Represents a single tax exemption record.
+type TaxExemption {
+  id: ID! # Unique identifier of the tax exemption record
+  taxNumber: String! # Tax identification number (e.g., EIN)
+  assumptionReason: String! # Reason for claiming the tax exemption
+  taxCertificate: String! # ID of the uploaded tax certificate (media reference)
+  status: TaxExemptionStatus! # Current status of the exemption
+  expiryDate: String # Expiration date of the exemption (if applicable)
+  createdAt: String! # Created timestamp
+  updatedAt: String! # Last updated timestamp
+}
+
+# ---------------------- Responses ----------------------
+
+# Single tax exemption response.
+type TaxExemptionResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxExemption: TaxExemption
+}
+
+# Multiple tax exemptions response.
+type TaxExemptionsResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxExemption: TaxExemption!
+}
+
+# Delete tax exemption response.
+type DeleteTaxExemptionResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+}
+
+# ---------------------- Unions ----------------------
+
+# Union for creating a tax exemption.
+union CreateTaxExemptionResponseOrError =
+    BaseResponse
+  | TaxExemptionResponse
+  | ErrorResponse
+
+# Union for updating a tax exemption.
+union UpdateTaxExemptionResponseOrError =
+    BaseResponse
+  | TaxExemptionResponse
+  | ErrorResponse
+
+# Union for fetching all tax exemptions.
+union GetTaxExemptionsResponseOrError =
+    BaseResponse
+  | TaxExemptionsResponse
+  | ErrorResponse
+
+# Union for deleting a tax exemption.
+union DeleteTaxExemptionResponseOrError =
+    BaseResponse
+  | DeleteTaxExemptionResponse
+  | ErrorResponse

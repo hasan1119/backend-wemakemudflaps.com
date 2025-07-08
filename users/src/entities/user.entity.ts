@@ -4,10 +4,12 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { AddressBook } from "./address-book.entity";
 import { Permission } from "./permission.entity";
+import { TaxExemption } from "./tax-exemption.entity";
 import { UserLogin } from "./user-login.entity";
 import { Role } from "./user-role.entity";
 
@@ -130,6 +132,10 @@ export class User {
   // Establishes a one-to-many relationship for login records
   @OneToMany(() => UserLogin, (login) => login.user)
   logins: UserLogin[];
+
+  // Establishes a one-to-many relationship for tax exemption records
+  @OneToOne(() => TaxExemption, (exemption) => exemption.user)
+  taxExemption: TaxExemption;
 
   // Stores the timestamp when the user was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

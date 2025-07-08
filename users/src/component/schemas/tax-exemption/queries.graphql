@@ -1,0 +1,7 @@
+# Queries to fetch tax exemption records and related data from the system.
+type Query {
+  # Fetch all tax exemption records for the authenticated user.
+  # Retrieves all tax exemption entries associated with the authenticated user.
+  # Returns a `GetTaxExemptionsResponseOrError` containing tax exemption data and request status.
+  getAllMyTaxExemptions: GetTaxExemptionsResponseOrError!
+}

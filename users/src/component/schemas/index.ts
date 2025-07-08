@@ -144,11 +144,56 @@ export const addressBookQueriesDef = gql(
  * Workflow:
  * 1. Reads the mutation definitions from the `./address-book/mutations.graphql` file.
  * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
- *
+ * 
  * @returns The parsed GraphQL mutations as a DocumentNode.
  */
 export const addressBookMutationsDef = gql(
   readFileSync(path.join(__dirname, "./address-book/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses the GraphQL schema for tax-exemption-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `./tax-exemption/tax-exemption.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema as a DocumentNode.
+ */
+export const taxExemptionDef = gql(
+  readFileSync(path.join(__dirname, "./tax-exemption/tax-exemption.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL queries for tax-exemption-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `./tax-exemption/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries as a DocumentNode.
+ */
+export const taxExemptionQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./tax-exemption/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for tax-exemption-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `./tax-exemption/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations as a DocumentNode.
+ */
+export const taxExemptionMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./tax-exemption/mutations.graphql"), {
     encoding: "utf-8",
   })
 );
