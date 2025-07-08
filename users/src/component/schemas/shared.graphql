@@ -33,6 +33,8 @@ enum PermissionName {
   NOTIFICATION
   MEDIA
   COUPON
+  ADDRESS_BOOK
+  TAX_EXEMPTION
 }
 
 # Enum defining address book type in the system.
