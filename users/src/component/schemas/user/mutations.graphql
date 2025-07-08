@@ -28,6 +28,7 @@ type Mutation {
   # Allows partial updates to fields like first name, last name, email, or gender.
   # Returns a response with the updated profile or error if operation fails.
   updateProfile(
+    userId: String! # The user id of the user.
     firstName: String # New first name of the user.
     lastName: String # New last name of the user.
     email: String # New email address of the user.
@@ -36,6 +37,9 @@ type Mutation {
     avatar: String # New avatar of the user.
     gender: Gender # New gender value.
     address: UserAddressInput # New address value.
+    website: String # New website url of the user.
+    bio: String # New bio of the user.
+    company: String # New company name of the user.
   ): UserProfileUpdateResponseOrError!
 
   # Change the currently authenticated user's password.

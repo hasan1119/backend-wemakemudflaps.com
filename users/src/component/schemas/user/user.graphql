@@ -69,6 +69,9 @@ type UserSessionByEmail @shareable {
   password: String!
   emailVerified: Boolean!
   gender: String!
+  website: String!
+  company: String!
+  bio: String!
   roles: [UserRoleObject!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!
@@ -92,6 +95,9 @@ type UserSessionById @shareable {
   emailVerified: Boolean!
   gender: String!
   phone: String!
+  website: String!
+  company: String!
+  bio: String!
   roles: [UserRoleObject!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!

@@ -23,7 +23,7 @@ export const genderMap: Record<string, string> = {
  * @property email - User's email address (valid format).
  * @property password - User's password (complexity requirements).
  * @property gender - Optional gender value from genderMap.
- * @property companyName - Optional company or organization name (max 100 characters).
+ * @property company - Optional company or organization name (max 100 characters).
  */
 export const registerSchema = z.object({
   firstName: z
@@ -75,7 +75,7 @@ export const registerSchema = z.object({
     }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]]))
     .nullable()
     .optional(),
-  companyName: z
+  company: z
     .string()
     .max(100, { message: "Company name must not exceed 100 characters" })
     .nullable()
@@ -203,71 +203,83 @@ export const changePasswordSchema = z.object({
  * @property avatar - Optional media ID representing user's avatar.
  * @property website - Optional personal or professional website (valid URL).
  * @property bio - Optional short biography (max 1000 characters).
- * @property companyName - Optional company or organization name (max 100 characters).
+ * @property company - Optional company or organization name (max 100 characters).
  */
-export const updateProfileSchema = z.object({
-  userId: z.string().uuid({ message: "Invalid UUID format" }),
-  firstName: z
-    .string()
-    .min(1, { message: "First name is required" })
-    .max(50, { message: "First name is too long" })
-    .regex(/^[a-zA-Z\s-]+$/, {
-      message: "First name must contain only letters, spaces, or hyphens",
-    })
-    .trim(),
-  lastName: z
-    .string()
-    .min(1, { message: "Last name is required" })
-    .max(50, { message: "Last name is too long" })
-    .regex(/^[a-zA-Z\s-]+$/, {
-      message: "Last name must contain only letters, spaces, or hyphens",
-    })
-    .trim(),
-  username: z
-    .string()
-    .min(1, { message: "Username is required" })
-    .max(50, { message: "Username must not exceed 50 characters" })
-    .regex(/^[a-zA-Z0-9-]+$/, {
-      message: "Username must contain only letters, numbers, or hyphens",
-    })
-    .trim(),
-  phone: z
-    .string()
-    .max(15, { message: "Phone number must not exceed 15 digits" })
-    .trim()
-    .nullable()
-    .optional(),
-  email: z.string().email({ message: "Invalid email format" }).trim(),
-  gender: z.preprocess((val) => {
-    if (typeof val === "string" && genderMap[val]) {
-      return genderMap[val];
+export const updateProfileSchema = z
+  .object({
+    userId: z.string().uuid({ message: "Invalid UUID format" }),
+    firstName: z
+      .string()
+      .min(1, { message: "First name is required" })
+      .max(50, { message: "First name is too long" })
+      .regex(/^[a-zA-Z\s-]+$/, {
+        message: "First name must contain only letters, spaces, or hyphens",
+      })
+      .trim(),
+    lastName: z
+      .string()
+      .min(1, { message: "Last name is required" })
+      .max(50, { message: "Last name is too long" })
+      .regex(/^[a-zA-Z\s-]+$/, {
+        message: "Last name must contain only letters, spaces, or hyphens",
+      })
+      .trim(),
+    username: z
+      .string()
+      .min(1, { message: "Username is required" })
+      .max(50, { message: "Username must not exceed 50 characters" })
+      .regex(/^[a-zA-Z0-9-]+$/, {
+        message: "Username must contain only letters, numbers, or hyphens",
+      })
+      .trim(),
+    phone: z
+      .string()
+      .max(15, { message: "Phone number must not exceed 15 digits" })
+      .trim()
+      .nullable()
+      .optional(),
+    email: z.string().email({ message: "Invalid email format" }).trim(),
+    gender: z.preprocess((val) => {
+      if (typeof val === "string" && genderMap[val]) {
+        return genderMap[val];
+      }
+      return val;
+    }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]])),
+    address: z
+      .object({
+        street: z.string().nullable().optional(),
+        city: z.string().nullable().optional(),
+        state: z.string().nullable().optional(),
+        zip: z.string().nullable().optional(),
+        country: z.string().nullable().optional(),
+      })
+      .nullable()
+      .optional(),
+    avatar: z.string().nullable().optional(),
+    website: z
+      .string()
+      .url({ message: "Website must be a valid URL" })
+      .nullable()
+      .optional(),
+    bio: z
+      .string()
+      .max(1000, { message: "Bio must not exceed 1000 characters" })
+      .nullable()
+      .optional(),
+    company: z
+      .string()
+      .max(100, { message: "Company name must not exceed 100 characters" })
+      .nullable()
+      .optional(),
+  })
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) =>
+          key !== "userId" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
     }
-    return val;
-  }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]])),
-  address: z
-    .object({
-      street: z.string().nullable().optional(),
-      city: z.string().nullable().optional(),
-      state: z.string().nullable().optional(),
-      zip: z.string().nullable().optional(),
-      country: z.string().nullable().optional(),
-    })
-    .nullable()
-    .optional(),
-  avatar: z.string().nullable().optional(),
-  website: z
-    .string()
-    .url({ message: "Website must be a valid URL" })
-    .nullable()
-    .optional(),
-  bio: z
-    .string()
-    .max(1000, { message: "Bio must not exceed 1000 characters" })
-    .nullable()
-    .optional(),
-  companyName: z
-    .string()
-    .max(100, { message: "Company name must not exceed 100 characters" })
-    .nullable()
-    .optional(),
-});
+  );

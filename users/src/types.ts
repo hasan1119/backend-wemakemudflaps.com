@@ -997,12 +997,16 @@ export type MutationUpdateProductArgs = {
 export type MutationUpdateProfileArgs = {
   address?: InputMaybe<UserAddressInput>;
   avatar?: InputMaybe<Scalars['String']['input']>;
+  bio?: InputMaybe<Scalars['String']['input']>;
+  company?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   gender?: InputMaybe<Gender>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
+  userId: Scalars['String']['input'];
   username?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2159,8 +2163,10 @@ export type UserSessionByEmail = {
   __typename?: 'UserSessionByEmail';
   address?: Maybe<UserAddress>;
   avatar?: Maybe<Scalars['ID']['output']>;
+  bio: Scalars['String']['output'];
   canUpdatePermissions: Scalars['Boolean']['output'];
   canUpdateRole: Scalars['Boolean']['output'];
+  company: Scalars['String']['output'];
   createdAt: Scalars['String']['output'];
   deletedAt: Scalars['String']['output'];
   email: Scalars['String']['output'];
@@ -2177,14 +2183,17 @@ export type UserSessionByEmail = {
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
   username: Scalars['String']['output'];
+  website: Scalars['String']['output'];
 };
 
 export type UserSessionById = {
   __typename?: 'UserSessionById';
   address?: Maybe<UserAddress>;
   avatar?: Maybe<Scalars['ID']['output']>;
+  bio: Scalars['String']['output'];
   canUpdatePermissions: Scalars['Boolean']['output'];
   canUpdateRole: Scalars['Boolean']['output'];
+  company: Scalars['String']['output'];
   createdAt: Scalars['String']['output'];
   deletedAt: Scalars['String']['output'];
   email: Scalars['String']['output'];
@@ -2200,6 +2209,7 @@ export type UserSessionById = {
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
   username: Scalars['String']['output'];
+  website: Scalars['String']['output'];
 };
 
 export type UsersResponse = {
@@ -3301,7 +3311,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryPositionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'categoryType' | 'id' | 'position'>>;
   updateMediaFileInfo?: Resolver<ResolversTypes['UpdateMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFileInfoArgs, 'inputs'>>;
   updateProduct?: Resolver<ResolversTypes['UpdateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id'>>;
-  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, Partial<MutationUpdateProfileArgs>>;
+  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'userId'>>;
   updateShippingClass?: Resolver<ResolversTypes['UpdateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingClassArgs, 'id'>>;
   updateTag?: Resolver<ResolversTypes['UpdateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTagArgs, 'id'>>;
   updateTaxClass?: Resolver<ResolversTypes['UpdateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxClassArgs, 'id'>>;
@@ -4070,8 +4080,10 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
 export type UserSessionByEmailResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSessionByEmail'] = ResolversParentTypes['UserSessionByEmail']> = {
   address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
   avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   canUpdatePermissions?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canUpdateRole?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  company?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deletedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4088,14 +4100,17 @@ export type UserSessionByEmailResolvers<ContextType = Context, ParentType extend
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserSessionByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSessionById'] = ResolversParentTypes['UserSessionById']> = {
   address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
   avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   canUpdatePermissions?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canUpdateRole?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  company?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deletedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4111,6 +4126,7 @@ export type UserSessionByIdResolvers<ContextType = Context, ParentType extends R
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

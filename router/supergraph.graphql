@@ -934,7 +934,7 @@ type Mutation
   restoreProducts(ids: [ID!]!): RestoreProductResponseOrError! @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender, company: String): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
-  updateProfile(firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput): UserProfileUpdateResponseOrError! @join__field(graph: USER)
+  updateProfile(userId: String!, firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput, website: String, bio: String, company: String): UserProfileUpdateResponseOrError! @join__field(graph: USER)
   changePassword(oldPassword: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
   forgetPassword(email: String!): BaseResponseOrError! @join__field(graph: USER)
   resetPassword(token: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
@@ -2100,6 +2100,9 @@ type UserSessionByEmail
   password: String!
   emailVerified: Boolean!
   gender: String!
+  website: String!
+  company: String!
+  bio: String!
   roles: [UserRoleObject!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!
@@ -2124,6 +2127,9 @@ type UserSessionById
   emailVerified: Boolean!
   gender: String!
   phone: String!
+  website: String!
+  company: String!
+  bio: String!
   roles: [UserRoleObject!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!
