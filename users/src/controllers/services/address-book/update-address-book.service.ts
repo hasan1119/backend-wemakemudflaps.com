@@ -14,14 +14,14 @@ import { addressBookRepository } from "../repositories/repositories";
  *
  * @param id - ID of the address book entry to update.
  * @param data - Fields to update (partial).
- * @param userId - ID of the user performing the update.
  * @returns The updated AddressBook entity.
  */
 export const updateAddressBookEntry = async (
   id: string,
-  data: MutationUpdateAddressBookEntryArgs,
-  userId: string
+  data: MutationUpdateAddressBookEntryArgs
 ): Promise<AddressBook | null> => {
+  const userId = data.userId;
+
   const existing = await addressBookRepository.findOne({
     where: { id, user: { id: userId } },
   });
