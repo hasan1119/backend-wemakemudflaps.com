@@ -19,8 +19,15 @@ export const createAddressBookEntry = async (
   data: MutationCreateAddressBookEntryArgs,
   userId: string
 ): Promise<AddressBook> => {
-  if (data.isDefault) {
-    // Set isDefault = false for all other entries with same type and user
+  // Check if any address of the same type already exists for the user
+  const existingCount = await addressBookRepository.count({
+    where: { user: { id: userId }, type: data.type as any },
+  });
+
+  const shouldBeDefault = data.isDefault || existingCount === 0;
+
+  if (shouldBeDefault) {
+    // Unset previous defaults of this type for the user
     await addressBookRepository
       .createQueryBuilder()
       .update(AddressBook)
@@ -29,7 +36,7 @@ export const createAddressBookEntry = async (
       .andWhere("type = :type", { type: data.type })
       .execute();
 
-    // Fetch all affected addresses to update cache
+    // Update Redis cache for affected addresses
     const affectedAddresses = await addressBookRepository.find({
       where: { user: { id: userId }, type: data.type as any },
     });
@@ -52,7 +59,7 @@ export const createAddressBookEntry = async (
     );
   }
 
-  // Create new address book entity with provided data
+  // Create the new entry
   const addressBookEntry = addressBookRepository.create({
     type: data.type as any,
     company: data.company,
@@ -62,14 +69,13 @@ export const createAddressBookEntry = async (
     zip: data.zip,
     state: data.state,
     country: data.country,
-    isDefault: data.isDefault,
+    isDefault: shouldBeDefault,
     user: { id: userId } as any,
   });
 
-  // Save address book entry to database
   const result = await addressBookRepository.save(addressBookEntry);
 
-  // Cache address-book information and existence in Redis
+  // Cache the new address
   await setAddressBookInfoByIdInRedis(result.id, userId, {
     ...result,
     type: result.type as any,
@@ -83,7 +89,7 @@ export const createAddressBookEntry = async (
         : result.updatedAt,
   });
 
-  // Clear all the cache list of the user address book
+  // Invalidate user's address list cache for that type
   await removeAllAddressBookByUserIdFromRedis(data.type, userId);
 
   return result;
