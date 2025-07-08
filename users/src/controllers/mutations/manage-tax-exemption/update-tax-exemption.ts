@@ -70,7 +70,25 @@ export const updateTaxExemptionEntry = async (
 
     const isOwn = args.userId === user.id;
 
-    if (!isOwn) {
+    if (isOwn) {
+      if (args.status) {
+        const hasPermission = await checkUserPermission({
+          user,
+          action: "canUpdate",
+          entity: "tax exemption",
+        });
+
+        if (!hasPermission) {
+          return {
+            statusCode: 403,
+            success: false,
+            message:
+              "You are not allowed to change the status of your own tax exemption.",
+            __typename: "BaseResponse",
+          };
+        }
+      }
+    } else {
       const hasPermission = await checkUserPermission({
         user,
         action: "canUpdate",
