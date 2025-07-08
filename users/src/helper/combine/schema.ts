@@ -7,6 +7,9 @@ import {
   rolePermissionMutationsDef,
   rolePermissionQueriesDef,
   sharedDef,
+  taxExemptionDef,
+  taxExemptionMutationsDef,
+  taxExemptionQueriesDef,
   userDef,
   userMutationsDef,
   userQueriesDef,
@@ -50,4 +53,13 @@ export const typeDefs = mergeTypeDefs([
 
   // Schema for address-book mutations (modifying address-book data)
   addressBookMutationsDef,
+
+  // Main tax-exemption schema definition
+  taxExemptionDef,
+
+  // Schema for tax-exemption queries (fetching tax-exemption data)
+  taxExemptionQueriesDef,
+
+  // Schema for tax-exemption mutations (modifying tax-exemption data)
+  taxExemptionMutationsDef,
 ]);

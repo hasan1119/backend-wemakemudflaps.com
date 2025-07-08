@@ -23,7 +23,7 @@ type AddressResponseBook {
   statusCode: Int!
   success: Boolean!
   message: String!
-  addressBook: AddressBook
+  addressBook: AddressBook!
 }
 
 # Single addresses response.

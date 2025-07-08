@@ -15,7 +15,7 @@ type TaxExemption {
   assumptionReason: String! # Reason for claiming the tax exemption
   taxCertificate: String! # ID of the uploaded tax certificate (media reference)
   status: TaxExemptionStatus! # Current status of the exemption
-  expiryDate: String # Expiration date of the exemption (if applicable)
+  expiryDate: String! # Expiration date of the exemption (if applicable)
   createdAt: String! # Created timestamp
   updatedAt: String! # Last updated timestamp
 }
@@ -24,14 +24,6 @@ type TaxExemption {
 
 # Single tax exemption response.
 type TaxExemptionResponse {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  taxExemption: TaxExemption
-}
-
-# Multiple tax exemptions response.
-type TaxExemptionsResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
@@ -62,7 +54,7 @@ union UpdateTaxExemptionResponseOrError =
 # Union for fetching all tax exemptions.
 union GetTaxExemptionsResponseOrError =
     BaseResponse
-  | TaxExemptionsResponse
+  | TaxExemptionResponse
   | ErrorResponse
 
 # Union for deleting a tax exemption.

@@ -1911,9 +1911,9 @@ type User
   emailVerified: Boolean
   gender: String
   phone: String
-  roles: [UserRoleObject]
+  roles: [UserRoleObject!]!
   isAccountActivated: Boolean
-  permissions: [Permissions!]
+  permissions: [Permissions!]!
   canUpdatePermissions: Boolean
   canUpdateRole: Boolean
   createdAt: String

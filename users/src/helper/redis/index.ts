@@ -112,3 +112,15 @@ export {
   setUsersInRedis,
   setUserTokenInfoByUserSessionIdInRedis,
 } from "./utils/user/user-session-manage";
+
+/**
+ * Exports utilities for managing tax-exemption session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting, and removing tax-exemption sessions.
+ */
+export {
+  getAllTaxExemptionsFromRedis,
+  removeAllTaxExemptionByUserIdFromRedis,
+  setAllTaxExemptionByUserIdInRedis,
+} from "./utils/tax-exemption/tax-exemption-session-manage";
