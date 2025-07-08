@@ -90,6 +90,9 @@ export const updateProfile = async (
       website,
     } = validationResult.data;
 
+    // Determine which user's profile is being updated
+    let targetUserId = user.id;
+
     // Check permission if the user is updating on behalf of someone else
     if (args.userId !== user.id) {
       const hasPermission = await checkUserPermission({
@@ -107,6 +110,20 @@ export const updateProfile = async (
           __typename: "BaseResponse",
         };
       }
+
+      targetUserId = args.userId;
+
+      // Remove all sessions of the target user
+      const sessionsToDelete = (
+        await getUserLoginInfoByUserId(targetUserId)
+      ).map((session) => session.id);
+
+      await deleteUserLoginInfoSessionsByIds(sessionsToDelete);
+      await Promise.all(
+        sessionsToDelete.map((sessionId) =>
+          removeUserTokenInfoByUserSessionIdFromRedis(sessionId)
+        )
+      );
     }
 
     // Attempt to retrieve cached user data from Redis
@@ -220,19 +237,19 @@ export const updateProfile = async (
       sessionId: user.sessionId,
     };
 
-    const userLoginInfoRaw = await getUserLoginInfoByUserId(user.id);
+    if (targetUserId === user.id) {
+      const userLoginInfoRaw = await getUserLoginInfoByUserId(user.id);
+      const sessionsToDelete = userLoginInfoRaw
+        .filter((info) => info.id !== user.sessionId)
+        .map((info) => info.id);
 
-    // Filter out all sessions except the current one to delete others
-    const sessionsToDelete = userLoginInfoRaw
-      .filter((info) => info.id !== user.sessionId)
-      .map((info) => info.id);
-
-    await deleteUserLoginInfoSessionsByIds(sessionsToDelete),
+      await deleteUserLoginInfoSessionsByIds(sessionsToDelete);
       await Promise.all(
-        sessionsToDelete.map((sessionId) => [
-          removeUserTokenInfoByUserSessionIdFromRedis(sessionId),
-        ])
+        sessionsToDelete.map((sessionId) =>
+          removeUserTokenInfoByUserSessionIdFromRedis(sessionId)
+        )
       );
+    }
 
     // Cache user data, session, and email in Redis with 30-day TTL
     const promises = [
@@ -264,7 +281,7 @@ export const updateProfile = async (
     return {
       statusCode: 200,
       success: true,
-      token,
+      token: targetUserId === user.id ? token : null,
       message: `${
         email !== userData.email
           ? "Profile updated successfully, but please verify your updated email before using it as main email."

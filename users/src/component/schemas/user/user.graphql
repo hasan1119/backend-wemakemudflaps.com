@@ -175,7 +175,7 @@ type UserProfileUpdateResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  token: String!
+  token: String
 }
 
 # Response when verifying user email, might include new access token.
