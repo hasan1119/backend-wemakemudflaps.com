@@ -5,6 +5,7 @@ type Mutation {
   # Input includes tax number, reason, certificate media ID, and optional expiry date.
   # Returns a response indicating success or failure of the operation.
   createTaxExemption(
+    userId: String! # Unique identifier for the user submitting or updating the tax exemption
     taxNumber: String! # Tax identification number (e.g., EIN)
     assumptionReason: String! # Reason for claiming tax exemption
     taxCertificate: String! # Media ID of the uploaded tax certificate

@@ -145,6 +145,16 @@ export const userRoleInfoUpdateSchema = z
         "If systemPermanentUpdateProtection is true, systemUpdateProtection must also be true.",
       path: ["systemUpdateProtection"],
     }
+  )
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
+    }
   );
 
 /**

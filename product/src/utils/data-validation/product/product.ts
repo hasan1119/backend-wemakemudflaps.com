@@ -1070,6 +1070,16 @@ export const updateProductSchema = z
         "Variations are not allowed when productConfigurationType is 'Simple Product'",
       path: ["variations"], // error reported on variations field
     }
+  )
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
+    }
   );
 
 /**

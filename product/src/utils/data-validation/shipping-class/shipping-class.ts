@@ -36,21 +36,32 @@ export const createShippingClassSchema = z.object({
  * @property value - Optional shipping class value (minimum 3 characters).
  * @property description - Optional shipping class description (minimum 3 characters).
  */
-export const updateShippingClassSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }),
-  value: z
-    .string()
-    .min(3, "Shipping class value must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-  description: z
-    .string()
-    .min(3, "Shipping class description must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-});
+export const updateShippingClassSchema = z
+  .object({
+    id: z.string().uuid({ message: "Invalid UUID format" }),
+    value: z
+      .string()
+      .min(3, "Shipping class value must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+    description: z
+      .string()
+      .min(3, "Shipping class description must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+  })
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
+    }
+  );
 
 /**
  * Defines the schema for validating shipping class sorting parameters.

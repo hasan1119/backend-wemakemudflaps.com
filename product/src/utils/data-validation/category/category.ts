@@ -79,38 +79,49 @@ export const createCategorySchema = z
  * @property description - Optional category description (minimum 3 characters).
  * @property categoryType - Category type (category or subCategory).
  */
-export const updateCategorySchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }),
-  thumbnail: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .nullable()
-    .optional(),
-  name: z
-    .string()
-    .min(3, "Category name must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-  slug: z
-    .string()
-    .min(3, "Category slug must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-  description: z
-    .string()
-    .min(3, "Category description must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-  categoryType: z.preprocess((val) => {
-    if (typeof val === "string" && categoryMap[val]) {
-      return categoryMap[val];
+export const updateCategorySchema = z
+  .object({
+    id: z.string().uuid({ message: "Invalid UUID format" }),
+    thumbnail: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .nullable()
+      .optional(),
+    name: z
+      .string()
+      .min(3, "Category name must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+    slug: z
+      .string()
+      .min(3, "Category slug must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+    description: z
+      .string()
+      .min(3, "Category description must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+    categoryType: z.preprocess((val) => {
+      if (typeof val === "string" && categoryMap[val]) {
+        return categoryMap[val];
+      }
+      return val;
+    }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
+  })
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
     }
-    return val;
-  }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
-});
+  );
 
 /**
  * Defines the schema for validating a single category position update input.

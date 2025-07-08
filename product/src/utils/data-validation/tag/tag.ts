@@ -27,21 +27,32 @@ export const createTagSchema = z.object({
  * @property name - Optional tag name (minimum 3 characters).
  * @property slug - Optional tag slug (minimum 3 characters).
  */
-export const updateTagSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }),
-  name: z
-    .string()
-    .min(3, "Tag name must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-  slug: z
-    .string()
-    .min(3, "Tag slug must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-});
+export const updateTagSchema = z
+  .object({
+    id: z.string().uuid({ message: "Invalid UUID format" }),
+    name: z
+      .string()
+      .min(3, "Tag name must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+    slug: z
+      .string()
+      .min(3, "Tag slug must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+  })
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
+    }
+  );
 
 /**
  * Defines the schema for validating tag sorting parameters.

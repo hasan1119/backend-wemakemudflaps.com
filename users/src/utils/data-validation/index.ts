@@ -11,6 +11,18 @@ export {
 } from "./address-book/address-book";
 
 /**
+ * Exports tax-exemption-related schemas for user operations.
+ *
+ * Workflow:
+ * 1. Provides schemas for validating tax exemption creation and updates.
+ */
+export {
+  createTaxExemptionSchema,
+  TaxExemptionStatus,
+  updateTaxExemptionSchema,
+} from "./tax-exemption/tax-exemption";
+
+/**
  * Exports authentication-related schemas for user operations.
  *
  * Workflow:

@@ -35,26 +35,37 @@ export const createBrandSchema = z.object({
  * @property name - Optional brand name (minimum 3 characters).
  * @property slug - Optional brand slug (minimum 3 characters).
  */
-export const updateBrandSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }),
-  thumbnail: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .nullable()
-    .optional(),
-  name: z
-    .string()
-    .min(3, "Brand name must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-  slug: z
-    .string()
-    .min(3, "Brand slug must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-});
+export const updateBrandSchema = z
+  .object({
+    id: z.string().uuid({ message: "Invalid UUID format" }),
+    thumbnail: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .nullable()
+      .optional(),
+    name: z
+      .string()
+      .min(3, "Brand name must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+    slug: z
+      .string()
+      .min(3, "Brand slug must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+  })
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
+    }
+  );
 
 /**
  * Defines the schema for validating brand sorting parameters.

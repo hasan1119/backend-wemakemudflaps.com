@@ -23,6 +23,8 @@ export const PERMISSIONS = [
   "Notification",
   "Media",
   "Coupon",
+  "Address Book",
+  "Tax Exemption",
 ];
 
 // Defines a TypeScript type for permission names as a union of literals
@@ -47,7 +49,9 @@ export type PermissionName =
   | "Role"
   | "Notification"
   | "Media"
-  | "Coupon";
+  | "Coupon"
+  | "Address Book"
+  | "Tax Exemption";
 
 // Defines a mapping for permission values used in permission schemas
 export const permissionMap: Record<string, string> = {
@@ -72,6 +76,8 @@ export const permissionMap: Record<string, string> = {
   NOTIFICATION: "Notification",
   MEDIA: "Media",
   COUPON: "Coupon",
+  ADDRESS_BOOK: "Address Book",
+  TAX_EXEMPTION: "Tax Exemption",
 };
 
 /**

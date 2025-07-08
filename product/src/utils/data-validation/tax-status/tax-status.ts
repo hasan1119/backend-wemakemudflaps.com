@@ -36,21 +36,32 @@ export const createTaxStatusSchema = z.object({
  * @property value - Optional tax status value (minimum 3 characters).
  * @property description - Optional tax status description (minimum 3 characters).
  */
-export const updateTaxStatusSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }),
-  value: z
-    .string()
-    .min(3, "Tax status value must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-  description: z
-    .string()
-    .min(3, "Tax status description must be at least 3 characters")
-    .trim()
-    .nullable()
-    .optional(),
-});
+export const updateTaxStatusSchema = z
+  .object({
+    id: z.string().uuid({ message: "Invalid UUID format" }),
+    value: z
+      .string()
+      .min(3, "Tax status value must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+    description: z
+      .string()
+      .min(3, "Tax status description must be at least 3 characters")
+      .trim()
+      .nullable()
+      .optional(),
+  })
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
+    }
+  );
 
 /**
  * Defines the schema for validating tax status sorting parameters.
