@@ -21,6 +21,7 @@ export class Brand {
   // One brand can be associated with multiple products
   @OneToMany(() => Product, (product) => product.brands, {
     nullable: true,
+    default: null,
   })
   products: Product[] | null;
 
@@ -33,6 +34,6 @@ export class Brand {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

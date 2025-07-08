@@ -142,6 +142,9 @@ export const getAllUsers = async (
         phone: user.phone,
         address: user.address,
         avatar: user.avatar,
+        bio: user.bio,
+        website: user.website,
+        company: user.company,
         roles: user.roles.map((role) => ({
           id: role.id,
           name: role.name.toUpperCase(),
@@ -203,6 +206,9 @@ export const getAllUsers = async (
       gender: user.gender,
       phone: user.phone,
       address: user.address,
+      bio: user.bio,
+      website: user.website,
+      company: user.company,
       roles: user.roles.map((role) => ({
         id: role.id,
         name: role.name.toUpperCase(),

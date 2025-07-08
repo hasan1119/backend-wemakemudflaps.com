@@ -20,6 +20,7 @@ import SendEmail from "../../../utils/email/send-email";
 import EncodeToken from "../../../utils/jwt/encode-token";
 import {
   checkUserAuth,
+  checkUserPermission,
   deleteUserLoginInfoSessionsByIds,
   getUserLoginInfoByUserId,
   isEmailInUse,
@@ -32,7 +33,7 @@ import {
  *
  * Workflow:
  * 1. Verifies user authentication status.
- * 2. Validates input data (firstName, lastName, email, gender) using Zod schema.
+ * 2. Validates input data (firstName, lastName, email, gender, username, company, bio and website) using Zod schema.
  * 3. Retrieves cached user data from Redis to optimize performance.
  * 4. Checks for email uniqueness if email is updated.
  * 5. Sends an email verification link if the email is changed.
@@ -84,7 +85,29 @@ export const updateProfile = async (
       address,
       phone,
       username,
+      bio,
+      company,
+      website,
     } = validationResult.data;
+
+    // Check permission if the user is updating on behalf of someone else
+    if (args.userId !== user.id) {
+      const hasPermission = await checkUserPermission({
+        user,
+        action: "canUpdate",
+        entity: "user",
+      });
+
+      if (!hasPermission) {
+        return {
+          statusCode: 403,
+          success: false,
+          message:
+            "You do not have permission to update for another user profile information",
+          __typename: "BaseResponse",
+        };
+      }
+    }
 
     // Attempt to retrieve cached user data from Redis
     let userData: UserSessionById;
@@ -118,6 +141,12 @@ export const updateProfile = async (
     if (avatar !== userData.avatar) userData.avatar = avatar;
 
     if (phone !== userData.phone) userData.phone = phone;
+
+    if (website !== userData.website) userData.website = website;
+
+    if (bio !== userData.bio) userData.bio = bio;
+
+    if (company !== userData.company) userData.company = company;
 
     if (email !== userData.email) {
       // Check if the new email is already in use

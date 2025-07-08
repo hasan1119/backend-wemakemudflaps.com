@@ -623,6 +623,7 @@ export type MutationCreateAddressBookEntryArgs = {
   streetOne: Scalars['String']['input'];
   streetTwo: Scalars['String']['input'];
   type: AddressType;
+  userId: Scalars['ID']['input'];
   zip: Scalars['String']['input'];
 };
 
@@ -828,6 +829,7 @@ export type MutationLoginArgs = {
 
 
 export type MutationRegisterArgs = {
+  company?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
   firstName: Scalars['String']['input'];
   gender?: InputMaybe<Gender>;
@@ -898,6 +900,7 @@ export type MutationUpdateAddressBookEntryArgs = {
   streetOne?: InputMaybe<Scalars['String']['input']>;
   streetTwo?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<AddressType>;
+  userId: Scalars['ID']['input'];
   zip?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -996,12 +999,16 @@ export type MutationUpdateProductArgs = {
 export type MutationUpdateProfileArgs = {
   address?: InputMaybe<UserAddressInput>;
   avatar?: InputMaybe<Scalars['String']['input']>;
+  bio?: InputMaybe<Scalars['String']['input']>;
+  company?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   gender?: InputMaybe<Gender>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
+  userId: Scalars['ID']['input'];
   username?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1928,7 +1935,7 @@ export type TaxExemption = {
   expiryDate: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   status: TaxExemptionStatus;
-  taxCertificate: Media;
+  taxCertificate?: Maybe<Media>;
   taxNumber: Scalars['String']['output'];
   updatedAt: Scalars['String']['output'];
 };
@@ -2059,8 +2066,10 @@ export type User = {
   __typename?: 'User';
   address?: Maybe<UserAddress>;
   avatar?: Maybe<Media>;
+  bio?: Maybe<Scalars['String']['output']>;
   canUpdatePermissions?: Maybe<Scalars['Boolean']['output']>;
   canUpdateRole?: Maybe<Scalars['Boolean']['output']>;
+  company?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
@@ -2075,6 +2084,7 @@ export type User = {
   roles: Array<UserRoleObject>;
   tempUpdatedEmail?: Maybe<Scalars['String']['output']>;
   username?: Maybe<Scalars['String']['output']>;
+  website?: Maybe<Scalars['String']['output']>;
 };
 
 export type UserAddress = {
@@ -2155,8 +2165,10 @@ export type UserSessionByEmail = {
   __typename?: 'UserSessionByEmail';
   address?: Maybe<UserAddress>;
   avatar?: Maybe<Scalars['ID']['output']>;
+  bio: Scalars['String']['output'];
   canUpdatePermissions: Scalars['Boolean']['output'];
   canUpdateRole: Scalars['Boolean']['output'];
+  company: Scalars['String']['output'];
   createdAt: Scalars['String']['output'];
   deletedAt: Scalars['String']['output'];
   email: Scalars['String']['output'];
@@ -2173,14 +2185,17 @@ export type UserSessionByEmail = {
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
   username: Scalars['String']['output'];
+  website: Scalars['String']['output'];
 };
 
 export type UserSessionById = {
   __typename?: 'UserSessionById';
   address?: Maybe<UserAddress>;
   avatar?: Maybe<Scalars['ID']['output']>;
+  bio: Scalars['String']['output'];
   canUpdatePermissions: Scalars['Boolean']['output'];
   canUpdateRole: Scalars['Boolean']['output'];
+  company: Scalars['String']['output'];
   createdAt: Scalars['String']['output'];
   deletedAt: Scalars['String']['output'];
   email: Scalars['String']['output'];
@@ -2196,6 +2211,7 @@ export type UserSessionById = {
   tempEmailVerified: Scalars['Boolean']['output'];
   tempUpdatedEmail: Scalars['String']['output'];
   username: Scalars['String']['output'];
+  website: Scalars['String']['output'];
 };
 
 export type UsersResponse = {
@@ -3255,7 +3271,7 @@ export type MediasResponseResolvers<ContextType = Context, ParentType extends Re
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
-  createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'company' | 'country' | 'isDefault' | 'state' | 'streetOne' | 'streetTwo' | 'type' | 'zip'>>;
+  createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'company' | 'country' | 'isDefault' | 'state' | 'streetOne' | 'streetTwo' | 'type' | 'userId' | 'zip'>>;
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'categoryId' | 'defaultMainDescription' | 'isCustomized' | 'name' | 'productConfigurationType' | 'regularPrice' | 'saleQuantityUnit' | 'slug'>>;
@@ -3291,13 +3307,13 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   restoreTaxClasses?: Resolver<ResolversTypes['RestoreTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTaxClassesArgs, 'ids'>>;
   restoreTaxStatuses?: Resolver<ResolversTypes['RestoreTaxStatusResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreTaxStatusesArgs, 'ids'>>;
   restoreUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreUserRoleArgs, 'ids'>>;
-  updateAddressBookEntry?: Resolver<ResolversTypes['UpdateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateAddressBookEntryArgs, 'id'>>;
+  updateAddressBookEntry?: Resolver<ResolversTypes['UpdateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateAddressBookEntryArgs, 'id' | 'userId'>>;
   updateBrand?: Resolver<ResolversTypes['UpdateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateBrandArgs, 'id'>>;
   updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'categoryType' | 'id'>>;
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryPositionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'categoryType' | 'id' | 'position'>>;
   updateMediaFileInfo?: Resolver<ResolversTypes['UpdateMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFileInfoArgs, 'inputs'>>;
   updateProduct?: Resolver<ResolversTypes['UpdateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id'>>;
-  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, Partial<MutationUpdateProfileArgs>>;
+  updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'userId'>>;
   updateShippingClass?: Resolver<ResolversTypes['UpdateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingClassArgs, 'id'>>;
   updateTag?: Resolver<ResolversTypes['UpdateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTagArgs, 'id'>>;
   updateTaxClass?: Resolver<ResolversTypes['UpdateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxClassArgs, 'id'>>;
@@ -3852,7 +3868,7 @@ export type TaxExemptionResolvers<ContextType = Context, ParentType extends Reso
   expiryDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['TaxExemptionStatus'], ParentType, ContextType>;
-  taxCertificate?: Resolver<ResolversTypes['Media'], ParentType, ContextType>;
+  taxCertificate?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   taxNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3971,8 +3987,10 @@ export type UploadMediaResponseOrErrorResolvers<ContextType = Context, ParentTyp
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
   avatar?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
+  bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   canUpdatePermissions?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   canUpdateRole?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  company?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3987,6 +4005,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4063,8 +4082,10 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
 export type UserSessionByEmailResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSessionByEmail'] = ResolversParentTypes['UserSessionByEmail']> = {
   address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
   avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   canUpdatePermissions?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canUpdateRole?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  company?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deletedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4081,14 +4102,17 @@ export type UserSessionByEmailResolvers<ContextType = Context, ParentType extend
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserSessionByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSessionById'] = ResolversParentTypes['UserSessionById']> = {
   address?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>;
   avatar?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  bio?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   canUpdatePermissions?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canUpdateRole?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  company?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deletedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4104,6 +4128,7 @@ export type UserSessionByIdResolvers<ContextType = Context, ParentType extends R
   tempEmailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

@@ -29,6 +29,7 @@ export enum AddressType {
 
 // For create: all required except optional fields
 export const createAddressBookEntrySchema = z.object({
+  userId: z.string().uuid({ message: "Invalid UUID format" }),
   company: z.string().min(1, "Company name must be at least 1 character long"),
   streetOne: z.string().min(1, "Street one must be at least 1 character long"),
   streetTwo: z.string().min(1, "Street two must be at least 1 character long"),
@@ -43,6 +44,7 @@ export const createAddressBookEntrySchema = z.object({
 // For update: allow partial updates, but require at least one field
 export const updateAddressBookEntrySchema = z
   .object({
+    userId: z.string().uuid({ message: "Invalid UUID format" }),
     id: z.string().uuid({ message: "Invalid UUID format" }),
     company: z
       .string()

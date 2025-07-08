@@ -22,19 +22,19 @@ export class ProductRequest {
   status: string;
 
   // User ID who user who requested the product (string only for Apollo Federation compatibility)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   requestedBy: string | null;
 
   // Email for guest orders (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestEmail: string | null;
 
   // Name for guest orders (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestName: string | null;
 
   // Phone number for guest orders (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestPhone: string | null;
 
   // Timestamp when the product request was created (auto-generated)
@@ -42,6 +42,6 @@ export class ProductRequest {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

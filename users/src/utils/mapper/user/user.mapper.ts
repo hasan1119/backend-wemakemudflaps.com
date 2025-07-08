@@ -32,6 +32,9 @@ export const mapUserToResponseByEmail = async (
     emailVerified: user.emailVerified,
     gender: user.gender,
     phone: user.phone,
+    website: user.website,
+    bio: user.bio,
+    company: user.company,
     roles: user.roles.map((role) => ({
       id: role.id,
       name: role.name.toUpperCase(),
@@ -78,6 +81,9 @@ export const mapUserToResponseById = async (
     emailVerified: user.emailVerified,
     gender: user.gender,
     phone: user.phone,
+    website: user.website,
+    bio: user.bio,
+    company: user.company,
     roles: user.roles.map((role) => ({
       id: role.id,
       name: role.name.toUpperCase(),

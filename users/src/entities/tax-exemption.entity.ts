@@ -36,7 +36,7 @@ export class TaxExemption {
   status: string;
 
   // Date when the exemption certificate expires
-  @Column({ type: "timestamptz", nullable: true })
+  @Column({ type: "timestamptz", nullable: true, default: null })
   expiryDate: Date | null;
 
   // Establishes a many-to-one relationship with the user

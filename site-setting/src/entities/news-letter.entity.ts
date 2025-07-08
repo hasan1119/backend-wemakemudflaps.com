@@ -19,7 +19,7 @@ export class Newsletter {
   content: string;
 
   // Optional image URL for the newsletter
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, default: null })
   imageUrl: string | null;
 
   // Indicates whether the newsletter is currently active
@@ -35,10 +35,10 @@ export class Newsletter {
   createdAt: Date;
 
   // Timestamp when the newsletter was published (null if not published)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   publishedAt: Date | null;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

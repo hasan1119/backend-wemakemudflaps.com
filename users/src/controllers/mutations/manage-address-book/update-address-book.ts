@@ -11,6 +11,7 @@ import {
 import { updateAddressBookEntrySchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
+  checkUserPermission,
   getAddressBookById,
   updateAddressBookEntry as updateAddressBookEntryService,
 } from "../../services";
@@ -63,6 +64,25 @@ export const updateAddressBookEntry = async (
       zip,
     } = result.data;
 
+    // Check permission if the user is creating on behalf of someone else
+    if (args.userId !== user.id) {
+      const hasPermission = await checkUserPermission({
+        user,
+        action: "canUpdate",
+        entity: "address book",
+      });
+
+      if (!hasPermission) {
+        return {
+          statusCode: 403,
+          success: false,
+          message:
+            "You do not have permission to update address book for another user",
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
     // Attempt to retrieve cached addressBook data from Redis
     let addressBookData;
 
@@ -89,22 +109,19 @@ export const updateAddressBookEntry = async (
       );
     }
 
-    const resultEntity = await updateAddressBookEntryService(
+    const resultEntity = await updateAddressBookEntryService(id, {
       id,
-      {
-        id,
-        city,
-        country,
-        company,
-        streetOne,
-        isDefault,
-        state,
-        streetTwo,
-        type: type as any,
-        zip,
-      },
-      user.id
-    );
+      city,
+      country,
+      company,
+      streetOne,
+      isDefault,
+      state,
+      streetTwo,
+      type: type as any,
+      zip,
+      userId: user.id,
+    });
 
     return {
       statusCode: 200,

@@ -20,12 +20,12 @@ export class Cart {
   @Column()
   createdBy: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestSessionId: string | null; // For guest carts
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

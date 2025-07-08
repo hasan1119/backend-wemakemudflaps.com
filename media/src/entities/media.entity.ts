@@ -55,6 +55,7 @@ export class Media {
     type: "enum",
     enum: categories,
     nullable: true,
+    default: null,
   })
   category: Category | null;
 

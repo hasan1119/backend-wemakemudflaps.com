@@ -50,7 +50,7 @@ export class Role {
   systemPermanentUpdateProtection: boolean;
 
   // Establishes a many-to-many relationship with users (e.g - users associated wit this role)
-  @ManyToMany(() => User, (user) => user.roles)
+  @ManyToMany(() => User, (user) => user.roles, {})
   users: User[] | null;
 
   // Establishes a many-to-one relationship for created by the user
