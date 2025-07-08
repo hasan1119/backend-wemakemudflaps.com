@@ -1098,6 +1098,7 @@ export type PermissionAgainstRoleInput = {
 };
 
 export enum PermissionName {
+  AddressBook = 'ADDRESS_BOOK',
   Brand = 'BRAND',
   Category = 'CATEGORY',
   Coupon = 'COUPON',
@@ -1116,6 +1117,7 @@ export enum PermissionName {
   SubCategory = 'SUB_CATEGORY',
   Tag = 'TAG',
   TaxClass = 'TAX_CLASS',
+  TaxExemption = 'TAX_EXEMPTION',
   TaxStatus = 'TAX_STATUS',
   TermsConditions = 'TERMS_CONDITIONS',
   User = 'USER'
@@ -1687,7 +1689,7 @@ export type Role = {
   __typename?: 'Role';
   assignedUserCount?: Maybe<Scalars['Int']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   defaultPermissions?: Maybe<Array<RolePermissionSession>>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
@@ -1730,7 +1732,7 @@ export type RoleResponse = {
 export type RoleSession = {
   __typename?: 'RoleSession';
   createdAt: Scalars['String']['output'];
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   defaultPermissions: Array<RolePermissionSession>;
   deletedAt: Scalars['String']['output'];
   description: Scalars['String']['output'];
@@ -3644,7 +3646,7 @@ export type RestoreTaxStatusResponseOrErrorResolvers<ContextType = Context, Pare
 export type RoleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Role'] = ResolversParentTypes['Role']> = {
   assignedUserCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   defaultPermissions?: Resolver<Maybe<Array<ResolversTypes['RolePermissionSession']>>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3678,7 +3680,7 @@ export type RoleResponseResolvers<ContextType = Context, ParentType extends Reso
 
 export type RoleSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RoleSession'] = ResolversParentTypes['RoleSession']> = {
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   defaultPermissions?: Resolver<Array<ResolversTypes['RolePermissionSession']>, ParentType, ContextType>;
   deletedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

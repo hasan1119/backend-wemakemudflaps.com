@@ -990,6 +990,8 @@ enum PermissionName
   NOTIFICATION @join__enumValue(graph: USER)
   MEDIA @join__enumValue(graph: USER)
   COUPON @join__enumValue(graph: USER)
+  ADDRESS_BOOK @join__enumValue(graph: USER)
+  TAX_EXEMPTION @join__enumValue(graph: USER)
 }
 
 type Permissions
@@ -1487,7 +1489,7 @@ type Role
   systemPermanentDeleteProtection: Boolean
   systemPermanentUpdateProtection: Boolean
   assignedUserCount: Int
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
@@ -1535,7 +1537,7 @@ type RoleSession
   systemUpdateProtection: Boolean!
   systemPermanentDeleteProtection: Boolean!
   systemPermanentUpdateProtection: Boolean!
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String!
   deletedAt: String!
 }
