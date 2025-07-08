@@ -1417,7 +1417,7 @@ type Query
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError! @join__field(graph: USER)
   getAddressBookEntryById(id: String!): GetAddressBookByIdResponseOrError! @join__field(graph: USER)
   getAllMyAddressEntires(type: AddressType): GetAddressesBookResponseOrError! @join__field(graph: USER)
-  getAllMyTaxExemptions: GetTaxExemptionsResponseOrError! @join__field(graph: USER)
+  getTaxExemptionEntryByUserId(userId: ID!): GetTaxExemptionsResponseOrError! @join__field(graph: USER)
 }
 
 union RestoreBrandResponseOrError

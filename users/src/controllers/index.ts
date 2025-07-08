@@ -111,3 +111,11 @@ export { getAllMyAddressEntires } from "./queries/address-book/get-all-my-addres
  */
 export { createTaxExemptionEntry } from "./mutations/manage-tax-exemption/create-tax-exemption";
 export { updateTaxExemptionEntry } from "./mutations/manage-tax-exemption/update-tax-exemption";
+
+/**
+ * Exports GraphQL queries for retrieving tax exemption.
+ *
+ * Workflow:
+ * 1. Provides queries for fetching tax exemption of a user.
+ */
+export { getTaxExemptionEntryByUserId } from "./queries/tax-exemption/get-tax-exemption-by-user-id";

@@ -70,7 +70,7 @@ export const createTaxExemptionEntry = async (
           statusCode: 403,
           success: false,
           message:
-            "You do not have permission to create tax exemption for another user.",
+            "You do not have permission to create tax exemption for another user",
           __typename: "BaseResponse",
         };
       }

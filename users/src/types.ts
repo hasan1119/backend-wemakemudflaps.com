@@ -1469,7 +1469,6 @@ export type Query = {
   getAllCategories: GetCategoriesResponseOrError;
   getAllMedias: GetMediasResponseOrError;
   getAllMyAddressEntires: GetAddressesBookResponseOrError;
-  getAllMyTaxExemptions: GetTaxExemptionsResponseOrError;
   getAllPermissionsByUserId: GetPermissionsResponseOrError;
   getAllProducts: GetProductsResponseOrError;
   getAllRoles: GetRolesResponseOrError;
@@ -1490,6 +1489,7 @@ export type Query = {
   getSubCategoryById: GetSubCategoryByIdResponseOrError;
   getTagById: GetTagByIdResponseOrError;
   getTaxClassById: GetTaxClassByIdResponseOrError;
+  getTaxExemptionEntryByUserId: GetTaxExemptionsResponseOrError;
   getTaxStatusById: GetTaxStatusByIdResponseOrError;
   getUserById: GetUserByIdResponseOrError;
   getUserOwnLoginInfo: GetUserLoginInfoResponseOrError;
@@ -1643,6 +1643,11 @@ export type QueryGetTagByIdArgs = {
 
 export type QueryGetTaxClassByIdArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetTaxExemptionEntryByUserIdArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -3562,7 +3567,6 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllCategories?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
   getAllMyAddressEntires?: Resolver<ResolversTypes['GetAddressesBookResponseOrError'], ParentType, ContextType, Partial<QueryGetAllMyAddressEntiresArgs>>;
-  getAllMyTaxExemptions?: Resolver<ResolversTypes['GetTaxExemptionsResponseOrError'], ParentType, ContextType>;
   getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
   getAllProducts?: Resolver<ResolversTypes['GetProductsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllProductsArgs, 'limit' | 'page'>>;
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
@@ -3583,6 +3587,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getSubCategoryById?: Resolver<ResolversTypes['GetSubCategoryByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetSubCategoryByIdArgs, 'id'>>;
   getTagById?: Resolver<ResolversTypes['GetTagByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTagByIdArgs, 'id'>>;
   getTaxClassById?: Resolver<ResolversTypes['GetTaxClassByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxClassByIdArgs, 'id'>>;
+  getTaxExemptionEntryByUserId?: Resolver<ResolversTypes['GetTaxExemptionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxExemptionEntryByUserIdArgs, 'userId'>>;
   getTaxStatusById?: Resolver<ResolversTypes['GetTaxStatusByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxStatusByIdArgs, 'id'>>;
   getUserById?: Resolver<ResolversTypes['GetUserByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetUserByIdArgs, 'id'>>;
   getUserOwnLoginInfo?: Resolver<ResolversTypes['GetUserLoginInfoResponseOrError'], ParentType, ContextType>;

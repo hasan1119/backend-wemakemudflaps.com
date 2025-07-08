@@ -7,6 +7,7 @@ import {
   getOwnPersonalizedPermissions,
   getProfile,
   getRoleById,
+  getTaxExemptionEntryByUserId,
   getUserById,
   getUserOwnLoginInfo,
 } from "../../controllers";
@@ -71,6 +72,11 @@ export const userQueriesResolver = {
      * Retrieves all address book information to a user by their ID.
      */
     getAllMyAddressEntires,
+
+    /**
+     * Retrieves tax exemption information to a user by their ID.
+     */
+    getTaxExemptionEntryByUserId,
   },
 
   User: {

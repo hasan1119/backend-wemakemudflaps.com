@@ -83,7 +83,7 @@ export const updateTaxExemptionEntry = async (
             statusCode: 403,
             success: false,
             message:
-              "You are not allowed to change the status of your own tax exemption.",
+              "You are not allowed to change the status of your own tax exemption",
             __typename: "BaseResponse",
           };
         }
@@ -100,7 +100,7 @@ export const updateTaxExemptionEntry = async (
           statusCode: 403,
           success: false,
           message:
-            "You do not have permission to update tax exemption for another user.",
+            "You do not have permission to update tax exemption for another user",
           __typename: "BaseResponse",
         };
       }
