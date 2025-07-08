@@ -13,7 +13,7 @@ type TaxExemption {
   id: ID! # Unique identifier of the tax exemption record
   taxNumber: String! # Tax identification number (e.g., EIN)
   assumptionReason: String! # Reason for claiming the tax exemption
-  taxCertificate: Media! # ID of the uploaded tax certificate (media reference)
+  taxCertificate: Media # ID of the uploaded tax certificate (media reference)
   status: TaxExemptionStatus! # Current status of the exemption
   expiryDate: String! # Expiration date of the exemption (if applicable)
   createdAt: String! # Created timestamp
