@@ -3,6 +3,7 @@ import {
   Permission,
   Role,
   RolePermission,
+  TaxExemption,
   User,
   UserLogin,
 } from "../../../entities";
@@ -56,3 +57,11 @@ export const rolePermissionRepository =
  * 1. Retrieves the Login repository from AppDataSource for storing user login metadata (IP, location, etc.).
  */
 export const loginRepository = AppDataSource.getRepository(UserLogin);
+
+/**
+ * Initializes repository for Login entity.
+ *
+ * Workflow:
+ * 1. Retrieves the Login repository from AppDataSource for storing user login metadata (IP, location, etc.).
+ */
+export const taxExemptionRepository = AppDataSource.getRepository(TaxExemption);

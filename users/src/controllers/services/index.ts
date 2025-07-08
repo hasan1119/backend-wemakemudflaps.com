@@ -118,3 +118,17 @@ export {
   getPermissionsByUserId,
 } from "./permission/get-user-permission.service";
 export { updateUserSpecificPermission } from "./permission/update-user-permission.service";
+
+/**
+ * Exports services for managing tax exemption operations.
+ *
+ * Workflow:
+ * 1. Provides functions for creating, update and getting tax exemption.
+ * 2. Enables operations for tax exemption management tasks.
+ */
+export { createTaxExemption } from "./tax-exemption/create-tax-exemption.service";
+export {
+  getTaxExemptionById,
+  getTaxExemptionByUserId,
+} from "./tax-exemption/get-tax-exemption.service";
+export { updateTaxExemption } from "./tax-exemption/update-tax-exemption.service";

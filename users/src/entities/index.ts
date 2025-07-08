@@ -45,3 +45,11 @@ export { User } from "./user.entity";
  * 1. Provides the Login entity to log each successful login with IP, fingerprint, and location-related metadata.
  */
 export { UserLogin } from "./user-login.entity";
+
+/**
+ * Exports the Login entity for storing user login session metadata.
+ *
+ * Workflow:
+ * 1. Provides the Login entity to log each successful login with IP, fingerprint, and location-related metadata.
+ */
+export { TaxExemption } from "./tax-exemption.entity";
