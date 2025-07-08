@@ -25,19 +25,19 @@ export class Order {
   oderStatus: string;
 
   // User ID who placed the order (string only for Apollo Federation compatibility)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   orderedById: string | null;
 
   // Email of the guest user (nullable for guest orders)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestEmail: string | null;
 
   // Name of the guest user (nullable for guest orders)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestName: string | null;
 
   // Phone number of the guest user (nullable for guest orders)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestPhone: string | null;
 
   // Delivery address for the order (nullable)
@@ -49,7 +49,7 @@ export class Order {
   orderItems: OrderItem[];
 
   // Coupon applied to the order (string only for Apollo Federation compatibility)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   couponId: string | null;
 
   // Timestamp indicating when the order was placed
@@ -57,6 +57,6 @@ export class Order {
   orderDate: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

@@ -32,7 +32,7 @@ export class Coupon {
   expiryDate: Date;
 
   // Maximum number of times the coupon can be used (optional)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   maxUsage: number | null;
 
   // A coupon may be tied to a specific product
@@ -55,6 +55,6 @@ export class Coupon {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

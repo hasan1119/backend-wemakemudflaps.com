@@ -22,6 +22,6 @@ export class OrderItem {
   @Column("text", { array: true })
   productIds: string[];
 
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

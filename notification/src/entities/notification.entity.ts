@@ -14,15 +14,15 @@ export class Notification {
   message: string;
 
   // User ID associated with the notification (string only for Apollo Federation compatibility)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   userId: string | null;
 
   // Email of the guest user (nullable for guest notifications)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestEmail: string | null;
 
   // Order associated with the notification (string only for Apollo Federation compatibility)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   relatedOrderId: string | null;
 
   // Product associated with the notification (string only for Apollo Federation compatibility)
@@ -38,6 +38,6 @@ export class Notification {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

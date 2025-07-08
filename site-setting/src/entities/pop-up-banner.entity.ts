@@ -6,19 +6,19 @@ export class PopupBanner {
   id: string;
 
   // Optional image URL for the popup banner
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, default: null })
   imageUrl: string | null;
 
   // Optional message to be displayed on the popup banner
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, default: null })
   message: string | null;
 
   // Indicates whether the popup banner is active
-  @Column({ type: "boolean", nullable: true })
+  @Column({ type: "boolean", nullable: true, default: null })
   isActive: boolean | null;
 
   // Start time when the popup banner should be displayed (optional)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   startTime: Date | null;
 
   // End time when the popup banner should be removed
@@ -34,6 +34,6 @@ export class PopupBanner {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

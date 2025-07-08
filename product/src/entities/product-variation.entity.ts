@@ -39,19 +39,19 @@ export class ProductVariation {
   brand: Promise<Brand[]> | null;
 
   // SKU for the product variation (nullable)
-  @Column({ unique: true, nullable: true })
+  @Column({ unique: true, nullable: true, default: null })
   sku: string | null;
 
   // Minimum quantity for the variation (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   minQuantity: number | null;
 
   // Default quantity for the variation (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   defaultQuantity: number | null;
 
   // Maximum quantity for the variation (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   maxQuantity: number | null;
 
   // Quantity step increment for the variation
@@ -63,15 +63,21 @@ export class ProductVariation {
   regularPrice: number;
 
   // Sale price for the variation (nullable)
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   salePrice: number | null;
 
   // Sale price start date (nullable)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   salePriceStartAt: Date | null;
 
   // Sale price end date (nullable)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   salePriceEndAt: Date | null;
 
   // One-to-one relationship with ProductPrice for tier pricing info (nullable)
@@ -113,7 +119,13 @@ export class ProductVariation {
   weightUnit: string | null;
 
   // Weight for the product variation (nullable)
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   weight: number | null;
 
   // Each variation is related to a product
@@ -132,7 +144,7 @@ export class ProductVariation {
   attributeValues: ProductVariationAttributeValue[];
 
   // Warranty digit for the variation (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   warrantyDigit: number | null;
 
   // Warranty period unit for the variation (e.g., "days", "months")
@@ -150,11 +162,12 @@ export class ProductVariation {
       "life-time",
     ],
     nullable: true,
+    default: null,
   })
   defaultWarrantyPeriod: string | null;
 
   // Warranty policy for the variation (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   warrantyPolicy: string | null;
 
   // Dimension unit for the variation (e.g., "Centimeter", "Meter")
@@ -175,15 +188,33 @@ export class ProductVariation {
   dimensionUnit: string | null;
 
   // Length of the variation (nullable)
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   length: number | null;
 
   // Width of the variation (nullable)
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   width: number | null;
 
   // Height of the variation (nullable)
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   height: number | null;
 
   // Many-to-one relationship with ShippingClass (nullable)
@@ -226,6 +257,6 @@ export class ProductVariation {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

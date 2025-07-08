@@ -71,7 +71,7 @@ export class User {
   username: string;
 
   // Stores the user's phone number (optional)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   phone: string | null;
 
   // Establishes a many-to-many relationship with roles
@@ -120,6 +120,18 @@ export class User {
   // Indicates whether the user's email is verified
   @Column({ default: false })
   emailVerified: boolean;
+
+  // Stores a company name of the user (optional)
+  @Column({ type: "text", nullable: true, default: null })
+  company: string | null;
+
+  // Stores the user's personal or professional website (optional)
+  @Column({ nullable: true, default: null })
+  website: string | null;
+
+  // Stores a short biography or description of the user (optional)
+  @Column({ type: "text", nullable: true, default: null })
+  bio: string | null;
 
   // Stores the verification status of a temporary email during profile updates
   @Column({ default: null, nullable: true })

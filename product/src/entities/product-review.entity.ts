@@ -23,11 +23,11 @@ export class ProductReview {
   reviewedBy: string;
 
   // Name of the guest user leaving the review (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestName: string | null;
 
   // Email of the guest user leaving the review (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   guestEmail: string | null;
 
   // This field stores the product being reviewed
@@ -39,6 +39,6 @@ export class ProductReview {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

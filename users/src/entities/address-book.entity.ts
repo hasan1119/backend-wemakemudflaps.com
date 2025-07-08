@@ -21,7 +21,7 @@ export class AddressBook {
   id: string;
 
   // Company name (e.g., "XYZ CORPORATE")
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   company: string | null;
 
   // Street address one line (e.g., "123 Main St")
@@ -29,7 +29,7 @@ export class AddressBook {
   streetOne: string;
 
   // Street address two line (e.g., "123 Main St")
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   streetTwo: string | null;
 
   // City where the address is located

@@ -37,7 +37,7 @@ export class Category {
   products: Product[] | null;
 
   // Set category position/order in list
-  @Column({ type: "int", nullable: true })
+  @Column({ type: "int" })
   position: number;
 
   // User ID who created the category (string only for Apollo Federation compatibility)
@@ -49,6 +49,6 @@ export class Category {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

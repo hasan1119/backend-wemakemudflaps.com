@@ -58,15 +58,15 @@ export class Product {
   slug: string;
 
   // Default thumbnail image for the product (string only for Apollo Federation compatibility)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   defaultImage: string | null;
 
   // Additional images related to the product (string only for Apollo Federation compatibility)
-  @Column("text", { array: true, nullable: true })
+  @Column("text", { array: true, nullable: true, default: null })
   images: string[] | null;
 
   // Related videos for the product (string only for Apollo Federation compatibility)
-  @Column("text", { array: true, nullable: true })
+  @Column("text", { array: true, nullable: true, default: null })
   videos: string[] | null;
 
   // Associated brand for the product
@@ -93,7 +93,7 @@ export class Product {
   defaultShortDescription: string | null;
 
   // Comma-separated product tags
-  @Column({ type: "simple-array", nullable: true })
+  @Column({ type: "simple-array", nullable: true, default: null })
   defaultTags: string[] | null;
 
   // Primary category for the product
@@ -112,7 +112,7 @@ export class Product {
   subCategories: SubCategory[] | null;
 
   // Warranty digit for the variation (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   warrantyDigit: number | null;
 
   // Warranty period unit for the variation (e.g., "days", "months")
@@ -130,11 +130,12 @@ export class Product {
       "life-time",
     ],
     nullable: true,
+    default: null,
   })
   defaultWarrantyPeriod: string | null;
 
   // Warranty policy for the variation (nullable)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   warrantyPolicy: string | null;
 
   /* ====================== General Pricing Info ====================== */
@@ -144,15 +145,21 @@ export class Product {
   regularPrice: number;
 
   // Sale price for a simple product
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   salePrice: number | null;
 
   // Sale price start date
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   salePriceStartAt: Date | null;
 
   // Sale price end date
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   salePriceEndAt: Date | null;
 
   // Tier pricing info for simple products (one-to-one relation with ProductPrice)
@@ -164,7 +171,7 @@ export class Product {
   tierPricingInfo: Promise<ProductPrice> | null;
 
   // Sale quantity limit (if the product is a deal)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   saleQuantity: number | null;
 
   // Quantity type (e.g., piece, liter and so on)
@@ -190,29 +197,29 @@ export class Product {
   /* ====================== Quantity Settings ====================== */
 
   // Minimum purchase quantity (for simple products)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   minQuantity: number | null;
 
   // Default quantity
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   defaultQuantity: number | null;
 
   // Maximum purchase quantity
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   maxQuantity: number | null;
 
   // Step increment when adding product to cart
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   quantityStep: number | null;
 
   /* ====================== Inventory Info ====================== */
 
   // Unique SKU (Stock Keeping Unit) identifier
-  @Column({ unique: true, nullable: true })
+  @Column({ unique: true, nullable: true, default: null })
   sku: string | null;
 
   // Model number or identifier
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   model: string | null;
 
   // Whether to manage stock level
@@ -277,7 +284,13 @@ export class Product {
   weightUnit: string | null;
 
   // Weight of the product
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   weight: number | null;
 
   // Dimension unit for the variation (e.g., "Centimeter", "Meter")
@@ -298,20 +311,39 @@ export class Product {
   dimensionUnit: string | null;
 
   // Length of the variation (nullable)
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   length: number | null;
 
   // Width of the variation (nullable)
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   width: number | null;
 
   // Height of the variation (nullable)
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   height: number | null;
 
   // Shipping class for grouping similar products for shipping rules
   @ManyToOne(() => ShippingClass, (shippingClass) => shippingClass.products, {
     onDelete: "SET NULL",
+    nullable: true,
   })
   @JoinColumn({ name: "shipping_class_id" })
   shippingClass: ShippingClass | null;
@@ -368,7 +400,7 @@ export class Product {
   /* ====================== Advanced Settings ====================== */
 
   // Purchase note sent to customers after buying the product
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "text", nullable: true, default: null })
   purchaseNote: string | null;
 
   // Enable or disable product reviews
@@ -383,7 +415,7 @@ export class Product {
   reviews: ProductReview[] | null;
 
   // Custom badge text for the product (e.g., "New", "Sale")
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   customBadge: string | null;
 
   // For preview mode (Admins/Authorities can see)
@@ -403,6 +435,6 @@ export class Product {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }
