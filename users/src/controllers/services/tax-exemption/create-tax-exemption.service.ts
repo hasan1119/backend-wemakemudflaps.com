@@ -20,21 +20,23 @@ export const createTaxExemption = async (
   // Create the new tax exemption entry
   const taxExemptionEntry = taxExemptionRepository.create({
     ...data,
+    user: data.userId as any,
     status: "Pending",
   });
 
   const result = await taxExemptionRepository.save(taxExemptionEntry);
 
-  const user = await result.user;
-
   // Cache the new tax exemption info using the user's ID
-  await setTaxExemptionByUserIdInRedis(user.id, {
+  await setTaxExemptionByUserIdInRedis(data.userId, {
     id: result.id,
     taxNumber: result.taxNumber,
     assumptionReason: result.assumptionReason,
     taxCertificate: result.taxCertificate as any,
     status: result.status as TaxExemptionStatus,
-    expiryDate: result.expiryDate ? result.expiryDate.toISOString() : null,
+    expiryDate:
+      result.expiryDate instanceof Date
+        ? result.expiryDate.toISOString()
+        : result.expiryDate || null,
     createdAt: result.createdAt.toISOString(),
     updatedAt: result.updatedAt.toISOString(),
   });

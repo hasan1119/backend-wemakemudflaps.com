@@ -31,7 +31,7 @@ export const createTaxExemptionSchema = z.object({
   taxNumber: z.string().min(1, "Tax number is required"),
   assumptionReason: z.string().min(1, "Assumption reason is required"),
   taxCertificate: z.string().min(1, "Tax certificate media ID is required"),
-  expiryDate: z.string(),
+  expiryDate: z.string().datetime({ message: "Invalid date format" }),
 });
 
 /**
@@ -67,7 +67,11 @@ export const updateTaxExemptionSchema = z
       .min(1)
       .nullable()
       .optional(),
-    expiryDate: z.string().nullable().optional(),
+    expiryDate: z
+      .string()
+      .datetime({ message: "Invalid date format" })
+      .nullable()
+      .optional(),
     status: z.nativeEnum(TaxExemptionStatus).nullable().optional(),
   })
   .refine(

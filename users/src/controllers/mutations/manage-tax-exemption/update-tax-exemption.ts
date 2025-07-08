@@ -68,7 +68,8 @@ export const updateTaxExemptionEntry = async (
       }
     }
 
-    const isOwn = taxExemption.userId === user.id;
+    const isOwn = args.userId === user.id;
+
     if (!isOwn) {
       const hasPermission = await checkUserPermission({
         user,
