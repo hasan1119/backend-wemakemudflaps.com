@@ -64,7 +64,7 @@ export const updateTaxExemptionSchema = z
       .optional(),
     taxCertificate: z
       .string()
-      .uuid({ message: "Invalid UUID format" }),
+      .uuid({ message: "Invalid UUID format" })
       .nullable()
       .optional(),
     expiryDate: z
