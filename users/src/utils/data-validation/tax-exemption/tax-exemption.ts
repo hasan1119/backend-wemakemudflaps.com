@@ -30,7 +30,7 @@ export const createTaxExemptionSchema = z.object({
   userId: z.string().uuid({ message: "Invalid UUID format" }),
   taxNumber: z.string().min(1, "Tax number is required"),
   assumptionReason: z.string().min(1, "Assumption reason is required"),
-  taxCertificate: z.string().min(1, "Tax certificate media ID is required"),
+  taxCertificate: z.string().uuid({ message: "Invalid UUID format" }),
   expiryDate: z.string().datetime({ message: "Invalid date format" }),
 });
 
@@ -63,8 +63,8 @@ export const updateTaxExemptionSchema = z
       .nullable()
       .optional(),
     taxCertificate: z
-      .string({ message: "Tax certificate media ID is required" })
-      .min(1)
+      .string()
+      .uuid({ message: "Invalid UUID format" }),
       .nullable()
       .optional(),
     expiryDate: z
