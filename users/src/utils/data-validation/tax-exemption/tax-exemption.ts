@@ -39,6 +39,7 @@ export const createTaxExemptionSchema = z.object({
  *
  * Fields:
  * - id: Required UUID string representing the tax exemption record to update.
+ * - userId: Required UUID string representing the user submitting the exemption.
  * - taxNumber: Optional string representing an updated tax number.
  * - assumptionReason: Optional string representing an updated assumption reason.
  * - taxCertificate: Optional string representing an updated tax certificate media ID.
@@ -50,6 +51,7 @@ export const createTaxExemptionSchema = z.object({
 export const updateTaxExemptionSchema = z
   .object({
     id: z.string().uuid({ message: "Invalid UUID format" }),
+    userId: z.string().uuid({ message: "Invalid UUID format" }),
     taxNumber: z
       .string({ message: "Tax number is required" })
       .min(1)

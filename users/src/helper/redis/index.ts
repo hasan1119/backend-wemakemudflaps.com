@@ -120,7 +120,7 @@ export {
  * 1. Provides functions for getting, setting, and removing tax-exemption sessions.
  */
 export {
-  getAllTaxExemptionsFromRedis,
+  getTaxExemptionsByUserIdFromRedis,
   removeAllTaxExemptionByUserIdFromRedis,
-  setAllTaxExemptionByUserIdInRedis,
+  setTaxExemptionByUserIdInRedis,
 } from "./utils/tax-exemption/tax-exemption-session-manage";

@@ -2,6 +2,7 @@ import {
   accountActivation,
   changePassword,
   createAddressBookEntry,
+  createTaxExemptionEntry,
   createUserRole,
   deleteAddressBookEntry,
   deleteLoginSession,
@@ -14,6 +15,7 @@ import {
   restoreUserRole,
   updateAddressBookEntry,
   updateProfile,
+  updateTaxExemptionEntry,
   updateUserPermission,
   updateUserRole,
   updateUserRoleInfo,
@@ -124,5 +126,15 @@ export const userMutationsResolver = {
      * Updates address book log for a specific user.
      */
     updateAddressBookEntry,
+
+    /**
+     * Creates a new tax exemption entry for a specific user.
+     */
+    createTaxExemptionEntry,
+
+    /**
+     * Updates an existing tax exemption entry for a specific user.
+     */
+    updateTaxExemptionEntry,
   },
 };

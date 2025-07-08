@@ -87,6 +87,20 @@ export const userQueriesResolver = {
     },
   },
 
+  TaxExemption: {
+    /**
+     * Resolver for federated reference to the `Media` entity for tax certificate.
+     * Enables subgraphs to resolve media info based on taxCertificate ID.
+     */
+    taxCertificate: ({ taxCertificate }) => {
+      if (!taxCertificate) return null;
+      return {
+        __typename: "Media",
+        id: taxCertificate,
+      };
+    },
+  },
+
   /**
    * Resolver for federated reference to the `CreatedBy` entity,
    * allowing other subgraphs to fetch user data by ID.

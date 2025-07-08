@@ -12,7 +12,7 @@ const PREFIX = {
  * @param userId - The user's ID.
  * @param data - The TaxExemption data to cache.
  */
-export const setAllTaxExemptionByUserIdInRedis = async (
+export const setTaxExemptionByUserIdInRedis = async (
   userId: string,
   data: TaxExemption
 ): Promise<void> => {
@@ -29,7 +29,7 @@ export const setAllTaxExemptionByUserIdInRedis = async (
  * @param userId - The user's ID.
  * @returns An array of TaxExemption entities or null if not found.
  */
-export const getAllTaxExemptionsFromRedis = async (
+export const getTaxExemptionsByUserIdFromRedis = async (
   userId: string
 ): Promise<TaxExemption | null> => {
   return redis.getSession<TaxExemption | null>(

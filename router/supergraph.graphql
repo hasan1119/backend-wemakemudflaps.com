@@ -60,7 +60,7 @@ type AddressResponseBook
   statusCode: Int!
   success: Boolean!
   message: String!
-  addressBook: AddressBook
+  addressBook: AddressBook!
 }
 
 enum AddressType
@@ -287,6 +287,13 @@ union CreateTaxClassResponseOrError
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | TaxClassResponse | ErrorResponse
 
+union CreateTaxExemptionResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "TaxExemptionResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | TaxExemptionResponse | ErrorResponse
+
 union CreateTaxStatusResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
@@ -365,6 +372,21 @@ union DeleteTaxClassResponseOrError
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | ErrorResponse
+
+type DeleteTaxExemptionResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+}
+
+union DeleteTaxExemptionResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "DeleteTaxExemptionResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | DeleteTaxExemptionResponse | ErrorResponse
 
 union DeleteTaxStatusResponseOrError
   @join__type(graph: PRODUCT)
@@ -603,6 +625,13 @@ union GetTaxClassesResponseOrError
   @join__unionMember(graph: PRODUCT, member: "TaxClassPaginationResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | TaxClassPaginationResponse | ErrorResponse
+
+union GetTaxExemptionsResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "TaxExemptionResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | TaxExemptionResponse | ErrorResponse
 
 union GetTaxStatusByIDResponseOrError
   @join__type(graph: PRODUCT)
@@ -922,6 +951,8 @@ type Mutation
   createAddressBookEntry(company: String!, streetOne: String!, streetTwo: String!, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
   updateAddressBookEntry(id: ID!, company: String, streetOne: String, streetTwo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
   deleteAddressBookEntry(ids: [ID!]!): DeleteAddressesBookResponseOrError! @join__field(graph: USER)
+  createTaxExemptionEntry(userId: String!, taxNumber: String!, assumptionReason: String!, taxCertificate: String!, expiryDate: String!): CreateTaxExemptionResponseOrError! @join__field(graph: USER)
+  updateTaxExemptionEntry(id: ID!, userId: String!, taxNumber: String, assumptionReason: String, taxCertificate: String, expiryDate: String, status: TaxExemptionStatus): UpdateTaxExemptionResponseOrError! @join__field(graph: USER)
 }
 
 input PermissionAgainstRoleInput
@@ -1386,6 +1417,7 @@ type Query
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError! @join__field(graph: USER)
   getAddressBookEntryById(id: String!): GetAddressBookByIdResponseOrError! @join__field(graph: USER)
   getAllMyAddressEntires(type: AddressType): GetAddressesBookResponseOrError! @join__field(graph: USER)
+  getAllMyTaxExemptions: GetTaxExemptionsResponseOrError! @join__field(graph: USER)
 }
 
 union RestoreBrandResponseOrError
@@ -1715,6 +1747,37 @@ type TaxClassResponse
   taxClass: TaxClass!
 }
 
+type TaxExemption
+  @join__type(graph: USER)
+{
+  id: ID!
+  taxNumber: String!
+  assumptionReason: String!
+  taxCertificate: Media!
+  status: TaxExemptionStatus!
+  expiryDate: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type TaxExemptionResponse
+  @join__type(graph: USER)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxExemption: TaxExemption!
+}
+
+enum TaxExemptionStatus
+  @join__type(graph: USER)
+{
+  Pending @join__enumValue(graph: USER)
+  Approved @join__enumValue(graph: USER)
+  Rejected @join__enumValue(graph: USER)
+  Expired @join__enumValue(graph: USER)
+}
+
 type TaxStatus
   @join__type(graph: PRODUCT)
 {
@@ -1846,6 +1909,13 @@ union UpdateTaxClassResponseOrError
   @join__unionMember(graph: PRODUCT, member: "TaxClassResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | TaxClassResponse | ErrorResponse
+
+union UpdateTaxExemptionResponseOrError
+  @join__type(graph: USER)
+  @join__unionMember(graph: USER, member: "BaseResponse")
+  @join__unionMember(graph: USER, member: "TaxExemptionResponse")
+  @join__unionMember(graph: USER, member: "ErrorResponse")
+ = BaseResponse | TaxExemptionResponse | ErrorResponse
 
 union UpdateTaxStatusResponseOrError
   @join__type(graph: PRODUCT)

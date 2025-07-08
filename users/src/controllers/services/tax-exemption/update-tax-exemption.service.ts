@@ -1,5 +1,7 @@
 import { TaxExemption } from "../../../entities";
-import { MutationUpdateTaxExemptionArgs } from "../../../types";
+import { setTaxExemptionByUserIdInRedis } from "../../../helper/redis";
+import { MutationUpdateTaxExemptionEntryArgs } from "../../../types";
+import { TaxExemptionStatus } from "../../../utils/data-validation";
 import { taxExemptionRepository } from "../repositories/repositories";
 import { getTaxExemptionById } from "./get-tax-exemption.service";
 
@@ -12,30 +14,41 @@ import { getTaxExemptionById } from "./get-tax-exemption.service";
  * @returns The updated TaxExemption entity, or null if the entry does not exist.
  */
 export const updateTaxExemption = async (
-  data: MutationUpdateTaxExemptionArgs
+  data: MutationUpdateTaxExemptionEntryArgs
 ): Promise<TaxExemption | null> => {
   await taxExemptionRepository.update(
     { id: data.id },
     {
-      taxNumber: data.taxNumber,
-      assumptionReason: data.assumptionReason,
-      taxCertificate: data.taxCertificate,
-      expiryDate: data.expiryDate,
-      status: data.status,
+      ...(data.taxNumber !== undefined &&
+        data.taxNumber !== null && { taxNumber: data.taxNumber }),
+      ...(data.assumptionReason !== undefined &&
+        data.assumptionReason !== null && {
+          assumptionReason: data.assumptionReason,
+        }),
+      ...(data.taxCertificate !== undefined &&
+        data.taxCertificate !== null && {
+          taxCertificate: data.taxCertificate,
+        }),
+      ...(data.expiryDate !== undefined &&
+        data.expiryDate !== null && { expiryDate: data.expiryDate }),
+      ...(data.status !== undefined &&
+        data.status !== null && { status: data.status }),
     }
   );
-  // Update the cache in Redis
-  // await setTaxExemptionInfoByUserIdInRedis(userId, {
-  //   ...updatedExemption,
-  //   createdAt:
-  //     updatedExemption.createdAt instanceof Date
-  //       ? updatedExemption.createdAt.toISOString()
-  //       : updatedExemption.createdAt,
-  //   updatedAt:
-  //     updatedExemption.updatedAt instanceof Date
-  //       ? updatedExemption.updatedAt.toISOString()
-  //       : updatedExemption.updatedAt,
-  // });
 
-  return await getTaxExemptionById(data.id);
+  const result = await getTaxExemptionById(data.id);
+
+  // Update the cache in Redis
+  await setTaxExemptionByUserIdInRedis(data.userId, {
+    id: result.id,
+    taxNumber: result.taxNumber,
+    assumptionReason: result.assumptionReason,
+    taxCertificate: result.taxCertificate as any,
+    status: result.status as TaxExemptionStatus,
+    expiryDate: result.expiryDate ? result.expiryDate.toISOString() : null,
+    createdAt: result.createdAt.toISOString(),
+    updatedAt: result.updatedAt.toISOString(),
+  });
+
+  return result;
 };

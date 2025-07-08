@@ -100,3 +100,14 @@ export { updateAddressBookEntry } from "./mutations/manage-address-book/update-a
  */
 export { getAddressBookEntryById } from "./queries/address-book/get-address-book-by-id";
 export { getAllMyAddressEntires } from "./queries/address-book/get-all-my-address-entires";
+
+/**
+ * Exports GraphQL mutations for managing tax exemption entries.
+ *
+ * Workflow:
+ * 1. Provides mutation for creating a new tax exemption entry.
+ * 2. Enables updating existing tax exemption entries.
+ * 3. (Optionally) Can facilitate deletion if implemented.
+ */
+export { createTaxExemptionEntry } from "./mutations/manage-tax-exemption/create-tax-exemption";
+export { updateTaxExemptionEntry } from "./mutations/manage-tax-exemption/update-tax-exemption";

@@ -4,20 +4,21 @@ type Mutation {
   # Allows users to submit a new tax exemption application.
   # Input includes tax number, reason, certificate media ID, and optional expiry date.
   # Returns a response indicating success or failure of the operation.
-  createTaxExemption(
+  createTaxExemptionEntry(
     userId: String! # Unique identifier for the user submitting or updating the tax exemption
     taxNumber: String! # Tax identification number (e.g., EIN)
     assumptionReason: String! # Reason for claiming tax exemption
     taxCertificate: String! # Media ID of the uploaded tax certificate
-    expiryDate: String # Expiration date of the exemption (optional)
+    expiryDate: String! # Expiration date of the exemption (optional)
   ): CreateTaxExemptionResponseOrError!
 
   # Update an existing tax exemption entry.
   # Allows users to modify an existing tax exemption record.
   # Requires the exemption entry ID and any fields to be updated.
   # Returns a response with the updated tax exemption or an error.
-  updateTaxExemption(
+  updateTaxExemptionEntry(
     id: ID! # Unique ID of the tax exemption entry to update
+    userId: String! # Unique identifier for the user submitting or updating the tax exemption
     taxNumber: String # Updated tax number (optional)
     assumptionReason: String # Updated assumption reason (optional)
     taxCertificate: String # Updated media ID of the tax certificate (optional)
