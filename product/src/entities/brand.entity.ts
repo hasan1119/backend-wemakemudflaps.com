@@ -21,7 +21,6 @@ export class Brand {
   // One brand can be associated with multiple products
   @OneToMany(() => Product, (product) => product.brands, {
     nullable: true,
-    default: null,
   })
   products: Product[] | null;
 
