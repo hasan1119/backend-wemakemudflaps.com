@@ -54,7 +54,7 @@ export type PermissionName =
   | "Tax Exemption";
 
 // Defines a mapping for permission values used in permission schemas
-export const permissionMap: Record<string, string> = {
+export const PERMISSION_NORMALIZATION_MAP: Record<string, string> = {
   USER: "User",
   BRAND: "Brand",
   CATEGORY: "Category",
@@ -108,13 +108,11 @@ export const hasDuplicatePermissionNames = (
  */
 export const PermissionEnum = z.preprocess((val) => {
   if (typeof val === "string") {
-    const matched = PERMISSIONS.find(
-      (perm) => perm.toLowerCase() === val.trim().toLowerCase()
-    );
-    return matched ?? undefined;
+    const key = val.trim().toUpperCase();
+    return PERMISSION_NORMALIZATION_MAP[key];
   }
   return undefined;
-}, z.enum([...PERMISSIONS] as [string, ...string[]]));
+}, z.enum(PERMISSIONS as [string, ...string[]]));
 
 /**
  * Enum definition for sort order types used in sorting queries.
