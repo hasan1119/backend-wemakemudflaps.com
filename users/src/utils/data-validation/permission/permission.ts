@@ -25,9 +25,17 @@ const singlePermissionSchema = z.object({
     })
     .optional(),
   description: z
-    .string({ message: "Description must be a string" })
+    .string({ message: "Permission description is required" })
     .trim()
-    .optional(),
+    .optional()
+    .nullable()
+    .refine(
+      (val) =>
+        val === null || val === undefined || val === "" || val.length >= 0,
+      {
+        message: "Permission description can be empty",
+      }
+    ),
 });
 
 /**
@@ -95,4 +103,11 @@ export const updateUserPermissionSchema = z
   .refine((data) => !hasDuplicatePermissionNames(data.permissions), {
     message: "Duplicate permission names are not allowed in permissions array.",
     path: ["permissions"],
+  })
+  .transform((data) => {
+    if (data.accessAll === true || data.deniedAll === true) {
+      const { permissions, ...rest } = data;
+      return rest;
+    }
+    return data;
   });

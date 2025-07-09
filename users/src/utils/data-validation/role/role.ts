@@ -6,11 +6,21 @@ import { hasDuplicatePermissionNames } from "../common/common";
 const rolePermissionSchema = z.object({
   name: PermissionEnum,
   description: z
-    .string()
-    .min(3, "Permission description must be at least 3 characters")
+    .string({ message: "Role permission description is required" })
     .trim()
+    .optional()
     .nullable()
-    .optional(),
+    .refine(
+      (val) =>
+        val === null ||
+        val === undefined ||
+        val === "" ||
+        (typeof val === "string" && val.length >= 3),
+      {
+        message:
+          "Role permission description must be at least 3 characters if not empty",
+      }
+    ),
   canCreate: z.boolean(),
   canRead: z.boolean(),
   canUpdate: z.boolean(),
@@ -28,7 +38,7 @@ export const roleNameSchema = z
  * Defines the schema for creating a user role.
  *
  * Workflow:
- * 1. Validates role name (3-50 chars) and optional description (min 3 chars).
+ * 1. Validates role name (3-50 chars) and optional description.
  * 2. Allows an optional array of default permissions.
  * 3. Validates optional system protection flags (delete, update, permanent).
  * 4. Ensures permanent protection flags require corresponding non-permanent flags.
@@ -36,7 +46,7 @@ export const roleNameSchema = z
  * 6. Ensures no duplicate permissions by name.
  *
  * @property name - Role name (3-50 chars).
- * @property description - Optional role description (min 3 chars).
+ * @property description - Optional role description.
  * @property defaultPermissions - Optional array of default permissions.
  * @property systemDeleteProtection - Optional flag for delete protection.
  * @property systemUpdateProtection - Optional flag for update protection.
@@ -48,10 +58,21 @@ export const userRoleSchema = z
   .object({
     name: roleNameSchema,
     description: z
-      .string()
-      .min(3, "Role description must be at least 3 characters long")
+      .string({ message: "Role description is required" })
       .trim()
-      .optional(),
+      .optional()
+      .nullable()
+      .refine(
+        (val) =>
+          val === null ||
+          val === undefined ||
+          val === "" ||
+          (typeof val === "string" && val.length >= 3),
+        {
+          message:
+            "Role description must be at least 3 characters if not empty",
+        }
+      ),
     defaultPermissions: z.array(rolePermissionSchema).optional(),
     systemDeleteProtection: z.boolean().nullable().optional(),
     systemUpdateProtection: z.boolean().nullable().optional(),
@@ -96,7 +117,7 @@ export const userRoleSchema = z
  *
  * Workflow:
  * 1. Validates role ID as a UUID and optional role name (3-50 chars).
- * 2. Allows an optional description (min 3 chars) and default permissions array.
+ * 2. Allows an optional description and default permissions array.
  * 3. Validates optional system protection flags (delete, update, permanent).
  * 4. Ensures permanent protection flags require corresponding non-permanent flags.
  * 5. Allows an optional password field.
@@ -105,7 +126,7 @@ export const userRoleSchema = z
  *
  * @property id - UUID for the role.
  * @property name - Optional role name (3-50 chars).
- * @property description - Optional role description (min 3 chars).
+ * @property description - Optional role description.
  * @property defaultPermissions - Optional array of default permissions.
  * @property systemDeleteProtection - Optional flag for delete protection.
  * @property systemUpdateProtection - Optional flag for update protection.
@@ -118,10 +139,21 @@ export const userRoleInfoUpdateSchema = z
     id: z.string().uuid({ message: "Invalid UUID format" }),
     name: roleNameSchema.optional(),
     description: z
-      .string()
-      .min(3, "Role description must be at least 3 characters long")
+      .string({ message: "Role description is required" })
       .trim()
-      .optional(),
+      .optional()
+      .nullable()
+      .refine(
+        (val) =>
+          val === null ||
+          val === undefined ||
+          val === "" ||
+          (typeof val === "string" && val.length >= 3),
+        {
+          message:
+            "Role description must be at least 3 characters if not empty",
+        }
+      ),
     defaultPermissions: z.array(rolePermissionSchema).nullable().optional(),
     systemDeleteProtection: z.boolean().nullable().optional(),
     systemUpdateProtection: z.boolean().nullable().optional(),
