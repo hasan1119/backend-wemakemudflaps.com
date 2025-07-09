@@ -1753,7 +1753,7 @@ type TaxExemption
   id: ID!
   taxNumber: String!
   assumptionReason: String!
-  taxCertificate: Media!
+  taxCertificate: Media
   status: TaxExemptionStatus!
   expiryDate: String!
   createdAt: String!
