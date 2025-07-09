@@ -1049,7 +1049,7 @@ type Product
 {
   id: ID
   productConfigurationType: String
-  productDeliveryType: [String]
+  productDeliveryType: [String!]!
   isCustomized: Boolean!
   name: String!
   slug: String!
@@ -1064,10 +1064,10 @@ type Product
   defaultTags: [String!]
   customBadge: String
   purchaseNote: String
-  brands: [Brand]
+  brands: [Brand!]
   tags: [Tag!]
   category: Category!
-  subCategories: [SubCategory]
+  subCategories: [SubCategory!]
   warrantyDigit: Int
   defaultWarrantyPeriod: String
   warrantyPolicy: String
@@ -1623,7 +1623,7 @@ type SubCategory
   thumbnail: Media
   category: Category
   parentSubCategory: SubCategory
-  subCategories: [SubCategory]
+  subCategories: [SubCategory!]!
   position: Int!
   createdBy: CreatedBy!
   createdAt: String

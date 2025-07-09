@@ -54,7 +54,7 @@ export type PermissionName =
   | "Tax Exemption";
 
 // Defines a mapping for permission values used in permission schemas
-export const permissionMap: Record<string, string> = {
+export const PERMISSION_NORMALIZATION_MAP: Record<string, string> = {
   USER: "User",
   BRAND: "Brand",
   CATEGORY: "Category",
@@ -80,6 +80,22 @@ export const permissionMap: Record<string, string> = {
   TAX_EXEMPTION: "Tax Exemption",
 };
 
+// Utility function to check for duplicate permission names
+export const hasDuplicatePermissionNames = (
+  permissions?: { name?: string | null }[] | null
+): boolean => {
+  if (!permissions || permissions.length === 0) return false;
+
+  // Extract only non-empty string names
+  const names = permissions
+    .map((p) => p.name)
+    .filter(
+      (name): name is string => typeof name === "string" && name.trim() !== ""
+    );
+
+  return new Set(names).size !== names.length;
+};
+
 /**
  * Defines an enum for permission names used in permission schemas.
  *
@@ -92,13 +108,10 @@ export const permissionMap: Record<string, string> = {
  */
 export const PermissionEnum = z.preprocess((val) => {
   if (typeof val === "string") {
-    const matched = PERMISSIONS.find(
-      (perm) => perm.toLowerCase() === val.trim().toLowerCase()
-    );
-    return matched ?? undefined;
+    const key = val.trim().toUpperCase();
+    return PERMISSION_NORMALIZATION_MAP[key];
   }
-  return undefined;
-}, z.enum([...PERMISSIONS] as [string, ...string[]]));
+}, z.enum(PERMISSIONS as [string, ...string[]]));
 
 /**
  * Enum definition for sort order types used in sorting queries.

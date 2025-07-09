@@ -1,4 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Category } from "./category.entity";
+import { Product } from "./product.entity";
+import { SubCategory } from "./sub-category.entity";
 
 @Entity()
 export class Coupon {
@@ -9,19 +18,32 @@ export class Coupon {
   @Column({ unique: true })
   code: string;
 
-  // Specifies whether the discount applies to a product or order
-  @Column({
-    type: "enum",
-    enum: ["product", "order"],
-  })
-  discountOn: string;
+  // A detailed description of the coupon
+  @Column({ type: "text", nullable: true, default: null })
+  description: string | null;
 
-  // Defines the type of discount (percentage or fixed amount)
+  // // Specifies whether the discount applies to a product or order
+  // @Column({
+  //   type: "enum",
+  //   enum: ["product", "order", "cart"],
+  // })
+  // discountOn: string;
+
+  // Defines the type of discount ( "Percentage Discount", "Fixed Cart Discount" and "Fixed Product Discount")
   @Column({
     type: "enum",
-    enum: ["percentage", "fixed"],
+    enum: [
+      "Percentage Discount",
+      "Fixed Cart Discount",
+      "Fixed Product Discount",
+    ],
+    nullable: true,
+    default: null,
   })
-  discountType: string;
+  discountType: string | null;
+
+  @Column({ default: false })
+  freeShipping: boolean;
 
   // Discount value (either a percentage or fixed amount)
   @Column({ type: "decimal", precision: 10, scale: 2 })
@@ -35,6 +57,64 @@ export class Coupon {
   @Column({ nullable: true, default: null })
   maxUsage: number | null;
 
+  // Minimum order amount to apply the coupon (optional)
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
+  minimumSpend: number | null;
+
+  // Maximum order amount to apply the coupon (optional)
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
+  maximumSpend: number | null;
+
+  // Restrict coupon to specific product IDs
+  @ManyToMany(() => Product, { nullable: true })
+  @JoinTable()
+  applicableProducts: Product[] | null;
+
+  // Exclude specific product IDs
+  @ManyToMany(() => Product, { nullable: true })
+  @JoinTable()
+  excludedProducts: Product[] | null;
+
+  // Restrict coupon to specific category IDs
+  @ManyToMany(() => Category, { nullable: true })
+  @JoinTable()
+  applicableCategories: Category[] | null;
+
+  // Exclude specific category IDs
+  @ManyToMany(() => Category, { nullable: true })
+  @JoinTable()
+  excludedCategories: Category[] | null;
+
+  // Restrict coupon to specific sub category IDs
+  @ManyToMany(() => SubCategory, { nullable: true })
+  @JoinTable()
+  applicableSubCategories: SubCategory[] | null;
+
+  // Exclude specific sub category IDs
+  @ManyToMany(() => SubCategory, { nullable: true })
+  @JoinTable()
+  excludedSubCategories: SubCategory[] | null;
+
+  // Restrict coupon to certain emails
+  @Column("text", {
+    array: true,
+    nullable: true,
+    default: () => "ARRAY[]::text[]",
+  })
+  allowedEmails: string[] | null;
+
   // A coupon may be tied to a specific product
   /*   @ManyToOne(() => Product, (product) => product.coupons, {
     nullable: true,
@@ -42,9 +122,9 @@ export class Coupon {
   })
   product: Product | null; */
 
-  // A coupon may be tied to a specific order (string only for Apollo Federation compatibility)
-  @Column({ nullable: true })
-  orderId: string | null;
+  // Total usage count
+  @Column({ default: 0 })
+  usageCount: number;
 
   // User ID who created the coupon (string only for Apollo Federation compatibility)
   @Column()

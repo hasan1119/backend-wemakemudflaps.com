@@ -902,7 +902,7 @@ export const updateProductSchema = z
       .optional()
       .nullable(),
     brandIds: z
-      .array(z.string().uuid("Invalid brand ID format"))
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
       .optional()
       .nullable(),
     tagIds: z
