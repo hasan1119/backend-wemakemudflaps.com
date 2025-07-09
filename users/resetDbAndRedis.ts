@@ -2,32 +2,33 @@ import Redis from "ioredis";
 import { Pool } from "pg";
 
 // PostgreSQL configuration
-// const pgConfig = {
-//   user: "postgres",
-//   host: "techanalyzen.com",
-//   password: "password",
-//   port: 5432,
-//   database: "steven",
-// };
 const pgConfig = {
   user: "postgres",
-  host: "127.0.0.1",
-  password: "Joy112233",
+  host: "techanalyzen.com",
+  password: "password",
   port: 5432,
-  database: "postgres",
+  database: "steven",
 };
+// const pgConfig = {
+//   user: "postgres",
+//   host: "127.0.0.1",
+//   password: "Joy112233",
+//   port: 5432,
+//   database: "postgres",
+// };
 
 // Redis configuration
-// const redisConfig = {
-//   host: "techanalyzen.com",
-//   port: 6379,
-//   password: "password",
-// };
 const redisConfig = {
-  host: "127.0.0.1",
+  host: "techanalyzen.com",
   port: 6379,
-  password: "",
+  password: "password",
 };
+
+// const redisConfig = {
+//   host: "127.0.0.1",
+//   port: 6379,
+//   password: "",
+// };
 
 async function resetTablesAndRedis() {
   let pgClient;
