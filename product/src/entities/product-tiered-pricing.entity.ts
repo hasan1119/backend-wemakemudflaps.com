@@ -19,11 +19,23 @@ export class ProductTieredPrice {
   quantityUnit: string;
 
   // Fixed price for this tier (if applicable)
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   fixedPrice: number | null;
 
   // Percentage discount for this tier (if applicable)
-  @Column({ type: "decimal", precision: 5, scale: 2, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
   percentageDiscount: number | null;
 
   // Reference to the associated ProductPrice entity
@@ -38,6 +50,6 @@ export class ProductTieredPrice {
   createdAt: Date;
 
   // Timestamp for soft deletion (null if not deleted)
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }

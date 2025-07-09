@@ -932,9 +932,9 @@ type Mutation
   updateProduct(id: ID!, productConfigurationType: productConfigurationType, productDeliveryType: [ProductDeliveryType!], isCustomized: Boolean, name: String, slug: String, defaultImage: ID, images: [ID!], videos: [ID!], brandIds: [ID!], tagIds: [ID!], defaultMainDescription: String, defaultShortDescription: String, defaultTags: [String!], categoryId: ID, subCategoryIds: [ID!], warrantyDigit: Int, defaultWarrantyPeriod: DefaultWarrantyPeriod, warrantyPolicy: String, regularPrice: Float, salePrice: Float, salePriceStartAt: String, salePriceEndAt: String, tierPricingInfo: ProductPriceInput, saleQuantity: Int, saleQuantityUnit: String, taxStatusId: ID, taxClassId: ID, minQuantity: Int, defaultQuantity: Int, maxQuantity: Int, quantityStep: Int, sku: String, model: String, manageStock: Boolean, stockQuantity: Int, allowBackOrders: AllowBackOrders, lowStockThresHold: Int, stockStatus: StockStatus, soldIndividually: Boolean, initialNumberInStock: String, weightUnit: WeightUnit, weight: Float, dimensionUnit: DimensionUnit, length: Float, width: Float, height: Float, shippingClassId: ID, upsellIds: [ID!], crossSellIds: [ID!], attributes: [ProductAttributeInput!], variations: [ProductVariationInput!], purchaseNote: String, enableReviews: Boolean, customBadge: String, isPreview: Boolean, isVisible: Boolean): UpdateProductResponseOrError! @join__field(graph: PRODUCT)
   deleteProduct(ids: [ID]!, skipTrash: Boolean!): DeleteProductResponseOrError! @join__field(graph: PRODUCT)
   restoreProducts(ids: [ID!]!): RestoreProductResponseOrError! @join__field(graph: PRODUCT)
-  register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender): BaseResponseOrError! @join__field(graph: USER)
+  register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender, company: String): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
-  updateProfile(firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput): UserProfileUpdateResponseOrError! @join__field(graph: USER)
+  updateProfile(userId: ID!, firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput, website: String, bio: String, company: String): UserProfileUpdateResponseOrError! @join__field(graph: USER)
   changePassword(oldPassword: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
   forgetPassword(email: String!): BaseResponseOrError! @join__field(graph: USER)
   resetPassword(token: String!, newPassword: String!): BaseResponseOrError! @join__field(graph: USER)
@@ -948,8 +948,8 @@ type Mutation
   restoreUserRole(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
   updateUserRoleInfo(id: ID!, name: String, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, systemPermanentDeleteProtection: Boolean, systemPermanentUpdateProtection: Boolean, password: String): UpdateRoleResponseOrError! @join__field(graph: USER)
   updateUserPermission(input: UpdateUserPermissionInput!): BaseResponseOrError! @join__field(graph: USER)
-  createAddressBookEntry(company: String!, streetOne: String!, streetTwo: String!, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
-  updateAddressBookEntry(id: ID!, company: String, streetOne: String, streetTwo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
+  createAddressBookEntry(userId: ID!, company: String!, streetOne: String!, streetTwo: String!, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
+  updateAddressBookEntry(id: ID!, userId: ID!, company: String, streetOne: String, streetTwo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
   deleteAddressBookEntry(ids: [ID!]!): DeleteAddressesBookResponseOrError! @join__field(graph: USER)
   createTaxExemptionEntry(userId: String!, taxNumber: String!, assumptionReason: String!, taxCertificate: String!, expiryDate: String!): CreateTaxExemptionResponseOrError! @join__field(graph: USER)
   updateTaxExemptionEntry(id: ID!, userId: String!, taxNumber: String, assumptionReason: String, taxCertificate: String, expiryDate: String, status: TaxExemptionStatus): UpdateTaxExemptionResponseOrError! @join__field(graph: USER)
@@ -990,6 +990,8 @@ enum PermissionName
   NOTIFICATION @join__enumValue(graph: USER)
   MEDIA @join__enumValue(graph: USER)
   COUPON @join__enumValue(graph: USER)
+  ADDRESS_BOOK @join__enumValue(graph: USER)
+  TAX_EXEMPTION @join__enumValue(graph: USER)
 }
 
 type Permissions
@@ -1487,7 +1489,7 @@ type Role
   systemPermanentDeleteProtection: Boolean
   systemPermanentUpdateProtection: Boolean
   assignedUserCount: Int
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
@@ -1535,7 +1537,7 @@ type RoleSession
   systemUpdateProtection: Boolean!
   systemPermanentDeleteProtection: Boolean!
   systemPermanentUpdateProtection: Boolean!
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String!
   deletedAt: String!
 }
@@ -1977,6 +1979,9 @@ type User
   email: String
   tempUpdatedEmail: String
   username: String
+  website: String
+  company: String
+  bio: String
   address: UserAddress
   emailVerified: Boolean
   gender: String
@@ -2097,6 +2102,9 @@ type UserSessionByEmail
   password: String!
   emailVerified: Boolean!
   gender: String!
+  website: String!
+  company: String!
+  bio: String!
   roles: [UserRoleObject!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!
@@ -2121,6 +2129,9 @@ type UserSessionById
   emailVerified: Boolean!
   gender: String!
   phone: String!
+  website: String!
+  company: String!
+  bio: String!
   roles: [UserRoleObject!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!

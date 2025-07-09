@@ -69,6 +69,9 @@ type UserSessionByEmail @shareable {
   password: String!
   emailVerified: Boolean!
   gender: String!
+  website: String!
+  company: String!
+  bio: String!
   roles: [UserRoleObject!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!
@@ -92,6 +95,9 @@ type UserSessionById @shareable {
   emailVerified: Boolean!
   gender: String!
   phone: String!
+  website: String!
+  company: String!
+  bio: String!
   roles: [UserRoleObject!]!
   permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean!
@@ -112,6 +118,9 @@ type User @key(fields: "id") {
   email: String
   tempUpdatedEmail: String
   username: String
+  website: String
+  company: String
+  bio: String
   address: UserAddress
   emailVerified: Boolean
   gender: String
@@ -166,7 +175,7 @@ type UserProfileUpdateResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  token: String!
+  token: String
 }
 
 # Response when verifying user email, might include new access token.

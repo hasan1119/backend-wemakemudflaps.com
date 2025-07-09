@@ -7,6 +7,7 @@ import {
 import { createAddressBookEntrySchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
+  checkUserPermission,
   createAddressBookEntry as createAddressBookEntryService,
 } from "../../services";
 
@@ -54,6 +55,25 @@ export const createAddressBookEntry = async (
       };
     }
 
+    // Check permission if the user is creating on behalf of someone else
+    if (args.userId !== user.id) {
+      const hasPermission = await checkUserPermission({
+        user,
+        action: "canCreate",
+        entity: "address book",
+      });
+
+      if (!hasPermission) {
+        return {
+          statusCode: 403,
+          success: false,
+          message:
+            "You do not have permission to create address book for another user",
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
     const {
       city,
       country,
@@ -67,20 +87,18 @@ export const createAddressBookEntry = async (
     } = result.data;
 
     // Ensure type is cast to the correct AddressType from types
-    const addressEntry = await createAddressBookEntryService(
-      {
-        company,
-        streetOne,
-        streetTwo,
-        city,
-        country,
-        isDefault,
-        state,
-        type: type as any,
-        zip,
-      },
-      user.id
-    );
+    const addressEntry = await createAddressBookEntryService({
+      company,
+      streetOne,
+      streetTwo,
+      city,
+      country,
+      isDefault,
+      state,
+      type: type as any,
+      zip,
+      userId: user.id,
+    });
 
     return {
       statusCode: 201,

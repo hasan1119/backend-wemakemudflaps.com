@@ -22,6 +22,7 @@ export const createUser = async (data: {
   gender?: string | null;
   roles: Role[];
   canUpdatePermissions?: boolean;
+  company?: string;
   permissions?: User["permissions"];
   canUpdateRole?: boolean;
 }): Promise<User> => {
@@ -37,6 +38,7 @@ export const createUser = async (data: {
     canUpdatePermissions: data.canUpdatePermissions ?? false,
     permissions: data.permissions ?? null,
     canUpdateRole: data.canUpdateRole ?? false,
+    company: data.company ?? null,
   });
 
   // Save and return the user

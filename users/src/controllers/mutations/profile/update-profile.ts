@@ -20,6 +20,7 @@ import SendEmail from "../../../utils/email/send-email";
 import EncodeToken from "../../../utils/jwt/encode-token";
 import {
   checkUserAuth,
+  checkUserPermission,
   deleteUserLoginInfoSessionsByIds,
   getUserLoginInfoByUserId,
   isEmailInUse,
@@ -32,7 +33,7 @@ import {
  *
  * Workflow:
  * 1. Verifies user authentication status.
- * 2. Validates input data (firstName, lastName, email, gender) using Zod schema.
+ * 2. Validates input data (firstName, lastName, email, gender, username, company, bio and website) using Zod schema.
  * 3. Retrieves cached user data from Redis to optimize performance.
  * 4. Checks for email uniqueness if email is updated.
  * 5. Sends an email verification link if the email is changed.
@@ -84,7 +85,46 @@ export const updateProfile = async (
       address,
       phone,
       username,
+      bio,
+      company,
+      website,
     } = validationResult.data;
+
+    // Determine which user's profile is being updated
+    let targetUserId = user.id;
+
+    // Check permission if the user is updating on behalf of someone else
+    if (args.userId !== user.id) {
+      const hasPermission = await checkUserPermission({
+        user,
+        action: "canUpdate",
+        entity: "user",
+      });
+
+      if (!hasPermission) {
+        return {
+          statusCode: 403,
+          success: false,
+          message:
+            "You do not have permission to update for another user profile information",
+          __typename: "BaseResponse",
+        };
+      }
+
+      targetUserId = args.userId;
+
+      // Remove all sessions of the target user
+      const sessionsToDelete = (
+        await getUserLoginInfoByUserId(targetUserId)
+      ).map((session) => session.id);
+
+      await deleteUserLoginInfoSessionsByIds(sessionsToDelete);
+      await Promise.all(
+        sessionsToDelete.map((sessionId) =>
+          removeUserTokenInfoByUserSessionIdFromRedis(sessionId)
+        )
+      );
+    }
 
     // Attempt to retrieve cached user data from Redis
     let userData: UserSessionById;
@@ -118,6 +158,12 @@ export const updateProfile = async (
     if (avatar !== userData.avatar) userData.avatar = avatar;
 
     if (phone !== userData.phone) userData.phone = phone;
+
+    if (website !== userData.website) userData.website = website;
+
+    if (bio !== userData.bio) userData.bio = bio;
+
+    if (company !== userData.company) userData.company = company;
 
     if (email !== userData.email) {
       // Check if the new email is already in use
@@ -191,19 +237,19 @@ export const updateProfile = async (
       sessionId: user.sessionId,
     };
 
-    const userLoginInfoRaw = await getUserLoginInfoByUserId(user.id);
+    if (targetUserId === user.id) {
+      const userLoginInfoRaw = await getUserLoginInfoByUserId(user.id);
+      const sessionsToDelete = userLoginInfoRaw
+        .filter((info) => info.id !== user.sessionId)
+        .map((info) => info.id);
 
-    // Filter out all sessions except the current one to delete others
-    const sessionsToDelete = userLoginInfoRaw
-      .filter((info) => info.id !== user.sessionId)
-      .map((info) => info.id);
-
-    await deleteUserLoginInfoSessionsByIds(sessionsToDelete),
+      await deleteUserLoginInfoSessionsByIds(sessionsToDelete);
       await Promise.all(
-        sessionsToDelete.map((sessionId) => [
-          removeUserTokenInfoByUserSessionIdFromRedis(sessionId),
-        ])
+        sessionsToDelete.map((sessionId) =>
+          removeUserTokenInfoByUserSessionIdFromRedis(sessionId)
+        )
       );
+    }
 
     // Cache user data, session, and email in Redis with 30-day TTL
     const promises = [
@@ -235,7 +281,7 @@ export const updateProfile = async (
     return {
       statusCode: 200,
       success: true,
-      token,
+      token: targetUserId === user.id ? token : null,
       message: `${
         email !== userData.email
           ? "Profile updated successfully, but please verify your updated email before using it as main email."

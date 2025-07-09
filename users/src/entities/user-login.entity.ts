@@ -12,59 +12,59 @@ export class UserLogin {
   user: Promise<User>;
 
   // Stores the IP address of the user during login
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   ip: string | null;
 
   // Stores the city (if available) from which the user logged in
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   city: string | null;
 
   // Stores the name of the Internet Service Provider (ISP)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   isp: string | null;
 
   // Stores the name of the country
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   country: string | null;
 
   // Stores the ISO code of the country
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   countryIso: string | null;
 
   // Stores the postal code (if available)
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   postalCode: string | null;
 
   // Stores the ISO code of the subdivision or region
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   subdivisionIso: string | null;
 
   // Stores the user's timezone
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   timeZone: string | null;
 
   // Stores the GeoNames ID for the city (if available)
-  @Column({ type: "int", nullable: true })
+  @Column({ type: "int", nullable: true, default: null })
   cityGeonameId: number | null;
 
   // Stores the GeoNames ID for the country
-  @Column({ type: "int", nullable: true })
+  @Column({ type: "int", nullable: true, default: null })
   countryGeonameId: number | null;
 
   // Stores the GeoNames ID for the subdivision (if available)
-  @Column({ type: "int", nullable: true })
+  @Column({ type: "int", nullable: true, default: null })
   subdivisionGeonameId: number | null;
 
   // Stores the unique ISP identifier
-  @Column({ type: "int", nullable: true })
+  @Column({ type: "int", nullable: true, default: null })
   ispId: number | null;
 
   // Stores the latitude coordinate of the login location
-  @Column("float", { nullable: true })
+  @Column("float", { nullable: true, default: null })
   latitude: number | null;
 
   // Stores the longitude coordinate of the login location
-  @Column("float", { nullable: true })
+  @Column("float", { nullable: true, default: null })
   longitude: number | null;
 
   // Stores a unique device/browser fingerprint

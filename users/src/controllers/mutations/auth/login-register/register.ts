@@ -43,7 +43,7 @@ import {
  * Handles user registration functionality.
  *
  * Workflow:
- * 1. Validates the registration input (firstName, lastName, email, password, gender) using Zod schema.
+ * 1. Validates the registration input (firstName, lastName, email, password, gender, username and company name) using Zod schema.
  * 2. Checks Redis for cached user email to prevent duplicate registrations.
  * 3. Hashes the password using bcrypt for secure storage.
  * 4. Retrieves total user count from Redis or database to determine if this is the first user.
@@ -84,7 +84,7 @@ export const register = async (
       };
     }
 
-    const { firstName, lastName, email, username, password, gender } =
+    const { firstName, lastName, email, username, password, gender, company } =
       validationResult.data;
 
     // Attempt to retrieve cached user email from Redis
@@ -216,6 +216,7 @@ export const register = async (
         roles: [role], // expects an array of Role entities
         canUpdatePermissions: false,
         canUpdateRole: false,
+        company: company,
       })) as User;
 
       // Generate account activation link
@@ -380,6 +381,7 @@ export const register = async (
         roles: [role], // expects an array of Role entities
         canUpdatePermissions: true,
         canUpdateRole: true,
+        company: company,
       })) as User;
 
       // Generate account activation link

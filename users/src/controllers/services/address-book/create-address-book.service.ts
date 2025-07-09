@@ -12,13 +12,13 @@ import { addressBookRepository } from "../repositories/repositories";
  * If isDefault is true, sets all other entries with the same type and user to isDefault = false.
  *
  * @param data - Partial AddressBook data for creating the new entry.
- * @param userId - Optional user ID of the creator.
  * @returns A promise resolving to the newly created AddressBook entity.
  */
 export const createAddressBookEntry = async (
-  data: MutationCreateAddressBookEntryArgs,
-  userId: string
+  data: MutationCreateAddressBookEntryArgs
 ): Promise<AddressBook> => {
+  const userId = data.userId;
+
   // Check if any address of the same type already exists for the user
   const existingCount = await addressBookRepository.count({
     where: { user: { id: userId }, type: data.type as any },

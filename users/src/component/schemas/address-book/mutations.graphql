@@ -5,6 +5,7 @@ type Mutation {
   # Input includes address details such as street, city, state, country, and postal code.
   # Returns a response indicating success or failure of the operation.
   createAddressBookEntry(
+    userId: ID! # The user id of the user.
     company: String! # Company name
     streetOne: String! # Street one address
     streetTwo: String! # Street two address
@@ -22,6 +23,7 @@ type Mutation {
   # Returns a response with the updated address or error if operation fails.
   updateAddressBookEntry(
     id: ID! # Unique ID of the address book entry to update.
+    userId: ID! # The user id of the user.
     company: String # Company name (optional)
     streetOne: String # Street one address (optional)
     streetTwo: String # Street two address (optional)
