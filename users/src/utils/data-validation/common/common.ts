@@ -111,7 +111,6 @@ export const PermissionEnum = z.preprocess((val) => {
     const key = val.trim().toUpperCase();
     return PERMISSION_NORMALIZATION_MAP[key];
   }
-  return undefined;
 }, z.enum(PERMISSIONS as [string, ...string[]]));
 
 /**
