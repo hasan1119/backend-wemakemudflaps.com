@@ -1171,7 +1171,7 @@ export type Product = {
   __typename?: 'Product';
   allowBackOrders?: Maybe<Scalars['String']['output']>;
   attributes?: Maybe<Array<Maybe<ProductAttribute>>>;
-  brands?: Maybe<Array<Maybe<Brand>>>;
+  brands?: Maybe<Array<Brand>>;
   category: Category;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy: CreatedBy;
@@ -1201,7 +1201,7 @@ export type Product = {
   model?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   productConfigurationType?: Maybe<Scalars['String']['output']>;
-  productDeliveryType?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  productDeliveryType: Array<Scalars['String']['output']>;
   purchaseNote?: Maybe<Scalars['String']['output']>;
   quantityStep?: Maybe<Scalars['Int']['output']>;
   regularPrice: Scalars['Float']['output'];
@@ -1217,7 +1217,7 @@ export type Product = {
   soldIndividually?: Maybe<Scalars['Boolean']['output']>;
   stockQuantity?: Maybe<Scalars['Int']['output']>;
   stockStatus?: Maybe<Scalars['String']['output']>;
-  subCategories?: Maybe<Array<Maybe<SubCategory>>>;
+  subCategories?: Maybe<Array<SubCategory>>;
   tags?: Maybe<Array<Tag>>;
   taxClass?: Maybe<TaxClass>;
   taxStatus?: Maybe<TaxStatus>;
@@ -1818,7 +1818,7 @@ export type SubCategory = {
   parentSubCategory?: Maybe<SubCategory>;
   position: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
-  subCategories?: Maybe<Array<Maybe<SubCategory>>>;
+  subCategories: Array<SubCategory>;
   thumbnail?: Maybe<Media>;
 };
 
@@ -3370,7 +3370,7 @@ export type PersonalizedWithRolePermissionResponseResolvers<ContextType = Contex
 export type ProductResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Product'] = ResolversParentTypes['Product']> = {
   allowBackOrders?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   attributes?: Resolver<Maybe<Array<Maybe<ResolversTypes['ProductAttribute']>>>, ParentType, ContextType>;
-  brands?: Resolver<Maybe<Array<Maybe<ResolversTypes['Brand']>>>, ParentType, ContextType>;
+  brands?: Resolver<Maybe<Array<ResolversTypes['Brand']>>, ParentType, ContextType>;
   category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
@@ -3400,7 +3400,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   model?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   productConfigurationType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  productDeliveryType?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  productDeliveryType?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   purchaseNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   quantityStep?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   regularPrice?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
@@ -3416,7 +3416,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   soldIndividually?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   stockQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   stockStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  subCategories?: Resolver<Maybe<Array<Maybe<ResolversTypes['SubCategory']>>>, ParentType, ContextType>;
+  subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategory']>>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<ResolversTypes['Tag']>>, ParentType, ContextType>;
   taxClass?: Resolver<Maybe<ResolversTypes['TaxClass']>, ParentType, ContextType>;
   taxStatus?: Resolver<Maybe<ResolversTypes['TaxStatus']>, ParentType, ContextType>;
@@ -3751,7 +3751,7 @@ export type SubCategoryResolvers<ContextType = Context, ParentType extends Resol
   parentSubCategory?: Resolver<Maybe<ResolversTypes['SubCategory']>, ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  subCategories?: Resolver<Maybe<Array<Maybe<ResolversTypes['SubCategory']>>>, ParentType, ContextType>;
+  subCategories?: Resolver<Array<ResolversTypes['SubCategory']>, ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

@@ -26,7 +26,7 @@ type SubCategory {
   category: Category # The category to which this subcategory belongs.
   parentSubCategory: SubCategory
   # Optional parent subcategory if nested.
-  subCategories: [SubCategory] # List of child subcategories (if any).
+  subCategories: [SubCategory!]! # List of child subcategories (if any).
   position: Int! # Display order/position of the subcategory.
   createdBy: CreatedBy! # Metadata on who created the category.
   createdAt: String
