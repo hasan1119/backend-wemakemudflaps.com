@@ -80,6 +80,22 @@ export const permissionMap: Record<string, string> = {
   TAX_EXEMPTION: "Tax Exemption",
 };
 
+// Utility function to check for duplicate permission names
+export const hasDuplicatePermissionNames = (
+  permissions?: { name?: string | null }[] | null
+): boolean => {
+  if (!permissions || permissions.length === 0) return false;
+
+  // Extract only non-empty string names
+  const names = permissions
+    .map((p) => p.name)
+    .filter(
+      (name): name is string => typeof name === "string" && name.trim() !== ""
+    );
+
+  return new Set(names).size !== names.length;
+};
+
 /**
  * Defines an enum for permission names used in permission schemas.
  *

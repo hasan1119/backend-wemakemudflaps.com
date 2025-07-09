@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PermissionEnum } from "../common/common";
+import { hasDuplicatePermissionNames, PermissionEnum } from "../common/common";
 
 // Defines the schema for a single permission object
 const singlePermissionSchema = z.object({
@@ -46,6 +46,23 @@ const singlePermissionSchema = z.object({
  * @property permissions - Array of permission objects (required if no flags).
  * @property password - Optional password for the update.
  */
+/**
+ * Defines the schema for updating a user's permissions.
+ *
+ * Workflow:
+ * 1. Validates userId as a UUID.
+ * 2. Allows optional accessAll or deniedAll flags (mutually exclusive).
+ * 3. Validates an optional array of permissions if neither flag is true.
+ * 4. Ensures either both flags are null or exactly one is true.
+ * 5. Allows an optional password field.
+ * 6. Ensures no duplicate permission names in permissions array.
+ *
+ * @property userId - UUID of the user to update.
+ * @property accessAll - If true, grants all permissions (permissions array omitted).
+ * @property deniedAll - If true, denies all permissions (permissions array omitted).
+ * @property permissions - Array of permission objects (required if no flags).
+ * @property password - Optional password for the update.
+ */
 export const updateUserPermissionSchema = z
   .object({
     userId: z.string().uuid({ message: "Invalid UUID format" }),
@@ -74,4 +91,8 @@ export const updateUserPermissionSchema = z
         "Either both accessAll and deniedAll must be null, or exactly one must be true.",
       path: ["accessAll"],
     }
-  );
+  )
+  .refine((data) => !hasDuplicatePermissionNames(data.permissions), {
+    message: "Duplicate permission names are not allowed in permissions array.",
+    path: ["permissions"],
+  });
