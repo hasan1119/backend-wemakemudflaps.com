@@ -103,11 +103,4 @@ export const updateUserPermissionSchema = z
   .refine((data) => !hasDuplicatePermissionNames(data.permissions), {
     message: "Duplicate permission names are not allowed in permissions array.",
     path: ["permissions"],
-  })
-  .transform((data) => {
-    if (data.accessAll === true || data.deniedAll === true) {
-      const { permissions, ...rest } = data;
-      return rest;
-    }
-    return data;
   });
