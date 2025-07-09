@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PermissionEnum } from "..";
+import { hasDuplicatePermissionNames } from "../common/common";
 
 // Defines the schema for a single RolePermission object
 const rolePermissionSchema = z.object({
@@ -32,6 +33,7 @@ export const roleNameSchema = z
  * 3. Validates optional system protection flags (delete, update, permanent).
  * 4. Ensures permanent protection flags require corresponding non-permanent flags.
  * 5. Allows an optional password field.
+ * 6. Ensures no duplicate permissions by name.
  *
  * @property name - Role name (3-50 chars).
  * @property description - Optional role description (min 3 chars).
@@ -82,7 +84,12 @@ export const userRoleSchema = z
         "If systemPermanentUpdateProtection is true, systemUpdateProtection must also be true.",
       path: ["systemUpdateProtection"],
     }
-  );
+  )
+  .refine((data) => !hasDuplicatePermissionNames(data.defaultPermissions), {
+    message:
+      "Duplicate permission names are not allowed in defaultPermissions.",
+    path: ["defaultPermissions"],
+  });
 
 /**
  * Defines the schema for updating a user role.
@@ -93,6 +100,8 @@ export const userRoleSchema = z
  * 3. Validates optional system protection flags (delete, update, permanent).
  * 4. Ensures permanent protection flags require corresponding non-permanent flags.
  * 5. Allows an optional password field.
+ * 6. Requires at least one field besides ID for update.
+ * 7. Ensures no duplicate permissions by name.
  *
  * @property id - UUID for the role.
  * @property name - Optional role name (3-50 chars).
@@ -155,7 +164,12 @@ export const userRoleInfoUpdateSchema = z
       message: "At least one field must be provided for update besides id",
       path: [],
     }
-  );
+  )
+  .refine((data) => !hasDuplicatePermissionNames(data.defaultPermissions), {
+    message:
+      "Duplicate permission names are not allowed in defaultPermissions.",
+    path: ["defaultPermissions"],
+  });
 
 /**
  * Defines the schema for updating a user's role assignments.
