@@ -220,14 +220,14 @@ export const userRoleInfoUpdateSchema = z
 export const userRoleUpdateSchema = z
   .object({
     roleAddIds: z
-      .array(z.string().uuid({ message: "roleAddId: Invalid UUID format" }))
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
       .default([])
       .optional(),
     roleRemoveIds: z
-      .array(z.string().uuid({ message: "roleRemoveId: Invalid UUID format" }))
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
       .optional()
       .default([]),
-    userId: z.string().uuid({ message: "Invalid UUID format for userId" }),
+    userId: z.string().uuid({ message: "Invalid UUID format" }),
     password: z.string().nullable().optional(),
   })
   .refine(

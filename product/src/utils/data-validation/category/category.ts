@@ -168,7 +168,7 @@ export const updateCategoryPositionSchema = z.object({
  * @property parentSubCategoryId - Optional parent subcategory ID (UUID format) for nested subcategory.
  */
 export const deleteCategorySchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().uuid({ message: "Invalid UUID format" }),
   categoryType: z.preprocess((val) => {
     if (typeof val === "string" && categoryMap[val]) {
       return categoryMap[val];
@@ -176,8 +176,11 @@ export const deleteCategorySchema = z.object({
     return val;
   }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
   skipTrash: z.boolean().optional().default(false),
-  categoryId: z.string().uuid().optional(), // needed for subcategory position update
-  parentSubCategoryId: z.string().uuid().optional(), // needed for nested subcategory
+  categoryId: z.string().uuid({ message: "Invalid UUID format" }).optional(), // needed for subcategory position update
+  parentSubCategoryId: z
+    .string()
+    .uuid({ message: "Invalid UUID format" })
+    .optional(), // needed for nested subcategory
 });
 
 /**
