@@ -782,6 +782,7 @@ enum MediaCategory
   Invoice @join__enumValue(graph: MEDIA)
   Shipping_Label @join__enumValue(graph: MEDIA)
   Site_Settings @join__enumValue(graph: MEDIA)
+  Tax_Exemption_Certificate @join__enumValue(graph: MEDIA)
 }
 
 type MediaDimension

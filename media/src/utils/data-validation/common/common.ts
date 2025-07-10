@@ -94,6 +94,7 @@ export const categories = [
   "Invoice",
   "Shipping Label",
   "Site Settings",
+  "Tax Exemption Certificate",
 ];
 
 // Defines a TypeScript type for mimetype names as a union of literals
@@ -189,7 +190,8 @@ export type Category =
   | "Promotion"
   | "Invoice"
   | "Shipping Label"
-  | "Site Settings";
+  | "Site Settings"
+  | "Tax Exemption Certificate";
 
 /**
  * Defines the schema for validating a single UUID.

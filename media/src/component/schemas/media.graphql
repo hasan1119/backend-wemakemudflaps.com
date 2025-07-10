@@ -28,6 +28,7 @@ enum MediaCategory {
   Invoice
   Shipping_Label
   Site_Settings
+  Tax_Exemption_Certificate
 }
 
 # Enum defining supported media MIME types for validation and categorization.

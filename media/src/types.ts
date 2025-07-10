@@ -437,7 +437,8 @@ export enum MediaCategory {
   SiteFavicon = 'Site_Favicon',
   SiteLogo = 'Site_Logo',
   SiteSettings = 'Site_Settings',
-  SubCategory = 'Sub_Category'
+  SubCategory = 'Sub_Category',
+  TaxExemptionCertificate = 'Tax_Exemption_Certificate'
 }
 
 export type MediaDimension = {

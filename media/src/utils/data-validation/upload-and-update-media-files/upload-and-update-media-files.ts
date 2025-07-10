@@ -102,6 +102,7 @@ export const categoryMap: Record<string, string> = {
   Invoice: "Invoice",
   Shipping_Label: "Shipping Label",
   Site_Settings: "Site Settings",
+  Tax_Exemption_Certificate: "Tax Exemption Certificate",
 };
 
 /**

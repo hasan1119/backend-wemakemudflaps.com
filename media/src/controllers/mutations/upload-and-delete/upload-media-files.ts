@@ -2,20 +2,16 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearAllMediaSearchCache,
-  removeMediaByMediaIdFromRedis,
-  setMediaByMediaIdInRedis,
+  setMediaByMediaIdInRedis
 } from "../../../helper/redis";
 import {
-  MediaCategory,
   MutationUploadMediaFilesArgs,
-  UploadMediaResponseOrError,
+  UploadMediaResponseOrError
 } from "../../../types";
 import { createUploadMediaFilesSchema } from "../../../utils/data-validation";
-import { checkUserPermission } from "../../services";
 import { checkUserAuth } from "../../services/session-check/session-check";
 import {
-  deleteMediaFiles,
-  uploadMediaFiles as uploadFiles,
+  uploadMediaFiles as uploadFiles
 } from "../../services/upload-and-delete/upload-and-delete-media-files";
 
 /**
@@ -45,26 +41,27 @@ export const uploadMediaFiles = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    const isNotAvatar = data[0].category !== MediaCategory.Avatar;
+    // const isNotAvatar = data[0].category !== MediaCategory.Avatar;
+    // const isNotTaxCertificate =
+    //   data[0].category !== MediaCategory.TaxExemptionCertificate;
 
-    // Replace "Avatar" with the correct enum/type value if MediaCategory is an enum
-    if (isNotAvatar) {
-      // Check if user has permission to create a role
-      const canCreate = await checkUserPermission({
-        action: "canCreate",
-        entity: "media",
-        user,
-      });
-
-      if (!canCreate) {
-        return {
-          statusCode: 403,
-          success: false,
-          message: "You do not have permission to upload media files",
-          __typename: "BaseResponse",
-        };
-      }
-    }
+    // if (isNotAvatar) {
+    //   // Check if user has permission to create a role
+    //   const canCreate = await checkUserPermission({
+    //     action: "canCreate",
+    //     entity: "media",
+    //     user,
+    //   });
+    //   // If user does not have permission to create media files, return error
+    //   if (!canCreate) {
+    //     return {
+    //       statusCode: 403,
+    //       success: false,
+    //       message: "You do not have permission to upload media files",
+    //       __typename: "BaseResponse",
+    //     };
+    //   }
+    // }
 
     // Create schema with context user.id for validation
     const UploadMediaFilesSchema = createUploadMediaFilesSchema(user.id);
@@ -95,13 +92,13 @@ export const uploadMediaFiles = async (
     const result = await uploadFiles(dataWithCreatedBy);
 
     // Delete the previous avatar if the avatar is upload form the database and cache
-    if (!isNotAvatar) {
-      if (user.avatar) {
-        await deleteMediaFiles([user.avatar]);
-      }
+    // if (!isNotAvatar) {
+    //   if (user.avatar) {
+    //     await deleteMediaFiles([user.avatar]);
+    //   }
 
-      await removeMediaByMediaIdFromRedis(user.avatar);
-    }
+    //   await removeMediaByMediaIdFromRedis(user.avatar);
+    // }
 
     // Cache the new medias in Redis and clear the medias paginated list
     await Promise.all([
@@ -136,11 +133,10 @@ export const uploadMediaFiles = async (
     return {
       statusCode: 500,
       success: false,
-      message: `${
-        CONFIG.NODE_ENV === "production"
-          ? "Something went wrong, please try again."
-          : error.message || "Internal server error"
-      }`,
+      message: `${CONFIG.NODE_ENV === "production"
+        ? "Something went wrong, please try again."
+        : error.message || "Internal server error"
+        }`,
       __typename: "ErrorResponse",
     };
   }
