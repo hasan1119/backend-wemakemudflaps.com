@@ -111,14 +111,6 @@ export { Product } from "./product.entity";
 export { ShippingClass } from "./shipping-class.entity";
 
 /**
- * Exports the SubCategory entity for managing sub-classifications of categories.
- *
- * Workflow:
- * 1. Helps in further organizing products under a main category.
- */
-export { SubCategory } from "./sub-category.entity";
-
-/**
  * Exports the Tag entity for defining different tag groups.
  *
  * Workflow:

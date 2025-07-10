@@ -7,7 +7,6 @@ import {
 } from "typeorm";
 import { Category } from "./category.entity";
 import { Product } from "./product.entity";
-import { SubCategory } from "./sub-category.entity";
 
 @Entity()
 export class Coupon {
@@ -96,16 +95,6 @@ export class Coupon {
   @ManyToMany(() => Category, { nullable: true })
   @JoinTable()
   excludedCategories: Category[] | null;
-
-  // Restrict coupon to specific sub category IDs
-  @ManyToMany(() => SubCategory, { nullable: true })
-  @JoinTable()
-  applicableSubCategories: SubCategory[] | null;
-
-  // Exclude specific sub category IDs
-  @ManyToMany(() => SubCategory, { nullable: true })
-  @JoinTable()
-  excludedSubCategories: SubCategory[] | null;
 
   // Restrict coupon to certain emails
   @Column("text", {

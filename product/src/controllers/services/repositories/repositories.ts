@@ -13,7 +13,6 @@ import {
   ProductVariationAttribute,
   ProductVariationAttributeValue,
   ShippingClass,
-  SubCategory,
   Tag,
   TaxClass,
   TaxStatus,
@@ -142,14 +141,6 @@ export const productRepository = AppDataSource.getRepository(Product);
  */
 export const shippingClassRepository =
   AppDataSource.getRepository(ShippingClass);
-
-/**
- * Initializes repository for SubCategory entity.
- *
- * Workflow:
- * 1. Retrieves the SubCategory repository from AppDataSource for database operations.
- */
-export const subCategoryRepository = AppDataSource.getRepository(SubCategory);
 
 /**
  * Initializes repository for Tag entity.
