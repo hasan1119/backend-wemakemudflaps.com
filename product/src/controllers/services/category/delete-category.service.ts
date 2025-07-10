@@ -1,75 +1,43 @@
-import { Category, SubCategory } from "../../../entities";
-import {
-  categoryRepository,
-  subCategoryRepository,
-} from "../repositories/repositories";
-import { getCategoryById, getSubCategoryById } from "./get-category.service";
+import { Category } from "../../../entities";
+import { categoryRepository } from "../repositories/repositories";
+import { getCategoryById } from "./get-category.service";
 
 /**
- * Checks if a category or subcategory can be deleted (i.e. no associated products).
+ * Checks if a category (including subcategory) can be deleted (i.e., no associated products).
  *
  * Workflow:
- * 1. For Category:
- *    - Query if there are any products linked via "products" relation.
- *    - If found, cannot delete.
- * 2. For SubCategory:
- *    - Load the subcategory with its "products" relation.
- *    - If products exist, cannot delete.
+ * 1. Queries if there are any products linked via "products" relation.
+ * 2. If found, cannot delete.
  *
- * @param id - UUID of the category or subcategory
- * @param type - "category" or "subcategory"
- * @returns boolean indicating deletability
+ * @param id - UUID of the category or subcategory.
+ * @returns boolean indicating deletability.
  */
-export async function canDeleteCategoryOrSubCategory(
-  id: string,
-  type: "category" | "subCategory"
-): Promise<boolean> {
-  const repository =
-    type === "category" ? categoryRepository : subCategoryRepository;
+export async function canDeleteCategory(id: string): Promise<boolean> {
+  const count = await categoryRepository
+    .createQueryBuilder("cat")
+    .leftJoin("cat.products", "product")
+    .where("cat.id = :id", { id })
+    .andWhere("product.id IS NOT NULL")
+    .getCount();
 
-  if (type === "category") {
-    const count = await repository
-      .createQueryBuilder("cat")
-      .leftJoin("cat.products", "product")
-      .where("cat.id = :id", { id })
-      .andWhere("product.id IS NOT NULL")
-      .getCount();
-
-    return count === 0;
-  } else {
-    const subCategoryWithProducts = await repository.findOne({
-      where: { id },
-      relations: ["products"],
-    });
-    return subCategoryWithProducts?.products?.length === 0;
-  }
+  return count === 0;
 }
 
 /**
  * Soft deletes (skip to trash) a category or subcategory by setting deletedAt timestamp.
  *
  * Workflow:
- * 1. Set the deletedAt field of the entity to current timestamp.
- * 2. The entity remains in DB but considered soft-deleted.
+ * 1. Sets the deletedAt field of the entity to current timestamp.
+ * 2. The entity remains in DB but is considered soft-deleted.
  * 3. Position is NOT changed in soft delete.
  *
- * @param id - UUID of the category or subcategory
- * @param type - "category" or "subcategory"
- * @returns The soft-deleted Category or Sub Category entity.
+ * @param id - UUID of the category or subcategory.
+ * @returns The soft-deleted Category entity.
  */
-export async function softDeleteCategoryOrSubCategory(
-  id: string,
-  type: "category" | "subCategory"
-): Promise<Category | SubCategory> {
-  const repository =
-    type === "category" ? categoryRepository : subCategoryRepository;
+export async function softDeleteCategory(id: string): Promise<Category> {
   const now = new Date();
-
-  await repository.update(id, { deletedAt: now });
-
-  const softDeletedCategory =
-    type === "category" ? await getCategoryById(id) : getSubCategoryById(id);
-  return softDeletedCategory;
+  await categoryRepository.update(id, { deletedAt: now });
+  return getCategoryById(id);
 }
 
 /**
@@ -80,80 +48,51 @@ export async function softDeleteCategoryOrSubCategory(
  * 2. Check if deletion is allowed by verifying product associations.
  * 3. Delete the entity from the database.
  * 4. Decrement the position of all entities positioned after the deleted one to close the gap.
- * 5. For subcategories, position update is scoped by categoryId or parentSubCategoryId.
+ * 5. Position update is scoped under the same parent category (i.e., same parentCategoryId).
  *
  * @param id - UUID of the entity to delete.
- * @param type - "category" or "subcategory"
- * @param options - Required for subcategory to specify scope (categoryId or parentSubCategoryId).
  */
-export async function hardDeleteCategoryOrSubCategory(
-  id: string,
-  type: "category" | "subCategory",
-  options?: { categoryId?: string; parentSubCategoryId?: string }
-): Promise<void> {
-  const repository =
-    type === "category" ? categoryRepository : subCategoryRepository;
+export async function hardDeleteCategory(id: string): Promise<void> {
+  await categoryRepository.manager.transaction(async (manager) => {
+    const repo = manager.getRepository(Category);
 
-  await repository.manager.transaction(async (manager) => {
-    const repo = manager.getRepository(
-      type === "category" ? Category : SubCategory
-    );
-
-    // Find entity with position
+    // Find entity with position and parentCategoryId
     const item = await repo.findOne({
       where: { id },
-      select: ["id", "position"],
+      select: ["id", "position", "parentCategory"],
+      relations: ["parentCategory"],
     });
-    if (!item) throw new Error(`${type} with id ${id} not found`);
+    if (!item) throw new Error(`Category with id ${id} not found`);
 
     // Check if allowed to delete (no product association)
-    const canDelete = await canDeleteCategoryOrSubCategory(id, type);
+    const canDelete = await canDeleteCategory(id);
     if (!canDelete)
       throw new Error(
-        `Cannot delete ${type} because it is associated with one or more products.`
+        `Cannot delete category because it is associated with one or more products.`
       );
 
     // Delete entity
     await repo.delete(id);
 
-    // Update positions to fill gap
-    if (type === "category") {
-      await repo
-        .createQueryBuilder()
-        .update()
-        .set({ position: () => `"position" - 1` })
-        .where(`"position" > :deletedPosition`, {
-          deletedPosition: item.position,
-        })
-        .execute();
+    // Determine scope for position update (siblings with same parentCategoryId)
+    const parentCategoryId = item.parentCategory?.id ?? null;
+
+    let qb = repo
+      .createQueryBuilder()
+      .update()
+      .set({ position: () => `"position" - 1` })
+      .where(`"position" > :deletedPosition`, {
+        deletedPosition: item.position,
+      });
+
+    if (parentCategoryId) {
+      qb = qb.andWhere(`"parentCategoryId" = :parentCategoryId`, {
+        parentCategoryId,
+      });
     } else {
-      const { categoryId, parentSubCategoryId } = options ?? {};
-      if (!categoryId && !parentSubCategoryId) {
-        throw new Error(
-          "categoryId or parentSubCategoryId must be provided for subcategory delete"
-        );
-      }
-
-      let qb = repo
-        .createQueryBuilder()
-        .update()
-        .set({ position: () => `"position" - 1` })
-        .where(`"position" > :deletedPosition`, {
-          deletedPosition: item.position,
-        });
-
-      if (parentSubCategoryId) {
-        qb = qb.andWhere(`"parentSubCategoryId" = :parentSubCategoryId`, {
-          parentSubCategoryId,
-        });
-      } else {
-        qb = qb.andWhere(
-          `"categoryId" = :categoryId AND "parentSubCategoryId" IS NULL`,
-          { categoryId }
-        );
-      }
-
-      await qb.execute();
+      qb = qb.andWhere(`"parentCategoryId" IS NULL`);
     }
+
+    await qb.execute();
   });
 }

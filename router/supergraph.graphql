@@ -150,22 +150,8 @@ type BrandResponseById
   brand: Brand!
 }
 
-type Category
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  position: Int!
-  createdBy: CreatedBy!
-  subCategories: [SubCategory]
-  createdAt: String
-  deletedAt: String
-}
-
-type CategoryDataResponse
+type Category implements ICategoryBase
+  @join__implements(graph: PRODUCT, interface: "ICategoryBase")
   @join__type(graph: PRODUCT)
 {
   id: ID!
@@ -177,6 +163,8 @@ type CategoryDataResponse
   createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
+  subCategories: [Category!]!
+  parentCategory: Category
 }
 
 type CategoryPaginationResponse
@@ -185,7 +173,7 @@ type CategoryPaginationResponse
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: [Category!]!
+  categories: [Category!]!
   total: Int!
 }
 
@@ -195,23 +183,7 @@ type CategoryResponse
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: CategoryDataResponse!
-}
-
-type CategoryResponseById
-  @join__type(graph: PRODUCT)
-{
-  statusCode: Int!
-  success: Boolean!
-  message: String!
   category: Category!
-}
-
-enum CategoryType
-  @join__type(graph: PRODUCT)
-{
-  Category @join__enumValue(graph: PRODUCT)
-  Sub_Category @join__enumValue(graph: PRODUCT)
 }
 
 union CreateAddressBookResponseOrError
@@ -232,9 +204,8 @@ union CreateCategoryResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
-  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | CategoryResponse | SubCategoryResponse | ErrorResponse
+ = BaseResponse | CategoryResponse | ErrorResponse
 
 type CreatedBy
   @join__type(graph: MEDIA, key: "id", extension: true)
@@ -489,9 +460,9 @@ union GetCategoriesResponseOrError
 union GetCategoryByIDResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "CategoryResponseById")
+  @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | CategoryResponseById | ErrorResponse
+ = BaseResponse | CategoryResponse | ErrorResponse
 
 union GetMediaByIdResponseOrError
   @join__type(graph: MEDIA)
@@ -591,13 +562,6 @@ union GetShippingClassesResponseOrError
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | ShippingClassPaginationResponse | ErrorResponse
 
-union GetSubCategoryByIDResponseOrError
-  @join__type(graph: PRODUCT)
-  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponseById")
-  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | SubCategoryResponseById | ErrorResponse
-
 union GetTagByIDResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
@@ -667,6 +631,20 @@ union GetUsersResponseOrError
   @join__unionMember(graph: USER, member: "UsersResponse")
   @join__unionMember(graph: USER, member: "ErrorResponse")
  = BaseResponse | UsersResponse | ErrorResponse
+
+interface ICategoryBase
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: Media
+  position: Int!
+  createdBy: CreatedBy!
+  createdAt: String
+  deletedAt: String
+}
 
 scalar join__DirectiveArguments
 
@@ -911,11 +889,11 @@ type Mutation
   updateTag(id: ID!, name: String, slug: String): UpdateTagResponseOrError! @join__field(graph: PRODUCT)
   deleteTag(ids: [ID]!, skipTrash: Boolean!): DeleteTagResponseOrError! @join__field(graph: PRODUCT)
   restoreTags(ids: [ID!]!): RestoreTagResponseOrError! @join__field(graph: PRODUCT)
-  createCategory(thumbnail: String, name: String!, slug: String!, description: String, categoryId: String, parentSubCategoryId: String): CreateCategoryResponseOrError! @join__field(graph: PRODUCT)
-  updateCategory(id: ID!, thumbnail: String, slug: String, name: String, description: String, categoryType: CategoryType!): UpdateCategoryResponseOrError! @join__field(graph: PRODUCT)
-  updateCategoryPosition(id: ID!, position: Int!, categoryType: CategoryType!): UpdateCategoryPositionResponseOrError! @join__field(graph: PRODUCT)
-  deleteCategory(id: ID!, categoryType: CategoryType!, skipTrash: Boolean): DeleteCategoryResponseOrError @join__field(graph: PRODUCT)
-  restoreCategory(idsWithType: [restoreCategoryType!]!): RestoreCategoryResponseOrError @join__field(graph: PRODUCT)
+  createCategory(thumbnail: String, name: String!, slug: String!, description: String, parentCategoryId: ID): CreateCategoryResponseOrError! @join__field(graph: PRODUCT)
+  updateCategory(id: ID!, thumbnail: String, slug: String, name: String, description: String, parentCategoryId: ID): UpdateCategoryResponseOrError! @join__field(graph: PRODUCT)
+  updateCategoryPosition(id: ID!, position: Int!): UpdateCategoryPositionResponseOrError! @join__field(graph: PRODUCT)
+  deleteCategory(id: ID!, skipTrash: Boolean): DeleteCategoryResponseOrError @join__field(graph: PRODUCT)
+  restoreCategory(ids: [ID!]!): RestoreCategoryResponseOrError @join__field(graph: PRODUCT)
   createShippingClass(value: String!, description: String): CreateShippingClassResponseOrError! @join__field(graph: PRODUCT)
   updateShippingClass(id: ID!, value: String, description: String): UpdateShippingClassResponseOrError! @join__field(graph: PRODUCT)
   deleteShippingClass(ids: [ID]!, skipTrash: Boolean!): DeleteShippingClassResponseOrError! @join__field(graph: PRODUCT)
@@ -1398,7 +1376,6 @@ type Query
   getTagById(id: ID!): GetTagByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllTags(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTagsResponseOrError! @join__field(graph: PRODUCT)
   getCategoryById(id: ID!): GetCategoryByIDResponseOrError! @join__field(graph: PRODUCT)
-  getSubCategoryById(id: ID!): GetSubCategoryByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllCategories(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetCategoriesResponseOrError! @join__field(graph: PRODUCT)
   getShippingClassById(id: ID!): GetShippingClassByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllShippingClass(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetShippingClassesResponseOrError! @join__field(graph: PRODUCT)
@@ -1433,13 +1410,6 @@ union RestoreCategoryResponseOrError
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | ErrorResponse
-
-input restoreCategoryType
-  @join__type(graph: PRODUCT)
-{
-  ids: String!
-  type: CategoryType!
-}
 
 union RestoreProductResponseOrError
   @join__type(graph: PRODUCT)
@@ -1607,58 +1577,6 @@ enum StockStatus
   IN_STOCK @join__enumValue(graph: PRODUCT)
   OUT_OF_STOCK @join__enumValue(graph: PRODUCT)
   ON_BACKORDER @join__enumValue(graph: PRODUCT)
-}
-
-type SubCategory
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  category: Category
-  parentSubCategory: SubCategory
-  subCategories: [SubCategory!]!
-  position: Int!
-  createdBy: CreatedBy!
-  createdAt: String
-  deletedAt: String
-}
-
-type SubCategoryDataResponse
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  category: ID
-  parentSubCategory: ID
-  subCategories: [SubCategoryDataResponse]
-  position: Int!
-  createdBy: CreatedBy!
-  createdAt: String
-  deletedAt: String
-}
-
-type SubCategoryResponse
-  @join__type(graph: PRODUCT)
-{
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  subcategory: SubCategoryDataResponse!
-}
-
-type SubCategoryResponseById
-  @join__type(graph: PRODUCT)
-{
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  subcategory: SubCategory!
 }
 
 type Tag
@@ -1836,17 +1754,15 @@ union UpdateCategoryPositionResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
-  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | CategoryResponse | SubCategoryResponse | ErrorResponse
+ = BaseResponse | CategoryResponse | ErrorResponse
 
 union UpdateCategoryResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
-  @join__unionMember(graph: PRODUCT, member: "SubCategoryResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | CategoryResponse | SubCategoryResponse | ErrorResponse
+ = BaseResponse | CategoryResponse | ErrorResponse
 
 input UpdateMediaInput
   @join__type(graph: MEDIA)

@@ -32,9 +32,9 @@ export { createCategoryOrSubCategory } from "./category/create-category.service"
  * 3. Checks for product associations before allowing deletion.
  */
 export {
-  canDeleteCategoryOrSubCategory,
-  hardDeleteCategoryOrSubCategory,
-  softDeleteCategoryOrSubCategory,
+  canDeleteCategory,
+  hardDeleteCategory,
+  softDeleteCategory,
 } from "./category/delete-category.service";
 
 /**
@@ -51,8 +51,6 @@ export {
   findCategoryByNameOrSlugToUpdateScoped,
   getCategoryById,
   getCategoryByIds,
-  getSubCategoryById,
-  getSubCategoryByIds,
   paginateCategories,
 } from "./category/get-category.service";
 
@@ -63,7 +61,7 @@ export {
  * 1. Allows restoring entities by clearing their deletedAt timestamp.
  * 2. Automatically detects whether the entity is category or subcategory.
  */
-export { restoreCategoryOrSubCategoryById } from "./category/restore-category.service";
+export { restoreCategoriesByIds } from "./category/restore-category.service";
 
 /**
  * Exports services for updating categories and subcategories.
@@ -73,7 +71,7 @@ export { restoreCategoryOrSubCategoryById } from "./category/restore-category.se
  * 2. Handles updating position/order of categories or subcategories.
  */
 export {
-  updateCategoryOrSubCategory,
+  updateCategory,
   updatePosition,
 } from "./category/update-category.service";
 
@@ -354,7 +352,10 @@ export { createProduct } from "./product/create-product.service";
  * Workflow:
  * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
  */
-export { hardDeleteProduct, softDeleteProduct } from "./product/delete-product.service";
+export {
+  hardDeleteProduct,
+  softDeleteProduct,
+} from "./product/delete-product.service";
 
 /**
  * Exports services for fetching and counting products.
@@ -390,4 +391,3 @@ export { restoreProduct } from "./product/restore-product.service";
  * 1. Provides functions to update basic fields.
  */
 export { updateProduct } from "./product/update-product.service";
-

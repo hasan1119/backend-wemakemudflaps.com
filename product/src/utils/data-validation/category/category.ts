@@ -8,76 +8,57 @@ export const categoryMap: Record<string, string> = {
 };
 
 /**
- * Defines the schema for validating a single category object creation input.
+ * Defines the schema for validating a single category creation input.
  *
  * Workflow:
- * 1. Validates thumbnail as a URL.
+ * 1. Validates thumbnail as a UUID (nullable and optional).
  * 2. Ensures name and slug are non-empty strings with a minimum length of 3 characters.
  * 3. Validates optional description with a minimum length of 3 characters if provided.
- * 4. Validates optional categoryId and parentSubCategoryId as UUIDs, ensuring only one is provided.
+ * 4. Validates optional parentCategoryId as UUID.
  *
  * @property thumbnail - UUID for the category's thumbnail image.
  * @property name - Category name (minimum 3 characters).
  * @property slug - Category slug (minimum 3 characters).
  * @property description - Optional category description (minimum 3 characters).
- * @property categoryId - Optional parent category ID (UUID format).
- * @property parentSubCategoryId - Optional parent subcategory ID (UUID format).
+ * @property parentCategoryId - Optional parent category ID (UUID format).
  */
-export const createCategorySchema = z
-  .object({
-    thumbnail: z
-      .string()
-      .uuid({ message: "Invalid UUID format" })
-      .nullable()
-      .optional(),
-    name: z
-      .string()
-      .min(3, "Category name must be at least 3 characters")
-      .trim(),
-    slug: z
-      .string()
-      .min(3, "Category slug must be at least 3 characters")
-      .trim(),
-    description: z
-      .string()
-      .min(3, "Category description must be at least 3 characters")
-      .trim()
-      .nullable()
-      .optional(),
-    categoryId: z
-      .string()
-      .uuid({ message: "Invalid UUID format" })
-      .nullable()
-      .optional(),
-    parentSubCategoryId: z
-      .string()
-      .uuid({ message: "Invalid UUID format" })
-      .nullable()
-      .optional(),
-  })
-  .refine(
-    (data) => !(data.categoryId && data.parentSubCategoryId), // both can't be present
-    {
-      message: "Only one of categoryId or parentSubCategoryId can be provided.",
-      path: ["categoryId"], // You can target both fields if needed
-    }
-  );
+export const createCategorySchema = z.object({
+  thumbnail: z
+    .string()
+    .uuid({ message: "Invalid UUID format" })
+    .nullable()
+    .optional(),
+  name: z.string().min(3, "Category name must be at least 3 characters").trim(),
+  slug: z.string().min(3, "Category slug must be at least 3 characters").trim(),
+  description: z
+    .string()
+    .min(3, "Category description must be at least 3 characters")
+    .trim()
+    .nullable()
+    .optional(),
+  parentCategoryId: z
+    .string()
+    .uuid({ message: "Invalid UUID format" })
+    .nullable()
+    .optional(),
+});
 
 /**
- * Defines the schema for validating a single category object update input.
+ * Defines the schema for validating a single category update input.
  *
  * Workflow:
  * 1. Validates id as a UUID.
- * 2. Validates thumbnail as an optional URL.
+ * 2. Validates thumbnail as an optional UUID.
  * 3. Ensures name, slug, and description are optional strings with a minimum length of 3 characters if provided.
- * 4. Validates categoryType as either 'category' or 'subCategory'.
+ * 4. Validates optional parentCategoryId as UUID.
+ * 5. Ensures that at least one field other than id is provided for update.
  *
  * @property id - Unique identifier of the category (UUID format).
  * @property thumbnail - Optional UUID for the category's thumbnail image.
  * @property name - Optional category name (minimum 3 characters).
  * @property slug - Optional category slug (minimum 3 characters).
  * @property description - Optional category description (minimum 3 characters).
- * @property categoryType - Category type (category or subCategory).
+ * @property parentCategoryId - Optional parent category ID (UUID format).
  */
 export const updateCategorySchema = z
   .object({
@@ -105,12 +86,11 @@ export const updateCategorySchema = z
       .trim()
       .nullable()
       .optional(),
-    categoryType: z.preprocess((val) => {
-      if (typeof val === "string" && categoryMap[val]) {
-        return categoryMap[val];
-      }
-      return val;
-    }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
+    parentCategoryId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .nullable()
+      .optional(),
   })
   .refine(
     (data) =>

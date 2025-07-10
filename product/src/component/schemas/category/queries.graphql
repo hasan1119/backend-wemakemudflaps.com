@@ -7,13 +7,6 @@ type Query {
     id: ID! # Unique identifier of the category file to retrieve.
   ): GetCategoryByIDResponseOrError!
 
-  # Fetch sub category by ID.
-  # Retrieves a specific sub category file's details using its unique ID.
-  # Returns a `GetCategoryByIDResponseOrError` containing sub category data and request status.
-  getSubCategoryById(
-    id: ID! # Unique identifier of the category file to retrieve.
-  ): GetSubCategoryByIDResponseOrError!
-
   # Fetch all categories with pagination, filtering, and sorting.
   # Only accessible by authorized users.
   # Retrieves a paginated list of categories.

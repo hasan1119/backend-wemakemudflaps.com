@@ -1,8 +1,16 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Tree,
+  TreeChildren,
+  TreeParent,
+} from "typeorm";
 import { Product } from "./product.entity";
-import { SubCategory } from "./sub-category.entity";
 
 @Entity()
+@Tree("closure-table")
 export class Category {
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -11,7 +19,7 @@ export class Category {
   @Column({ type: "text", nullable: true, default: null })
   thumbnail: string | null;
 
-  // Unique name of the category
+  // Unique name of the category (Note: uniqueness scoped globally here)
   @Column({ unique: true })
   name: string;
 
@@ -23,20 +31,21 @@ export class Category {
   @Column({ type: "text", nullable: true, default: null })
   description: string | null;
 
-  // One category can have multiple subcategories
-  @OneToMany(() => SubCategory, (subCategory) => subCategory.category, {
-    cascade: true, // Ensures the associated sub categories is deleted if the category is deleted
-    nullable: true,
-  })
-  subCategories: SubCategory[] | null;
+  // Tree relations
+  @TreeChildren()
+  subCategories: Category[];
+
+  @TreeParent()
+  parentCategory: Category | null;
 
   // One category can have multiple products
-  @OneToMany(() => Product, (product) => product.category, {
+  @OneToMany(() => Product, (product) => product.categories, {
     nullable: true,
+    cascade: true,
   })
   products: Product[] | null;
 
-  // Set category position/order in list
+  // Position/order in list
   @Column({ type: "int" })
   position: number;
 

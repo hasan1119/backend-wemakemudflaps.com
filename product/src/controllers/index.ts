@@ -28,7 +28,6 @@ export { updateCategory } from "./mutations/manage-category/update-category";
 export { updateCategoryPosition } from "./mutations/manage-category/update-category-position";
 export { getAllCategories } from "./queries/category/get-categories";
 export { getCategoryById } from "./queries/category/get-category-by-id";
-export { getSubCategoryById } from "./queries/category/get-sub-category-by-id";
 
 /**
  * Exports GraphQL queries and mutations for managing tag data.
@@ -102,5 +101,5 @@ export { createProduct } from "./mutations/manage-product/create-product";
 export { deleteProduct } from "./mutations/manage-product/delete-product";
 export { restoreProducts } from "./mutations/manage-product/restore-product";
 export { updateProduct } from "./mutations/manage-product/update-product";
-export { getProduct } from "./queries/product/get-product";
 export { getAllProducts } from "./queries/product/get-all-products";
+export { getProduct } from "./queries/product/get-product";

@@ -10,7 +10,6 @@ import {
   getCategoryById,
   getProduct,
   getShippingClassById,
-  getSubCategoryById,
   getTagById,
   getTaxClassById,
   getTaxStatusById,
@@ -114,11 +113,6 @@ export const productQueriesResolver = {
      * Retrieves detailed information for a category by their unique ID.
      */
     getCategoryById,
-
-    /**
-     * Retrieves detailed information for a sub category by their unique ID.
-     */
-    getSubCategoryById,
 
     /**
      * Fetches a paginated list of all categories in the system.

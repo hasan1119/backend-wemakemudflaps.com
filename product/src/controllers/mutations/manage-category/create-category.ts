@@ -1,9 +1,11 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { Category as CategoryEntity } from "../../../entities";
 import {
+  Category as CategoryGql,
   CreateCategoryResponseOrError,
   MutationCreateCategoryArgs,
-} from "../../../types";
+} from "../../../types"; // Your GraphQL types
 import { createCategorySchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
@@ -11,23 +13,66 @@ import {
   createCategoryOrSubCategory,
   findCategoryByNameOrSlug,
   getCategoryById,
-  getSubCategoryById,
 } from "../../services";
 
+/** Helper to check if value is Date */
+function isDate(value: any): value is Date {
+  return Object.prototype.toString.call(value) === "[object Date]";
+}
+
 /**
- * Handles the creation of a new category for product in the system.
+ * Recursively maps a TypeORM Category entity to GraphQL-friendly Category type,
+ * converting Date fields to ISO strings and mapping nested relations.
+ *
+ * @param categoryEntity TypeORM Category entity or null
+ * @returns GraphQL Category type or null
+ */
+function mapCategoryEntityToGql(
+  categoryEntity: CategoryEntity | null
+): CategoryGql | null {
+  if (!categoryEntity) return null;
+
+  const hasValidParent =
+    categoryEntity.parentCategory &&
+    categoryEntity.parentCategory.name != null &&
+    categoryEntity.parentCategory.slug != null;
+
+  return {
+    ...categoryEntity,
+    createdAt: isDate(categoryEntity.createdAt)
+      ? categoryEntity.createdAt.toISOString()
+      : categoryEntity.createdAt,
+    deletedAt: isDate(categoryEntity.deletedAt)
+      ? categoryEntity.deletedAt.toISOString()
+      : categoryEntity.deletedAt,
+    parentCategory: hasValidParent
+      ? mapCategoryEntityToGql(categoryEntity.parentCategory)
+      : null,
+    subCategories: (categoryEntity.subCategories ?? []).map(
+      mapCategoryEntityToGql
+    ),
+    // Map createdBy and thumbnail if needed (cast to any if necessary)
+    createdBy: categoryEntity.createdBy as any,
+    thumbnail: categoryEntity.thumbnail as any,
+  };
+}
+
+/**
+ * GraphQL resolver to create a new category or subcategory.
  *
  * Workflow:
- * 1. Verifies user authentication and permission to create categories.
- * 2. Validates input (categoryId, description, name, parentSubCategoryId, thumbnail) using Zod schema.
- * 3. Queries the database for category existence.
- * 4. Creates the category in the database.
- * 5. Returns a success response or error if validation, permission, or creation fails.
+ * 1. Verify user authentication.
+ * 2. Check if user has permission to create categories.
+ * 3. Validate inputs using Zod schema.
+ * 4. Check if a category with the same name or slug exists under the same parent.
+ * 5. Validate existence of parent category if `parentCategoryId` is provided.
+ * 6. Create the category.
+ * 7. Return success response with created category data.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
- * @param args - Input arguments containing role categoryId, description, name, parentSubCategoryId and thumbnail.
- * @param context - GraphQL context containing authenticated user information.
- * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
+ * @param args - Arguments containing category creation fields.
+ * @param context - GraphQL context containing authenticated user.
+ * @returns Promise resolving to a CreateCategoryResponseOrError.
  */
 export const createCategory = async (
   _: any,
@@ -39,13 +84,12 @@ export const createCategory = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Check if user has permission to create a category
+    // Check user permission
     const canCreate = await checkUserPermission({
       action: "canCreate",
       entity: "category",
       user,
     });
-
     if (!canCreate) {
       return {
         statusCode: 403,
@@ -55,10 +99,8 @@ export const createCategory = async (
       };
     }
 
-    // Validate input data with Zod schema
+    // Validate input using Zod schema
     const validationResult = await createCategorySchema.safeParseAsync(args);
-
-    // Return detailed validation errors if input is invalid
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
         field: error.path.join("."),
@@ -74,43 +116,32 @@ export const createCategory = async (
       };
     }
 
-    const {
-      categoryId,
-      description,
-      name,
-      parentSubCategoryId,
-      thumbnail,
-      slug,
-    } = validationResult.data;
+    // Destructure validated input
+    const { parentCategoryId, description, name, thumbnail, slug } =
+      validationResult.data;
 
-    // Check database for category existence
+    // Check if category with same name or slug exists under the same parent
     const categoryExists = await findCategoryByNameOrSlug(
       name,
       slug,
-      categoryId || parentSubCategoryId ? "subCategory" : "category",
-      categoryId ? categoryId : undefined,
-      parentSubCategoryId ? parentSubCategoryId : undefined
+      parentCategoryId || null
     );
 
     if (categoryExists) {
       return {
         statusCode: 400,
         success: false,
-        message:
-          categoryId || parentSubCategoryId
-            ? "Subcategory with this name/slug already exists in parent"
-            : "Category with this name/slug already exists",
+        message: parentCategoryId
+          ? "Subcategory with this name or slug already exists in the parent category"
+          : "Category with this name or slug already exists",
         __typename: "BaseResponse",
       };
     }
 
-    // Validate parent category if categoryId is provided
-    let parentCategoryExist;
-
-    if (categoryId) {
-      // Check database for category existence
-      parentCategoryExist = await getCategoryById(categoryId);
-
+    // Validate parent category existence if provided
+    let parentCategoryExist: CategoryEntity | null = null;
+    if (parentCategoryId) {
+      parentCategoryExist = await getCategoryById(parentCategoryId);
       if (!parentCategoryExist) {
         return {
           statusCode: 404,
@@ -120,99 +151,40 @@ export const createCategory = async (
         };
       }
     }
-
-    // Validate parent subcategory if parentSubCategoryId is provided
-    let subParentCategoryExist;
-
-    if (parentSubCategoryId) {
-      // Check database for category existence
-      subParentCategoryExist = await getSubCategoryById(parentSubCategoryId);
-
-      if (!subParentCategoryExist) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Parent subcategory not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-    // Create the category or subcategory in the database
+    // Create category or subcategory
     const categoryResult = await createCategoryOrSubCategory(
       {
-        categoryId,
+        parentCategoryId,
         description,
         name,
-        parentSubCategoryId,
         thumbnail,
         slug,
       },
       user.id
     );
 
-    const isSubCategory = categoryId || parentSubCategoryId;
+    // Fetch the full category including relations
+    const fullCategory = await getCategoryById(categoryResult.id);
 
-    // Construct the response object
-    let categoryResponse: any;
-    if (!isSubCategory) {
-      // Top-level category
-      categoryResponse = {
-        id: categoryResult.id,
-        name: categoryResult.name,
-        slug: categoryResult.slug,
-        description: categoryResult.description,
-        thumbnail: categoryResult.thumbnail,
-        position: categoryResult.position,
-        createdBy: categoryResult.createdBy as any,
-        createdAt:
-          categoryResult.createdAt instanceof Date
-            ? categoryResult.createdAt.toISOString()
-            : categoryResult.createdAt,
-        deletedAt:
-          categoryResult.deletedAt instanceof Date
-            ? categoryResult.deletedAt.toISOString()
-            : categoryResult.deletedAt,
-      };
-    } else {
-      // Subcategory
-      categoryResponse = {
-        id: categoryResult.id,
-        name: categoryResult.name,
-        slug: categoryResult.slug,
-        description: categoryResult.description,
-        thumbnail: categoryResult.thumbnail,
-        position: categoryResult.position,
-        category: categoryId ? categoryId : subParentCategoryExist.category.id,
-        parentSubCategory: subParentCategoryExist?.id || null,
-        createdBy: categoryResult.createdBy as any,
-        createdAt:
-          categoryResult.createdAt instanceof Date
-            ? categoryResult.createdAt.toISOString()
-            : categoryResult.createdAt,
-        deletedAt:
-          categoryResult.deletedAt instanceof Date
-            ? categoryResult.deletedAt.toISOString()
-            : categoryResult.deletedAt,
-      };
+    console.log(fullCategory);
+
+    // If parentCategoryExist was already fetched,
+    // replace the parentCategory in fullCategory with it to avoid re-fetch or partial data
+    if (parentCategoryExist && fullCategory) {
+      fullCategory.parentCategory = parentCategoryExist;
     }
 
-    if (isSubCategory) {
-      return {
-        statusCode: 201,
-        success: true,
-        message: "Subcategory created successfully",
-        subcategory: categoryResponse,
-        __typename: "SubCategoryResponse",
-      };
-    } else {
-      return {
-        statusCode: 201,
-        success: true,
-        message: "Category created successfully",
-        category: categoryResponse,
-        __typename: "CategoryResponse",
-      };
-    }
+    const categoryResponse = mapCategoryEntityToGql(fullCategory);
+
+    return {
+      statusCode: 201,
+      success: true,
+      message: parentCategoryId
+        ? "Subcategory created successfully"
+        : "Category created successfully",
+      category: categoryResponse!,
+      __typename: "CategoryResponse",
+    };
   } catch (error: any) {
     console.error("Error creating category:", error);
     return {

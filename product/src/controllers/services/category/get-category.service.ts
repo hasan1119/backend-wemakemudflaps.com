@@ -1,135 +1,82 @@
-import { Brackets, ILike, Not, Repository } from "typeorm";
-import { Category, SubCategory } from "../../../entities";
-import {
-  categoryRepository,
-  subCategoryRepository,
-} from "../repositories/repositories";
+import { Brackets, ILike, Not } from "typeorm";
+import { Category } from "../../../entities";
+import { categoryRepository } from "../repositories/repositories";
 
 /**
- * Fetches a Category or SubCategory entity by name OR slug within scope.
+ * Fetches a Category entity by name OR slug within scope.
  *
- * @param name - The name of the category or subcategory.
- * @param slug - The slug of the category or subcategory.
- * @param type - Either "category" or "subCategory".
- * @param categoryId - (Optional) For subcategory: the parent category ID.
- * @param parentScopeId - (Optional) For subcategory: the parent subcategory ID.
- * @returns A matched Category or SubCategory or null.
+ * @param name - The name of the category.
+ * @param slug - The slug of the category.
+ * @param parentCategoryId - (Optional) The parent category ID for scoped search (null for root categories).
+ * @returns A matched Category or null.
  */
 export async function findCategoryByNameOrSlug(
   name: string,
   slug: string,
-  type: "category" | "subCategory",
-  categoryId?: string,
-  parentScopeId?: string
-): Promise<Category | SubCategory | null> {
-  if (type === "category") {
-    return categoryRepository.findOne({
-      where: [
-        { name: ILike(name), deletedAt: null },
-        { slug: ILike(slug), deletedAt: null },
-      ],
-      relations: ["subCategories", "products"],
-    });
-  }
+  parentCategoryId?: string | null
+): Promise<Category | null> {
+  // Build where conditions for name and slug within the same parent scope
+  const conditions = [
+    {
+      name: ILike(name),
+      deletedAt: null,
+      parentCategory: parentCategoryId ? { id: parentCategoryId } : null,
+    },
+    {
+      slug: ILike(slug),
+      deletedAt: null,
+      parentCategory: parentCategoryId ? { id: parentCategoryId } : null,
+    },
+  ];
 
-  // First check if the parentCategory or subParentCategory itself matches
-  const [parentCategory, subParentCategory] = await Promise.all([
-    categoryId
-      ? categoryRepository.findOne({
-          where: [
-            { id: categoryId, name: ILike(name), deletedAt: null },
-            { id: categoryId, slug: ILike(slug), deletedAt: null },
-          ],
-          relations: ["subCategories", "products"],
-        })
-      : null,
-    parentScopeId
-      ? subCategoryRepository.findOne({
-          where: [
-            { id: parentScopeId, name: ILike(name), deletedAt: null },
-            { id: parentScopeId, slug: ILike(slug), deletedAt: null },
-          ],
-          relations: [
-            "category",
-            "parentSubCategory",
-            "subCategories",
-            "products",
-          ],
-        })
-      : null,
-  ]);
-
-  if (parentCategory) return parentCategory;
-  if (subParentCategory) return subParentCategory;
-
-  // Then look for a subCategory with either name or slug within scope
-  return subCategoryRepository.findOne({
-    where: [
-      {
-        name: ILike(name),
-        deletedAt: null,
-        ...(categoryId && { category: { id: categoryId } }),
-        ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
-      },
-      {
-        slug: ILike(slug),
-        deletedAt: null,
-        ...(categoryId && { category: { id: categoryId } }),
-        ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
-      },
-    ],
-    relations: ["category", "parentSubCategory", "subCategories", "products"],
+  return categoryRepository.findOne({
+    where: conditions,
+    relations: ["parentCategory", "subCategories"],
   });
 }
 
 /**
- * Finds a category or subcategory by name or slug (excluding the current one) within its scope.
+ * Finds a category by name or slug (excluding the current one) within its scope.
  *
- * @param id - ID of the entity being updated (to exclude it).
+ * @param id - ID of the category being updated (to exclude it).
  * @param name - New name being checked.
  * @param slug - New slug being checked (optional).
- * @param type - Either "category" or "subCategory".
- * @param categoryId - (Optional) For subcategory: the parent category ID.
- * @param parentScopeId - (Optional) For subcategory: the parent subcategory ID.
+ * @param parentCategoryId - (Optional) The parent category ID for scoped search.
  * @returns A matching record if conflict exists, else null.
  */
 export async function findCategoryByNameOrSlugToUpdateScoped(
   id: string,
   name: string,
   slug: string | undefined,
-  type: "category" | "subCategory",
-  categoryId?: string,
-  parentScopeId?: string
-): Promise<Category | SubCategory | null> {
+  parentCategoryId?: string | null
+): Promise<Category | null> {
   const whereConditions: any[] = [
-    { name: ILike(name), id: Not(id), deletedAt: null },
+    {
+      name: ILike(name),
+      id: Not(id),
+      deletedAt: null,
+      parentCategory: parentCategoryId ? { id: parentCategoryId } : null,
+    },
   ];
 
   if (slug) {
-    whereConditions.push({ slug: ILike(slug), id: Not(id), deletedAt: null });
-  }
-
-  if (type === "category") {
-    return categoryRepository.findOne({
-      where: whereConditions,
+    whereConditions.push({
+      slug: ILike(slug),
+      id: Not(id),
+      deletedAt: null,
+      parentCategory: parentCategoryId ? { id: parentCategoryId } : null,
     });
   }
 
-  // Build subcategory scoped conditions
-  const subcategoryConditions = whereConditions.map((base) => ({
-    ...base,
-    ...(categoryId && { category: { id: categoryId } }),
-    ...(parentScopeId && { parentSubCategory: { id: parentScopeId } }),
-  }));
-
-  const conflict = await subCategoryRepository.findOne({
-    where: subcategoryConditions,
+  // Check if any conflicting category exists
+  const conflict = await categoryRepository.findOne({
+    where: whereConditions,
   });
 
   if (conflict) return conflict;
 
-  // Also check children of current subcategory
-  const current = await subCategoryRepository.findOne({
+  // Also check children of current category for conflicts
+  const current = await categoryRepository.findOne({
     where: { id, deletedAt: null },
     relations: ["subCategories"],
   });
@@ -163,16 +110,13 @@ export async function getCategoryById(id: string): Promise<Category | null> {
   // Fetch the category with first-level subcategories and products
   const category = await categoryRepository.findOne({
     where: { id, deletedAt: null },
-    relations: ["subCategories", "products"],
+    relations: ["parentCategory", "subCategories"],
   });
 
   if (!category) return null;
 
   // Fetch nested subcategories recursively
-  category.subCategories = await fetchNestedSubCategories(
-    subCategoryRepository,
-    id
-  );
+  category.subCategories = await fetchNestedCategories(category.id);
 
   // Format dates to ISO strings
   category.createdAt = new Date(category.createdAt).toISOString() as any;
@@ -192,15 +136,12 @@ export async function getCategoryByIds(ids: string[]): Promise<Category[]> {
   // Fetch categories with first-level subcategories and products
   const categories = await categoryRepository.find({
     where: ids.map((id) => ({ id, deletedAt: null })),
-    relations: ["subCategories", "products"],
+    relations: ["parentCategory", "subCategories"],
   });
 
   // Fetch nested subcategories for each category
   for (const category of categories) {
-    category.subCategories = await fetchNestedSubCategories(
-      subCategoryRepository,
-      category.id
-    );
+    category.subCategories = await fetchNestedCategories(category.id);
     category.createdAt = new Date(category.createdAt).toISOString() as any;
   }
 
@@ -208,133 +149,31 @@ export async function getCategoryByIds(ids: string[]): Promise<Category[]> {
 }
 
 /**
- * Recursively fetches subcategories for a given category or parent subcategory.
+ * Recursively fetches subcategories for a given category.
  *
- * @param subCategoryRepository - SubCategory repository.
- * @param categoryId - UUID of the category (for first-level subcategories).
- * @param parentSubCategoryId - UUID of the parent subcategory (for nested levels).
- * @returns Promise<SubCategory[]>
+ * @param parentCategoryId - UUID of the parent category.
+ * @returns Promise<Category[]>
  */
-async function fetchNestedSubCategories(
-  subCategoryRepository: Repository<SubCategory>,
-  categoryId?: string,
-  parentSubCategoryId: string | null = null
-): Promise<SubCategory[]> {
-  // Fetch subcategories based on categoryId or parentSubCategoryId
-  const subCategories = await subCategoryRepository.find({
+async function fetchNestedCategories(
+  parentCategoryId: string | null
+): Promise<Category[]> {
+  const subCategories = await categoryRepository.find({
     where: {
-      ...(categoryId ? { category: { id: categoryId } } : {}),
-      ...(parentSubCategoryId
-        ? { parentSubCategory: { id: parentSubCategoryId } }
-        : { parentSubCategory: null }),
+      parentCategory: parentCategoryId ? { id: parentCategoryId } : null,
       deletedAt: null,
     },
-    relations: ["category", "parentSubCategory"],
+    relations: ["parentCategory"],
     order: { position: "ASC" },
   });
 
-  // Filter out invalid subcategories (e.g., missing id)
-  const validSubCategories = subCategories.filter(
-    (subCat) => subCat && subCat.id
-  );
-
-  // Recursively fetch nested subcategories
-  for (const subCategory of validSubCategories) {
-    subCategory.subCategories = await fetchNestedSubCategories(
-      subCategoryRepository,
-      undefined,
-      subCategory.id
-    );
-    subCategory.createdAt = new Date(
-      subCategory.createdAt
-    ).toISOString() as any;
-  }
-
-  return validSubCategories;
-}
-
-/**
- * Fetches a SubCategory by its ID along with all relations and nested subcategories.
- *
- * Workflow:
- * 1. Queries the subCategoryRepository by the given ID.
- * 2. Loads immediate relations (category, parentSubCategory, products).
- * 3. Recursively fetches all nested subcategories.
- * 4. Formats dates to ISO strings.
- * 5. Returns the SubCategory entity or null if not found.
- *
- * @param id - UUID of the SubCategory to fetch.
- * @returns Promise<SubCategory | null>
- */
-export async function getSubCategoryById(
-  id: string
-): Promise<SubCategory | null> {
-  // Fetch the subcategory with immediate relations
-  const subCategory = await subCategoryRepository.findOne({
-    where: { id, deletedAt: null },
-    relations: ["category", "parentSubCategory", "products"],
-  });
-
-  if (!subCategory) return null;
-
-  // Fetch nested subcategories recursively
-  subCategory.subCategories = await fetchNestedSubCategories(
-    subCategoryRepository,
-    undefined,
-    id
-  );
-
-  // Format dates to ISO strings
-  subCategory.createdAt = new Date(subCategory.createdAt).toISOString() as any;
-
-  return subCategory;
-}
-
-/**
- * Fetches multiple subcategories by their IDs (not soft-deleted).
- *
- * Workflow:
- * 1. Queries the subCategoryRepository for the given IDs.
- * 2. Loads immediate relations (category, parentSubCategory, products).
- * 3. Recursively fetches all nested subcategories for each subcategory.
- * 4. Formats dates to ISO strings.
- * 5. Returns an array of SubCategory entities.
- *
- * @param ids - Array of subcategory UUIDs.
- * @returns Promise<SubCategory[]>
- */
-export async function getSubCategoryByIds(
-  ids: string[]
-): Promise<SubCategory[]> {
-  if (!ids.length) return [];
-
-  // Fetch subcategories with immediate relations
-  const subCategories = await subCategoryRepository.find({
-    where: ids.map((id) => ({ id, deletedAt: null })),
-    relations: ["category", "parentSubCategory", "products"],
-  });
-
-  // Fetch nested subcategories for each subcategory
   for (const subCategory of subCategories) {
-    subCategory.subCategories = await fetchNestedSubCategories(
-      subCategoryRepository,
-      undefined,
-      subCategory.id
-    );
+    subCategory.subCategories = await fetchNestedCategories(subCategory.id);
     subCategory.createdAt = new Date(
       subCategory.createdAt
     ).toISOString() as any;
   }
 
   return subCategories;
-}
-
-export interface GetPaginatedCategoriesInput {
-  page: number;
-  limit: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: string;
 }
 
 /**
@@ -353,10 +192,16 @@ export const paginateCategories = async ({
   search,
   sortBy,
   sortOrder,
-}: GetPaginatedCategoriesInput) => {
+}: {
+  page: number;
+  limit: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}) => {
   const skip = (page - 1) * limit;
 
-  // Safely handle sort field
+  // Allowed sorting fields to prevent SQL injection
   const allowedSortFields = ["name", "createdAt", "position"] as const;
   const safeSortBy = allowedSortFields.includes(sortBy as any)
     ? (sortBy as (typeof allowedSortFields)[number])
@@ -365,7 +210,7 @@ export const paginateCategories = async ({
   const safeSortOrder =
     sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "asc";
 
-  // Build base query: only non-deleted categories
+  // Build base query: only root categories (parentCategory IS NULL) and non-deleted
   const query = categoryRepository
     .createQueryBuilder("category")
     .leftJoinAndSelect(
@@ -373,9 +218,10 @@ export const paginateCategories = async ({
       "subCategory",
       "subCategory.deletedAt IS NULL"
     )
-    .where("category.deletedAt IS NULL");
+    .where("category.deletedAt IS NULL")
+    .andWhere("category.parentCategory IS NULL");
 
-  // Apply optional search on name/description of both categories and subcategories
+  // Apply optional search on name/description/slug of both categories and subcategories
   if (search && search.trim() !== "") {
     const searchTerm = `%${search.trim()}%`;
     query.andWhere(
@@ -390,7 +236,7 @@ export const paginateCategories = async ({
     );
   }
 
-  // Apply dynamic sorting and pagination
+  // Apply sorting and pagination
   query
     .orderBy(
       `category.${safeSortBy}`,
@@ -401,12 +247,9 @@ export const paginateCategories = async ({
 
   const [categories, total] = await query.getManyAndCount();
 
-  // Fetch nested subcategories for each category
+  // Recursively fetch nested subcategories for each category
   for (const category of categories) {
-    category.subCategories = await fetchNestedSubCategories(
-      subCategoryRepository,
-      category.id
-    );
+    category.subCategories = await fetchNestedCategories(category.id);
     category.createdAt = new Date(category.createdAt).toISOString() as any;
   }
 

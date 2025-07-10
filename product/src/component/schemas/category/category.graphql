@@ -1,63 +1,29 @@
 # ---------------------- Category & Sub Category Types ----------------------
-enum CategoryType {
-  Category
-  Sub_Category
-}
-
-type Category {
+# Common Interface for Category and SubCategory to avoid duplication
+interface ICategoryBase {
   id: ID!
   name: String!
   slug: String!
   description: String
   thumbnail: Media
-  position: Int! # Display order/position of the category.
-  createdBy: CreatedBy! # Metadata on who created the category.
-  subCategories: [SubCategory] # List of subcategories under this category.
+  position: Int!
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
 
-type SubCategory {
-  id: ID! #
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  category: Category # The category to which this subcategory belongs.
-  parentSubCategory: SubCategory
-  # Optional parent subcategory if nested.
-  subCategories: [SubCategory!]! # List of child subcategories (if any).
-  position: Int! # Display order/position of the subcategory.
-  createdBy: CreatedBy! # Metadata on who created the category.
-  createdAt: String
-  deletedAt: String
-}
-
-type CategoryDataResponse {
+type Category implements ICategoryBase {
   id: ID!
   name: String!
   slug: String!
   description: String
   thumbnail: Media
-  position: Int! # Display order/position of the category.
-  createdBy: CreatedBy! # Metadata on who created the category.
+  position: Int!
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
-}
-
-type SubCategoryDataResponse {
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  category: ID # The category to which this subcategory belongs.
-  parentSubCategory: ID # The parent subcategory if nested.
-  subCategories: [SubCategoryDataResponse] # List of child subcategories (if any).
-  position: Int! # Display order/position of the subcategory.
-  createdBy: CreatedBy! # Metadata on who created the category.
-  createdAt: String
-  deletedAt: String
+  subCategories: [Category!]! # TreeChildren equivalent
+  parentCategory: Category # TreeParent equivalent, null if root
 }
 
 # ---------------------- Responses ----------------------
@@ -65,57 +31,25 @@ type CategoryResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: CategoryDataResponse!
-}
-
-type SubCategoryResponse {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  subcategory: SubCategoryDataResponse!
-}
-
-type CategoryResponseById {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
   category: Category!
-}
-
-type SubCategoryResponseById {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  subcategory: SubCategory!
 }
 
 type CategoryPaginationResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  category: [Category!]!
+  categories: [Category!]!
   total: Int!
-}
-
-# ---------------------- Inputs ----------------------
-input restoreCategoryType {
-  ids: String!
-  type: CategoryType!
 }
 
 # ---------------------- Unions ----------------------
 union CreateCategoryResponseOrError =
     BaseResponse
   | CategoryResponse
-  | SubCategoryResponse
   | ErrorResponse
 union GetCategoryByIDResponseOrError =
     BaseResponse
-  | CategoryResponseById
-  | ErrorResponse
-union GetSubCategoryByIDResponseOrError =
-    BaseResponse
-  | SubCategoryResponseById
+  | CategoryResponse
   | ErrorResponse
 union GetCategoriesResponseOrError =
     BaseResponse
@@ -124,12 +58,10 @@ union GetCategoriesResponseOrError =
 union UpdateCategoryResponseOrError =
     BaseResponse
   | CategoryResponse
-  | SubCategoryResponse
   | ErrorResponse
 union UpdateCategoryPositionResponseOrError =
     BaseResponse
   | CategoryResponse
-  | SubCategoryResponse
   | ErrorResponse
 union DeleteCategoryResponseOrError = BaseResponse | ErrorResponse
 union RestoreCategoryResponseOrError = BaseResponse | ErrorResponse

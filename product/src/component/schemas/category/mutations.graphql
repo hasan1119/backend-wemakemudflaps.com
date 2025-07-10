@@ -1,48 +1,40 @@
-# Mutations to manage category operations.
 type Mutation {
-  # Create a new category.
+  # Create a new category or subcategory (via parentCategoryId).
   # Only accessible by authorized users.
   createCategory(
     thumbnail: String # Optional thumbnail image URL for the category.
-    name: String! # Name of the category to create (must be unique).
-    slug: String! # Slug of the category to create.
-    description: String # Optional description for the role.
-    categoryId: String # Optional ID of the parent category if this is a sub-category.,
-    parentSubCategoryId: String # Optional ID of the parent sub-category if this is a sub-category.
+    name: String! # Name of the category (must be unique).
+    slug: String! # Slug of the category.
+    description: String # Optional description.
+    parentCategoryId: ID # Optional ID of the parent category to create subcategory.
   ): CreateCategoryResponseOrError!
 
-  # Update an existing category/sub category.
+  # Update an existing category.
   # Only accessible by authorized users.
   updateCategory(
     id: ID! # ID of the category to update.
-    thumbnail: String # Optional new thumbnail image URL for the category/sub category.
-    slug: String # Optional updated Slug of the category/sub category.
-    name: String # Optional updated name of the category/sub category.
-    description: String # Optional updated description for the category/sub category.
-    categoryType: CategoryType!
+    thumbnail: String # Optional new thumbnail image URL.
+    slug: String # Optional updated slug.
+    name: String # Optional updated name.
+    description: String # Optional updated description.
+    parentCategoryId: ID # Optional change parent category.
   ): UpdateCategoryResponseOrError!
 
-  # Update the display order/position of a category or subcategory.
+  # Update display order/position of a category.
   # Only accessible by authorized users.
   updateCategoryPosition(
-    id: ID! # ID of the category or subcategory to update.
+    id: ID! # ID of the category to update.
     position: Int! # New position value.
-    categoryType: CategoryType!
   ): UpdateCategoryPositionResponseOrError!
 
-  # Deletes a category or subcategory by ID.
-  # Performs a soft delete by default (moves to trash).
-  # If skipTrash is true, performs a permanent delete and reorders remaining items.
+  # Delete a category by ID.
+  # Soft delete by default, skipTrash for permanent delete.
   # Only accessible by authorized users.
-  deleteCategory(
-    id: ID!
-    categoryType: CategoryType!
-    skipTrash: Boolean
-  ): DeleteCategoryResponseOrError
+  deleteCategory(id: ID!, skipTrash: Boolean): DeleteCategoryResponseOrError
 
-  # Mutation to restore a soft-deleted category or subcategory
+  # Restore soft-deleted categories.
   # Only accessible by authorized users.
   restoreCategory(
-    idsWithType: [restoreCategoryType!]! # List of soft-deleted role IDs and type to be restored.
+    ids: [ID!]! # List of soft-deleted category IDs to restore.
   ): RestoreCategoryResponseOrError
 }

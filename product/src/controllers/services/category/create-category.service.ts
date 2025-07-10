@@ -1,105 +1,51 @@
-import { Category, SubCategory } from "../../../entities";
+import { Category } from "../../../entities";
 import { MutationCreateCategoryArgs } from "../../../types";
-import {
-  categoryRepository,
-  subCategoryRepository,
-} from "../repositories/repositories";
+import { categoryRepository } from "../repositories/repositories";
 
 /**
- * Handles creation of Category or SubCategory based on input.
+ * Creates a Category or SubCategory as a tree node under parentCategoryId if provided.
  *
  * Workflow:
- * 1. If `parentSubCategoryId` is provided, create SubCategory under that parent.
- * 2. If no `parentSubCategoryId` but `categoryId` is provided, create top-level SubCategory under that category.
- * 3. If neither `parentSubCategoryId` nor `categoryId` is provided, create a top-level Category.
- * 4. For ordering, finds max position in the relevant scope and adds new item at position max+1.
+ * 1. Determine if the new category has a parentCategoryId (making it a subcategory).
+ * 2. Find the maximum position among siblings (categories with the same parent).
+ * 3. Create new Category entity with position = maxPosition + 1.
+ * 4. Save and return the created Category.
  *
- * @param data - Partial data for Category or SubCategory creation.
- * @param userId - Optional user ID who creates this.
- * @returns Created Category or SubCategory entity.
+ * @param data - Input data for category creation.
+ * @param userId - Optional ID of the user creating this category.
+ * @returns The created Category entity.
  */
 export const createCategoryOrSubCategory = async (
   data: MutationCreateCategoryArgs,
   userId?: string
-): Promise<Category | SubCategory> => {
-  const {
-    categoryId,
-    description,
+): Promise<Category> => {
+  const { parentCategoryId, description, name, thumbnail, slug } = data ?? {};
+
+  // Find max position among siblings under the same parentCategoryId (or top-level if null)
+  const maxPositionResult = await categoryRepository
+    .createQueryBuilder("category")
+    .select("MAX(category.position)", "max")
+    .where(
+      parentCategoryId
+        ? '"parentCategoryId" = :parentCategoryId'
+        : '"parentCategoryId" IS NULL',
+      { parentCategoryId }
+    )
+    .getRawOne<{ max: number }>();
+
+  const maxPosition = maxPositionResult?.max ?? 0;
+
+  // Create new Category entity
+  const category = categoryRepository.create({
     name,
-    parentSubCategoryId,
-    thumbnail,
     slug,
-  } = data ?? {};
+    description: description ?? null,
+    thumbnail: thumbnail ?? null,
+    createdBy: userId ?? null,
+    parentCategory: parentCategoryId ? ({ id: parentCategoryId } as any) : null,
+    position: maxPosition + 1,
+  });
 
-  if (parentSubCategoryId) {
-    // Create nested SubCategory
-    const maxPositionResult = await subCategoryRepository
-      .createQueryBuilder("sub")
-      .select("MAX(sub.position)", "max")
-      .where('"parentSubCategoryId" = :parentSubCategoryId', {
-        parentSubCategoryId,
-      })
-      .getRawOne<{ max: number }>();
-
-    const maxPosition = maxPositionResult?.max ?? 0;
-
-    const subCategory = subCategoryRepository.create({
-      name: name,
-      slug: slug,
-      description: description ?? null,
-      thumbnail: thumbnail ?? null,
-      createdBy: userId ?? null,
-      category: categoryId ? ({ id: categoryId } as any) : null,
-      parentSubCategory: parentSubCategoryId
-        ? ({ id: parentSubCategoryId } as any)
-        : null,
-      position: maxPosition + 1,
-    });
-
-    return await subCategoryRepository.save(subCategory);
-  } else if (categoryId) {
-    // Create top-level SubCategory under Category
-    const maxPositionResult = await subCategoryRepository
-      .createQueryBuilder("sub")
-      .select("MAX(sub.position)", "max")
-      .where('"categoryId" = :categoryId AND "parentSubCategoryId" IS NULL', {
-        categoryId,
-      })
-      .getRawOne<{ max: number }>();
-
-    const maxPosition = maxPositionResult?.max ?? 0;
-
-    const subCategory = subCategoryRepository.create({
-      name: name,
-      slug: slug,
-      description: description ?? null,
-      thumbnail: thumbnail ?? null,
-      createdBy: userId ?? null,
-      category: { id: categoryId } as any,
-      parentSubCategory: null,
-      position: maxPosition + 1,
-    });
-
-    return await subCategoryRepository.save(subCategory);
-  } else {
-    // Create top-level Category
-    const maxPositionResult = await categoryRepository
-      .createQueryBuilder("category")
-      .select("MAX(category.position)", "max")
-      .getRawOne<{ max: number }>();
-
-    const maxPosition = maxPositionResult?.max ?? 0;
-
-    const category = categoryRepository.create({
-      name: name,
-      slug: slug,
-      description: description ?? null,
-      thumbnail: thumbnail ?? null,
-      createdBy: userId ?? null,
-      position: maxPosition + 1,
-    });
-
-    // Explicitly assert the return type as Category
-    return await categoryRepository.save(category);
-  }
+  // Save and return
+  return await categoryRepository.save(category);
 };
