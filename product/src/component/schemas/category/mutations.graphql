@@ -7,7 +7,7 @@ type Mutation {
     slug: String! # Slug of the category.
     description: String # Optional description.
     parentCategoryId: ID # Optional ID of the parent category to create subcategory.
-  ): CreateCategoryResponseOrError!
+  ): JSON!
 
   # Update an existing category.
   # Only accessible by authorized users.
@@ -18,14 +18,14 @@ type Mutation {
     name: String # Optional updated name.
     description: String # Optional updated description.
     parentCategoryId: ID # Optional change parent category.
-  ): UpdateCategoryResponseOrError!
+  ): JSON!
 
   # Update display order/position of a category.
   # Only accessible by authorized users.
   updateCategoryPosition(
     id: ID! # ID of the category to update.
     position: Int! # New position value.
-  ): UpdateCategoryPositionResponseOrError!
+  ): JSON!
 
   # Delete a category by ID.
   # Soft delete by default, skipTrash for permanent delete.

@@ -5,7 +5,7 @@ type Query {
   # Returns a `GetCategoryByIDResponseOrError` containing category data and request status.
   getCategoryById(
     id: ID! # Unique identifier of the category file to retrieve.
-  ): GetCategoryByIDResponseOrError!
+  ): JSON!
 
   # Fetch all categories with pagination, filtering, and sorting.
   # Only accessible by authorized users.
@@ -19,5 +19,5 @@ type Query {
     search: String # Optional search term (matches name or description).
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort direction: "asc" or "desc".
-  ): GetCategoriesResponseOrError!
+  ): JSON!
 }

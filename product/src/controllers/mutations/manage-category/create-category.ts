@@ -166,8 +166,6 @@ export const createCategory = async (
     // Fetch the full category including relations
     const fullCategory = await getCategoryById(categoryResult.id);
 
-    console.log(fullCategory);
-
     // If parentCategoryExist was already fetched,
     // replace the parentCategory in fullCategory with it to avoid re-fetch or partial data
     if (parentCategoryExist && fullCategory) {

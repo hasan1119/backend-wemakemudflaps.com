@@ -1,9 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import {
-  GetCategoryByIdResponseOrError,
-  QueryGetCategoryByIdArgs,
-} from "../../../types";
+import { QueryGetCategoryByIdArgs } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
@@ -23,13 +20,13 @@ import {
  * @param _ - Unused parent parameter for GraphQL resolver.
  * @param args - Input arguments containing the category ID.
  * @param context - GraphQL context containing authenticated user information.
- * @returns A promise resolving to a GetCategoryByIdResponseOrError object containing status, message, category data, and errors if applicable.
+ * @returns A promise resolving to a GetCategoryByIdResponseOrError<any> object containing status, message, category data, and errors if applicable.
  */
 export const getCategoryById = async (
   _: any,
   args: QueryGetCategoryByIdArgs,
   { user }: Context
-): Promise<GetCategoryByIdResponseOrError> => {
+): Promise<any> => {
   try {
     // Verify user authentication
     const authResponse = checkUserAuth(user);
@@ -101,7 +98,7 @@ export const getCategoryById = async (
             ? category.deletedAt.toISOString()
             : category.deletedAt,
       },
-      __typename: "CategoryResponseById",
+      __typename: "CategoryResponse",
     };
   } catch (error: any) {
     console.error("Error retrieving category:", {

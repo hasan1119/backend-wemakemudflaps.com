@@ -34,34 +34,8 @@ type CategoryResponse {
   category: Category!
 }
 
-type CategoryPaginationResponse {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  categories: [Category!]!
-  total: Int!
-}
+scalar JSON
 
 # ---------------------- Unions ----------------------
-union CreateCategoryResponseOrError =
-    BaseResponse
-  | CategoryResponse
-  | ErrorResponse
-union GetCategoryByIDResponseOrError =
-    BaseResponse
-  | CategoryResponse
-  | ErrorResponse
-union GetCategoriesResponseOrError =
-    BaseResponse
-  | CategoryPaginationResponse
-  | ErrorResponse
-union UpdateCategoryResponseOrError =
-    BaseResponse
-  | CategoryResponse
-  | ErrorResponse
-union UpdateCategoryPositionResponseOrError =
-    BaseResponse
-  | CategoryResponse
-  | ErrorResponse
 union DeleteCategoryResponseOrError = BaseResponse | ErrorResponse
 union RestoreCategoryResponseOrError = BaseResponse | ErrorResponse
