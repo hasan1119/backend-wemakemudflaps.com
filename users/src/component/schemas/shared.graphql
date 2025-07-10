@@ -73,6 +73,12 @@ type UserRoleObject {
   defaultPermissions: [RolePermissionSession!]!
 }
 
+# Type for user role
+type UserSessionRoleObject {
+  id: ID!
+  name: String!
+}
+
 # Minimal user information stored with entities to track who created them.
 type CreatedBy @shareable @key(fields: "id") {
   id: ID! # Unique identifier of the creator.

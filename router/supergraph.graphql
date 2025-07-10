@@ -1953,7 +1953,7 @@ type UserSession
   lastName: String!
   email: String!
   gender: String!
-  roles: [UserRoleObject!]!
+  roles: [UserSessionRoleObject!]!
   emailVerified: Boolean!
   isAccountActivated: Boolean!
   sessionId: String!
@@ -2012,6 +2012,13 @@ type UserSessionById
   tempEmailVerified: Boolean!
   createdAt: String!
   deletedAt: String!
+}
+
+type UserSessionRoleObject
+  @join__type(graph: USER)
+{
+  id: ID!
+  name: String!
 }
 
 type UsersResponse
