@@ -16,7 +16,6 @@ import { ProductPrice } from "./product-price.entity";
 import { ProductReview } from "./product-review.entity";
 import { ProductVariation } from "./product-variation.entity";
 import { ShippingClass } from "./shipping-class.entity";
-import { SubCategory } from "./sub-category.entity";
 import { Tag } from "./tag.entity";
 import { TaxClass } from "./tax-class.entity";
 import { TaxStatus } from "./tax-status.entity";
@@ -101,15 +100,7 @@ export class Product {
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "category_id" })
-  category: Category;
-
-  // Multiple sub-categories associated with the product
-  @ManyToMany(() => SubCategory, (subCategory) => subCategory.products, {
-    onDelete: "SET NULL",
-    nullable: true,
-  })
-  @JoinTable({ name: "product_subcategory_ids" })
-  subCategories: SubCategory[] | null;
+  categories: Category[];
 
   // Warranty digit for the variation (nullable)
   @Column({ nullable: true, default: null })

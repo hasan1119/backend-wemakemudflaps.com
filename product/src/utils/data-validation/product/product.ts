@@ -490,7 +490,7 @@ export const ProductVariationInputSchema = z.object({
  * 4. Validates `defaultImage`, `images`, `videos` as optional arrays of UUIDs.
  * 5. Ensures `defaultMainDescription` is a non-empty string.
  * 6. Validates `defaultShortDescription`, `defaultTags`, `customBadge`, `purchaseNote` as optional non-empty strings or arrays of strings.
- * 7. Validates `brandIds`, `tagIds`, `categoryId`, `subCategoryIds` as optional UUIDs or arrays of UUIDs.
+ * 7. Validates `brandIds`, `tagIds`, `categoryIds` as optional UUIDs or arrays of UUIDs.
  * 8. Validates `warrantyDigit` as an optional positive integer and `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
  * 9. Validates `warrantyPolicy` as an optional non-empty string.
  * 10. Ensures `regularPrice` is a positive number.
@@ -526,8 +526,7 @@ export const ProductVariationInputSchema = z.object({
  * @property purchaseNote - Optional note shown after purchase.
  * @property brandIds - Optional UUIDs of the associated brand.
  * @property tagIds - Optional array of associated tag UUIDs.
- * @property categoryId - The UUID of the primary category.
- * @property subCategoryIds - Optional array of sub-category UUIDs.
+ * @property categoryIds - The UUID of the categories.
  * @property warrantyDigit - Optional numeric part of warranty duration.
  * @property defaultWarrantyPeriod - Optional unit for warranty period.
  * @property warrantyPolicy - Optional description of the warranty policy.
@@ -624,8 +623,7 @@ export const createProductSchema = z
       .array(z.string().uuid({ message: "Invalid UUID format" }))
       .optional()
       .nullable(),
-    categoryId: z.string().uuid({ message: "Invalid UUID format" }),
-    subCategoryIds: z
+    categoryIds: z
       .array(z.string().uuid({ message: "Invalid UUID format" }))
       .optional()
       .nullable(),
@@ -802,8 +800,7 @@ export const createProductSchema = z
  * @property purchaseNote - Optional note shown after purchase.
  * @property brandId - Optional UUID of the associated brand.
  * @property tagIds - Optional array of associated tag UUIDs.
- * @property categoryId - Optional UUID of the primary category.
- * @property subCategoryIds - Optional array of sub-category UUIDs.
+ * @property categoryIds - Optional UUID of the categories.
  * @property warrantyDigit - Optional numeric part of warranty duration.
  * @property defaultWarrantyPeriod - Optional unit for warranty period.
  * @property warrantyPolicy - Optional description of the warranty policy.
@@ -909,12 +906,7 @@ export const updateProductSchema = z
       .array(z.string().uuid({ message: "Invalid UUID format" }))
       .optional()
       .nullable(),
-    categoryId: z
-      .string()
-      .uuid({ message: "Invalid UUID format" })
-      .optional()
-      .nullable(),
-    subCategoryIds: z
+    categoryIds: z
       .array(z.string().uuid({ message: "Invalid UUID format" }))
       .optional()
       .nullable(),

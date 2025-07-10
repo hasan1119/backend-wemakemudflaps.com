@@ -136,15 +136,15 @@ export const getAllRoles = async (
             defaultPermissions: await mapPermissions(role.defaultPermissions),
             systemDeleteProtection: role.systemDeleteProtection,
             systemUpdateProtection: role.systemUpdateProtection,
-            systemPermanentDeleteProtection:
-              role.systemPermanentDeleteProtection,
-            systemPermanentUpdateProtection:
-              role.systemPermanentUpdateProtection,
             createdBy: createdBy
               ? {
                   id: createdBy.id,
                   name: createdBy.firstName + " " + createdBy.lastName,
-                  roles: createdBy.roles.map((role) => role.name),
+                  roles: createdBy.roles.map((role) => ({
+                    id: role.id,
+                    name: role.name,
+                    defaultPermissions: role.defaultPermissions,
+                  })),
                 }
               : null,
             createdAt: role.createdAt.toISOString(),
@@ -194,8 +194,6 @@ export const getAllRoles = async (
           assignedUserCount,
           systemDeleteProtection: role.systemDeleteProtection,
           systemUpdateProtection: role.systemUpdateProtection,
-          systemPermanentDeleteProtection: role.systemPermanentDeleteProtection,
-          systemPermanentUpdateProtection: role.systemPermanentUpdateProtection,
           createdBy: role.createdBy,
           createdAt: role.createdAt,
           deletedAt: role.deletedAt,

@@ -38,6 +38,16 @@ export const mapUserToResponseByEmail = async (
     roles: user.roles.map((role) => ({
       id: role.id,
       name: role.name.toUpperCase(),
+      defaultPermissions:
+        role.defaultPermissions?.map((permission) => ({
+          id: permission.id,
+          name: permission.name,
+          description: permission.description,
+          canCreate: permission.canCreate,
+          canRead: permission.canRead,
+          canUpdate: permission.canUpdate,
+          canDelete: permission.canDelete,
+        })) ?? [],
     })),
     permissions: (await mapPermissions(
       user.permissions
@@ -70,6 +80,7 @@ export const mapUserToResponseByEmail = async (
 export const mapUserToResponseById = async (
   user: User
 ): Promise<UserSessionById> => {
+  console.log(user);
   return {
     id: user.id,
     avatar: user.avatar,
@@ -87,6 +98,16 @@ export const mapUserToResponseById = async (
     roles: user.roles.map((role) => ({
       id: role.id,
       name: role.name.toUpperCase(),
+      defaultPermissions:
+        role.defaultPermissions?.map((permission) => ({
+          id: permission.id,
+          name: permission.name,
+          description: permission.description,
+          canCreate: permission.canCreate,
+          canRead: permission.canRead,
+          canUpdate: permission.canUpdate,
+          canDelete: permission.canDelete,
+        })) ?? [],
     })),
     permissions: (await mapPermissions(
       user.permissions
@@ -128,6 +149,16 @@ export const mapUserToTokenData = async (
     roles: user.roles.map((role) => ({
       id: role.id,
       name: role.name.toUpperCase(),
+      defaultPermissions:
+        role.defaultPermissions?.map((permission) => ({
+          id: permission.id,
+          name: permission.name,
+          description: permission.description,
+          canCreate: permission.canCreate,
+          canRead: permission.canRead,
+          canUpdate: permission.canUpdate,
+          canDelete: permission.canDelete,
+        })) ?? [],
     })),
     isAccountActivated: user.isAccountActivated,
     sessionId: user.sessionId,

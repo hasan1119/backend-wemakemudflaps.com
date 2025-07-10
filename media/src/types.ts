@@ -650,7 +650,7 @@ export type MutationCreateProductArgs = {
   allowBackOrders?: InputMaybe<AllowBackOrders>;
   attributes?: InputMaybe<Array<ProductAttributeInput>>;
   brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  categoryId: Scalars['ID']['input'];
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   customBadge?: InputMaybe<Scalars['String']['input']>;
   defaultImage?: InputMaybe<Scalars['ID']['input']>;
@@ -690,7 +690,6 @@ export type MutationCreateProductArgs = {
   soldIndividually?: InputMaybe<Scalars['Boolean']['input']>;
   stockQuantity?: InputMaybe<Scalars['Int']['input']>;
   stockStatus?: InputMaybe<StockStatus>;
-  subCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   taxClassId?: InputMaybe<Scalars['ID']['input']>;
   taxStatusId?: InputMaybe<Scalars['ID']['input']>;
@@ -744,8 +743,6 @@ export type MutationCreateUserRoleArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   systemDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
-  systemPermanentDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
-  systemPermanentUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
   systemUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -940,7 +937,7 @@ export type MutationUpdateProductArgs = {
   allowBackOrders?: InputMaybe<AllowBackOrders>;
   attributes?: InputMaybe<Array<ProductAttributeInput>>;
   brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   customBadge?: InputMaybe<Scalars['String']['input']>;
   defaultImage?: InputMaybe<Scalars['ID']['input']>;
@@ -981,7 +978,6 @@ export type MutationUpdateProductArgs = {
   soldIndividually?: InputMaybe<Scalars['Boolean']['input']>;
   stockQuantity?: InputMaybe<Scalars['Int']['input']>;
   stockStatus?: InputMaybe<StockStatus>;
-  subCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   taxClassId?: InputMaybe<Scalars['ID']['input']>;
   taxStatusId?: InputMaybe<Scalars['ID']['input']>;
@@ -1072,8 +1068,6 @@ export type MutationUpdateUserRoleInfoArgs = {
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
   systemDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
-  systemPermanentDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
-  systemPermanentUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
   systemUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -1173,7 +1167,7 @@ export type Product = {
   allowBackOrders?: Maybe<Scalars['String']['output']>;
   attributes?: Maybe<Array<Maybe<ProductAttribute>>>;
   brands?: Maybe<Array<Brand>>;
-  category: Category;
+  categories: Category;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy: CreatedBy;
   crossSells?: Maybe<Array<Product>>;
@@ -1218,7 +1212,6 @@ export type Product = {
   soldIndividually?: Maybe<Scalars['Boolean']['output']>;
   stockQuantity?: Maybe<Scalars['Int']['output']>;
   stockStatus?: Maybe<Scalars['String']['output']>;
-  subCategories?: Maybe<Array<SubCategory>>;
   tags?: Maybe<Array<Tag>>;
   taxClass?: Maybe<TaxClass>;
   taxStatus?: Maybe<TaxStatus>;
@@ -1697,8 +1690,6 @@ export type Role = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   systemDeleteProtection?: Maybe<Scalars['Boolean']['output']>;
-  systemPermanentDeleteProtection?: Maybe<Scalars['Boolean']['output']>;
-  systemPermanentUpdateProtection?: Maybe<Scalars['Boolean']['output']>;
   systemUpdateProtection?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -1740,8 +1731,6 @@ export type RoleSession = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   systemDeleteProtection: Scalars['Boolean']['output'];
-  systemPermanentDeleteProtection: Scalars['Boolean']['output'];
-  systemPermanentUpdateProtection: Scalars['Boolean']['output'];
   systemUpdateProtection: Scalars['Boolean']['output'];
 };
 
@@ -2082,7 +2071,7 @@ export type User = {
   id: Scalars['ID']['output'];
   isAccountActivated?: Maybe<Scalars['Boolean']['output']>;
   lastName?: Maybe<Scalars['String']['output']>;
-  permissions: Array<Permissions>;
+  permissions: Array<PermissionSession>;
   phone?: Maybe<Scalars['String']['output']>;
   roles: Array<UserRoleObject>;
   tempUpdatedEmail?: Maybe<Scalars['String']['output']>;
@@ -2146,6 +2135,7 @@ export type UserResponse = {
 
 export type UserRoleObject = {
   __typename?: 'UserRoleObject';
+  defaultPermissions: Array<RolePermissionSession>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
 };
@@ -3277,7 +3267,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'company' | 'country' | 'isDefault' | 'state' | 'streetOne' | 'streetTwo' | 'type' | 'userId' | 'zip'>>;
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
-  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'categoryId' | 'defaultMainDescription' | 'isCustomized' | 'name' | 'productConfigurationType' | 'regularPrice' | 'saleQuantityUnit' | 'slug'>>;
+  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'defaultMainDescription' | 'isCustomized' | 'name' | 'productConfigurationType' | 'regularPrice' | 'saleQuantityUnit' | 'slug'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
   createTag?: Resolver<ResolversTypes['CreateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTagArgs, 'name' | 'slug'>>;
@@ -3372,7 +3362,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   allowBackOrders?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   attributes?: Resolver<Maybe<Array<Maybe<ResolversTypes['ProductAttribute']>>>, ParentType, ContextType>;
   brands?: Resolver<Maybe<Array<ResolversTypes['Brand']>>, ParentType, ContextType>;
-  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  categories?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   crossSells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
@@ -3417,7 +3407,6 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   soldIndividually?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   stockQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   stockStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  subCategories?: Resolver<Maybe<Array<ResolversTypes['SubCategory']>>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<ResolversTypes['Tag']>>, ParentType, ContextType>;
   taxClass?: Resolver<Maybe<ResolversTypes['TaxClass']>, ParentType, ContextType>;
   taxStatus?: Resolver<Maybe<ResolversTypes['TaxStatus']>, ParentType, ContextType>;
@@ -3654,8 +3643,6 @@ export type RoleResolvers<ContextType = Context, ParentType extends ResolversPar
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   systemDeleteProtection?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  systemPermanentDeleteProtection?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  systemPermanentUpdateProtection?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   systemUpdateProtection?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3688,8 +3675,6 @@ export type RoleSessionResolvers<ContextType = Context, ParentType extends Resol
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   systemDeleteProtection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  systemPermanentDeleteProtection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  systemPermanentUpdateProtection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   systemUpdateProtection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -4003,7 +3988,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isAccountActivated?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  permissions?: Resolver<Array<ResolversTypes['Permissions']>, ParentType, ContextType>;
+  permissions?: Resolver<Array<ResolversTypes['PermissionSession']>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
   tempUpdatedEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -4063,6 +4048,7 @@ export type UserResponseResolvers<ContextType = Context, ParentType extends Reso
 };
 
 export type UserRoleObjectResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserRoleObject'] = ResolversParentTypes['UserRoleObject']> = {
+  defaultPermissions?: Resolver<Array<ResolversTypes['RolePermissionSession']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

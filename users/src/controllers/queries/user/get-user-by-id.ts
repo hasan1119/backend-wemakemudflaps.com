@@ -98,7 +98,7 @@ export const getUserById = async (
       }
 
       // Map user data to response format
-      userData = await mapUserToResponseById(userData.id);
+      userData = await mapUserToResponseById(userData);
 
       // Cache user data in Redis
       await setUserInfoByUserIdInRedis(userData.id, userData);

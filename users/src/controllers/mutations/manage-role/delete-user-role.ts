@@ -191,20 +191,14 @@ export const deleteUserRole = async (
     const deletedRoles: string[] = [];
 
     for (const roleData of foundRoles) {
-      const {
-        id,
-        name,
-        systemDeleteProtection,
-        systemPermanentDeleteProtection,
-        deletedAt,
-      } = roleData;
+      const { id, name, systemDeleteProtection, deletedAt } = roleData;
 
-      // Prevent deletes to permanently protected roles
-      if (systemPermanentDeleteProtection) {
+      // Prevent deletion of SUPER ADMIN and CUSTOMER (case-insensitive)
+      if (["SUPER ADMIN", "CUSTOMER"].includes(name.toUpperCase())) {
         return {
           statusCode: 403,
           success: false,
-          message: `The role "${roleData.name}" is permanently protected and cannot be deleted.`,
+          message: `The role "${name}" is permanently protected and cannot be deleted`,
           __typename: "BaseResponse",
         };
       }

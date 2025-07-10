@@ -43,8 +43,6 @@ type Role {
   defaultPermissions: [RolePermissionSession!]
   systemDeleteProtection: Boolean # Prevents deletion via UI/API.
   systemUpdateProtection: Boolean # Prevents updates via UI/API.
-  systemPermanentDeleteProtection: Boolean # Prevents deletion even by super admin.
-  systemPermanentUpdateProtection: Boolean # Prevents update even by super admin.
   assignedUserCount: Int # Number of users currently assigned to this role.
   createdBy: CreatedBy # Metadata on who created the role.
   createdAt: String
@@ -59,8 +57,6 @@ type RoleSession {
   defaultPermissions: [RolePermissionSession!]!
   systemDeleteProtection: Boolean!
   systemUpdateProtection: Boolean!
-  systemPermanentDeleteProtection: Boolean!
-  systemPermanentUpdateProtection: Boolean!
   createdBy: CreatedBy
   createdAt: String!
   deletedAt: String!

@@ -12,10 +12,9 @@ import {
   findProductByName,
   findProductBySlug,
   getBrandsByIds,
-  getCategoryById,
+  getCategoryByIds,
   getProductsByIds,
   getShippingClassById,
-  getSubCategoryByIds,
   getTagsByIds,
   getTaxClassById,
   getTaxStatusById,
@@ -89,8 +88,7 @@ export const createProduct = async (
       slug,
       brandIds,
       tagIds,
-      categoryId,
-      subCategoryIds,
+      categoryIds,
       shippingClassId,
       taxStatusId,
       taxClassId,
@@ -145,48 +143,16 @@ export const createProduct = async (
       }
     }
 
-    let existingCategory;
+    if (categoryIds) {
+      const categories = await getCategoryByIds(categoryIds);
 
-    if (categoryId) {
-      existingCategory = await getCategoryById(categoryId);
-      if (!existingCategory) {
+      if (categories.length !== categoryIds.length) {
         return {
           statusCode: 404,
           success: false,
-          message: `Category with ID: ${categoryId} not found`,
+          message: "One or more categories not found",
           __typename: "BaseResponse",
         };
-      }
-    }
-
-    if (subCategoryIds && subCategoryIds.length > 0) {
-      const subCategories = await getSubCategoryByIds(subCategoryIds);
-      if (subCategories.length !== subCategoryIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "One or more subcategories not found",
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Check if all sub-categories belong to the given category
-      if (categoryId) {
-        if (existingCategory) {
-          const categorySubCategoryIds = existingCategory.subCategories.map(
-            (sc) => sc.id
-          );
-          for (const subCategoryId of subCategoryIds) {
-            if (!categorySubCategoryIds.includes(subCategoryId)) {
-              return {
-                statusCode: 400,
-                success: false,
-                message: `Sub-category with ID ${subCategoryId} does not belong to category with ID ${categoryId}`,
-                __typename: "BaseResponse",
-              };
-            }
-          }
-        }
       }
     }
 
