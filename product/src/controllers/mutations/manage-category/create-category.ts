@@ -3,7 +3,6 @@ import { Context } from "../../../context";
 import { Category as CategoryEntity } from "../../../entities";
 import {
   Category as CategoryGql,
-  CreateCategoryResponseOrError,
   MutationCreateCategoryArgs,
 } from "../../../types"; // Your GraphQL types
 import { createCategorySchema } from "../../../utils/data-validation";
@@ -78,7 +77,7 @@ export const createCategory = async (
   _: any,
   args: MutationCreateCategoryArgs,
   { user }: Context
-): Promise<CreateCategoryResponseOrError> => {
+): Promise<any> => {
   try {
     // Verify user authentication
     const authResponse = checkUserAuth(user);
@@ -180,7 +179,7 @@ export const createCategory = async (
       message: parentCategoryId
         ? "Subcategory created successfully"
         : "Category created successfully",
-      category: categoryResponse!,
+      category: categoryResponse,
       __typename: "CategoryResponse",
     };
   } catch (error: any) {

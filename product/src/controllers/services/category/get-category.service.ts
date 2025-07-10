@@ -177,6 +177,52 @@ async function fetchNestedCategories(
 }
 
 /**
+ * Recursively filters and prunes categories that don’t match the search term.
+ */
+function filterCategoryTreeBySearch(
+  cat: Category,
+  searchTerm: string
+): Category | null {
+  const term = searchTerm.toLowerCase();
+
+  const matches = [cat.name, cat.description, cat.slug]
+    .filter(Boolean)
+    .some((field) => field.toLowerCase().includes(term));
+
+  const filteredSubCategories = (cat.subCategories || [])
+    .map((sub) => filterCategoryTreeBySearch(sub, searchTerm))
+    .filter((sub): sub is Category => sub !== null);
+
+  if (matches || filteredSubCategories.length > 0) {
+    return {
+      ...cat,
+      subCategories: filteredSubCategories,
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Recursively checks if a category or any of its subcategories match the search term.
+ *
+ * @param cat - Category to check.
+ * @param searchTerm - Term to search for.
+ * @returns boolean
+ */
+function categoryMatchesSearch(cat: Category, searchTerm: string): boolean {
+  const term = searchTerm.toLowerCase();
+  const fields = [cat.name, cat.description, cat.slug].filter(Boolean);
+
+  const match = fields.some((f) => f.toLowerCase().includes(term));
+  if (match) return true;
+
+  return (cat.subCategories || []).some((sub) =>
+    categoryMatchesSearch(sub, searchTerm)
+  );
+}
+
+/**
  * Handles pagination of categories including their nested subcategories.
  *
  * @param page - The current page number (1-based index).
@@ -201,7 +247,6 @@ export const paginateCategories = async ({
 }) => {
   const skip = (page - 1) * limit;
 
-  // Allowed sorting fields to prevent SQL injection
   const allowedSortFields = ["name", "createdAt", "position"] as const;
   const safeSortBy = allowedSortFields.includes(sortBy as any)
     ? (sortBy as (typeof allowedSortFields)[number])
@@ -210,7 +255,6 @@ export const paginateCategories = async ({
   const safeSortOrder =
     sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "asc";
 
-  // Build base query: only root categories (parentCategory IS NULL) and non-deleted
   const query = categoryRepository
     .createQueryBuilder("category")
     .leftJoinAndSelect(
@@ -219,25 +263,7 @@ export const paginateCategories = async ({
       "subCategory.deletedAt IS NULL"
     )
     .where("category.deletedAt IS NULL")
-    .andWhere("category.parentCategory IS NULL");
-
-  // Apply optional search on name/description/slug of both categories and subcategories
-  if (search && search.trim() !== "") {
-    const searchTerm = `%${search.trim()}%`;
-    query.andWhere(
-      new Brackets((qb) => {
-        qb.where("category.name ILIKE :searchTerm", { searchTerm })
-          .orWhere("category.description ILIKE :searchTerm", { searchTerm })
-          .orWhere("category.slug ILIKE :searchTerm", { searchTerm })
-          .orWhere("subCategory.name ILIKE :searchTerm", { searchTerm })
-          .orWhere("subCategory.description ILIKE :searchTerm", { searchTerm })
-          .orWhere("subCategory.slug ILIKE :searchTerm", { searchTerm });
-      })
-    );
-  }
-
-  // Apply sorting and pagination
-  query
+    .andWhere("category.parentCategory IS NULL")
     .orderBy(
       `category.${safeSortBy}`,
       safeSortOrder.toUpperCase() as "ASC" | "DESC"
@@ -245,15 +271,22 @@ export const paginateCategories = async ({
     .skip(skip)
     .take(limit);
 
-  const [categories, total] = await query.getManyAndCount();
+  const [categories, _total] = await query.getManyAndCount();
 
-  // Recursively fetch nested subcategories for each category
   for (const category of categories) {
     category.subCategories = await fetchNestedCategories(category.id);
     category.createdAt = new Date(category.createdAt).toISOString() as any;
   }
 
-  return { categories, total };
+  let filteredCategories = categories;
+
+  if (search?.trim()) {
+    filteredCategories = categories
+      .map((cat) => filterCategoryTreeBySearch(cat, search))
+      .filter((cat): cat is Category => cat !== null);
+  }
+
+  return { categories: filteredCategories, total: filteredCategories.length };
 };
 
 /**
