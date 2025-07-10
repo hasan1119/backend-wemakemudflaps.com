@@ -70,6 +70,7 @@ type BaseResponse @shareable {
 type UserRoleObject {
   id: ID!
   name: String!
+  defaultPermissions: [RolePermissionSession!]!
 }
 
 # Minimal user information stored with entities to track who created them.

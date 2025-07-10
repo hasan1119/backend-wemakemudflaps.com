@@ -278,7 +278,7 @@ export const register = async (
         const permissionAgainstRole: PermissionAgainstRoleInput[] =
           PERMISSIONS.map((name: string) => {
             let canCreate = false;
-            let canRead = true;
+            let canRead = false;
             let canUpdate = false;
             let canDelete = false;
 
@@ -287,28 +287,7 @@ export const register = async (
                 canCreate = true;
                 canRead = true;
                 canDelete = true;
-                break;
-              case "Product Review":
-                canCreate = true;
-                canRead = true;
                 canUpdate = true;
-                canDelete = true;
-                break;
-              case "Notification":
-                canCreate = false;
-                canRead = true;
-                canUpdate = true;
-                canDelete = true;
-                break;
-              case "Coupon":
-                canRead = true;
-                break;
-              case "Permission":
-              case "News Letter":
-              case "User":
-              case "Role":
-              case "Media":
-                canRead = false;
                 break;
               default:
                 break;

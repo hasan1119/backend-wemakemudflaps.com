@@ -31,7 +31,7 @@ export class Role {
     eager: true,
     onDelete: "CASCADE",
   })
-  defaultPermissions: RolePermission[] | null;
+  defaultPermissions?: RolePermission[] | null;
 
   // Stores the user role's system delete protection flag (e.g if true then can't be delete - only can bypass Super Admin)
   @Column({ default: false })

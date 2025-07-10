@@ -16,8 +16,7 @@ type Mutation {
     defaultMainDescription: String!
     defaultShortDescription: String
     defaultTags: [String!]
-    categoryId: ID!
-    subCategoryIds: [ID!]
+    categoryIds: [ID!]
     warrantyDigit: Int
     defaultWarrantyPeriod: DefaultWarrantyPeriod
     warrantyPolicy: String
@@ -78,8 +77,7 @@ type Mutation {
     defaultMainDescription: String
     defaultShortDescription: String
     defaultTags: [String!]
-    categoryId: ID
-    subCategoryIds: [ID!]
+    categoryIds: [ID!]
     warrantyDigit: Int
     defaultWarrantyPeriod: DefaultWarrantyPeriod
     warrantyPolicy: String

@@ -127,7 +127,7 @@ type User @key(fields: "id") {
   phone: String
   roles: [UserRoleObject!]!
   isAccountActivated: Boolean
-  permissions: [Permissions!]!
+  permissions: [PermissionSession!]!
   canUpdatePermissions: Boolean
   canUpdateRole: Boolean
   createdAt: String

@@ -17,7 +17,7 @@ export const mapPermissions = async (
 ): Promise<RolePermissionSession[] | PermissionSession[]> => {
   if (!permissions || permissions.length === 0) return [];
 
-  const formattedPermissions = permissions.map((permission) => {
+  const formattedPermissions = permissions?.map((permission) => {
     return {
       id: permission.id,
       name: permission.name as PermissionName,
