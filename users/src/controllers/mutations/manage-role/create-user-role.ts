@@ -4,20 +4,24 @@ import { RolePermission } from "../../../entities";
 import {
   clearAllRoleSearchCache,
   getRoleNameExistFromRedis,
+  getUserInfoByUserIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
+  setUserInfoByUserIdInRedis,
 } from "../../../helper/redis";
 import {
   CreateRoleResponseOrError,
   MutationCreateUserRoleArgs,
 } from "../../../types";
 import { PERMISSIONS, userRoleSchema } from "../../../utils/data-validation";
+import { mapUserToResponseById } from "../../../utils/mapper";
 import {
   checkUserAuth,
   checkUserPermission,
   createRole,
   findRoleByName,
+  getUserById,
 } from "../../services";
 
 /**
@@ -47,6 +51,32 @@ export const createUserRole = async (
     // Verify user authentication
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
+
+    // Attempt to retrieve cached user data from Redis
+    let userData;
+
+    userData = await getUserInfoByUserIdFromRedis(user.id);
+
+    // Check if user exists
+    if (!userData) {
+      // On cache miss, fetch user data from database
+      userData = await getUserById(user.id);
+
+      if (!userData) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "User not found",
+          __typename: "BaseResponse",
+        };
+      }
+
+      // Map user data to response format
+      userData = await mapUserToResponseById(userData);
+
+      // Cache user data in Redis
+      await setUserInfoByUserIdInRedis(userData.id, userData);
+    }
 
     // Check if user has permission to create a role
     const canCreate = await checkUserPermission({
@@ -189,9 +219,9 @@ export const createUserRole = async (
         systemUpdateProtection: role.systemUpdateProtection,
         assignedUserCount: 0,
         createdBy: {
-          id: user.id,
-          name: user.firstName + " " + user.lastName,
-          roles: user.roles,
+          id: userData.id,
+          name: userData.firstName + " " + userData.lastName,
+          roles: userData.roles,
         },
         createdAt: role.createdAt?.toISOString(),
         deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,

@@ -50,7 +50,7 @@ type UserSession @shareable {
   lastName: String!
   email: String!
   gender: String!
-  roles: [UserRoleObject!]!
+  roles: [UserSessionRoleObject!]!
   emailVerified: Boolean!
   isAccountActivated: Boolean!
   sessionId: String! # Unique session identifier.

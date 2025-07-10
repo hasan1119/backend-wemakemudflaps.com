@@ -2150,7 +2150,7 @@ export type UserSession = {
   id: Scalars['ID']['output'];
   isAccountActivated: Scalars['Boolean']['output'];
   lastName: Scalars['String']['output'];
-  roles: Array<UserRoleObject>;
+  roles: Array<UserSessionRoleObject>;
   sessionId: Scalars['String']['output'];
 };
 
@@ -2205,6 +2205,12 @@ export type UserSessionById = {
   tempUpdatedEmail: Scalars['String']['output'];
   username: Scalars['String']['output'];
   website: Scalars['String']['output'];
+};
+
+export type UserSessionRoleObject = {
+  __typename?: 'UserSessionRoleObject';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type UsersResponse = {
@@ -2589,6 +2595,7 @@ export type ResolversTypes = {
   UserSession: ResolverTypeWrapper<UserSession>;
   UserSessionByEmail: ResolverTypeWrapper<UserSessionByEmail>;
   UserSessionById: ResolverTypeWrapper<UserSessionById>;
+  UserSessionRoleObject: ResolverTypeWrapper<UserSessionRoleObject>;
   UsersResponse: ResolverTypeWrapper<UsersResponse>;
   WeightUnit: WeightUnit;
   productConfigurationType: ProductConfigurationType;
@@ -2780,6 +2787,7 @@ export type ResolversParentTypes = {
   UserSession: UserSession;
   UserSessionByEmail: UserSessionByEmail;
   UserSessionById: UserSessionById;
+  UserSessionRoleObject: UserSessionRoleObject;
   UsersResponse: UsersResponse;
   restoreCategoryType: RestoreCategoryType;
 };
@@ -4063,7 +4071,7 @@ export type UserSessionResolvers<ContextType = Context, ParentType extends Resol
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isAccountActivated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  roles?: Resolver<Array<ResolversTypes['UserRoleObject']>, ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['UserSessionRoleObject']>, ParentType, ContextType>;
   sessionId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -4118,6 +4126,12 @@ export type UserSessionByIdResolvers<ContextType = Context, ParentType extends R
   tempUpdatedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserSessionRoleObjectResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserSessionRoleObject'] = ResolversParentTypes['UserSessionRoleObject']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4292,6 +4306,7 @@ export type Resolvers<ContextType = Context> = {
   UserSession?: UserSessionResolvers<ContextType>;
   UserSessionByEmail?: UserSessionByEmailResolvers<ContextType>;
   UserSessionById?: UserSessionByIdResolvers<ContextType>;
+  UserSessionRoleObject?: UserSessionRoleObjectResolvers<ContextType>;
   UsersResponse?: UsersResponseResolvers<ContextType>;
 };
 

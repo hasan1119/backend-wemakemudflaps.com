@@ -262,6 +262,12 @@ export const updateUserRoleInfo = async (
       clearAllRoleSearchCache(),
     ]);
 
+    // Await createdBy before building the response object
+    const createdByUser =
+      updatedRole.createdBy instanceof Promise
+        ? await updatedRole.createdBy
+        : updatedRole.createdBy;
+
     return {
       statusCode: 200,
       success: true,
@@ -275,11 +281,26 @@ export const updateUserRoleInfo = async (
         systemDeleteProtection: updatedRole.systemDeleteProtection,
         systemUpdateProtection: updatedRole.systemUpdateProtection,
         assignedUserCount: 0,
-        createdBy: {
-          id: user.id,
-          name: user.firstName + " " + user.lastName,
-          roles: user.roles,
-        },
+        createdBy: createdByUser
+          ? {
+              id: createdByUser.id,
+              name: `${createdByUser.firstName} ${createdByUser.lastName}`,
+              roles: createdByUser.roles.map((role) => ({
+                id: role.id,
+                name: role.name.toUpperCase(),
+                defaultPermissions:
+                  role.defaultPermissions?.map((permission) => ({
+                    id: permission.id,
+                    name: permission.name,
+                    description: permission.description,
+                    canCreate: permission.canCreate,
+                    canRead: permission.canRead,
+                    canUpdate: permission.canUpdate,
+                    canDelete: permission.canDelete,
+                  })) ?? [],
+              })),
+            }
+          : null,
         createdAt:
           typeof updatedRole.createdAt === "string"
             ? updatedRole.createdAt
