@@ -1,14 +1,19 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getAllAddressBooksFromRedis,
+  getAllAddressBookByUserIdFromRedis,
   setAllAddressBookByUserIdInRedis,
 } from "../../../helper/redis";
 import {
   GetAddressesBookResponseOrError,
-  QueryGetAllMyAddressEntiresArgs,
+  QueryGetAddressEntiresArgs,
 } from "../../../types";
-import { checkUserAuth, getAddressBooks } from "../../services";
+import { getAddressBookSchema } from "../../../utils/data-validation";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  getAddressBooks,
+} from "../../services";
 
 /**
  * Handles fetching all address book entries of a specific type for an authenticated user.
@@ -25,9 +30,9 @@ import { checkUserAuth, getAddressBooks } from "../../services";
  * @param context - Contains authenticated user data.
  * @returns A response with address book list or error.
  */
-export const getAllMyAddressEntires = async (
+export const getAddressEntires = async (
   _: any,
-  args: QueryGetAllMyAddressEntiresArgs,
+  args: QueryGetAddressEntiresArgs,
   { user }: Context
 ): Promise<GetAddressesBookResponseOrError> => {
   try {
@@ -35,10 +40,50 @@ export const getAllMyAddressEntires = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
+    // Validate input addressBook ID with Zod schema
+    const validationResult = await getAddressBookSchema.safeParseAsync(args);
+
+    if (!validationResult.success) {
+      const errorMessages = validationResult.error.errors.map((error) => ({
+        field: error.path.join("."),
+        message: error.message,
+      }));
+
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Validation failed",
+        errors: errorMessages,
+        __typename: "ErrorResponse",
+      };
+    }
+
+    // Check permission if the user is fetching on behalf of someone else
+    if (args.userId !== user.id) {
+      const hasPermission = await checkUserPermission({
+        user,
+        action: "canRead",
+        entity: "address book",
+      });
+
+      if (!hasPermission) {
+        return {
+          statusCode: 403,
+          success: false,
+          message:
+            "You do not have permission to read address book for another user",
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
     const { type } = args;
 
     // Attempt to retrieve cached addressBook data from Redis
-    let addressBookList = await getAllAddressBooksFromRedis(user.id);
+    let addressBookList = await getAllAddressBookByUserIdFromRedis(
+      type,
+      user.id
+    );
 
     // On cache miss, fetch addressBook data from database
     if (!addressBookList) {

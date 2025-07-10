@@ -50,11 +50,12 @@ export const setAddressBookInfoByIdInRedis = async (
  * @param userId - The user's ID.
  * @returns Array of AddressBook or null.
  */
-export const getAllAddressBooksFromRedis = async (
+export const getAllAddressBookByUserIdFromRedis = async (
+  type: string,
   userId: string
 ): Promise<AddressBook[] | null> => {
   return redis.getSession<AddressBook[] | null>(
-    `${PREFIX.ADDRESS_BOOK}user:${userId}`,
+    `${PREFIX.ADDRESS_BOOK}type:${type}user:${userId}`,
     "user-app"
   );
 };

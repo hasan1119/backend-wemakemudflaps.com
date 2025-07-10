@@ -99,7 +99,7 @@ export { updateAddressBookEntry } from "./mutations/manage-address-book/update-a
  * 1. Provides queries for fetching all address/single one by from address book assigned to a user.
  */
 export { getAddressBookEntryById } from "./queries/address-book/get-address-book-by-id";
-export { getAllMyAddressEntires } from "./queries/address-book/get-all-my-address-entires";
+export { getAddressEntires } from "./queries/address-book/get-all-address-entires-by-user-id";
 
 /**
  * Exports GraphQL mutations for managing tax exemption entries.

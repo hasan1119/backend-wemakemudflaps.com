@@ -719,6 +719,7 @@ export type MutationCreateUserRoleArgs = {
 
 export type MutationDeleteAddressBookEntryArgs = {
   ids: Array<Scalars['ID']['input']>;
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -1435,10 +1436,10 @@ export type ProductVariationInput = {
 export type Query = {
   __typename?: 'Query';
   getAddressBookEntryById: GetAddressBookByIdResponseOrError;
+  getAddressEntires: GetAddressesBookResponseOrError;
   getAllBrands: GetBrandsResponseOrError;
   getAllCategories: Scalars['JSON']['output'];
   getAllMedias: GetMediasResponseOrError;
-  getAllMyAddressEntires: GetAddressesBookResponseOrError;
   getAllPermissionsByUserId: GetPermissionsResponseOrError;
   getAllProducts: GetProductsResponseOrError;
   getAllRoles: GetRolesResponseOrError;
@@ -1467,6 +1468,13 @@ export type Query = {
 
 export type QueryGetAddressBookEntryByIdArgs = {
   id: Scalars['String']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAddressEntiresArgs = {
+  type: AddressType;
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -1494,11 +1502,6 @@ export type QueryGetAllMediasArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   sortOrder?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryGetAllMyAddressEntiresArgs = {
-  type?: InputMaybe<AddressType>;
 };
 
 
@@ -3132,7 +3135,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createTaxExemptionEntry?: Resolver<ResolversTypes['CreateTaxExemptionResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxExemptionEntryArgs, 'assumptionReason' | 'expiryDate' | 'taxCertificate' | 'taxNumber' | 'userId'>>;
   createTaxStatus?: Resolver<ResolversTypes['CreateTaxStatusResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxStatusArgs, 'value'>>;
   createUserRole?: Resolver<ResolversTypes['CreateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
-  deleteAddressBookEntry?: Resolver<ResolversTypes['DeleteAddressesBookResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteAddressBookEntryArgs, 'ids'>>;
+  deleteAddressBookEntry?: Resolver<ResolversTypes['DeleteAddressesBookResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteAddressBookEntryArgs, 'ids' | 'userId'>>;
   deleteBrand?: Resolver<ResolversTypes['DeleteBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteBrandArgs, 'ids' | 'skipTrash'>>;
   deleteCategory?: Resolver<Maybe<ResolversTypes['DeleteCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'ids'>>;
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionIds'>>;
@@ -3427,11 +3430,11 @@ export type ProductVariationAttributeValueResolvers<ContextType = Context, Paren
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getAddressBookEntryById?: Resolver<ResolversTypes['GetAddressBookByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressBookEntryByIdArgs, 'id'>>;
+  getAddressBookEntryById?: Resolver<ResolversTypes['GetAddressBookByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressBookEntryByIdArgs, 'id' | 'userId'>>;
+  getAddressEntires?: Resolver<ResolversTypes['GetAddressesBookResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressEntiresArgs, 'type' | 'userId'>>;
   getAllBrands?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsArgs, 'limit' | 'page'>>;
   getAllCategories?: Resolver<ResolversTypes['JSON'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
-  getAllMyAddressEntires?: Resolver<ResolversTypes['GetAddressesBookResponseOrError'], ParentType, ContextType, Partial<QueryGetAllMyAddressEntiresArgs>>;
   getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
   getAllProducts?: Resolver<ResolversTypes['GetProductsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllProductsArgs, 'limit' | 'page'>>;
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;

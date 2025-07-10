@@ -21,7 +21,7 @@ export {
  */
 export {
   getAddressBookInfoByIdFromRedis,
-  getAllAddressBooksFromRedis,
+  getAllAddressBookByUserIdFromRedis,
   removeAddressBookInfoByIdFromRedis,
   removeAllAddressBookByUserIdFromRedis,
   setAddressBookInfoByIdInRedis,

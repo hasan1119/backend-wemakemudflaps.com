@@ -1,3 +1,4 @@
+import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
@@ -11,6 +12,7 @@ import {
 import { idSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
+  checkUserPermission,
   getAddressBookById as getAddressBookByIdService,
 } from "../../services";
 
@@ -39,8 +41,16 @@ export const getAddressBookEntryById = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
+    // Combined schema for id and userId
+    const getAddressBookByIdSchema = z.object({
+      id: idSchema,
+      userId: idSchema,
+    });
+
     // Validate input addressBook ID with Zod schema
-    const validationResult = await idSchema.safeParseAsync(args);
+    const validationResult = await getAddressBookByIdSchema.safeParseAsync(
+      args
+    );
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
@@ -55,6 +65,25 @@ export const getAddressBookEntryById = async (
         errors: errorMessages,
         __typename: "ErrorResponse",
       };
+    }
+
+    // Check permission if the user is fetching on behalf of someone else
+    if (args.userId !== user.id) {
+      const hasPermission = await checkUserPermission({
+        user,
+        action: "canRead",
+        entity: "address book",
+      });
+
+      if (!hasPermission) {
+        return {
+          statusCode: 403,
+          success: false,
+          message:
+            "You do not have permission to read address book for another user",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     const { id } = args;

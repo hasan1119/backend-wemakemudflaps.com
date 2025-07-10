@@ -1,6 +1,6 @@
 import {
   getAddressBookEntryById,
-  getAllMyAddressEntires,
+  getAddressEntires,
   getAllPermissionsByUserId,
   getAllRoles,
   getAllUsers,
@@ -71,7 +71,7 @@ export const userQueriesResolver = {
     /**
      * Retrieves all address book information to a user by their ID.
      */
-    getAllMyAddressEntires,
+    getAddressEntires,
 
     /**
      * Retrieves tax exemption information to a user by their ID.

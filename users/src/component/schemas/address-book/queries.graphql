@@ -4,12 +4,16 @@ type Query {
   # Only accessible by authorized users.
   # Retrieves a specific address book entry using its unique ID.
   # Returns a `GetAddressBookByIdResponseOrError` containing address book data and request status.
-  getAddressBookEntryById(id: String!): GetAddressBookByIdResponseOrError!
+  getAddressBookEntryById(
+    id: String! # Unique ID of the address book entry to get.
+    userId: ID! # The user id of the user.
+  ): GetAddressBookByIdResponseOrError!
 
   # Fetch all addresses for the authenticated user.
   # Retrieves all address book entries belonging to the authenticated user.
   # Returns a `GetAddressesBookResponseOrError` containing address data and request status.
-  getAllMyAddressEntires(
-    type: AddressType # Address type (SHIPPING or BILLING)
+  getAddressEntires(
+    type: AddressType! # Address type (SHIPPING or BILLING)
+    userId: ID! # The user id of the user.
   ): GetAddressesBookResponseOrError!
 }

@@ -5,7 +5,11 @@ import {
   MutationDeleteAddressBookEntryArgs,
 } from "../../../types";
 import { idsSchema } from "../../../utils/data-validation";
-import { checkUserAuth, hardDeleteAddressBook } from "../../services";
+import {
+  checkUserAuth,
+  checkUserPermission,
+  hardDeleteAddressBook,
+} from "../../services";
 
 /**
  * Handles the deletion of an address book entry for a user.
@@ -29,7 +33,7 @@ export const deleteAddressBookEntry = async (
     if (authError) return authError;
 
     // Validate input brand ID with Zod schema
-    const validationResult = await idsSchema.safeParseAsync(args);
+    const validationResult = await idsSchema.safeParseAsync(args.ids);
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
@@ -44,6 +48,25 @@ export const deleteAddressBookEntry = async (
         errors: errorMessages,
         __typename: "ErrorResponse",
       };
+    }
+
+    // Check permission if the user is updating on behalf of someone else
+    if (args.userId !== user.id) {
+      const hasPermission = await checkUserPermission({
+        user,
+        action: "canDelete",
+        entity: "address book",
+      });
+
+      if (!hasPermission) {
+        return {
+          statusCode: 403,
+          success: false,
+          message:
+            "You do not have permission to delete address book for another user",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     const { ids } = args;
