@@ -128,8 +128,7 @@ export const createUserRole = async (
         incomingPermissionsMap.set(perm.name, {
           name: perm.name,
           description:
-            perm.description ??
-            `${perm.name.toLowerCase()} permission for ${name}`,
+            perm.description ?? `${perm.name} permission for ${name}`,
           canCreate: perm.canCreate ?? false,
           canRead: perm.canRead ?? false,
           canUpdate: perm.canUpdate ?? false,
@@ -148,7 +147,7 @@ export const createUserRole = async (
         // Provide default values for all required RolePermission fields
         return {
           name: permName,
-          description: `${permName.toLowerCase()} permission for ${name}`,
+          description: `${permName} permission for ${name}`,
           canCreate: false,
           canRead: false,
           canUpdate: false,
