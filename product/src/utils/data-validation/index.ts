@@ -8,7 +8,6 @@ export {
   categorySortingSchema,
   createCategorySchema,
   deleteCategorySchema,
-  restoreCategorySchema,
   updateCategoryPositionSchema,
   updateCategorySchema,
 } from "./category/category";

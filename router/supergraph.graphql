@@ -862,7 +862,7 @@ type Mutation
   deleteTag(ids: [ID]!, skipTrash: Boolean!): DeleteTagResponseOrError! @join__field(graph: PRODUCT)
   restoreTags(ids: [ID!]!): RestoreTagResponseOrError! @join__field(graph: PRODUCT)
   createCategory(thumbnail: String, name: String!, slug: String!, description: String, parentCategoryId: ID): JSON! @join__field(graph: PRODUCT)
-  updateCategory(id: ID!, thumbnail: String, slug: String, name: String, description: String, parentCategoryId: ID): JSON! @join__field(graph: PRODUCT)
+  updateCategory(id: ID!, thumbnail: String, slug: String, name: String, description: String): JSON! @join__field(graph: PRODUCT)
   updateCategoryPosition(id: ID!, position: Int!): JSON! @join__field(graph: PRODUCT)
   deleteCategory(id: ID!, skipTrash: Boolean): DeleteCategoryResponseOrError @join__field(graph: PRODUCT)
   restoreCategory(ids: [ID!]!): RestoreCategoryResponseOrError @join__field(graph: PRODUCT)

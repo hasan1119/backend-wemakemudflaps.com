@@ -41,7 +41,7 @@ export const updatePosition = async (
   await categoryRepository.manager.transaction(async (manager) => {
     const repo = manager.getRepository(Category);
 
-    // Fetch current item with position and parentCategoryId
+    // Fetch current item with position and parentCategoryId if needed
     const item = await repo.findOne({
       where: { id },
       select: ["id", "position", "parentCategory"],
@@ -50,7 +50,8 @@ export const updatePosition = async (
     if (!item) throw new Error(`Category with id ${id} not found`);
 
     const currentPosition = item.position;
-    const parentCategoryId = item.parentCategory?.id ?? null;
+    const parentCategoryId =
+      options?.parentCategoryId ?? item.parentCategory?.id ?? null;
 
     if (newPosition === currentPosition) return; // no update needed
 

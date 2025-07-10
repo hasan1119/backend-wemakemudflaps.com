@@ -17,7 +17,6 @@ type Mutation {
     slug: String # Optional updated slug.
     name: String # Optional updated name.
     description: String # Optional updated description.
-    parentCategoryId: ID # Optional change parent category.
   ): JSON!
 
   # Update display order/position of a category.

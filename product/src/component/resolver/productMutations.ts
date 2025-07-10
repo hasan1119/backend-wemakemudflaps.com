@@ -128,6 +128,7 @@ export const productMutationsResolver = {
      * Creates a new tax class.
      */
     createTaxClass,
+
     /**
      * Updates detailed information for a specific tax class .
      */

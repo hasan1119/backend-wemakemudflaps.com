@@ -57,8 +57,8 @@ export const createCategorySchema = z.object({
  * @property thumbnail - Optional UUID for the category's thumbnail image.
  * @property name - Optional category name (minimum 3 characters).
  * @property slug - Optional category slug (minimum 3 characters).
+ * @property thumbnail  - Optional category thumbnail.
  * @property description - Optional category description (minimum 3 characters).
- * @property parentCategoryId - Optional parent category ID (UUID format).
  */
 export const updateCategorySchema = z
   .object({
@@ -86,11 +86,6 @@ export const updateCategorySchema = z
       .trim()
       .nullable()
       .optional(),
-    parentCategoryId: z
-      .string()
-      .uuid({ message: "Invalid UUID format" })
-      .nullable()
-      .optional(),
   })
   .refine(
     (data) =>
@@ -113,7 +108,6 @@ export const updateCategorySchema = z
  *
  * @property id - Unique identifier of the category (UUID format).
  * @property position - Position value (non-negative integer).
- * @property categoryType - Category type (category or subCategory).
  */
 export const updateCategoryPositionSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
@@ -124,12 +118,6 @@ export const updateCategoryPositionSchema = z.object({
     })
     .int("Position must be an integer")
     .nonnegative("Position must be 0 or a positive integer"),
-  categoryType: z.preprocess((val) => {
-    if (typeof val === "string" && categoryMap[val]) {
-      return categoryMap[val];
-    }
-    return val;
-  }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
 });
 
 /**
@@ -137,53 +125,17 @@ export const updateCategoryPositionSchema = z.object({
  *
  * Workflow:
  * 1. Validates id as a UUID.
- * 2. Validates categoryType as either 'category' or 'subCategory'.
- * 3. Ensures skipTrash is an optional boolean with a default of false.
- * 4. Validates optional categoryId and parentSubCategoryId as UUIDs if provided.
+ * 2. Ensures skipTrash is an optional boolean with a default of false.
  *
  * @property id - Unique identifier of the category (UUID format).
- * @property categoryType - Category type (category or subCategory).
  * @property skipTrash - Optional flag to skip trash (defaults to false).
- * @property categoryId - Optional parent category ID (UUID format) for subcategory position update.
- * @property parentSubCategoryId - Optional parent subcategory ID (UUID format) for nested subcategory.
  */
 export const deleteCategorySchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }),
-  categoryType: z.preprocess((val) => {
-    if (typeof val === "string" && categoryMap[val]) {
-      return categoryMap[val];
-    }
-    return val;
-  }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
+  ids: z
+    .array(z.string().uuid({ message: "Invalid UUID format" }))
+    .min(1, { message: "At least one UUID is required" }),
   skipTrash: z.boolean().optional().default(false),
-  categoryId: z.string().uuid({ message: "Invalid UUID format" }).optional(), // needed for subcategory position update
-  parentSubCategoryId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional(), // needed for nested subcategory
 });
-
-/**
- * Defines the schema for validating category restoration input.
- *
- * Workflow:
- * 1. Validates ids as an array of UUIDs with at least one entry.
- * 2. Validates categoryType as either 'category' or 'subCategory'.
- *
- * @property ids - Array of category IDs (UUID format, minimum 1).
- * @property categoryType - Category type (category or subCategory).
- */
-export const restoreCategorySchema = z.array(
-  z.object({
-    id: z.string().uuid({ message: "Invalid UUID format" }),
-    categoryType: z.preprocess((val) => {
-      if (typeof val === "string" && categoryMap[val]) {
-        return categoryMap[val];
-      }
-      return val;
-    }, z.enum([...new Set(Object.values(categoryMap))] as [string, ...string[]])),
-  })
-);
 
 /**
  * Defines the schema for validating category sorting parameters.
