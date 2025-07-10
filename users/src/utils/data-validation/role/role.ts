@@ -50,8 +50,6 @@ export const roleNameSchema = z
  * @property defaultPermissions - Optional array of default permissions.
  * @property systemDeleteProtection - Optional flag for delete protection.
  * @property systemUpdateProtection - Optional flag for update protection.
- * @property systemPermanentDeleteProtection - Optional flag for permanent delete protection.
- * @property systemPermanentUpdateProtection - Optional flag for permanent update protection.
  * @property password - Optional password for the role.
  */
 export const userRoleSchema = z
@@ -76,36 +74,8 @@ export const userRoleSchema = z
     defaultPermissions: z.array(rolePermissionSchema).optional(),
     systemDeleteProtection: z.boolean().nullable().optional(),
     systemUpdateProtection: z.boolean().nullable().optional(),
-    systemPermanentDeleteProtection: z.boolean().nullable().optional(),
-    systemPermanentUpdateProtection: z.boolean().nullable().optional(),
     password: z.string().nullable().optional(),
   })
-  .refine(
-    (data) => {
-      if (data.systemPermanentDeleteProtection) {
-        return data.systemDeleteProtection === true;
-      }
-      return true;
-    },
-    {
-      message:
-        "If systemPermanentDeleteProtection is true, systemDeleteProtection must also be true.",
-      path: ["systemDeleteProtection"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.systemPermanentUpdateProtection) {
-        return data.systemUpdateProtection === true;
-      }
-      return true;
-    },
-    {
-      message:
-        "If systemPermanentUpdateProtection is true, systemUpdateProtection must also be true.",
-      path: ["systemUpdateProtection"],
-    }
-  )
   .refine((data) => !hasDuplicatePermissionNames(data.defaultPermissions), {
     message:
       "Duplicate permission names are not allowed in defaultPermissions.",
@@ -130,8 +100,6 @@ export const userRoleSchema = z
  * @property defaultPermissions - Optional array of default permissions.
  * @property systemDeleteProtection - Optional flag for delete protection.
  * @property systemUpdateProtection - Optional flag for update protection.
- * @property systemPermanentDeleteProtection - Optional flag for permanent delete protection.
- * @property systemPermanentUpdateProtection - Optional flag for permanent update protection.
  * @property password - Optional password for the role.
  */
 export const userRoleInfoUpdateSchema = z
@@ -157,36 +125,8 @@ export const userRoleInfoUpdateSchema = z
     defaultPermissions: z.array(rolePermissionSchema).nullable().optional(),
     systemDeleteProtection: z.boolean().nullable().optional(),
     systemUpdateProtection: z.boolean().nullable().optional(),
-    systemPermanentDeleteProtection: z.boolean().nullable().optional(),
-    systemPermanentUpdateProtection: z.boolean().nullable().optional(),
     password: z.string().nullable().optional(),
   })
-  .refine(
-    (data) => {
-      if (data.systemPermanentDeleteProtection) {
-        return data.systemDeleteProtection === true;
-      }
-      return true;
-    },
-    {
-      message:
-        "If systemPermanentDeleteProtection is true, systemDeleteProtection must also be true.",
-      path: ["systemDeleteProtection"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.systemPermanentUpdateProtection) {
-        return data.systemUpdateProtection === true;
-      }
-      return true;
-    },
-    {
-      message:
-        "If systemPermanentUpdateProtection is true, systemUpdateProtection must also be true.",
-      path: ["systemUpdateProtection"],
-    }
-  )
   .refine(
     (data) =>
       Object.keys(data).some(

@@ -29,13 +29,15 @@ export const mapRoleToResponse = async (role: Role): Promise<RoleSession> => {
     )) as RoleSession["defaultPermissions"],
     systemDeleteProtection: role.systemDeleteProtection,
     systemUpdateProtection: role.systemUpdateProtection,
-    systemPermanentDeleteProtection: role.systemPermanentDeleteProtection,
-    systemPermanentUpdateProtection: role.systemPermanentUpdateProtection,
     createdBy: createdBy
       ? {
           id: createdBy.id,
           name: createdBy.firstName + " " + createdBy.lastName,
-          roles: createdBy.roles.map((role) => role.name),
+          roles: createdBy.roles.map((role) => ({
+            id: role.id,
+            name: role.name,
+            defaultPermissions: role.defaultPermissions,
+          })),
         }
       : null,
     createdAt:

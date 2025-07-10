@@ -15,8 +15,6 @@ export interface UpdateRoleInfoInput {
   defaultPermissions?: Array<any>;
   systemDeleteProtection?: boolean;
   systemUpdateProtection?: boolean;
-  systemPermanentDeleteProtection?: boolean;
-  systemPermanentUpdateProtection?: boolean;
 }
 
 /**
@@ -43,8 +41,6 @@ export const updateRoleInfo = async ({
   defaultPermissions = [],
   systemDeleteProtection,
   systemUpdateProtection,
-  systemPermanentDeleteProtection,
-  systemPermanentUpdateProtection,
 }: UpdateRoleInfoInput): Promise<Role> => {
   const roleId = roleData.id;
 
@@ -82,10 +78,6 @@ export const updateRoleInfo = async ({
     systemDeleteProtection ?? roleData.systemDeleteProtection;
   roleData.systemUpdateProtection =
     systemUpdateProtection ?? roleData.systemUpdateProtection;
-  roleData.systemPermanentDeleteProtection =
-    systemPermanentDeleteProtection ?? roleData.systemPermanentDeleteProtection;
-  roleData.systemPermanentUpdateProtection =
-    systemPermanentUpdateProtection ?? roleData.systemPermanentUpdateProtection;
   roleData.createdBy = await getUserById(updatedByUserId);
 
   // Save updated role with relations

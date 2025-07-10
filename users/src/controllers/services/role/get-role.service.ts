@@ -160,6 +160,10 @@ export const paginateRoles = async ({
     .leftJoinAndSelect("role.defaultPermissions", "defaultPermissions")
     .leftJoinAndSelect("role.createdBy", "createdBy")
     .leftJoinAndSelect("createdBy.roles", "creatorRoles")
+    .leftJoinAndSelect(
+      "creatorRoles.defaultPermissions",
+      "creatorRolesDefaultPermissions"
+    )
     .where("role.deletedAt IS NULL"); // Only non-deleted roles
 
   // Apply search filter if provided

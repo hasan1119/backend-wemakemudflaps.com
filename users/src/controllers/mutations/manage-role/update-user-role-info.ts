@@ -108,10 +108,39 @@ export const updateUserRoleInfo = async (
       defaultPermissions,
       systemDeleteProtection,
       systemUpdateProtection,
-      systemPermanentDeleteProtection,
-      systemPermanentUpdateProtection,
       password,
     } = validationResult.data;
+
+    // Attempt to retrieve cached role data from Redis
+    let roleData;
+
+    roleData = await getRoleInfoByRoleIdFromRedis(id);
+
+    if (!roleData) {
+      // On cache miss, fetch role data from database
+      roleData = await getRoleById(id);
+
+      if (!roleData) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: `Role not found with this id: ${id}, or it may have been deleted or moved to the trash.`,
+          __typename: "BaseResponse",
+        };
+      }
+
+      // Cache role data in Redis
+      await setRoleInfoByRoleIdInRedis(roleData.id, roleData);
+    }
+
+    if (["SUPER ADMIN", "CUSTOMER"].includes(roleData.name.toUpperCase())) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: `The role "${roleData.name}" is permanently protected and cannot be updated`,
+        __typename: "BaseResponse",
+      };
+    }
 
     const isNotSuperAdmin = !user.roles
       .map((role) => role.name)
@@ -140,66 +169,6 @@ export const updateUserRoleInfo = async (
       }
     }
 
-    // Attempt to retrieve cached role data from Redis
-    let roleData;
-
-    roleData = await getRoleInfoByRoleIdFromRedis(id);
-
-    if (!roleData) {
-      // On cache miss, fetch role data from database
-      roleData = await getRoleById(id);
-
-      if (!roleData) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `Role not found with this id: ${id}, or it may have been deleted or moved to the trash.`,
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Cache role data in Redis
-      await setRoleInfoByRoleIdInRedis(roleData.id, roleData);
-    }
-
-    // Prevent updates to permanently protected roles
-    if (roleData.systemPermanentUpdateProtection) {
-      return {
-        statusCode: 403,
-        success: false,
-        message: `The role "${roleData.name}" is permanently protected and cannot be updated.`,
-        __typename: "BaseResponse",
-      };
-    }
-
-    // Prevent removal of permanent update protection
-    if (
-      roleData.systemPermanentUpdateProtection !==
-        systemPermanentUpdateProtection &&
-      roleData.systemPermanentUpdateProtection
-    ) {
-      return {
-        statusCode: 403,
-        success: false,
-        message: `You cannot remove 'systemPermanentUpdateProtection' for the role: ${roleData.name}.`,
-        __typename: "BaseResponse",
-      };
-    }
-
-    // Prevent removal of permanent delete protection
-    if (
-      roleData.systemPermanentDeleteProtection !==
-        systemPermanentDeleteProtection &&
-      roleData.systemPermanentDeleteProtection
-    ) {
-      return {
-        statusCode: 403,
-        success: false,
-        message: `You cannot remove 'systemPermanentDeleteProtection' for the role: ${roleData.name}.`,
-        __typename: "BaseResponse",
-      };
-    }
-
     // Restrict system protection flag changes for non-Super Admin users
     if (
       isNotSuperAdmin &&
@@ -209,7 +178,8 @@ export const updateUserRoleInfo = async (
       return {
         statusCode: 403,
         success: false,
-        message: `You cannot modify system protection flags for the role: ${roleData.name}. Only a Super Admin can change them.`,
+        message: `You cannot modify system protection flags for the role: ${roleData.name}. Only a Super Admin can change 
+   these.`,
         __typename: "BaseResponse",
       };
     }
@@ -258,8 +228,6 @@ export const updateUserRoleInfo = async (
       updatedByUserId: userData.id,
       systemDeleteProtection,
       systemUpdateProtection,
-      systemPermanentDeleteProtection,
-      systemPermanentUpdateProtection,
     });
 
     // Retrieve all users associated with the updated role
@@ -306,10 +274,6 @@ export const updateUserRoleInfo = async (
         defaultPermissions: updatedRole.defaultPermissions,
         systemDeleteProtection: updatedRole.systemDeleteProtection,
         systemUpdateProtection: updatedRole.systemUpdateProtection,
-        systemPermanentDeleteProtection:
-          updatedRole.systemPermanentDeleteProtection,
-        systemPermanentUpdateProtection:
-          updatedRole.systemPermanentUpdateProtection,
         assignedUserCount: 0,
         createdBy: {
           id: user.id,

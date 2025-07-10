@@ -9,8 +9,6 @@ type Mutation {
     defaultPermissions: [RolePermissionInput!] # Permissions assigned by default.
     systemDeleteProtection: Boolean # If true, prevents soft delete except by Super Admin.
     systemUpdateProtection: Boolean # If true, prevents update except by Super Admin.
-    systemPermanentDeleteProtection: Boolean # If true, prevents permanent deletion.
-    systemPermanentUpdateProtection: Boolean # If true, prevents permanent update.
   ): CreateRoleResponseOrError!
 
   # Update the roles assigned to a specific user.
@@ -49,8 +47,6 @@ type Mutation {
     defaultPermissions: [RolePermissionInput!] # Updated list of default permissions.
     systemDeleteProtection: Boolean # Update soft delete protection flag.
     systemUpdateProtection: Boolean # Update edit protection flag.
-    systemPermanentDeleteProtection: Boolean # Update permanent delete protection flag.
-    systemPermanentUpdateProtection: Boolean # Update permanent update protection flag.
     password: String # Optional: required for non-super admins.
   ): UpdateRoleResponseOrError!
 

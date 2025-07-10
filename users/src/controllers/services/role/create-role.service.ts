@@ -27,10 +27,6 @@ export const createRole = async (
     defaultPermissions: data.defaultPermissions ?? [],
     systemDeleteProtection: data.systemDeleteProtection ?? false,
     systemUpdateProtection: data.systemUpdateProtection ?? false,
-    systemPermanentDeleteProtection:
-      data.systemPermanentDeleteProtection ?? false,
-    systemPermanentUpdateProtection:
-      data.systemPermanentUpdateProtection ?? false,
   });
 
   // Save role to database

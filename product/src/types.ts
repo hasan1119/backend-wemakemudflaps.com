@@ -742,8 +742,6 @@ export type MutationCreateUserRoleArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   systemDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
-  systemPermanentDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
-  systemPermanentUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
   systemUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -1069,8 +1067,6 @@ export type MutationUpdateUserRoleInfoArgs = {
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
   systemDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
-  systemPermanentDeleteProtection?: InputMaybe<Scalars['Boolean']['input']>;
-  systemPermanentUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
   systemUpdateProtection?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -1693,8 +1689,6 @@ export type Role = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   systemDeleteProtection?: Maybe<Scalars['Boolean']['output']>;
-  systemPermanentDeleteProtection?: Maybe<Scalars['Boolean']['output']>;
-  systemPermanentUpdateProtection?: Maybe<Scalars['Boolean']['output']>;
   systemUpdateProtection?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -1736,8 +1730,6 @@ export type RoleSession = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   systemDeleteProtection: Scalars['Boolean']['output'];
-  systemPermanentDeleteProtection: Scalars['Boolean']['output'];
-  systemPermanentUpdateProtection: Scalars['Boolean']['output'];
   systemUpdateProtection: Scalars['Boolean']['output'];
 };
 
@@ -3650,8 +3642,6 @@ export type RoleResolvers<ContextType = Context, ParentType extends ResolversPar
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   systemDeleteProtection?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  systemPermanentDeleteProtection?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  systemPermanentUpdateProtection?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   systemUpdateProtection?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3684,8 +3674,6 @@ export type RoleSessionResolvers<ContextType = Context, ParentType extends Resol
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   systemDeleteProtection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  systemPermanentDeleteProtection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  systemPermanentUpdateProtection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   systemUpdateProtection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

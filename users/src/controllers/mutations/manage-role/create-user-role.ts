@@ -89,8 +89,6 @@ export const createUserRole = async (
       defaultPermissions,
       systemDeleteProtection,
       systemUpdateProtection,
-      systemPermanentDeleteProtection,
-      systemPermanentUpdateProtection,
     } = validationResult.data;
 
     // Attempt to check for existing role in Redis
@@ -167,8 +165,6 @@ export const createUserRole = async (
         defaultPermissions: completePermissions || [],
         systemDeleteProtection,
         systemUpdateProtection,
-        systemPermanentDeleteProtection,
-        systemPermanentUpdateProtection,
       },
       user.id
     );
@@ -192,8 +188,6 @@ export const createUserRole = async (
         defaultPermissions: role.defaultPermissions,
         systemDeleteProtection: role.systemDeleteProtection,
         systemUpdateProtection: role.systemUpdateProtection,
-        systemPermanentDeleteProtection: role.systemPermanentDeleteProtection,
-        systemPermanentUpdateProtection: role.systemPermanentUpdateProtection,
         assignedUserCount: 0,
         createdBy: {
           id: user.id,

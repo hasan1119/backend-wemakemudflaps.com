@@ -173,8 +173,6 @@ export const register = async (
             defaultPermissions: superAdminPermissions,
             systemDeleteProtection: true,
             systemUpdateProtection: true,
-            systemPermanentDeleteProtection: true,
-            systemPermanentUpdateProtection: true,
           } as Role);
 
           role = savedRole;
@@ -312,8 +310,6 @@ export const register = async (
             defaultPermissions: permissionAgainstRole,
             systemDeleteProtection: true,
             systemUpdateProtection: true,
-            systemPermanentDeleteProtection: true,
-            systemPermanentUpdateProtection: true,
           } as Role);
 
           role = savedRole;

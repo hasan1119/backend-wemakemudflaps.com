@@ -942,11 +942,11 @@ type Mutation
   accountActivation(userId: ID!, email: String!): ActiveAccountResponseOrError! @join__field(graph: USER)
   logout: BaseResponseOrError! @join__field(graph: USER)
   deleteLoginSession(sessionIds: [String]!): BaseResponseOrError! @join__field(graph: USER)
-  createUserRole(name: String!, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, systemPermanentDeleteProtection: Boolean, systemPermanentUpdateProtection: Boolean): CreateRoleResponseOrError! @join__field(graph: USER)
+  createUserRole(name: String!, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean): CreateRoleResponseOrError! @join__field(graph: USER)
   updateUserRole(roleAddIds: [String], roleRemoveIds: [String], userId: String!, password: String): BaseResponseOrError! @join__field(graph: USER)
   deleteUserRole(ids: [ID!]!, skipTrash: Boolean!, password: String): BaseResponseOrError! @join__field(graph: USER)
   restoreUserRole(ids: [ID!]!): BaseResponseOrError! @join__field(graph: USER)
-  updateUserRoleInfo(id: ID!, name: String, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, systemPermanentDeleteProtection: Boolean, systemPermanentUpdateProtection: Boolean, password: String): UpdateRoleResponseOrError! @join__field(graph: USER)
+  updateUserRoleInfo(id: ID!, name: String, description: String, defaultPermissions: [RolePermissionInput!], systemDeleteProtection: Boolean, systemUpdateProtection: Boolean, password: String): UpdateRoleResponseOrError! @join__field(graph: USER)
   updateUserPermission(input: UpdateUserPermissionInput!): BaseResponseOrError! @join__field(graph: USER)
   createAddressBookEntry(userId: ID!, company: String!, streetOne: String!, streetTwo: String!, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
   updateAddressBookEntry(id: ID!, userId: ID!, company: String, streetOne: String, streetTwo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
@@ -1485,8 +1485,6 @@ type Role
   defaultPermissions: [RolePermissionSession!]
   systemDeleteProtection: Boolean
   systemUpdateProtection: Boolean
-  systemPermanentDeleteProtection: Boolean
-  systemPermanentUpdateProtection: Boolean
   assignedUserCount: Int
   createdBy: CreatedBy
   createdAt: String
@@ -1534,8 +1532,6 @@ type RoleSession
   defaultPermissions: [RolePermissionSession!]!
   systemDeleteProtection: Boolean!
   systemUpdateProtection: Boolean!
-  systemPermanentDeleteProtection: Boolean!
-  systemPermanentUpdateProtection: Boolean!
   createdBy: CreatedBy
   createdAt: String!
   deletedAt: String!
