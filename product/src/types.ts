@@ -729,7 +729,7 @@ export type MutationDeleteBrandArgs = {
 
 
 export type MutationDeleteCategoryArgs = {
-  id: Scalars['ID']['input'];
+  ids: Array<Scalars['ID']['input']>;
   skipTrash?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -884,7 +884,6 @@ export type MutationUpdateCategoryArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
-  parentCategoryId?: InputMaybe<Scalars['ID']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
   thumbnail?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3135,7 +3134,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createUserRole?: Resolver<ResolversTypes['CreateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateUserRoleArgs, 'name'>>;
   deleteAddressBookEntry?: Resolver<ResolversTypes['DeleteAddressesBookResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteAddressBookEntryArgs, 'ids'>>;
   deleteBrand?: Resolver<ResolversTypes['DeleteBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteBrandArgs, 'ids' | 'skipTrash'>>;
-  deleteCategory?: Resolver<Maybe<ResolversTypes['DeleteCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
+  deleteCategory?: Resolver<Maybe<ResolversTypes['DeleteCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'ids'>>;
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionIds'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
   deleteProduct?: Resolver<ResolversTypes['DeleteProductResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'ids' | 'skipTrash'>>;

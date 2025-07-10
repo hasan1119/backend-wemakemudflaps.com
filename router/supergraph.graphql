@@ -864,7 +864,7 @@ type Mutation
   createCategory(thumbnail: String, name: String!, slug: String!, description: String, parentCategoryId: ID): JSON! @join__field(graph: PRODUCT)
   updateCategory(id: ID!, thumbnail: String, slug: String, name: String, description: String): JSON! @join__field(graph: PRODUCT)
   updateCategoryPosition(id: ID!, position: Int!): JSON! @join__field(graph: PRODUCT)
-  deleteCategory(id: ID!, skipTrash: Boolean): DeleteCategoryResponseOrError @join__field(graph: PRODUCT)
+  deleteCategory(ids: [ID!]!, skipTrash: Boolean): DeleteCategoryResponseOrError @join__field(graph: PRODUCT)
   restoreCategory(ids: [ID!]!): RestoreCategoryResponseOrError @join__field(graph: PRODUCT)
   createShippingClass(value: String!, description: String): CreateShippingClassResponseOrError! @join__field(graph: PRODUCT)
   updateShippingClass(id: ID!, value: String, description: String): UpdateShippingClassResponseOrError! @join__field(graph: PRODUCT)

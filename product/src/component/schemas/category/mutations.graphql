@@ -29,7 +29,7 @@ type Mutation {
   # Delete a category by ID.
   # Soft delete by default, skipTrash for permanent delete.
   # Only accessible by authorized users.
-  deleteCategory(id: ID!, skipTrash: Boolean): DeleteCategoryResponseOrError
+  deleteCategory(ids: [ID!]!, skipTrash: Boolean): DeleteCategoryResponseOrError
 
   # Restore soft-deleted categories.
   # Only accessible by authorized users.
