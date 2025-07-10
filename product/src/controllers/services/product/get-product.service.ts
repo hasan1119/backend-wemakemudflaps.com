@@ -202,18 +202,26 @@ export const paginateProducts = async ({
     .leftJoinAndSelect("product.taxStatus", "taxStatus")
     .leftJoinAndSelect("product.taxClass", "taxClass")
     .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-
-    .leftJoinAndSelect("variation.brands", "brands")
-    .leftJoinAndSelect("variation.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect("tierPricingInfo.tieredPrices", "tieredPrices")
-
-    .leftJoinAndSelect("variation.product", "product")
-    .leftJoinAndSelect("variation.attributeValues", "attributeValues")
-    .leftJoinAndSelect("attributeValues.attribute", "attribute")
-
-    .leftJoinAndSelect("variation.shippingClass", "shippingClass")
-    .leftJoinAndSelect("variation.taxStatus", "taxStatus")
-    .leftJoinAndSelect("variation.taxClass", "taxClass");
+    .leftJoinAndSelect("variations.brands", "variation_brands")
+    .leftJoinAndSelect(
+      "variations.tierPricingInfo",
+      "variation_tierPricingInfo"
+    )
+    .leftJoinAndSelect(
+      "variation_tierPricingInfo.tieredPrices",
+      "variation_tieredPrices"
+    )
+    .leftJoinAndSelect(
+      "variations.attributeValues",
+      "variation_attributeValues"
+    )
+    .leftJoinAndSelect(
+      "variation_attributeValues.attribute",
+      "variation_attribute"
+    )
+    .leftJoinAndSelect("variations.shippingClass", "variation_shippingClass")
+    .leftJoinAndSelect("variations.taxStatus", "variation_taxStatus")
+    .leftJoinAndSelect("variations.taxClass", "variation_taxClass");
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;
