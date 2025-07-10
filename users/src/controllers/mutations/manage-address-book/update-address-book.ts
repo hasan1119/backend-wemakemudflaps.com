@@ -62,6 +62,7 @@ export const updateAddressBookEntry = async (
       streetTwo,
       type,
       zip,
+      userId,
     } = result.data;
 
     // Check permission if the user is creating on behalf of someone else
@@ -86,11 +87,11 @@ export const updateAddressBookEntry = async (
     // Attempt to retrieve cached addressBook data from Redis
     let addressBookData;
 
-    addressBookData = await getAddressBookInfoByIdFromRedis(id, user.id);
+    addressBookData = await getAddressBookInfoByIdFromRedis(id, userId);
 
     if (!addressBookData) {
       // On cache miss, fetch addressBook data from database
-      addressBookData = await getAddressBookById(id, user.id);
+      addressBookData = await getAddressBookById(id, userId);
 
       if (!addressBookData) {
         return {
@@ -104,7 +105,7 @@ export const updateAddressBookEntry = async (
       // Cache addressBook data in Redis
       await setAddressBookInfoByIdInRedis(
         addressBookData.id,
-        user.id,
+        userId,
         addressBookData
       );
     }
@@ -120,7 +121,7 @@ export const updateAddressBookEntry = async (
       streetTwo,
       type: type as any,
       zip,
-      userId: user.id,
+      userId,
     });
 
     return {

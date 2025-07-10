@@ -84,6 +84,7 @@ export const createAddressBookEntry = async (
       streetTwo,
       type,
       zip,
+      userId,
     } = result.data;
 
     // Ensure type is cast to the correct AddressType from types
@@ -97,7 +98,7 @@ export const createAddressBookEntry = async (
       state,
       type: type as any,
       zip,
-      userId: user.id,
+      userId,
     });
 
     return {

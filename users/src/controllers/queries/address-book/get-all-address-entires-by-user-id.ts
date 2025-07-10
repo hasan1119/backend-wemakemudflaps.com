@@ -77,17 +77,17 @@ export const getAddressEntires = async (
       }
     }
 
-    const { type } = args;
+    const { type, userId } = args;
 
     // Attempt to retrieve cached addressBook data from Redis
     let addressBookList = await getAllAddressBookByUserIdFromRedis(
       type,
-      user.id
+      userId
     );
 
     // On cache miss, fetch addressBook data from database
     if (!addressBookList) {
-      const dbAddresses = await getAddressBooks(user.id, type);
+      const dbAddresses = await getAddressBooks(userId, type);
 
       addressBookList = dbAddresses.map((entry) => ({
         ...entry,
@@ -103,7 +103,7 @@ export const getAddressEntires = async (
       }));
 
       // Cache in Redis
-      await setAllAddressBookByUserIdInRedis(type, user.id, addressBookList);
+      await setAllAddressBookByUserIdInRedis(type, userId, addressBookList);
     }
 
     // Step 5: Return formatted response

@@ -86,14 +86,14 @@ export const getAddressBookEntryById = async (
       }
     }
 
-    const { id } = args;
+    const { id, userId } = args;
 
     // Attempt to retrieve cached addressBook data from Redis
-    let addressBookData = await getAddressBookInfoByIdFromRedis(id, user.id);
+    let addressBookData = await getAddressBookInfoByIdFromRedis(id, userId);
 
     if (!addressBookData) {
       // On cache miss, fetch addressBook data from database
-      const dbAddressBook = await getAddressBookByIdService(id, user.id);
+      const dbAddressBook = await getAddressBookByIdService(id, userId);
 
       if (!dbAddressBook) {
         return {
@@ -117,7 +117,7 @@ export const getAddressBookEntryById = async (
             : dbAddressBook.updatedAt,
       };
       // Cache addressBook data in Redis
-      await setAddressBookInfoByIdInRedis(id, user.id, addressBookData);
+      await setAddressBookInfoByIdInRedis(id, userId, addressBookData);
     }
 
     return {
