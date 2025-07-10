@@ -148,15 +148,16 @@ export const getAllUsers = async (
         roles: user.roles.map((role) => ({
           id: role.id,
           name: role.name.toUpperCase(),
-          defaultPermission: role.defaultPermissions?.map((permission) => ({
-            id: permission.id,
-            name: permission.name as PermissionName,
-            description: permission.description,
-            canCreate: permission.canCreate,
-            canRead: permission.canRead,
-            canUpdate: permission.canUpdate,
-            canDelete: permission.canDelete,
-          })),
+          defaultPermissions:
+            role.defaultPermissions?.map((permission) => ({
+              id: permission.id,
+              name: permission.name as PermissionName,
+              description: permission.description,
+              canCreate: permission.canCreate,
+              canRead: permission.canRead,
+              canUpdate: permission.canUpdate,
+              canDelete: permission.canDelete,
+            })) ?? [],
         })),
         isAccountActivated: user.isAccountActivated,
         permissions: user.permissions?.map((permission) => ({
@@ -221,15 +222,16 @@ export const getAllUsers = async (
       roles: user.roles.map((role) => ({
         id: role.id,
         name: role.name.toUpperCase(),
-        defaultPermission: role.defaultPermissions?.map((permission) => ({
-          id: permission.id,
-          name: permission.name as PermissionName,
-          description: permission.description,
-          canCreate: permission.canCreate,
-          canRead: permission.canRead,
-          canUpdate: permission.canUpdate,
-          canDelete: permission.canDelete,
-        })),
+        defaultPermissions:
+          role.defaultPermissions?.map((permission) => ({
+            id: permission.id,
+            name: permission.name as PermissionName,
+            description: permission.description,
+            canCreate: permission.canCreate,
+            canRead: permission.canRead,
+            canUpdate: permission.canUpdate,
+            canDelete: permission.canDelete,
+          })) ?? [],
       })),
       isAccountActivated: user.isAccountActivated,
       permissions: user.permissions?.map((permission) => ({

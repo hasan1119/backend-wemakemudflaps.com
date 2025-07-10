@@ -74,7 +74,7 @@ export const getUserEmailOnly = async (
 export const getUserByEmail = async (email: string): Promise<User | null> => {
   return await userRepository.findOne({
     where: { email, deletedAt: null },
-    relations: ["roles", "permissions"],
+    relations: ["roles", "roles.defaultPermissions", "permissions"],
   });
 };
 
@@ -92,7 +92,7 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 export const getUserById = async (id: string): Promise<User | null> => {
   return await userRepository.findOne({
     where: { id, deletedAt: null },
-    relations: ["roles", "permissions"],
+    relations: ["roles", "roles.defaultPermissions", "permissions"],
   });
 };
 
@@ -132,7 +132,7 @@ export const CreatedBy = {
     }
 
     return {
-      id: userData.name,
+      id: userData.id,
       name: `${userData.firstName} ${userData.lastName}`,
       roles: userData.roles,
     };
@@ -186,7 +186,7 @@ export const getUserByPasswordResetToken = async (
 ): Promise<User | null> => {
   return await userRepository.findOne({
     where: { resetPasswordToken: token, deletedAt: null },
-    relations: ["roles", "permissions"],
+    relations: ["roles", "roles.defaultPermissions", "permissions"],
   });
 };
 
@@ -226,6 +226,7 @@ export const getPaginatedUsers = async ({
   const query = userRepository
     .createQueryBuilder("user")
     .leftJoinAndSelect("user.roles", "role")
+    .leftJoinAndSelect("role.defaultPermissions", "defaultPermission")
     .leftJoinAndSelect("user.permissions", "permission")
     .where("user.deletedAt IS NULL"); // Filter out soft-deleted users
 

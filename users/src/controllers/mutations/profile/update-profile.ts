@@ -231,6 +231,16 @@ export const updateProfile = async (
       roles: user.roles.map((role) => ({
         id: role.id,
         name: role.name.toUpperCase(),
+        defaultPermissions:
+          role.defaultPermissions?.map((permission) => ({
+            id: permission.id,
+            name: permission.name,
+            description: permission.description,
+            canCreate: permission.canCreate,
+            canRead: permission.canRead,
+            canUpdate: permission.canUpdate,
+            canDelete: permission.canDelete,
+          })) ?? [],
       })),
       emailVerified: updatedUser.emailVerified,
       isAccountActivated: updatedUser.isAccountActivated,
