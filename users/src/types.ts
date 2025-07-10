@@ -1134,7 +1134,7 @@ export type Product = {
   allowBackOrders?: Maybe<Scalars['String']['output']>;
   attributes?: Maybe<Array<Maybe<ProductAttribute>>>;
   brands?: Maybe<Array<Brand>>;
-  categories: Category;
+  categories?: Maybe<Array<Category>>;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy: CreatedBy;
   crossSells?: Maybe<Array<Product>>;
@@ -3219,7 +3219,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   allowBackOrders?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   attributes?: Resolver<Maybe<Array<Maybe<ResolversTypes['ProductAttribute']>>>, ParentType, ContextType>;
   brands?: Resolver<Maybe<Array<ResolversTypes['Brand']>>, ParentType, ContextType>;
-  categories?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  categories?: Resolver<Maybe<Array<ResolversTypes['Category']>>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   crossSells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;

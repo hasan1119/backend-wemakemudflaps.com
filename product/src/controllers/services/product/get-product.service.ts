@@ -89,6 +89,28 @@ export const findProductBySlugToUpdate = async (
 export const getProductById = async (id: string): Promise<Product | null> => {
   return await productRepository.findOne({
     where: { id, deletedAt: null },
+    relations: [
+      "brands",
+      "tags",
+      "categories",
+      "attributes",
+      "variations",
+      "variations.brands",
+      "variations.tierPricingInfo",
+      "variations.tierPricingInfo.tieredPrices",
+      "variations.attributeValues",
+      "variations.attributeValues.attribute",
+      "variations.shippingClass",
+      "variations.taxStatus",
+      "variations.taxClass",
+      "shippingClass",
+      "upsells",
+      "crossSells",
+      "reviews",
+      "taxStatus",
+      "taxClass",
+      "tierPricingInfo",
+    ],
   });
 };
 
@@ -110,6 +132,28 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       id: In(ids),
       deletedAt: null,
     },
+    relations: [
+      "brands",
+      "tags",
+      "categories",
+      "attributes",
+      "variations",
+      "variations.brands",
+      "variations.tierPricingInfo",
+      "variations.tierPricingInfo.tieredPrices",
+      "variations.attributeValues",
+      "variations.attributeValues.attribute",
+      "variations.shippingClass",
+      "variations.taxStatus",
+      "variations.taxClass",
+      "shippingClass",
+      "upsells",
+      "crossSells",
+      "reviews",
+      "taxStatus",
+      "taxClass",
+      "tierPricingInfo",
+    ],
   });
 };
 
@@ -148,8 +192,7 @@ export const paginateProducts = async ({
     // Relations eager loading via left joins
     .leftJoinAndSelect("product.brands", "brands")
     .leftJoinAndSelect("product.tags", "tags")
-    .leftJoinAndSelect("product.category", "category")
-    .leftJoinAndSelect("product.subCategories", "subCategories")
+    .leftJoinAndSelect("product.categories", "categories")
     .leftJoinAndSelect("product.attributes", "attributes")
     .leftJoinAndSelect("product.variations", "variations")
     .leftJoinAndSelect("product.shippingClass", "shippingClass")
@@ -160,7 +203,7 @@ export const paginateProducts = async ({
     .leftJoinAndSelect("product.taxClass", "taxClass")
     .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
 
-    .leftJoinAndSelect("variation.brand", "brand")
+    .leftJoinAndSelect("variation.brands", "brands")
     .leftJoinAndSelect("variation.tierPricingInfo", "tierPricingInfo")
     .leftJoinAndSelect("tierPricingInfo.tieredPrices", "tieredPrices")
 
@@ -180,11 +223,8 @@ export const paginateProducts = async ({
         qb.where("product.name ILIKE :search", { search: searchTerm })
           .orWhere("product.slug ILIKE :search", { search: searchTerm })
           .orWhere("brands.name ILIKE :search", { search: searchTerm })
-          .orWhere("category.name ILIKE :search", { search: searchTerm })
-          .orWhere("tags.name ILIKE :search", { search: searchTerm })
-          .orWhere("subCategories.name ILIKE :search", {
-            search: searchTerm,
-          });
+          .orWhere("categories.name ILIKE :search", { search: searchTerm })
+          .orWhere("tags.name ILIKE :search", { search: searchTerm });
       })
     );
   }

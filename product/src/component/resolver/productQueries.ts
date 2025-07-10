@@ -8,7 +8,7 @@ import {
   getAllTaxStatus,
   getBrandById,
   getCategoryById,
-  getProduct,
+  getProductById,
   getShippingClassById,
   getTagById,
   getTaxClassById,
@@ -102,7 +102,10 @@ const typesWithMedia = [
  */
 export const productQueriesResolver = {
   Query: {
-    getProduct,
+    /**
+     * Retrieves detailed information for a product by their unique ID.
+     */
+    getProductById,
 
     /**
      * Fetches a paginated list of all products in the system.

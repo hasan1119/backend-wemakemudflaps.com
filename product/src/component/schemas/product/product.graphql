@@ -25,7 +25,7 @@ type Product @key(fields: "id") {
   # ---------------------- Categorization ----------------------
   brands: [Brand!] # Associated brands
   tags: [Tag!] # List of tag
-  categories: Category! # Main category
+  categories: [Category!] # Main category
   # ---------------------- Warranty Info ----------------------
   warrantyDigit: Int # Warranty duration (digit part)
   defaultWarrantyPeriod: String # Warranty period (e.g., day, days, week, weeks, month, months, year, years, life_time)

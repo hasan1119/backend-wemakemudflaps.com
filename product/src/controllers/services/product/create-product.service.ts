@@ -41,12 +41,11 @@ export const createProduct = async (
     quantityStep,
     sku,
     model,
-    categoryId,
+    categoryIds,
     attributes,
     brandIds,
     crossSellIds,
     shippingClassId,
-    subCategoryIds,
     tagIds,
     taxClassId,
     taxStatusId,
@@ -85,6 +84,15 @@ export const createProduct = async (
     const newTierPricing = productPriceRepository.create(tierPricingInfo);
     createdTierPricing = await productPriceRepository.save(newTierPricing);
   }
+
+  // Prepare variations with brand relation fixed
+  const processedVariations = variations?.map((variation) => {
+    const { brandIds, ...rest } = variation;
+    return {
+      ...rest,
+      brands: brandIds && brandIds.length > 0 ? { id: brandIds[0] } : null,
+    };
+  });
 
   const product = productRepository.create({
     name,
@@ -134,9 +142,8 @@ export const createProduct = async (
     createdBy: userId ?? null,
 
     // Relations
-    category: categoryId ? ({ id: categoryId } as any) : null,
-    subCategories: subCategoryIds?.length
-      ? (subCategoryIds.map((id) => ({ id })) as any)
+    categories: categoryIds?.length
+      ? (categoryIds.map((id) => ({ id })) as any)
       : [],
     brands: brandIds?.length ? ({ id: brandIds[0] } as any) : null,
     tags: tagIds?.length ? (tagIds.map((id) => ({ id })) as any) : [],

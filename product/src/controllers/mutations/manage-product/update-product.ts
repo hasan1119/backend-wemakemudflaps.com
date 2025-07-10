@@ -89,6 +89,7 @@ export const updateProduct = async (
       tagIds,
       categoryIds,
       shippingClassId,
+      variations,
       taxStatusId,
       taxClassId,
       upsellIds,
@@ -170,6 +171,40 @@ export const updateProduct = async (
       }
     }
 
+    // Validate and fetch variation brands
+    let updatedVariations = variations;
+    if (variations && variations.length > 0) {
+      const variationBrandIds = variations
+        .flatMap((variation) => variation.brandIds ?? [])
+        .filter((v, i, a) => a.indexOf(v) === i); // unique brandIds
+
+      if (variationBrandIds.length > 0) {
+        const variationBrands = await getBrandsByIds(variationBrandIds);
+        if (variationBrands.length !== variationBrandIds.length) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "One or more brands inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+
+        // Map brandIds to brand objects for each variation
+        updatedVariations = variations.map((variation) => {
+          const brandObjs = (variation.brandIds ?? [])
+            .map((bid) => variationBrands.find((b) => b.id === bid))
+            .filter(Boolean);
+
+          return {
+            ...variation,
+            brands: brandObjs,
+          };
+        });
+      }
+    } else {
+      updatedVariations = [];
+    }
+
     if (shippingClassId) {
       const shippingClass = await getShippingClassById(shippingClassId);
       if (!shippingClass) {
@@ -231,7 +266,10 @@ export const updateProduct = async (
     }
 
     // Update the product in the database
-    await updateProductService(id, result.data as any);
+    await updateProductService(id, {
+      ...result.data,
+      variations: updatedVariations,
+    } as any);
 
     return {
       statusCode: 200,

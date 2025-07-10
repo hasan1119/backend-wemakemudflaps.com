@@ -98,9 +98,10 @@ export class Product {
   // Primary category for the product
   @ManyToOne(() => Category, (category) => category.products, {
     onDelete: "SET NULL",
+    nullable: true,
   })
   @JoinColumn({ name: "category_id" })
-  categories: Category[];
+  categories: Category[] | null;
 
   // Warranty digit for the variation (nullable)
   @Column({ nullable: true, default: null })

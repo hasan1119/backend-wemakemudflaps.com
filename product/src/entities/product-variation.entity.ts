@@ -36,7 +36,7 @@ export class ProductVariation {
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "variation_brand_id" })
-  brand: Promise<Brand[]> | null;
+  brands: Promise<Brand[]> | null;
 
   // SKU for the product variation (nullable)
   @Column({ unique: true, nullable: true, default: null })

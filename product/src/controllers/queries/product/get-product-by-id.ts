@@ -25,7 +25,7 @@ import {
  * @param context - GraphQL context containing authenticated user information.
  * @returns A promise resolving to a GetProductByIdResponseOrError object containing status, message, product data, and errors if applicable.
  */
-export const getProduct = async (
+export const getProductById = async (
   _: any,
   args: QueryGetProductArgs,
   { user }: Context

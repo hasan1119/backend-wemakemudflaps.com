@@ -102,4 +102,4 @@ export { deleteProduct } from "./mutations/manage-product/delete-product";
 export { restoreProducts } from "./mutations/manage-product/restore-product";
 export { updateProduct } from "./mutations/manage-product/update-product";
 export { getAllProducts } from "./queries/product/get-all-products";
-export { getProduct } from "./queries/product/get-product";
+export { getProductById } from "./queries/product/get-product-by-id";

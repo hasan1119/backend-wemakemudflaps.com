@@ -92,6 +92,7 @@ export const createProduct = async (
       shippingClassId,
       taxStatusId,
       taxClassId,
+      variations,
       upsellIds,
       crossSellIds,
     } = result.data;
@@ -119,6 +120,7 @@ export const createProduct = async (
     }
 
     // Validate existence of related entities
+
     if (brandIds && brandIds.length > 0) {
       const brands = await getBrandsByIds(brandIds);
       if (brands.length !== brandIds.length) {
@@ -145,15 +147,49 @@ export const createProduct = async (
 
     if (categoryIds) {
       const categories = await getCategoryByIds(categoryIds);
-
       if (categories.length !== categoryIds.length) {
         return {
           statusCode: 404,
           success: false,
-          message: "One or more categories not found",
+          message: `One or more categories not found`,
           __typename: "BaseResponse",
         };
       }
+    }
+
+    // Variation brands validation - outside of variations block
+    let updatedVariations = variations;
+
+    if (variations && variations.length > 0) {
+      const variationBrandIds = variations
+        .flatMap((variation) => variation.brandIds ?? [])
+        .filter((v, i, a) => a.indexOf(v) === i); // unique brandIds
+
+      if (variationBrandIds.length > 0) {
+        const variationBrands = await getBrandsByIds(variationBrandIds);
+
+        if (variationBrands.length !== variationBrandIds.length) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "One or more brands inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+
+        updatedVariations = variations.map((variation) => {
+          const brandObjs = (variation.brandIds ?? [])
+            .map((bid) => variationBrands.find((b) => b.id === bid))
+            .filter(Boolean); // null filter
+
+          return {
+            ...variation,
+            brands: brandObjs,
+          };
+        });
+      }
+    } else {
+      updatedVariations = [];
     }
 
     if (shippingClassId) {
@@ -219,7 +255,13 @@ export const createProduct = async (
     }
 
     // Create the product in the database
-    await createProductService(result.data as any, user.id);
+    await createProductService(
+      {
+        ...result.data,
+        variations: updatedVariations,
+      } as any,
+      user.id
+    );
 
     return {
       statusCode: 201,

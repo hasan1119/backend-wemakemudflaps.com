@@ -92,14 +92,8 @@ export const updateProduct = async (
   product.warrantyPolicy = data.warrantyPolicy ?? product.warrantyPolicy;
 
   // Update relational fields
-  if (data.categoryId !== undefined) {
-    product.category = data.categoryId
-      ? ({ id: data.categoryId } as any)
-      : null;
-  }
-
-  if (data.subCategoryIds !== undefined) {
-    product.subCategories = data.subCategoryIds.map((id) => ({ id })) as any;
+  if (data.categoryIds !== undefined) {
+    product.categories = data.categoryIds.map((id) => ({ id })) as any;
   }
 
   if (data.brandIds !== undefined) {
