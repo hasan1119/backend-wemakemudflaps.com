@@ -35,14 +35,14 @@ export const deleteAddressBookEntry = async (
     const { id, userId } = args;
 
     // Validate input data with Zod schemas
-    const [idsResult, userIDResult] = await Promise.all([
+    const [idResult, userIDResult] = await Promise.all([
       idSchema.safeParseAsync({ id }),
-      idSchema.safeParseAsync({ userId }),
+      idSchema.safeParseAsync({ id: userId }),
     ]);
 
-    if (!idsResult.success || !userIDResult.success) {
+    if (!idResult.success || !userIDResult.success) {
       const errors = [
-        ...(idsResult.error?.errors || []),
+        ...(idResult.error?.errors || []),
         ...(userIDResult.error?.errors || []),
       ].map((e) => ({
         field: e.path.join("."),
