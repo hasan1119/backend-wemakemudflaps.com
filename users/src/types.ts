@@ -1467,7 +1467,7 @@ export type Query = {
 
 
 export type QueryGetAddressBookEntryByIdArgs = {
-  id: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
   userId: Scalars['ID']['input'];
 };
 

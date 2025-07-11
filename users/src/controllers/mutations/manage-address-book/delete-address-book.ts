@@ -1,4 +1,3 @@
-import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
@@ -33,24 +32,28 @@ export const deleteAddressBookEntry = async (
     const authError = checkUserAuth(user);
     if (authError) return authError;
 
-    const deleteAddressBookSchema = z.object({
-      id: idSchema,
-      userId: idSchema,
-    });
+    const { id, userId } = args;
 
-    const validationResult = await deleteAddressBookSchema.safeParseAsync(args);
+    // Validate input data with Zod schemas
+    const [idsResult, userIDResult] = await Promise.all([
+      idSchema.safeParseAsync({ id }),
+      idSchema.safeParseAsync({ userId }),
+    ]);
 
-    if (!validationResult.success) {
-      const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
-        message: error.message,
+    if (!idsResult.success || !userIDResult.success) {
+      const errors = [
+        ...(idsResult.error?.errors || []),
+        ...(userIDResult.error?.errors || []),
+      ].map((e) => ({
+        field: e.path.join("."),
+        message: e.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
         message: "Validation failed",
-        errors: errorMessages,
+        errors,
         __typename: "ErrorResponse",
       };
     }
@@ -72,8 +75,6 @@ export const deleteAddressBookEntry = async (
         };
       }
     }
-
-    const { id } = args;
 
     const result = await deleteAddressBook(id);
 

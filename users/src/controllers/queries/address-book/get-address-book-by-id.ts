@@ -1,4 +1,3 @@
-import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
@@ -41,28 +40,28 @@ export const getAddressBookEntryById = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Combined schema for id and userId
-    const getAddressBookByIdSchema = z.object({
-      id: idSchema,
-      userId: idSchema,
-    });
+    const { id, userId } = args;
 
-    // Validate input addressBook ID with Zod schema
-    const validationResult = await getAddressBookByIdSchema.safeParseAsync(
-      args
-    );
+    // Validate input data with Zod schemas
+    const [idsResult, userIDResult] = await Promise.all([
+      idSchema.safeParseAsync({ id }),
+      idSchema.safeParseAsync({ userId }),
+    ]);
 
-    if (!validationResult.success) {
-      const errorMessages = validationResult.error.errors.map((error) => ({
-        field: error.path.join("."),
-        message: error.message,
+    if (!idsResult.success || !userIDResult.success) {
+      const errors = [
+        ...(idsResult.error?.errors || []),
+        ...(userIDResult.error?.errors || []),
+      ].map((e) => ({
+        field: e.path.join("."),
+        message: e.message,
       }));
 
       return {
         statusCode: 400,
         success: false,
         message: "Validation failed",
-        errors: errorMessages,
+        errors,
         __typename: "ErrorResponse",
       };
     }
@@ -85,8 +84,6 @@ export const getAddressBookEntryById = async (
         };
       }
     }
-
-    const { id, userId } = args;
 
     // Attempt to retrieve cached addressBook data from Redis
     let addressBookData = await getAddressBookInfoByIdFromRedis(id, userId);

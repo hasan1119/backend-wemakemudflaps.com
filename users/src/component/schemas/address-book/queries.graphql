@@ -5,7 +5,7 @@ type Query {
   # Retrieves a specific address book entry using its unique ID.
   # Returns a `GetAddressBookByIdResponseOrError` containing address book data and request status.
   getAddressBookEntryById(
-    id: String! # Unique ID of the address book entry to get.
+    id: ID! # Unique ID of the address book entry to get.
     userId: ID! # The user id of the user.
   ): GetAddressBookByIdResponseOrError!
 
