@@ -1,3 +1,4 @@
+import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
@@ -10,6 +11,7 @@ import {
   checkUserPermission,
   hardDeleteAddressBook,
 } from "../../services";
+import { idSchema } from "./../../../utils/data-validation/common/common";
 
 /**
  * Handles the deletion of an address book entry for a user.
@@ -32,8 +34,14 @@ export const deleteAddressBookEntry = async (
     const authError = checkUserAuth(user);
     if (authError) return authError;
 
+    // Validation schema: just like getAddressBookByIdSchema
+    const deleteAddressBookSchema = z.object({
+      ids: idsSchema.shape.ids,
+      userId: idSchema.shape.id,
+    });
+
     // Validate input brand ID with Zod schema
-    const validationResult = await idsSchema.safeParseAsync(args.ids);
+    const validationResult = await deleteAddressBookSchema.safeParseAsync(args);
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map((error) => ({
