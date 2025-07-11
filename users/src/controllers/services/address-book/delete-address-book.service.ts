@@ -3,18 +3,20 @@ import {
   removeAllAddressBookByUserIdFromRedis,
   setAddressBookInfoByIdInRedis,
 } from "../../../helper/redis";
+import { AddressBook } from "../../../types";
 import { addressBookRepository } from "../repositories/repositories";
 
 /**
  * Permanently deletes an address book from the database.
  * If the deleted address was marked as default, it promotes another of the same type to be the new default.
- * It also removes the deleted entry from the Redis cache.
+ * It also removes/updates the Redis cache accordingly.
  *
  * @param addressBookId - The UUID of the address book to be hard deleted.
  * @returns The ID of the new default address, if one was promoted.
  */
 export const deleteAddressBook = async (
-  addressBookId: string
+  addressBookId: string,
+  userId: string
 ): Promise<string | undefined> => {
   // Fetch the address with its user and type
   const existingAddress = await addressBookRepository.findOne({
@@ -24,7 +26,6 @@ export const deleteAddressBook = async (
 
   if (!existingAddress) return;
 
-  const userId = (existingAddress.user as any).id;
   const addressType = existingAddress.type;
 
   // Delete the specified address
@@ -46,6 +47,8 @@ export const deleteAddressBook = async (
       const toPromote = otherAddresses[0];
       toPromote.isDefault = true;
       await addressBookRepository.save(toPromote);
+
+      // Update Redis cache with the new default address
       await setAddressBookInfoByIdInRedis(toPromote.id, userId, {
         ...toPromote,
         type: toPromote.type as any,
@@ -57,13 +60,13 @@ export const deleteAddressBook = async (
           toPromote.updatedAt instanceof Date
             ? toPromote.updatedAt.toISOString()
             : toPromote.updatedAt,
-      });
+      } as AddressBook);
 
       promotedId = toPromote.id;
     }
   }
 
-  // Clear the cache for the deleted address and the user's address list
+  // Remove deleted address from Redis and invalidate user's address book list cache
   await Promise.all([
     removeAddressBookInfoByIdFromRedis(addressBookId, userId),
     removeAllAddressBookByUserIdFromRedis(addressType, userId),

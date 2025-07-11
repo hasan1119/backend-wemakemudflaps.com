@@ -76,7 +76,7 @@ export const deleteAddressBookEntry = async (
       }
     }
 
-    const result = await deleteAddressBook(id);
+    const result = await deleteAddressBook(id, userId);
 
     return {
       statusCode: 200,
