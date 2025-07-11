@@ -280,31 +280,22 @@ export const updateUserPermission = async (
     // Delete existing user-specific permissions
     await deleteUserSpecificPermission(targetUserEntity.id);
 
-    let updateUserWithPermission;
+    // Always call updateUserSpecificPermission (even if list is empty)
+    const updateUserWithPermission = await updateUserSpecificPermission(
+      targetUserEntity,
+      permissionsToUpsert
+    );
 
-    // Apply new permissions if any
-    if (permissionsToUpsert.length > 0) {
-      updateUserWithPermission = await updateUserSpecificPermission(
-        targetUserEntity,
-        permissionsToUpsert
-      );
-      // Cache updated user and permission data in Redis
-      await Promise.all([
-        setUserPermissionsByUserIdInRedis(
-          targetUserEntity.id,
-          updateUserWithPermission
-        ),
-        setUserInfoByEmailInRedis(
-          targetUserEntity.id,
-          updateUserWithPermission
-        ),
-        setUserInfoByUserIdInRedis(
-          targetUserEntity.id,
-          updateUserWithPermission
-        ),
-        clearAllUserSearchCache(),
-      ]);
-    }
+    // Cache updated user and permission data in Redis
+    await Promise.all([
+      setUserPermissionsByUserIdInRedis(
+        targetUserEntity.id,
+        updateUserWithPermission
+      ),
+      setUserInfoByEmailInRedis(targetUserEntity.id, updateUserWithPermission),
+      setUserInfoByUserIdInRedis(targetUserEntity.id, updateUserWithPermission),
+      clearAllUserSearchCache(),
+    ]);
 
     return {
       statusCode: 200,
