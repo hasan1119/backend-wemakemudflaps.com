@@ -6,7 +6,7 @@
  * 2. Enables operations for address book management tasks.
  */
 export { createAddressBookEntry } from "./address-book/create-address-book.service";
-export { hardDeleteAddressBook } from "./address-book/delete-address-book.service";
+export { deleteAddressBook } from "./address-book/delete-address-book.service";
 export {
   getAddressBookById,
   getAddressBooks,

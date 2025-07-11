@@ -1,3 +1,4 @@
+import { Not } from "typeorm";
 import { AddressBook } from "../../../entities";
 import {
   removeAllAddressBookByUserIdFromRedis,
@@ -28,9 +29,8 @@ export const updateAddressBookEntry = async (
 
   if (!existing) return null;
 
-  const targetType = data.type || existing.type;
+  const targetType = data.type ?? existing.type;
 
-  // If updating to default, clear isDefault from others
   if (data.isDefault) {
     await addressBookRepository
       .createQueryBuilder()
@@ -42,13 +42,14 @@ export const updateAddressBookEntry = async (
       .execute();
 
     const affectedAddresses = await addressBookRepository.find({
-      where: { user: { id: userId }, type: targetType as any },
+      where: { user: { id: userId }, type: targetType as any, id: Not(id) },
     });
 
     await Promise.all(
       affectedAddresses.map((address) =>
         setAddressBookInfoByIdInRedis(address.id, userId, {
           ...address,
+          isDefault: false,
           type: address.type as any,
           createdAt:
             address.createdAt instanceof Date
@@ -63,11 +64,17 @@ export const updateAddressBookEntry = async (
     );
   }
 
-  // Merge updated fields
-  Object.assign(existing, {
-    ...data,
-    user: { id: userId } as any,
-  });
+  // Partial update without overwriting with null/undefined
+  const { userId: _, ...safeData } = data;
+
+  for (const key in safeData) {
+    const value = safeData[key as keyof typeof safeData];
+    if (value !== null && value !== undefined) {
+      (existing as any)[key] = value;
+    }
+  }
+
+  existing.user = { id: userId } as any;
 
   const updated = await addressBookRepository.save(existing);
 

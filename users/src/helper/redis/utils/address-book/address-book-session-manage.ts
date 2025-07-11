@@ -3,7 +3,7 @@ import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for addressbook session and user count caching
 const PREFIX = {
-  ADDRESS_BOOK: "address-book:",
+  ADDRESS_BOOK: "address-book:user:",
 };
 
 /**
@@ -18,11 +18,8 @@ export const setAllAddressBookByUserIdInRedis = async (
   userId: string,
   data: AddressBook[]
 ): Promise<void> => {
-  await redis.setSession(
-    `${PREFIX.ADDRESS_BOOK}type:${type}user:${userId}`,
-    data,
-    "user-app"
-  );
+  const key = `${PREFIX.ADDRESS_BOOK}${userId}:type:${type}`;
+  await redis.setSession(key, data, "user-app");
 };
 
 /**
@@ -37,11 +34,8 @@ export const setAddressBookInfoByIdInRedis = async (
   userId: string,
   data: AddressBook
 ): Promise<void> => {
-  await redis.setSession(
-    `${PREFIX.ADDRESS_BOOK}address-id:${addressBookId}user:${userId}`,
-    data,
-    "user-app"
-  );
+  const key = `${PREFIX.ADDRESS_BOOK}${userId}:address:${addressBookId}`;
+  await redis.setSession(key, data, "user-app");
 };
 
 /**
@@ -54,10 +48,8 @@ export const getAllAddressBookByUserIdFromRedis = async (
   type: string,
   userId: string
 ): Promise<AddressBook[] | null> => {
-  return redis.getSession<AddressBook[] | null>(
-    `${PREFIX.ADDRESS_BOOK}type:${type}user:${userId}`,
-    "user-app"
-  );
+  const key = `${PREFIX.ADDRESS_BOOK}${userId}:type:${type}`;
+  return redis.getSession<AddressBook[] | null>(key, "user-app");
 };
 
 /**
@@ -70,10 +62,8 @@ export const getAddressBookInfoByIdFromRedis = async (
   addressBookId: string,
   userId: string
 ): Promise<AddressBook | null> => {
-  return redis.getSession<AddressBook | null>(
-    `${PREFIX.ADDRESS_BOOK}address-id:${addressBookId}user:${userId}`,
-    "user-app"
-  );
+  const key = `${PREFIX.ADDRESS_BOOK}${userId}:address:${addressBookId}`;
+  return redis.getSession<AddressBook | null>(key, "user-app");
 };
 
 /**
@@ -86,10 +76,8 @@ export const removeAllAddressBookByUserIdFromRedis = async (
   type: string,
   userId: string
 ): Promise<void> => {
-  await redis.deleteSession(
-    `${PREFIX.ADDRESS_BOOK}type:${type}user:${userId}`,
-    "user-app"
-  );
+  const key = `${PREFIX.ADDRESS_BOOK}${userId}:type:${type}`;
+  await redis.deleteSession(key, "user-app");
 };
 
 /**
@@ -101,8 +89,6 @@ export const removeAddressBookInfoByIdFromRedis = async (
   addressBookId: string,
   userId: string
 ): Promise<void> => {
-  await redis.deleteSession(
-    `${PREFIX.ADDRESS_BOOK}address-id:${addressBookId}user:${userId}`,
-    "user-app"
-  );
+  const key = `${PREFIX.ADDRESS_BOOK}${userId}:address:${addressBookId}`;
+  await redis.deleteSession(key, "user-app");
 };

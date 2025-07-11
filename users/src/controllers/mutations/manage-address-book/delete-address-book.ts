@@ -5,11 +5,10 @@ import {
   DeleteAddressesBookResponseOrError,
   MutationDeleteAddressBookEntryArgs,
 } from "../../../types";
-import { idsSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  hardDeleteAddressBook,
+  deleteAddressBook,
 } from "../../services";
 import { idSchema } from "./../../../utils/data-validation/common/common";
 
@@ -18,11 +17,11 @@ import { idSchema } from "./../../../utils/data-validation/common/common";
  *
  * Workflow:
  * 1. Verifies user authentication.
- * 2. Checks if address book entry exists and belongs to the user.
+ * 2. Checks if the user has permission to delete the address book entry.
  * 3. Deletes the entry.
- * 4. Removes cache for deleted entry.
- * 5. If deleted entry was default, sets another entry of the same type as default.
- * 6. Updates Redis cache accordingly.
+ * 4. Removes the cache for the deleted entry.
+ * 5. If the deleted entry was the default, it sets another entry of the same type as the default.
+ * 6. Updates the Redis cache accordingly.
  * 7. Returns a structured success or error response.
  */
 export const deleteAddressBookEntry = async (
@@ -34,13 +33,11 @@ export const deleteAddressBookEntry = async (
     const authError = checkUserAuth(user);
     if (authError) return authError;
 
-    // Validation schema: just like getAddressBookByIdSchema
     const deleteAddressBookSchema = z.object({
-      ids: idsSchema.shape.ids,
-      userId: idSchema.shape.id,
+      id: idSchema,
+      userId: idSchema,
     });
 
-    // Validate input brand ID with Zod schema
     const validationResult = await deleteAddressBookSchema.safeParseAsync(args);
 
     if (!validationResult.success) {
@@ -58,7 +55,6 @@ export const deleteAddressBookEntry = async (
       };
     }
 
-    // Check permission if the user is updating on behalf of someone else
     if (args.userId !== user.id) {
       const hasPermission = await checkUserPermission({
         user,
@@ -71,16 +67,15 @@ export const deleteAddressBookEntry = async (
           statusCode: 403,
           success: false,
           message:
-            "You do not have permission to delete address book for another user",
+            "You do not have permission to delete an address book for another user",
           __typename: "BaseResponse",
         };
       }
     }
 
-    const { ids } = args;
+    const { id } = args;
 
-    // Delete entry using service
-    const result = await hardDeleteAddressBook(ids);
+    const result = await deleteAddressBook(id);
 
     return {
       statusCode: 200,

@@ -901,7 +901,7 @@ type Mutation
   updateUserPermission(input: UpdateUserPermissionInput!): BaseResponseOrError! @join__field(graph: USER)
   createAddressBookEntry(userId: ID!, company: String!, streetOne: String!, streetTwo: String!, city: String!, state: String!, zip: String!, country: String!, type: AddressType!, isDefault: Boolean!): CreateAddressBookResponseOrError! @join__field(graph: USER)
   updateAddressBookEntry(id: ID!, userId: ID!, company: String, streetOne: String, streetTwo: String, city: String, state: String, zip: String, country: String, type: AddressType, isDefault: Boolean): UpdateAddressBookResponseOrError! @join__field(graph: USER)
-  deleteAddressBookEntry(ids: [ID!]!, userId: ID!): DeleteAddressesBookResponseOrError! @join__field(graph: USER)
+  deleteAddressBookEntry(id: ID!, userId: ID!): DeleteAddressesBookResponseOrError! @join__field(graph: USER)
   createTaxExemptionEntry(userId: String!, taxNumber: String!, assumptionReason: String!, taxCertificate: String!, expiryDate: String!): CreateTaxExemptionResponseOrError! @join__field(graph: USER)
   updateTaxExemptionEntry(id: ID!, userId: String!, taxNumber: String, assumptionReason: String, taxCertificate: String, expiryDate: String, status: TaxExemptionStatus): UpdateTaxExemptionResponseOrError! @join__field(graph: USER)
 }

@@ -1,9 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import {
-  getAddressBookInfoByIdFromRedis,
-  setAddressBookInfoByIdInRedis,
-} from "../../../helper/redis";
+import { getAddressBookInfoByIdFromRedis } from "../../../helper/redis";
 import {
   MutationUpdateAddressBookEntryArgs,
   UpdateAddressBookResponseOrError,
@@ -36,6 +33,7 @@ export const updateAddressBookEntry = async (
     if (authError) return authError;
 
     const result = await updateAddressBookEntrySchema.safeParseAsync(args);
+
     if (!result.success) {
       const errors = result.error.errors.map((e) => ({
         field: e.path.join("."),
@@ -101,13 +99,6 @@ export const updateAddressBookEntry = async (
           __typename: "BaseResponse",
         };
       }
-
-      // Cache addressBook data in Redis
-      await setAddressBookInfoByIdInRedis(
-        addressBookData.id,
-        userId,
-        addressBookData
-      );
     }
 
     const resultEntity = await updateAddressBookEntryService(id, {

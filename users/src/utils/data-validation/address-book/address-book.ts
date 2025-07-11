@@ -71,10 +71,15 @@ export const updateAddressBookEntrySchema = z
   .refine(
     (data) =>
       Object.keys(data).some(
-        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+        (key) =>
+          key !== "id" &&
+          key !== "userId" &&
+          data[key as keyof typeof data] !== undefined &&
+          data[key as keyof typeof data] !== null
       ),
     {
-      message: "At least one field must be provided for update besides id",
+      message:
+        "At least one field must be provided for update besides id and userId",
       path: [],
     }
   );

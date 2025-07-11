@@ -35,12 +35,12 @@ type Mutation {
     isDefault: Boolean # Is this the default address for this type?
   ): UpdateAddressBookResponseOrError!
 
-  # Delete one or more address book entries.
+  # Delete one address book entries.
   # Allows users to remove addresses from their address book.
-  # Accepts a list of address entry IDs to be deleted.
+  # Accepts a list of address entry ID to be deleted.
   # Returns a response indicating success or failure of the deletion.
   deleteAddressBookEntry(
-    ids: [ID!]! # List of address book entry IDs to be deleted.
+    id: ID! # Address book entry ID to be deleted.
     userId: ID! # The user id of the user.
   ): DeleteAddressesBookResponseOrError!
 }
