@@ -65,11 +65,7 @@ const typesWithCreatedBy = [
   "Product",
   "ProductPaginationDataSession",
   "Category",
-  "CategoryDataResponseById",
-  "CategoryDataResponse",
-  "SubCategory",
-  "SubCategoryDataResponse",
-  "SubCategoryDataResponseById",
+  "ICategoryBase",
 ];
 
 // List of types that use the thumbnail field
