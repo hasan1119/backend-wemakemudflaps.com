@@ -124,4 +124,12 @@ export { Tag } from "./tag.entity";
  * Workflow:
  * 1. Manages tax rates and assignments to products or orders.
  */
+
 export { TaxClass } from "./tax-class.entity";
+/**
+ * Exports the TaxRate entity for defining different tax groups.
+ *
+ * Workflow:
+ * 1. Manages tax rates and assignments to products or orders.
+ */
+export { TaxRate } from "./tax-rate.entity";

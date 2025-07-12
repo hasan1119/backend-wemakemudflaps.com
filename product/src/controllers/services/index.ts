@@ -68,7 +68,6 @@ export { restoreCategoriesByIds } from "./category/restore-category.service";
  *
  * Workflow:
  * 1. Provides functions to update basic fields (name, description, thumbnail).
- * 2. Handles updating position/order of categories or subcategories.
  */
 export {
   updateCategory,
@@ -338,3 +337,56 @@ export { restoreProduct } from "./product/restore-product.service";
  * 1. Provides functions to update basic fields.
  */
 export { updateProduct } from "./product/update-product.service";
+
+/**
+ * Exports services for creating tax rate.
+ *
+ * Workflow:
+ * 1. Provides a function to create a tax rate based on input.
+ * 2. Handles relation to tax class and optional location rules.
+ */
+export { createTaxRate } from "./tax-rate/create-tax-rate.service";
+
+/**
+ * Exports services for deleting tax rates.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export {
+  hardDeleteTaxRate,
+  softDeleteTaxRate,
+} from "./tax-rate/delete-tax-rate.service";
+
+/**
+ * Exports services for fetching and counting tax rates.
+ *
+ * Workflow:
+ * 1. Provides counting of tax rates matching optional search criteria.
+ * 2. Provides functions to fetch tax rate by ID or label with relations.
+ * 3. Supports paginated retrieval of tax rates.
+ */
+export {
+  countTaxRatesWithSearch,
+  findTaxRateByLabel,
+  findTaxRateByLabelToUpdate,
+  getTaxRateById,
+  getTaxRateByIds,
+  paginateTaxRates,
+} from "./tax-rate/get-tax-rate.service";
+
+/**
+ * Exports services for restoring soft-deleted tax rates by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { restoreTaxRate } from "./tax-rate/restore-tax-rate.service";
+
+/**
+ * Exports services for updating tax rates.
+ *
+ * Workflow:
+ * 1. Provides functions to update fields such as rate, location, and flags.
+ */
+export { updateTaxRate } from "./tax-rate/update-tax-rate.service";

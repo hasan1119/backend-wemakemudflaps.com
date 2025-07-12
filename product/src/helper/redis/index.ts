@@ -118,6 +118,26 @@ export {
 } from "./utils/tax-class/tax-class-session-manage";
 
 /**
+ * Exports utilities for managing tax rate session data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting and removing.
+ */
+export {
+  clearAllTaxRateSearchCache,
+  getTaxRateCountFromRedis,
+  getTaxRatesFromRedis,
+  getTaxRateInfoByIdFromRedis,
+  getTaxRateLabelExistFromRedis,
+  removeTaxRateInfoByIdFromRedis,
+  removeTaxRateLabelExistFromRedis,
+  setTaxRateCountInRedis,
+  setTaxRatesInRedis,
+  setTaxRateInfoByIdInRedis,
+  setTaxRateLabelExistInRedis,
+} from "./utils/tax-rate/tax-rate-session-manage";
+
+/**
  * Exports utilities for managing user session data in Redis.
  *
  * Workflow:
