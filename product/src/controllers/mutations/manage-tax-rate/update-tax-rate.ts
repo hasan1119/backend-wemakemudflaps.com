@@ -5,7 +5,6 @@ import {
   clearTaxRateCountCacheByTaxClass,
   getTaxClassInfoByIdFromRedis,
   getTaxRateInfoByIdFromRedis,
-  getTaxRateLabelExistFromRedis,
   removeTaxRateInfoByIdFromRedis,
   setTaxRateInfoByIdInRedis,
   setTaxRateLabelExistInRedis,
@@ -18,7 +17,6 @@ import { updateTaxRateSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  findTaxRateByLabelToUpdate,
   getTaxClassById,
   getTaxRateById,
   updateTaxRate as updateTaxRateService,
@@ -126,34 +124,6 @@ export const updateTaxRate = async (
           statusCode: 404,
           success: false,
           message: "Tax rate not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    // If label is changing, check Redis and DB for uniqueness scoped by taxClassId
-    if (label && label !== currentTaxRate.label) {
-      let labelExists = await getTaxRateLabelExistFromRedis(taxClassId, label);
-
-      if (!labelExists) {
-        const existingLabel = await findTaxRateByLabelToUpdate(
-          taxClassId,
-          id,
-          label
-        );
-        if (existingLabel) {
-          return {
-            statusCode: 409,
-            success: false,
-            message: `A tax rate with label "${label}" already exists`,
-            __typename: "BaseResponse",
-          };
-        }
-      } else {
-        return {
-          statusCode: 409,
-          success: false,
-          message: `A tax rate with label "${label}" already exists`,
           __typename: "BaseResponse",
         };
       }

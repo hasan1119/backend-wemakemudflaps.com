@@ -4,7 +4,6 @@ import {
   clearAllTaxRateSearchCacheByTaxClass,
   clearTaxRateCountCacheByTaxClass,
   getTaxClassInfoByIdFromRedis,
-  getTaxRateLabelExistFromRedis,
   setTaxRateInfoByIdInRedis,
   setTaxRateLabelExistInRedis,
 } from "../../../helper/redis";
@@ -17,7 +16,6 @@ import {
   checkUserAuth,
   checkUserPermission,
   createTaxRate as createTaxRateService,
-  findTaxRateByLabel,
   getTaxClassById,
 } from "../../services";
 
@@ -121,33 +119,6 @@ export const createTaxRate = async (
           __typename: "BaseResponse",
         };
       }
-    }
-
-    // Attempt to check for existing tax rate label in Redis scoped by taxClassId
-    let taxRateExists = await getTaxRateLabelExistFromRedis(taxClassId, label);
-
-    if (!taxRateExists) {
-      // On cache miss, check database for tax rate existence scoped by taxClassId
-      const existingTaxRate = await findTaxRateByLabel(taxClassId, label);
-
-      if (existingTaxRate) {
-        // Cache tax rate existence in Redis for next requests
-        await setTaxRateLabelExistInRedis(taxClassId, label);
-
-        return {
-          statusCode: 400,
-          success: false,
-          message: `A tax rate with this label '${label}' already exists`,
-          __typename: "BaseResponse",
-        };
-      }
-    } else {
-      return {
-        statusCode: 400,
-        success: false,
-        message: `A tax rate with this label '${label}' already exists`,
-        __typename: "BaseResponse",
-      };
     }
 
     // Create the tax rate in the database

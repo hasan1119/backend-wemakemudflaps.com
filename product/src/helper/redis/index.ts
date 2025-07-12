@@ -133,7 +133,6 @@ export {
   clearTaxRateCountCacheByTaxClass,
   getTaxRateCountFromRedis,
   getTaxRateInfoByIdFromRedis,
-  getTaxRateLabelExistFromRedis,
   getTaxRatesFromRedis,
   removeTaxRateInfoByIdFromRedis,
   removeTaxRateLabelExistFromRedis,

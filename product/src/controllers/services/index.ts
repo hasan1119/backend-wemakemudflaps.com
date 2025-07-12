@@ -368,8 +368,6 @@ export {
  */
 export {
   countTaxRatesWithSearch,
-  findTaxRateByLabel,
-  findTaxRateByLabelToUpdate,
   getTaxRateById,
   getTaxRateByIds,
   paginateTaxRates,

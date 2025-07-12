@@ -1,63 +1,6 @@
-import { Brackets, ILike, In, Not } from "typeorm";
+import { Brackets, In } from "typeorm";
 import { TaxRate } from "../../../entities";
 import { taxRateRepository } from "../repositories/repositories";
-
-/**
- * Finds a tax rate entity by its label (case-insensitive) within a specific tax class.
- *
- * Workflow:
- * 1. Queries the taxRateRepository for a tax rate matching the label and taxClassId.
- * 2. Ensures the tax rate is not soft-deleted.
- * 3. Returns the tax rate entity or null if not found.
- *
- * @param taxClassId - The ID of the tax class to filter tax rates.
- * @param label - The label of the tax rate to find.
- * @returns A promise resolving to the TaxRate entity or null.
- */
-export const findTaxRateByLabel = async (
-  taxClassId: string,
-  label: string
-): Promise<TaxRate | null> => {
-  return await taxRateRepository.findOne({
-    where: {
-      label: ILike(label),
-      deletedAt: null,
-      taxClass: { id: taxClassId },
-    },
-    relations: ["taxClass"],
-  });
-};
-
-/**
- * Finds a tax rate entity by its label (case-insensitive) within a specific tax class,
- * excluding a tax rate by its ID (for update validation).
- *
- * Workflow:
- * 1. Queries the taxRateRepository for tax rates matching the label and taxClassId.
- * 2. Excludes the tax rate with the provided ID.
- * 3. Ensures the tax rate is not soft-deleted.
- * 4. Returns the tax rate entity or null if not found.
- *
- * @param taxClassId - The ID of the tax class to filter tax rates.
- * @param id - The UUID of the tax rate to exclude.
- * @param label - The label of the tax rate to find.
- * @returns A promise resolving to the TaxRate entity or null.
- */
-export const findTaxRateByLabelToUpdate = async (
-  taxClassId: string,
-  id: string,
-  label: string
-): Promise<TaxRate | null> => {
-  return await taxRateRepository.findOne({
-    where: {
-      id: Not(id),
-      label: ILike(label),
-      deletedAt: null,
-      taxClass: { id: taxClassId },
-    },
-    relations: ["taxClass"],
-  });
-};
 
 /**
  * Retrieves a single tax rate entity by its ID and tax class ID.

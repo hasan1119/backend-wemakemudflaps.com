@@ -39,18 +39,6 @@ export const getTaxRateCountFromRedis = async (
 };
 
 /**
- * Checks if a tax rate label exists in Redis for a specific tax class.
- */
-export const getTaxRateLabelExistFromRedis = async (
-  taxClassId: string,
-  label: string
-): Promise<boolean> => {
-  const key = `${PREFIX.EXISTS}${taxClassId}:${label.toLowerCase().trim()}`;
-  const result = await redis.getSession<string | null>(key, "product-app");
-  return result === "exists";
-};
-
-/**
  * Retrieves tax rate information from Redis by rate ID (without taxClassId in key).
  */
 export const getTaxRateInfoByIdFromRedis = async (
