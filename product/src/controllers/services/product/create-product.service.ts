@@ -90,7 +90,7 @@ export const createProduct = async (
     const { brandIds, ...rest } = variation;
     return {
       ...rest,
-      brands: brandIds && brandIds.length > 0 ? { id: brandIds[0] } : null,
+      brands: brandIds?.length ? brandIds.map((id) => ({ id })) : [],
     };
   });
 
@@ -145,16 +145,16 @@ export const createProduct = async (
     categories: categoryIds?.length
       ? (categoryIds.map((id) => ({ id })) as any)
       : [],
-    brands: brandIds?.length ? ({ id: brandIds[0] } as any) : null,
+    brands: brandIds?.length ? brandIds.map((id) => ({ id })) : [],
     tags: tagIds?.length ? (tagIds.map((id) => ({ id })) as any) : [],
-    taxClass: taxClassId ? ({ id: taxClassId } as any) : null,
+    taxClass: { id: taxClassId } as any,
     taxStatus: taxStatus,
     shippingClass: shippingClassId ? ({ id: shippingClassId } as any) : null,
     tierPricingInfo: (createdTierPricing as any) ?? null,
     attributes: attributes?.length
       ? (attributes.map((attr) => ({ id: attr.id })) as any)
       : [],
-    variations: variations?.length ? (variations as any) : [],
+    variations: processedVariations?.length ? (processedVariations as any) : [],
     upsells: upsellIds?.length ? (upsellIds.map((id) => ({ id })) as any) : [],
     crossSells: crossSellIds?.length
       ? (crossSellIds.map((id) => ({ id })) as any)

@@ -479,11 +479,7 @@ export const ProductVariationInputSchema = z.object({
     .optional()
     .nullable(),
   taxStatus: TaxStatusTypeEnum.optional().nullable(),
-  taxClassId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
+  taxClassId: z.string().uuid({ message: "Invalid UUID format" }),
   description: z
     .string()
     .min(1, "Description cannot be empty")
@@ -680,12 +676,8 @@ export const createProductSchema = z
       .string()
       .min(1, "Sale quantity unit cannot be empty")
       .trim(),
-    taxStatus: TaxStatusTypeEnum,
-    taxClassId: z
-      .string()
-      .uuid({ message: "Invalid UUID format" })
-      .optional()
-      .nullable(),
+    taxStatus: TaxStatusTypeEnum.optional().nullable(),
+    taxClassId: z.string().uuid({ message: "Invalid UUID format" }),
     minQuantity: z
       .number()
       .int()

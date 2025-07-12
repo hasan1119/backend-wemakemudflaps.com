@@ -20,7 +20,6 @@ import {
  * @returns Updated Product entity
  */
 export const updateProduct = async (
-  productId: string,
   currentProduct: Product,
   data: Partial<MutationUpdateProductArgs>
 ): Promise<Product> => {
@@ -107,9 +106,7 @@ export const updateProduct = async (
   }
 
   if (data.taxClassId !== undefined) {
-    product.taxClass = data.taxClassId
-      ? ({ id: data.taxClassId } as any)
-      : null;
+    product.taxClass = data.taxClassId as any;
   }
 
   if (data.shippingClassId !== undefined) {
@@ -236,9 +233,7 @@ export const updateProduct = async (
         }
 
         if (variationInput.taxClassId !== undefined) {
-          variationEntity.taxClass = variationInput.taxClassId
-            ? ({ id: variationInput.taxClassId } as any)
-            : null;
+          variationEntity.taxClass = variationInput.taxClassId as any;
         }
 
         if (variationInput.attributeValues !== undefined) {

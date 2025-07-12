@@ -233,11 +233,10 @@ export class ProductVariation {
 
   // Many-to-one relationship with TaxClass (nullable)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {
-    nullable: true,
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "variation_tax_class_id" })
-  taxClass: TaxClass | null;
+  taxClass: TaxClass;
 
   // Description of the product variation
   @Column({ type: "text", nullable: true, default: null })

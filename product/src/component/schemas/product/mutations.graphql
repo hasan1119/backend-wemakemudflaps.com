@@ -27,8 +27,8 @@ type Mutation {
     tierPricingInfo: ProductPriceInput
     saleQuantity: Int
     saleQuantityUnit: String!
-    taxStatus: TaxStatus!
-    taxClassId: ID
+    taxStatus: TaxStatus
+    taxClassId: ID!
     minQuantity: Int
     defaultQuantity: Int
     maxQuantity: Int

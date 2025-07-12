@@ -178,11 +178,10 @@ export class Product {
 
   // Tax class (defines tax rates for the product)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {
-    nullable: true,
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "tax_class_id" })
-  taxClass: TaxClass | null;
+  taxClass: TaxClass;
 
   /* ====================== Quantity Settings ====================== */
 
