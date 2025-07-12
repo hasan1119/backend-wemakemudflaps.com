@@ -1,0 +1,22 @@
+# Queries to fetch tax rate from the system.
+type Query {
+  # Fetch tax rate by ID.
+  # Retrieves a specific tax rate details by its unique ID.
+  # Returns a `GetTaxRateByIDResponseOrError` containing tax rate data and request status.
+  getTaxRateById(
+    id: ID! # Unique identifier of the tax rate to retrieve.
+  ): GetTaxRateByIDResponseOrError!
+
+  # Fetch all tax rate with pagination, filtering, and sorting.
+  # Retrieves a paginated list of tax rate.
+  # Supports filtering by search term (name or slug) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetTaxRatesResponseOrError` containing tax rate data and request status.
+  getAllTaxRates(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of taxRate per page.
+    search: String # Optional search term (matches name or slug).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetTaxRatesResponseOrError!
+}

@@ -1,0 +1,53 @@
+# ---------------------- Tax Rate Types ----------------------
+type TaxRate {
+  id: ID!
+  country: String!
+  state: String
+  city: String
+  postcode: String
+  rate: Float!
+  label: String!
+  appliesToShipping: Boolean!
+  isCompound: Boolean!
+  priority: Int!
+  createdBy: CreatedBy!
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a tax rate.
+type TaxRateResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxRate: TaxRate!
+}
+
+# Response for fetching a tax rates list.
+type TaxRatePaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  taxRates: [TaxRate!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateTaxRateResponseOrError =
+    BaseResponse
+  | TaxRateResponse
+  | ErrorResponse
+union GetTaxRateByIDResponseOrError =
+    BaseResponse
+  | TaxRateResponse
+  | ErrorResponse
+union GetTaxRatesResponseOrError =
+    BaseResponse
+  | TaxRatePaginationResponse
+  | ErrorResponse
+union UpdateTaxRateResponseOrError =
+    BaseResponse
+  | TaxRateResponse
+  | ErrorResponse
+union DeleteTaxRateResponseOrError = BaseResponse | ErrorResponse
+union RestoreTaxRateResponseOrError = BaseResponse | ErrorResponse

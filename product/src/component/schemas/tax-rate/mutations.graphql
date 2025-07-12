@@ -1,0 +1,48 @@
+# Mutations to manage tax rate operations.
+type Mutation {
+  # Create a new tax rate.
+  # Only accessible by authorized users.
+  createTaxRate(
+    country: String!
+    state: String
+    city: String
+    postcode: String
+    rate: Float!
+    label: String!
+    appliesToShipping: Boolean
+    isCompound: Boolean
+    priority: Int
+    taxClassId: ID!
+  ): CreateTaxRateResponseOrError!
+
+  # Update an existing tax rate.
+  # Only accessible by authorized users.
+  updateTaxRate(
+    id: ID!
+    country: String
+    state: String
+    city: String
+    postcode: String
+    rate: Float
+    label: String
+    appliesToShipping: Boolean
+    isCompound: Boolean
+    priority: Int
+    taxClassId: ID
+  ): UpdateTaxRateResponseOrError!
+
+  # Deletes a tax rate by IDs.
+  # Performs a soft delete by default (marks as deleted).
+  # If skipTrash is true, performs a permanent delete.
+  # Only accessible by authorized users.
+  deleteTaxRate(
+    ids: [ID]!
+    skipTrash: Boolean!
+  ): DeleteTaxRateResponseOrError!
+
+  # Mutation to restore a soft-deleted tax rate.
+  # Only accessible by authorized users.
+  restoreTaxRates(
+    ids: [ID!]! # List of soft-deleted role IDs to be restored.
+  ): RestoreTaxRateResponseOrError!
+}

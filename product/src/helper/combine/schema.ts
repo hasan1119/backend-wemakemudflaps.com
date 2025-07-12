@@ -25,6 +25,9 @@ import {
   taxClassDef,
   taxClassMutationsDef,
   taxClassQueriesDef,
+  taxRateDef,
+  taxRateMutationsDef,
+  taxRateQueriesDef,
 } from "../../component/schemas";
 
 /**
@@ -83,6 +86,15 @@ export const typeDefs = mergeTypeDefs([
 
   // Schema for taxClass mutations (modifying tax class data)
   taxClassMutationsDef,
+
+  // Tax Rate schema definition
+  taxRateDef,
+
+  // Schema for taxRate queries (fetching tax rate data)
+  taxRateQueriesDef,
+
+  // Schema for taxRate mutations (modifying tax rate data)
+  taxRateMutationsDef,
 
   // Product attribute schema definition
   productAttributeDef,
