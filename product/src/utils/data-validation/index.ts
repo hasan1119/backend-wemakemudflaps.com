@@ -81,3 +81,15 @@ export {
   productSortingSchema,
   updateProductSchema,
 } from "./product/product";
+
+/**
+ * Exports tax-rate related schemas for tax rate management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, updating, and sorting tax rates.
+ */
+export {
+  createTaxRateSchema,
+  taxRateSortingSchema,
+  updateTaxRateSchema,
+} from "./tax-rate/tax-rate";
