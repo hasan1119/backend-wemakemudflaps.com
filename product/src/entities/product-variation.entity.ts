@@ -227,10 +227,9 @@ export class ProductVariation {
   @Column({
     type: "enum",
     enum: ["Taxable", "Product only", "Shipping only", "None"],
-    nullable: true,
-    default: null,
+    default: "Taxable",
   })
-  taxStatus: string | null;
+  taxStatus: string;
 
   // Many-to-one relationship with TaxClass (nullable)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {

@@ -1322,7 +1322,7 @@ export type ProductVariation = {
   sku?: Maybe<Scalars['String']['output']>;
   stockStatus?: Maybe<Scalars['String']['output']>;
   taxClass?: Maybe<TaxClass>;
-  taxStatus?: Maybe<TaxStatus>;
+  taxStatus?: Maybe<Scalars['String']['output']>;
   tierPricingInfo?: Maybe<ProductPrice>;
   videos?: Maybe<Array<Media>>;
   warrantyDigit?: Maybe<Scalars['Int']['output']>;
@@ -1387,7 +1387,7 @@ export type ProductVariationInput = {
   sku?: InputMaybe<Scalars['String']['input']>;
   stockStatus?: InputMaybe<Scalars['String']['input']>;
   taxClassId?: InputMaybe<Scalars['ID']['input']>;
-  taxStatusId?: InputMaybe<Scalars['ID']['input']>;
+  taxStatus: TaxStatus;
   tierPricingInfoId?: InputMaybe<Scalars['ID']['input']>;
   videos?: InputMaybe<Array<Scalars['ID']['input']>>;
   warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
@@ -3267,7 +3267,7 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   sku?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   stockStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   taxClass?: Resolver<Maybe<ResolversTypes['TaxClass']>, ParentType, ContextType>;
-  taxStatus?: Resolver<Maybe<ResolversTypes['TaxStatus']>, ParentType, ContextType>;
+  taxStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   tierPricingInfo?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
   videos?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   warrantyDigit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;

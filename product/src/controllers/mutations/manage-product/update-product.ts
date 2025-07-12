@@ -89,7 +89,6 @@ export const updateProduct = async (
       categoryIds,
       shippingClassId,
       variations,
-      taxStatusId,
       taxClassId,
       upsellIds,
       crossSellIds,
@@ -253,7 +252,7 @@ export const updateProduct = async (
     }
 
     // Update the product in the database
-    await updateProductService(id, {
+    await updateProductService(id, currentProduct, {
       ...result.data,
       variations: updatedVariations,
     } as any);

@@ -1223,7 +1223,7 @@ type ProductVariation
   defaultWarrantyPeriod: String
   warrantyPolicy: String
   shippingClass: ShippingClass
-  taxStatus: TaxStatus
+  taxStatus: String
   taxClass: TaxClass
   description: String
   images: [Media!]
@@ -1298,7 +1298,7 @@ input ProductVariationInput
   defaultWarrantyPeriod: DefaultWarrantyPeriod
   warrantyPolicy: String
   shippingClassId: ID
-  taxStatusId: ID
+  taxStatus: TaxStatus!
   taxClassId: ID
   description: String
   images: [ID!]

@@ -89,7 +89,6 @@ export const createProduct = async (
       tagIds,
       categoryIds,
       shippingClassId,
-      taxStatusId,
       taxClassId,
       variations,
       upsellIds,

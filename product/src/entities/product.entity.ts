@@ -66,13 +66,13 @@ export class Product {
   @Column("text", { array: true, nullable: true, default: null })
   videos: string[] | null;
 
-  // Associated brand for the product
-  @ManyToOne(() => Brand, (brand) => brand.products, {
+  // Associated brands for the product
+  @ManyToMany(() => Brand, (brand) => brand.products, {
     nullable: true,
     onDelete: "SET NULL",
   })
-  @JoinColumn({ name: "product_brand" })
-  brands: Promise<Brand[]> | null;
+  @JoinTable({ name: "product_brands" })
+  brands: Brand[] | null;
 
   // Associated tags for the product
   @ManyToMany(() => Tag, (tag) => tag.products, {
@@ -93,19 +93,19 @@ export class Product {
   @Column({ type: "simple-array", nullable: true, default: null })
   defaultTags: string[] | null;
 
-  // Primary category for the product
-  @ManyToOne(() => Category, (category) => category.products, {
+  // Associated categories for the product
+  @ManyToMany(() => Category, (category) => category.products, {
     onDelete: "SET NULL",
     nullable: true,
   })
-  @JoinColumn({ name: "category_id" })
+  @JoinTable({ name: "product_categories" })
   categories: Category[] | null;
 
-  // Warranty digit for the variation (nullable)
+  // Warranty digit for the product (nullable)
   @Column({ nullable: true, default: null })
   warrantyDigit: number | null;
 
-  // Warranty period unit for the variation (e.g., "days", "months")
+  // Warranty period unit for the product (e.g., "days", "months")
   @Column({
     type: "enum",
     enum: [
@@ -124,7 +124,7 @@ export class Product {
   })
   defaultWarrantyPeriod: string | null;
 
-  // Warranty policy for the variation (nullable)
+  // Warranty policy for the product (nullable)
   @Column({ nullable: true, default: null })
   warrantyPolicy: string | null;
 
@@ -155,7 +155,7 @@ export class Product {
   // Tier pricing info for simple products (one-to-one relation with ProductPrice)
   @OneToOne(() => ProductPrice, (pricing) => pricing.product, {
     nullable: true,
-    cascade: true, // Ensures the associated tier prices is deleted if the product is deleted
+    cascade: true,
   })
   @JoinColumn({ name: "product_tier_pricing_id" })
   tierPricingInfo: Promise<ProductPrice> | null;
@@ -164,18 +164,17 @@ export class Product {
   @Column({ nullable: true, default: null })
   saleQuantity: number | null;
 
-  // Quantity type (e.g., piece, liter and so on)
+  // Quantity type (e.g., piece, liter)
   @Column()
   saleQuantityUnit: string;
 
-  // Tax status (controls whether the product cost or shipping is taxable)
+  // Tax status (controls whether the product cost or shipping is taxable, required on creation)
   @Column({
     type: "enum",
     enum: ["Taxable", "Product only", "Shipping only", "None"],
-    nullable: true,
-    default: null,
+    default: "Taxable",
   })
-  taxStatus: string | null;
+  taxStatus: string;
 
   // Tax class (defines tax rates for the product)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {
@@ -284,7 +283,7 @@ export class Product {
   })
   weight: number | null;
 
-  // Dimension unit for the variation (e.g., "Centimeter", "Meter")
+  // Dimension unit for the product
   @Column({
     type: "enum",
     enum: [
@@ -301,7 +300,7 @@ export class Product {
   })
   dimensionUnit: string | null;
 
-  // Length of the variation (nullable)
+  // Length of the product
   @Column({
     type: "decimal",
     precision: 10,
@@ -311,7 +310,7 @@ export class Product {
   })
   length: number | null;
 
-  // Width of the variation (nullable)
+  // Width of the product
   @Column({
     type: "decimal",
     precision: 10,
@@ -321,7 +320,7 @@ export class Product {
   })
   width: number | null;
 
-  // Height of the variation (nullable)
+  // Height of the product
   @Column({
     type: "decimal",
     precision: 10,
@@ -369,7 +368,7 @@ export class Product {
 
   // Additional product attributes (e.g., material, style)
   @ManyToMany(() => ProductAttribute, {
-    cascade: true, // Ensures the associated product attribute is deleted if the product is deleted
+    cascade: true,
     nullable: true,
   })
   @JoinTable({
@@ -383,7 +382,7 @@ export class Product {
 
   // Variations for variable products (each representing a distinct combination of attribute values)
   @OneToMany(() => ProductVariation, (variation) => variation.product, {
-    cascade: true, // Ensures the associated product attribute is deleted if the product is deleted
+    cascade: true,
     nullable: true,
   })
   variations: ProductVariation[] | null;
@@ -421,7 +420,7 @@ export class Product {
   @Column()
   createdBy: string;
 
-  // Timestamp when the user was created
+  // Timestamp when the product was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 

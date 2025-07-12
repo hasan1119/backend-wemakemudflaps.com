@@ -48,7 +48,7 @@ export const createProduct = async (
     shippingClassId,
     tagIds,
     taxClassId,
-    taxStatusId,
+    taxStatus,
     tierPricingInfo,
     upsellIds,
     variations,
@@ -148,7 +148,7 @@ export const createProduct = async (
     brands: brandIds?.length ? ({ id: brandIds[0] } as any) : null,
     tags: tagIds?.length ? (tagIds.map((id) => ({ id })) as any) : [],
     taxClass: taxClassId ? ({ id: taxClassId } as any) : null,
-    taxStatus: taxStatusId ? ({ id: taxStatusId } as any) : null,
+    taxStatus: taxStatus,
     shippingClass: shippingClassId ? ({ id: shippingClassId } as any) : null,
     tierPricingInfo: (createdTierPricing as any) ?? null,
     attributes: attributes?.length

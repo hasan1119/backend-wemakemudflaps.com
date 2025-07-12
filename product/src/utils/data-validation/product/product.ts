@@ -172,6 +172,29 @@ export const DimensionUnitEnum = z.preprocess((val) => {
   return val;
 }, z.enum([...new Set(Object.values(DimensionUnitTypeMap))] as [string, ...string[]]));
 
+// Defines a mapping for tax status values
+export const taxStatusTypeMap: Record<string, string> = {
+  TAXABLE: "Taxable",
+  PRODUCT_ONLY: "Product only",
+  SHIPPING_ONLY: "Shipping only",
+  NONE: "None",
+};
+
+/**
+ * Enum for tax status types.
+ *
+ * Workflow:
+ * 1. Defines the allowed values for tax status types.
+ *
+ * @property {"Taxable" | "Product only" | "Shipping only" | "None"} value - The tax status of the product.
+ */
+export const TaxStatusTypeEnum = z.preprocess((val) => {
+  if (typeof val === "string" && taxStatusTypeMap[val]) {
+    return taxStatusTypeMap[val];
+  }
+  return val;
+}, z.enum([...new Set(Object.values(taxStatusTypeMap))] as [string, ...string[]]));
+
 /**
  * Defines the schema for validating product attribute values input.
  *
@@ -327,14 +350,15 @@ export const ProductVariationAttributeValueInputSchema = z.object({
  * 17. Validates `warrantyDigit` as an optional positive integer.
  * 18. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
  * 19. Validates `warrantyPolicy` as an optional non-empty string.
- * 20. Validates `shippingClassId`, `taxStatusId`, `taxClassId` as optional UUIDs.
- * 21. Validates `description` as an optional non-empty string.
- * 22. Validates `images` and `videos` as optional arrays of UUIDs.
- * 23. Validates `deletedAt` as an optional datetime string.
+ * 20. Validates `shippingClassId`, `taxClassId` as optional UUIDs.
+ * 21. Validates `taxStatus` as an optional `TaxStatusTypeEnum`.
+ * 22. Validates `description` as an optional non-empty string.
+ * 23. Validates `images` and `videos` as optional arrays of UUIDs.
+ * 24. Validates `deletedAt` as an optional datetime string.
  *
  * @property id - Optional unique identifier for the product variation.
  * @property sku - Optional Stock Keeping Unit for the variation.
- * @property brandIds - Optional UUIDs of the associated brand.
+ * @property brandIds - Optional UUIDs of the associated brands.
  * @property productDeliveryType - Optional array of product delivery types.
  * @property minQuantity - Optional minimum quantity for the variation.
  * @property defaultQuantity - Optional default quantity for the variation.
@@ -355,10 +379,10 @@ export const ProductVariationAttributeValueInputSchema = z.object({
  * @property productId - The UUID of the parent product.
  * @property attributeValues - Optional array of variation-specific attribute values.
  * @property warrantyDigit - Optional numeric part of warranty duration.
- * @property defaultWarrantyPeriod - Optional period string for warranty.
+ * @property defaultWarrantyPeriod - Optional period unit for warranty.
  * @property warrantyPolicy - Optional description of the warranty policy.
  * @property shippingClassId - Optional UUID of the shipping class.
- * @property taxStatusId - Optional UUID of the tax status.
+ * @property taxStatus - Optional tax status of the variation.
  * @property taxClassId - Optional UUID of the tax class.
  * @property description - Optional description specific to the variation.
  * @property images - Optional array of image UUIDs.
@@ -454,11 +478,7 @@ export const ProductVariationInputSchema = z.object({
     .uuid({ message: "Invalid UUID format" })
     .optional()
     .nullable(),
-  taxStatusId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
+  taxStatus: TaxStatusTypeEnum.optional().nullable(),
   taxClassId: z
     .string()
     .uuid({ message: "Invalid UUID format" })
@@ -498,7 +518,7 @@ export const ProductVariationInputSchema = z.object({
  * 12. Validates `salePriceStartAt` and `salePriceEndAt` as optional datetime strings.
  * 13. Validates `tierPricingInfo` as an optional `ProductPriceInputSchema`.
  * 14. Validates `saleQuantity` as an optional positive integer and `saleQuantityUnit` as a non-empty string.
- * 15. Validates `taxStatusId` and `taxClassId` as optional UUIDs.
+ * 15. Validates `taxStatus` as a required `TaxStatusTypeEnum` and `taxClassId` as an optional UUID.
  * 16. Validates `minQuantity`, `defaultQuantity`, `maxQuantity`, `quantityStep` as optional positive integers.
  * 17. Validates `manageStock`, `soldIndividually`, `enableReviews`, `isPreview`, `isVisible` as optional booleans.
  * 18. Validates `stockQuantity`, `lowStockThresHold` as optional positive integers.
@@ -524,9 +544,9 @@ export const ProductVariationInputSchema = z.object({
  * @property defaultTags - Optional array of keyword tags.
  * @property customBadge - Optional custom badge text.
  * @property purchaseNote - Optional note shown after purchase.
- * @property brandIds - Optional UUIDs of the associated brand.
+ * @property brandIds - Optional UUIDs of the associated brands.
  * @property tagIds - Optional array of associated tag UUIDs.
- * @property categoryIds - The UUID of the categories.
+ * @property categoryIds - Optional array of category UUIDs.
  * @property warrantyDigit - Optional numeric part of warranty duration.
  * @property defaultWarrantyPeriod - Optional unit for warranty period.
  * @property warrantyPolicy - Optional description of the warranty policy.
@@ -537,7 +557,7 @@ export const ProductVariationInputSchema = z.object({
  * @property tierPricingInfo - Optional tiered pricing information.
  * @property saleQuantity - Optional sale quantity limit.
  * @property saleQuantityUnit - The unit for sale quantity.
- * @property taxStatusId - Optional UUID of the tax status.
+ * @property taxStatus - The tax status of the product.
  * @property taxClassId - Optional UUID of the tax class.
  * @property minQuantity - Optional minimum purchase quantity.
  * @property defaultQuantity - Optional default quantity in cart.
@@ -660,11 +680,7 @@ export const createProductSchema = z
       .string()
       .min(1, "Sale quantity unit cannot be empty")
       .trim(),
-    taxStatusId: z
-      .string()
-      .uuid({ message: "Invalid UUID format" })
-      .optional()
-      .nullable(),
+    taxStatus: TaxStatusTypeEnum,
     taxClassId: z
       .string()
       .uuid({ message: "Invalid UUID format" })
@@ -798,9 +814,9 @@ export const createProductSchema = z
  * @property defaultTags - Optional array of keyword tags.
  * @property customBadge - Optional custom badge text.
  * @property purchaseNote - Optional note shown after purchase.
- * @property brandId - Optional UUID of the associated brand.
+ * @property brandIds - Optional UUIDs of the associated brands.
  * @property tagIds - Optional array of associated tag UUIDs.
- * @property categoryIds - Optional UUID of the categories.
+ * @property categoryIds - Optional array of category UUIDs.
  * @property warrantyDigit - Optional numeric part of warranty duration.
  * @property defaultWarrantyPeriod - Optional unit for warranty period.
  * @property warrantyPolicy - Optional description of the warranty policy.
@@ -811,7 +827,7 @@ export const createProductSchema = z
  * @property tierPricingInfo - Optional tiered pricing information.
  * @property saleQuantity - Optional sale quantity limit.
  * @property saleQuantityUnit - Optional unit for sale quantity.
- * @property taxStatusId - Optional UUID of the tax status.
+ * @property taxStatus - Optional tax status of the product.
  * @property taxClassId - Optional UUID of the tax class.
  * @property minQuantity - Optional minimum purchase quantity.
  * @property defaultQuantity - Optional default quantity in cart.
@@ -947,11 +963,7 @@ export const updateProductSchema = z
       .trim()
       .optional()
       .nullable(),
-    taxStatusId: z
-      .string()
-      .uuid({ message: "Invalid UUID format" })
-      .optional()
-      .nullable(),
+    taxStatus: TaxStatusTypeEnum.optional().nullable(),
     taxClassId: z
       .string()
       .uuid({ message: "Invalid UUID format" })

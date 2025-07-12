@@ -4,7 +4,6 @@ import {
   productPriceRepository,
   productRepository,
 } from "../repositories/repositories";
-import { getProductById } from "./get-product.service";
 
 /**
  * Updates a product and its related entities including variations and tier pricing.
@@ -16,14 +15,16 @@ import { getProductById } from "./get-product.service";
  * - Tier pricing for main product update
  *
  * @param productId - UUID of product to update
+ * @param currentProduct - The current product entity to update
  * @param data - Partial data to update the product
  * @returns Updated Product entity
  */
 export const updateProduct = async (
   productId: string,
+  currentProduct: Product,
   data: Partial<MutationUpdateProductArgs>
 ): Promise<Product> => {
-  const product = await getProductById(productId);
+  const product = currentProduct;
 
   // Update scalar fields if provided, else keep existing
   product.name = data.name ?? product.name;
@@ -90,6 +91,7 @@ export const updateProduct = async (
   product.defaultWarrantyPeriod =
     data.defaultWarrantyPeriod ?? product.defaultWarrantyPeriod;
   product.warrantyPolicy = data.warrantyPolicy ?? product.warrantyPolicy;
+  product.taxStatus = data.taxStatus ?? product.taxStatus;
 
   // Update relational fields
   if (data.categoryIds !== undefined) {
@@ -97,8 +99,7 @@ export const updateProduct = async (
   }
 
   if (data.brandIds !== undefined) {
-    product.brands =
-      data.brandIds.length > 0 ? ({ id: data.brandIds[0] } as any) : null;
+    product.brands = data.brandIds.map((id) => ({ id })) as any;
   }
 
   if (data.tagIds !== undefined) {
@@ -108,12 +109,6 @@ export const updateProduct = async (
   if (data.taxClassId !== undefined) {
     product.taxClass = data.taxClassId
       ? ({ id: data.taxClassId } as any)
-      : null;
-  }
-
-  if (data.taxStatusId !== undefined) {
-    product.taxStatus = data.taxStatusId
-      ? ({ id: data.taxStatusId } as any)
       : null;
   }
 
@@ -172,28 +167,111 @@ export const updateProduct = async (
         );
         if (!variationEntity) continue; // Skip if not found
 
-        // Handle tierPricingInfo association by ID only
-        if (variationInput.tierPricingInfoId) {
-          const tierPricing = await tierPriceRepo.findOne({
-            where: { id: variationInput.tierPricingInfoId },
-          });
+        // Update scalar fields for variation
+        variationEntity.sku = variationInput.sku ?? variationEntity.sku;
+        variationEntity.productDeliveryType =
+          variationInput.productDeliveryType ??
+          variationEntity.productDeliveryType;
+        variationEntity.minQuantity =
+          variationInput.minQuantity ?? variationEntity.minQuantity;
+        variationEntity.defaultQuantity =
+          variationInput.defaultQuantity ?? variationEntity.defaultQuantity;
+        variationEntity.maxQuantity =
+          variationInput.maxQuantity ?? variationEntity.maxQuantity;
+        variationEntity.quantityStep =
+          variationInput.quantityStep ?? variationEntity.quantityStep;
+        variationEntity.regularPrice =
+          variationInput.regularPrice ?? variationEntity.regularPrice;
+        variationEntity.salePrice =
+          variationInput.salePrice ?? variationEntity.salePrice;
+        variationEntity.salePriceStartAt =
+          typeof variationInput.salePriceStartAt === "string"
+            ? new Date(variationInput.salePriceStartAt)
+            : variationInput.salePriceStartAt ??
+              variationEntity.salePriceStartAt;
+        variationEntity.salePriceEndAt =
+          typeof variationInput.salePriceEndAt === "string"
+            ? new Date(variationInput.salePriceEndAt)
+            : variationInput.salePriceEndAt ?? variationEntity.salePriceEndAt;
+        variationEntity.stockStatus =
+          variationInput.stockStatus ?? variationEntity.stockStatus;
+        variationEntity.weightUnit =
+          variationInput.weightUnit ?? variationEntity.weightUnit;
+        variationEntity.weight =
+          variationInput.weight ?? variationEntity.weight;
+        variationEntity.dimensionUnit =
+          variationInput.dimensionUnit ?? variationEntity.dimensionUnit;
+        variationEntity.length =
+          variationInput.length ?? variationEntity.length;
+        variationEntity.width = variationInput.width ?? variationEntity.width;
+        variationEntity.height =
+          variationInput.height ?? variationEntity.height;
+        variationEntity.warrantyDigit =
+          variationInput.warrantyDigit ?? variationEntity.warrantyDigit;
+        variationEntity.defaultWarrantyPeriod =
+          variationInput.defaultWarrantyPeriod ??
+          variationEntity.defaultWarrantyPeriod;
+        variationEntity.warrantyPolicy =
+          variationInput.warrantyPolicy ?? variationEntity.warrantyPolicy;
+        variationEntity.description =
+          variationInput.description ?? variationEntity.description;
+        variationEntity.images =
+          variationInput.images ?? variationEntity.images;
+        variationEntity.videos =
+          variationInput.videos ?? variationEntity.videos;
+        variationEntity.taxStatus =
+          variationInput.taxStatus ?? variationEntity.taxStatus;
 
-          if (tierPricing) {
-            variationEntity.tierPricingInfo = Promise.resolve(tierPricing);
-          } else {
-            // Invalid ID given, clear association
-            variationEntity.tierPricingInfo = null;
-          }
-        } else {
-          // No tierPricingInfoId provided, clear association
-          variationEntity.tierPricingInfo = null;
+        // Update relational fields for variation
+        if (variationInput.brandIds !== undefined) {
+          variationEntity.brands = variationInput.brandIds.map((id) => ({
+            id,
+          })) as any;
+        }
+
+        if (variationInput.shippingClassId !== undefined) {
+          variationEntity.shippingClass = variationInput.shippingClassId
+            ? ({ id: variationInput.shippingClassId } as any)
+            : null;
+        }
+
+        if (variationInput.taxClassId !== undefined) {
+          variationEntity.taxClass = variationInput.taxClassId
+            ? ({ id: variationInput.taxClassId } as any)
+            : null;
+        }
+
+        if (variationInput.attributeValues !== undefined) {
+          variationEntity.attributeValues = variationInput.attributeValues.map(
+            (attr) => ({
+              id: attr.id,
+              value: attr.value,
+              attributeId: attr.attributeId,
+              variationId: attr.variationId,
+            })
+          ) as any;
+        }
+
+        // Handle tierPricingInfo association by ID
+        if (variationInput.tierPricingInfoId !== undefined) {
+          const tierPricing = variationInput.tierPricingInfoId
+            ? await tierPriceRepo.findOne({
+                where: { id: variationInput.tierPricingInfoId },
+              })
+            : null;
+          variationEntity.tierPricingInfo = tierPricing
+            ? Promise.resolve(tierPricing)
+            : null;
         }
 
         // Save updated variation entity
         await variationRepo.save(variationEntity);
       } else {
         // New variation - create entity
-        variationEntity = variationRepo.create(variationInput);
+        variationEntity = variationRepo.create({
+          ...variationInput,
+          product: Promise.resolve(product),
+        });
 
         // Associate existing tierPricingInfo if tierPricingInfoId is provided
         if (variationInput.tierPricingInfoId) {
