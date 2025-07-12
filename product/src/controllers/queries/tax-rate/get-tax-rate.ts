@@ -42,7 +42,7 @@ const mapArgsToPagination = (args: QueryGetAllTaxRatesArgs) => ({
 /**
  * Retrieves paginated list of tax rates for a given tax class, using cache first.
  */
-export const getAllTaxRate = async (
+export const getAllTaxRates = async (
   _: any,
   args: QueryGetAllTaxRatesArgs,
   { user }: Context

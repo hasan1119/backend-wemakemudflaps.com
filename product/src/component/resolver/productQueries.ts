@@ -5,7 +5,7 @@ import {
   getAllShippingClass,
   getAllTags,
   getAllTaxClass,
-  getAllTaxRate,
+  getAllTaxRates,
   getBrandById,
   getCategoryById,
   getProductById,
@@ -164,7 +164,7 @@ export const productQueriesResolver = {
     /**
      * Fetches a paginated list of all tax rates in the system.
      */
-    getAllTaxRate,
+    getAllTaxRates,
 
     /**
      * Retrieves detailed information for a tax rate by their unique ID.

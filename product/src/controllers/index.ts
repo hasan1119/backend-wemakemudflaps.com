@@ -101,5 +101,5 @@ export { createTaxRate } from "./mutations/manage-tax-rate/create-tax-rate";
 export { deleteTaxRate } from "./mutations/manage-tax-rate/delete-tax-rate";
 export { restoreTaxRates } from "./mutations/manage-tax-rate/restore-tax-rate";
 export { updateTaxRate } from "./mutations/manage-tax-rate/update-tax-rate";
-export { getAllTaxRate } from "./queries/tax-rate/get-tax-rate";
+export { getAllTaxRates } from "./queries/tax-rate/get-tax-rate";
 export { getTaxRateById } from "./queries/tax-rate/get-tax-rate-by-id";
