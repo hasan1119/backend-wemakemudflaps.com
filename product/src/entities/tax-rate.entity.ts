@@ -6,57 +6,57 @@ export class TaxRate {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // Country code (ISO 3166-1 alpha-2) — e.g., "US", "GB"
+  // Two-letter ISO country code (e.g., "US", "GB")
   @Column()
   country: string;
 
-  // Optional state code — e.g., "CA", "NY"
+  // Optional state or province code within the country (nullable)
   @Column({ nullable: true })
   state: string | null;
 
-  // Optional city (can use wildcards or leave null for all)
+  // Optional city name (nullable)
   @Column({ nullable: true })
   city: string | null;
 
-  // Optional zip/postcode — can be a wildcard pattern or left null
+  // Optional postal or ZIP code (nullable)
   @Column({ nullable: true })
   postcode: string | null;
 
-  // Tax rate in percentage (e.g., 7.5% is stored as 7.5)
+  // Tax percentage (e.g., 7.5% is stored as 7.5000)
   @Column("decimal", { precision: 5, scale: 4 })
   rate: number;
 
-  // Label for display (e.g., "VAT", "Sales Tax")
+  // Label shown to customers (e.g., "Sales Tax", "VAT")
   @Column()
   label: string;
 
-  // Whether the rate is applied to shipping
+  // Whether this tax rate also applies to shipping
   @Column({ type: "boolean", default: false })
   appliesToShipping: boolean;
 
-  // Whether it's a compound tax (added on top of other taxes)
+  // Whether this tax is compounded on top of other taxes
   @Column({ type: "boolean", default: false })
   isCompound: boolean;
 
-  // Determines order of application if multiple rates apply
+  // Priority for applying tax rates (lower number = higher priority)
   @Column({ default: 1 })
   priority: number;
 
-  // Link to tax class
+  // Each tax rate belongs to one tax class
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.taxRates, {
     onDelete: "CASCADE",
   })
-  taxClass: TaxClass;
+  taxClass: Promise<TaxClass>;
 
-  // Who created this rate
+  // User ID who created the tax rate (string only for Apollo Federation compatibility)
   @Column()
   createdBy: string;
 
-  // Timestamp of creation
+  // Timestamp when the tax rate was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
-  // Soft delete field
+  // Timestamp for soft deletion (null if not deleted)
   @Column({ type: "timestamp", nullable: true, default: null })
   deletedAt: Date | null;
 }
