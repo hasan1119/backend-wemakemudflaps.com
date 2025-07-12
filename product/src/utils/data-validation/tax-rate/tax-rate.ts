@@ -7,7 +7,8 @@ import { SortOrderTypeEnum } from "../common/common";
  * Workflow:
  * 1. Validates `country` and `label` as non-empty strings.
  * 2. Validates `rate`, `appliesToShipping`, `isCompound`, and `priority` as required fields with appropriate types.
- * 3. `state`, `city`, and `postcode` are optional strings.
+ * 3. Validates `taxClassId` as a UUID to associate the tax rate with a tax class.
+ * 4. `state`, `city`, and `postcode` are optional strings.
  *
  * @property country - The two-letter ISO country code (e.g., "US", "GB").
  * @property state - Optional state or province code within the country.
@@ -18,6 +19,7 @@ import { SortOrderTypeEnum } from "../common/common";
  * @property appliesToShipping - Whether this tax rate also applies to shipping.
  * @property isCompound - Whether this tax is compounded on top of other taxes.
  * @property priority - Priority for applying tax rates (lower number = higher priority).
+ * @property taxClassId - The UUID of the tax class this rate belongs to.
  */
 export const createTaxRateSchema = z.object({
   country: z.string().min(1, "Country is required."),
@@ -31,6 +33,7 @@ export const createTaxRateSchema = z.object({
   }),
   isCompound: z.boolean({ required_error: "isCompound is required." }),
   priority: z.number({ required_error: "Priority is required." }).int(),
+  taxClassId: z.string().uuid({ message: "Invalid UUID format" }),
 });
 
 /**
@@ -51,6 +54,7 @@ export const createTaxRateSchema = z.object({
  * @property appliesToShipping - Optional flag for shipping application.
  * @property isCompound - Optional flag for compounding.
  * @property priority - Optional priority for applying tax rates.
+ * @property taxClassId - Optional UUID of associated tax class.
  */
 export const updateTaxRateSchema = z
   .object({
@@ -64,6 +68,7 @@ export const updateTaxRateSchema = z
     appliesToShipping: z.boolean().optional(),
     isCompound: z.boolean().optional(),
     priority: z.number().int().optional(),
+    taxClassId: z.string().uuid({ message: "Invalid UUID format" }),
   })
   .refine(
     (data) =>

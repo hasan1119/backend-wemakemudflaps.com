@@ -257,7 +257,7 @@ export const updateUserRoleInfo = async (
 
     // Cache updated role data in Redis
     await Promise.all([
-      setRoleInfoByRoleNameInRedis(updatedRole.id, updatedRole),
+      setRoleInfoByRoleNameInRedis(updatedRole.name, updatedRole),
       setRoleInfoByRoleIdInRedis(updatedRole.id, updatedRole),
       clearAllRoleSearchCache(),
     ]);

@@ -124,17 +124,18 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
-  clearAllTaxRateSearchCache,
+  clearAllTaxRateSearchCacheByTaxClass,
+  clearTaxRateCountCacheByTaxClass,
   getTaxRateCountFromRedis,
-  getTaxRatesFromRedis,
   getTaxRateInfoByIdFromRedis,
   getTaxRateLabelExistFromRedis,
+  getTaxRatesFromRedis,
   removeTaxRateInfoByIdFromRedis,
   removeTaxRateLabelExistFromRedis,
   setTaxRateCountInRedis,
-  setTaxRatesInRedis,
   setTaxRateInfoByIdInRedis,
   setTaxRateLabelExistInRedis,
+  setTaxRatesInRedis,
 } from "./utils/tax-rate/tax-rate-session-manage";
 
 /**

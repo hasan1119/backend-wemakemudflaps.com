@@ -27,6 +27,7 @@ export const createTaxRate = async (
     appliesToShipping,
     isCompound,
     priority,
+    taxClassId,
   } = data ?? {};
 
   const taxRate = taxRateRepository.create({
@@ -40,6 +41,7 @@ export const createTaxRate = async (
     isCompound,
     priority,
     createdBy: userId,
+    taxClass: { id: taxClassId } as any,
   });
 
   return await taxRateRepository.save(taxRate);

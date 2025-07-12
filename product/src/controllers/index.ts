@@ -4,7 +4,7 @@
  * Workflow:
  * 1. Provides mutations for creating, updating, deleting, and restoring brands.
  * 2. Enables retrieval of a specific brand by its ID.
- * 3. Facilitates listing all tags in the system.
+ * 3. Facilitates listing all brands in the system.
  */
 export { createBrand } from "./mutations/manage-brand/create-brand";
 export { deleteBrand } from "./mutations/manage-brand/delete-brand";
@@ -88,3 +88,18 @@ export { restoreProducts } from "./mutations/manage-product/restore-product";
 export { updateProduct } from "./mutations/manage-product/update-product";
 export { getAllProducts } from "./queries/product/get-all-products";
 export { getProductById } from "./queries/product/get-product-by-id";
+
+/**
+ * Exports GraphQL queries and mutations for managing tax rate data.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating, updating, deleting, and restoring tax rates.
+ * 2. Enables retrieval of a specific tax rate by its ID.
+ * 3. Facilitates listing all tax rates in the system.
+ */
+export { createTaxRate } from "./mutations/manage-tax-rate/create-tax-rate";
+export { deleteTaxRate } from "./mutations/manage-tax-rate/delete-tax-rate";
+export { restoreTaxRates } from "./mutations/manage-tax-rate/restore-tax-rate";
+export { updateTaxRate } from "./mutations/manage-tax-rate/update-tax-rate";
+export { getAllTaxRate } from "./queries/tax-rate/get-tax-rate";
+export { getTaxRateById } from "./queries/tax-rate/get-tax-rate-by-id";

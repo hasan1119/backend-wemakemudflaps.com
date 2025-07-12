@@ -21,10 +21,12 @@ export const updateTaxRate = async (
     ...(data.postcode !== undefined && { postcode: data.postcode }),
     ...(data.rate !== undefined && { rate: data.rate }),
     ...(data.label !== undefined && { label: data.label }),
-    ...(data.appliesToShipping !== undefined && { appliesToShipping: data.appliesToShipping }),
+    ...(data.appliesToShipping !== undefined && {
+      appliesToShipping: data.appliesToShipping,
+    }),
     ...(data.isCompound !== undefined && { isCompound: data.isCompound }),
     ...(data.priority !== undefined && { priority: data.priority }),
   });
 
-  return await getTaxRateById(taxRateId);
+  return await getTaxRateById(undefined, taxRateId);
 };

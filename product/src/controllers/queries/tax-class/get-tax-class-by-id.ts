@@ -96,7 +96,7 @@ export const getTaxClassById = async (
         return {
           statusCode: 404,
           success: false,
-          message: `TaxClass not found with this id: ${id}, or it may have been deleted or moved to the trash`,
+          message: `Tax class not found with this id: ${id}, or it may have been deleted or moved to the trash`,
           __typename: "BaseResponse",
         };
       }

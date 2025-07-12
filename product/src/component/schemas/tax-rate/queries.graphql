@@ -18,5 +18,6 @@ type Query {
     search: String # Optional search term (matches name or slug).
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort direction: "asc" or "desc".
+    taxClassId: ID!
   ): GetTaxRatesResponseOrError!
 }

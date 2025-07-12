@@ -5,18 +5,21 @@ import {
   createShippingClass,
   createTag,
   createTaxClass,
+  createTaxRate,
   deleteBrand,
   deleteCategory,
   deleteProduct,
   deleteShippingClass,
   deleteTag,
   deleteTaxClass,
+  deleteTaxRate,
   restoreBrands,
   restoreCategory,
   restoreProducts,
   restoreShippingClasses,
   restoreTags,
   restoreTaxClasses,
+  restoreTaxRates,
   updateBrand,
   updateCategory,
   updateCategoryPosition,
@@ -24,6 +27,7 @@ import {
   updateShippingClass,
   updateTag,
   updateTaxClass,
+  updateTaxRate,
 } from "../../controllers";
 
 /**
@@ -159,5 +163,25 @@ export const productMutationsResolver = {
      * Restores previously deleted product.
      */
     restoreProducts,
+
+    /**
+     * Creates a new tax rate.
+     */
+    createTaxRate,
+
+    /**
+     * Updates detailed information for a specific tax rate .
+     */
+    updateTaxRate,
+
+    /**
+     * Deletes specified tax rate from the system.
+     */
+    deleteTaxRate,
+
+    /**
+     * Restores previously deleted tax class.
+     */
+    restoreTaxRates,
   },
 };

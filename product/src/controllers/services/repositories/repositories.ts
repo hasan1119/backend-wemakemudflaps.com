@@ -165,11 +165,3 @@ export const taxClassRepository = AppDataSource.getRepository(TaxClass);
  * 1. Retrieves the TaxRate repository from AppDataSource for database operations.
  */
 export const taxRateRepository = AppDataSource.getRepository(TaxRate);
-
-/**
- * Initializes repository for TaxRate entity.
- *
- * Workflow:
- * 1. Retrieves the TaxRate repository from AppDataSource for database operations.
- */
-export const taxRateRepository = AppDataSource.getRepository(TaxRate);

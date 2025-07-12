@@ -11,11 +11,8 @@ import { getTaxRateById } from "./get-tax-rate.service";
 export const softDeleteTaxRate = async (
   taxRateId: string
 ): Promise<TaxRate> => {
-  await taxRateRepository.update(
-    { id: taxRateId },
-    { deletedAt: new Date() }
-  );
-  const softDeletedTaxRate = await getTaxRateById(taxRateId);
+  await taxRateRepository.update({ id: taxRateId }, { deletedAt: new Date() });
+  const softDeletedTaxRate = await getTaxRateById(undefined, taxRateId);
   return softDeletedTaxRate;
 };
 

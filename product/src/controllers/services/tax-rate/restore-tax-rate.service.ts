@@ -10,8 +10,6 @@ import { getTaxRateByIds } from "./get-tax-rate.service";
  * @returns Array of restored tax rate entities.
  */
 export const restoreTaxRate = async (ids: string[]): Promise<TaxRate[]> => {
-  if (!ids.length) return [];
-
   await taxRateRepository.update({ id: In(ids) }, { deletedAt: null });
 
   const restoredTaxRates = await getTaxRateByIds(ids);

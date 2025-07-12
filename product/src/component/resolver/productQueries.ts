@@ -5,12 +5,14 @@ import {
   getAllShippingClass,
   getAllTags,
   getAllTaxClass,
+  getAllTaxRate,
   getBrandById,
   getCategoryById,
   getProductById,
   getShippingClassById,
   getTagById,
   getTaxClassById,
+  getTaxRateById,
 } from "../../controllers";
 
 /**
@@ -58,6 +60,7 @@ const typesWithCreatedBy = [
   "ShippingClass",
   "ShippingClassPaginationDataSession",
   "TaxClass",
+  "TaxRate",
   "TaxClassPaginationDataSession",
   "Product",
   "ProductPaginationDataSession",
@@ -157,6 +160,16 @@ export const productQueriesResolver = {
      * Fetches a paginated list of all tax classes in the system.
      */
     getAllTaxClass,
+
+    /**
+     * Fetches a paginated list of all tax rates in the system.
+     */
+    getAllTaxRate,
+
+    /**
+     * Retrieves detailed information for a tax rate by their unique ID.
+     */
+    getTaxRateById,
   },
 
   // Dynamically assign resolvers for createdBy and thumbnail
