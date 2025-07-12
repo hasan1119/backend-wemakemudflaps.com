@@ -1028,7 +1028,7 @@ export type MutationUpdateTaxRateArgs = {
   priority?: InputMaybe<Scalars['Int']['input']>;
   rate?: InputMaybe<Scalars['Float']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
-  taxClassId?: InputMaybe<Scalars['ID']['input']>;
+  taxClassId: Scalars['ID']['input'];
 };
 
 
@@ -1577,6 +1577,7 @@ export type QueryGetAllTaxRatesArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   sortOrder?: InputMaybe<Scalars['String']['input']>;
+  taxClassId: Scalars['ID']['input'];
 };
 
 
@@ -3189,7 +3190,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateTag?: Resolver<ResolversTypes['UpdateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTagArgs, 'id'>>;
   updateTaxClass?: Resolver<ResolversTypes['UpdateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxClassArgs, 'id'>>;
   updateTaxExemptionEntry?: Resolver<ResolversTypes['UpdateTaxExemptionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxExemptionEntryArgs, 'id' | 'userId'>>;
-  updateTaxRate?: Resolver<ResolversTypes['UpdateTaxRateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxRateArgs, 'id'>>;
+  updateTaxRate?: Resolver<ResolversTypes['UpdateTaxRateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxRateArgs, 'id' | 'taxClassId'>>;
   updateUserPermission?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'input'>>;
   updateUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleArgs, 'userId'>>;
   updateUserRoleInfo?: Resolver<ResolversTypes['UpdateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id'>>;
@@ -3459,7 +3460,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllShippingClass?: Resolver<ResolversTypes['GetShippingClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingClassArgs, 'limit' | 'page'>>;
   getAllTags?: Resolver<ResolversTypes['GetTagsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTagsArgs, 'limit' | 'page'>>;
   getAllTaxClass?: Resolver<ResolversTypes['GetTaxClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxClassArgs, 'limit' | 'page'>>;
-  getAllTaxRates?: Resolver<ResolversTypes['GetTaxRatesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxRatesArgs, 'limit' | 'page'>>;
+  getAllTaxRates?: Resolver<ResolversTypes['GetTaxRatesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxRatesArgs, 'limit' | 'page' | 'taxClassId'>>;
   getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'limit' | 'page'>>;
   getBrandById?: Resolver<ResolversTypes['GetBrandByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetBrandByIdArgs, 'id'>>;
   getCategoryById?: Resolver<ResolversTypes['JSON'], ParentType, ContextType, RequireFields<QueryGetCategoryByIdArgs, 'id'>>;
