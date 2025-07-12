@@ -23,7 +23,6 @@ export class ProductVariation {
   @Column({
     type: "enum",
     enum: ["Physical Product", "Downloadable Product", "Virtual Product"],
-    enumName: "product_delivery_type_enum",
     array: true,
     nullable: true,
   })
