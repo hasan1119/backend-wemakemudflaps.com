@@ -118,26 +118,6 @@ export {
 } from "./utils/tax-class/tax-class-session-manage";
 
 /**
- * Exports utilities for managing tax status session data in Redis.
- *
- * Workflow:
- * 1. Provides functions for getting, setting and removing.
- */
-export {
-  clearAllTaxStatusSearchCache,
-  getTaxStatusCountFromRedis,
-  getTaxStatusesFromRedis,
-  getTaxStatusInfoByIdFromRedis,
-  getTaxStatusValueExistFromRedis,
-  removeTaxStatusInfoByIdFromRedis,
-  removeTaxStatusValueExistFromRedis,
-  setTaxStatusCountInRedis,
-  setTaxStatusesInRedis,
-  setTaxStatusInfoByIdInRedis,
-  setTaxStatusValueExistInRedis,
-} from "./utils/tax-status/tax-status-session-manage";
-
-/**
  * Exports utilities for managing user session data in Redis.
  *
  * Workflow:

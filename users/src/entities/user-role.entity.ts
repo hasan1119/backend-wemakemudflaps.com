@@ -26,12 +26,11 @@ export class Role {
 
   // Establishes a one-to-many relationship with permissions
   @OneToMany(() => RolePermission, (permission) => permission.role, {
-    nullable: true,
     cascade: true,
     eager: true,
     onDelete: "CASCADE",
   })
-  defaultPermissions?: RolePermission[] | null;
+  defaultPermissions?: RolePermission[];
 
   // Stores the user role's system delete protection flag (e.g if true then can't be delete - only can bypass Super Admin)
   @Column({ default: false })

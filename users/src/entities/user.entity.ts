@@ -86,9 +86,8 @@ export class User {
   // Establishes a one-to-many relationship for addresses associated with the user
   @OneToMany(() => AddressBook, (address) => address.user, {
     cascade: true, // Automatically persist/remove addresses when user is saved/deleted
-    nullable: true,
   })
-  addresses: AddressBook[] | null;
+  addresses: AddressBook[];
 
   // Stores the token for password reset (optional)
   @Column({ nullable: true, default: null })
@@ -104,10 +103,9 @@ export class User {
 
   // Establishes a one-to-many relationship for user-specific permissions
   @OneToMany(() => Permission, (permission) => permission.user, {
-    nullable: true, // Makes permissions optional
     cascade: true, // Automatically persists related permissions
   })
-  permissions?: Permission[] | null;
+  permissions?: Permission[];
 
   // Indicates whether the user's permissions can be updated
   @Column({ default: true })

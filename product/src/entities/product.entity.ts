@@ -382,7 +382,6 @@ export class Product {
   // Variations for variable products (each representing a distinct combination of attribute values)
   @OneToMany(() => ProductVariation, (variation) => variation.product, {
     cascade: true,
-    nullable: true,
   })
   variations: ProductVariation[] | null;
 
@@ -399,7 +398,6 @@ export class Product {
   // Product review list
   @OneToMany(() => ProductReview, (review) => review.product, {
     cascade: true,
-    nullable: true,
   })
   reviews: ProductReview[] | null;
 

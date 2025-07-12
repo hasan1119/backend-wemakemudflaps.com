@@ -19,10 +19,8 @@ export class Brand {
   slug: string;
 
   // One brand can be associated with multiple products
-  @OneToMany(() => Product, (product) => product.brands, {
-    nullable: true,
-  })
-  products: Product[] | null;
+  @OneToMany(() => Product, (product) => product.brands)
+  products: Product[];
 
   // User ID who created the brand (string only for Apollo Federation compatibility)
   @Column()
