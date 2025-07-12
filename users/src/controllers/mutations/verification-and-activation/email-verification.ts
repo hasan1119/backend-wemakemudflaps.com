@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllUserCountCache,
   clearAllUserSearchCache,
   getUserInfoByEmailFromRedis,
   removeUserEmailFromRedis,
@@ -157,6 +158,7 @@ export const verifyEmail = async (
         removeUserInfoByEmailFromRedis(oldEmail),
         removeUserEmailFromRedis(oldEmail),
         clearAllUserSearchCache(),
+        clearAllUserCountCache(),
       ]);
 
       // Generate new JWT token
@@ -187,6 +189,7 @@ export const verifyEmail = async (
         removeUserInfoByEmailFromRedis(oldEmail),
         removeUserEmailFromRedis(oldEmail),
         clearAllUserSearchCache(),
+        clearAllUserCountCache(),
       ]);
 
       return {

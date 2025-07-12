@@ -432,3 +432,25 @@ export const clearAllUserSearchCache = async (): Promise<void> => {
     listKeys.map((key) => redis.deleteSession(key, "user-app"))
   );
 };
+
+/**
+ * Deletes all cached user count entries from Redis.
+ *
+ * Workflow:
+ * 1. Retrieves all keys in the "user-app" namespace.
+ * 2. Filters keys that start with the user count prefix.
+ * 3. Deletes all matching keys.
+ */
+export const clearAllUserCountCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKey("user-app");
+
+  const countKeys = keys.filter((key) =>
+    key.startsWith(`${PREFIX.USERS}count:`)
+  );
+
+  if (countKeys.length > 0) {
+    await Promise.all(
+      countKeys.map((key) => redis.deleteSession(key, "user-app"))
+    );
+  }
+};

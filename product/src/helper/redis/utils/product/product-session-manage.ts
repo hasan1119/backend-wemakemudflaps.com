@@ -286,3 +286,18 @@ export const clearAllProductSearchCache = async (): Promise<void> => {
     );
   }
 };
+
+/**
+ * Deletes all Redis cache entries related to product counts only.
+ */
+export const clearAllProductCountCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKey("product-app");
+
+  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
+
+  if (countKeys.length > 0) {
+    await Promise.all(
+      countKeys.map((key) => redis.deleteSession(key, "product-app"))
+    );
+  }
+};

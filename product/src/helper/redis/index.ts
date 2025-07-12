@@ -5,6 +5,7 @@
  * 1. Provides functions for getting, setting and removing.
  */
 export {
+  clearAllBrandCountCache,
   clearAllBrandSearchCache,
   getBrandInfoByIdFromRedis,
   getBrandNameExistFromRedis,
@@ -28,6 +29,7 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
+  clearAllCategoryCountCache,
   clearAllCategorySearchCache,
   getCategoriesCountFromRedis,
   getCategoriesFromRedis,
@@ -61,6 +63,7 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
+  clearAllTagCountCache,
   clearAllTagSearchCache,
   getTagInfoByIdFromRedis,
   getTagNameExistFromRedis,
@@ -84,6 +87,7 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
+  clearAllShippingClassCountCache,
   clearAllShippingClassSearchCache,
   getShippingClassCountFromRedis,
   getShippingClassesFromRedis,
@@ -104,6 +108,7 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
+  clearAllTaxClassCountCache,
   clearAllTaxClassSearchCache,
   getTaxClassCountFromRedis,
   getTaxClassesFromRedis,
@@ -167,6 +172,7 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
+  clearAllProductCountCache,
   clearAllProductSearchCache,
   getProductInfoByIdFromRedis,
   getProductNameExistFromRedis,

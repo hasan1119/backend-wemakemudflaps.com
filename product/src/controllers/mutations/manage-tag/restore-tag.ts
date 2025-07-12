@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllTagCountCache,
   clearAllTagSearchCache,
   getTagInfoByIdFromRedis,
   setTagInfoByIdInRedis,
@@ -130,6 +131,7 @@ export const restoreTags = async (
     await Promise.all([
       restored.map((tag) => setTagInfoByIdInRedis(tag.id, tag)),
       clearAllTagSearchCache(),
+      clearAllTagCountCache(),
     ]);
 
     return {

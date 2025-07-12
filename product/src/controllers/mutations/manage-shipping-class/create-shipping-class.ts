@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllShippingClassCountCache,
   clearAllShippingClassSearchCache,
   getShippingClassValueExistFromRedis,
   setShippingClassInfoByIdInRedis,
@@ -120,6 +121,7 @@ export const createShippingClass = async (
       setShippingClassInfoByIdInRedis(shippingClass.id, shippingClass),
       setShippingClassValueExistInRedis(shippingClass.value),
       clearAllShippingClassSearchCache(),
+      clearAllShippingClassCountCache(),
     ]);
 
     return {

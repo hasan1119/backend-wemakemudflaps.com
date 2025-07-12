@@ -90,6 +90,7 @@ export {
  * 1. Provides functions for getting, setting, and removing user sessions, emails, and counts.
  */
 export {
+  clearAllUserCountCache,
   clearAllUserSearchCache,
   getUserCountInDBFromRedis,
   getUserEmailFromRedis,

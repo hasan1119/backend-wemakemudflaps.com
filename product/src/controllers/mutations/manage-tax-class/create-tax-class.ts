@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllTaxClassCountCache,
   clearAllTaxClassSearchCache,
   getTaxClassValueExistFromRedis,
   setTaxClassInfoByIdInRedis,
@@ -120,6 +121,7 @@ export const createTaxClass = async (
       setTaxClassInfoByIdInRedis(taxClass.id, taxClass),
       setTaxClassValueExistInRedis(taxClass.value),
       clearAllTaxClassSearchCache(),
+      clearAllTaxClassCountCache(),
     ]);
 
     return {

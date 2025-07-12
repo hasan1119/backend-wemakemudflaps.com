@@ -1,6 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearAllBrandCountCache,
   clearAllBrandSearchCache,
   getBrandNameExistFromRedis,
   getBrandSlugExistFromRedis,
@@ -148,6 +149,7 @@ export const createBrand = async (
       setBrandNameExistInRedis(brand.name),
       setBrandSlugExistInRedis(brand.slug),
       clearAllBrandSearchCache(),
+      clearAllBrandCountCache(),
     ]);
 
     return {

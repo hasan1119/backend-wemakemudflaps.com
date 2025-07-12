@@ -4,7 +4,7 @@ import { Category as CategoryEntity } from "../../../entities";
 import {
   Category as CategoryGql,
   MutationCreateCategoryArgs,
-} from "../../../types"; // Your GraphQL types
+} from "../../../types";
 import { createCategorySchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
