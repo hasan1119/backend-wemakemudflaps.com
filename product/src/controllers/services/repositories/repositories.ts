@@ -15,7 +15,6 @@ import {
   ShippingClass,
   Tag,
   TaxClass,
-  TaxStatus,
 } from "../../../entities";
 import { AppDataSource } from "../../../helper";
 
@@ -157,11 +156,3 @@ export const tagRepository = AppDataSource.getRepository(Tag);
  * 1. Retrieves the TaxClass repository from AppDataSource for database operations.
  */
 export const taxClassRepository = AppDataSource.getRepository(TaxClass);
-
-/**
- * Initializes repository for TaxStatus entity.
- *
- * Workflow:
- * 1. Retrieves the TaxStatus repository from AppDataSource for database operations.
- */
-export const taxStatusRepository = AppDataSource.getRepository(TaxStatus);

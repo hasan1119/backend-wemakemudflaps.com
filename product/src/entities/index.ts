@@ -125,11 +125,3 @@ export { Tag } from "./tag.entity";
  * 1. Manages tax rates and assignments to products or orders.
  */
 export { TaxClass } from "./tax-class.entity";
-
-/**
- * Exports the TaxStatus entity for setting tax applicability.
- *
- * Workflow:
- * 1. Indicates whether a product is taxable or not.
- */
-export { TaxStatus } from "./tax-status.entity";

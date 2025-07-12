@@ -39,7 +39,7 @@ type Product @key(fields: "id") {
   saleQuantity: Int # Sale quantity limit
   saleQuantityUnit: String # Quantity type (e.g., piece, liter and so on)
   # ---------------------- Tax ----------------------
-  taxStatus: TaxStatus # Tax status reference
+  taxStatus: String # Tax status reference
   taxClass: TaxClass # Tax class reference
   # ---------------------- Quantity & Stock ----------------------
   minQuantity: Int # Minimum purchase quantity

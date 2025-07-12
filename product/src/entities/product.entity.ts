@@ -18,7 +18,6 @@ import { ProductVariation } from "./product-variation.entity";
 import { ShippingClass } from "./shipping-class.entity";
 import { Tag } from "./tag.entity";
 import { TaxClass } from "./tax-class.entity";
-import { TaxStatus } from "./tax-status.entity";
 
 @Entity()
 export class Product {
@@ -38,7 +37,6 @@ export class Product {
   @Column({
     type: "enum",
     enum: ["Physical Product", "Downloadable Product", "Virtual Product"],
-    enumName: "product_delivery_type_enum",
     array: true,
     nullable: true,
   })
@@ -171,12 +169,13 @@ export class Product {
   saleQuantityUnit: string;
 
   // Tax status (controls whether the product cost or shipping is taxable)
-  @ManyToOne(() => TaxStatus, (taxStatus) => taxStatus.products, {
+  @Column({
+    type: "enum",
+    enum: ["Taxable", "Product only", "Shipping only", "None"],
     nullable: true,
-    onDelete: "SET NULL",
+    default: null,
   })
-  @JoinColumn({ name: "tax_status_id" })
-  taxStatus: TaxStatus | null;
+  taxStatus: string | null;
 
   // Tax class (defines tax rates for the product)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {

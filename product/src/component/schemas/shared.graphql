@@ -94,6 +94,14 @@ enum DimensionUnit {
   YARD
 }
 
+# Enum for tax status selection
+enum TaxStatus {
+  TAXABLE
+  PRODUCT_ONLY
+  SHIPPING_ONLY
+  NONE
+}
+
 # ---------------------- CreatedBy ----------------------
 # Extends the CreatedBy entity to support federated references.
 extend type CreatedBy @key(fields: "id") {

@@ -242,51 +242,6 @@ export const taxClassMutationsDef = gql(
 );
 
 /**
- * Loads and parses the GraphQL schema for tax status-related types.
- *
- * Workflow:
- * 1. Reads the schema definition from the `tax-status/tax.graphql` file.
- * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
- *
- * @returns The parsed GraphQL schema for tax statuses as a DocumentNode.
- */
-export const taxStatusDef = gql(
-  readFileSync(path.join(__dirname, "./tax-status/tax-status.graphql"), {
-    encoding: "utf-8",
-  })
-);
-
-/**
- * Loads and parses GraphQL queries for tax status-related operations.
- *
- * Workflow:
- * 1. Reads the query definitions from the `tax-status/queries.graphql` file.
- * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
- *
- * @returns The parsed GraphQL queries for tax statuses as a DocumentNode.
- */
-export const taxStatusQueriesDef = gql(
-  readFileSync(path.join(__dirname, "./tax-status/queries.graphql"), {
-    encoding: "utf-8",
-  })
-);
-
-/**
- * Loads and parses GraphQL mutations for tax status-related operations.
- *
- * Workflow:
- * 1. Reads the mutation definitions from the `tax-status/mutations.graphql` file.
- * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
- *
- * @returns The parsed GraphQL mutations for tax status as a DocumentNode.
- */
-export const taxStatusMutationsDef = gql(
-  readFileSync(path.join(__dirname, "./tax-status/mutations.graphql"), {
-    encoding: "utf-8",
-  })
-);
-
-/**
  * Loads and parses the GraphQL schema for tax product-attribute-related types.
  *
  * Workflow:

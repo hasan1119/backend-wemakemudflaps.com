@@ -248,13 +248,6 @@ union CreateTaxExemptionResponseOrError
   @join__unionMember(graph: USER, member: "ErrorResponse")
  = BaseResponse | TaxExemptionResponse | ErrorResponse
 
-union CreateTaxStatusResponseOrError
-  @join__type(graph: PRODUCT)
-  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "TaxStatusResponse")
-  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | TaxStatusResponse | ErrorResponse
-
 enum DefaultWarrantyPeriod
   @join__type(graph: PRODUCT)
 {
@@ -341,12 +334,6 @@ union DeleteTaxExemptionResponseOrError
   @join__unionMember(graph: USER, member: "DeleteTaxExemptionResponse")
   @join__unionMember(graph: USER, member: "ErrorResponse")
  = BaseResponse | DeleteTaxExemptionResponse | ErrorResponse
-
-union DeleteTaxStatusResponseOrError
-  @join__type(graph: PRODUCT)
-  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | ErrorResponse
 
 enum DimensionUnit
   @join__type(graph: PRODUCT)
@@ -565,20 +552,6 @@ union GetTaxExemptionsResponseOrError
   @join__unionMember(graph: USER, member: "TaxExemptionResponse")
   @join__unionMember(graph: USER, member: "ErrorResponse")
  = BaseResponse | TaxExemptionResponse | ErrorResponse
-
-union GetTaxStatusByIDResponseOrError
-  @join__type(graph: PRODUCT)
-  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "TaxStatusResponse")
-  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | TaxStatusResponse | ErrorResponse
-
-union GetTaxStatusesResponseOrError
-  @join__type(graph: PRODUCT)
-  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "TaxStatusPaginationResponse")
-  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | TaxStatusPaginationResponse | ErrorResponse
 
 union GetUserByIDResponseOrError
   @join__type(graph: USER)
@@ -874,13 +847,9 @@ type Mutation
   updateTaxClass(id: ID!, value: String, description: String): UpdateTaxClassResponseOrError! @join__field(graph: PRODUCT)
   deleteTaxClass(ids: [ID]!, skipTrash: Boolean!): DeleteTaxClassResponseOrError! @join__field(graph: PRODUCT)
   restoreTaxClasses(ids: [ID!]!): RestoreTaxClassResponseOrError! @join__field(graph: PRODUCT)
-  createTaxStatus(value: String!, description: String): CreateTaxStatusResponseOrError! @join__field(graph: PRODUCT)
-  updateTaxStatus(id: ID!, value: String, description: String): UpdateTaxStatusResponseOrError! @join__field(graph: PRODUCT)
-  deleteTaxStatus(ids: [ID]!, skipTrash: Boolean!): DeleteTaxStatusResponseOrError! @join__field(graph: PRODUCT)
-  restoreTaxStatuses(ids: [ID!]!): RestoreTaxStatusResponseOrError! @join__field(graph: PRODUCT)
   createReview: String @join__field(graph: PRODUCT)
-  createProduct(productConfigurationType: productConfigurationType!, productDeliveryType: [ProductDeliveryType!], isCustomized: Boolean!, name: String!, slug: String!, defaultImage: ID, images: [ID!], videos: [ID!], brandIds: [ID!], tagIds: [ID!], defaultMainDescription: String!, defaultShortDescription: String, defaultTags: [String!], categoryIds: [ID!], warrantyDigit: Int, defaultWarrantyPeriod: DefaultWarrantyPeriod, warrantyPolicy: String, regularPrice: Float!, salePrice: Float, salePriceStartAt: String, salePriceEndAt: String, tierPricingInfo: ProductPriceInput, saleQuantity: Int, saleQuantityUnit: String!, taxStatusId: ID, taxClassId: ID, minQuantity: Int, defaultQuantity: Int, maxQuantity: Int, quantityStep: Int, sku: String, model: String, manageStock: Boolean, stockQuantity: Int, allowBackOrders: AllowBackOrders, lowStockThresHold: Int, stockStatus: StockStatus, soldIndividually: Boolean, initialNumberInStock: String, weightUnit: WeightUnit, weight: Float, dimensionUnit: DimensionUnit, length: Float, width: Float, height: Float, shippingClassId: ID, upsellIds: [ID!], crossSellIds: [ID!], attributes: [ProductAttributeInput!], variations: [ProductVariationInput!], purchaseNote: String, enableReviews: Boolean, customBadge: String, isPreview: Boolean, isVisible: Boolean): CreateProductResponseOrError! @join__field(graph: PRODUCT)
-  updateProduct(id: ID!, productConfigurationType: productConfigurationType, productDeliveryType: [ProductDeliveryType!], isCustomized: Boolean, name: String, slug: String, defaultImage: ID, images: [ID!], videos: [ID!], brandIds: [ID!], tagIds: [ID!], defaultMainDescription: String, defaultShortDescription: String, defaultTags: [String!], categoryIds: [ID!], warrantyDigit: Int, defaultWarrantyPeriod: DefaultWarrantyPeriod, warrantyPolicy: String, regularPrice: Float, salePrice: Float, salePriceStartAt: String, salePriceEndAt: String, tierPricingInfo: ProductPriceInput, saleQuantity: Int, saleQuantityUnit: String, taxStatusId: ID, taxClassId: ID, minQuantity: Int, defaultQuantity: Int, maxQuantity: Int, quantityStep: Int, sku: String, model: String, manageStock: Boolean, stockQuantity: Int, allowBackOrders: AllowBackOrders, lowStockThresHold: Int, stockStatus: StockStatus, soldIndividually: Boolean, initialNumberInStock: String, weightUnit: WeightUnit, weight: Float, dimensionUnit: DimensionUnit, length: Float, width: Float, height: Float, shippingClassId: ID, upsellIds: [ID!], crossSellIds: [ID!], attributes: [ProductAttributeInput!], variations: [ProductVariationInput!], purchaseNote: String, enableReviews: Boolean, customBadge: String, isPreview: Boolean, isVisible: Boolean): UpdateProductResponseOrError! @join__field(graph: PRODUCT)
+  createProduct(productConfigurationType: productConfigurationType!, productDeliveryType: [ProductDeliveryType!], isCustomized: Boolean!, name: String!, slug: String!, defaultImage: ID, images: [ID!], videos: [ID!], brandIds: [ID!], tagIds: [ID!], defaultMainDescription: String!, defaultShortDescription: String, defaultTags: [String!], categoryIds: [ID!], warrantyDigit: Int, defaultWarrantyPeriod: DefaultWarrantyPeriod, warrantyPolicy: String, regularPrice: Float!, salePrice: Float, salePriceStartAt: String, salePriceEndAt: String, tierPricingInfo: ProductPriceInput, saleQuantity: Int, saleQuantityUnit: String!, taxStatus: TaxStatus!, taxClassId: ID, minQuantity: Int, defaultQuantity: Int, maxQuantity: Int, quantityStep: Int, sku: String, model: String, manageStock: Boolean, stockQuantity: Int, allowBackOrders: AllowBackOrders, lowStockThresHold: Int, stockStatus: StockStatus, soldIndividually: Boolean, initialNumberInStock: String, weightUnit: WeightUnit, weight: Float, dimensionUnit: DimensionUnit, length: Float, width: Float, height: Float, shippingClassId: ID, upsellIds: [ID!], crossSellIds: [ID!], attributes: [ProductAttributeInput!], variations: [ProductVariationInput!], purchaseNote: String, enableReviews: Boolean, customBadge: String, isPreview: Boolean, isVisible: Boolean): CreateProductResponseOrError! @join__field(graph: PRODUCT)
+  updateProduct(id: ID!, productConfigurationType: productConfigurationType, productDeliveryType: [ProductDeliveryType!], isCustomized: Boolean, name: String, slug: String, defaultImage: ID, images: [ID!], videos: [ID!], brandIds: [ID!], tagIds: [ID!], defaultMainDescription: String, defaultShortDescription: String, defaultTags: [String!], categoryIds: [ID!], warrantyDigit: Int, defaultWarrantyPeriod: DefaultWarrantyPeriod, warrantyPolicy: String, regularPrice: Float, salePrice: Float, salePriceStartAt: String, salePriceEndAt: String, tierPricingInfo: ProductPriceInput, saleQuantity: Int, saleQuantityUnit: String, taxStatus: TaxStatus, taxClassId: ID, minQuantity: Int, defaultQuantity: Int, maxQuantity: Int, quantityStep: Int, sku: String, model: String, manageStock: Boolean, stockQuantity: Int, allowBackOrders: AllowBackOrders, lowStockThresHold: Int, stockStatus: StockStatus, soldIndividually: Boolean, initialNumberInStock: String, weightUnit: WeightUnit, weight: Float, dimensionUnit: DimensionUnit, length: Float, width: Float, height: Float, shippingClassId: ID, upsellIds: [ID!], crossSellIds: [ID!], attributes: [ProductAttributeInput!], variations: [ProductVariationInput!], purchaseNote: String, enableReviews: Boolean, customBadge: String, isPreview: Boolean, isVisible: Boolean): UpdateProductResponseOrError! @join__field(graph: PRODUCT)
   deleteProduct(ids: [ID]!, skipTrash: Boolean!): DeleteProductResponseOrError! @join__field(graph: PRODUCT)
   restoreProducts(ids: [ID!]!): RestoreProductResponseOrError! @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender, company: String): BaseResponseOrError! @join__field(graph: USER)
@@ -1028,7 +997,7 @@ type Product
   tierPricingInfo: ProductPrice
   saleQuantity: Int
   saleQuantityUnit: String
-  taxStatus: TaxStatus
+  taxStatus: String
   taxClass: TaxClass
   minQuantity: Int
   defaultQuantity: Int
@@ -1353,8 +1322,6 @@ type Query
   getAllShippingClass(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetShippingClassesResponseOrError! @join__field(graph: PRODUCT)
   getTaxClassById(id: ID!): GetTaxClassByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllTaxClass(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTaxClassesResponseOrError! @join__field(graph: PRODUCT)
-  getTaxStatusById(id: ID!): GetTaxStatusByIDResponseOrError! @join__field(graph: PRODUCT)
-  getAllTaxStatus(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTaxStatusesResponseOrError! @join__field(graph: PRODUCT)
   getReview: String @join__field(graph: PRODUCT)
   getProduct(id: ID!): GetProductByIdResponseOrError! @join__field(graph: PRODUCT)
   getAllProducts(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetProductsResponseOrError! @join__field(graph: PRODUCT)
@@ -1408,12 +1375,6 @@ union RestoreTagResponseOrError
  = BaseResponse | ErrorResponse
 
 union RestoreTaxClassResponseOrError
-  @join__type(graph: PRODUCT)
-  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | ErrorResponse
-
-union RestoreTaxStatusResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
@@ -1666,46 +1627,13 @@ enum TaxExemptionStatus
   Expired @join__enumValue(graph: USER)
 }
 
-type TaxStatus
+enum TaxStatus
   @join__type(graph: PRODUCT)
 {
-  id: ID!
-  value: String!
-  description: String
-  createdBy: CreatedBy!
-  createdAt: String
-  deletedAt: String
-}
-
-type TaxStatusPaginationDataSession
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  value: String!
-  description: String
-  totalProducts: Int
-  createdBy: CreatedBy!
-  createdAt: String
-  deletedAt: String
-}
-
-type TaxStatusPaginationResponse
-  @join__type(graph: PRODUCT)
-{
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  taxStatuses: [TaxStatusPaginationDataSession!]!
-  total: Int!
-}
-
-type TaxStatusResponse
-  @join__type(graph: PRODUCT)
-{
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  taxStatus: TaxStatus!
+  TAXABLE @join__enumValue(graph: PRODUCT)
+  PRODUCT_ONLY @join__enumValue(graph: PRODUCT)
+  SHIPPING_ONLY @join__enumValue(graph: PRODUCT)
+  NONE @join__enumValue(graph: PRODUCT)
 }
 
 union UpdateAddressBookResponseOrError
@@ -1788,13 +1716,6 @@ union UpdateTaxExemptionResponseOrError
   @join__unionMember(graph: USER, member: "TaxExemptionResponse")
   @join__unionMember(graph: USER, member: "ErrorResponse")
  = BaseResponse | TaxExemptionResponse | ErrorResponse
-
-union UpdateTaxStatusResponseOrError
-  @join__type(graph: PRODUCT)
-  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
-  @join__unionMember(graph: PRODUCT, member: "TaxStatusResponse")
-  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
- = BaseResponse | TaxStatusResponse | ErrorResponse
 
 input UpdateUserPermissionInput
   @join__type(graph: USER)

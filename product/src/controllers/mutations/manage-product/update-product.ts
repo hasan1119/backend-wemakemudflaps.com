@@ -17,7 +17,6 @@ import {
   getShippingClassById,
   getTagsByIds,
   getTaxClassById,
-  getTaxStatusById,
   updateProduct as updateProductService,
 } from "../../services";
 
@@ -212,18 +211,6 @@ export const updateProduct = async (
           statusCode: 404,
           success: false,
           message: `Shipping Class with ID: ${shippingClassId} not found`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (taxStatusId) {
-      const taxStatus = await getTaxStatusById(taxStatusId);
-      if (!taxStatus) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `Tax Status with ID: ${taxStatusId} not found`,
           __typename: "BaseResponse",
         };
       }

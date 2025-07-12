@@ -13,7 +13,6 @@ import { ProductVariationAttributeValue } from "./product-variation-attribute-va
 import { Product } from "./product.entity";
 import { ShippingClass } from "./shipping-class.entity";
 import { TaxClass } from "./tax-class.entity";
-import { TaxStatus } from "./tax-status.entity";
 
 @Entity()
 export class ProductVariation {
@@ -224,13 +223,14 @@ export class ProductVariation {
   @JoinColumn({ name: "variation_shipping_class_id" })
   shippingClass: string;
 
-  // Many-to-one relationship with TaxStatus (nullable)
-  @ManyToOne(() => TaxStatus, (taxStatus) => taxStatus.products, {
+  // Tax status (controls whether the product cost or shipping is taxable)
+  @Column({
+    type: "enum",
+    enum: ["Taxable", "Product only", "Shipping only", "None"],
     nullable: true,
-    onDelete: "SET NULL",
+    default: null,
   })
-  @JoinColumn({ name: "variation_tax_status_id" })
-  taxStatus: TaxStatus | null;
+  taxStatus: string | null;
 
   // Many-to-one relationship with TaxClass (nullable)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {
