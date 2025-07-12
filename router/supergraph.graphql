@@ -943,6 +943,7 @@ enum PermissionName
   COUPON @join__enumValue(graph: USER)
   ADDRESS_BOOK @join__enumValue(graph: USER)
   TAX_EXEMPTION @join__enumValue(graph: USER)
+  TAX_RATE @join__enumValue(graph: USER)
 }
 
 type Permissions
