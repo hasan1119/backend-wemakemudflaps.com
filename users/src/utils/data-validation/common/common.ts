@@ -25,6 +25,7 @@ export const PERMISSIONS = [
   "Coupon",
   "Address Book",
   "Tax Exemption",
+  "Tax Rate",
 ];
 
 // Defines a TypeScript type for permission names as a union of literals
@@ -51,7 +52,8 @@ export type PermissionName =
   | "Media"
   | "Coupon"
   | "Address Book"
-  | "Tax Exemption";
+  | "Tax Exemption"
+  | "Tax Rate";
 
 // Defines a mapping for permission values used in permission schemas
 export const PERMISSION_NORMALIZATION_MAP: Record<string, string> = {
@@ -78,6 +80,7 @@ export const PERMISSION_NORMALIZATION_MAP: Record<string, string> = {
   COUPON: "Coupon",
   ADDRESS_BOOK: "Address Book",
   TAX_EXEMPTION: "Tax Exemption",
+  TAX_RATE: "Tax Rate",
 };
 
 // Utility function to check for duplicate permission names

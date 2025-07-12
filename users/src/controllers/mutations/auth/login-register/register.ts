@@ -289,6 +289,12 @@ export const register = async (
                 canDelete = true;
                 canUpdate = true;
                 break;
+              case "Product Review":
+                canCreate = true;
+                canRead = true;
+                canDelete = true;
+                canUpdate = true;
+                break;
               default:
                 break;
             }
