@@ -5,9 +5,9 @@ export class Ups {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // // The title of the flat rate (e.g., "Standard Flat Rate", "Express Flat Rate")
-  // @Column()
-  // title: string;
+  // The title of the UPS shipping option
+  @Column()
+  title: string;
 
   // // Indicates whether the flat rate is active or not
   // @Column({ default: false })

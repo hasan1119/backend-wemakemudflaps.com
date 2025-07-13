@@ -5,17 +5,30 @@ export class FreeShipping {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // // The title of the flat rate (e.g., "Standard Flat Rate", "Express Flat Rate")
-  // @Column()
-  // title: string;
+  // The title of the free shipping option
+  @Column()
+  title: string;
 
-  // // Indicates whether the flat rate is active or not
-  // @Column({ default: false })
-  // status: boolean;
+  @Column({
+    type: "text",
+    enum: [
+      "N/A",
+      "Coupon",
+      "Minimum Order Amount",
+      "Minimum Order Amount or Coupon",
+      "Minimum Order Amount & Coupon",
+    ],
+    default: "N/A",
+  })
+  conditions: string;
 
-  // // Description of the flat rate, explaining its details or usage
-  // @Column({ type: "text", nullable: true, default: null })
-  // description: string | null;
+  // The minimum order amount required for free shipping, if applicable
+  @Column({ type: "decimal", nullable: true, default: null })
+  minimumOrderAmount: number | null;
+
+  // Apply minimum order rule before coupon discount
+  @Column({ default: false })
+  applyMinimumOrderRuleBeforeCoupon: boolean;
 
   // User ID who created the flat rate (string only for Apollo Federation compatibility)
   @Column()

@@ -5,17 +5,17 @@ export class LocalPickUp {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // // The title of the flat rate (e.g., "Standard Flat Rate", "Express Flat Rate")
-  // @Column()
-  // title: string;
+  // The title of the local pick-up option
+  @Column()
+  title: string;
 
-  // // Indicates whether the flat rate is active or not
-  // @Column({ default: false })
-  // status: boolean;
+  // Indicates whether the local pick-up is active or not
+  @Column({ default: false })
+  taxStatus: boolean;
 
-  // // Description of the flat rate, explaining its details or usage
-  // @Column({ type: "text", nullable: true, default: null })
-  // description: string | null;
+  // The cost associated with the local pick-up
+  @Column({ type: "decimal", precision: 10, scale: 2, default: 0 })
+  cost: number;
 
   // User ID who created the flat rate (string only for Apollo Federation compatibility)
   @Column()
