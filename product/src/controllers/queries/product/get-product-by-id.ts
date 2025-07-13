@@ -97,8 +97,33 @@ export const getProductById = async (
         defaultImage: productData.defaultImage as any,
         images: productData.images as any,
         videos: productData.videos as any,
-        brands: productData.brands as any,
-        tags: productData.tags as any,
+        brands: productData.brands?.map((brand) => ({
+          ...brand,
+          thumbnail: brand.thumbnail as any,
+          createdBy: brand.createdBy as any,
+          createdAt:
+            brand.createdAt instanceof Date
+              ? brand.createdAt.toISOString()
+              : brand.createdAt,
+          deletedAt: brand.deletedAt
+            ? brand.deletedAt instanceof Date
+              ? brand.deletedAt.toISOString()
+              : brand.deletedAt
+            : null,
+        })),
+        tags: productData.tags?.map((tag) => ({
+          ...tag,
+          createdBy: tag.createdBy as any,
+          createdAt:
+            tag.createdAt instanceof Date
+              ? tag.createdAt.toISOString()
+              : tag.createdAt,
+          deletedAt: tag.deletedAt
+            ? tag.deletedAt instanceof Date
+              ? tag.deletedAt.toISOString()
+              : tag.deletedAt
+            : null,
+        })),
         defaultMainDescription: productData.defaultMainDescription,
         defaultShortDescription: productData.defaultShortDescription,
         defaultTags: productData.defaultTags,

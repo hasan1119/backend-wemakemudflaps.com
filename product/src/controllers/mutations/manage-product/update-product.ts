@@ -252,7 +252,7 @@ export const updateProduct = async (
     }
 
     // Update the product in the database
-    await updateProductService(id, currentProduct, {
+    await updateProductService(currentProduct, {
       ...result.data,
       variations: updatedVariations,
     } as any);
