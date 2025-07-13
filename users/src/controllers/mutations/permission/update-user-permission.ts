@@ -2,8 +2,7 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Permission } from "../../../entities";
 import {
-  clearAllUserCountCache,
-  clearAllUserSearchCache,
+  clearUsersAndCountCache,
   getUserInfoByEmailFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
@@ -295,8 +294,7 @@ export const updateUserPermission = async (
       ),
       setUserInfoByEmailInRedis(targetUserEntity.id, updateUserWithPermission),
       setUserInfoByUserIdInRedis(targetUserEntity.id, updateUserWithPermission),
-      clearAllUserSearchCache(),
-      clearAllUserCountCache(),
+      clearUsersAndCountCache(),
     ]);
 
     return {

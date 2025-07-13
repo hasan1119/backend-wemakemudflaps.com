@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllUserCountCache,
-  clearAllUserSearchCache,
+  clearUsersAndCountCache,
   getUserInfoByUserIdFromRedis,
   removeUserTokenInfoByUserSessionIdFromRedis,
   setUserEmailInRedis,
@@ -261,8 +260,7 @@ export const updateProfile = async (
       ),
       setUserInfoByUserIdInRedis(updatedUser.id, updatedUser),
       setUserInfoByEmailInRedis(updatedUser.email, updatedUser),
-      clearAllUserSearchCache(),
-      clearAllUserCountCache(),
+      clearUsersAndCountCache(),
     ];
 
     if (email) {

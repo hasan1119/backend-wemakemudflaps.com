@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllUserCountCache,
-  clearAllUserSearchCache,
+  clearUsersAndCountCache,
   getUserInfoByEmailFromRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
@@ -101,8 +100,7 @@ export const accountActivation = async (
     await Promise.all([
       setUserInfoByUserIdInRedis(user.id, updatedUser),
       setUserInfoByEmailInRedis(user.email, updatedUser),
-      clearAllUserSearchCache(),
-      clearAllUserCountCache(),
+      clearUsersAndCountCache(),
     ]);
 
     return {

@@ -1,12 +1,9 @@
-import { ILike } from "typeorm";
 import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getUsersCountFromRedis,
-  getUsersFromRedis,
-  setUsersCountInRedis,
-  setUsersInRedis,
+  getUsersAndCountFromRedis,
+  setUsersAndCountInRedis,
 } from "../../../helper/redis";
 import {
   GetUsersResponseOrError,
@@ -22,7 +19,6 @@ import {
   checkUserPermission,
   getPaginatedUsers,
 } from "../../services";
-import { userRepository } from "../../services/repositories/repositories";
 
 // Combine pagination and sorting schemas for validation
 const combinedSchema = z.intersection(paginationSchema, usersSortingSchema);
@@ -46,9 +42,8 @@ const mapArgsToPagination = (args: QueryGetAllUsersArgs) => ({
  * 4. On cache miss, fetches users from the database with pagination, search, and sorting.
  * 5. Maps database users to cached format, including roles and permissions.
  * 6. Caches users and total count in Redis.
- * 7. Calculates total user count if not cached, using search conditions, and stores it in Redis.
- * 8. Maps cached users to response format with role and permission details.
- * 9. Returns a success response with user list and total count or an error if validation, permission, or retrieval fails.
+ * 7. Maps cached users to response format with role and permission details.
+ * 8. Returns a success response with user list and total count or an error if validation, permission, or retrieval fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
  * @param args - Input arguments containing page, limit, search, sortBy, and sortOrder.
@@ -105,7 +100,10 @@ export const getAllUsers = async (
 
     // Attempt to retrieve cached users and total count from Redis
     // Use 'any' type for usersData to allow mapped objects with a reduced set of fields
-    let usersData: any = await getUsersFromRedis(
+    let usersData: any;
+    let total: number | null;
+
+    const cachedData = await getUsersAndCountFromRedis(
       page,
       limit,
       search,
@@ -113,9 +111,8 @@ export const getAllUsers = async (
       sortOrder
     );
 
-    let total;
-
-    total = await getUsersCountFromRedis(search, sortBy, sortOrder);
+    usersData = cachedData.users;
+    total = cachedData.count;
 
     if (!usersData) {
       // On cache miss, fetch users from database
@@ -176,31 +173,15 @@ export const getAllUsers = async (
       }));
 
       // Cache users and total count in Redis
-      await Promise.all([
-        setUsersInRedis(page, limit, search, sortBy, sortOrder, usersData),
-        setUsersCountInRedis(search, sortBy, sortOrder, total),
-      ]);
-    }
-
-    // Calculate total user count if not cached
-    if (total === 0) {
-      const where: any[] = [{ deletedAt: null }];
-      if (search) {
-        const searchTerm = `%${search.trim()}%`;
-        where.push(
-          { firstName: ILike(searchTerm), deletedAt: null },
-          { lastName: ILike(searchTerm), deletedAt: null },
-          { username: ILike(searchTerm), deletedAt: null },
-          { email: ILike(searchTerm), deletedAt: null },
-          { roles: { name: ILike(searchTerm) }, deletedAt: null }
-        );
-      }
-
-      // Fetch total count from database
-      total = await userRepository.count({ where });
-
-      // Cache total count in Redis
-      await setUsersCountInRedis(search, sortBy, sortOrder, total);
+      await setUsersAndCountInRedis(
+        page,
+        limit,
+        search,
+        sortBy,
+        sortOrder,
+        usersData,
+        total
+      );
     }
 
     // Map cached users to response format

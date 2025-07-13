@@ -22,70 +22,108 @@ const PREFIX = {
 };
 
 /**
- * Handles retrieval of cached users from Redis based on query parameters.
- *
+ * Handles retrieval of cached users and total count from Redis based on query parameters.
  * Workflow:
- * 1. Constructs a Redis key using page, limit, search term, sortBy, and sortOrder.
- * 2. Queries Redis to retrieve the cached users array.
- * 3. Returns the parsed User array or null if not found.
- *
+ * Constructs a Redis key using page, limit, search term, sortBy, and sortOrder for users.
+ * Constructs a Redis key using search term, sortBy, and sortOrder for count.
+ * Queries Redis to retrieve the cached users array and count concurrently.
+ * Returns an object containing the parsed User array and count, or null if not found.
  * @param page - The page number for pagination.
  * @param limit - The number of users per page.
  * @param search - Optional search term or null for no search.
  * @param sortBy - The field to sort by (default: "createdAt").
  * @param sortOrder - The sort order (default: "desc").
- * @returns A promise resolving to the User array or null if not found.
+ * @returns A promise resolving to an object with users (User array or null) and count (number or null).
  */
-export const getUsersFromRedis = async (
+export const getUsersAndCountFromRedis = async (
   page: number,
   limit: number,
   search: string | null,
   sortBy: string = "createdAt",
   sortOrder: string = "desc"
-): Promise<User[] | null> => {
+): Promise<{ users: User[] | null; count: number | null }> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
-  const key = `${PREFIX.USERS}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  return redis.getSession<User[] | null>(key, "user-app");
+  const usersKey = `${PREFIX.USERS}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  const [usersResult, countResult] = await Promise.all([
+    redis.getSession<User[] | null>(usersKey, "user-app"),
+    redis.getSession<string | null>(countKey, "user-app"),
+  ]);
+
+  const count =
+    countResult !== null
+      ? isNaN(Number(countResult))
+        ? 0
+        : Number(countResult)
+      : null;
+
+  return { users: usersResult, count };
 };
 
 /**
- * Handles retrieval of the cached total users count from Redis.
- *
+ * Handles caching of users and total count in Redis based on query parameters.
  * Workflow:
- * 1. Constructs a Redis key using search term, sortBy, and sortOrder.
- * 2. Queries Redis to retrieve the cached count.
- * 3. Returns the parsed count as a number or null if not found, with 0 for invalid numbers.
- *
+ * Constructs a Redis key using page, limit, search term, sortBy, and sortOrder for users.
+ * Constructs a Redis key using search term, sortBy, and sortOrder for count.
+ * Stores the users array and count in Redis with the specified TTL.
+ * @param page - The page number for pagination.
+ * @param limit - The number of users per page.
  * @param search - Optional search term or null for no search.
  * @param sortBy - The field to sort by (default: "createdAt").
  * @param sortOrder - The sort order (default: "desc").
- * @returns A promise resolving to the count or null if not found.
+ * @param users - The array of User data to cache.
+ * @param total - The total users count to cache.
+ * @param ttl - Optional time-to-live in seconds (default: 3600).
+ * @returns A promise resolving when the users and count are cached.
  */
-export const getUsersCountFromRedis = async (
+export const setUsersAndCountInRedis = async (
+  page: number,
+  limit: number,
   search: string | null,
   sortBy: string = "createdAt",
-  sortOrder: string = "desc"
-): Promise<number | null> => {
+  sortOrder: string = "desc",
+  users: User[],
+  total: number,
+  ttl: number = 3600
+): Promise<void> => {
   const searchKeyWord = search ? search.toLowerCase().trim() : "none";
-  const key = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const usersKey = `${PREFIX.USERS}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
 
-  const result = await redis.getSession<string | null>(key, "user-app");
+  await Promise.all([
+    redis.setSession(usersKey, users, "user-app", ttl),
+    redis.setSession(countKey, total.toString(), "user-app", ttl),
+  ]);
+};
 
-  if (result === null) {
-    return null;
+/**
+ * Handles removal of cached users and count data from Redis.
+ * Workflow:
+ * Retrieves all keys in the "user-app" namespace.
+ * Filters keys that start with the users or users count prefix.
+ * Deletes all matching keys concurrently.
+ * @returns A promise resolving when the users and count data are removed.
+ */
+export const clearUsersAndCountCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKey("user-app");
+  const relevantKeys = keys.filter(
+    (key) =>
+      key.startsWith(PREFIX.USERS) || key.startsWith(`${PREFIX.USERS}count:`)
+  );
+
+  if (relevantKeys.length > 0) {
+    await Promise.all(
+      relevantKeys.map((key) => redis.deleteSession(key, "user-app"))
+    );
   }
-
-  const count = Number(result);
-  return isNaN(count) ? 0 : count;
 };
 
 /**
  * Handles retrieval of cached user email data from Redis.
- *
  * Workflow:
- * 1. Queries Redis using the email prefix and user email.
- * 2. Returns the cached email data or null if not found.
- *
+ * Queries Redis using the email prefix and user email.
+ * Returns the cached email data or null if not found.
  * @param email - The email address of the user.
  * @returns A promise resolving to the cached email data or null if not found.
  */
@@ -97,11 +135,9 @@ export const getUserEmailFromRedis = async (
 
 /**
  * Handles retrieval of the total user count from Redis.
- *
  * Workflow:
- * 1. Queries Redis using the count prefix for users.
- * 2. Converts the result to a number or returns null if not found.
- *
+ * Queries Redis using the count prefix for users.
+ * Converts the result to a number or returns null if not found.
  * @returns A promise resolving to the user count or null if not found.
  */
 export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
@@ -114,11 +150,9 @@ export const getUserCountInDBFromRedis = async (): Promise<number | null> => {
 
 /**
  * Handles retrieval of user token session data from Redis by session ID.
- *
  * Workflow:
- * 1. Queries Redis using the session token prefix and session ID.
- * 2. Returns the parsed UserSession or null if not found.
- *
+ * Queries Redis using the session token prefix and session ID.
+ * Returns the parsed UserSession or null if not found.
  * @param sessionId - The ID of the session.
  * @returns A promise resolving to the UserSession or null if not found.
  */
@@ -133,11 +167,9 @@ export const getUserTokenInfoByUserSessionIdFromRedis = async (
 
 /**
  * Handles retrieval of user session data from Redis by user ID.
- *
  * Workflow:
- * 1. Queries Redis using the session user prefix and user ID.
- * 2. Returns the parsed UserSessionById or null if not found.
- *
+ * Queries Redis using the session user prefix and user ID.
+ * Returns the parsed UserSessionById or null if not found.
  * @param userId - The ID of the user.
  * @returns A promise resolving to the UserSessionById or null if not found.
  */
@@ -152,11 +184,9 @@ export const getUserInfoByUserIdFromRedis = async (
 
 /**
  * Handles retrieval of user session data from Redis by email.
- *
  * Workflow:
- * 1. Queries Redis using the session email prefix and user email.
- * 2. Returns the parsed UserSessionByEmail or null if not found.
- *
+ * Queries Redis using the session email prefix and user email.
+ * Returns the parsed UserSessionByEmail or null if not found.
  * @param email - The email address of the user.
  * @returns A promise resolving to the UserSessionByEmail or null if not found.
  */
@@ -170,65 +200,9 @@ export const getUserInfoByEmailFromRedis = async (
 };
 
 /**
- * Handles caching users in Redis based on query parameters.
- *
- * Workflow:
- * 1. Constructs a Redis key using page, limit, search term, sortBy, and sortOrder.
- *
- * @param page - The page number for pagination.
- * @param limit - The number of users per page.
- * @param search - Optional search term or null for no search.
- * @param sortBy - The field to sort by (default: "createdAt").
- * @param sortOrder - The sort order (default: "desc").
- * @param users - The array of User data to cache.
- * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
- * @returns A promise resolving when the users are cached.
- */
-export const setUsersInRedis = async (
-  page: number,
-  limit: number,
-  search: string | null,
-  sortBy: string = "createdAt",
-  sortOrder: string = "desc",
-  users: User[],
-  ttl: number = 3600
-): Promise<void> => {
-  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
-  const key = `${PREFIX.USERS}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, users, "user-app", ttl);
-};
-
-/**
- * Handles caching the total users count in Redis.
- *
- * Workflow:
- * 1. Constructs a Redis key using search term, sortBy, and sortOrder.
- *
- * @param search - Optional search term or null for no search.
- * @param sortBy - The field to sort by (default: "createdAt").
- * @param sortOrder - The sort order (default: "desc").
- * @param total - The total users count to cache.
- * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
- * @returns A promise resolving when the count is cached.
- */
-export const setUsersCountInRedis = async (
-  search: string | null,
-  sortBy: string = "createdAt",
-  sortOrder: string = "desc",
-  total: number,
-  ttl: number = 3600
-): Promise<void> => {
-  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
-  const key = `${PREFIX.USERS}count:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, total.toString(), "user-app", ttl);
-};
-
-/**
  * Handles caching user email data in Redis.
- *
  * Workflow:
- * 1. Stores the provided email data in Redis with the email prefix and user email.
- *
+ * Stores the provided email data in Redis with the email prefix and user email.
  * @param email - The email address of the user.
  * @param data - The email data to cache.
  * @returns A promise resolving when the email data is cached.
@@ -242,10 +216,8 @@ export const setUserEmailInRedis = async (
 
 /**
  * Handles caching the total user count in Redis.
- *
  * Workflow:
- * 1. Stores the user count as a string in Redis with the count prefix for users.
- *
+ * Stores the user count as a string in Redis with the count prefix for users.
  * @param count - The user count to cache.
  * @returns A promise resolving when the count is cached.
  */
@@ -255,11 +227,9 @@ export const setUserCountInDBInRedis = async (count: number): Promise<void> => {
 
 /**
  * Handles caching user session data in Redis by user ID.
- *
  * Workflow:
- * 1. Maps the provided user data to a response format using mapUserToResponseById.
- * 2. Stores the mapped data in Redis with the session user prefix and user ID.
- *
+ * Maps the provided user data to a response format using mapUserToResponseById.
+ * Stores the mapped data in Redis with the session user prefix and user ID.
  * @param userId - The ID of the user.
  * @param data - The User entity to cache.
  * @returns A promise resolving when the session data is cached.
@@ -278,11 +248,9 @@ export const setUserInfoByUserIdInRedis = async (
 
 /**
  * Handles caching user token session data in Redis by session ID.
- *
  * Workflow:
- * 1. Maps the provided user session data to a token format using mapUserToTokenData.
- * 2. Stores the mapped data in Redis with the session token prefix, session ID, and specified TTL.
- *
+ * Maps the provided user session data to a token format using mapUserToTokenData.
+ * Stores the mapped data in Redis with the session token prefix, session ID, and specified TTL.
  * @param sessionId - The ID of the session.
  * @param data - The UserSession data to cache.
  * @param ttl - Time-to-live in seconds.
@@ -304,11 +272,9 @@ export const setUserTokenInfoByUserSessionIdInRedis = async (
 
 /**
  * Handles caching user session data in Redis by email.
- *
  * Workflow:
- * 1. Maps the provided user data to a response format using mapUserToResponseByEmail.
- * 2. Stores the mapped data in Redis with the session email prefix and user email.
- *
+ * Maps the provided user data to a response format using mapUserToResponseByEmail.
+ * Stores the mapped data in Redis with the session email prefix and user email.
  * @param email - The email address of the user.
  * @param data - The User entity to cache.
  * @returns A promise resolving when the session data is cached.
@@ -327,10 +293,8 @@ export const setUserInfoByEmailInRedis = async (
 
 /**
  * Handles removal of cached username data from Redis.
- *
  * Workflow:
- * 1. Deletes the username data from Redis using the username prefix and username.
- *
+ * Deletes the username data from Redis using the username prefix and username.
  * @param username - The username of the user.
  * @returns A promise resolving when the username data is removed.
  */
@@ -342,10 +306,8 @@ export const removeUserUsernameFromRedis = async (
 
 /**
  * Handles removal of user session data from Redis by user ID.
- *
  * Workflow:
- * 1. Deletes the user session data from Redis using the session user prefix and user ID.
- *
+ * Deletes the user session data from Redis using the session user prefix and user ID.
  * @param userId - The ID of the user.
  * @returns A promise resolving when the session data is removed.
  */
@@ -357,10 +319,8 @@ export const removeUserInfoByUserIdInRedis = async (
 
 /**
  * Handles removal of user token session data from Redis by session ID.
- *
  * Workflow:
- * 1. Deletes the token session data from Redis using the session token prefix and session ID.
- *
+ * Deletes the token session data from Redis using the session token prefix and session ID.
  * @param sessionId - The ID of the session.
  * @returns A promise resolving when the token data is removed.
  */
@@ -375,10 +335,8 @@ export const removeUserTokenInfoByUserSessionIdFromRedis = async (
 
 /**
  * Handles removal of user session data from Redis by email.
- *
  * Workflow:
- * 1. Deletes the user session data from Redis using the session email prefix and user email.
- *
+ * Deletes the user session data from Redis using the session email prefix and user email.
  * @param email - The email address of the user.
  * @returns A promise resolving when the session data is removed.
  */
@@ -390,10 +348,8 @@ export const removeUserInfoByEmailFromRedis = async (
 
 /**
  * Handles removal of cached user email data from Redis.
- *
  * Workflow:
- * 1. Deletes the email data from Redis using the email prefix and user email.
- *
+ * Deletes the email data from Redis using the email prefix and user email.
  * @param email - The email address of the user.
  * @returns A promise resolving when the email data is removed.
  */
@@ -405,52 +361,10 @@ export const removeUserEmailFromRedis = async (
 
 /**
  * Handles removal of the cached total user count from Redis.
- *
  * Workflow:
- * 1. Deletes the user count from Redis using the count prefix for users.
- *
+ * Deletes the user count from Redis using the count prefix for users.
  * @returns A promise resolving when the count is removed.
  */
 export const removeUserCountInDBFromRedis = async (): Promise<void> => {
   await redis.deleteSession(`${PREFIX.COUNT}user`, "user-app");
-};
-
-/**
- * Deletes all Redis cache entries related to user list and count.
- *
- * Order of deletion:
- * 1. Delete list-related keys (paginated data)
- * 2. Delete count-related keys (total counts)
- */
-export const clearAllUserSearchCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("user-app");
-
-  const listKeys = keys.filter((key) => key.startsWith(PREFIX.USERS));
-
-  // Delete list and count keys
-  await Promise.all(
-    listKeys.map((key) => redis.deleteSession(key, "user-app"))
-  );
-};
-
-/**
- * Deletes all cached user count entries from Redis.
- *
- * Workflow:
- * 1. Retrieves all keys in the "user-app" namespace.
- * 2. Filters keys that start with the user count prefix.
- * 3. Deletes all matching keys.
- */
-export const clearAllUserCountCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("user-app");
-
-  const countKeys = keys.filter((key) =>
-    key.startsWith(`${PREFIX.USERS}count:`)
-  );
-
-  if (countKeys.length > 0) {
-    await Promise.all(
-      countKeys.map((key) => redis.deleteSession(key, "user-app"))
-    );
-  }
 };

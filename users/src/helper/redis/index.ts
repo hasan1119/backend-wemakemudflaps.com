@@ -90,14 +90,12 @@ export {
  * 1. Provides functions for getting, setting, and removing user sessions, emails, and counts.
  */
 export {
-  clearAllUserCountCache,
-  clearAllUserSearchCache,
+  clearUsersAndCountCache,
   getUserCountInDBFromRedis,
   getUserEmailFromRedis,
   getUserInfoByEmailFromRedis,
   getUserInfoByUserIdFromRedis,
-  getUsersCountFromRedis,
-  getUsersFromRedis,
+  getUsersAndCountFromRedis,
   getUserTokenInfoByUserSessionIdFromRedis,
   removeUserCountInDBFromRedis,
   removeUserEmailFromRedis,
@@ -109,8 +107,7 @@ export {
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,
   setUserInfoByUserIdInRedis,
-  setUsersCountInRedis,
-  setUsersInRedis,
+  setUsersAndCountInRedis,
   setUserTokenInfoByUserSessionIdInRedis,
 } from "./utils/user/user-session-manage";
 
