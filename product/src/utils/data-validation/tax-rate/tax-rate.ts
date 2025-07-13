@@ -26,7 +26,12 @@ export const createTaxRateSchema = z.object({
   state: z.string().optional(),
   city: z.string().optional(),
   postcode: z.string().optional(),
-  rate: z.number({ required_error: "Rate is required." }),
+  rate: z
+    .number({ required_error: "Rate is required." })
+    .min(0, "Rate must be a non-negative number.")
+    .refine((val) => val % 1 !== 0, {
+      message: "Rate must include decimal places, like 7.5 for 7.5%.",
+    }),
   label: z.string().min(1, "Label is required."),
   appliesToShipping: z.boolean({
     required_error: "appliesToShipping is required.",
@@ -59,15 +64,22 @@ export const createTaxRateSchema = z.object({
 export const updateTaxRateSchema = z
   .object({
     id: z.string().uuid({ message: "Invalid UUID format" }),
-    country: z.string().min(1, "Country is required.").optional(),
-    state: z.string().optional(),
-    city: z.string().optional(),
-    postcode: z.string().optional(),
-    rate: z.number().optional(),
+    country: z.string().min(1, "Country is required.").optional().nullable(),
+    state: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    postcode: z.string().optional().nullable(),
+    rate: z
+      .number({ required_error: "Rate is required." })
+      .min(0, "Rate must be a non-negative number.")
+      .refine((val) => val % 1 !== 0, {
+        message: "Rate must include decimal places, like 7.5 for 7.5%.",
+      })
+      .optional()
+      .nullable(),
     label: z.string().min(1, "Label is required.").optional(),
-    appliesToShipping: z.boolean().optional(),
-    isCompound: z.boolean().optional(),
-    priority: z.number().int().optional(),
+    appliesToShipping: z.boolean().optional().nullable(),
+    isCompound: z.boolean().optional().nullable(),
+    priority: z.number().int().optional().nullable(),
     taxClassId: z.string().uuid({ message: "Invalid UUID format" }),
   })
   .refine(
