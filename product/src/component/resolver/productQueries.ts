@@ -61,6 +61,7 @@ const typesWithCreatedBy = [
   "ShippingClassPaginationDataSession",
   "TaxClass",
   "TaxRate",
+  "TaxRateSession",
   "TaxClassPaginationDataSession",
   "Product",
   "ProductPaginationDataSession",
