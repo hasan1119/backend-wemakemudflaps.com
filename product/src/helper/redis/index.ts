@@ -108,9 +108,7 @@ export {
   getTaxRateInfoByIdFromRedis,
   getTaxRatesAndCountFromRedis,
   removeTaxRateInfoByIdFromRedis,
-  removeTaxRateLabelExistFromRedis,
   setTaxRateInfoByIdInRedis,
-  setTaxRateLabelExistInRedis,
   setTaxRatesAndCountInRedis,
 } from "./utils/tax-rate/tax-rate-session-manage";
 

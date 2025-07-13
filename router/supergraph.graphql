@@ -1755,7 +1755,26 @@ type TaxRateResponse
   statusCode: Int!
   success: Boolean!
   message: String!
-  taxRate: TaxRate!
+  taxRate: TaxRateSession!
+}
+
+type TaxRateSession
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  country: String!
+  state: String
+  city: String
+  postcode: String
+  rate: Float!
+  label: String!
+  taxClassId: ID!
+  appliesToShipping: Boolean!
+  isCompound: Boolean!
+  priority: Int!
+  createdBy: CreatedBy!
+  createdAt: String
+  deletedAt: String
 }
 
 enum TaxStatus

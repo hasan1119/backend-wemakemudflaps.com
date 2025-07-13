@@ -15,12 +15,32 @@ type TaxRate {
   deletedAt: String
 }
 
+# ---------------------- Tax Rate Session Types ----------------------
+# Represents a tax rate session object stored in Redis.
+type TaxRateSession {
+  id: ID!
+  country: String!
+  state: String
+  city: String
+  postcode: String
+  rate: Float!
+  label: String!
+  taxClassId: ID!
+  appliesToShipping: Boolean!
+  isCompound: Boolean!
+  priority: Int!
+  createdBy: CreatedBy!
+  createdAt: String
+  deletedAt: String
+}
+
+# ---------------------- Tax Rate Response Types ----------------------
 # Response for fetching a tax rate.
 type TaxRateResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  taxRate: TaxRate!
+  taxRate: TaxRateSession!
 }
 
 # Response for fetching a tax rates list.

@@ -113,6 +113,7 @@ export const getTaxRateById = async (
           dbTaxRate.deletedAt instanceof Date
             ? dbTaxRate.deletedAt.toISOString()
             : dbTaxRate.deletedAt,
+        taxClassId: (await dbTaxRate.taxClass).id,
       };
 
       await setTaxRateInfoByIdInRedis(id, taxRateData);

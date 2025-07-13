@@ -6,7 +6,6 @@ import {
   getTaxRateInfoByIdFromRedis,
   removeTaxRateInfoByIdFromRedis,
   setTaxRateInfoByIdInRedis,
-  setTaxRateLabelExistInRedis,
 } from "../../../helper/redis";
 import {
   MutationUpdateTaxRateArgs,
@@ -83,7 +82,7 @@ export const updateTaxRate = async (
       };
     }
 
-    const { id, label, taxClassId } = result.data;
+    const { id, taxClassId } = result.data;
 
     // Attempt to retrieve cached tax class data from Redis
     let taxClassData = await getTaxClassInfoByIdFromRedis(taxClassId);
@@ -141,6 +140,7 @@ export const updateTaxRate = async (
       postcode: updatedTaxRate.postcode,
       rate: updatedTaxRate.rate,
       appliesToShipping: updatedTaxRate.appliesToShipping,
+      taxClassId: (await updatedTaxRate.taxClass).id,
       isCompound: updatedTaxRate.isCompound,
       priority: updatedTaxRate.priority,
       createdBy: updatedTaxRate.createdBy as any,
@@ -158,7 +158,6 @@ export const updateTaxRate = async (
     await Promise.all([
       removeTaxRateInfoByIdFromRedis(id),
       setTaxRateInfoByIdInRedis(updatedTaxRate.id, taxRateResponse),
-      label && setTaxRateLabelExistInRedis(taxClassId, updatedTaxRate.label),
       clearTaxRatesAndCountCacheByTaxClass(taxClassId),
     ]);
 

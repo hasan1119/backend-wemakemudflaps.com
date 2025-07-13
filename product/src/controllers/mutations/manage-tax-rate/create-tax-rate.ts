@@ -4,7 +4,6 @@ import {
   clearTaxRatesAndCountCacheByTaxClass,
   getTaxClassInfoByIdFromRedis,
   setTaxRateInfoByIdInRedis,
-  setTaxRateLabelExistInRedis,
 } from "../../../helper/redis";
 import {
   CreateTaxRateResponseOrError,
@@ -149,6 +148,7 @@ export const createTaxRate = async (
       appliesToShipping: taxRate.appliesToShipping,
       isCompound: taxRate.isCompound,
       priority: taxRate.priority,
+      taxClassId: (await taxRate.taxClass).id,
       createdBy: taxRate.createdBy as any,
       createdAt:
         taxRate.createdAt instanceof Date
@@ -164,7 +164,7 @@ export const createTaxRate = async (
     // and clear related tax rate search caches by taxClassId
     await Promise.all([
       setTaxRateInfoByIdInRedis(taxRate.id, taxRateResponse),
-      setTaxRateLabelExistInRedis(taxClassId, taxRate.label),
+
       clearTaxRatesAndCountCacheByTaxClass(taxClassId),
     ]);
 

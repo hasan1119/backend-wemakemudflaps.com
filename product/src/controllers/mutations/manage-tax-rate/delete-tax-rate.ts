@@ -3,7 +3,6 @@ import { Context } from "../../../context";
 import {
   clearTaxRatesAndCountCacheByTaxClass,
   removeTaxRateInfoByIdFromRedis,
-  removeTaxRateLabelExistFromRedis,
   setTaxRateInfoByIdInRedis,
 } from "../../../helper/redis";
 import {
@@ -40,6 +39,7 @@ const softDeleteAndCache = async (taxClassId: string, id: string) => {
     postcode: deletedData.postcode,
     rate: deletedData.rate,
     appliesToShipping: deletedData.appliesToShipping,
+    taxClassId: (await deletedData.taxClass).id,
     isCompound: deletedData.isCompound,
     priority: deletedData.priority,
     createdBy: deletedData.createdBy as any,
@@ -141,18 +141,12 @@ export const deleteTaxRate = async (
     // Process deletions in parallel
     await Promise.all(
       taxRatesToDelete.map(async (taxRate) => {
-        const taxClassId =
-          typeof taxRate.taxClass === "string"
-            ? taxRate.taxClass
-            : taxRate.taxClass?.id || "";
+        const taxClassId = (await taxRate.taxClass).id;
 
         if (skipTrash) {
           // Hard delete
           await hardDeleteTaxRate(taxRate.id);
-          await Promise.all([
-            clearTaxRateCache(taxClassId, taxRate.id),
-            removeTaxRateLabelExistFromRedis(taxClassId, taxRate.label),
-          ]);
+          await clearTaxRateCache(taxClassId, taxRate.id);
         } else {
           if (taxRate.deletedAt) {
             return {

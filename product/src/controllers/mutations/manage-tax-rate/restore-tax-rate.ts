@@ -127,7 +127,7 @@ export const restoreTaxRates = async (
 
     //  Update Redis
     await Promise.all([
-      ...restored.map((rate) =>
+      ...restored.map(async (rate) =>
         setTaxRateInfoByIdInRedis(rate.id, {
           id: rate.id,
           label: rate.label,
@@ -138,6 +138,7 @@ export const restoreTaxRates = async (
           rate: rate.rate,
           appliesToShipping: rate.appliesToShipping,
           isCompound: rate.isCompound,
+          taxClassId: (await rate.taxClass).id,
           priority: rate.priority,
           createdBy: rate.createdBy as any,
           createdAt:

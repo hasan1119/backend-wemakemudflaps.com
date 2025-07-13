@@ -1,4 +1,5 @@
-import { TaxRate } from "../../../../types";
+import { TaxRate } from "../../../../entities";
+import { TaxRateSession } from "../../../../types";
 import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for tax rate session caching
@@ -120,42 +121,6 @@ export const clearTaxRatesAndCountCacheByTaxClass = async (
 };
 
 /**
- * Sets an existence flag for a tax rate label in Redis by tax class ID.
- *
- * Workflow:
- * 1. Stores "exists" in Redis with the EXISTS prefix, taxClassId, and normalized label.
- *
- * @param taxClassId - The ID of the tax class.
- * @param label - The label of the tax rate.
- * @returns A promise resolving when the flag is set.
- */
-export const setTaxRateLabelExistInRedis = async (
-  taxClassId: string,
-  label: string
-): Promise<void> => {
-  const key = `${PREFIX.EXISTS}${taxClassId}:${label.toLowerCase().trim()}`;
-  await redis.setSession(key, "exists", "product-app");
-};
-
-/**
- * Removes the existence flag for a tax rate label by tax class ID from Redis.
- *
- * Workflow:
- * 1. Deletes the existence flag from Redis using the EXISTS prefix, taxClassId, and normalized label.
- *
- * @param taxClassId - The ID of the tax class.
- * @param label - The label of the tax rate.
- * @returns A promise resolving when the flag is removed.
- */
-export const removeTaxRateLabelExistFromRedis = async (
-  taxClassId: string,
-  label: string
-): Promise<void> => {
-  const key = `${PREFIX.EXISTS}${taxClassId}:${label.toLowerCase().trim()}`;
-  await redis.deleteSession(key, "product-app");
-};
-
-/**
  * Retrieves tax rate information from Redis by rate ID (without taxClassId in key).
  *
  * Workflow:
@@ -167,12 +132,12 @@ export const removeTaxRateLabelExistFromRedis = async (
  */
 export const getTaxRateInfoByIdFromRedis = async (
   rateId: string
-): Promise<TaxRate | null> => {
+): Promise<TaxRateSession | null> => {
   const key = `${PREFIX.RATE}${rateId}`;
-  return redis.getSession<TaxRate | null>(key, "product-app");
+  return redis.getSession<TaxRateSession | null>(key, "product-app");
 };
 
-/**
+/*
  * Caches tax rate information in Redis by rate ID (without taxClassId in key).
  *
  * Workflow:
@@ -184,7 +149,7 @@ export const getTaxRateInfoByIdFromRedis = async (
  */
 export const setTaxRateInfoByIdInRedis = async (
   rateId: string,
-  data: TaxRate
+  data: TaxRateSession
 ): Promise<void> => {
   const key = `${PREFIX.RATE}${rateId}`;
   await redis.setSession(key, data, "product-app");
