@@ -46,7 +46,6 @@ export {
  * 3. Supports paginated retrieval of categories including their subcategories.
  */
 export {
-  countCategoriesWithSearch,
   findCategoryByNameOrSlug,
   findCategoryByNameOrSlugToUpdateScoped,
   getCategoryById,

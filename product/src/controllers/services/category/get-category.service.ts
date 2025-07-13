@@ -1,4 +1,4 @@
-import { Brackets, ILike, Not } from "typeorm";
+import { ILike, Not } from "typeorm";
 import { Category } from "../../../entities";
 import { categoryRepository } from "../repositories/repositories";
 
@@ -287,39 +287,4 @@ export const paginateCategories = async ({
   }
 
   return { categories: filteredCategories, total: filteredCategories.length };
-};
-
-/**
- * Handles counting categories matching optional search criteria.
- *
- * @param search - Optional search term to filter by name or description (case-insensitive).
- * @returns A promise resolving to the total number of matching categories.
- */
-export const countCategoriesWithSearch = async (
-  search?: string
-): Promise<number> => {
-  const query = categoryRepository
-    .createQueryBuilder("category")
-    .leftJoin(
-      "category.subCategories",
-      "subCategory",
-      "subCategory.deletedAt IS NULL"
-    )
-    .where("category.deletedAt IS NULL");
-
-  if (search?.trim()) {
-    const searchTerm = `%${search.trim()}%`;
-    query.andWhere(
-      new Brackets((qb) => {
-        qb.where("category.name ILIKE :searchTerm", { searchTerm })
-          .orWhere("category.description ILIKE :searchTerm", { searchTerm })
-          .orWhere("category.slug ILIKE :searchTerm", { searchTerm })
-          .orWhere("subCategory.name ILIKE :searchTerm", { searchTerm })
-          .orWhere("subCategory.description ILIKE :searchTerm", { searchTerm })
-          .orWhere("subCategory.slug ILIKE :searchTerm", { searchTerm });
-      })
-    );
-  }
-
-  return await query.getCount();
 };
