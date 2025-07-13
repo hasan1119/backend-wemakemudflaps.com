@@ -3,6 +3,10 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Category } from "../../../entities";
 import {
+  getCategoriesAndCountFromRedis,
+  setCategoriesAndCountInRedis,
+} from "../../../helper/redis";
+import {
   GetCategoriesResponseOrError,
   QueryGetAllCategoriesArgs,
 } from "../../../types";
@@ -103,7 +107,27 @@ export const getAllCategories = async (
 
     const { page, limit, search, sortBy, sortOrder } = mappedArgs;
 
-    // Fetch paginated categories with nested subcategories
+    // Try to get from Redis first
+    const redisResult = await getCategoriesAndCountFromRedis(
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder
+    );
+
+    if (!redisResult.categories && redisResult.count !== null) {
+      return {
+        statusCode: 200,
+        success: true,
+        message: "Categories fetched successfully (cache)",
+        categories: redisResult.categories,
+        total: redisResult.count,
+        __typename: "CategoryPaginationResponse",
+      };
+    }
+
+    // On cache miss, fetch paginated categories with nested subcategories
     const { categories: dbCategories, total } = await paginateCategories({
       page,
       limit,
@@ -111,10 +135,17 @@ export const getAllCategories = async (
       sortBy,
       sortOrder,
     });
-
-    //  Map all categories and their nested subcategories recursively
     const categories = dbCategories.map(mapCategoryToResponse);
-
+    // Cache in Redis
+    await setCategoriesAndCountInRedis(
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+      categories,
+      total
+    );
     return {
       statusCode: 200,
       success: true,
