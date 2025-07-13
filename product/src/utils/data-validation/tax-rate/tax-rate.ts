@@ -28,10 +28,7 @@ export const createTaxRateSchema = z.object({
   postcode: z.string().optional(),
   rate: z
     .number({ required_error: "Rate is required." })
-    .min(0, "Rate must be a non-negative number.")
-    .refine((val) => val % 1 !== 0, {
-      message: "Rate must include decimal places, like 7.5 for 7.5%.",
-    }),
+    .min(0, "Rate must be a non-negative number."),
   label: z.string().min(1, "Label is required."),
   appliesToShipping: z.boolean({
     required_error: "appliesToShipping is required.",
@@ -71,9 +68,6 @@ export const updateTaxRateSchema = z
     rate: z
       .number({ required_error: "Rate is required." })
       .min(0, "Rate must be a non-negative number.")
-      .refine((val) => val % 1 !== 0, {
-        message: "Rate must include decimal places, like 7.5 for 7.5%.",
-      })
       .optional()
       .nullable(),
     label: z.string().min(1, "Label is required.").optional(),
