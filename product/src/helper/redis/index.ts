@@ -9,8 +9,6 @@ export {
   getBrandInfoByIdFromRedis,
   getBrandNameExistFromRedis,
   getBrandsAndCountFromRedis,
-  // getBrandsCountFromRedis,
-  // getBrandsFromRedis,
   getBrandSlugExistFromRedis,
   removeBrandInfoByIdFromRedis,
   removeBrandNameExistFromRedis,
@@ -18,8 +16,6 @@ export {
   setBrandInfoByIdInRedis,
   setBrandNameExistInRedis,
   setBrandsAndCountInRedis,
-  // setBrandsCountInRedis,
-  // setBrandsInRedis,
   setBrandSlugExistInRedis,
 } from "./utils/brand/brand-session-manage";
 
@@ -29,33 +25,33 @@ export {
  * Workflow:
  * 1. Provides functions for getting, setting and removing.
  */
-export {
-  clearAllCategoryCountCache,
-  clearAllCategorySearchCache,
-  getCategoriesCountFromRedis,
-  getCategoriesFromRedis,
-  getCategoryInfoByIdFromRedis,
-  getCategoryNameExistFromRedis,
-  getCategorySlugExistFromRedis,
-  getSubCategoryInfoByIdFromRedis,
-  getSubCategoryNameExistFromRedis,
-  getSubCategoryNameKey,
-  getSubCategorySlugExistFromRedis,
-  removeCategoryInfoByIdFromRedis,
-  removeCategoryNameExistFromRedis,
-  removeCategorySlugExistFromRedis,
-  removeSubCategoryInfoByIdFromRedis,
-  removeSubCategoryNameExistFromRedis,
-  removeSubCategorySlugExistFromRedis,
-  setCategoriesCountInRedis,
-  setCategoriesInRedis,
-  setCategoryInfoByIdInRedis,
-  setCategoryNameExistInRedis,
-  setCategorySlugExistInRedis,
-  setSubCategoryInfoByIdInRedis,
-  setSubCategoryNameExistInRedis,
-  setSubCategorySlugExistInRedis,
-} from "./utils/category/category-session-manage";
+// export {
+//   clearAllCategoryCountCache,
+//   clearAllCategorySearchCache,
+//   getCategoriesCountFromRedis,
+//   getCategoriesFromRedis,
+//   getCategoryInfoByIdFromRedis,
+//   getCategoryNameExistFromRedis,
+//   getCategorySlugExistFromRedis,
+//   getSubCategoryInfoByIdFromRedis,
+//   getSubCategoryNameExistFromRedis,
+//   getSubCategoryNameKey,
+//   getSubCategorySlugExistFromRedis,
+//   removeCategoryInfoByIdFromRedis,
+//   removeCategoryNameExistFromRedis,
+//   removeCategorySlugExistFromRedis,
+//   removeSubCategoryInfoByIdFromRedis,
+//   removeSubCategoryNameExistFromRedis,
+//   removeSubCategorySlugExistFromRedis,
+//   setCategoriesCountInRedis,
+//   setCategoriesInRedis,
+//   setCategoryInfoByIdInRedis,
+//   setCategoryNameExistInRedis,
+//   setCategorySlugExistInRedis,
+//   setSubCategoryInfoByIdInRedis,
+//   setSubCategoryNameExistInRedis,
+//   setSubCategorySlugExistInRedis,
+// } from "./utils/category/category-session-manage";
 
 /**
  * Exports utilities for managing tag session data in Redis.
