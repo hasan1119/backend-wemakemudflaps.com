@@ -167,37 +167,3 @@ export const paginateShippingClasses = async ({
 
   return { shippingClasses, total };
 };
-
-/**
- * Handles counting shipping classes matching optional search criteria.
- *
- * Workflow:
- * 1. Constructs a where clause to filter non-deleted shipping classes and apply search conditions if provided.
- * 2. Queries the shippingClassRepository to count shipping classes matching the criteria.
- * 3. Returns the total number of matching shipping classes.
- *
- * @param search - Optional search term to filter by value or description (case-insensitive).
- * @returns A promise resolving to the total number of matching shipping classes.
- */
-export const countShippingClassesWithSearch = async (
-  search?: string
-): Promise<number> => {
-  const queryBuilder = shippingClassRepository
-    .createQueryBuilder("shippingClass")
-    .where("shippingClass.deletedAt IS NULL");
-
-  if (search) {
-    const searchTerm = `%${search.trim()}%`;
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        qb.where("shippingClass.value ILIKE :search", {
-          search: searchTerm,
-        }).orWhere("shippingClass.description ILIKE :search", {
-          search: searchTerm,
-        });
-      })
-    );
-  }
-
-  return await queryBuilder.getCount();
-};

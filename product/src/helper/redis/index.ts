@@ -84,16 +84,19 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
-  clearAllShippingClassCountCache,
-  clearAllShippingClassSearchCache,
-  getShippingClassCountFromRedis,
-  getShippingClassesFromRedis,
+  clearShippingClassesAndCountCache,
+  getShippingClassesAndCountFromRedis,
+  // clearAllShippingClassCountCache,
+  // clearAllShippingClassSearchCache,
+  // getShippingClassCountFromRedis,
+  // getShippingClassesFromRedis,
   getShippingClassInfoByIdFromRedis,
   getShippingClassValueExistFromRedis,
   removeShippingClassInfoByIdFromRedis,
   removeShippingClassValueExistFromRedis,
-  setShippingClassCountInRedis,
-  setShippingClassesInRedis,
+  setShippingClassesAndCountInRedis,
+  // setShippingClassCountInRedis,
+  // setShippingClassesInRedis,
   setShippingClassInfoByIdInRedis,
   setShippingClassValueExistInRedis,
 } from "./utils/shipping-class/shipping-class-session-manage";

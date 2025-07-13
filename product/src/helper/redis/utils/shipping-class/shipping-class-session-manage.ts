@@ -11,46 +11,110 @@ const PREFIX = {
 };
 
 /**
- * Retrieves a paginated list of shipping classes from Redis cache.
+ * Handles retrieval of cached shipping classes and total count from Redis based on query parameters.
  *
- * @param page - Current page number.
- * @param limit - Number of classes per page.
- * @param search - Search query (optional).
- * @param sortBy - Field to sort by (default is 'createdAt').
- * @param sortOrder - Sort order ('asc' or 'desc', default is 'desc').
- * @returns A promise resolving to an array of ShippingClassPaginationDataSession or null.
+ * Workflow:
+ * 1. Constructs Redis keys using page, limit, search term, sortBy, and sortOrder for shipping classes and count.
+ * 2. Queries Redis to retrieve the cached shipping classes array and count concurrently.
+ * 3. Returns an object containing the parsed ShippingClass array and count, or null if not found.
+ *
+ * @param page - The page number for pagination.
+ * @param limit - The number of shipping classes per page.
+ * @param search - Optional search term or null for no search.
+ * @param sortBy - The field to sort by (default: "createdAt").
+ * @param sortOrder - The sort order (default: "desc").
+ * @returns A promise resolving to an object with shipping classes (ShippingClass array or null) and count (number or null).
  */
-export const getShippingClassesFromRedis = async (
+export const getShippingClassesAndCountFromRedis = async (
   page: number,
   limit: number,
-  search: string = "",
+  search: string | null,
   sortBy: string = "createdAt",
   sortOrder: string = "desc"
-): Promise<ShippingClassPaginationDataSession[] | null> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  return redis.getSession<ShippingClassPaginationDataSession[] | null>(
-    key,
-    "product-app"
-  );
+): Promise<{
+  classes: ShippingClassPaginationDataSession[] | null;
+  count: number | null;
+}> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const classesKey = `${PREFIX.LIST}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  const [classesResult, countResult] = await Promise.all([
+    redis.getSession<ShippingClassPaginationDataSession[] | null>(
+      classesKey,
+      "product-app"
+    ),
+    redis.getSession<string | null>(countKey, "product-app"),
+  ]);
+
+  const count =
+    countResult !== null
+      ? isNaN(Number(countResult))
+        ? 0
+        : Number(countResult)
+      : null;
+
+  return { classes: classesResult, count };
 };
 
 /**
- * Retrieves the total count of shipping classes from Redis cache.
+ * Handles caching of shipping classes and total count in Redis based on query parameters.
  *
- * @param search - Search query (optional).
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @returns A promise resolving to the count of shipping classes.
+ * Workflow:
+ * 1. Constructs Redis keys using page, limit, search term, sortBy, and sortOrder for shipping classes and count.
+ * 2. Stores the shipping classes array and count in Redis with the specified TTL.
+ *
+ * @param page - The page number for pagination.
+ * @param limit - The number of shipping classes per page.
+ * @param search - Optional search term or null for no search.
+ * @param sortBy - The field to sort by (default: "createdAt").
+ * @param sortOrder - The sort order (default: "desc").
+ * @param classes - The array of ShippingClass data to cache.
+ * @param total - The total shipping classes count to cache.
+ * @param ttl - Optional time-to-live in seconds (default: 3600).
+ * @returns A promise resolving when the shipping classes and count are cached.
  */
-export const getShippingClassCountFromRedis = async (
-  search: string = "",
+export const setShippingClassesAndCountInRedis = async (
+  page: number,
+  limit: number,
+  search: string | null,
   sortBy: string = "createdAt",
-  sortOrder: string = "desc"
-): Promise<number> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  const result = await redis.getSession<number | null>(key, "product-app");
-  const count = Number(result);
-  return isNaN(count) ? 0 : count;
+  sortOrder: string = "desc",
+  classes: ShippingClassPaginationDataSession[],
+  total: number,
+  ttl: number = 3600
+): Promise<void> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const classesKey = `${PREFIX.LIST}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  await Promise.all([
+    redis.setSession(classesKey, classes, "product-app", ttl),
+    redis.setSession(countKey, total.toString(), "product-app", ttl),
+  ]);
+};
+
+/**
+ * Handles removal of cached shipping classes and count data from Redis.
+ *
+ * Workflow:
+ * 1. Retrieves all keys in the "product-app" namespace.
+ * 2. Filters keys that start with the shipping classes list or count prefix.
+ * 3. Deletes all matching keys concurrently.
+ *
+ * @returns A promise resolving when the shipping classes and count data are removed.
+ */
+export const clearShippingClassesAndCountCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKey("product-app");
+  const relevantKeys = keys.filter(
+    (key) => key.startsWith(PREFIX.LIST) || key.startsWith(PREFIX.COUNT)
+  );
+
+  if (relevantKeys.length > 0) {
+    await Promise.all(
+      relevantKeys.map((key) => redis.deleteSession(key, "product-app"))
+    );
+  }
 };
 
 /**
@@ -76,6 +140,10 @@ export const getShippingClassValueExistFromRedis = async (
 /**
  * Retrieves shipping class information from Redis by class ID.
  *
+ * Workflow:
+ * 1. Queries Redis using the CLASS prefix and class ID.
+ * 2. Returns the parsed ShippingClass or null if not found.
+ *
  * @param classId - The ID of the shipping class.
  * @returns A promise resolving to the ShippingClass or null if not found.
  */
@@ -89,54 +157,14 @@ export const getShippingClassInfoByIdFromRedis = async (
 };
 
 /**
- * Caches a paginated list of shipping classes in Redis.
- *
- * @param page - Current page number.
- * @param limit - Number of classes per page.
- * @param search - Search query.
- * @param sortBy - Field to sort by.
- * @param sortOrder - Sort order ('asc' or 'desc').
- * @param classes - Array of ShippingClassPaginationDataSession to cache.
- * @param ttl - Optional time-to-live in seconds (default: 3600).
- */
-export const setShippingClassesInRedis = async (
-  page: number,
-  limit: number,
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  classes: ShippingClassPaginationDataSession[],
-  ttl: number = 3600
-): Promise<void> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, classes, "product-app", ttl);
-};
-
-/**
- * Caches the total shipping class count in Redis.
- *
- * @param search - Search query.
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @param count - Total number of shipping classes.
- * @param ttl - Optional time-to-live in seconds (default: 3600).
- */
-export const setShippingClassCountInRedis = async (
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  count: number,
-  ttl: number = 3600
-): Promise<void> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, count.toString(), "product-app", ttl);
-};
-
-/**
  * Caches shipping class information in Redis by class ID.
+ *
+ * Workflow:
+ * 1. Stores the data in Redis with the CLASS prefix and class ID.
  *
  * @param classId - The ID of the shipping class.
  * @param data - The ShippingClass entity to cache.
+ * @returns A promise resolving when the shipping class is cached.
  */
 export const setShippingClassInfoByIdInRedis = async (
   classId: string,
@@ -152,6 +180,7 @@ export const setShippingClassInfoByIdInRedis = async (
  * 1. Stores "exists" in Redis with the EXISTS prefix and normalized value.
  *
  * @param value - The value of the shipping class.
+ * @returns A promise resolving when the flag is set.
  */
 export const setShippingClassValueExistInRedis = async (
   value: string
@@ -166,7 +195,11 @@ export const setShippingClassValueExistInRedis = async (
 /**
  * Removes cached shipping class information by class ID from Redis.
  *
+ * Workflow:
+ * 1. Deletes the shipping class data from Redis using the CLASS prefix and class ID.
+ *
  * @param classId - The ID of the shipping class.
+ * @returns A promise resolving when the shipping class data is removed.
  */
 export const removeShippingClassInfoByIdFromRedis = async (
   classId: string
@@ -177,7 +210,11 @@ export const removeShippingClassInfoByIdFromRedis = async (
 /**
  * Removes the existence flag for a shipping class value from Redis.
  *
+ * Workflow:
+ * 1. Deletes the existence flag from Redis using the EXISTS prefix and normalized value.
+ *
  * @param value - The value of the shipping class.
+ * @returns A promise resolving when the flag is removed.
  */
 export const removeShippingClassValueExistFromRedis = async (
   value: string
@@ -186,45 +223,4 @@ export const removeShippingClassValueExistFromRedis = async (
     `${PREFIX.EXISTS}${value.toLowerCase().trim()}`,
     "product-app"
   );
-};
-
-/**
- * Deletes all Redis cache entries related to shipping class list and count.
- *
- * Order of deletion:
- * 1. Delete list-related keys (paginated data).
- * 2. Delete count-related keys (total counts).
- */
-export const clearAllShippingClassSearchCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("product-app");
-
-  const listKeys = keys.filter((key) => key.startsWith(PREFIX.LIST));
-  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
-
-  if (listKeys.length > 0) {
-    await Promise.all(
-      listKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
-
-  if (countKeys.length > 0) {
-    await Promise.all(
-      countKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
-};
-
-/**
- * Deletes all Redis cache entries related to shipping class counts only.
- */
-export const clearAllShippingClassCountCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("product-app");
-
-  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
-
-  if (countKeys.length > 0) {
-    await Promise.all(
-      countKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
 };

@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllShippingClassCountCache,
-  clearAllShippingClassSearchCache,
+  clearShippingClassesAndCountCache,
   getShippingClassValueExistFromRedis,
   setShippingClassInfoByIdInRedis,
   setShippingClassValueExistInRedis,
@@ -120,8 +119,7 @@ export const createShippingClass = async (
     await Promise.all([
       setShippingClassInfoByIdInRedis(shippingClass.id, shippingClass),
       setShippingClassValueExistInRedis(shippingClass.value),
-      clearAllShippingClassSearchCache(),
-      clearAllShippingClassCountCache(),
+      clearShippingClassesAndCountCache(),
     ]);
 
     return {

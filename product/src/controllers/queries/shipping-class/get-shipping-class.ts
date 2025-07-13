@@ -2,10 +2,8 @@ import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getShippingClassCountFromRedis,
-  getShippingClassesFromRedis,
-  setShippingClassCountInRedis,
-  setShippingClassesInRedis,
+  getShippingClassesAndCountFromRedis,
+  setShippingClassesAndCountInRedis,
 } from "../../../helper/redis";
 import {
   GetShippingClassesResponseOrError,
@@ -18,7 +16,6 @@ import {
 import {
   checkUserAuth,
   checkUserPermission,
-  countShippingClassesWithSearch,
   paginateShippingClasses,
 } from "../../services";
 
@@ -75,7 +72,7 @@ export const getAllShippingClass = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to view shipping class(es) info",
+        message: "You do not have permission to view shipping classes info",
         __typename: "BaseResponse",
       };
     }
@@ -105,7 +102,10 @@ export const getAllShippingClass = async (
     const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
     // Attempt to retrieve cached shipping classes and total count from Redis
-    let shippingClassesData = await getShippingClassesFromRedis(
+    let shippingClassesData;
+    let total;
+
+    const cachedData = await getShippingClassesAndCountFromRedis(
       page,
       limit,
       search,
@@ -113,11 +113,8 @@ export const getAllShippingClass = async (
       safeSortOrder
     );
 
-    let total = await getShippingClassCountFromRedis(
-      search,
-      sortBy,
-      safeSortOrder
-    );
+    shippingClassesData = cachedData.classes;
+    total = cachedData.count;
 
     if (!shippingClassesData) {
       // On cache miss, fetch shipping classes from database
@@ -144,35 +141,27 @@ export const getAllShippingClass = async (
       }));
 
       // Cache shipping classes and total count in Redis
-      await Promise.all([
-        setShippingClassesInRedis(
-          page,
-          limit,
-          search,
-          sortBy,
-          safeSortOrder,
-          shippingClassesData
-        ),
-        setShippingClassCountInRedis(search, sortBy, safeSortOrder, total),
-      ]);
-    }
-
-    // Calculate total if not found in Redis
-    if (!total || total === 0) {
-      total = await countShippingClassesWithSearch(search);
-      await setShippingClassCountInRedis(search, sortBy, safeSortOrder, total);
+      await setShippingClassesAndCountInRedis(
+        page,
+        limit,
+        search,
+        sortBy,
+        safeSortOrder,
+        shippingClassesData,
+        total
+      );
     }
 
     return {
       statusCode: 200,
       success: true,
-      message: "Shipping class(es) fetched successfully",
+      message: "Shipping classes fetched successfully",
       shippingClasses: shippingClassesData,
       total,
       __typename: "ShippingClassPaginationResponse",
     };
   } catch (error: any) {
-    console.error("Error fetching shipping classs:", {
+    console.error("Error fetching shipping classes:", {
       message: error.message,
     });
 

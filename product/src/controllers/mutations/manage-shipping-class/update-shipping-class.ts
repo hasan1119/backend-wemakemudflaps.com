@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllShippingClassCountCache,
-  clearAllShippingClassSearchCache,
+  clearShippingClassesAndCountCache,
   getShippingClassInfoByIdFromRedis,
   getShippingClassValueExistFromRedis,
   removeShippingClassInfoByIdFromRedis,
@@ -141,8 +140,7 @@ export const updateShippingClass = async (
     await Promise.all([
       removeShippingClassInfoByIdFromRedis(id),
       removeShippingClassValueExistFromRedis(currentShippingClass.value),
-      clearAllShippingClassSearchCache(),
-      clearAllShippingClassCountCache(),
+      clearShippingClassesAndCountCache(),
       setShippingClassInfoByIdInRedis(id, updatedShippingClass),
       setShippingClassValueExistInRedis(updatedShippingClass.value),
     ]);

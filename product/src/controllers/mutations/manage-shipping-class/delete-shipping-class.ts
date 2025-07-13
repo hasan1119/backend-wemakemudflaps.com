@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllShippingClassCountCache,
-  clearAllShippingClassSearchCache,
+  clearShippingClassesAndCountCache,
   getShippingClassInfoByIdFromRedis,
   removeShippingClassInfoByIdFromRedis,
   removeShippingClassValueExistFromRedis,
@@ -27,8 +26,8 @@ const clearShippingClassCache = async (id: string, value: string) => {
   await Promise.all([
     removeShippingClassInfoByIdFromRedis(id),
     removeShippingClassValueExistFromRedis(value),
-    clearAllShippingClassSearchCache(),
-    clearAllShippingClassCountCache(),
+
+    clearShippingClassesAndCountCache(),
   ]);
 };
 
@@ -36,8 +35,7 @@ const clearShippingClassCache = async (id: string, value: string) => {
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteShippingClass(id);
   setShippingClassInfoByIdInRedis(id, deletedData);
-  await clearAllShippingClassSearchCache();
-  await clearAllShippingClassCountCache();
+  await clearShippingClassesAndCountCache();
 };
 
 /**

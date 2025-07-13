@@ -205,7 +205,6 @@ export {
  */
 export {
   countProductsForShippingClass,
-  countShippingClassesWithSearch,
   findShippingClassByValue,
   findShippingClassByValueToUpdate,
   getShippingClassById,
