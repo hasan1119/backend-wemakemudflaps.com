@@ -1,6 +1,9 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { MutationUpdateCategoryPositionArgs } from "../../../types";
+import {
+  MutationUpdateCategoryPositionArgs,
+  UpdateCategoryResponseOrError,
+} from "../../../types";
 import { updateCategoryPositionSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
@@ -22,13 +25,13 @@ import {
  * @param _ - Unused parent parameter for GraphQL resolver.
  * @param args - Input arguments containing category ID and new position.
  * @param context - GraphQL context containing authenticated user information.
- * @returns Promise resolving to UpdateCategoryPositionResponseOrError.
+ * @returns Promise resolving to UpdateCategoryResponseOrError.
  */
 export const updateCategoryPosition = async (
   _: any,
   args: MutationUpdateCategoryPositionArgs,
   { user }: Context
-): Promise<any> => {
+): Promise<UpdateCategoryResponseOrError> => {
   try {
     // Verify user authentication
     const authResponse = checkUserAuth(user);

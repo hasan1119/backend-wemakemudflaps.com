@@ -34,8 +34,55 @@ type CategoryResponse {
   category: Category!
 }
 
-scalar JSON
+# Response for fetching a category by ID.
+type CategoryResponseById {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: Category!
+}
+
+# Response for fetching categories list.
+type CategoryPaginationDataSession {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: Media
+  position: Int!
+  totalProducts: Int
+  createdBy: CreatedBy!
+  createdAt: String
+  deletedAt: String
+  subCategories: [Category!]!
+  parentCategory: Category
+}
+
+# Response for fetching categories list.
+type CategoryPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  categories: [CategoryPaginationDataSession!]!
+  total: Int!
+}
 
 # ---------------------- Unions ----------------------
+union CreateCategoryResponseOrError =
+    BaseResponse
+  | CategoryResponse
+  | ErrorResponse
+union GetCategoryByIDResponseOrError =
+    BaseResponse
+  | CategoryResponseById
+  | ErrorResponse
+union GetCategoriesResponseOrError =
+    BaseResponse
+  | CategoryPaginationResponse
+  | ErrorResponse
+union UpdateCategoryResponseOrError =
+    BaseResponse
+  | CategoryResponse
+  | ErrorResponse
 union DeleteCategoryResponseOrError = BaseResponse | ErrorResponse
 union RestoreCategoryResponseOrError = BaseResponse | ErrorResponse

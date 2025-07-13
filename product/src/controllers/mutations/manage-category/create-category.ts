@@ -3,6 +3,7 @@ import { Context } from "../../../context";
 import { Category as CategoryEntity } from "../../../entities";
 import {
   Category as CategoryGql,
+  CreateCategoryResponseOrError,
   MutationCreateCategoryArgs,
 } from "../../../types";
 import { createCategorySchema } from "../../../utils/data-validation";
@@ -77,7 +78,7 @@ export const createCategory = async (
   _: any,
   args: MutationCreateCategoryArgs,
   { user }: Context
-): Promise<any> => {
+): Promise<CreateCategoryResponseOrError> => {
   try {
     // Verify user authentication
     const authResponse = checkUserAuth(user);

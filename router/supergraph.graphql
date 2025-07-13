@@ -167,7 +167,43 @@ type Category implements ICategoryBase
   parentCategory: Category
 }
 
+type CategoryPaginationDataSession
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  thumbnail: Media
+  position: Int!
+  totalProducts: Int
+  createdBy: CreatedBy!
+  createdAt: String
+  deletedAt: String
+  subCategories: [Category!]!
+  parentCategory: Category
+}
+
+type CategoryPaginationResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  categories: [CategoryPaginationDataSession!]!
+  total: Int!
+}
+
 type CategoryResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  category: Category!
+}
+
+type CategoryResponseById
   @join__type(graph: PRODUCT)
 {
   statusCode: Int!
@@ -189,6 +225,13 @@ union CreateBrandResponseOrError
   @join__unionMember(graph: PRODUCT, member: "BrandResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | BrandResponse | ErrorResponse
+
+union CreateCategoryResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CategoryResponse | ErrorResponse
 
 type CreatedBy
   @join__type(graph: MEDIA, key: "id", extension: true)
@@ -433,6 +476,20 @@ union GetBrandsResponseOrError
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | BrandPaginationResponse | ErrorResponse
 
+union GetCategoriesResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryPaginationResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CategoryPaginationResponse | ErrorResponse
+
+union GetCategoryByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryResponseById")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CategoryResponseById | ErrorResponse
+
 union GetMediaByIdResponseOrError
   @join__type(graph: MEDIA)
   @join__unionMember(graph: MEDIA, member: "BaseResponse")
@@ -624,9 +681,6 @@ enum join__Graph {
   PRODUCT @join__graph(name: "product", url: "http://localhost:4003/")
   USER @join__graph(name: "user", url: "http://localhost:4001/")
 }
-
-scalar JSON
-  @join__type(graph: PRODUCT)
 
 scalar link__Import
 
@@ -861,9 +915,9 @@ type Mutation
   updateTag(id: ID!, name: String, slug: String): UpdateTagResponseOrError! @join__field(graph: PRODUCT)
   deleteTag(ids: [ID]!, skipTrash: Boolean!): DeleteTagResponseOrError! @join__field(graph: PRODUCT)
   restoreTags(ids: [ID!]!): RestoreTagResponseOrError! @join__field(graph: PRODUCT)
-  createCategory(thumbnail: String, name: String!, slug: String!, description: String, parentCategoryId: ID): JSON! @join__field(graph: PRODUCT)
-  updateCategory(id: ID!, thumbnail: String, slug: String, name: String, description: String): JSON! @join__field(graph: PRODUCT)
-  updateCategoryPosition(id: ID!, position: Int!): JSON! @join__field(graph: PRODUCT)
+  createCategory(thumbnail: String, name: String!, slug: String!, description: String, parentCategoryId: ID): CreateCategoryResponseOrError! @join__field(graph: PRODUCT)
+  updateCategory(id: ID!, thumbnail: String, slug: String, name: String, description: String): UpdateCategoryResponseOrError! @join__field(graph: PRODUCT)
+  updateCategoryPosition(id: ID!, position: Int!): UpdateCategoryResponseOrError! @join__field(graph: PRODUCT)
   deleteCategory(ids: [ID!]!, skipTrash: Boolean): DeleteCategoryResponseOrError @join__field(graph: PRODUCT)
   restoreCategory(ids: [ID!]!): RestoreCategoryResponseOrError @join__field(graph: PRODUCT)
   createShippingClass(value: String!, description: String): CreateShippingClassResponseOrError! @join__field(graph: PRODUCT)
@@ -1348,8 +1402,8 @@ type Query
   getAllBrands(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetBrandsResponseOrError! @join__field(graph: PRODUCT)
   getTagById(id: ID!): GetTagByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllTags(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetTagsResponseOrError! @join__field(graph: PRODUCT)
-  getCategoryById(id: ID!): JSON! @join__field(graph: PRODUCT)
-  getAllCategories(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): JSON! @join__field(graph: PRODUCT)
+  getCategoryById(id: ID!): GetCategoryByIDResponseOrError! @join__field(graph: PRODUCT)
+  getAllCategories(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetCategoriesResponseOrError! @join__field(graph: PRODUCT)
   getShippingClassById(id: ID!): GetShippingClassByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllShippingClass(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetShippingClassesResponseOrError! @join__field(graph: PRODUCT)
   getTaxClassById(id: ID!): GetTaxClassByIDResponseOrError! @join__field(graph: PRODUCT)
@@ -1726,6 +1780,13 @@ union UpdateBrandResponseOrError
   @join__unionMember(graph: PRODUCT, member: "BrandResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | BrandResponse | ErrorResponse
+
+union UpdateCategoryResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CategoryResponse | ErrorResponse
 
 input UpdateMediaInput
   @join__type(graph: MEDIA)

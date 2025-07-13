@@ -1,6 +1,9 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { MutationUpdateCategoryArgs } from "../../../types";
+import {
+  MutationUpdateCategoryArgs,
+  UpdateCategoryResponseOrError,
+} from "../../../types";
 import { updateCategorySchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
@@ -24,13 +27,13 @@ import {
  * @param _ - Unused parent parameter for GraphQL resolver.
  * @param args - Input arguments containing role ID, name, description, permissions, protection flags, and optional password.
  * @param context - GraphQL context containing authenticated user information.
- * @returns A promise resolving to a BaseResponseOrError object containing status, message, and errors if applicable.
+ * @returns A promise resolving to a UpdateCategoryResponseOrError object containing status, message, and errors if applicable.
  */
 export const updateCategory = async (
   _: any,
   args: MutationUpdateCategoryArgs,
   { user }: Context
-): Promise<any> => {
+): Promise<UpdateCategoryResponseOrError> => {
   try {
     // Verify user authentication
     const authResponse = checkUserAuth(user);
@@ -107,7 +110,7 @@ export const updateCategory = async (
     return {
       statusCode: 201,
       success: true,
-      message: "Subcategory updated successfully",
+      message: "Category updated successfully",
       category: {
         ...(categoryExist as any),
         thumbnail: result.thumbnail as any,
@@ -123,7 +126,7 @@ export const updateCategory = async (
             ? result.deletedAt.toISOString()
             : result.deletedAt,
       },
-      __typename: "SubCategoryResponse",
+      __typename: "CategoryResponse",
     };
   } catch (error: any) {
     console.error("Error updating category info:", error);

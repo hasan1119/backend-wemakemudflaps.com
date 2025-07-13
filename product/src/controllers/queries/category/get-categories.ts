@@ -2,7 +2,10 @@ import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Category } from "../../../entities";
-import { QueryGetAllCategoriesArgs } from "../../../types";
+import {
+  GetCategoriesResponseOrError,
+  QueryGetAllCategoriesArgs,
+} from "../../../types";
 import {
   categorySortingSchema,
   paginationSchema,
@@ -35,6 +38,7 @@ function mapCategoryToResponse(cat: Category): any {
     description: cat.description || null,
     thumbnail: (cat.thumbnail as any) || null,
     position: cat.position,
+    totalProducts: 0, // Add totalProducts field for pagination response
     createdBy: (cat.createdBy as any) || null,
     createdAt:
       cat.createdAt instanceof Date
@@ -59,7 +63,7 @@ export const getAllCategories = async (
   _: any,
   args: QueryGetAllCategoriesArgs,
   { user }: Context
-): Promise<any> => {
+): Promise<GetCategoriesResponseOrError> => {
   try {
     // Auth check
     const authResponse = checkUserAuth(user);
