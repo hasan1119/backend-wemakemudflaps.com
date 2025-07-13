@@ -19,8 +19,8 @@ export class Category {
   @Column({ type: "text", nullable: true, default: null })
   thumbnail: string | null;
 
-  // Unique name of the category (Note: uniqueness scoped globally here)
-  @Column({ unique: true })
+  // Unique name of the category
+  @Column({ type: "text" })
   name: string;
 
   // Category slug
