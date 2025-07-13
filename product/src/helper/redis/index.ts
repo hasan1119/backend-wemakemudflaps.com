@@ -60,20 +60,17 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
-  clearAllTagCountCache,
-  clearAllTagSearchCache,
+  clearTagsAndCountCache,
   getTagInfoByIdFromRedis,
   getTagNameExistFromRedis,
-  getTagsCountFromRedis,
-  getTagsFromRedis,
+  getTagsAndCountFromRedis,
   getTagSlugExistFromRedis,
   removeTagInfoByIdFromRedis,
   removeTagNameExistFromRedis,
   removeTagSlugExistFromRedis,
   setTagInfoByIdInRedis,
   setTagNameExistInRedis,
-  setTagsCountInRedis,
-  setTagsInRedis,
+  setTagsAndCountInRedis,
   setTagSlugExistInRedis,
 } from "./utils/tag/tag-session-manage";
 
@@ -86,17 +83,11 @@ export {
 export {
   clearShippingClassesAndCountCache,
   getShippingClassesAndCountFromRedis,
-  // clearAllShippingClassCountCache,
-  // clearAllShippingClassSearchCache,
-  // getShippingClassCountFromRedis,
-  // getShippingClassesFromRedis,
   getShippingClassInfoByIdFromRedis,
   getShippingClassValueExistFromRedis,
   removeShippingClassInfoByIdFromRedis,
   removeShippingClassValueExistFromRedis,
   setShippingClassesAndCountInRedis,
-  // setShippingClassCountInRedis,
-  // setShippingClassesInRedis,
   setShippingClassInfoByIdInRedis,
   setShippingClassValueExistInRedis,
 } from "./utils/shipping-class/shipping-class-session-manage";

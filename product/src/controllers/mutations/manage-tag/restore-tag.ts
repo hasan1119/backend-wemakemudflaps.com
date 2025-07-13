@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllTagCountCache,
-  clearAllTagSearchCache,
+  clearTagsAndCountCache,
   getTagInfoByIdFromRedis,
   setTagInfoByIdInRedis,
 } from "../../../helper/redis";
@@ -130,8 +129,7 @@ export const restoreTags = async (
     // Update Redis
     await Promise.all([
       restored.map((tag) => setTagInfoByIdInRedis(tag.id, tag)),
-      clearAllTagSearchCache(),
-      clearAllTagCountCache(),
+      clearTagsAndCountCache(),
     ]);
 
     return {

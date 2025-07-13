@@ -192,34 +192,3 @@ export const paginateTags = async ({
 
   return { tags, total };
 };
-
-/**
- * Handles counting tags matching optional search criteria.
- *
- * Workflow:
- * 1. Constructs a where clause to filter non-deleted tags and apply search conditions if provided.
- * 2. Queries the tagRepository to count tags matching the criteria.
- * 3. Returns the total number of matching tags.
- *
- * @param search - Optional search term to filter by name or slug (case-insensitive).
- * @returns A promise resolving to the total number of matching tags.
- */
-export const countTagsWithSearch = async (search?: string): Promise<number> => {
-  const queryBuilder = tagRepository
-    .createQueryBuilder("tag")
-    .where("tag.deletedAt IS NULL");
-
-  if (search) {
-    const searchTerm = `%${search.trim()}%`;
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        qb.where("tag.name ILIKE :search", { search: searchTerm }).orWhere(
-          "tag.slug ILIKE :search",
-          { search: searchTerm }
-        );
-      })
-    );
-  }
-
-  return await queryBuilder.getCount();
-};

@@ -2,10 +2,8 @@ import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getTagsCountFromRedis,
-  getTagsFromRedis,
-  setTagsCountInRedis,
-  setTagsInRedis,
+  getTagsAndCountFromRedis,
+  setTagsAndCountInRedis,
 } from "../../../helper/redis";
 import { GetTagsResponseOrError, QueryGetAllTagsArgs } from "../../../types";
 import {
@@ -15,7 +13,6 @@ import {
 import {
   checkUserAuth,
   checkUserPermission,
-  countTagsWithSearch,
   paginateTags,
 } from "../../services";
 
@@ -99,7 +96,10 @@ export const getAllTags = async (
     const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
     // Attempt to retrieve cached tags and total count from Redis
-    let tagsData = await getTagsFromRedis(
+    let tagsData;
+    let total;
+
+    const cachedData = await getTagsAndCountFromRedis(
       page,
       limit,
       search,
@@ -107,7 +107,8 @@ export const getAllTags = async (
       safeSortOrder
     );
 
-    let total = await getTagsCountFromRedis(search, sortBy, safeSortOrder);
+    tagsData = cachedData.tags;
+    total = cachedData.count;
 
     if (!tagsData) {
       // On cache miss, fetch tags from database
@@ -133,22 +134,21 @@ export const getAllTags = async (
       }));
 
       // Cache tags and total count in Redis
-      await Promise.all([
-        setTagsInRedis(page, limit, search, sortBy, sortOrder, tagsData),
-        setTagsCountInRedis(search, sortBy, sortOrder, total),
-      ]);
-    }
-
-    // Calculate total if not found in Redis
-    if (total === 0) {
-      total = await countTagsWithSearch(search);
-      await setTagsCountInRedis(search, sortBy, sortOrder, total);
+      await setTagsAndCountInRedis(
+        page,
+        limit,
+        search,
+        sortBy,
+        safeSortOrder,
+        tagsData,
+        total
+      );
     }
 
     return {
       statusCode: 200,
       success: true,
-      message: "Tag(s) fetched successfully",
+      message: "Tags fetched successfully",
       tags: tagsData,
       total,
       __typename: "TagPaginationResponse",

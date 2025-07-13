@@ -2,7 +2,7 @@ import { Tag } from "../../../../entities";
 import { TagPaginationDataSession } from "../../../../types";
 import { redis } from "../../redis";
 
-// Defines prefixes for Redis keys used for tag session and user count caching
+// Defines prefixes for Redis keys used for tag session caching
 const PREFIX = {
   TAG: "tag:",
   EXISTS: "tag-exists:",
@@ -12,46 +12,107 @@ const PREFIX = {
 };
 
 /**
- * Retrieves a paginated list of tags from Redis cache.
+ * Handles retrieval of cached tags and total count from Redis based on query parameters.
  *
- * @param page - Current page number.
- * @param limit - Number of tags per page.
- * @param search - Search query (optional).
- * @param sortBy - Field to sort by (default is 'createdAt').
- * @param sortOrder - Sort order ('asc' or 'desc', default is 'desc').
- * @returns A promise resolving to an array of Tag or null.
+ * Workflow:
+ * 1. Constructs Redis keys using page, limit, search term, sortBy, and sortOrder for tags and count.
+ * 2. Queries Redis to retrieve the cached tags array and count concurrently.
+ * 3. Returns an object containing the parsed Tag array and count, or null if not found.
+ *
+ * @param page - The page number for pagination.
+ * @param limit - The number of tags per page.
+ * @param search - Optional search term or null for no search.
+ * @param sortBy - The field to sort by (default: "createdAt").
+ * @param sortOrder - The sort order (default: "desc").
+ * @returns A promise resolving to an object with tags (Tag array or null) and count (number or null).
  */
-export const getTagsFromRedis = async (
+export const getTagsAndCountFromRedis = async (
   page: number,
   limit: number,
-  search: string = "",
+  search: string | null,
   sortBy: string = "createdAt",
   sortOrder: string = "desc"
-): Promise<TagPaginationDataSession[] | null> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  return redis.getSession<TagPaginationDataSession[] | null>(
-    key,
-    "product-app"
-  );
+): Promise<{
+  tags: TagPaginationDataSession[] | null;
+  count: number | null;
+}> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const tagsKey = `${PREFIX.LIST}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  const [tagsResult, countResult] = await Promise.all([
+    redis.getSession<TagPaginationDataSession[] | null>(tagsKey, "product-app"),
+    redis.getSession<string | null>(countKey, "product-app"),
+  ]);
+
+  const count =
+    countResult !== null
+      ? isNaN(Number(countResult))
+        ? 0
+        : Number(countResult)
+      : null;
+
+  return { tags: tagsResult, count };
 };
 
 /**
- * Retrieves the total count of tags from Redis cache.
+ * Handles caching of tags and total count in Redis based on query parameters.
  *
- * @param search - Search query (optional).
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @returns A promise resolving to the count of tags.
+ * Workflow:
+ * 1. Constructs Redis keys using page, limit, search term, sortBy, and sortOrder for tags and count.
+ * 2. Stores the tags array and count in Redis with the specified TTL.
+ *
+ * @param page - The page number for pagination.
+ * @param limit - The number of tags per page.
+ * @param search - Optional search term or null for no search.
+ * @param sortBy - The field to sort by (default: "createdAt").
+ * @param sortOrder - The sort order (default: "desc").
+ * @param tags - The array of Tag data to cache.
+ * @param total - The total tags count to cache.
+ * @param ttl - Optional time-to-live in seconds (default: 3600).
+ * @returns A promise resolving when the tags and count are cached.
  */
-export const getTagsCountFromRedis = async (
-  search: string = "",
+export const setTagsAndCountInRedis = async (
+  page: number,
+  limit: number,
+  search: string | null,
   sortBy: string = "createdAt",
-  sortOrder: string = "desc"
-): Promise<number> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  const result = await redis.getSession<number | null>(key, "product-app");
-  const count = Number(result);
-  return isNaN(count) ? 0 : count;
+  sortOrder: string = "desc",
+  tags: TagPaginationDataSession[],
+  total: number,
+  ttl: number = 3600
+): Promise<void> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const tagsKey = `${PREFIX.LIST}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  await Promise.all([
+    redis.setSession(tagsKey, tags, "product-app", ttl),
+    redis.setSession(countKey, total.toString(), "product-app", ttl),
+  ]);
+};
+
+/**
+ * Handles removal of cached tags and count data from Redis.
+ *
+ * Workflow:
+ * 1. Retrieves all keys in the "product-app" namespace.
+ * 2. Filters keys that start with the tags list or count prefix.
+ * 3. Deletes all matching keys concurrently.
+ *
+ * @returns A promise resolving when the tags and count data are removed.
+ */
+export const clearTagsAndCountCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKey("product-app");
+  const relevantKeys = keys.filter(
+    (key) => key.startsWith(PREFIX.LIST) || key.startsWith(PREFIX.COUNT)
+  );
+
+  if (relevantKeys.length > 0) {
+    await Promise.all(
+      relevantKeys.map((key) => redis.deleteSession(key, "product-app"))
+    );
+  }
 };
 
 /**
@@ -78,7 +139,7 @@ export const getTagSlugExistFromRedis = async (
  * Handles retrieval of tag information from Redis by tag ID.
  *
  * Workflow:
- * 1. Queries Redis using the tag prefix and tag ID.
+ * 1. Queries Redis using the TAG prefix and tag ID.
  * 2. Returns the parsed Tag or null if not found.
  *
  * @param tagId - The ID of the tag.
@@ -94,7 +155,7 @@ export const getTagInfoByIdFromRedis = async (
  * Handles checking if a tag name exists in Redis.
  *
  * Workflow:
- * 1. Queries Redis using the exists prefix and normalized tag name.
+ * 1. Queries Redis using the EXISTS prefix and normalized tag name.
  * 2. Returns true if the tag exists, false otherwise.
  *
  * @param tagName - The name of the tag.
@@ -108,50 +169,6 @@ export const getTagNameExistFromRedis = async (
     "product-app"
   );
   return result === "exists";
-};
-
-/**
- * Caches a paginated list of tags in Redis.
- *
- * @param page - Current page number.
- * @param limit - Number of tags per page.
- * @param search - Search query.
- * @param sortBy - Field to sort by.
- * @param sortOrder - Sort order ('asc' or 'desc').
- * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
- * @param tags - Array of Tag objects to cache.
- */
-export const setTagsInRedis = async (
-  page: number,
-  limit: number,
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  tags: TagPaginationDataSession[],
-  ttl: number = 3600
-): Promise<void> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, tags, "product-app", ttl);
-};
-
-/**
- * Caches the total tag count in Redis.
- *
- * @param search - Search query.
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @param count - Total number of tags.
- * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
- */
-export const setTagsCountInRedis = async (
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  count: number,
-  ttl: number = 3600
-): Promise<void> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, count.toString(), "product-app", ttl);
 };
 
 /**
@@ -177,8 +194,7 @@ export const setTagSlugExistInRedis = async (
  * Handles caching tag information in Redis by tag ID.
  *
  * Workflow:
- * 1. Maps the provided tag data to a response format using mapTagToResponse.
- * 2. Stores the mapped data in Redis with the tag prefix and tag ID.
+ * 1. Stores the tag data in Redis with the TAG prefix and tag ID.
  *
  * @param tagId - The ID of the tag.
  * @param data - The Tag entity to cache.
@@ -195,7 +211,7 @@ export const setTagInfoByIdInRedis = async (
  * Handles setting an existence flag for a tag name in Redis.
  *
  * Workflow:
- * 1. Stores an "exists" flag in Redis with the exists prefix and normalized tag name.
+ * 1. Stores an "exists" flag in Redis with the EXISTS prefix and normalized tag name.
  *
  * @param tagName - The name of the tag.
  * @returns A promise resolving when the flag is set.
@@ -214,7 +230,7 @@ export const setTagNameExistInRedis = async (
  * Handles removal of tag information from Redis by tag ID.
  *
  * Workflow:
- * 1. Deletes the tag data from Redis using the tag prefix and tag ID.
+ * 1. Deletes the tag data from Redis using the TAG prefix and tag ID.
  *
  * @param tagId - The ID of the tag.
  * @returns A promise resolving when the tag data is removed.
@@ -229,7 +245,7 @@ export const removeTagInfoByIdFromRedis = async (
  * Handles removal of the existence flag for a tag name from Redis.
  *
  * Workflow:
- * 1. Deletes the existence flag from Redis using the exists prefix and normalized tag name.
+ * 1. Deletes the existence flag from Redis using the EXISTS prefix and normalized tag name.
  *
  * @param tagName - The name of the tag.
  * @returns A promise resolving when the flag is removed.
@@ -244,10 +260,13 @@ export const removeTagNameExistFromRedis = async (
 };
 
 /**
- * Removes the existence flag for a tag slug from Redis.
+ * Handles removal of the existence flag for a tag slug from Redis.
+ *
+ * Workflow:
+ * 1. Deletes the existence flag from Redis using the SLUG_EXISTS prefix and normalized tag slug.
  *
  * @param tagSlug - The slug of the tag.
- * @returns A promise that resolves when the flag is removed.
+ * @returns A promise resolving when the flag is removed.
  */
 export const removeTagSlugExistFromRedis = async (
   tagSlug: string
@@ -256,47 +275,4 @@ export const removeTagSlugExistFromRedis = async (
     `${PREFIX.SLUG_EXISTS}${tagSlug.toLowerCase().trim()}`,
     "product-app"
   );
-};
-
-/**
- * Deletes all Redis cache entries related to tag list and count.
- *
- * Order of deletion:
- * 1. Delete list-related keys (paginated data)
- * 2. Delete count-related keys (total counts)
- */
-export const clearAllTagSearchCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("product-app");
-
-  const listKeys = keys.filter((key) => key.startsWith(PREFIX.LIST));
-  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
-
-  // Delete list keys first
-  if (listKeys.length > 0) {
-    await Promise.all(
-      listKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
-
-  // Then delete count keys
-  if (countKeys.length > 0) {
-    await Promise.all(
-      countKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
-};
-
-/**
- * Deletes all Redis cache entries related to tag counts only.
- */
-export const clearAllTagCountCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("product-app");
-
-  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
-
-  if (countKeys.length > 0) {
-    await Promise.all(
-      countKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
 };

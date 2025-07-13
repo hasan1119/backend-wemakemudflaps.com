@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllTagCountCache,
-  clearAllTagSearchCache,
+  clearTagsAndCountCache,
   getTagInfoByIdFromRedis,
   getTagNameExistFromRedis,
   getTagSlugExistFromRedis,
@@ -165,8 +164,7 @@ export const updateTag = async (
       removeTagInfoByIdFromRedis(id),
       removeTagNameExistFromRedis(currentTag.name),
       removeTagSlugExistFromRedis(currentTag.slug),
-      clearAllTagSearchCache(),
-      clearAllTagCountCache(),
+      clearTagsAndCountCache(),
       setTagInfoByIdInRedis(id, updatedTag),
       setTagNameExistInRedis(updatedTag.name),
       setTagSlugExistInRedis(updatedTag.slug),

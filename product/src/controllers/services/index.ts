@@ -99,7 +99,6 @@ export { hardDeleteTag, softDeleteTag } from "./tag/delete-tag.service";
  */
 export {
   countProductsForTag,
-  countTagsWithSearch,
   findTagByName,
   findTagByNameToUpdate,
   findTagBySlug,
