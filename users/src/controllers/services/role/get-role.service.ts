@@ -189,36 +189,3 @@ export const paginateRoles = async ({
 
   return { roles, total };
 };
-
-/**
- * Handles counting roles matching optional search criteria.
- *
- * Workflow:
- * 1. Constructs a query to filter non-deleted roles and apply search conditions if provided.
- * 2. Queries the roleRepository to count roles matching the criteria.
- * 3. Returns the total number of matching roles.
- *
- * @param search - Optional search term to filter by name or description (case-insensitive).
- * @returns A promise resolving to the total number of matching roles.
- */
-export const countRolesWithSearch = async (
-  search?: string
-): Promise<number> => {
-  const query = roleRepository
-    .createQueryBuilder("role")
-    .where("role.deletedAt IS NULL");
-
-  if (search && search.trim() !== "") {
-    const searchTerm = `%${search.trim()}%`;
-    query.andWhere(
-      new Brackets((qb) => {
-        qb.where("role.name ILIKE :searchTerm", { searchTerm }).orWhere(
-          "role.description ILIKE :searchTerm",
-          { searchTerm }
-        );
-      })
-    );
-  }
-
-  return await query.getCount();
-};

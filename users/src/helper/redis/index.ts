@@ -64,12 +64,11 @@ export {
  * 1. Provides functions for getting, setting, and removing role info, existence flags, and user counts.
  */
 export {
-  clearAllRoleSearchCache,
+  clearRolesAndCountCache,
   getRoleInfoByRoleIdFromRedis,
   getRoleInfoByRoleNameFromRedis,
   getRoleNameExistFromRedis,
-  getRolesCountFromRedis,
-  getRolesFromRedis,
+  getRolesAndCountFromRedis,
   getTotalUserCountByRoleIdFromRedis,
   removeRoleInfoByRoleIdFromRedis,
   removeRoleInfoByRoleNameFromRedis,
@@ -78,8 +77,7 @@ export {
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
   setRoleNameExistInRedis,
-  setRolesCountInRedis,
-  setRolesInRedis,
+  setRolesAndCountInRedis,
   setTotalUserCountByRoleIdInRedis,
 } from "./utils/role/role-session-manage";
 

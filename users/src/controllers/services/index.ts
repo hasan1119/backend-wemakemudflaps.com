@@ -89,7 +89,6 @@ export { checkUserAuth } from "./session-check/session-check";
 export { createRole } from "./role/create-role.service";
 export { hardDeleteRole, softDeleteRole } from "./role/delete-role.service";
 export {
-  countRolesWithSearch,
   countUsersWithRole,
   findRoleByName,
   findRoleByNameToUpdate,

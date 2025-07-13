@@ -1,7 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllRoleSearchCache,
+  clearRolesAndCountCache,
   getRoleInfoByRoleIdFromRedis,
   setRoleInfoByRoleIdInRedis,
   setRoleInfoByRoleNameInRedis,
@@ -146,7 +146,7 @@ export const restoreUserRole = async (
           setRoleInfoByRoleNameInRedis(role.name, role),
         ])
       ),
-      clearAllRoleSearchCache(),
+      clearRolesAndCountCache(),
     ]);
 
     return {
