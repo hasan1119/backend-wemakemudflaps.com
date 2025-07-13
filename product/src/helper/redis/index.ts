@@ -5,20 +5,21 @@
  * 1. Provides functions for getting, setting and removing.
  */
 export {
-  clearAllBrandCountCache,
-  clearAllBrandSearchCache,
+  clearBrandsAndCountCache,
   getBrandInfoByIdFromRedis,
   getBrandNameExistFromRedis,
-  getBrandsCountFromRedis,
-  getBrandsFromRedis,
+  getBrandsAndCountFromRedis,
+  // getBrandsCountFromRedis,
+  // getBrandsFromRedis,
   getBrandSlugExistFromRedis,
   removeBrandInfoByIdFromRedis,
   removeBrandNameExistFromRedis,
   removeBrandSlugExistFromRedis,
   setBrandInfoByIdInRedis,
   setBrandNameExistInRedis,
-  setBrandsCountInRedis,
-  setBrandsInRedis,
+  setBrandsAndCountInRedis,
+  // setBrandsCountInRedis,
+  // setBrandsInRedis,
   setBrandSlugExistInRedis,
 } from "./utils/brand/brand-session-manage";
 

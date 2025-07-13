@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllBrandCountCache,
-  clearAllBrandSearchCache,
+  clearBrandsAndCountCache,
   getBrandInfoByIdFromRedis,
   removeBrandInfoByIdFromRedis,
   removeBrandNameExistFromRedis,
@@ -26,8 +25,7 @@ const clearBrandCache = async (id: string, name: string, slug: string) => {
     removeBrandInfoByIdFromRedis(id),
     removeBrandNameExistFromRedis(name),
     removeBrandSlugExistFromRedis(slug),
-    clearAllBrandSearchCache(),
-    clearAllBrandCountCache(),
+    clearBrandsAndCountCache(),
   ]);
 };
 
@@ -35,8 +33,7 @@ const clearBrandCache = async (id: string, name: string, slug: string) => {
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteBrand(id);
   setBrandInfoByIdInRedis(id, deletedData);
-  await clearAllBrandSearchCache();
-  await clearAllBrandCountCache();
+  await clearBrandsAndCountCache();
 };
 
 /**

@@ -2,10 +2,8 @@ import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getBrandsCountFromRedis,
-  getBrandsFromRedis,
-  setBrandsCountInRedis,
-  setBrandsInRedis,
+  getBrandsAndCountFromRedis,
+  setBrandsAndCountInRedis,
 } from "../../../helper/redis";
 import {
   GetBrandsResponseOrError,
@@ -18,7 +16,6 @@ import {
 import {
   checkUserAuth,
   checkUserPermission,
-  countBrandsWithSearch,
   paginateBrands,
 } from "../../services";
 
@@ -102,7 +99,10 @@ export const getAllBrands = async (
     const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
     // Attempt to retrieve cached brands and total count from Redis
-    let brandsData = await getBrandsFromRedis(
+    let brandsData;
+    let total;
+
+    const cachedData = await getBrandsAndCountFromRedis(
       page,
       limit,
       search,
@@ -110,7 +110,8 @@ export const getAllBrands = async (
       safeSortOrder
     );
 
-    let total = await getBrandsCountFromRedis(search, sortBy, safeSortOrder);
+    brandsData = cachedData.brands;
+    total = cachedData.count;
 
     if (!brandsData) {
       // On cache miss, fetch brands from database
@@ -137,16 +138,15 @@ export const getAllBrands = async (
       }));
 
       // Cache brands and total count in Redis
-      await Promise.all([
-        setBrandsInRedis(page, limit, search, sortBy, sortOrder, brandsData),
-        setBrandsCountInRedis(search, sortBy, sortOrder, total),
-      ]);
-    }
-
-    // Calculate total if not found in Redis
-    if (total === 0) {
-      total = await countBrandsWithSearch(search);
-      await setBrandsCountInRedis(search, sortBy, sortOrder, total);
+      await setBrandsAndCountInRedis(
+        page,
+        limit,
+        search,
+        sortBy,
+        sortOrder,
+        brandsData,
+        total
+      );
     }
 
     return {

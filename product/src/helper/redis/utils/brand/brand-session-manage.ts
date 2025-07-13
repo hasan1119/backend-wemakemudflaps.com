@@ -12,46 +12,110 @@ const PREFIX = {
 };
 
 /**
- * Retrieves a paginated list of brands from Redis cache.
+ * Handles retrieval of cached brands and total count from Redis based on query parameters.
  *
- * @param page - Current page number.
- * @param limit - Number of brands per page.
- * @param search - Search query (optional).
- * @param sortBy - Field to sort by (default is 'createdAt').
- * @param sortOrder - Sort order ('asc' or 'desc', default is 'desc').
- * @returns A promise resolving to an array of Brand or null.
+ * Workflow:
+ * 1. Constructs Redis keys using page, limit, search term, sortBy, and sortOrder for brands and count.
+ * 2. Queries Redis to retrieve the cached brands array and count concurrently.
+ * 3. Returns an object containing the parsed Brand array and count, or null if not found.
+ *
+ * @param page - The page number for pagination.
+ * @param limit - The number of brands per page.
+ * @param search - Optional search term or null for no search.
+ * @param sortBy - The field to sort by (default: "createdAt").
+ * @param sortOrder - The sort order (default: "desc").
+ * @returns A promise resolving to an object with brands (Brand array or null) and count (number or null).
  */
-export const getBrandsFromRedis = async (
+export const getBrandsAndCountFromRedis = async (
   page: number,
   limit: number,
-  search: string = "",
+  search: string | null,
   sortBy: string = "createdAt",
   sortOrder: string = "desc"
-): Promise<BrandPaginationDataSession[] | null> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  return redis.getSession<BrandPaginationDataSession[] | null>(
-    key,
-    "product-app"
-  );
+): Promise<{
+  brands: BrandPaginationDataSession[] | null;
+  count: number | null;
+}> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const brandsKey = `${PREFIX.LIST}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  const [brandsResult, countResult] = await Promise.all([
+    redis.getSession<BrandPaginationDataSession[] | null>(
+      brandsKey,
+      "product-app"
+    ),
+    redis.getSession<string | null>(countKey, "product-app"),
+  ]);
+
+  const count =
+    countResult !== null
+      ? isNaN(Number(countResult))
+        ? 0
+        : Number(countResult)
+      : null;
+
+  return { brands: brandsResult, count };
 };
 
 /**
- * Retrieves the total count of brands from Redis cache.
+ * Handles caching of brands and total count in Redis based on query parameters.
  *
- * @param search - Search query (optional).
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @returns A promise resolving to the count of brands.
+ * Workflow:
+ * 1. Constructs Redis keys using page, limit, search term, sortBy, and sortOrder for brands and count.
+ * 2. Stores the brands array and count in Redis with the specified TTL.
+ *
+ * @param page - The page number for pagination.
+ * @param limit - The number of brands per page.
+ * @param search - Optional search term or null for no search.
+ * @param sortBy - The field to sort by (default: "createdAt").
+ * @param sortOrder - The sort order (default: "desc").
+ * @param brands - The array of Brand data to cache.
+ * @param total - The total brands count to cache.
+ * @param ttl - Optional time-to-live in seconds (default: 3600).
+ * @returns A promise resolving when the brands and count are cached.
  */
-export const getBrandsCountFromRedis = async (
-  search: string = "",
+export const setBrandsAndCountInRedis = async (
+  page: number,
+  limit: number,
+  search: string | null,
   sortBy: string = "createdAt",
-  sortOrder: string = "desc"
-): Promise<number> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  const result = await redis.getSession<number | null>(key, "product-app");
-  const count = Number(result);
-  return isNaN(count) ? 0 : count;
+  sortOrder: string = "desc",
+  brands: BrandPaginationDataSession[],
+  total: number,
+  ttl: number = 3600
+): Promise<void> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const brandsKey = `${PREFIX.LIST}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  await Promise.all([
+    redis.setSession(brandsKey, brands, "product-app", ttl),
+    redis.setSession(countKey, total.toString(), "product-app", ttl),
+  ]);
+};
+
+/**
+ * Handles removal of cached brands and count data from Redis.
+ *
+ * Workflow:
+ * 1. Retrieves all keys in the "product-app" namespace.
+ * 2. Filters keys that start with the brands list or count prefix.
+ * 3. Deletes all matching keys concurrently.
+ *
+ * @returns A promise resolving when the brands and count data are removed.
+ */
+export const clearBrandsAndCountCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKey("product-app");
+  const relevantKeys = keys.filter(
+    (key) => key.startsWith(PREFIX.LIST) || key.startsWith(PREFIX.COUNT)
+  );
+
+  if (relevantKeys.length > 0) {
+    await Promise.all(
+      relevantKeys.map((key) => redis.deleteSession(key, "product-app"))
+    );
+  }
 };
 
 /**
@@ -111,50 +175,6 @@ export const getBrandNameExistFromRedis = async (
     "product-app"
   );
   return result === "exists";
-};
-
-/**
- * Caches a paginated list of brands in Redis.
- *
- * @param page - Current page number.
- * @param limit - Number of brands per page.
- * @param search - Search query.
- * @param sortBy - Field to sort by.
- * @param sortOrder - Sort order ('asc' or 'desc').
- * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
- * @param brands - Array of Brand objects to cache.
- */
-export const setBrandsInRedis = async (
-  page: number,
-  limit: number,
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  brands: BrandPaginationDataSession[],
-  ttl: number = 3600
-): Promise<void> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, brands, "product-app", ttl);
-};
-
-/**
- * Caches the total brand count in Redis.
- *
- * @param search - Search query.
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @param count - Total number of brands.
- * @param ttl - Optional time-to-live in seconds(1 hr) (default: 3600).
- */
-export const setBrandsCountInRedis = async (
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  count: number,
-  ttl: number = 3600
-): Promise<void> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, count.toString(), "product-app", ttl);
 };
 
 /**
@@ -246,10 +266,13 @@ export const removeBrandNameExistFromRedis = async (
 };
 
 /**
- * Removes the existence flag for a brand slug from Redis.
+ * Handles removal of the existence flag for a brand slug from Redis.
+ *
+ * Workflow:
+ * 1. Deletes the existence flag from Redis using the SLUG_EXISTS prefix and normalized brand slug.
  *
  * @param brandSlug - The slug of the brand.
- * @returns A promise that resolves when the flag is removed.
+ * @returns A promise resolving when the flag is removed.
  */
 export const removeBrandSlugExistFromRedis = async (
   brandSlug: string
@@ -258,46 +281,4 @@ export const removeBrandSlugExistFromRedis = async (
     `${PREFIX.SLUG_EXISTS}${brandSlug.toLowerCase().trim()}`,
     "product-app"
   );
-};
-
-/**
- * Deletes all Redis cache entries related to brand list and count.
- *
- * Order of deletion:
- * 1. Delete list-related keys (paginated data)
- * 2. Delete count-related keys (total counts)
- */
-export const clearAllBrandSearchCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("product-app");
-
-  const listKeys = keys.filter((key) => key.startsWith(PREFIX.LIST));
-  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
-
-  // Delete list keys first
-  if (listKeys.length > 0) {
-    await Promise.all(
-      listKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
-
-  // Then delete count keys
-  if (countKeys.length > 0) {
-    await Promise.all(
-      countKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
-};
-
-/**
- * Deletes all Redis cache entries related to brand counts.
- */
-export const clearAllBrandCountCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("product-app");
-  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
-
-  if (countKeys.length > 0) {
-    await Promise.all(
-      countKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
 };

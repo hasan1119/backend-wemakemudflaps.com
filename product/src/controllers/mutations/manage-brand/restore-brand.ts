@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllBrandCountCache,
-  clearAllBrandSearchCache,
+  clearBrandsAndCountCache,
   getBrandInfoByIdFromRedis,
   setBrandInfoByIdInRedis,
 } from "../../../helper/redis";
@@ -130,8 +129,7 @@ export const restoreBrands = async (
     // Update Redis
     await Promise.all([
       restored.map((brand) => setBrandInfoByIdInRedis(brand.id, brand)),
-      clearAllBrandSearchCache(),
-      clearAllBrandCountCache(),
+      clearBrandsAndCountCache(),
     ]);
 
     return {

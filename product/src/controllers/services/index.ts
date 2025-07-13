@@ -151,7 +151,6 @@ export { hardDeleteBrand, softDeleteBrand } from "./brand/delete-brand.service";
  * 3. Supports paginated retrieval of brands.
  */
 export {
-  countBrandsWithSearch,
   countProductsForBrand,
   findBrandByName,
   findBrandByNameToUpdate,
