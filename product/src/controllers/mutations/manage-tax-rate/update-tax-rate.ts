@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllTaxRateSearchCacheByTaxClass,
-  clearTaxRateCountCacheByTaxClass,
+  clearTaxRatesAndCountCacheByTaxClass,
   getTaxClassInfoByIdFromRedis,
   getTaxRateInfoByIdFromRedis,
   removeTaxRateInfoByIdFromRedis,
@@ -160,8 +159,7 @@ export const updateTaxRate = async (
       removeTaxRateInfoByIdFromRedis(id),
       setTaxRateInfoByIdInRedis(updatedTaxRate.id, taxRateResponse),
       label && setTaxRateLabelExistInRedis(taxClassId, updatedTaxRate.label),
-      clearAllTaxRateSearchCacheByTaxClass(taxClassId),
-      clearTaxRateCountCacheByTaxClass(taxClassId),
+      clearTaxRatesAndCountCacheByTaxClass(taxClassId),
     ]);
 
     // Return updated tax rate

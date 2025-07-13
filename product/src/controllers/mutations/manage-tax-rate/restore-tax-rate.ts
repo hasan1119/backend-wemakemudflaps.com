@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllTaxRateSearchCacheByTaxClass,
-  clearTaxRateCountCacheByTaxClass,
+  clearTaxRatesAndCountCacheByTaxClass,
   getTaxRateInfoByIdFromRedis,
   setTaxRateInfoByIdInRedis,
 } from "../../../helper/redis";
@@ -153,11 +152,7 @@ export const restoreTaxRates = async (
       ),
       ...restored.map(async (r) => {
         const taxClass = await r.taxClass;
-
-        await Promise.all([
-          clearTaxRateCountCacheByTaxClass(taxClass?.id),
-          clearAllTaxRateSearchCacheByTaxClass(taxClass?.id),
-        ]);
+        await Promise.all([clearTaxRatesAndCountCacheByTaxClass(taxClass?.id)]);
       }),
     ]);
 

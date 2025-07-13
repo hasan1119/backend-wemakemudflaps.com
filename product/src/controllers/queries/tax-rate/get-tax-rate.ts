@@ -2,10 +2,8 @@ import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getTaxRateCountFromRedis,
-  getTaxRatesFromRedis,
-  setTaxRateCountInRedis,
-  setTaxRatesInRedis,
+  getTaxRatesAndCountFromRedis,
+  setTaxRatesAndCountInRedis,
 } from "../../../helper/redis";
 import {
   GetTaxRatesResponseOrError,
@@ -18,7 +16,6 @@ import {
 import {
   checkUserAuth,
   checkUserPermission,
-  countTaxRatesWithSearch,
   paginateTaxRates,
 } from "../../services";
 
@@ -40,7 +37,21 @@ const mapArgsToPagination = (args: QueryGetAllTaxRatesArgs) => ({
 });
 
 /**
- * Retrieves paginated list of tax rates for a given tax class, using cache first.
+ * Handles fetching a paginated list of tax rates for a given tax class with optional search and sorting.
+ *
+ * Workflow:
+ * 1. Verifies user authentication and checks read permission for tax rates.
+ * 2. Validates input (taxClassId, page, limit, search, sortBy, sortOrder) using Zod schemas.
+ * 3. Attempts to retrieve tax rates and total count from Redis for performance.
+ * 4. On cache miss, fetches tax rates from the database with pagination, search, and sorting.
+ * 5. Maps database tax rates to cached format, including tax class and creator details.
+ * 6. Caches tax rates and total count in Redis.
+ * 7. Returns a success response or error if validation, permission, or retrieval fails.
+ *
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing taxClassId, page, limit, search, sortBy, and sortOrder.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a GetTaxRatesResponseOrError object containing status, message, tax rates, total count, and errors if applicable.
  */
 export const getAllTaxRates = async (
   _: any,
@@ -48,11 +59,11 @@ export const getAllTaxRates = async (
   { user }: Context
 ): Promise<GetTaxRatesResponseOrError> => {
   try {
-    //  Auth check
+    // Verify user authentication
     const authError = checkUserAuth(user);
     if (authError) return authError;
 
-    //  Permission check
+    // Check if user has permission to view tax rates
     const canRead = await checkUserPermission({
       action: "canRead",
       entity: "tax rate",
@@ -63,12 +74,12 @@ export const getAllTaxRates = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to view tax rate(s) info",
+        message: "You do not have permission to view tax rates info",
         __typename: "BaseResponse",
       };
     }
 
-    //  Validate input args
+    // Validate input args
     const mappedArgs = mapArgsToPagination(args);
     const validation = await combinedSchema.safeParseAsync(mappedArgs);
 
@@ -92,8 +103,11 @@ export const getAllTaxRates = async (
 
     const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
-    //  Try Redis cache
-    let taxRatesData = await getTaxRatesFromRedis(
+    // Try Redis cache
+    let taxRatesData;
+    let total;
+
+    const cachedData = await getTaxRatesAndCountFromRedis(
       taxClassId,
       page,
       limit,
@@ -102,14 +116,10 @@ export const getAllTaxRates = async (
       safeSortOrder
     );
 
-    let total = await getTaxRateCountFromRedis(
-      taxClassId,
-      search,
-      sortBy,
-      safeSortOrder
-    );
+    taxRatesData = cachedData.rates;
+    total = cachedData.count;
 
-    //  If cache missed, go to DB
+    // If cache missed, go to DB
     if (!taxRatesData) {
       const { taxRates: dbTaxRates, total: queryTotal } =
         await paginateTaxRates({
@@ -140,34 +150,14 @@ export const getAllTaxRates = async (
         deletedAt: rate.deletedAt?.toISOString() || null,
       }));
 
-      await Promise.all([
-        setTaxRatesInRedis(
-          taxClassId,
-          page,
-          limit,
-          search,
-          sortBy,
-          safeSortOrder,
-          taxRatesData
-        ),
-        setTaxRateCountInRedis(
-          taxClassId,
-          search,
-          sortBy,
-          safeSortOrder,
-          total
-        ),
-      ]);
-    }
-
-    // If count wasn't cached, get it
-    if (!total || total === 0) {
-      total = await countTaxRatesWithSearch(taxClassId, search);
-      await setTaxRateCountInRedis(
+      await setTaxRatesAndCountInRedis(
         taxClassId,
+        page,
+        limit,
         search,
         sortBy,
         safeSortOrder,
+        taxRatesData,
         total
       );
     }
@@ -175,7 +165,7 @@ export const getAllTaxRates = async (
     return {
       statusCode: 200,
       success: true,
-      message: "Tax rate(s) fetched successfully",
+      message: "Tax rates fetched successfully",
       total,
       taxRates: taxRatesData,
       __typename: "TaxRatePaginationResponse",

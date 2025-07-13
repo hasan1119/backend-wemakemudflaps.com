@@ -101,15 +101,11 @@ export {
 export {
   clearTaxClassesAndCountCache,
   getTaxClassesAndCountFromRedis,
-  // getTaxClassCountFromRedis,
-  // getTaxClassesFromRedis,
   getTaxClassInfoByIdFromRedis,
   getTaxClassValueExistFromRedis,
   removeTaxClassInfoByIdFromRedis,
   removeTaxClassValueExistFromRedis,
   setTaxClassesAndCountInRedis,
-  // setTaxClassCountInRedis,
-  // setTaxClassesInRedis,
   setTaxClassInfoByIdInRedis,
   setTaxClassValueExistInRedis,
 } from "./utils/tax-class/tax-class-session-manage";
@@ -121,17 +117,14 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
-  clearAllTaxRateSearchCacheByTaxClass,
-  clearTaxRateCountCacheByTaxClass,
-  getTaxRateCountFromRedis,
+  clearTaxRatesAndCountCacheByTaxClass,
   getTaxRateInfoByIdFromRedis,
-  getTaxRatesFromRedis,
+  getTaxRatesAndCountFromRedis,
   removeTaxRateInfoByIdFromRedis,
   removeTaxRateLabelExistFromRedis,
-  setTaxRateCountInRedis,
   setTaxRateInfoByIdInRedis,
   setTaxRateLabelExistInRedis,
-  setTaxRatesInRedis,
+  setTaxRatesAndCountInRedis,
 } from "./utils/tax-rate/tax-rate-session-manage";
 
 /**

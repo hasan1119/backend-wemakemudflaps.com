@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllTaxRateSearchCacheByTaxClass,
-  clearTaxRateCountCacheByTaxClass,
+  clearTaxRatesAndCountCacheByTaxClass,
   removeTaxRateInfoByIdFromRedis,
   removeTaxRateLabelExistFromRedis,
   setTaxRateInfoByIdInRedis,
@@ -24,8 +23,7 @@ import {
 const clearTaxRateCache = async (taxClassId: string, id: string) => {
   await Promise.all([
     removeTaxRateInfoByIdFromRedis(id),
-    clearAllTaxRateSearchCacheByTaxClass(taxClassId),
-    clearTaxRateCountCacheByTaxClass(taxClassId),
+    clearTaxRatesAndCountCacheByTaxClass(taxClassId),
   ]);
 };
 
@@ -54,8 +52,7 @@ const softDeleteAndCache = async (taxClassId: string, id: string) => {
         ? deletedData.deletedAt.toISOString()
         : deletedData.deletedAt,
   });
-  clearTaxRateCountCacheByTaxClass(taxClassId),
-    await clearAllTaxRateSearchCacheByTaxClass(taxClassId);
+  await clearTaxRatesAndCountCacheByTaxClass(taxClassId);
 };
 
 /**

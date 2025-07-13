@@ -48,7 +48,7 @@ const mapArgsToPagination = (args: QueryGetAllTaxClassArgs) => ({
  * @param context - GraphQL context containing authenticated user information.
  * @returns A promise resolving to a GetTaxClassesResponseOrError object containing status, message, tax classes, total count, and errors if applicable.
  */
-export const getAllTaxClasses = async (
+export const getAllTaxClass = async (
   _: any,
   args: QueryGetAllTaxClassArgs,
   { user }: Context
