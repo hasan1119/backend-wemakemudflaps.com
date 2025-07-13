@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllTaxClassCountCache,
-  clearAllTaxClassSearchCache,
+  clearTaxClassesAndCountCache,
   getTaxClassInfoByIdFromRedis,
   removeTaxClassInfoByIdFromRedis,
   removeTaxClassValueExistFromRedis,
@@ -27,8 +26,7 @@ const clearTaxClassCache = async (id: string, value: string) => {
   await Promise.all([
     removeTaxClassInfoByIdFromRedis(id),
     removeTaxClassValueExistFromRedis(value),
-    clearAllTaxClassSearchCache(),
-    clearAllTaxClassCountCache(),
+    clearTaxClassesAndCountCache(),
   ]);
 };
 
@@ -36,8 +34,7 @@ const clearTaxClassCache = async (id: string, value: string) => {
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteTaxClass(id);
   setTaxClassInfoByIdInRedis(id, deletedData);
-  await clearAllTaxClassSearchCache();
-  await clearAllTaxClassCountCache();
+  await clearTaxClassesAndCountCache();
 };
 
 /**

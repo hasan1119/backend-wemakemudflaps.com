@@ -99,16 +99,17 @@ export {
  * 1. Provides functions for getting, setting and removing.
  */
 export {
-  clearAllTaxClassCountCache,
-  clearAllTaxClassSearchCache,
-  getTaxClassCountFromRedis,
-  getTaxClassesFromRedis,
+  clearTaxClassesAndCountCache,
+  getTaxClassesAndCountFromRedis,
+  // getTaxClassCountFromRedis,
+  // getTaxClassesFromRedis,
   getTaxClassInfoByIdFromRedis,
   getTaxClassValueExistFromRedis,
   removeTaxClassInfoByIdFromRedis,
   removeTaxClassValueExistFromRedis,
-  setTaxClassCountInRedis,
-  setTaxClassesInRedis,
+  setTaxClassesAndCountInRedis,
+  // setTaxClassCountInRedis,
+  // setTaxClassesInRedis,
   setTaxClassInfoByIdInRedis,
   setTaxClassValueExistInRedis,
 } from "./utils/tax-class/tax-class-session-manage";

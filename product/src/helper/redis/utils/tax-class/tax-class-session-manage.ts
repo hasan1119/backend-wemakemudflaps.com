@@ -2,7 +2,7 @@ import { TaxClass } from "../../../../entities";
 import { TaxClassPaginationDataSession } from "../../../../types";
 import { redis } from "../../redis";
 
-// Defines prefixes for Redis keys used for tax class session and value existence caching
+// Defines prefixes for Redis keys used for tax class session caching
 const PREFIX = {
   CLASS: "tax-class:",
   EXISTS: "tax-class-exists:",
@@ -11,46 +11,110 @@ const PREFIX = {
 };
 
 /**
- * Retrieves a paginated list of tax classes from Redis cache.
+ * Handles retrieval of cached tax classes and total count from Redis based on query parameters.
  *
- * @param page - Current page number.
- * @param limit - Number of classes per page.
- * @param search - Search query (optional).
- * @param sortBy - Field to sort by (default is 'createdAt').
- * @param sortOrder - Sort order ('asc' or 'desc', default is 'desc').
- * @returns A promise resolving to an array of TaxClassPaginationDataSession or null.
+ * Workflow:
+ * 1. Constructs Redis keys using page, limit, search term, sortBy, and sortOrder for tax classes and count.
+ * 2. Queries Redis to retrieve the cached tax classes array and count concurrently.
+ * 3. Returns an object containing the parsed TaxClass array and count, or null if not found.
+ *
+ * @param page - The page number for pagination.
+ * @param limit - The number of tax classes per page.
+ * @param search - Optional search term or null for no search.
+ * @param sortBy - The field to sort by (default: "createdAt").
+ * @param sortOrder - The sort order (default: "desc").
+ * @returns A promise resolving to an object with tax classes (TaxClass array or null) and count (number or null).
  */
-export const getTaxClassesFromRedis = async (
+export const getTaxClassesAndCountFromRedis = async (
   page: number,
   limit: number,
-  search: string = "",
+  search: string | null,
   sortBy: string = "createdAt",
   sortOrder: string = "desc"
-): Promise<TaxClassPaginationDataSession[] | null> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  return redis.getSession<TaxClassPaginationDataSession[] | null>(
-    key,
-    "product-app"
-  );
+): Promise<{
+  classes: TaxClassPaginationDataSession[] | null;
+  count: number | null;
+}> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const classesKey = `${PREFIX.LIST}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  const [classesResult, countResult] = await Promise.all([
+    redis.getSession<TaxClassPaginationDataSession[] | null>(
+      classesKey,
+      "product-app"
+    ),
+    redis.getSession<string | null>(countKey, "product-app"),
+  ]);
+
+  const count =
+    countResult !== null
+      ? isNaN(Number(countResult))
+        ? 0
+        : Number(countResult)
+      : null;
+
+  return { classes: classesResult, count };
 };
 
 /**
- * Retrieves the total count of tax classes from Redis cache.
+ * Handles caching of tax classes and total count in Redis based on query parameters.
  *
- * @param search - Search query (optional).
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @returns A promise resolving to the count of tax classes.
+ * Workflow:
+ * 1. Constructs Redis keys using page, limit, search term, sortBy, and sortOrder for tax classes and count.
+ * 2. Stores the tax classes array and count in Redis with the specified TTL.
+ *
+ * @param page - The page number for pagination.
+ * @param limit - The number of tax classes per page.
+ * @param search - Optional search term or null for no search.
+ * @param sortBy - The field to sort by (default: "createdAt").
+ * @param sortOrder - The sort order (default: "desc").
+ * @param classes - The array of TaxClass data to cache.
+ * @param total - The total tax classes count to cache.
+ * @param ttl - Optional time-to-live in seconds (default: 3600).
+ * @returns A promise resolving when the tax classes and count are cached.
  */
-export const getTaxClassCountFromRedis = async (
-  search: string = "",
+export const setTaxClassesAndCountInRedis = async (
+  page: number,
+  limit: number,
+  search: string | null,
   sortBy: string = "createdAt",
-  sortOrder: string = "desc"
-): Promise<number> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  const result = await redis.getSession<number | null>(key, "product-app");
-  const count = Number(result);
-  return isNaN(count) ? 0 : count;
+  sortOrder: string = "desc",
+  classes: TaxClassPaginationDataSession[],
+  total: number,
+  ttl: number = 3600
+): Promise<void> => {
+  const searchKeyWord = search ? search.toLowerCase().trim() : "none";
+  const classesKey = `${PREFIX.LIST}page:${page}:limit:${limit}:search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+  const countKey = `${PREFIX.COUNT}search:${searchKeyWord}:sort:${sortBy}:${sortOrder}`;
+
+  await Promise.all([
+    redis.setSession(classesKey, classes, "product-app", ttl),
+    redis.setSession(countKey, total.toString(), "product-app", ttl),
+  ]);
+};
+
+/**
+ * Handles removal of cached tax classes and count data from Redis.
+ *
+ * Workflow:
+ * 1. Retrieves all keys in the "product-app" namespace.
+ * 2. Filters keys that start with the tax classes list or count prefix.
+ * 3. Deletes all matching keys concurrently.
+ *
+ * @returns A promise resolving when the tax classes and count data are removed.
+ */
+export const clearTaxClassesAndCountCache = async (): Promise<void> => {
+  const keys = await redis.getAllSessionKey("product-app");
+  const relevantKeys = keys.filter(
+    (key) => key.startsWith(PREFIX.LIST) || key.startsWith(PREFIX.COUNT)
+  );
+
+  if (relevantKeys.length > 0) {
+    await Promise.all(
+      relevantKeys.map((key) => redis.deleteSession(key, "product-app"))
+    );
+  }
 };
 
 /**
@@ -76,6 +140,10 @@ export const getTaxClassValueExistFromRedis = async (
 /**
  * Retrieves tax class information from Redis by class ID.
  *
+ * Workflow:
+ * 1. Queries Redis using the CLASS prefix and class ID.
+ * 2. Returns the parsed TaxClass or null if not found.
+ *
  * @param classId - The ID of the tax class.
  * @returns A promise resolving to the TaxClass or null if not found.
  */
@@ -89,54 +157,14 @@ export const getTaxClassInfoByIdFromRedis = async (
 };
 
 /**
- * Caches a paginated list of tax classes in Redis.
- *
- * @param page - Current page number.
- * @param limit - Number of classes per page.
- * @param search - Search query.
- * @param sortBy - Field to sort by.
- * @param sortOrder - Sort order ('asc' or 'desc').
- * @param classes - Array of TaxClassPaginationDataSession to cache.
- * @param ttl - Optional time-to-live in seconds (default: 3600).
- */
-export const setTaxClassesInRedis = async (
-  page: number,
-  limit: number,
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  classes: TaxClassPaginationDataSession[],
-  ttl: number = 3600
-): Promise<void> => {
-  const key = `${PREFIX.LIST}${page}:${limit}:${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, classes, "product-app", ttl);
-};
-
-/**
- * Caches the total tax class count in Redis.
- *
- * @param search - Search query.
- * @param sortBy - Field used for sorting.
- * @param sortOrder - Sort order.
- * @param count - Total number of tax classes.
- * @param ttl - Optional time-to-live in seconds (default: 3600).
- */
-export const setTaxClassCountInRedis = async (
-  search: string,
-  sortBy: string,
-  sortOrder: string,
-  count: number,
-  ttl: number = 3600
-): Promise<void> => {
-  const key = `${PREFIX.COUNT}${search}:${sortBy}:${sortOrder}`;
-  await redis.setSession(key, count.toString(), "product-app", ttl);
-};
-
-/**
  * Caches tax class information in Redis by class ID.
+ *
+ * Workflow:
+ * 1. Stores the tax class data in Redis with the CLASS prefix and class ID.
  *
  * @param classId - The ID of the tax class.
  * @param data - The TaxClass entity to cache.
+ * @returns A promise resolving when the tax class is cached.
  */
 export const setTaxClassInfoByIdInRedis = async (
   classId: string,
@@ -152,6 +180,7 @@ export const setTaxClassInfoByIdInRedis = async (
  * 1. Stores "exists" in Redis with the EXISTS prefix and normalized value.
  *
  * @param value - The value of the tax class.
+ * @returns A promise resolving when the flag is set.
  */
 export const setTaxClassValueExistInRedis = async (
   value: string
@@ -166,7 +195,11 @@ export const setTaxClassValueExistInRedis = async (
 /**
  * Removes cached tax class information by class ID from Redis.
  *
+ * Workflow:
+ * 1. Deletes the tax class data from Redis using the CLASS prefix and class ID.
+ *
  * @param classId - The ID of the tax class.
+ * @returns A promise resolving when the tax class data is removed.
  */
 export const removeTaxClassInfoByIdFromRedis = async (
   classId: string
@@ -177,7 +210,11 @@ export const removeTaxClassInfoByIdFromRedis = async (
 /**
  * Removes the existence flag for a tax class value from Redis.
  *
+ * Workflow:
+ * 1. Deletes the existence flag from Redis using the EXISTS prefix and normalized value.
+ *
  * @param value - The value of the tax class.
+ * @returns A promise resolving when the flag is removed.
  */
 export const removeTaxClassValueExistFromRedis = async (
   value: string
@@ -186,45 +223,4 @@ export const removeTaxClassValueExistFromRedis = async (
     `${PREFIX.EXISTS}${value.toLowerCase().trim()}`,
     "product-app"
   );
-};
-
-/**
- * Deletes all Redis cache entries related to tax class list and count.
- *
- * Order of deletion:
- * 1. Delete list-related keys (paginated data).
- * 2. Delete count-related keys (total counts).
- */
-export const clearAllTaxClassSearchCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("product-app");
-
-  const listKeys = keys.filter((key) => key.startsWith(PREFIX.LIST));
-  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
-
-  if (listKeys.length > 0) {
-    await Promise.all(
-      listKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
-
-  if (countKeys.length > 0) {
-    await Promise.all(
-      countKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
-};
-
-/**
- * Deletes all Redis cache entries related to tax class counts only.
- */
-export const clearAllTaxClassCountCache = async (): Promise<void> => {
-  const keys = await redis.getAllSessionKey("product-app");
-
-  const countKeys = keys.filter((key) => key.startsWith(PREFIX.COUNT));
-
-  if (countKeys.length > 0) {
-    await Promise.all(
-      countKeys.map((key) => redis.deleteSession(key, "product-app"))
-    );
-  }
 };

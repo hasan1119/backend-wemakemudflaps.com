@@ -256,7 +256,6 @@ export {
  */
 export {
   countProductsForTaxClass,
-  countTaxClassesWithSearch,
   findTaxClassByValue,
   findTaxClassByValueToUpdate,
   getTaxClassById,

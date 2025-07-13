@@ -1,8 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  clearAllTaxClassCountCache,
-  clearAllTaxClassSearchCache,
+  clearTaxClassesAndCountCache,
   getTaxClassInfoByIdFromRedis,
   getTaxClassValueExistFromRedis,
   removeTaxClassInfoByIdFromRedis,
@@ -141,8 +140,7 @@ export const updateTaxClass = async (
     await Promise.all([
       removeTaxClassInfoByIdFromRedis(id),
       removeTaxClassValueExistFromRedis(currentTaxClass.value),
-      clearAllTaxClassSearchCache(),
-      clearAllTaxClassCountCache(),
+      clearTaxClassesAndCountCache(),
       setTaxClassInfoByIdInRedis(id, updatedTaxClass),
       setTaxClassValueExistInRedis(updatedTaxClass.value),
     ]);

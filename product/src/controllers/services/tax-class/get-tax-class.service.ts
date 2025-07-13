@@ -160,37 +160,3 @@ export const paginateTaxClasses = async ({
 
   return { taxClasses, total };
 };
-
-/**
- * Handles counting tax classes matching optional search criteria.
- *
- * Workflow:
- * 1. Constructs a where clause to filter non-deleted tax classes and apply search conditions if provided.
- * 2. Queries the taxClassRepository to count tax classes matching the criteria.
- * 3. Returns the total number of matching tax classes.
- *
- * @param search - Optional search term to filter by value or description (case-insensitive).
- * @returns A promise resolving to the total number of matching tax classes.
- */
-export const countTaxClassesWithSearch = async (
-  search?: string
-): Promise<number> => {
-  const queryBuilder = taxClassRepository
-    .createQueryBuilder("taxClass")
-    .where("taxClass.deletedAt IS NULL");
-
-  if (search) {
-    const searchTerm = `%${search.trim()}%`;
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        qb.where("taxClass.value ILIKE :search", {
-          search: searchTerm,
-        }).orWhere("taxClass.description ILIKE :search", {
-          search: searchTerm,
-        });
-      })
-    );
-  }
-
-  return await queryBuilder.getCount();
-};

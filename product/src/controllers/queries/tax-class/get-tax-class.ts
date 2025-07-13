@@ -2,10 +2,8 @@ import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
-  getTaxClassCountFromRedis,
-  getTaxClassesFromRedis,
-  setTaxClassCountInRedis,
-  setTaxClassesInRedis,
+  getTaxClassesAndCountFromRedis,
+  setTaxClassesAndCountInRedis,
 } from "../../../helper/redis";
 import {
   GetTaxClassesResponseOrError,
@@ -18,7 +16,6 @@ import {
 import {
   checkUserAuth,
   checkUserPermission,
-  countTaxClassesWithSearch,
   paginateTaxClasses,
 } from "../../services";
 
@@ -51,7 +48,7 @@ const mapArgsToPagination = (args: QueryGetAllTaxClassArgs) => ({
  * @param context - GraphQL context containing authenticated user information.
  * @returns A promise resolving to a GetTaxClassesResponseOrError object containing status, message, tax classes, total count, and errors if applicable.
  */
-export const getAllTaxClass = async (
+export const getAllTaxClasses = async (
   _: any,
   args: QueryGetAllTaxClassArgs,
   { user }: Context
@@ -72,7 +69,7 @@ export const getAllTaxClass = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to view tax class(es) info",
+        message: "You do not have permission to view tax classes info",
         __typename: "BaseResponse",
       };
     }
@@ -102,7 +99,10 @@ export const getAllTaxClass = async (
     const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
     // Attempt to retrieve cached tax classes and total count from Redis
-    let taxClassesData = await getTaxClassesFromRedis(
+    let taxClassesData;
+    let total;
+
+    const cachedData = await getTaxClassesAndCountFromRedis(
       page,
       limit,
       search,
@@ -110,7 +110,8 @@ export const getAllTaxClass = async (
       safeSortOrder
     );
 
-    let total = await getTaxClassCountFromRedis(search, sortBy, safeSortOrder);
+    taxClassesData = cachedData.classes;
+    total = cachedData.count;
 
     if (!taxClassesData) {
       // On cache miss, fetch tax classes from database
@@ -137,35 +138,27 @@ export const getAllTaxClass = async (
       }));
 
       // Cache tax classes and total count in Redis
-      await Promise.all([
-        setTaxClassesInRedis(
-          page,
-          limit,
-          search,
-          sortBy,
-          safeSortOrder,
-          taxClassesData
-        ),
-        setTaxClassCountInRedis(search, sortBy, safeSortOrder, total),
-      ]);
-    }
-
-    // Calculate total if not found in Redis
-    if (!total || total === 0) {
-      total = await countTaxClassesWithSearch(search);
-      await setTaxClassCountInRedis(search, sortBy, safeSortOrder, total);
+      await setTaxClassesAndCountInRedis(
+        page,
+        limit,
+        search,
+        sortBy,
+        safeSortOrder,
+        taxClassesData,
+        total
+      );
     }
 
     return {
       statusCode: 200,
       success: true,
-      message: "Tax class(es) fetched successfully",
+      message: "Tax classes fetched successfully",
       taxClasses: taxClassesData,
       total,
       __typename: "TaxClassPaginationResponse",
     };
   } catch (error: any) {
-    console.error("Error fetching tax classs:", {
+    console.error("Error fetching tax classes:", {
       message: error.message,
     });
 
