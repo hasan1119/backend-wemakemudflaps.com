@@ -103,3 +103,13 @@ export { restoreTaxRates } from "./mutations/manage-tax-rate/restore-tax-rate";
 export { updateTaxRate } from "./mutations/manage-tax-rate/update-tax-rate";
 export { getAllTaxRates } from "./queries/tax-rate/get-tax-rate";
 export { getTaxRateById } from "./queries/tax-rate/get-tax-rate-by-id";
+
+/**
+ * Exports GraphQL queries and mutations for managing shipping method data.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating, updating, deleting, and restoring shipping methods.
+ * 2. Enables retrieval of a specific shipping method by its ID.
+ * 3. Facilitates listing all shipping methods in the system.
+ */
+export { createShippingMethod } from "./mutations/manage-shipping-method/create-shipping-method";

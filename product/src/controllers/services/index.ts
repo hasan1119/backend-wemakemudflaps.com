@@ -383,3 +383,51 @@ export { restoreTaxRate } from "./tax-rate/restore-tax-rate.service";
  * 1. Provides functions to update fields such as rate, location, and flags.
  */
 export { updateTaxRate } from "./tax-rate/update-tax-rate.service";
+
+/**
+ * Exports services for creating shipping methods.
+ *
+ * Workflow:
+ * 1. Provides a function to create a shipping method based on input.
+ * 2. Handles relation to shipping class and optional location rules.
+ */
+export { createShippingMethod } from "./shipping-method/create-shipping-method.service";
+/**
+ * Exports services for deleting shipping methods.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export {
+  hardDeleteShippingMethod,
+  softDeleteShippingMethod,
+} from "./shipping-method/delete-shipping-method.service";
+
+/**
+ * Exports services for fetching and counting shipping methods.
+ *
+ * Workflow:
+ * 1. Provides counting of shipping methods matching optional search criteria.
+ * 2. Provides functions to fetch shipping method by ID or name with relations.
+ * 3. Supports paginated retrieval of shipping methods.
+ */
+export {
+  getShippingMethodById,
+  paginateShippingMethods,
+} from "./shipping-method/get-shipping-method.service";
+
+/**
+ * Exports service for restoring soft-deleted shipping methods by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { restoreShippingMethod } from "./shipping-method/restore-shipping-method.service";
+
+/**
+ * Exports services for updating shipping methods.
+ *
+ * Workflow:
+ * 1. Provides functions to update fields such as name, description, and rates.
+ */
+export { updateShippingMethod } from "./shipping-method/update-shipping-method.service";

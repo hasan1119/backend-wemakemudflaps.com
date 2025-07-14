@@ -437,3 +437,51 @@ export const productMutationsDef = gql(
     encoding: "utf-8",
   })
 );
+
+/**
+ * Loads and parses the GraphQL schema for shipping method-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `shipping-method/shipping-method.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for shipping methods as a DocumentNode.
+ */
+export const shippingMethodDef = gql(
+  readFileSync(
+    path.join(__dirname, "./shipping-method/shipping-method.graphql"),
+    {
+      encoding: "utf-8",
+    }
+  )
+);
+
+/**
+ * Loads and parses GraphQL queries for shipping method-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `shipping-method/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for shipping methods as a DocumentNode.
+ */
+export const shippingMethodQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./shipping-method/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for shipping method-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `shipping-method/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for shipping methods as a DocumentNode.
+ */
+export const shippingMethodMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./shipping-method/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);

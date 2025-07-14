@@ -270,6 +270,13 @@ union CreateShippingClassResponseOrError
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | ShippingClassResponse | ErrorResponse
 
+union CreateShippingMethodResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ShippingMethodResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ShippingMethodResponse | ErrorResponse
+
 union CreateTagResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
@@ -358,6 +365,12 @@ union DeleteShippingClassResponseOrError
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | ErrorResponse
 
+union DeleteShippingMethodResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
 union DeleteTagResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
@@ -437,6 +450,19 @@ type FieldError
 {
   field: String!
   message: String!
+}
+
+type FlatRate
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  cost: Float!
+}
+
+type FreeShipping
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
 }
 
 enum Gender
@@ -588,6 +614,20 @@ union GetShippingClassesResponseOrError
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | ShippingClassPaginationResponse | ErrorResponse
 
+union GetShippingMethodByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ShippingMethodResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ShippingMethodResponse | ErrorResponse
+
+union GetShippingMethodsResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ShippingMethodPaginationResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ShippingMethodPaginationResponse | ErrorResponse
+
 union GetTagByIDResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
@@ -694,6 +734,12 @@ enum link__Purpose {
   `EXECUTION` features provide metadata necessary for operation execution.
   """
   EXECUTION
+}
+
+type LocalPickUp
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
 }
 
 type LoginMeta
@@ -937,6 +983,10 @@ type Mutation
   updateProduct(id: ID!, productConfigurationType: productConfigurationType, productDeliveryType: [ProductDeliveryType!], isCustomized: Boolean, name: String, slug: String, defaultImage: ID, images: [ID!], videos: [ID!], brandIds: [ID!], tagIds: [ID!], defaultMainDescription: String, defaultShortDescription: String, defaultTags: [String!], categoryIds: [ID!], warrantyDigit: Int, defaultWarrantyPeriod: DefaultWarrantyPeriod, warrantyPolicy: String, regularPrice: Float, salePrice: Float, salePriceStartAt: String, salePriceEndAt: String, tierPricingInfo: ProductPriceInput, saleQuantity: Int, saleQuantityUnit: String, taxStatus: TaxStatus, taxClassId: ID, minQuantity: Int, defaultQuantity: Int, maxQuantity: Int, quantityStep: Int, sku: String, model: String, manageStock: Boolean, stockQuantity: Int, allowBackOrders: AllowBackOrders, lowStockThresHold: Int, stockStatus: StockStatus, soldIndividually: Boolean, initialNumberInStock: String, weightUnit: WeightUnit, weight: Float, dimensionUnit: DimensionUnit, length: Float, width: Float, height: Float, shippingClassId: ID, upsellIds: [ID!], crossSellIds: [ID!], attributes: [ProductAttributeInput!], variations: [ProductVariationInput!], purchaseNote: String, enableReviews: Boolean, customBadge: String, isPreview: Boolean, isVisible: Boolean): UpdateProductResponseOrError! @join__field(graph: PRODUCT)
   deleteProduct(ids: [ID]!, skipTrash: Boolean!): DeleteProductResponseOrError! @join__field(graph: PRODUCT)
   restoreProducts(ids: [ID!]!): RestoreProductResponseOrError! @join__field(graph: PRODUCT)
+  createShippingMethod(title: String!, status: Boolean, description: String): CreateShippingMethodResponseOrError! @join__field(graph: PRODUCT)
+  updateShippingMethod(id: ID!, title: String, status: Boolean, description: String): UpdateShippingMethodResponseOrError! @join__field(graph: PRODUCT)
+  deleteShippingMethod(id: ID!): DeleteShippingMethodResponseOrError! @join__field(graph: PRODUCT)
+  restoreShippingMethod(id: ID!): RestoreShippingMethodResponseOrError! @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender, company: String): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
   updateProfile(userId: ID!, firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput, website: String, bio: String, company: String): UserProfileUpdateResponseOrError! @join__field(graph: USER)
@@ -1413,6 +1463,8 @@ type Query
   getReview: String @join__field(graph: PRODUCT)
   getProduct(id: ID!): GetProductByIdResponseOrError! @join__field(graph: PRODUCT)
   getAllProducts(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetProductsResponseOrError! @join__field(graph: PRODUCT)
+  getShippingMethodById(id: ID!): GetShippingMethodByIDResponseOrError! @join__field(graph: PRODUCT)
+  getAllShippingMethods(search: String, page: Int, limit: Int, sortBy: String, sortOrder: String): GetShippingMethodsResponseOrError! @join__field(graph: PRODUCT)
   getProfile: GetProfileResponseOrError! @join__field(graph: USER)
   getUserById(id: String!): GetUserByIDResponseOrError! @join__field(graph: USER)
   getAllUsers(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetUsersResponseOrError! @join__field(graph: USER)
@@ -1451,6 +1503,12 @@ union RestoreProductReviewResponseOrError
  = BaseResponse | ErrorResponse
 
 union RestoreShippingClassResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union RestoreShippingMethodResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
@@ -1585,6 +1643,41 @@ type ShippingClassResponse
   success: Boolean!
   message: String!
   shippingClass: ShippingClass!
+}
+
+type ShippingMethod
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  title: String!
+  status: Boolean!
+  description: String
+  flatRate: FlatRate
+  freeShipping: FreeShipping
+  localPickUp: LocalPickUp
+  ups: Ups
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
+}
+
+type ShippingMethodPaginationResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingMethods: [ShippingMethod!]!
+  total: Int!
+}
+
+type ShippingMethodResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingMethod: ShippingMethod!
 }
 
 input SinglePermissionInput
@@ -1853,6 +1946,13 @@ union UpdateShippingClassResponseOrError
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | ShippingClassResponse | ErrorResponse
 
+union UpdateShippingMethodResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ShippingMethodResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ShippingMethodResponse | ErrorResponse
+
 union UpdateTagResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
@@ -1923,6 +2023,12 @@ union UploadMediaResponseOrError
   @join__unionMember(graph: MEDIA, member: "UploadMediaResponse")
   @join__unionMember(graph: MEDIA, member: "ErrorResponse")
  = BaseResponse | UploadMediaResponse | ErrorResponse
+
+type Ups
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+}
 
 type User
   @join__type(graph: USER, key: "id")

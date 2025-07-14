@@ -9,6 +9,7 @@ export const PERMISSIONS = [
   "Permission",
   "Product Review",
   "Shipping Class",
+  "Shipping Method",
   "Sub Category",
   "Tag",
   "Tax Class",
@@ -37,6 +38,7 @@ export type PermissionName =
   | "Permission"
   | "Product Review"
   | "Shipping Class"
+  | "Shipping Method"
   | "Sub Category"
   | "Tag"
   | "Tax Class"
@@ -64,6 +66,7 @@ export const PERMISSION_NORMALIZATION_MAP: Record<string, string> = {
   PERMISSION: "Permission",
   PRODUCT_REVIEW: "Product Review",
   SHIPPING_CLASS: "Shipping Class",
+  SHIPPING_METHOD: "Shipping Method",
   SUB_CATEGORY: "Sub Category",
   TAG: "Tag",
   TAX_CLASS: "Tax Class",

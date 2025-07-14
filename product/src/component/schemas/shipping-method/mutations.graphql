@@ -4,10 +4,6 @@ extend type Mutation {
     title: String!
     status: Boolean
     description: String
-    flatRateId: ID
-    freeShippingId: ID
-    localPickUpId: ID
-    upsId: ID
   ): CreateShippingMethodResponseOrError!
 
   updateShippingMethod(

@@ -68,6 +68,7 @@ const typesWithCreatedBy = [
   "Category",
   "ICategoryBase",
   "CategoryPaginationDataSession",
+  "ShippingMethod",
 ];
 
 // List of types that use the thumbnail field

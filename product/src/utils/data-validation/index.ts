@@ -8,7 +8,7 @@ export {
   createShippingMethodSchema,
   shippingMethodSortingSchema,
   updateShippingMethodSchema,
-} from "./shipping-method/shipping-method.validation";
+} from "./shipping-method/shipping-method";
 
 /**
  * Exports category-related schemas for category management.

@@ -3,6 +3,7 @@ import {
   createCategory,
   createProduct,
   createShippingClass,
+  createShippingMethod,
   createTag,
   createTaxClass,
   createTaxRate,
@@ -183,5 +184,10 @@ export const productMutationsResolver = {
      * Restores previously deleted tax class.
      */
     restoreTaxRates,
+
+    /**
+     * Creates a new shipping method.
+     */
+    createShippingMethod,
   },
 };

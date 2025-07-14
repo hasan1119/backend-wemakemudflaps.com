@@ -133,3 +133,42 @@ export { TaxClass } from "./tax-class.entity";
  * 1. Manages tax rates and assignments to products or orders.
  */
 export { TaxRate } from "./tax-rate.entity";
+
+/**
+ * Exports the FlatRate entity for flat rate shipping configuration.
+ *
+ * Workflow:
+ * 1. Provides a flat rate shipping option with configurable parameters.
+ */
+export { FlatRate } from "./flat-rate.entity";
+
+/**
+ * Exports the FreeShipping entity for free shipping configuration.
+ *
+ * Workflow:
+ * 1. Provides a free shipping option with configurable parameters.
+ */
+export { FreeShipping } from "./free-shipping.entity";
+
+/**
+ * Exports the LocalPickUp entity for local pickup shipping configuration.
+ *
+ * Workflow:
+ * 1. Provides a local pickup option with configurable parameters.
+ */
+export { LocalPickUp } from "./local-pick-up.entity";
+
+/**
+ * Exports the Ups entity for UPS shipping configuration.
+ *
+ * Workflow:
+ * 1. Provides a UPS shipping option with configurable parameters.
+ */
+export { Ups } from "./ups.entity";
+/**
+ * Exports the ShippingMethod entity for configuring shipping methods.
+ *
+ * Workflow:
+ * 1. Sets different shipping methods and their configuration.
+ */
+export { ShippingMethod } from "./shipping-method.entity";

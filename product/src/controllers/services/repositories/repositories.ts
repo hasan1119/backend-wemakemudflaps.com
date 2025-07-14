@@ -2,6 +2,9 @@ import {
   Brand,
   Category,
   Coupon,
+  FlatRate,
+  FreeShipping,
+  LocalPickUp,
   Product,
   ProductAttribute,
   ProductAttributeValue,
@@ -13,9 +16,11 @@ import {
   ProductVariationAttribute,
   ProductVariationAttributeValue,
   ShippingClass,
+  ShippingMethod,
   Tag,
   TaxClass,
   TaxRate,
+  Ups,
 } from "../../../entities";
 import { AppDataSource } from "../../../helper";
 
@@ -165,3 +170,44 @@ export const taxClassRepository = AppDataSource.getRepository(TaxClass);
  * 1. Retrieves the TaxRate repository from AppDataSource for database operations.
  */
 export const taxRateRepository = AppDataSource.getRepository(TaxRate);
+
+/**
+ * Initializes repository for ShippingMethod entity.
+ *
+ * Workflow:
+ * 1. Retrieves the ShippingMethod repository from AppDataSource for database operations.
+ */
+export const shippingMethodRepository =
+  AppDataSource.getRepository(ShippingMethod);
+
+/**
+ * Initializes repository for FlatRate entity.
+ *
+ * Workflow:
+ * 1. Retrieves the FlatRate repository from AppDataSource for database operations.
+ */
+export const flatRateRepository = AppDataSource.getRepository(FlatRate);
+
+/**
+ * Initializes repository for FreeShipping entity.
+ *
+ * Workflow:
+ * 1. Retrieves the FreeShipping repository from AppDataSource for database operations.
+ */
+export const freeShippingRepository = AppDataSource.getRepository(FreeShipping);
+
+/**
+ * Initializes repository for LocalPickUp entity.
+ *
+ * Workflow:
+ * 1. Retrieves the LocalPickUp repository from AppDataSource for database operations.
+ */
+export const localPickUpRepository = AppDataSource.getRepository(LocalPickUp);
+
+/**
+ * Initializes repository for Ups entity.
+ *
+ * Workflow:
+ * 1. Retrieves the Ups repository from AppDataSource for database operations.
+ */
+export const upsRepository = AppDataSource.getRepository(Ups);

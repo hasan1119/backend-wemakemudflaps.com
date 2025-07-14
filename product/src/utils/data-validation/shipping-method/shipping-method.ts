@@ -14,33 +14,11 @@ import { SortOrderTypeEnum } from "../common/common";
  * @property status - Optional shipping method status (boolean).
  * @property description - Optional shipping method description (string or null).
  */
-export const createShippingMethodSchema = z
-  .object({
-    title: z.string().min(1, "Title is required"),
-    status: z.boolean().optional(),
-    description: z.string().nullable().optional(),
-    flatRateId: z.string().uuid().optional().nullable(),
-    freeShippingId: z.string().uuid().optional().nullable(),
-    localPickUpId: z.string().uuid().optional().nullable(),
-    upsId: z.string().uuid().optional().nullable(),
-  })
-  .refine(
-    (data) => {
-      const ids = [
-        data.flatRateId,
-        data.freeShippingId,
-        data.localPickUpId,
-        data.upsId,
-      ];
-      // Only one must be set (not null/undefined)
-      return ids.filter((id) => !!id).length === 1;
-    },
-    {
-      message:
-        "Only one of flatRateId, freeShippingId, localPickUpId, or upsId can be set.",
-      path: ["flatRateId", "freeShippingId", "localPickUpId", "upsId"],
-    }
-  );
+export const createShippingMethodSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  status: z.boolean().optional(),
+  description: z.string().nullable().optional(),
+});
 
 /**
  * Defines the schema for validating a single shipping method object update input.
