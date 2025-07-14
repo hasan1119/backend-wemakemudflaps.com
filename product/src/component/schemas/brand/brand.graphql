@@ -9,19 +9,6 @@ type Brand {
   deletedAt: String
 }
 
-# ---------------------- Brand Response Types ----------------------
-# Response for creating a brand session.
-type BrandResponseSession {
-  id: ID!
-  name: String!
-  slug: String!
-  thumbnail: Media
-  createdBy: CreatedBy!
-  totalProducts: Int!
-  createdAt: String!
-  deletedAt: String!
-}
-
 # Response for fetching a brand.
 type BrandResponse {
   statusCode: Int!

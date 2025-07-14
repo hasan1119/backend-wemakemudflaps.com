@@ -120,18 +120,6 @@ export type BrandResponseById = {
   success: Scalars['Boolean']['output'];
 };
 
-export type BrandResponseSession = {
-  __typename?: 'BrandResponseSession';
-  createdAt: Scalars['String']['output'];
-  createdBy: CreatedBy;
-  deletedAt: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  slug: Scalars['String']['output'];
-  thumbnail?: Maybe<Media>;
-  totalProducts: Scalars['Int']['output'];
-};
-
 export type Category = ICategoryBase & {
   __typename?: 'Category';
   createdAt?: Maybe<Scalars['String']['output']>;
@@ -2416,7 +2404,6 @@ export type ResolversTypes = {
   BrandPaginationResponse: ResolverTypeWrapper<BrandPaginationResponse>;
   BrandResponse: ResolverTypeWrapper<BrandResponse>;
   BrandResponseById: ResolverTypeWrapper<BrandResponseById>;
-  BrandResponseSession: ResolverTypeWrapper<BrandResponseSession>;
   Category: ResolverTypeWrapper<Category>;
   CategoryPaginationDataSession: ResolverTypeWrapper<CategoryPaginationDataSession>;
   CategoryPaginationResponse: ResolverTypeWrapper<CategoryPaginationResponse>;
@@ -2614,7 +2601,6 @@ export type ResolversParentTypes = {
   BrandPaginationResponse: BrandPaginationResponse;
   BrandResponse: BrandResponse;
   BrandResponseById: BrandResponseById;
-  BrandResponseSession: BrandResponseSession;
   Category: Category;
   CategoryPaginationDataSession: CategoryPaginationDataSession;
   CategoryPaginationResponse: CategoryPaginationResponse;
@@ -2881,18 +2867,6 @@ export type BrandResponseByIdResolvers<ContextType = Context, ParentType extends
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type BrandResponseSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BrandResponseSession'] = ResolversParentTypes['BrandResponseSession']> = {
-  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
-  deletedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
-  totalProducts?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4132,7 +4106,6 @@ export type Resolvers<ContextType = Context> = {
   BrandPaginationResponse?: BrandPaginationResponseResolvers<ContextType>;
   BrandResponse?: BrandResponseResolvers<ContextType>;
   BrandResponseById?: BrandResponseByIdResolvers<ContextType>;
-  BrandResponseSession?: BrandResponseSessionResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CategoryPaginationDataSession?: CategoryPaginationDataSessionResolvers<ContextType>;
   CategoryPaginationResponse?: CategoryPaginationResponseResolvers<ContextType>;

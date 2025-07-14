@@ -150,19 +150,6 @@ type BrandResponseById
   brand: Brand!
 }
 
-type BrandResponseSession
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  name: String!
-  slug: String!
-  thumbnail: Media
-  createdBy: CreatedBy!
-  totalProducts: Int!
-  createdAt: String!
-  deletedAt: String!
-}
-
 type Category implements ICategoryBase
   @join__implements(graph: PRODUCT, interface: "ICategoryBase")
   @join__type(graph: PRODUCT)

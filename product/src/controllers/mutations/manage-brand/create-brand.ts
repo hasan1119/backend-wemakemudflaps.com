@@ -144,20 +144,7 @@ export const createBrand = async (
 
     // Cache brand information and existence in Redis
     await Promise.all([
-      setBrandInfoByIdInRedis(brand.id, {
-        ...brand,
-        totalProducts: brand.products.length,
-        thumbnail: brand.thumbnail as any,
-        createdBy: brand.createdBy as any,
-        createdAt:
-          brand.createdAt instanceof Date
-            ? brand.createdAt.toISOString()
-            : brand.createdAt,
-        deletedAt:
-          brand.deletedAt instanceof Date
-            ? brand.deletedAt.toISOString()
-            : brand.deletedAt,
-      }),
+      setBrandInfoByIdInRedis(brand.id, brand),
       setBrandNameExistInRedis(brand.name),
       setBrandSlugExistInRedis(brand.slug),
       clearBrandsAndCountCache(),

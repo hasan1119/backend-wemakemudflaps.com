@@ -89,9 +89,7 @@ export const updateBrand = async (
     const { id, name, slug, thumbnail } = result.data;
 
     // Get current brand data from Redis or DB
-    let currentBrand;
-
-    currentBrand = await getBrandInfoByIdFromRedis(id);
+    let currentBrand = await getBrandInfoByIdFromRedis(id);
 
     if (currentBrand?.deletedAt) {
       return {
@@ -170,20 +168,7 @@ export const updateBrand = async (
       removeBrandInfoByIdFromRedis(id),
       removeBrandNameExistFromRedis(currentBrand.name),
       removeBrandSlugExistFromRedis(currentBrand.slug),
-      setBrandInfoByIdInRedis(id, {
-        ...updatedBrand,
-        thumbnail: updatedBrand.thumbnail as any,
-        createdBy: updatedBrand.createdBy as any,
-        totalProducts: updatedBrand.products.length,
-        createdAt:
-          updatedBrand.createdAt instanceof Date
-            ? updatedBrand.createdAt.toISOString()
-            : updatedBrand.createdAt,
-        deletedAt:
-          updatedBrand.deletedAt instanceof Date
-            ? updatedBrand.deletedAt.toISOString()
-            : updatedBrand.deletedAt,
-      }),
+      setBrandInfoByIdInRedis(id, updatedBrand),
       setBrandNameExistInRedis(updatedBrand.name),
       setBrandSlugExistInRedis(updatedBrand.slug),
       clearBrandsAndCountCache(),

@@ -103,23 +103,8 @@ export const getBrandById = async (
         };
       }
 
-      brandData = {
-        ...dbBrand,
-        totalProducts: dbBrand.products.length,
-        thumbnail: dbBrand.thumbnail as any,
-        createdBy: dbBrand.createdBy as any,
-        createdAt:
-          dbBrand.createdAt instanceof Date
-            ? dbBrand.createdAt.toISOString()
-            : dbBrand.createdAt,
-        deletedAt:
-          dbBrand.deletedAt instanceof Date
-            ? dbBrand.deletedAt.toISOString()
-            : dbBrand.deletedAt,
-      };
-
       // Cache brand data in Redis
-      await setBrandInfoByIdInRedis(id, brandData);
+      await setBrandInfoByIdInRedis(id, dbBrand);
     }
 
     return {
