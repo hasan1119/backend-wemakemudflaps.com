@@ -165,12 +165,10 @@ export const deleteTaxRate = async (
     // Process deletions in parallel
     await Promise.all(
       taxRatesToDelete.map(async (taxRate) => {
-        const taxClassId = (await taxRate.taxClass).id;
-
         if (skipTrash) {
           // Hard delete
           await hardDeleteTaxRate(taxRate.id);
-          await clearTaxRateCache(taxClassId, taxRate.id);
+          await clearTaxRateCache(taxRate.taxClassId, taxRate.id);
         } else {
           if (taxRate.deletedAt) {
             return {
@@ -180,7 +178,7 @@ export const deleteTaxRate = async (
               __typename: "BaseResponse",
             };
           }
-          await softDeleteAndCache(taxClassId, taxRate.id);
+          await softDeleteAndCache(taxRate.taxClassId, taxRate.id);
         }
       })
     );
