@@ -1,0 +1,17 @@
+# ---------------------- Shipping Zone Queries ----------------------
+"""
+Queries for fetching shipping zones by ID or as a paginated list.
+"""
+extend type Query {
+  """Get a shipping zone by its ID."""
+  getShippingZoneById(id: ID!): GetShippingZoneByIDResponseOrError!
+
+  """Get all shipping zones with optional search, pagination, and sorting."""
+  getAllShippingZones(
+    search: String
+    page: Int
+    limit: Int
+    sortBy: String
+    sortOrder: String
+  ): GetShippingZonesResponseOrError!
+}

@@ -172,3 +172,11 @@ export { Ups } from "./ups.entity";
  * 1. Sets different shipping methods and their configuration.
  */
 export { ShippingMethod } from "./shipping-method.entity";
+
+/**
+ * Exports the ShippingZone entity for managing shipping zones.
+ *
+ * Workflow:
+ * 1. Defines geographical areas for shipping methods.
+ */
+export { ShippingZone } from "./shipping-zone.entity";

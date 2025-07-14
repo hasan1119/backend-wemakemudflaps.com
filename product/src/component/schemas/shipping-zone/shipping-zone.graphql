@@ -1,0 +1,51 @@
+# ---------------------- Shipping Zone Types ----------------------
+"""
+Represents a shipping zone, which groups regions and zip codes for shipping method assignment.
+"""
+type ShippingZone {
+  id: ID!
+  name: String! # Name of the shipping zone
+  regions: [String!]! # Region or geographical area of the shipping zone
+  zipCodes: [String] # Zip codes applicable to the shipping zone
+  shippingMethods: [ShippingMethod] # Shipping methods associated with this zone
+  createdBy: String! # User ID who created the shipping zone
+  createdAt: String # Timestamp when the shipping zone was created
+  deletedAt: String # Timestamp for soft deletion (null if not deleted)
+}
+
+# Response for fetching a shipping zone.
+type ShippingZoneResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingZone: ShippingZone!
+}
+
+# Response for fetching a shipping zones list.
+type ShippingZonePaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingZones: [ShippingZone!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateShippingZoneResponseOrError =
+    BaseResponse
+  | ShippingZoneResponse
+  | ErrorResponse
+union GetShippingZoneByIDResponseOrError =
+    BaseResponse
+  | ShippingZoneResponse
+  | ErrorResponse
+union GetShippingZonesResponseOrError =
+    BaseResponse
+  | ShippingZonePaginationResponse
+  | ErrorResponse
+union UpdateShippingZoneResponseOrError =
+    BaseResponse
+  | ShippingZoneResponse
+  | ErrorResponse
+union DeleteShippingZoneResponseOrError = BaseResponse | ErrorResponse
+union RestoreShippingZoneResponseOrError = BaseResponse | ErrorResponse

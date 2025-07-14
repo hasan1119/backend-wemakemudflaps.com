@@ -1184,6 +1184,7 @@ export enum PermissionName {
   ProductReview = 'PRODUCT_REVIEW',
   Role = 'ROLE',
   ShippingClass = 'SHIPPING_CLASS',
+  ShippingMethod = 'SHIPPING_METHOD',
   SubCategory = 'SUB_CATEGORY',
   Tag = 'TAG',
   TaxClass = 'TAX_CLASS',

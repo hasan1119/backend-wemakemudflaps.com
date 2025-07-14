@@ -1,5 +1,5 @@
 import { ShippingMethod } from "../../../entities";
-import { updateShippingMethodSchema } from "../../../utils/data-validation/shipping-method/shipping-method.validation";
+import { updateShippingMethodSchema } from "../../../utils/data-validation/";
 import { shippingMethodRepository } from "../repositories/repositories";
 
 /**

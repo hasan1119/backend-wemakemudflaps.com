@@ -1031,6 +1031,7 @@ enum PermissionName
   PERMISSION @join__enumValue(graph: USER)
   PRODUCT_REVIEW @join__enumValue(graph: USER)
   SHIPPING_CLASS @join__enumValue(graph: USER)
+  SHIPPING_METHOD @join__enumValue(graph: USER)
   SUB_CATEGORY @join__enumValue(graph: USER)
   TAG @join__enumValue(graph: USER)
   TAX_CLASS @join__enumValue(graph: USER)
