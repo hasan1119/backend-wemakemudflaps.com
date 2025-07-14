@@ -192,7 +192,7 @@ export const deleteTaxRate = async (
         skipTrash
           ? "Tax rate(s) permanently deleted"
           : "Tax rate(s) moved to trash"
-      } successfully: ${ids.join(", ")}`,
+      } successfully`,
       __typename: "BaseResponse",
     };
   } catch (error: any) {
