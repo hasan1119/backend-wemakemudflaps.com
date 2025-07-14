@@ -3,9 +3,9 @@ extend type Query {
   getShippingMethodById(id: ID!): GetShippingMethodByIDResponseOrError!
 
   getAllShippingMethods(
+    page: Int!
+    limit: Int!
     search: String
-    page: Int
-    limit: Int
     sortBy: String
     sortOrder: String
   ): GetShippingMethodsResponseOrError!

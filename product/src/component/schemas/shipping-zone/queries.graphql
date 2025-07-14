@@ -3,9 +3,9 @@ extend type Query {
   getShippingZoneById(id: ID!): GetShippingZoneByIDResponseOrError!
 
   getAllShippingZones(
-    search: String
     page: Int!
     limit: Int!
+    search: String
     sortBy: String
     sortOrder: String
   ): GetShippingZonesResponseOrError!
