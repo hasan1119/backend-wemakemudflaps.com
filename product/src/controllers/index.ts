@@ -123,12 +123,5 @@ export { createShippingMethod } from "./mutations/manage-shipping-method/create-
  * 3. Facilitates listing all shipping zones in the system.
  */
 export { createShippingZone } from "./mutations/manage-shipping-zone/create-shipping-zone";
-
-/*
- * Exports GraphQL queries and mutations for deleting shipping zones.
- *
- * Workflow:
- * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
- * 2. Ensures proper cache management and permission checks.
- */
 export { deleteShippingZone } from "./mutations/manage-shipping-zone/delete-shipping-zone";
+export { updateShippingZone } from "./mutations/manage-shipping-zone/update-shipping-zone";

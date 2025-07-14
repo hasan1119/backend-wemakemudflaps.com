@@ -70,6 +70,10 @@ const typesWithCreatedBy = [
   "CategoryPaginationDataSession",
   "ShippingMethod",
   "ShippingZone",
+  "FlatRate",
+  "FreeShipping",
+  "LocalPickUp",
+  "Ups",
 ];
 
 // List of types that use the thumbnail field

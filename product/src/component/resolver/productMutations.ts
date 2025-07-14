@@ -28,6 +28,7 @@ import {
   updateCategoryPosition,
   updateProduct,
   updateShippingClass,
+  updateShippingZone,
   updateTag,
   updateTaxClass,
   updateTaxRate,
@@ -201,5 +202,10 @@ export const productMutationsResolver = {
      * Deletes specified shipping zone from the system.
      */
     deleteShippingZone,
+
+    /**
+     * Updates detailed information for a specific shipping zone.
+     */
+    updateShippingZone,
   },
 };
