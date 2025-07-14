@@ -423,3 +423,12 @@ export {
  * 1. Provides functions to update fields such as name, description, and rates.
  */
 export { updateShippingMethod } from "./shipping-method/update-shipping-method.service";
+
+/**
+ * Exports services for creating shipping zones.
+ *
+ * Workflow:
+ * 1. Provides a function to create a shipping zone based on input.
+ * 2. Handles relation to shipping methods and optional location rules.
+ */
+export { createShippingZone } from "./shipping-zone/create-shipping-zone.service";
