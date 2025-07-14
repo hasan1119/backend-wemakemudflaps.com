@@ -1059,12 +1059,10 @@ enum PermissionName
   PRODUCT @join__enumValue(graph: USER)
   PERMISSION @join__enumValue(graph: USER)
   PRODUCT_REVIEW @join__enumValue(graph: USER)
-  SHIPPING_CLASS @join__enumValue(graph: USER)
-  SHIPPING_METHOD @join__enumValue(graph: USER)
+  SHIPPING_SETTINGS @join__enumValue(graph: USER)
   SUB_CATEGORY @join__enumValue(graph: USER)
   TAG @join__enumValue(graph: USER)
-  TAX_CLASS @join__enumValue(graph: USER)
-  TAX_STATUS @join__enumValue(graph: USER)
+  TAX_SETTINGS @join__enumValue(graph: USER)
   FAQ @join__enumValue(graph: USER)
   NEWS_LETTER @join__enumValue(graph: USER)
   POP_UP_BANNER @join__enumValue(graph: USER)
@@ -1720,7 +1718,7 @@ type ShippingZone
   regions: [String!]!
   zipCodes: [String]
   shippingMethods: [ShippingMethod]
-  createdBy: String!
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }

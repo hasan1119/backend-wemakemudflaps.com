@@ -1209,14 +1209,12 @@ export enum PermissionName {
   Product = 'PRODUCT',
   ProductReview = 'PRODUCT_REVIEW',
   Role = 'ROLE',
-  ShippingClass = 'SHIPPING_CLASS',
-  ShippingMethod = 'SHIPPING_METHOD',
+  ShippingSettings = 'SHIPPING_SETTINGS',
   SubCategory = 'SUB_CATEGORY',
   Tag = 'TAG',
-  TaxClass = 'TAX_CLASS',
   TaxExemption = 'TAX_EXEMPTION',
   TaxRate = 'TAX_RATE',
-  TaxStatus = 'TAX_STATUS',
+  TaxSettings = 'TAX_SETTINGS',
   TermsConditions = 'TERMS_CONDITIONS',
   User = 'USER'
 }
@@ -1950,7 +1948,7 @@ export type ShippingMethodResponse = {
 export type ShippingZone = {
   __typename?: 'ShippingZone';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: Scalars['String']['output'];
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -4055,7 +4053,7 @@ export type ShippingMethodResponseResolvers<ContextType = Context, ParentType ex
 
 export type ShippingZoneResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingZone'] = ResolversParentTypes['ShippingZone']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

@@ -4,6 +4,7 @@ import {
   createProduct,
   createShippingClass,
   createShippingMethod,
+  createShippingZone,
   createTag,
   createTaxClass,
   createTaxRate,
@@ -189,5 +190,10 @@ export const productMutationsResolver = {
      * Creates a new shipping method.
      */
     createShippingMethod,
+
+    /**
+     * Creates a new shipping zone.
+     */
+    createShippingZone,
   },
 };

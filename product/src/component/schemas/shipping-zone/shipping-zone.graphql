@@ -6,7 +6,7 @@ type ShippingZone {
   regions: [String!]!
   zipCodes: [String]
   shippingMethods: [ShippingMethod]
-  createdBy: String!
+  createdBy: CreatedBy!
   createdAt: String
   deletedAt: String
 }
