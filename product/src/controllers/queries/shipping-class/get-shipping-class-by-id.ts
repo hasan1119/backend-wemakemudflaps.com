@@ -43,7 +43,7 @@ export const getShippingClassById = async (
     // Check if user has permission to view shipping Classes
     const canRead = await checkUserPermission({
       action: "canRead",
-      entity: "shipping class",
+      entity: "shipping settings",
       user,
     });
 

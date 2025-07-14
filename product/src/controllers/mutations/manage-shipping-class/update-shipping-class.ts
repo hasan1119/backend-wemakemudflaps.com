@@ -53,7 +53,7 @@ export const updateShippingClass = async (
     const hasPermission = await checkUserPermission({
       user,
       action: "canUpdate",
-      entity: "shipping class",
+      entity: "shipping settings",
     });
 
     if (!hasPermission) {

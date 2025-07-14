@@ -48,7 +48,7 @@ export const restoreShippingClasses = async (
     // Check restore permission
     const hasPermission = await checkUserPermission({
       action: "canUpdate",
-      entity: "shipping class",
+      entity: "shipping settings",
       user,
     });
 

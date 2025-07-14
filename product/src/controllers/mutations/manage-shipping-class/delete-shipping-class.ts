@@ -67,7 +67,7 @@ export const deleteShippingClass = async (
     // Check if user has permission to delete shipping classes
     const canDelete = await checkUserPermission({
       action: "canDelete",
-      entity: "shipping class",
+      entity: "shipping settings",
       user,
     });
 

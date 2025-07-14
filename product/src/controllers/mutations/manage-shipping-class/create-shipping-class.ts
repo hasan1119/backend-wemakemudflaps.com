@@ -49,7 +49,7 @@ export const createShippingClass = async (
     const hasPermission = await checkUserPermission({
       user,
       action: "canCreate",
-      entity: "shipping class",
+      entity: "shipping settings",
     });
 
     if (!hasPermission) {
