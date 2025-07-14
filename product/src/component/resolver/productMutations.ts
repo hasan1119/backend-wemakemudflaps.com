@@ -12,6 +12,7 @@ import {
   deleteCategory,
   deleteProduct,
   deleteShippingClass,
+  deleteShippingZone,
   deleteTag,
   deleteTaxClass,
   deleteTaxRate,
@@ -195,5 +196,10 @@ export const productMutationsResolver = {
      * Creates a new shipping zone.
      */
     createShippingZone,
+
+    /**
+     * Deletes specified shipping zone from the system.
+     */
+    deleteShippingZone,
   },
 };

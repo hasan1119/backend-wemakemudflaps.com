@@ -432,3 +432,11 @@ export { updateShippingMethod } from "./shipping-method/update-shipping-method.s
  * 2. Handles relation to shipping methods and optional location rules.
  */
 export { createShippingZone } from "./shipping-zone/create-shipping-zone.service";
+
+/**
+ * Exports services for deleting shipping zones.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export { deleteShippingZone } from "./shipping-zone/delete-shipping-zone.service";
