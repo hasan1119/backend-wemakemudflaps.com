@@ -49,7 +49,7 @@ export const createTaxClass = async (
     const hasPermission = await checkUserPermission({
       user,
       action: "canCreate",
-      entity: "tax class",
+      entity: "tax settings",
     });
 
     if (!hasPermission) {

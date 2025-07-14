@@ -48,7 +48,7 @@ export const restoreTaxClasses = async (
     // Check restore permission
     const hasPermission = await checkUserPermission({
       action: "canUpdate",
-      entity: "tax class",
+      entity: "tax settings",
       user,
     });
 

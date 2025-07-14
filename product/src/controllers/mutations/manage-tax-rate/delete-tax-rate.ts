@@ -77,7 +77,7 @@ export const deleteTaxRate = async (
     // Permission check
     const canDelete = await checkUserPermission({
       action: "canDelete",
-      entity: "tax rate",
+      entity: "tax settings",
       user,
     });
 

@@ -8,12 +8,10 @@ export const PERMISSIONS = [
   "Product",
   "Permission",
   "Product Review",
-  "Shipping Class",
-  "Shipping Method",
+  "Shipping Settings",
   "Sub Category",
   "Tag",
-  "Tax Class",
-  "Tax Status",
+  "Tax Settings",
   "Faq",
   "News Letter",
   "Pop Up Banner",
@@ -37,12 +35,10 @@ export type PermissionName =
   | "Product"
   | "Permission"
   | "Product Review"
-  | "Shipping Class"
-  | "Shipping Method"
+  | "Shipping Settings"
   | "Sub Category"
   | "Tag"
-  | "Tax Class"
-  | "Tax Status"
+  | "Tax Settings"
   | "Faq"
   | "News Letter"
   | "Pop Up Banner"
@@ -65,12 +61,10 @@ export const PERMISSION_NORMALIZATION_MAP: Record<string, string> = {
   PRODUCT: "Product",
   PERMISSION: "Permission",
   PRODUCT_REVIEW: "Product Review",
-  SHIPPING_CLASS: "Shipping Class",
-  SHIPPING_METHOD: "Shipping Method",
+  SHIPPING_SETTINGS: "Shipping Settings",
   SUB_CATEGORY: "Sub Category",
   TAG: "Tag",
-  TAX_CLASS: "Tax Class",
-  TAX_STATUS: "Tax Status",
+  TAX_SETTINGS: "Tax Settings",
   FAQ: "Faq",
   NEWS_LETTER: "News Letter",
   POP_UP_BANNER: "Pop Up Banner",

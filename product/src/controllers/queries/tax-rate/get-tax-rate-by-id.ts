@@ -36,7 +36,7 @@ export const getTaxRateById = async (
     // 2. Permission check
     const canRead = await checkUserPermission({
       action: "canRead",
-      entity: "tax rate",
+      entity: "tax settings",
       user,
     });
 

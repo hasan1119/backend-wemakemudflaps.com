@@ -53,7 +53,7 @@ export const updateTaxClass = async (
     const hasPermission = await checkUserPermission({
       user,
       action: "canUpdate",
-      entity: "tax class",
+      entity: "tax settings",
     });
 
     if (!hasPermission) {
