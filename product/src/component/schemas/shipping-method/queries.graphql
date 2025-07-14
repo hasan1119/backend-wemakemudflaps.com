@@ -1,0 +1,11 @@
+# ---------------------- Shipping Method Queries ----------------------
+extend type Query {
+  getShippingMethodById(id: ID!): GetShippingMethodByIDResponseOrError!
+  getAllShippingMethods(
+    search: String
+    page: Int
+    limit: Int
+    sortBy: String
+    sortOrder: String
+  ): GetShippingMethodsResponseOrError!
+}

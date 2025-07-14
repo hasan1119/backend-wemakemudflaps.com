@@ -1,0 +1,72 @@
+# ---------------------- Shipping Method Types ----------------------
+type ShippingMethod {
+  id: ID!
+  title: String!
+  status: Boolean!
+  description: String
+  flatRate: FlatRate
+  freeShipping: FreeShipping
+  localPickUp: LocalPickUp
+  ups: Ups
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
+}
+
+type FlatRate {
+  id: ID!
+  cost: Float!
+  # ...other fields as needed
+}
+
+type FreeShipping {
+  id: ID!
+  # ...other fields as needed
+}
+
+type LocalPickUp {
+  id: ID!
+  # ...other fields as needed
+}
+
+type Ups {
+  id: ID!
+  # ...other fields as needed
+}
+
+# Response for fetching a shipping method.
+type ShippingMethodResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingMethod: ShippingMethod!
+}
+
+# Response for fetching a shipping methods list.
+type ShippingMethodPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingMethods: [ShippingMethod!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateShippingMethodResponseOrError =
+    BaseResponse
+  | ShippingMethodResponse
+  | ErrorResponse
+union GetShippingMethodByIDResponseOrError =
+    BaseResponse
+  | ShippingMethodResponse
+  | ErrorResponse
+union GetShippingMethodsResponseOrError =
+    BaseResponse
+  | ShippingMethodPaginationResponse
+  | ErrorResponse
+union UpdateShippingMethodResponseOrError =
+    BaseResponse
+  | ShippingMethodResponse
+  | ErrorResponse
+union DeleteShippingMethodResponseOrError = BaseResponse | ErrorResponse
+union RestoreShippingMethodResponseOrError = BaseResponse | ErrorResponse

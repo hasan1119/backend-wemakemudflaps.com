@@ -1,4 +1,16 @@
 /**
+ * Exports shipping-method related schemas for shipping method management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, and updating shipping method.
+ */
+export {
+  createShippingMethodSchema,
+  shippingMethodSortingSchema,
+  updateShippingMethodSchema,
+} from "./shipping-method/shipping-method.validation";
+
+/**
  * Exports category-related schemas for category management.
  *
  * Workflow:

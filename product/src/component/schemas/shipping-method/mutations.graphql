@@ -1,0 +1,22 @@
+# ---------------------- Shipping Method Mutations ----------------------
+extend type Mutation {
+  createShippingMethod(
+    title: String!
+    status: Boolean
+    description: String
+    flatRateId: ID
+    freeShippingId: ID
+    localPickUpId: ID
+    upsId: ID
+  ): CreateShippingMethodResponseOrError!
+
+  updateShippingMethod(
+    id: ID!
+    title: String
+    status: Boolean
+    description: String
+  ): UpdateShippingMethodResponseOrError!
+
+  deleteShippingMethod(id: ID!): DeleteShippingMethodResponseOrError!
+  restoreShippingMethod(id: ID!): RestoreShippingMethodResponseOrError!
+}
