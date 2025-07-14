@@ -105,3 +105,11 @@ export {
   taxRateSortingSchema,
   updateTaxRateSchema,
 } from "./tax-rate/tax-rate";
+
+/**
+ * Exports shipping-zone related schemas for shipping zone management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, updating, and sorting shipping zones.
+ */
+export { createShippingZoneSchema } from "./shipping-zone/shipping-zone";
