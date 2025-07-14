@@ -15,7 +15,6 @@ import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  countProductsForShippingClass,
   getShippingClassesByIds,
   hardDeleteShippingClass,
   softDeleteShippingClass,
@@ -150,36 +149,6 @@ export const deleteShippingClass = async (
 
     for (const shippingClassData of foundShippingClasses) {
       const { id, value, deletedAt } = shippingClassData;
-
-      let shippingClassProducts;
-
-      // Attempt to fetch shipping class info from Redis
-      shippingClassProducts = await getShippingClassInfoByIdFromRedis(id);
-
-      // Initialize productCount
-      let productCount = 0;
-
-      // Fallback to using products array from Redis (if present)
-      if (
-        !shippingClassProducts ||
-        !Array.isArray(shippingClassProducts.products) ||
-        shippingClassProducts.products.length === 0
-      ) {
-        // Attempt DB fallback to count products by shipping class
-        productCount = await countProductsForShippingClass(id);
-      } else {
-        productCount = shippingClassProducts?.products.length;
-      }
-
-      // Prevent deletion if shipping class is in use
-      if (productCount > 0) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Shipping class "${value}" cannot be deleted because it is used in ${productCount} product(s)`,
-          __typename: "BaseResponse",
-        };
-      }
 
       // Perform soft or hard deletion based on skipTrash
       if (skipTrash) {

@@ -3,27 +3,6 @@ import { categoryRepository } from "../repositories/repositories";
 import { getCategoryById } from "./get-category.service";
 
 /**
- * Checks if a category (including subcategory) can be deleted (i.e., no associated products).
- *
- * Workflow:
- * 1. Queries if there are any products linked via "products" relation.
- * 2. If found, cannot delete.
- *
- * @param id - UUID of the category or subcategory.
- * @returns boolean indicating deletability.
- */
-export async function canDeleteCategory(id: string): Promise<boolean> {
-  const count = await categoryRepository
-    .createQueryBuilder("cat")
-    .leftJoin("cat.products", "product")
-    .where("cat.id = :id", { id })
-    .andWhere("product.id IS NOT NULL")
-    .getCount();
-
-  return count === 0;
-}
-
-/**
  * Soft deletes (skip to trash) a category or subcategory by setting deletedAt timestamp.
  *
  * Workflow:

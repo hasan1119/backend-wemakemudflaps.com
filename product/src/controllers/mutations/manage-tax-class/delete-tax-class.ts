@@ -15,7 +15,6 @@ import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  countProductsForTaxClass,
   getTaxClassByIds,
   hardDeleteTaxClass,
   softDeleteTaxClass,
@@ -149,36 +148,6 @@ export const deleteTaxClass = async (
 
     for (const taxClassData of foundTaxClasses) {
       const { id, value, deletedAt } = taxClassData;
-
-      let taxClassProducts;
-
-      // Attempt to fetch tax class info from Redis
-      taxClassProducts = await getTaxClassInfoByIdFromRedis(id);
-
-      // Initialize productCount
-      let productCount = 0;
-
-      // Fallback to using products array from Redis (if present)
-      if (
-        !taxClassProducts ||
-        !Array.isArray(taxClassProducts.products) ||
-        taxClassProducts.products.length === 0
-      ) {
-        // Attempt DB fallback to count products by tax class
-        productCount = await countProductsForTaxClass(id);
-      } else {
-        productCount = taxClassProducts?.products.length;
-      }
-
-      // Prevent deletion if tax class is in use
-      if (productCount > 0) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Tax class "${value}" cannot be deleted because it is used in ${productCount} product(s)`,
-          __typename: "BaseResponse",
-        };
-      }
 
       // Perform soft or hard deletion based on skipTrash
       if (skipTrash) {

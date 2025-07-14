@@ -218,9 +218,10 @@ export class ProductVariation {
   // Many-to-one relationship with ShippingClass (nullable)
   @ManyToOne(() => ShippingClass, (shippingClass) => shippingClass.products, {
     onDelete: "SET NULL",
+    nullable: true,
   })
   @JoinColumn({ name: "variation_shipping_class_id" })
-  shippingClass: string;
+  shippingClass: string | null;
 
   // Tax status (controls whether the product cost or shipping is taxable)
   @Column({

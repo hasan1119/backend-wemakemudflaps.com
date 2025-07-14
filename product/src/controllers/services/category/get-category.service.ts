@@ -3,6 +3,25 @@ import { Category } from "../../../entities";
 import { categoryRepository } from "../repositories/repositories";
 
 /**
+ * Counts the number of non-deleted products associated with a specific category.
+ *
+ * @param categoryId - The UUID of the category.
+ * @returns A promise resolving to the number of linked, non-deleted products.
+ */
+export const countProductsForCategory = async (
+  categoryId: string
+): Promise<number> => {
+  const result = await categoryRepository
+    .createQueryBuilder("category")
+    .innerJoin("category.products", "product", "product.deletedAt IS NULL")
+    .where("category.id = :categoryId", { categoryId })
+    .andWhere("category.deletedAt IS NULL")
+    .getCount();
+
+  return result;
+};
+
+/**
  * Fetches a Category entity by name OR slug within scope.
  *
  * @param name - The name of the category.

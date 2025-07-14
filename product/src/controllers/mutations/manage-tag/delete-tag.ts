@@ -13,7 +13,6 @@ import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  countProductsForTag,
   getTagsByIds,
   hardDeleteTag,
   softDeleteTag,
@@ -144,36 +143,6 @@ export const deleteTag = async (
 
     for (const tagData of foundTags) {
       const { id, name, slug, deletedAt } = tagData;
-
-      let tagProducts;
-
-      // Attempt to fetch tag info from Redis
-      tagProducts = await getTagInfoByIdFromRedis(id);
-
-      // Initialize productCount
-      let productCount = 0;
-
-      // Fallback to using products array from Redis (if present)
-      if (
-        !tagProducts ||
-        !Array.isArray(tagProducts.products) ||
-        tagProducts.products.length === 0
-      ) {
-        // Attempt DB fallback to count products by tag
-        productCount = await countProductsForTag(id);
-      } else {
-        productCount = tagProducts?.products.length;
-      }
-
-      // Prevent deletion if tag is in use
-      if (productCount > 0) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Tag "${name}" cannot be deleted because it is used in ${productCount} product(s)`,
-          __typename: "BaseResponse",
-        };
-      }
 
       // Perform soft or hard deletion based on skipTrash
       if (skipTrash) {

@@ -32,7 +32,6 @@ export { createCategoryOrSubCategory } from "./category/create-category.service"
  * 3. Checks for product associations before allowing deletion.
  */
 export {
-  canDeleteCategory,
   hardDeleteCategory,
   softDeleteCategory,
 } from "./category/delete-category.service";
@@ -46,6 +45,7 @@ export {
  * 3. Supports paginated retrieval of categories including their subcategories.
  */
 export {
+  countProductsForCategory,
   findCategoryByNameOrSlug,
   findCategoryByNameOrSlugToUpdateScoped,
   getCategoryById,

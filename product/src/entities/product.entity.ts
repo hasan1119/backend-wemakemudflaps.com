@@ -77,6 +77,7 @@ export class Product {
   // Associated tags for the product
   @ManyToMany(() => Tag, (tag) => tag.products, {
     nullable: true,
+    onDelete: "SET NULL",
   })
   @JoinTable({ name: "product_tags" })
   tags: Tag[] | null;

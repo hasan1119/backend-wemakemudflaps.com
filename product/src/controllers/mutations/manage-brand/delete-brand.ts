@@ -13,7 +13,6 @@ import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  countProductsForBrand,
   getBrandsByIds,
   hardDeleteBrand,
   softDeleteBrand,
@@ -144,36 +143,6 @@ export const deleteBrand = async (
 
     for (const brandData of foundBrands) {
       const { id, name, slug, deletedAt } = brandData;
-
-      let brandProducts;
-
-      // Attempt to fetch brand info from Redis
-      brandProducts = await getBrandInfoByIdFromRedis(id);
-
-      // Initialize productCount
-      let productCount = 0;
-
-      // Fallback to using products array from Redis (if present)
-      if (
-        !brandProducts ||
-        !Array.isArray(brandProducts.products) ||
-        brandProducts.products.length === 0
-      ) {
-        // Attempt DB fallback to count products by brand
-        productCount = await countProductsForBrand(id);
-      } else {
-        productCount = brandProducts?.products.length;
-      }
-
-      // Prevent deletion if brand is in use
-      if (productCount > 0) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Brand "${name}" cannot be deleted because it is used in ${productCount} product(s)`,
-          __typename: "BaseResponse",
-        };
-      }
 
       // Perform soft or hard deletion based on skipTrash
       if (skipTrash) {

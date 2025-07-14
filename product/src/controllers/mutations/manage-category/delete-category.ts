@@ -7,7 +7,6 @@ import {
 } from "../../../types";
 import { deleteCategorySchema } from "../../../utils/data-validation";
 import {
-  canDeleteCategory,
   checkUserAuth,
   checkUserPermission,
   getCategoryById,
@@ -86,17 +85,6 @@ export const deleteCategory = async (
           statusCode: 404,
           success: false,
           message: `Category or subcategory with id ${id} not found`,
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Check deletability (no products)
-      const deletable = await canDeleteCategory(id);
-      if (!deletable) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Cannot delete category with id ${id} because it has associated products.`,
           __typename: "BaseResponse",
         };
       }

@@ -2,6 +2,7 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearTaxRatesAndCountCacheByTaxClass,
+  getTaxRateInfoByIdFromRedis,
   removeTaxRateInfoByIdFromRedis,
   setTaxRateInfoByIdInRedis,
 } from "../../../helper/redis";
@@ -115,13 +116,36 @@ export const deleteTaxRate = async (
       };
     }
 
-    // Fetch tax rates from DB by ID only (with taxClass loaded)
+    // Fetch tax rates from Redis first, then DB if not found
     const taxRatesToDelete = [];
     const notFoundIds: string[] = [];
 
-    // Load each tax rate
     for (const id of ids) {
-      const taxRate = await getTaxRateById(id);
+      // Try Redis first
+      let taxRate = await getTaxRateInfoByIdFromRedis(id);
+
+      // If not found in Redis, try DB
+      if (!taxRate) {
+        const dbTaxRate = await getTaxRateById(id);
+        if (dbTaxRate) {
+          taxRate = {
+            ...dbTaxRate,
+            taxClassId: (await dbTaxRate.taxClass).id,
+            createdAt:
+              dbTaxRate.createdAt instanceof Date
+                ? dbTaxRate.createdAt.toISOString()
+                : dbTaxRate.createdAt,
+            deletedAt:
+              dbTaxRate.deletedAt instanceof Date
+                ? dbTaxRate.deletedAt.toISOString()
+                : dbTaxRate.deletedAt === null
+                ? null
+                : String(dbTaxRate.deletedAt),
+            createdBy: dbTaxRate.createdBy as any,
+          };
+        }
+      }
+
       if (taxRate) {
         taxRatesToDelete.push(taxRate);
       } else {
