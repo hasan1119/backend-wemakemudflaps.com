@@ -101,13 +101,11 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       "variations.attributeValues",
       "variations.attributeValues.attribute",
       "variations.shippingClass",
-      "variations.taxStatus",
       "variations.taxClass",
       "shippingClass",
       "upsells",
       "crossSells",
       "reviews",
-      "taxStatus",
       "taxClass",
       "tierPricingInfo",
     ],
@@ -144,13 +142,11 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       "variations.attributeValues",
       "variations.attributeValues.attribute",
       "variations.shippingClass",
-      "variations.taxStatus",
       "variations.taxClass",
       "shippingClass",
       "upsells",
       "crossSells",
       "reviews",
-      "taxStatus",
       "taxClass",
       "tierPricingInfo",
     ],
@@ -199,7 +195,6 @@ export const paginateProducts = async ({
     .leftJoinAndSelect("product.upsells", "upsells")
     .leftJoinAndSelect("product.crossSells", "crossSells")
     .leftJoinAndSelect("product.reviews", "reviews")
-    .leftJoinAndSelect("product.taxStatus", "taxStatus")
     .leftJoinAndSelect("product.taxClass", "taxClass")
     .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
     .leftJoinAndSelect("variations.brands", "variation_brands")
@@ -220,7 +215,6 @@ export const paginateProducts = async ({
       "variation_attribute"
     )
     .leftJoinAndSelect("variations.shippingClass", "variation_shippingClass")
-    .leftJoinAndSelect("variations.taxStatus", "variation_taxStatus")
     .leftJoinAndSelect("variations.taxClass", "variation_taxClass");
 
   if (search) {
