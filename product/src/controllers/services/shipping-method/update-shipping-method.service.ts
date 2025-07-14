@@ -5,6 +5,11 @@ import { shippingMethodRepository } from "../repositories/repositories";
 /**
  * Updates a shipping method's title and status only.
  *
+ * Workflow:
+ * 1. Validates the input data using a schema.
+ * 2. Updates the shipping method in the repository.
+ * 3. Returns the updated ShippingMethod entity.
+ *
  * @param shippingMethodId - The UUID of the shipping method to update.
  * @param data - Partial data to update (title, status).
  * @returns A promise resolving to the updated shipping method entity.

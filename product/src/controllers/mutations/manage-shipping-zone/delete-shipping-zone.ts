@@ -11,6 +11,19 @@ import {
   deleteShippingZone as deleteShippingZoneService,
 } from "../../services";
 
+/**
+ * Deletes an existing shipping zone by its ID.
+ *
+ * Workflow:
+ * 1. Validates user authentication and permissions.
+ * 2. Validates input data against the Zod schema.
+ * 3. Deletes the shipping zone and returns a success message.
+ *
+ * @param _ - Unused parent argument.
+ * @param args - Arguments containing the ID of the shipping zone to delete.
+ * @param user - The authenticated user context.
+ * @returns A response indicating success or failure of the operation.
+ */
 export const deleteShippingZone = async (
   _: any,
   args: MutationDeleteShippingZoneArgs,

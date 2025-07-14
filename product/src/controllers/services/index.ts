@@ -439,4 +439,26 @@ export { createShippingZone } from "./shipping-zone/create-shipping-zone.service
  * Workflow:
  * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
  */
+export { updateShippingZone } from "./shipping-zone/update-shipping-zone.service";
+
+/**
+ * Exports services for deleting shipping zones.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
 export { deleteShippingZone } from "./shipping-zone/delete-shipping-zone.service";
+
+/**
+ * Exports services for fetching and counting shipping zones.
+ *
+ * Workflow:
+ * 1. Provides counting of shipping zones matching optional search criteria.
+ * 2. Provides functions to fetch shipping zone by ID or name with relations.
+ * 3. Supports paginated retrieval of shipping zones.
+ */
+export {
+  getShippingZoneById,
+  getShippingZonesByIds,
+  paginateShippingZones,
+} from "./shipping-zone/get-shipping-zone.service";

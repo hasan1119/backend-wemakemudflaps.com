@@ -5,9 +5,13 @@ import { shippingMethodRepository } from "../repositories/repositories";
 /**
  * Creates a new shipping class with the provided data.
  *
- * @param data - The data for the new shipping class.
+ * Workflow:
+ * 1. Uses the shippingMethodRepository to create a new ShippingMethod entity.
+ * 2. Saves the new shipping method to the database.
+ * 3. Returns the created ShippingMethod entity.
+ *
+ * @param data - The data for the shipping method to create.
  * @param userId - Optional user ID to associate with the creation.
- * @returns A promise resolving to the created ShippingClass entity.
  */
 export const createShippingMethod = async (
   data: MutationCreateShippingMethodArgs,

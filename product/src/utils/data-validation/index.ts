@@ -112,4 +112,8 @@ export {
  * Workflow:
  * 1. Provides schemas for creating, updating, and sorting shipping zones.
  */
-export { createShippingZoneSchema } from "./shipping-zone/shipping-zone";
+export {
+  createShippingZoneSchema,
+  sortShippingZoneSchema,
+  updateShippingZoneSchema,
+} from "./shipping-zone/shipping-zone";

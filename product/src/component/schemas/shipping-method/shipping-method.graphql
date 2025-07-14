@@ -13,25 +13,55 @@ type ShippingMethod {
   deletedAt: String
 }
 
-type FlatRate {
+# ---------------------- Flat Rate ----------------------
+type FlatRateCost {
   id: ID!
   cost: Float!
-  # ...other fields as needed
+  shippingClass: ShippingClass!
 }
 
+# ---------------------- Flat Rate ----------------------
+type FlatRate {
+  id: ID!
+  title: String!
+  taxStatus: Boolean!
+  cost: Float!
+  costs: [FlatRateCost!]!
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
+}
+
+# ---------------------- Free Shipping ----------------------
 type FreeShipping {
   id: ID!
-  # ...other fields as needed
+  title: String!
+  conditions: String!
+  minimumOrderAmount: Float
+  applyMinimumOrderRuleBeforeCoupon: Boolean!
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
 }
 
+# ---------------------- Local Pick Up ----------------------
 type LocalPickUp {
   id: ID!
-  # ...other fields as needed
+  title: String!
+  taxStatus: Boolean!
+  cost: Float!
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
 }
 
+# ---------------------- UPS ----------------------
 type Ups {
   id: ID!
-  # ...other fields as needed
+  title: String!
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
 }
 
 # Response for fetching a shipping method.

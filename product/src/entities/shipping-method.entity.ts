@@ -2,12 +2,14 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { FlatRate } from "./flat-rate.entity";
 import { FreeShipping } from "./free-shipping.entity";
 import { LocalPickUp } from "./local-pick-up.entity";
+import { ShippingZone } from "./shipping-zone.entity";
 import { Ups } from "./ups.entity";
 
 @Entity()
@@ -26,6 +28,13 @@ export class ShippingMethod {
   // Description of the shipping method, explaining its details or usage
   @Column({ type: "text", nullable: true, default: null })
   description: string | null;
+
+  // The shipping zone this method belongs to
+  @ManyToOne(() => ShippingZone, (zone) => zone.shippingMethods, {
+    onDelete: "CASCADE", // Automatically delete this method if the shipping zone is deleted
+    nullable: true,
+  })
+  shippingZone: ShippingZone | null;
 
   // Only one of these relations should be set at a time
   // Flat Rate shipping method

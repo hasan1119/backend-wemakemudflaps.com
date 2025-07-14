@@ -5,7 +5,12 @@ import { shippingZoneRepository } from "../repositories/repositories";
 /**
  * Creates a new shipping zone with the provided data.
  *
- * @param data - The data for the new shipping zone.
+ * Workflow:
+ * 1. Uses the shippingZoneRepository to create a new ShippingZone entity.
+ * 2. Saves the new shipping zone to the database.
+ * 3. Returns the created ShippingZone entity.
+ *
+ * @param data - The data for the shipping zone to create.
  * @param userId - Optional user ID to associate with the creation.
  * @returns A promise resolving to the created ShippingZone entity.
  */

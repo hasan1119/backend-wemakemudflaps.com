@@ -5,6 +5,11 @@ import { shippingMethodRepository } from "../repositories/repositories";
 /**
  * Retrieves a single shipping method entity by its ID.
  *
+ * Workflow:
+ * 1. Queries the shippingMethodRepository for a shipping method with the specified ID.
+ * 2. Includes relations for flatRate, freeShipping, localPickUp, and ups.
+ * 3. Returns the shipping method entity or null if not found.
+ *
  * @param id - The UUID of the shipping method to retrieve.
  * @returns A promise that resolves to the shipping method entity, or null if no match is found.
  */
@@ -19,6 +24,10 @@ export const getShippingMethodById = async (
 
 /**
  * Retrieves multiple shipping method entities by their IDs.
+ *
+ * Workflow:
+ * 1. Queries the shippingMethodRepository for shipping methods with the specified IDs.
+ * 2. Includes relations for flatRate, freeShipping, localPickUp, and ups.
  *
  * @param ids - An array of shipping method UUIDs to retrieve.
  * @returns A promise resolving to an array of shipping method entities.
@@ -47,6 +56,13 @@ interface GetPaginatedShippingMethodsInput {
 
 /**
  * Handles pagination of shipping methods based on provided parameters.
+ *
+ * Workflow:
+ * 1. Calculates the number of records to skip based on page and limit.
+ * 2. Constructs a query to filter non-deleted shipping methods and apply search conditions if provided.
+ * 3. Sets sorting order for shipping methods or other fields.
+ * 4. Queries the shippingMethodRepository to fetch shipping methods with pagination, sorting, and relations (flatRate, freeShipping, localPickUp, ups).
+ * 5. Selects specific fields for efficiency.
  *
  * @param params - Pagination parameters including page, limit, search, sortBy, sortOrder.
  * @returns A promise resolving to an object containing the paginated shipping methods and total count.

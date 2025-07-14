@@ -469,13 +469,34 @@ type FlatRate
   @join__type(graph: PRODUCT)
 {
   id: ID!
+  title: String!
+  taxStatus: Boolean!
   cost: Float!
+  costs: [FlatRateCost!]!
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
+}
+
+type FlatRateCost
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  cost: Float!
+  shippingClass: ShippingClass!
 }
 
 type FreeShipping
   @join__type(graph: PRODUCT)
 {
   id: ID!
+  title: String!
+  conditions: String!
+  minimumOrderAmount: Float
+  applyMinimumOrderRuleBeforeCoupon: Boolean!
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
 }
 
 enum Gender
@@ -767,6 +788,12 @@ type LocalPickUp
   @join__type(graph: PRODUCT)
 {
   id: ID!
+  title: String!
+  taxStatus: Boolean!
+  cost: Float!
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
 }
 
 type LoginMeta
@@ -2097,6 +2124,10 @@ type Ups
   @join__type(graph: PRODUCT)
 {
   id: ID!
+  title: String!
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
 }
 
 type User

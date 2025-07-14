@@ -297,12 +297,32 @@ export type FieldError = {
 export type FlatRate = {
   __typename?: 'FlatRate';
   cost: Scalars['Float']['output'];
+  costs: Array<FlatRateCost>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  taxStatus: Scalars['Boolean']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type FlatRateCost = {
+  __typename?: 'FlatRateCost';
+  cost: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  shippingClass: ShippingClass;
 };
 
 export type FreeShipping = {
   __typename?: 'FreeShipping';
+  applyMinimumOrderRuleBeforeCoupon: Scalars['Boolean']['output'];
+  conditions: Scalars['String']['output'];
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  minimumOrderAmount?: Maybe<Scalars['Float']['output']>;
+  title: Scalars['String']['output'];
 };
 
 export enum Gender {
@@ -394,7 +414,13 @@ export type ICategoryBase = {
 
 export type LocalPickUp = {
   __typename?: 'LocalPickUp';
+  cost: Scalars['Float']['output'];
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  taxStatus: Scalars['Boolean']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type LoginMeta = {
@@ -2224,7 +2250,11 @@ export type UploadMediaResponseOrError = BaseResponse | ErrorResponse | UploadMe
 
 export type Ups = {
   __typename?: 'Ups';
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy: Scalars['String']['output'];
+  deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type User = {
@@ -2638,6 +2668,7 @@ export type ResolversTypes = {
   FieldError: ResolverTypeWrapper<FieldError>;
   FlatRate: ResolverTypeWrapper<FlatRate>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  FlatRateCost: ResolverTypeWrapper<FlatRateCost>;
   FreeShipping: ResolverTypeWrapper<FreeShipping>;
   Gender: Gender;
   GetAddressBookByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetAddressBookByIdResponseOrError']>;
@@ -2854,6 +2885,7 @@ export type ResolversParentTypes = {
   FieldError: FieldError;
   FlatRate: FlatRate;
   Float: Scalars['Float']['output'];
+  FlatRateCost: FlatRateCost;
   FreeShipping: FreeShipping;
   GetAddressBookByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAddressBookByIdResponseOrError'];
   GetAddressesBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAddressesBookResponseOrError'];
@@ -3311,12 +3343,32 @@ export type FieldErrorResolvers<ContextType = Context, ParentType extends Resolv
 
 export type FlatRateResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FlatRate'] = ResolversParentTypes['FlatRate']> = {
   cost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  costs?: Resolver<Array<ResolversTypes['FlatRateCost']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  taxStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FlatRateCostResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FlatRateCost'] = ResolversParentTypes['FlatRateCost']> = {
+  cost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  shippingClass?: Resolver<ResolversTypes['ShippingClass'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type FreeShippingResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FreeShipping'] = ResolversParentTypes['FreeShipping']> = {
+  applyMinimumOrderRuleBeforeCoupon?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  conditions?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  minimumOrderAmount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3470,7 +3522,13 @@ export type ICategoryBaseResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type LocalPickUpResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LocalPickUp'] = ResolversParentTypes['LocalPickUp']> = {
+  cost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  taxStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4297,7 +4355,11 @@ export type UploadMediaResponseOrErrorResolvers<ContextType = Context, ParentTyp
 };
 
 export type UpsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Ups'] = ResolversParentTypes['Ups']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4515,6 +4577,7 @@ export type Resolvers<ContextType = Context> = {
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
   FlatRate?: FlatRateResolvers<ContextType>;
+  FlatRateCost?: FlatRateCostResolvers<ContextType>;
   FreeShipping?: FreeShippingResolvers<ContextType>;
   GetAddressBookByIdResponseOrError?: GetAddressBookByIdResponseOrErrorResolvers<ContextType>;
   GetAddressesBookResponseOrError?: GetAddressesBookResponseOrErrorResolvers<ContextType>;

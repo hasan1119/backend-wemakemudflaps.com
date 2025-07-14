@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ShippingMethod } from "./shipping-method.entity";
 
 @Entity()
@@ -19,11 +19,10 @@ export class ShippingZone {
   zipCodes: string[] | null;
 
   // If the shipping zone is deleted then delete the shipping methods associated with it
-  @ManyToOne(() => ShippingMethod, (shippingMethod) => shippingMethod, {
-    onDelete: "CASCADE",
-    nullable: true,
+  @OneToMany(() => ShippingMethod, (method) => method.shippingZone, {
+    cascade: true,
   })
-  shippingMethods: ShippingMethod[] | null;
+  shippingMethods: ShippingMethod[];
 
   // User ID who created the tag (string only for Apollo Federation compatibility)
   @Column()
