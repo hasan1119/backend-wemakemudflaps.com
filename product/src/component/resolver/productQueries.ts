@@ -3,6 +3,7 @@ import {
   getAllCategories,
   getAllProducts,
   getAllShippingClass,
+  getAllShippingZones,
   getAllTags,
   getAllTaxClass,
   getAllTaxRates,
@@ -180,6 +181,11 @@ export const productQueriesResolver = {
      * Retrieves a shipping zone by its ID, along with all related shipping methods and their details.
      */
     getShippingZoneById,
+
+    /**
+     * Fetches a paginated list of all shipping zones in the system.
+     */
+    getAllShippingZones,
   },
 
   // Dynamically assign resolvers for createdBy and thumbnail

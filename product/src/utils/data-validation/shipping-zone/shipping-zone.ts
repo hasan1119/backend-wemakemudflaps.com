@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SortOrderTypeEnum } from "../common/common";
 
 /**
  * Defines the schema for validating a shipping zone creation input.
@@ -50,5 +51,5 @@ export const updateShippingZoneSchema = z.object({
  */
 export const sortShippingZoneSchema = z.object({
   sortBy: z.enum(["name", "createdAt"]),
-  sortOrder: z.enum(["asc", "desc"]),
+  sortOrder: SortOrderTypeEnum,
 });

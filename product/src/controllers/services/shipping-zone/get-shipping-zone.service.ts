@@ -90,6 +90,16 @@ export const paginateShippingZones = async ({
   const queryBuilder =
     shippingZoneRepository.createQueryBuilder("shippingZone");
 
+  // Add relations
+  queryBuilder
+    .leftJoinAndSelect("shippingZone.shippingMethods", "shippingMethods")
+    .leftJoinAndSelect("shippingMethods.flatRate", "flatRate")
+    .leftJoinAndSelect("flatRate.costs", "flatRateCosts")
+    .leftJoinAndSelect("flatRateCosts.shippingClass", "shippingClass")
+    .leftJoinAndSelect("shippingMethods.freeShipping", "freeShipping")
+    .leftJoinAndSelect("shippingMethods.localPickUp", "localPickUp")
+    .leftJoinAndSelect("shippingMethods.ups", "ups");
+
   if (search) {
     queryBuilder.where(
       new Brackets((qb) => {
