@@ -34,7 +34,6 @@ enum PermissionName {
   COUPON
   ADDRESS_BOOK
   TAX_EXEMPTION
-  TAX_RATE
 }
 
 # Enum defining address book type in the system.
