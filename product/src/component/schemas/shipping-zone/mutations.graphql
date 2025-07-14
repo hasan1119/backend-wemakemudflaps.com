@@ -1,5 +1,4 @@
 # ---------------------- Shipping Zone Mutations ----------------------
-
 extend type Mutation {
   createShippingZone(
     name: String!
