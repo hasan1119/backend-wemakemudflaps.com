@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Product } from "./product.entity";
 
 @Entity()
@@ -15,7 +15,7 @@ export class Tag {
   slug: string;
 
   // One tag can be associated with multiple products
-  @OneToMany(() => Product, (product) => product.tags)
+  @ManyToMany(() => Product, (product) => product.tags)
   products: Product[];
 
   // User ID who created the tag (string only for Apollo Federation compatibility)

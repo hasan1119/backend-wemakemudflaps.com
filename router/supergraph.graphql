@@ -1102,7 +1102,6 @@ enum PermissionName
   COUPON @join__enumValue(graph: USER)
   ADDRESS_BOOK @join__enumValue(graph: USER)
   TAX_EXEMPTION @join__enumValue(graph: USER)
-  TAX_RATE @join__enumValue(graph: USER)
 }
 
 type Permissions
@@ -1519,7 +1518,7 @@ type Query
   getProduct(id: ID!): GetProductByIdResponseOrError! @join__field(graph: PRODUCT)
   getAllProducts(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetProductsResponseOrError! @join__field(graph: PRODUCT)
   getShippingZoneById(id: ID!): GetShippingZoneByIDResponseOrError! @join__field(graph: PRODUCT)
-  getAllShippingZones(search: String, page: Int, limit: Int, sortBy: String, sortOrder: String): GetShippingZonesResponseOrError! @join__field(graph: PRODUCT)
+  getAllShippingZones(search: String, page: Int!, limit: Int!, sortBy: String, sortOrder: String): GetShippingZonesResponseOrError! @join__field(graph: PRODUCT)
   getShippingMethodById(id: ID!): GetShippingMethodByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllShippingMethods(search: String, page: Int, limit: Int, sortBy: String, sortOrder: String): GetShippingMethodsResponseOrError! @join__field(graph: PRODUCT)
   getProfile: GetProfileResponseOrError! @join__field(graph: USER)
