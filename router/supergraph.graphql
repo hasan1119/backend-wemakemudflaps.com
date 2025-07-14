@@ -1011,7 +1011,7 @@ type Mutation
   deleteProduct(ids: [ID]!, skipTrash: Boolean!): DeleteProductResponseOrError! @join__field(graph: PRODUCT)
   restoreProducts(ids: [ID!]!): RestoreProductResponseOrError! @join__field(graph: PRODUCT)
   createShippingZone(name: String!, regions: [String!]!, zipCodes: [String]): CreateShippingZoneResponseOrError! @join__field(graph: PRODUCT)
-  updateShippingZone(id: ID!, name: String, regions: [String!], zipCodes: [String], shippingMethodIds: [ID]): UpdateShippingZoneResponseOrError! @join__field(graph: PRODUCT)
+  updateShippingZone(id: ID!, name: String, regions: [String!], zipCodes: [String!], shippingMethodIds: [ID!]): UpdateShippingZoneResponseOrError! @join__field(graph: PRODUCT)
   deleteShippingZone(id: ID!): DeleteShippingZoneResponseOrError! @join__field(graph: PRODUCT)
   createShippingMethod(title: String!, status: Boolean, description: String): CreateShippingMethodResponseOrError! @join__field(graph: PRODUCT)
   updateShippingMethod(id: ID!, title: String, status: Boolean, description: String): UpdateShippingMethodResponseOrError! @join__field(graph: PRODUCT)

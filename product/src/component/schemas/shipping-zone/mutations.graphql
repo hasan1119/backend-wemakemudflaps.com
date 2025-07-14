@@ -10,8 +10,8 @@ extend type Mutation {
     id: ID!
     name: String
     regions: [String!]
-    zipCodes: [String]
-    shippingMethodIds: [ID]
+    zipCodes: [String!]
+    shippingMethodIds: [ID!]
   ): UpdateShippingZoneResponseOrError!
 
   deleteShippingZone(id: ID!): DeleteShippingZoneResponseOrError!
