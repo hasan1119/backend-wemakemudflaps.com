@@ -1,4 +1,5 @@
-import { TaxClass, TaxClassPaginationDataSession } from "../../../../types";
+import { TaxClass } from "../../../../entities";
+import { TaxClassPaginationDataSession } from "../../../../types";
 import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for tax class session caching
