@@ -23,7 +23,7 @@ type BrandPaginationDataSession {
   name: String!
   slug: String!
   thumbnail: Media
-  totalProducts: Int
+  totalProducts: Int!
   createdBy: CreatedBy!
   createdAt: String
   deletedAt: String

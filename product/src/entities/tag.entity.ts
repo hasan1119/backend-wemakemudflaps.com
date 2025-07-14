@@ -14,7 +14,7 @@ export class Tag {
   @Column({ unique: true })
   slug: string;
 
-  // One tag can be associated with multiple products
+  // Many-to-many relationship with products
   @ManyToMany(() => Product, (product) => product.tags)
   products: Product[];
 

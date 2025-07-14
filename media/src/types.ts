@@ -92,7 +92,7 @@ export type BrandPaginationDataSession = {
   name: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   thumbnail?: Maybe<Media>;
-  totalProducts?: Maybe<Scalars['Int']['output']>;
+  totalProducts: Scalars['Int']['output'];
 };
 
 export type BrandPaginationResponse = {
@@ -1239,7 +1239,6 @@ export enum PermissionName {
   SubCategory = 'SUB_CATEGORY',
   Tag = 'TAG',
   TaxExemption = 'TAX_EXEMPTION',
-  TaxRate = 'TAX_RATE',
   TaxSettings = 'TAX_SETTINGS',
   TermsConditions = 'TERMS_CONDITIONS',
   User = 'USER'
@@ -1710,8 +1709,8 @@ export type QueryGetAllShippingMethodsArgs = {
 
 
 export type QueryGetAllShippingZonesArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   sortOrder?: InputMaybe<Scalars['String']['input']>;
@@ -3108,7 +3107,7 @@ export type BrandPaginationDataSessionResolvers<ContextType = Context, ParentTyp
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
-  totalProducts?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  totalProducts?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3924,7 +3923,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
   getAllShippingClass?: Resolver<ResolversTypes['GetShippingClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingClassArgs, 'limit' | 'page'>>;
   getAllShippingMethods?: Resolver<ResolversTypes['GetShippingMethodsResponseOrError'], ParentType, ContextType, Partial<QueryGetAllShippingMethodsArgs>>;
-  getAllShippingZones?: Resolver<ResolversTypes['GetShippingZonesResponseOrError'], ParentType, ContextType, Partial<QueryGetAllShippingZonesArgs>>;
+  getAllShippingZones?: Resolver<ResolversTypes['GetShippingZonesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingZonesArgs, 'limit' | 'page'>>;
   getAllTags?: Resolver<ResolversTypes['GetTagsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTagsArgs, 'limit' | 'page'>>;
   getAllTaxClass?: Resolver<ResolversTypes['GetTaxClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxClassArgs, 'limit' | 'page'>>;
   getAllTaxRates?: Resolver<ResolversTypes['GetTaxRatesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxRatesArgs, 'limit' | 'page' | 'taxClassId'>>;
