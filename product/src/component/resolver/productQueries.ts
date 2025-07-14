@@ -10,6 +10,7 @@ import {
   getCategoryById,
   getProductById,
   getShippingClassById,
+  getShippingZoneById,
   getTagById,
   getTaxClassById,
   getTaxRateById,
@@ -174,6 +175,11 @@ export const productQueriesResolver = {
      * Retrieves detailed information for a tax rate by their unique ID.
      */
     getTaxRateById,
+
+    /**
+     * Retrieves a shipping zone by its ID, along with all related shipping methods and their details.
+     */
+    getShippingZoneById,
   },
 
   // Dynamically assign resolvers for createdBy and thumbnail

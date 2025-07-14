@@ -125,3 +125,4 @@ export { createShippingMethod } from "./mutations/manage-shipping-method/create-
 export { createShippingZone } from "./mutations/manage-shipping-zone/create-shipping-zone";
 export { deleteShippingZone } from "./mutations/manage-shipping-zone/delete-shipping-zone";
 export { updateShippingZone } from "./mutations/manage-shipping-zone/update-shipping-zone";
+export { getShippingZoneById } from "./queries/shipping-zone/get-shipping-zone-by-id";
