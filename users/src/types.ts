@@ -1950,7 +1950,25 @@ export type TaxRateResponse = {
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
-  taxRate: TaxRate;
+  taxRate: TaxRateSession;
+};
+
+export type TaxRateSession = {
+  __typename?: 'TaxRateSession';
+  appliesToShipping: Scalars['Boolean']['output'];
+  city?: Maybe<Scalars['String']['output']>;
+  country: Scalars['String']['output'];
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy: CreatedBy;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isCompound: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  postcode?: Maybe<Scalars['String']['output']>;
+  priority: Scalars['Int']['output'];
+  rate: Scalars['Float']['output'];
+  state?: Maybe<Scalars['String']['output']>;
+  taxClassId: Scalars['ID']['output'];
 };
 
 export enum TaxStatus {
@@ -2528,6 +2546,7 @@ export type ResolversTypes = {
   TaxRate: ResolverTypeWrapper<TaxRate>;
   TaxRatePaginationResponse: ResolverTypeWrapper<TaxRatePaginationResponse>;
   TaxRateResponse: ResolverTypeWrapper<TaxRateResponse>;
+  TaxRateSession: ResolverTypeWrapper<TaxRateSession>;
   TaxStatus: TaxStatus;
   UpdateAddressBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateAddressBookResponseOrError']>;
   UpdateBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateBrandResponseOrError']>;
@@ -2714,6 +2733,7 @@ export type ResolversParentTypes = {
   TaxRate: TaxRate;
   TaxRatePaginationResponse: TaxRatePaginationResponse;
   TaxRateResponse: TaxRateResponse;
+  TaxRateSession: TaxRateSession;
   UpdateAddressBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateAddressBookResponseOrError'];
   UpdateBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateBrandResponseOrError'];
   UpdateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryResponseOrError'];
@@ -3828,7 +3848,25 @@ export type TaxRateResponseResolvers<ContextType = Context, ParentType extends R
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  taxRate?: Resolver<ResolversTypes['TaxRate'], ParentType, ContextType>;
+  taxRate?: Resolver<ResolversTypes['TaxRateSession'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TaxRateSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxRateSession'] = ResolversParentTypes['TaxRateSession']> = {
+  appliesToShipping?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isCompound?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  postcode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  priority?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  taxClassId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4186,6 +4224,7 @@ export type Resolvers<ContextType = Context> = {
   TaxRate?: TaxRateResolvers<ContextType>;
   TaxRatePaginationResponse?: TaxRatePaginationResponseResolvers<ContextType>;
   TaxRateResponse?: TaxRateResponseResolvers<ContextType>;
+  TaxRateSession?: TaxRateSessionResolvers<ContextType>;
   UpdateAddressBookResponseOrError?: UpdateAddressBookResponseOrErrorResolvers<ContextType>;
   UpdateBrandResponseOrError?: UpdateBrandResponseOrErrorResolvers<ContextType>;
   UpdateCategoryResponseOrError?: UpdateCategoryResponseOrErrorResolvers<ContextType>;
