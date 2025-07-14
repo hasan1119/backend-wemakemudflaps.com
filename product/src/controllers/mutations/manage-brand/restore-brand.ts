@@ -128,7 +128,22 @@ export const restoreBrands = async (
 
     // Update Redis
     await Promise.all([
-      restored.map((brand) => setBrandInfoByIdInRedis(brand.id, brand)),
+      restored.map((brand) =>
+        setBrandInfoByIdInRedis(brand.id, {
+          ...brand,
+          thumbnail: brand.thumbnail as any,
+          createdBy: brand.createdBy as any,
+          totalProducts: brand.products.length,
+          createdAt:
+            brand.createdAt instanceof Date
+              ? brand.createdAt.toISOString()
+              : brand.createdAt,
+          deletedAt:
+            brand.deletedAt instanceof Date
+              ? brand.deletedAt.toISOString()
+              : brand.deletedAt,
+        })
+      ),
       clearBrandsAndCountCache(),
     ]);
 

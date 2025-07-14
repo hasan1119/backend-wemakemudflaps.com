@@ -1,5 +1,7 @@
-import { Brand } from "../../../../entities";
-import { BrandPaginationDataSession } from "../../../../types";
+import {
+  BrandPaginationDataSession,
+  BrandResponseSession,
+} from "../../../../types";
 import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for brand session and user count caching
@@ -150,8 +152,8 @@ export const getBrandSlugExistFromRedis = async (
  */
 export const getBrandInfoByIdFromRedis = async (
   brandId: string
-): Promise<Brand | null> => {
-  return redis.getSession<Brand | null>(
+): Promise<BrandResponseSession | null> => {
+  return redis.getSession<BrandResponseSession | null>(
     `${PREFIX.BRAND}${brandId}`,
     "product-app"
   );
@@ -208,7 +210,7 @@ export const setBrandSlugExistInRedis = async (
  */
 export const setBrandInfoByIdInRedis = async (
   brandId: string,
-  data: Brand
+  data: BrandResponseSession
 ): Promise<void> => {
   await redis.setSession(`${PREFIX.BRAND}${brandId}`, data, "product-app");
 };

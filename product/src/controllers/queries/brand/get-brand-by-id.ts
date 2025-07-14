@@ -77,7 +77,9 @@ export const getBrandById = async (
     const { id } = args;
 
     // Attempt to retrieve cached brand data from Redis
-    let brandData = await getBrandInfoByIdFromRedis(id);
+    let brandData;
+
+    brandData = await getBrandInfoByIdFromRedis(id);
 
     if (brandData?.deletedAt) {
       return {
@@ -101,9 +103,23 @@ export const getBrandById = async (
         };
       }
 
+      brandData = {
+        ...dbBrand,
+        totalProducts: dbBrand.products.length,
+        thumbnail: dbBrand.thumbnail as any,
+        createdBy: dbBrand.createdBy as any,
+        createdAt:
+          dbBrand.createdAt instanceof Date
+            ? dbBrand.createdAt.toISOString()
+            : dbBrand.createdAt,
+        deletedAt:
+          dbBrand.deletedAt instanceof Date
+            ? dbBrand.deletedAt.toISOString()
+            : dbBrand.deletedAt,
+      };
+
       // Cache brand data in Redis
-      await setBrandInfoByIdInRedis(id, dbBrand);
-      brandData = dbBrand;
+      await setBrandInfoByIdInRedis(id, brandData);
     }
 
     return {
