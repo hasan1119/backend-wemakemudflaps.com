@@ -1,16 +1,12 @@
 # ---------------------- Shipping Zone Mutations ----------------------
-"""
-Mutations for creating, updating, deleting, and restoring shipping zones.
-"""
+
 extend type Mutation {
-  """Create a new shipping zone."""
   createShippingZone(
     name: String!
     regions: [String!]!
     zipCodes: [String]
   ): CreateShippingZoneResponseOrError!
 
-  """Update an existing shipping zone."""
   updateShippingZone(
     id: ID!
     name: String
@@ -19,9 +15,5 @@ extend type Mutation {
     shippingMethodIds: [ID]
   ): UpdateShippingZoneResponseOrError!
 
-  """Soft delete a shipping zone by ID."""
   deleteShippingZone(id: ID!): DeleteShippingZoneResponseOrError!
-
-  """Restore a soft-deleted shipping zone by ID."""
-  restoreShippingZone(id: ID!): RestoreShippingZoneResponseOrError!
 }

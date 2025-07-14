@@ -17,6 +17,7 @@ import {
   ProductVariationAttributeValue,
   ShippingClass,
   ShippingMethod,
+  ShippingZone,
   Tag,
   TaxClass,
   TaxRate,
@@ -211,3 +212,11 @@ export const localPickUpRepository = AppDataSource.getRepository(LocalPickUp);
  * 1. Retrieves the Ups repository from AppDataSource for database operations.
  */
 export const upsRepository = AppDataSource.getRepository(Ups);
+
+/**
+ * Initializes repository for ShippingZone entity.
+ *
+ * Workflow:
+ * 1. Retrieves the ShippingZone repository from AppDataSource for database operations.
+ */
+export const shippingZoneRepository = AppDataSource.getRepository(ShippingZone);

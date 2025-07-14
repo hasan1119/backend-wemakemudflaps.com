@@ -485,3 +485,48 @@ export const shippingMethodMutationsDef = gql(
     encoding: "utf-8",
   })
 );
+
+/**
+ * Loads and parses the GraphQL schema for shipping zone-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `shipping-zone/shipping-zone.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for shipping zones as a DocumentNode.
+ */
+export const shippingZoneDef = gql(
+  readFileSync(path.join(__dirname, "./shipping-zone/shipping-zone.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL queries for shipping zone-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `shipping-zone/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for shipping zones as a DocumentNode.
+ */
+export const shippingZoneQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./shipping-zone/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for shipping zone-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `shipping-zone/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for shipping zones as a DocumentNode.
+ */
+export const shippingZoneMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./shipping-zone/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);

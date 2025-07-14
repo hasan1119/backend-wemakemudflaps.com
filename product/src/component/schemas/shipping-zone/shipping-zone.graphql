@@ -1,16 +1,14 @@
 # ---------------------- Shipping Zone Types ----------------------
-"""
-Represents a shipping zone, which groups regions and zip codes for shipping method assignment.
-"""
+
 type ShippingZone {
   id: ID!
-  name: String! # Name of the shipping zone
-  regions: [String!]! # Region or geographical area of the shipping zone
-  zipCodes: [String] # Zip codes applicable to the shipping zone
-  shippingMethods: [ShippingMethod] # Shipping methods associated with this zone
-  createdBy: String! # User ID who created the shipping zone
-  createdAt: String # Timestamp when the shipping zone was created
-  deletedAt: String # Timestamp for soft deletion (null if not deleted)
+  name: String!
+  regions: [String!]!
+  zipCodes: [String]
+  shippingMethods: [ShippingMethod]
+  createdBy: String!
+  createdAt: String
+  deletedAt: String
 }
 
 # Response for fetching a shipping zone.

@@ -69,4 +69,3 @@ union UpdateShippingMethodResponseOrError =
   | ShippingMethodResponse
   | ErrorResponse
 union DeleteShippingMethodResponseOrError = BaseResponse | ErrorResponse
-union RestoreShippingMethodResponseOrError = BaseResponse | ErrorResponse

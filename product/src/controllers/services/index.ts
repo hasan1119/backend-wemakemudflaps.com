@@ -417,14 +417,6 @@ export {
 } from "./shipping-method/get-shipping-method.service";
 
 /**
- * Exports service for restoring soft-deleted shipping methods by ID.
- *
- * Workflow:
- * 1. Allows restoring entities by clearing their deletedAt timestamp.
- */
-export { restoreShippingMethod } from "./shipping-method/restore-shipping-method.service";
-
-/**
  * Exports services for updating shipping methods.
  *
  * Workflow:

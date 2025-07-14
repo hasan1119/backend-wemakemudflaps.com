@@ -22,6 +22,9 @@ import {
   shippingMethodDef,
   shippingMethodMutationsDef,
   shippingMethodQueriesDef,
+  shippingZoneDef,
+  shippingZoneMutationsDef,
+  shippingZoneQueriesDef,
   tagDef,
   tagMutationsDef,
   tagQueriesDef,
@@ -125,6 +128,15 @@ export const typeDefs = mergeTypeDefs([
 
   // Schema for product mutations (modifying product data)
   productMutationsDef,
+
+  // Shipping Zone schema definition
+  shippingZoneDef,
+
+  // Schema for shipping zone queries (fetching shipping zone data)
+  shippingZoneQueriesDef,
+
+  // Schema for shipping zone mutations (modifying shipping zone data)
+  shippingZoneMutationsDef,
 
   // Shipping Method schema definition
   shippingMethodDef,

@@ -14,5 +14,4 @@ extend type Mutation {
   ): UpdateShippingMethodResponseOrError!
 
   deleteShippingMethod(id: ID!): DeleteShippingMethodResponseOrError!
-  restoreShippingMethod(id: ID!): RestoreShippingMethodResponseOrError!
 }
