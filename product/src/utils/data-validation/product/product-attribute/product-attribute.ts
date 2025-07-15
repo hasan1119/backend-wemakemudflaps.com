@@ -23,14 +23,12 @@ export const ProductAttributeValueInputSchema = z.object({
  *
  * @property name - The name of the product attribute, which must be a non-empty string.
  * @property slug - A URL-friendly identifier for the product attribute, which must be a non-empty string.
- * @property systemAttribute - A boolean indicating if the attribute is a system attribute, defaulting to true.
  * @property isVisible - A boolean indicating if the attribute is visible.
  * @property values - An array of product attribute values, which must contain at least one value.
  */
 export const CreateProductAttributeInputSchema = z.object({
   name: z.string().min(1, "Attribute name is required").trim(),
   slug: z.string().min(1, "Slug is required").trim(),
-  systemAttribute: z.boolean().default(true),
   isVisible: z.boolean(),
   values: z
     .array(ProductAttributeValueInputSchema)
@@ -49,12 +47,34 @@ export const CreateProductAttributeInputSchema = z.object({
  * @property isVisible - A boolean indicating if the attribute is visible, which can be omitted.
  * @property values - An optional array of product attribute values.
  */
-export const UpdateProductAttributeInputSchema = z.object({
-  name: z.string().min(1, "Attribute name cannot be empty").trim().optional(),
-  slug: z.string().min(1, "Slug cannot be empty").trim().optional(),
-  isVisible: z.boolean().optional(),
-  values: z.array(ProductAttributeValueInputSchema).optional(),
-});
+export const UpdateProductAttributeInputSchema = z
+  .object({
+    id: z.string().uuid("Invalid UUID ID format"),
+    name: z
+      .string()
+      .min(1, "Attribute name cannot be empty")
+      .trim()
+      .optional()
+      .nullable(),
+    slug: z
+      .string()
+      .min(1, "Slug cannot be empty")
+      .trim()
+      .optional()
+      .nullable(),
+    isVisible: z.boolean().optional(),
+    values: z.array(ProductAttributeValueInputSchema).optional().nullable(),
+  })
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
+    }
+  );
 
 /**
  * Defines the schema for validating product attribute sorting parameters.

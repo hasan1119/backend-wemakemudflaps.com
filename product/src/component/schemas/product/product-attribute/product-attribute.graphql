@@ -7,6 +7,7 @@ type ProductAttribute {
   slug: String! # URL-friendly identifier
   systemAttribute: Boolean! # Indicates if this is a system attribute
   values: [ProductAttributeValue!]! # List of possible values for this attribute
+  createdBy: CreatedBy! # Creator identifier
   createdAt: String! # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion (if any)
 }

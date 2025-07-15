@@ -663,6 +663,7 @@ export type Mutation = {
   createBrand: CreateBrandResponseOrError;
   createCategory: CreateCategoryResponseOrError;
   createProduct: CreateProductResponseOrError;
+  createProductAttribute: ProductAttributeResponse;
   createReview?: Maybe<Scalars['String']['output']>;
   createShippingClass: CreateShippingClassResponseOrError;
   createShippingMethod: CreateShippingMethodResponseOrError;
@@ -678,6 +679,7 @@ export type Mutation = {
   deleteLoginSession: BaseResponseOrError;
   deleteMediaFiles: BaseResponseOrError;
   deleteProduct: DeleteProductResponseOrError;
+  deleteProductAttribute: BaseResponse;
   deleteShippingClass: DeleteShippingClassResponseOrError;
   deleteShippingMethod: DeleteShippingMethodResponseOrError;
   deleteShippingZone: DeleteShippingZoneResponseOrError;
@@ -705,6 +707,7 @@ export type Mutation = {
   updateCategoryPosition: UpdateCategoryResponseOrError;
   updateMediaFileInfo: UpdateMediaResponseOrError;
   updateProduct: UpdateProductResponseOrError;
+  updateProductAttribute: ProductAttributeResponse;
   updateProfile: UserProfileUpdateResponseOrError;
   updateShippingClass: UpdateShippingClassResponseOrError;
   updateShippingMethod: UpdateShippingMethodResponseOrError;
@@ -821,6 +824,14 @@ export type MutationCreateProductArgs = {
 };
 
 
+export type MutationCreateProductAttributeArgs = {
+  name: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+  systemAttribute: Scalars['Boolean']['input'];
+  values: Array<ProductAttributeValueInput>;
+};
+
+
 export type MutationCreateShippingClassArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   value: Scalars['String']['input'];
@@ -923,6 +934,11 @@ export type MutationDeleteMediaFilesArgs = {
 export type MutationDeleteProductArgs = {
   ids: Array<InputMaybe<Scalars['ID']['input']>>;
   skipTrash: Scalars['Boolean']['input'];
+};
+
+
+export type MutationDeleteProductAttributeArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -1140,6 +1156,14 @@ export type MutationUpdateProductArgs = {
   weight?: InputMaybe<Scalars['Float']['input']>;
   weightUnit?: InputMaybe<WeightUnit>;
   width?: InputMaybe<Scalars['Float']['input']>;
+};
+
+
+export type MutationUpdateProductAttributeArgs = {
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  values: Array<ProductAttributeValueInput>;
 };
 
 
@@ -1407,6 +1431,7 @@ export type Product = {
 export type ProductAttribute = {
   __typename?: 'ProductAttribute';
   createdAt: Scalars['String']['output'];
+  createdBy: CreatedBy;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -1662,6 +1687,7 @@ export type Query = {
   getAllCategories: GetCategoriesResponseOrError;
   getAllMedias: GetMediasResponseOrError;
   getAllPermissionsByUserId: GetPermissionsResponseOrError;
+  getAllProductAttribute: GetAllProductAttributesResponseOrError;
   getAllProducts: GetProductsResponseOrError;
   getAllRoles: GetRolesResponseOrError;
   getAllShippingClass: GetShippingClassesResponseOrError;
@@ -1676,6 +1702,7 @@ export type Query = {
   getMediaById: GetMediaByIdResponseOrError;
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError;
   getProduct: GetProductByIdResponseOrError;
+  getProductAttributeById: GetProductAttributeByIdResponseOrError;
   getProfile: GetProfileResponseOrError;
   getReview?: Maybe<Scalars['String']['output']>;
   getRoleById: GetRoleByIdResponseOrError;
@@ -1732,6 +1759,15 @@ export type QueryGetAllMediasArgs = {
 
 export type QueryGetAllPermissionsByUserIdArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetAllProductAttributeArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1833,6 +1869,11 @@ export type QueryGetMediaByIdArgs = {
 
 
 export type QueryGetProductArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetProductAttributeByIdArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -3725,6 +3766,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'defaultMainDescription' | 'isCustomized' | 'name' | 'productConfigurationType' | 'regularPrice' | 'saleQuantityUnit' | 'slug' | 'taxClassId'>>;
+  createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'systemAttribute' | 'values'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
   createShippingMethod?: Resolver<ResolversTypes['CreateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingMethodArgs, 'shippingZoneId' | 'title'>>;
@@ -3740,6 +3782,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionIds'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
   deleteProduct?: Resolver<ResolversTypes['DeleteProductResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'ids' | 'skipTrash'>>;
+  deleteProductAttribute?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationDeleteProductAttributeArgs, 'id'>>;
   deleteShippingClass?: Resolver<ResolversTypes['DeleteShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingClassArgs, 'ids' | 'skipTrash'>>;
   deleteShippingMethod?: Resolver<ResolversTypes['DeleteShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingMethodArgs, 'id'>>;
   deleteShippingZone?: Resolver<ResolversTypes['DeleteShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingZoneArgs, 'id'>>;
@@ -3767,6 +3810,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'id' | 'position'>>;
   updateMediaFileInfo?: Resolver<ResolversTypes['UpdateMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFileInfoArgs, 'inputs'>>;
   updateProduct?: Resolver<ResolversTypes['UpdateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id'>>;
+  updateProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationUpdateProductAttributeArgs, 'id' | 'values'>>;
   updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'userId'>>;
   updateShippingClass?: Resolver<ResolversTypes['UpdateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingClassArgs, 'id'>>;
   updateShippingMethod?: Resolver<ResolversTypes['UpdateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingMethodArgs, 'id' | 'shippingZoneId'>>;
@@ -3886,6 +3930,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
 
 export type ProductAttributeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductAttribute'] = ResolversParentTypes['ProductAttribute']> = {
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4056,6 +4101,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllCategories?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
   getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
+  getAllProductAttribute?: Resolver<ResolversTypes['GetAllProductAttributesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllProductAttributeArgs, 'limit' | 'page'>>;
   getAllProducts?: Resolver<ResolversTypes['GetProductsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllProductsArgs, 'limit' | 'page'>>;
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
   getAllShippingClass?: Resolver<ResolversTypes['GetShippingClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingClassArgs, 'limit' | 'page'>>;
@@ -4070,6 +4116,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getMediaById?: Resolver<ResolversTypes['GetMediaByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetMediaByIdArgs, 'id'>>;
   getOwnPersonalizedPermissions?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType>;
   getProduct?: Resolver<ResolversTypes['GetProductByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'id'>>;
+  getProductAttributeById?: Resolver<ResolversTypes['GetProductAttributeByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductAttributeByIdArgs, 'id'>>;
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
   getReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getRoleById?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleByIdArgs, 'id'>>;

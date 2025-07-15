@@ -1,0 +1,13 @@
+type Query {
+  getProductAttributeById(
+    id: ID! # Unique identifier of the product attribute to retrieve.
+  ): GetProductAttributeByIDResponseOrError!
+
+  getAllProductAttribute(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of brands per page.
+    search: String # Optional search term (matches name or slug).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetAllProductAttributesResponseOrError!
+}

@@ -25,6 +25,10 @@ export class ProductAttribute {
   )
   values: ProductAttributeValue[];
 
+  // User ID who created the product attribute (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
+
   // Timestamp when the product attribute was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;

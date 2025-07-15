@@ -78,6 +78,7 @@ const typesWithCreatedBy = [
   "FreeShipping",
   "LocalPickUp",
   "Ups",
+  "ProductAttribute",
 ];
 
 // List of types that use the thumbnail field
