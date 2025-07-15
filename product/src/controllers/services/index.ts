@@ -398,10 +398,7 @@ export { createShippingMethod } from "./shipping-method/create-shipping-method.s
  * Workflow:
  * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
  */
-export {
-  hardDeleteShippingMethod,
-  softDeleteShippingMethod,
-} from "./shipping-method/delete-shipping-method.service";
+export { hardDeleteShippingMethod } from "./shipping-method/delete-shipping-method.service";
 
 /**
  * Exports services for fetching and counting shipping methods.
