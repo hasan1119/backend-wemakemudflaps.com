@@ -28,5 +28,5 @@ export const updateTaxRate = async (
     ...(data.priority !== undefined && { priority: data.priority }),
   });
 
-  return await getTaxRateById(undefined, taxRateId);
+  return await getTaxRateById(taxRateId);
 };

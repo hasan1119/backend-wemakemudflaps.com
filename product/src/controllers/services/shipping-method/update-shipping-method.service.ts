@@ -31,7 +31,13 @@ export const updateShippingMethod = async (
   if (data.description !== undefined)
     shippingMethod.description = data.description;
 
-  // 1. Update FlatRate (if provided)
+  // Reset all embedded shipping method types
+  shippingMethod.flatRate = null;
+  shippingMethod.freeShipping = null;
+  shippingMethod.localPickUp = null;
+  shippingMethod.ups = null;
+
+  // 1. Replace with FlatRate
   if (data.flatRate) {
     const flatRateData = data.flatRate;
 
@@ -42,10 +48,9 @@ export const updateShippingMethod = async (
         relations: ["costs"],
       });
 
-      if (flatRateData.title !== undefined) flatRate.title = flatRateData.title;
-      if (flatRateData.taxStatus !== undefined)
-        flatRate.taxStatus = flatRateData.taxStatus;
-      if (flatRateData.cost !== undefined) flatRate.cost = flatRateData.cost;
+      flatRate.title = flatRateData.title ?? null;
+      flatRate.taxStatus = flatRateData.taxStatus ?? null;
+      flatRate.cost = flatRateData.cost ?? null;
 
       if (flatRateData.costs) {
         const updatedCosts: FlatRateCost[] = [];
@@ -74,13 +79,12 @@ export const updateShippingMethod = async (
       }
 
       await flatRateRepository.save(flatRate);
+      shippingMethod.flatRate = flatRate;
     }
-
-    shippingMethod.flatRate = flatRate;
   }
 
-  // 2. Update FreeShipping
-  if (data.freeShipping) {
+  // 2. Replace with FreeShipping
+  else if (data.freeShipping) {
     const freeShippingData = data.freeShipping;
 
     if (freeShippingData.id) {
@@ -88,22 +92,17 @@ export const updateShippingMethod = async (
         where: { id: freeShippingData.id },
       });
 
-      if (freeShippingData.title !== undefined)
-        freeShippingEntity.title = freeShippingData.title;
-
-      if (freeShippingData.conditions !== undefined)
-        freeShippingEntity.conditions = freeShippingData.conditions;
-
-      if (freeShippingData.minimumOrderAmount !== undefined)
-        freeShippingEntity.minimumOrderAmount =
-          freeShippingData.minimumOrderAmount;
+      freeShippingEntity.title = freeShippingData.title ?? null;
+      freeShippingEntity.conditions = freeShippingData.conditions ?? null;
+      freeShippingEntity.minimumOrderAmount =
+        freeShippingData.minimumOrderAmount ?? null;
 
       shippingMethod.freeShipping = freeShippingEntity;
     }
   }
 
-  // 3. Update LocalPickUp
-  if (data.localPickUp) {
+  // 3. Replace with LocalPickUp
+  else if (data.localPickUp) {
     const localPickUpData = data.localPickUp;
 
     if (localPickUpData.id) {
@@ -111,37 +110,30 @@ export const updateShippingMethod = async (
         where: { id: localPickUpData.id },
       });
 
-      if (localPickUpData.title !== undefined)
-        localPickUpEntity.title = localPickUpData.title;
-
-      if (localPickUpData.cost !== undefined)
-        localPickUpEntity.cost = localPickUpData.cost;
-
-      if (localPickUpData.taxStatus !== undefined)
-        localPickUpEntity.taxStatus = localPickUpData.taxStatus;
+      localPickUpEntity.title = localPickUpData.title ?? null;
+      localPickUpEntity.cost = localPickUpData.cost ?? null;
+      localPickUpEntity.taxStatus = localPickUpData.taxStatus ?? null;
 
       shippingMethod.localPickUp = localPickUpEntity;
     }
   }
 
-  // 4. Update UPS
-  if (data.ups) {
+  // 4. Replace with UPS
+  else if (data.ups) {
     const upsData = data.ups;
 
     if (upsData.id) {
-      // Assuming you have a UPS entity and repository similar to the others
       const upsEntity = await upsRepository.findOneOrFail({
         where: { id: upsData.id },
       });
 
-      if (upsData.title !== undefined) upsEntity.title = upsData.title;
+      upsEntity.title = upsData.title ?? null;
 
       shippingMethod.ups = upsEntity;
     }
   }
 
-  // Save final updated shipping method
+  // Save updated shipping method
   await shippingMethodRepository.save(shippingMethod);
-
   return shippingMethod;
 };
