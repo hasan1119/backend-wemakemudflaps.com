@@ -12,6 +12,7 @@ import {
   deleteCategory,
   deleteProduct,
   deleteShippingClass,
+  deleteShippingMethod,
   deleteShippingZone,
   deleteTag,
   deleteTaxClass,
@@ -213,5 +214,10 @@ export const productMutationsResolver = {
      * Updates detailed information for a specific shipping method.
      */
     updateShippingMethod,
+
+    /**
+     * Deletes a specific shipping method.
+     */
+    deleteShippingMethod,
   },
 };
