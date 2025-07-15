@@ -195,39 +195,6 @@ export const TaxStatusTypeEnum = z.preprocess((val) => {
   return val;
 }, z.enum([...new Set(Object.values(taxStatusTypeMap))] as [string, ...string[]]));
 
-// /**
-//  * Defines the schema for validating product attribute values input.
-//  *
-//  * Workflow:
-//  * 1. Validates `id` as an optional UUID.
-//  * 2. Ensures `value` is a non-empty string.
-//  * 3. Validates `attributeId` as a UUID.
-//  *
-//  * @property id - Optional unique identifier for the attribute value.
-//  * @property value - The string value of the attribute (e.g., "Red", "Large").
-//  * @property attributeId - The UUID of the associated product attribute.
-//  */
-// export const ProductAttributeValueInputSchema = z.object({
-//   id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
-//   value: z.string().min(1, "Attribute value cannot be empty").trim(),
-//   attributeId: z.string().uuid({ message: "Invalid UUID format" }),
-// });
-
-// /**
-//  * Defines the schema for validating product attributes input.
-//  *
-//  * Workflow:
-//  * 1. Validates `id` as an optional UUID.
-//  * 2. Ensures `name` is a non-empty string.
-//  *
-//  * @property id - Optional unique identifier for the product attribute.
-//  * @property name - The name of the product attribute (e.g., "Color", "Size").
-//  */
-// export const ProductAttributeInputSchema = z.object({
-//   id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
-//   name: z.string().min(1, "Attribute name cannot be empty").trim(),
-// });
-
 /**
  * Defines the schema for validating product tiered pricing input.
  *
