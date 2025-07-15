@@ -13,13 +13,26 @@ import { getShippingZoneById } from "./get-shipping-zone.service";
  *
  * @param id - The UUID of the shipping zone to update.
  * @param data - The data for the shipping zone to update.
+ * @param existingZone - The existing ShippingZone entity to update.
  * @returns A promise resolving to the updated ShippingZone entity.
  */
 export const updateShippingZone = async (
   id: string,
-  data: MutationUpdateShippingZoneArgs
+  data: MutationUpdateShippingZoneArgs,
+  existingZone: ShippingZone
 ): Promise<ShippingZone> => {
-  shippingZoneRepository.update(id, {
+  let mergedShippingMethods = existingZone.shippingMethods || [];
+
+  if (data.shippingMethodIds !== undefined && data.shippingMethodIds !== null) {
+    const existingIds = new Set(mergedShippingMethods.map((m) => m.id));
+    for (const methodId of data.shippingMethodIds) {
+      if (!existingIds.has(methodId)) {
+        mergedShippingMethods.push({ id: methodId } as any);
+      }
+    }
+  }
+
+  await shippingZoneRepository.update(id, {
     ...(data.name !== undefined && data.name !== null && { name: data.name }),
     ...(data.regions !== undefined &&
       data.regions !== null && { regions: data.regions }),
@@ -27,7 +40,7 @@ export const updateShippingZone = async (
       data.zipCodes !== null && { zipCodes: data.zipCodes }),
     ...(data.shippingMethodIds !== undefined &&
       data.shippingMethodIds !== null && {
-        shippingMethods: data.shippingMethodIds.map((id) => ({ id })),
+        shippingMethods: mergedShippingMethods,
       }),
   });
 

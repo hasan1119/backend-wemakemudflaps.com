@@ -33,15 +33,27 @@ export const createShippingZoneSchema = z.object({
  * @property regions - Array of regions (optional).
  * @property zipCodes - Optional array of zip codes.
  */
-export const updateShippingZoneSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(2).max(100).optional(),
-  regions: z.array(z.string().min(2).max(100)).optional(),
-  zipCodes: z.array(z.string().min(2).max(20)).optional(),
-  shippingMethodIds: z
-    .array(z.string().uuid({ message: "Invalid UUID format" }))
-    .optional(),
-});
+export const updateShippingZoneSchema = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string().min(2).max(100).optional().nullable(),
+    regions: z.array(z.string().min(2).max(100)).optional().nullable(),
+    zipCodes: z.array(z.string().min(2).max(20)).optional().nullable(),
+    shippingMethodIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .optional()
+      .nullable(),
+  })
+  .refine(
+    (data) =>
+      Object.keys(data).some(
+        (key) => key !== "id" && data[key as keyof typeof data] !== undefined
+      ),
+    {
+      message: "At least one field must be provided for update besides id",
+      path: [],
+    }
+  );
 
 /**
  * Exports shipping zone related schemas for shipping zone management.
