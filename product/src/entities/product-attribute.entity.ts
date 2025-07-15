@@ -15,7 +15,7 @@ export class ProductAttribute {
   slug: string;
 
   // Indicates if the attribute is a system attribute (e.g., predefined attributes like "Color", "Size")
-  @Column({ type: "boolean", default: true })
+  @Column({ type: "boolean", default: false })
   systemAttribute: boolean;
 
   // This will store all possible values for a given attribute (e.g., for "Size", values could be "Small", "Medium", "Large")
