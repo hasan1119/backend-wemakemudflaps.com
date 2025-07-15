@@ -507,7 +507,7 @@ type FreeShipping
 {
   id: ID!
   title: String!
-  conditions: FreeShippingCondition!
+  conditions: String!
   minimumOrderAmount: Float
   applyMinimumOrderRuleBeforeCoupon: Boolean!
   createdBy: String!

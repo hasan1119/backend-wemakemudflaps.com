@@ -18,7 +18,14 @@ export const createShippingMethod = async (
   userId?: string
 ): Promise<ShippingMethod> => {
   const shippingMethod = shippingMethodRepository.create({
-    ...data,
+    title: data.title,
+    shippingZone: { id: data.shippingZoneId },
+    status: data.status ?? true,
+    description: data.description ?? null,
+    flatRate: data.flatRate ?? null,
+    freeShipping: data.freeShipping ?? null,
+    localPickUp: data.localPickUp ?? null,
+    ups: data.ups ?? null,
     createdBy: userId,
   });
 

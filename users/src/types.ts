@@ -328,7 +328,7 @@ export type FlatRateInput = {
 export type FreeShipping = {
   __typename?: 'FreeShipping';
   applyMinimumOrderRuleBeforeCoupon: Scalars['Boolean']['output'];
-  conditions: FreeShippingCondition;
+  conditions: Scalars['String']['output'];
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy: Scalars['String']['output'];
   deletedAt?: Maybe<Scalars['String']['output']>;
@@ -3420,7 +3420,7 @@ export type FlatRateCostResolvers<ContextType = Context, ParentType extends Reso
 
 export type FreeShippingResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FreeShipping'] = ResolversParentTypes['FreeShipping']> = {
   applyMinimumOrderRuleBeforeCoupon?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  conditions?: Resolver<ResolversTypes['FreeShippingCondition'], ParentType, ContextType>;
+  conditions?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
