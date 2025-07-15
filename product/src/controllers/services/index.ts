@@ -15,6 +15,17 @@ export { checkUserAuth } from "./session-check/session-check";
 export { checkUserPermission } from "./permission/get-user-permission.service";
 
 /**
+ * Exports services for managing product attributes.
+ *
+ * Workflow:
+ * 1. Provides functions to retrieve product attributes by ID or multiple IDs.
+ */
+export {
+  getAttributesById,
+  getProductAttributesByIds,
+} from "./product-attribute/get-product-attribute.service";
+
+/**
  * Exports services for creating categories and subcategories.
  *
  * Workflow:
@@ -307,7 +318,6 @@ export {
  * 3. Supports paginated retrieval of products.
  */
 export {
-  countProductsWithSearch,
   findProductByName,
   findProductByNameToUpdate,
   findProductBySlug,

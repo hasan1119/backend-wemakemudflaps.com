@@ -1,0 +1,18 @@
+# Mutations to manage products attributes.
+type Mutation {
+  # Create a new product attribute
+  createProductAttribute(
+    name: String!
+    isVisible: Boolean!
+    values: [ProductAttributeValueInput!]!
+  ): ProductAttributeResponse!
+
+  # Update an existing product attribute.
+  updateProductAttribute(
+    id: ID!
+    input: UpdateProductAttributeInput!
+  ): ProductAttributeResponse!
+
+  # Delete a product attribute.
+  deleteProductAttribute(id: ID!): BaseResponse!
+}

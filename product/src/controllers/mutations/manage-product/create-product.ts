@@ -20,6 +20,7 @@ import {
   findProductBySlug,
   getBrandsByIds,
   getCategoryByIds,
+  getProductAttributesByIds,
   getProductsByIds,
   getShippingClassById,
   getTagsByIds,
@@ -100,6 +101,7 @@ export const createProduct = async (
       variations,
       upsellIds,
       crossSellIds,
+      attributeIds,
     } = result.data;
 
     // Check database for existing product name
@@ -242,6 +244,19 @@ export const createProduct = async (
           statusCode: 404,
           success: false,
           message: `One or more cross-sell products not found`,
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
+    if (attributeIds && attributeIds.length > 0) {
+      const attributes = await getProductAttributesByIds(attributeIds);
+
+      if (attributes.length !== attributeIds.length) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "One or more product attributes not found",
           __typename: "BaseResponse",
         };
       }

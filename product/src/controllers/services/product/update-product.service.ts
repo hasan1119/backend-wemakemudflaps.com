@@ -115,10 +115,8 @@ export const updateProduct = async (
       : null;
   }
 
-  if (data.attributes !== undefined) {
-    product.attributes = data.attributes.map((attr) => ({
-      id: attr.id,
-    })) as any;
+  if (data.attributeIds !== undefined) {
+    product.attributes = data.attributeIds.map((id) => ({ id })) as any;
   }
 
   // Handle variations update

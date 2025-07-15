@@ -51,7 +51,7 @@ type Mutation {
     shippingClassId: ID
     upsellIds: [ID!]
     crossSellIds: [ID!]
-    attributes: [ProductAttributeInput!]
+    attributeIds: [ID!]
     variations: [ProductVariationInput!]
     purchaseNote: String
     enableReviews: Boolean
@@ -112,7 +112,7 @@ type Mutation {
     shippingClassId: ID
     upsellIds: [ID!]
     crossSellIds: [ID!]
-    attributes: [ProductAttributeInput!]
+    attributeIds: [ID!]
     variations: [ProductVariationInput!]
     purchaseNote: String
     enableReviews: Boolean

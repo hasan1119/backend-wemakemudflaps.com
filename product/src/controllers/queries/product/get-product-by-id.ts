@@ -191,7 +191,31 @@ export const getProductById = async (
         shippingClass: productData.shippingClass as any,
         upsells: productData.upsells as any,
         crossSells: productData.crossSells as any,
-        attributes: productData.attributes as any,
+        attributes: productData.attributes.map((attribute) => ({
+          ...attribute,
+          values: attribute.values.map((value) => ({
+            ...value,
+            attribute: value.attribute as any,
+            createdAt:
+              value.createdAt instanceof Date
+                ? value.createdAt.toISOString()
+                : value.createdAt,
+            deletedAt: value.deletedAt
+              ? value.deletedAt instanceof Date
+                ? value.deletedAt.toISOString()
+                : value.deletedAt
+              : null,
+          })),
+          createdAt:
+            attribute.createdAt instanceof Date
+              ? attribute.createdAt.toISOString()
+              : attribute.createdAt,
+          deletedAt: attribute.deletedAt
+            ? attribute.deletedAt instanceof Date
+              ? attribute.deletedAt.toISOString()
+              : attribute.deletedAt
+            : null,
+        })),
         variations: productData.variations as any,
         purchaseNote: productData.purchaseNote,
         enableReviews: productData.enableReviews,
@@ -200,9 +224,14 @@ export const getProductById = async (
         isPreview: productData.isPreview,
         isVisible: productData.isVisible,
         createdBy: productData.createdBy as any,
-        createdAt: productData.createdAt.toISOString(),
+        createdAt:
+          productData.createdAt instanceof Date
+            ? productData.createdAt.toISOString()
+            : productData.createdAt,
         deletedAt: productData.deletedAt
-          ? productData.deletedAt?.toISOString()
+          ? productData.deletedAt instanceof Date
+            ? productData.deletedAt.toISOString()
+            : productData.deletedAt
           : null,
       },
       __typename: "ProductResponse",

@@ -208,7 +208,31 @@ export const getAllProducts = async (
       shippingClass: product.shippingClass as any,
       upsells: product.upsells as any,
       crossSells: product.crossSells as any,
-      attributes: product.attributes as any,
+      attributes: product.attributes.map((attribute) => ({
+        ...attribute,
+        values: attribute.values.map((value) => ({
+          ...value,
+          attribute: value.attribute as any,
+          createdAt:
+            value.createdAt instanceof Date
+              ? value.createdAt.toISOString()
+              : value.createdAt,
+          deletedAt: value.deletedAt
+            ? value.deletedAt instanceof Date
+              ? value.deletedAt.toISOString()
+              : value.deletedAt
+            : null,
+        })),
+        createdAt:
+          attribute.createdAt instanceof Date
+            ? attribute.createdAt.toISOString()
+            : attribute.createdAt,
+        deletedAt: attribute.deletedAt
+          ? attribute.deletedAt instanceof Date
+            ? attribute.deletedAt.toISOString()
+            : attribute.deletedAt
+          : null,
+      })),
       variations: product.variations as any,
       purchaseNote: product.purchaseNote,
       enableReviews: product.enableReviews,
