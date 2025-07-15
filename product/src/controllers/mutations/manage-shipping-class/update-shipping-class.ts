@@ -85,7 +85,9 @@ export const updateShippingClass = async (
     const { id, value, description } = result.data;
 
     // Get current shippingClass data from Redis or DB
-    let currentShippingClass = await getShippingClassInfoByIdFromRedis(id);
+    let currentShippingClass;
+
+    currentShippingClass = await getShippingClassInfoByIdFromRedis(id);
 
     if (currentShippingClass?.deletedAt) {
       return {

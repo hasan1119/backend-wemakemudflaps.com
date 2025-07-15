@@ -35,6 +35,7 @@ const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteShippingClass(id);
   setShippingClassInfoByIdInRedis(id, {
     ...deletedData,
+    createdBy: deletedData.createdBy as any,
     createdAt:
       deletedData.createdAt instanceof Date
         ? deletedData.createdAt.toISOString()
