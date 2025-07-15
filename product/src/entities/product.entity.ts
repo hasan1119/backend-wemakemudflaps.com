@@ -364,7 +364,7 @@ export class Product {
 
   // Additional product attributes (e.g., material, style)
   @ManyToMany(() => ProductAttribute, {
-    cascade: true,
+    onDelete: "SET NULL",
     nullable: true,
   })
   @JoinTable({

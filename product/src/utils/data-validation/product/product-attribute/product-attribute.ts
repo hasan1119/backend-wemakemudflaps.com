@@ -22,11 +22,15 @@ export const ProductAttributeValueInputSchema = z.object({
  * 3. Validates `values` as an array of product attribute values, ensuring at least one value is provided.
  *
  * @property name - The name of the product attribute, which must be a non-empty string.
+ * @property slug - A URL-friendly identifier for the product attribute, which must be a non-empty string.
+ * @property systemAttribute - A boolean indicating if the attribute is a system attribute, defaulting to true.
  * @property isVisible - A boolean indicating if the attribute is visible.
  * @property values - An array of product attribute values, which must contain at least one value.
  */
 export const CreateProductAttributeInputSchema = z.object({
   name: z.string().min(1, "Attribute name is required").trim(),
+  slug: z.string().min(1, "Slug is required").trim(),
+  systemAttribute: z.boolean().default(true),
   isVisible: z.boolean(),
   values: z
     .array(ProductAttributeValueInputSchema)
@@ -47,6 +51,7 @@ export const CreateProductAttributeInputSchema = z.object({
  */
 export const UpdateProductAttributeInputSchema = z.object({
   name: z.string().min(1, "Attribute name cannot be empty").trim().optional(),
+  slug: z.string().min(1, "Slug cannot be empty").trim().optional(),
   isVisible: z.boolean().optional(),
   values: z.array(ProductAttributeValueInputSchema).optional(),
 });
@@ -55,17 +60,17 @@ export const UpdateProductAttributeInputSchema = z.object({
  * Defines the schema for validating product attribute sorting parameters.
  *
  * Workflow:
- * 1. Validates `sortBy` as one of the allowed fields (name, createdAt, deletedAt).
+ * 1. Validates `sortBy` as one of the allowed fields (name, slug, createdAt, deletedAt).
  * 2. Validates `sortOrder` as either 'asc' or 'desc'.
  * 3. Allows both fields to be nullable or optional.
  *
- * @property sortBy - Field to sort by (name, createdAt, deletedAt).
+ * @property sortBy - Field to sort by (name, slug, createdAt, deletedAt).
  * @property sortOrder - Sort order direction (asc, desc).
  */
 export const productAttributeSortingSchema = z.object({
   sortBy: z
-    .enum(["name", "createdAt", "deletedAt"], {
-      message: "Sort field must be one of: name, createdAt, deletedAt",
+    .enum(["name", "slug", "createdAt", "deletedAt"], {
+      message: "Sort field must be one of: name, slug, createdAt, deletedAt",
     })
     .nullable()
     .optional(),

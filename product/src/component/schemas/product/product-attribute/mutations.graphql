@@ -3,14 +3,17 @@ type Mutation {
   # Create a new product attribute
   createProductAttribute(
     name: String!
-    isVisible: Boolean!
+    slug: String! # URL-friendly identifier
+    systemAttribute: Boolean! # Indicates if this is a system attribute
     values: [ProductAttributeValueInput!]!
   ): ProductAttributeResponse!
 
   # Update an existing product attribute.
   updateProductAttribute(
     id: ID!
-    input: UpdateProductAttributeInput!
+    name: String
+    slug: String
+    values: [ProductAttributeValueInput!]!
   ): ProductAttributeResponse!
 
   # Delete a product attribute.
