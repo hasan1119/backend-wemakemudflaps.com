@@ -23,13 +23,11 @@ export const ProductAttributeValueInputSchema = z.object({
  *
  * @property name - The name of the product attribute, which must be a non-empty string.
  * @property slug - A URL-friendly identifier for the product attribute, which must be a non-empty string.
- * @property isVisible - A boolean indicating if the attribute is visible.
  * @property values - An array of product attribute values, which must contain at least one value.
  */
 export const CreateProductAttributeInputSchema = z.object({
   name: z.string().min(1, "Attribute name is required").trim(),
   slug: z.string().min(1, "Slug is required").trim(),
-  isVisible: z.boolean(),
   values: z
     .array(ProductAttributeValueInputSchema)
     .min(1, "At least one value is required"),
@@ -44,7 +42,8 @@ export const CreateProductAttributeInputSchema = z.object({
  * 3. Validates `values` as an optional array of product attribute values.
  *
  * @property name - The name of the product attribute, which can be an empty string or omitted.
- * @property isVisible - A boolean indicating if the attribute is visible, which can be omitted.
+ * @property slug - A URL-friendly identifier for the product attribute, which can be an empty string or omitted.
+ * @property isVisible - An optional boolean indicating if the attribute should be visible.
  * @property values - An optional array of product attribute values.
  */
 export const UpdateProductAttributeInputSchema = z
@@ -62,7 +61,6 @@ export const UpdateProductAttributeInputSchema = z
       .trim()
       .optional()
       .nullable(),
-    isVisible: z.boolean().optional(),
     values: z.array(ProductAttributeValueInputSchema).optional().nullable(),
   })
   .refine(

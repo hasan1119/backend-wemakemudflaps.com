@@ -945,7 +945,7 @@ export type MutationDeleteProductArgs = {
 
 
 export type MutationDeleteProductAttributeArgs = {
-  id: Scalars['ID']['input'];
+  ids: Array<Scalars['ID']['input']>;
 };
 
 
@@ -3790,7 +3790,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionIds'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
   deleteProduct?: Resolver<ResolversTypes['DeleteProductResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'ids' | 'skipTrash'>>;
-  deleteProductAttribute?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationDeleteProductAttributeArgs, 'id'>>;
+  deleteProductAttribute?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationDeleteProductAttributeArgs, 'ids'>>;
   deleteShippingClass?: Resolver<ResolversTypes['DeleteShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingClassArgs, 'ids' | 'skipTrash'>>;
   deleteShippingMethod?: Resolver<ResolversTypes['DeleteShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingMethodArgs, 'id'>>;
   deleteShippingZone?: Resolver<ResolversTypes['DeleteShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingZoneArgs, 'id'>>;
