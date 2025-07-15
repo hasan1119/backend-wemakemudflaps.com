@@ -8,7 +8,7 @@ import { idSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  hardDeleteShippingMethod,
+  deleteShippingMethod as deleteShippingMethodService,
 } from "../../services";
 
 /**
@@ -70,7 +70,7 @@ export const deleteShippingMethod = async (
     const { id } = args;
 
     // Attempt to delete the shipping method
-    await hardDeleteShippingMethod(id);
+    await deleteShippingMethodService(id);
 
     return {
       statusCode: 200,

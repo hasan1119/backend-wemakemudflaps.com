@@ -10,7 +10,7 @@ import { shippingMethodRepository } from "../repositories/repositories";
  * @param shippingMethodId - The UUID of the shipping method to delete.
  * @returns A promise that resolves when the deletion is complete.
  */
-export const hardDeleteShippingMethod = async (
+export const deleteShippingMethod = async (
   shippingMethodId: string
 ): Promise<void> => {
   await shippingMethodRepository.delete({ id: shippingMethodId });
