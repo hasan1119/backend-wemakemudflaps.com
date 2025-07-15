@@ -28,6 +28,7 @@ export {
   getAttributesById,
   getProductAttributesByIds,
   paginateProductAttributes,
+  paginateSystemProductAttributes,
 } from "./product-attribute/get-product-attribute.service";
 
 /**
@@ -36,7 +37,10 @@ export {
  * Workflow:
  * 1. Provides a function to create a product attribute based on input.
  */
-export { createAttributeWithValues } from "./product-attribute/create-product-attribute.service";
+export {
+  createAttributeWithValues,
+  createSystemAttributeWithValues,
+} from "./product-attribute/create-product-attribute.service";
 
 /**
  * Exports services for deleting product attributes.

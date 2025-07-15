@@ -1,10 +1,16 @@
 # Mutations to manage products attributes.
 type Mutation {
-  # Create a new product attribute
+  # Create a new system product attribute
+  createSystemProductAttribute(
+    name: String!
+    slug: String! # URL-friendly identifier
+    values: [ProductAttributeValueInput!]!
+  ): ProductAttributeResponse!
+
+  # Create a new custom product attribute
   createProductAttribute(
     name: String!
     slug: String! # URL-friendly identifier
-    systemAttribute: Boolean! # Indicates if this is a system attribute
     values: [ProductAttributeValueInput!]!
   ): ProductAttributeResponse!
 

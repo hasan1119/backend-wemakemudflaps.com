@@ -668,6 +668,7 @@ export type Mutation = {
   createShippingClass: CreateShippingClassResponseOrError;
   createShippingMethod: CreateShippingMethodResponseOrError;
   createShippingZone: CreateShippingZoneResponseOrError;
+  createSystemProductAttribute: ProductAttributeResponse;
   createTag: CreateTagResponseOrError;
   createTaxClass: CreateTaxClassResponseOrError;
   createTaxExemptionEntry: CreateTaxExemptionResponseOrError;
@@ -827,7 +828,6 @@ export type MutationCreateProductArgs = {
 export type MutationCreateProductAttributeArgs = {
   name: Scalars['String']['input'];
   slug: Scalars['String']['input'];
-  systemAttribute: Scalars['Boolean']['input'];
   values: Array<ProductAttributeValueInput>;
 };
 
@@ -854,6 +854,13 @@ export type MutationCreateShippingZoneArgs = {
   name: Scalars['String']['input'];
   regions: Array<Scalars['String']['input']>;
   zipCodes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type MutationCreateSystemProductAttributeArgs = {
+  name: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+  values: Array<ProductAttributeValueInput>;
 };
 
 
@@ -3766,11 +3773,12 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'defaultMainDescription' | 'isCustomized' | 'name' | 'productConfigurationType' | 'regularPrice' | 'saleQuantityUnit' | 'slug' | 'taxClassId'>>;
-  createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'systemAttribute' | 'values'>>;
+  createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
   createShippingMethod?: Resolver<ResolversTypes['CreateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingMethodArgs, 'shippingZoneId' | 'title'>>;
   createShippingZone?: Resolver<ResolversTypes['CreateShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingZoneArgs, 'name' | 'regions'>>;
+  createSystemProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateSystemProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createTag?: Resolver<ResolversTypes['CreateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTagArgs, 'name' | 'slug'>>;
   createTaxClass?: Resolver<ResolversTypes['CreateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxClassArgs, 'value'>>;
   createTaxExemptionEntry?: Resolver<ResolversTypes['CreateTaxExemptionResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxExemptionEntryArgs, 'assumptionReason' | 'expiryDate' | 'taxCertificate' | 'taxNumber' | 'userId'>>;
