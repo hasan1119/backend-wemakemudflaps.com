@@ -90,10 +90,6 @@ export class Product {
   @Column({ type: "text", nullable: true, default: null })
   defaultShortDescription: string | null;
 
-  // Comma-separated product tags
-  @Column({ type: "simple-array", nullable: true, default: null })
-  defaultTags: string[] | null;
-
   // Associated categories for the product
   @ManyToMany(() => Category, (category) => category.products, {
     onDelete: "SET NULL",

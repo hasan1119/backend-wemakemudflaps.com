@@ -15,7 +15,6 @@ type Mutation {
     tagIds: [ID!]
     defaultMainDescription: String!
     defaultShortDescription: String
-    defaultTags: [String!]
     categoryIds: [ID!]
     warrantyDigit: Int
     defaultWarrantyPeriod: DefaultWarrantyPeriod
@@ -76,7 +75,6 @@ type Mutation {
     tagIds: [ID!]
     defaultMainDescription: String
     defaultShortDescription: String
-    defaultTags: [String!]
     categoryIds: [ID!]
     warrantyDigit: Int
     defaultWarrantyPeriod: DefaultWarrantyPeriod

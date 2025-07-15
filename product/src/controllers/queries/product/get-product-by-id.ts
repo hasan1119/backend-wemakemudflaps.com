@@ -155,7 +155,6 @@ export const getProductById = async (
         })),
         defaultMainDescription: productData.defaultMainDescription,
         defaultShortDescription: productData.defaultShortDescription,
-        defaultTags: productData.defaultTags,
         categories: productData.categories?.map(mapCategoryRecursive),
         warrantyDigit: productData.warrantyDigit,
         defaultWarrantyPeriod: productData.defaultWarrantyPeriod,

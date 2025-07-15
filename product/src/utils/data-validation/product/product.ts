@@ -472,7 +472,7 @@ export const ProductVariationInputSchema = z.object({
  * 3. Validates `sku` and `model` as optional non-empty strings.
  * 4. Validates `defaultImage`, `images`, `videos` as optional arrays of UUIDs.
  * 5. Ensures `defaultMainDescription` is a non-empty string.
- * 6. Validates `defaultShortDescription`, `defaultTags`, `customBadge`, `purchaseNote` as optional non-empty strings or arrays of strings.
+ * 6. Validates `defaultShortDescription`, `customBadge`, `purchaseNote` as optional non-empty strings or arrays of strings.
  * 7. Validates `brandIds`, `tagIds`, `categoryIds` as optional UUIDs or arrays of UUIDs.
  * 8. Validates `warrantyDigit` as an optional positive integer and `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
  * 9. Validates `warrantyPolicy` as an optional non-empty string.
@@ -504,7 +504,6 @@ export const ProductVariationInputSchema = z.object({
  * @property videos - Optional array of video UUIDs.
  * @property defaultMainDescription - The main description of the product.
  * @property defaultShortDescription - Optional short description of the product.
- * @property defaultTags - Optional array of keyword tags.
  * @property customBadge - Optional custom badge text.
  * @property purchaseNote - Optional note shown after purchase.
  * @property brandIds - Optional UUIDs of the associated brands.
@@ -582,10 +581,6 @@ export const createProductSchema = z
     defaultShortDescription: z
       .string()
       .min(1, "Short description cannot be empty")
-      .optional()
-      .nullable(),
-    defaultTags: z
-      .array(z.string().min(1, "Tag cannot be empty"))
       .optional()
       .nullable(),
     customBadge: z
@@ -774,7 +769,6 @@ export const createProductSchema = z
  * @property videos - Optional array of video UUIDs.
  * @property defaultMainDescription - Optional main description of the product.
  * @property defaultShortDescription - Optional short description of the product.
- * @property defaultTags - Optional array of keyword tags.
  * @property customBadge - Optional custom badge text.
  * @property purchaseNote - Optional note shown after purchase.
  * @property brandIds - Optional UUIDs of the associated brands.
@@ -861,10 +855,6 @@ export const updateProductSchema = z
     defaultShortDescription: z
       .string()
       .min(1, "Short description cannot be empty")
-      .optional()
-      .nullable(),
-    defaultTags: z
-      .array(z.string().min(1, "Tag cannot be empty"))
       .optional()
       .nullable(),
     customBadge: z

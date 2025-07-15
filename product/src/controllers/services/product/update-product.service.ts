@@ -35,7 +35,6 @@ export const updateProduct = async (
     data.defaultMainDescription ?? product.defaultMainDescription;
   product.defaultShortDescription =
     data.defaultShortDescription ?? product.defaultShortDescription;
-  product.defaultTags = data.defaultTags ?? product.defaultTags;
   product.regularPrice = data.regularPrice ?? product.regularPrice;
   product.salePrice = data.salePrice ?? product.salePrice;
 

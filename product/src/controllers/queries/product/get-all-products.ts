@@ -172,7 +172,6 @@ export const getAllProducts = async (
       })),
       defaultMainDescription: product.defaultMainDescription,
       defaultShortDescription: product.defaultShortDescription,
-      defaultTags: product.defaultTags,
       categories: product.categories?.map(mapCategoryRecursive),
       warrantyDigit: product.warrantyDigit,
       defaultWarrantyPeriod: product.defaultWarrantyPeriod,
