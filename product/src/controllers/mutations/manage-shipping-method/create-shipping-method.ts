@@ -17,13 +17,20 @@ import {
   getShippingZoneById,
 } from "../../services";
 
-/**
- * Handles the creation of a new shipping method.
+/** Handles the creation of a new shipping method in the system.
  *
- * @param _ - Unused parent argument (for GraphQL resolver compatibility).
- * @param args - Arguments for creating a shipping method.
- * @param context - Context containing user information.
- * @returns A promise resolving to the response or error object.
+ * Workflow:
+ * 1. Verifies user authentication and permission to create shipping methods.
+ * 2. Validates input data using Zod schema.
+ * 3. Checks if flat rate shipping method is provided and validates shipping classes.
+ * 4. Checks if the shipping zone exists.
+ * 5. Creates the shipping method in the database with audit information from the authenticated user.
+ * 6. Returns a success response or error if validation, permission, or creation fails.
+ *
+ * @param _ - Unused parent parameter for GraphQL resolver.
+ * @param args - Input arguments containing shipping method details.
+ * @param context - GraphQL context containing authenticated user information.
+ * @returns A promise resolving to a CreateShippingMethodResponseOrError object containing status, message, and errors if applicable.
  */
 export const createShippingMethod = async (
   _: any,
