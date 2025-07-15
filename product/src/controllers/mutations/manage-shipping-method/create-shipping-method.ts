@@ -164,6 +164,87 @@ export const createShippingMethod = async (
         title: shippingMethod.title,
         status: shippingMethod.status,
         description: shippingMethod.description,
+        flatRate: {
+          ...shippingMethod.flatRate,
+          createdBy: shippingMethod.flatRate.createdBy as any,
+          createdAt:
+            shippingMethod.flatRate.createdAt instanceof Date
+              ? shippingMethod.flatRate.createdAt.toISOString()
+              : shippingMethod.flatRate.createdAt,
+          deletedAt:
+            shippingMethod.flatRate.deletedAt instanceof Date
+              ? shippingMethod.flatRate.deletedAt.toISOString()
+              : shippingMethod.flatRate.deletedAt,
+          costs: shippingMethod.flatRate.costs.map((cost) => ({
+            id: cost.id,
+            cost: cost.cost,
+            shippingClass: {
+              id: cost.shippingClass.id,
+              value: cost.shippingClass.value,
+              description: cost.shippingClass.description,
+              createdBy: cost.shippingClass.createdBy as any,
+              createdAt:
+                cost.shippingClass.createdAt instanceof Date
+                  ? cost.shippingClass.createdAt.toISOString()
+                  : cost.shippingClass.createdAt,
+              deletedAt:
+                cost.shippingClass.deletedAt instanceof Date
+                  ? cost.shippingClass.deletedAt.toISOString()
+                  : cost.shippingClass.deletedAt,
+            },
+          })),
+        },
+        shippingZone: {
+          id: shippingMethod.shippingZone.id,
+          name: shippingMethod.shippingZone.name,
+          regions: shippingMethod.shippingZone.regions,
+          zipCodes: shippingMethod.shippingZone.zipCodes,
+          createdBy: shippingMethod.shippingZone.createdBy as any,
+          createdAt:
+            shippingMethod.shippingZone.createdAt instanceof Date
+              ? shippingMethod.shippingZone.createdAt.toISOString()
+              : shippingMethod.shippingZone.createdAt,
+          deletedAt:
+            shippingMethod.shippingZone.deletedAt instanceof Date
+              ? shippingMethod.shippingZone.deletedAt.toISOString()
+              : shippingMethod.shippingZone.deletedAt,
+        },
+        freeShipping: {
+          ...shippingMethod.freeShipping,
+          createdBy: shippingMethod.freeShipping.createdBy as any,
+          createdAt:
+            shippingMethod.freeShipping.createdAt instanceof Date
+              ? shippingMethod.freeShipping.createdAt.toISOString()
+              : shippingMethod.freeShipping.createdAt,
+          deletedAt:
+            shippingMethod.freeShipping.deletedAt instanceof Date
+              ? shippingMethod.freeShipping.deletedAt.toISOString()
+              : shippingMethod.freeShipping.deletedAt,
+        },
+        localPickUp: {
+          ...shippingMethod.localPickUp,
+          createdBy: shippingMethod.localPickUp.createdBy as any,
+          createdAt:
+            shippingMethod.localPickUp.createdAt instanceof Date
+              ? shippingMethod.localPickUp.createdAt.toISOString()
+              : shippingMethod.localPickUp.createdAt,
+          deletedAt:
+            shippingMethod.localPickUp.deletedAt instanceof Date
+              ? shippingMethod.localPickUp.deletedAt.toISOString()
+              : shippingMethod.localPickUp.deletedAt,
+        },
+        ups: {
+          ...shippingMethod.ups,
+          createdBy: shippingMethod.ups.createdBy as any,
+          createdAt:
+            shippingMethod.ups.createdAt instanceof Date
+              ? shippingMethod.ups.createdAt.toISOString()
+              : shippingMethod.ups.createdAt,
+          deletedAt:
+            shippingMethod.ups.deletedAt instanceof Date
+              ? shippingMethod.ups.deletedAt.toISOString()
+              : shippingMethod.ups.deletedAt,
+        },
         createdBy: shippingMethod.createdBy as any,
         createdAt:
           shippingMethod.createdAt instanceof Date
