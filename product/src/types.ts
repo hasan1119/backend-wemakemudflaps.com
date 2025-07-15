@@ -774,7 +774,6 @@ export type MutationCreateProductArgs = {
   defaultMainDescription: Scalars['String']['input'];
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultShortDescription?: InputMaybe<Scalars['String']['input']>;
-  defaultTags?: InputMaybe<Array<Scalars['String']['input']>>;
   defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;
   dimensionUnit?: InputMaybe<DimensionUnit>;
   enableReviews?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1096,7 +1095,6 @@ export type MutationUpdateProductArgs = {
   defaultMainDescription?: InputMaybe<Scalars['String']['input']>;
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultShortDescription?: InputMaybe<Scalars['String']['input']>;
-  defaultTags?: InputMaybe<Array<Scalars['String']['input']>>;
   defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;
   dimensionUnit?: InputMaybe<DimensionUnit>;
   enableReviews?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1357,7 +1355,6 @@ export type Product = {
   defaultMainDescription: Scalars['String']['output'];
   defaultQuantity?: Maybe<Scalars['Int']['output']>;
   defaultShortDescription?: Maybe<Scalars['String']['output']>;
-  defaultTags?: Maybe<Array<Scalars['String']['output']>>;
   defaultWarrantyPeriod?: Maybe<Scalars['String']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   dimensionUnit?: Maybe<Scalars['String']['output']>;
@@ -1412,8 +1409,9 @@ export type ProductAttribute = {
   createdAt: Scalars['String']['output'];
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  isVisible: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  systemAttribute: Scalars['Boolean']['output'];
   values: Array<ProductAttributeValue>;
 };
 
@@ -2262,12 +2260,6 @@ export type UpdateMediaInput = {
 
 export type UpdateMediaResponseOrError = BaseResponse | ErrorResponse | MediaResponse;
 
-export type UpdateProductAttributeInput = {
-  isVisible?: InputMaybe<Scalars['Boolean']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  values?: InputMaybe<Array<ProductAttributeValueInput>>;
-};
-
 export type UpdateProductAttributeResponseOrError = BaseResponse | ErrorResponse | ProductAttributeResponse;
 
 export type UpdateProductResponseOrError = BaseResponse | ErrorResponse;
@@ -2892,7 +2884,6 @@ export type ResolversTypes = {
   UpdateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryResponseOrError']>;
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateMediaResponseOrError']>;
-  UpdateProductAttributeInput: UpdateProductAttributeInput;
   UpdateProductAttributeResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateProductAttributeResponseOrError']>;
   UpdateProductResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateProductResponseOrError']>;
   UpdateProductReviewResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateProductReviewResponseOrError']>;
@@ -3113,7 +3104,6 @@ export type ResolversParentTypes = {
   UpdateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryResponseOrError'];
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateMediaResponseOrError'];
-  UpdateProductAttributeInput: UpdateProductAttributeInput;
   UpdateProductAttributeResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateProductAttributeResponseOrError'];
   UpdateProductResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateProductResponseOrError'];
   UpdateProductReviewResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateProductReviewResponseOrError'];
@@ -3844,7 +3834,6 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   defaultMainDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   defaultShortDescription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  defaultTags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   defaultWarrantyPeriod?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   dimensionUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3899,8 +3888,9 @@ export type ProductAttributeResolvers<ContextType = Context, ParentType extends 
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isVisible?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  systemAttribute?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   values?: Resolver<Array<ResolversTypes['ProductAttributeValue']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

@@ -43,13 +43,6 @@ export async function hardDeleteCategory(id: string): Promise<void> {
     });
     if (!item) throw new Error(`Category with id ${id} not found`);
 
-    // Check if allowed to delete (no product association)
-    const canDelete = await canDeleteCategory(id);
-    if (!canDelete)
-      throw new Error(
-        `Cannot delete category because it is associated with one or more products.`
-      );
-
     // Delete entity
     await repo.delete(id);
 

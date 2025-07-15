@@ -1297,7 +1297,8 @@ type ProductAttribute
 {
   id: ID!
   name: String!
-  isVisible: Boolean!
+  slug: String!
+  systemAttribute: Boolean!
   values: [ProductAttributeValue!]!
   createdAt: String!
   deletedAt: String
@@ -2096,14 +2097,6 @@ union UpdateMediaResponseOrError
   @join__unionMember(graph: MEDIA, member: "MediaResponse")
   @join__unionMember(graph: MEDIA, member: "ErrorResponse")
  = BaseResponse | MediaResponse | ErrorResponse
-
-input UpdateProductAttributeInput
-  @join__type(graph: PRODUCT)
-{
-  name: String
-  isVisible: Boolean
-  values: [ProductAttributeValueInput!]
-}
 
 union UpdateProductAttributeResponseOrError
   @join__type(graph: PRODUCT)
