@@ -1,5 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { Category } from "../../../entities";
 import {
   GetProductByIdResponseOrError,
   QueryGetProductArgs,
@@ -10,6 +11,34 @@ import {
   checkUserPermission,
   getProductById as getProductByIdService,
 } from "../../services";
+
+/**
+ * Maps a Category entity to GraphQL-compatible plain object including nested subcategories recursively.
+ */
+function mapCategoryRecursive(category: Category): any {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    thumbnail: category.thumbnail as any,
+    position: category.position,
+    totalProducts: 0,
+    createdBy: category.createdBy as any,
+    createdAt:
+      category.createdAt instanceof Date
+        ? category.createdAt.toISOString()
+        : category.createdAt,
+    deletedAt:
+      category.deletedAt instanceof Date
+        ? category.deletedAt.toISOString()
+        : category.deletedAt || null,
+    subCategories: (category.subCategories || []).map(mapCategoryRecursive),
+    parentCategory: category.parentCategory
+      ? mapCategoryRecursive(category.parentCategory)
+      : null,
+  };
+}
 
 /**
  * Handles retrieving a product by its ID with validation and permission checks.
@@ -127,7 +156,7 @@ export const getProductById = async (
         defaultMainDescription: productData.defaultMainDescription,
         defaultShortDescription: productData.defaultShortDescription,
         defaultTags: productData.defaultTags,
-        categories: productData.categories as any,
+        categories: productData.categories?.map(mapCategoryRecursive),
         warrantyDigit: productData.warrantyDigit,
         defaultWarrantyPeriod: productData.defaultWarrantyPeriod,
         warrantyPolicy: productData.warrantyPolicy,

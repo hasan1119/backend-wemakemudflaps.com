@@ -1,6 +1,13 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearBrandsAndCountCache,
+  clearCategoriesAndCountCache,
+  clearShippingClassesAndCountCache,
+  clearTagsAndCountCache,
+  clearTaxClassesAndCountCache,
+} from "../../../helper/redis";
+import {
   CreateProductResponseOrError,
   MutationCreateProductArgs,
 } from "../../../types";
@@ -248,6 +255,15 @@ export const createProduct = async (
       } as any,
       user.id
     );
+
+    // Clear caches for related entities
+    await Promise.all([
+      clearBrandsAndCountCache(),
+      clearCategoriesAndCountCache(),
+      clearShippingClassesAndCountCache(),
+      clearTagsAndCountCache(),
+      clearTaxClassesAndCountCache(),
+    ]);
 
     return {
       statusCode: 201,

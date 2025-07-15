@@ -1,5 +1,12 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import {
+  clearBrandsAndCountCache,
+  clearCategoriesAndCountCache,
+  clearShippingClassesAndCountCache,
+  clearTagsAndCountCache,
+  clearTaxClassesAndCountCache,
+} from "../../../helper/redis";
 import { BaseResponseOrError, MutationDeleteProductArgs } from "../../../types";
 import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
 import {
@@ -98,6 +105,15 @@ export const deleteProduct = async (
 
       if (skipTrash) {
         await hardDeleteProduct(id);
+
+        // Clear caches for related entities
+        await Promise.all([
+          clearBrandsAndCountCache(),
+          clearCategoriesAndCountCache(),
+          clearShippingClassesAndCountCache(),
+          clearTagsAndCountCache(),
+          clearTaxClassesAndCountCache(),
+        ]);
       } else {
         if (deletedAt) {
           return {
