@@ -58,8 +58,6 @@ export const createShippingZone = async (
 
     const { name, regions, zipCodes } = result.data;
 
-    console.log(result.data);
-
     // Create the shipping zone in the database
     const shippingZone = await createShippingZoneService(
       {

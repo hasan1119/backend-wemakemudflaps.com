@@ -25,7 +25,6 @@ const clearShippingClassCache = async (id: string, value: string) => {
   await Promise.all([
     removeShippingClassInfoByIdFromRedis(id),
     removeShippingClassValueExistFromRedis(value),
-
     clearShippingClassesAndCountCache(),
   ]);
 };

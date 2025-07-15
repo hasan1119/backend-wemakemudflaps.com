@@ -123,9 +123,7 @@ export const getShippingClassById = async (
       success: true,
       message: "Shipping class fetched successfully",
       shippingClass: {
-        id: shippingClassData.id,
-        value: shippingClassData.value,
-        description: shippingClassData.description,
+        ...shippingClassData,
         createdBy: shippingClassData.createdBy as any,
         createdAt: shippingClassData.createdAt,
         deletedAt: shippingClassData.deletedAt,

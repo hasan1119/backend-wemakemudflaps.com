@@ -162,10 +162,7 @@ export const updateShippingMethod = async (
       success: true,
       message: "Shipping method updated successfully",
       shippingMethod: {
-        id: shippingMethod.id,
-        title: shippingMethod.title,
-        status: shippingMethod.status,
-        description: shippingMethod.description,
+        ...shippingMethod,
         flatRate: {
           ...shippingMethod.flatRate,
           createdBy: shippingMethod.flatRate.createdBy as any,

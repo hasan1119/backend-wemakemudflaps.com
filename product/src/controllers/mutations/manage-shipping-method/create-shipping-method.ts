@@ -160,10 +160,7 @@ export const createShippingMethod = async (
       success: true,
       message: "Shipping method created successfully",
       shippingMethod: {
-        id: shippingMethod.id,
-        title: shippingMethod.title,
-        status: shippingMethod.status,
-        description: shippingMethod.description,
+        ...shippingMethod,
         flatRate: {
           ...shippingMethod.flatRate,
           createdBy: shippingMethod.flatRate.createdBy as any,
