@@ -136,12 +136,25 @@ export const updateShippingClass = async (
       description,
     });
 
+    const shippingClassResponse = {
+      ...updatedShippingClass,
+      createdBy: updatedShippingClass.createdBy as any,
+      createdAt:
+        updatedShippingClass.createdAt instanceof Date
+          ? updatedShippingClass.createdAt.toISOString()
+          : updatedShippingClass.createdAt,
+      deletedAt:
+        updatedShippingClass.deletedAt instanceof Date
+          ? updatedShippingClass.deletedAt.toISOString()
+          : updatedShippingClass.deletedAt,
+    };
+
     // Update Redis cache: remove old, add new
     await Promise.all([
       removeShippingClassInfoByIdFromRedis(id),
       removeShippingClassValueExistFromRedis(currentShippingClass.value),
       clearShippingClassesAndCountCache(),
-      setShippingClassInfoByIdInRedis(id, updatedShippingClass),
+      setShippingClassInfoByIdInRedis(id, shippingClassResponse),
       setShippingClassValueExistInRedis(updatedShippingClass.value),
     ]);
 
@@ -149,17 +162,7 @@ export const updateShippingClass = async (
       statusCode: 200,
       success: true,
       message: "ShippingClass updated successfully",
-      shippingClass: {
-        id: updatedShippingClass.id,
-        value: updatedShippingClass.value,
-        description: updatedShippingClass.description,
-        createdBy: updatedShippingClass.createdBy as any,
-        createdAt: updatedShippingClass.createdAt.toISOString(),
-        deletedAt:
-          updatedShippingClass.deletedAt instanceof Date
-            ? updatedShippingClass.deletedAt.toISOString()
-            : updatedShippingClass.deletedAt,
-      },
+      shippingClass: shippingClassResponse,
       __typename: "ShippingClassResponse",
     };
   } catch (error: any) {

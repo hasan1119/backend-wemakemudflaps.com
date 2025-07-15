@@ -1,5 +1,7 @@
-import { ShippingClass } from "../../../../entities";
-import { ShippingClassPaginationDataSession } from "../../../../types";
+import {
+  ShippingClass,
+  ShippingClassPaginationDataSession,
+} from "../../../../types";
 import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for shipping class session and value existence caching

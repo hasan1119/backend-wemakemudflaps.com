@@ -115,9 +115,22 @@ export const createShippingClass = async (
       user.id
     );
 
+    const shippingClassResponse = {
+      ...shippingClass,
+      createdBy: shippingClass.createdBy as any,
+      createdAt:
+        shippingClass.createdAt instanceof Date
+          ? shippingClass.createdAt.toISOString()
+          : shippingClass.createdAt,
+      deletedAt:
+        shippingClass.deletedAt instanceof Date
+          ? shippingClass.deletedAt.toISOString()
+          : shippingClass.deletedAt,
+    };
+
     // Cache shipping class information and existence in Redis
     await Promise.all([
-      setShippingClassInfoByIdInRedis(shippingClass.id, shippingClass),
+      setShippingClassInfoByIdInRedis(shippingClass.id, shippingClassResponse),
       setShippingClassValueExistInRedis(shippingClass.value),
       clearShippingClassesAndCountCache(),
     ]);
@@ -126,20 +139,7 @@ export const createShippingClass = async (
       statusCode: 201,
       success: true,
       message: "Shipping class created successfully",
-      shippingClass: {
-        id: shippingClass.id,
-        value: shippingClass.value,
-        description: shippingClass.description,
-        createdBy: shippingClass.createdBy as any,
-        createdAt:
-          shippingClass.createdAt instanceof Date
-            ? shippingClass.createdAt.toISOString()
-            : shippingClass.createdAt,
-        deletedAt:
-          shippingClass.deletedAt instanceof Date
-            ? shippingClass.deletedAt.toISOString()
-            : shippingClass.deletedAt,
-      },
+      shippingClass: shippingClassResponse,
       __typename: "ShippingClassResponse",
     };
   } catch (error: any) {

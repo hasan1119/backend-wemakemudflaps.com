@@ -33,7 +33,17 @@ const clearShippingClassCache = async (id: string, value: string) => {
 // Perform soft delete and update cache
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteShippingClass(id);
-  setShippingClassInfoByIdInRedis(id, deletedData);
+  setShippingClassInfoByIdInRedis(id, {
+    ...deletedData,
+    createdAt:
+      deletedData.createdAt instanceof Date
+        ? deletedData.createdAt.toISOString()
+        : deletedData.createdAt,
+    deletedAt:
+      deletedData.deletedAt instanceof Date
+        ? deletedData.deletedAt.toISOString()
+        : deletedData.deletedAt,
+  });
   await clearShippingClassesAndCountCache();
 };
 

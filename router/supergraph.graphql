@@ -486,17 +486,52 @@ type FlatRateCost
   shippingClass: ShippingClass!
 }
 
+input FlatRateCostInput
+  @join__type(graph: PRODUCT)
+{
+  cost: Float!
+  shippingClassId: ID!
+}
+
+input FlatRateInput
+  @join__type(graph: PRODUCT)
+{
+  title: String!
+  taxStatus: Boolean!
+  cost: Float!
+  costs: [FlatRateCostInput!]!
+}
+
 type FreeShipping
   @join__type(graph: PRODUCT)
 {
   id: ID!
   title: String!
-  conditions: String!
+  conditions: FreeShippingCondition!
   minimumOrderAmount: Float
   applyMinimumOrderRuleBeforeCoupon: Boolean!
   createdBy: String!
   createdAt: String
   deletedAt: String
+}
+
+enum FreeShippingCondition
+  @join__type(graph: PRODUCT)
+{
+  NA @join__enumValue(graph: PRODUCT)
+  Coupon @join__enumValue(graph: PRODUCT)
+  Minimum_Order_Amount @join__enumValue(graph: PRODUCT)
+  Minimum_Order_Amount_or_Coupon @join__enumValue(graph: PRODUCT)
+  Minimum_Order_Amount_and_Coupon @join__enumValue(graph: PRODUCT)
+}
+
+input FreeShippingInput
+  @join__type(graph: PRODUCT)
+{
+  title: String!
+  conditions: FreeShippingCondition!
+  minimumOrderAmount: Float
+  applyMinimumOrderRuleBeforeCoupon: Boolean!
 }
 
 enum Gender
@@ -796,6 +831,14 @@ type LocalPickUp
   deletedAt: String
 }
 
+input LocalPickUpInput
+  @join__type(graph: PRODUCT)
+{
+  title: String!
+  taxStatus: Boolean!
+  cost: Float!
+}
+
 type LoginMeta
   @join__type(graph: USER)
 {
@@ -1040,8 +1083,8 @@ type Mutation
   createShippingZone(name: String!, regions: [String!]!, zipCodes: [String]): CreateShippingZoneResponseOrError! @join__field(graph: PRODUCT)
   updateShippingZone(id: ID!, name: String, regions: [String!], zipCodes: [String!], shippingMethodIds: [ID!]): UpdateShippingZoneResponseOrError! @join__field(graph: PRODUCT)
   deleteShippingZone(id: ID!): DeleteShippingZoneResponseOrError! @join__field(graph: PRODUCT)
-  createShippingMethod(title: String!, status: Boolean, description: String): CreateShippingMethodResponseOrError! @join__field(graph: PRODUCT)
-  updateShippingMethod(id: ID!, title: String, status: Boolean, description: String): UpdateShippingMethodResponseOrError! @join__field(graph: PRODUCT)
+  createShippingMethod(title: String!, status: Boolean, description: String, flatRate: FlatRateInput, freeShipping: FreeShippingInput, localPickUp: LocalPickUpInput, ups: UpsInput, shippingZoneId: ID!): CreateShippingMethodResponseOrError! @join__field(graph: PRODUCT)
+  updateShippingMethod(id: ID!, title: String, status: Boolean, description: String, flatRate: FlatRateInput, freeShipping: FreeShippingInput, localPickUp: LocalPickUpInput, ups: UpsInput, shippingZoneId: ID!): UpdateShippingMethodResponseOrError! @join__field(graph: PRODUCT)
   deleteShippingMethod(id: ID!): DeleteShippingMethodResponseOrError! @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender, company: String): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
@@ -1712,6 +1755,7 @@ type ShippingMethod
   freeShipping: FreeShipping
   localPickUp: LocalPickUp
   ups: Ups
+  shippingZone: ShippingZone
   createdBy: String!
   createdAt: String
   deletedAt: String
@@ -2127,6 +2171,12 @@ type Ups
   createdBy: String!
   createdAt: String
   deletedAt: String
+}
+
+input UpsInput
+  @join__type(graph: PRODUCT)
+{
+  title: String!
 }
 
 type User

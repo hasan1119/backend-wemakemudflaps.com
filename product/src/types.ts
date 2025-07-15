@@ -313,16 +313,43 @@ export type FlatRateCost = {
   shippingClass: ShippingClass;
 };
 
+export type FlatRateCostInput = {
+  cost: Scalars['Float']['input'];
+  shippingClassId: Scalars['ID']['input'];
+};
+
+export type FlatRateInput = {
+  cost: Scalars['Float']['input'];
+  costs: Array<FlatRateCostInput>;
+  taxStatus: Scalars['Boolean']['input'];
+  title: Scalars['String']['input'];
+};
+
 export type FreeShipping = {
   __typename?: 'FreeShipping';
   applyMinimumOrderRuleBeforeCoupon: Scalars['Boolean']['output'];
-  conditions: Scalars['String']['output'];
+  conditions: FreeShippingCondition;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy: Scalars['String']['output'];
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   minimumOrderAmount?: Maybe<Scalars['Float']['output']>;
   title: Scalars['String']['output'];
+};
+
+export enum FreeShippingCondition {
+  Coupon = 'Coupon',
+  MinimumOrderAmount = 'Minimum_Order_Amount',
+  MinimumOrderAmountAndCoupon = 'Minimum_Order_Amount_and_Coupon',
+  MinimumOrderAmountOrCoupon = 'Minimum_Order_Amount_or_Coupon',
+  Na = 'NA'
+}
+
+export type FreeShippingInput = {
+  applyMinimumOrderRuleBeforeCoupon: Scalars['Boolean']['input'];
+  conditions: FreeShippingCondition;
+  minimumOrderAmount?: InputMaybe<Scalars['Float']['input']>;
+  title: Scalars['String']['input'];
 };
 
 export enum Gender {
@@ -421,6 +448,12 @@ export type LocalPickUp = {
   id: Scalars['ID']['output'];
   taxStatus: Scalars['Boolean']['output'];
   title: Scalars['String']['output'];
+};
+
+export type LocalPickUpInput = {
+  cost: Scalars['Float']['input'];
+  taxStatus: Scalars['Boolean']['input'];
+  title: Scalars['String']['input'];
 };
 
 export type LoginMeta = {
@@ -785,8 +818,13 @@ export type MutationCreateShippingClassArgs = {
 
 export type MutationCreateShippingMethodArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
+  flatRate?: InputMaybe<FlatRateInput>;
+  freeShipping?: InputMaybe<FreeShippingInput>;
+  localPickUp?: InputMaybe<LocalPickUpInput>;
+  shippingZoneId: Scalars['ID']['input'];
   status?: InputMaybe<Scalars['Boolean']['input']>;
   title: Scalars['String']['input'];
+  ups?: InputMaybe<UpsInput>;
 };
 
 
@@ -1120,9 +1158,14 @@ export type MutationUpdateShippingClassArgs = {
 
 export type MutationUpdateShippingMethodArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
+  flatRate?: InputMaybe<FlatRateInput>;
+  freeShipping?: InputMaybe<FreeShippingInput>;
   id: Scalars['ID']['input'];
+  localPickUp?: InputMaybe<LocalPickUpInput>;
+  shippingZoneId: Scalars['ID']['input'];
   status?: InputMaybe<Scalars['Boolean']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+  ups?: InputMaybe<UpsInput>;
 };
 
 
@@ -1948,6 +1991,7 @@ export type ShippingMethod = {
   freeShipping?: Maybe<FreeShipping>;
   id: Scalars['ID']['output'];
   localPickUp?: Maybe<LocalPickUp>;
+  shippingZone?: Maybe<ShippingZone>;
   status: Scalars['Boolean']['output'];
   title: Scalars['String']['output'];
   ups?: Maybe<Ups>;
@@ -2254,6 +2298,10 @@ export type Ups = {
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   title: Scalars['String']['output'];
+};
+
+export type UpsInput = {
+  title: Scalars['String']['input'];
 };
 
 export type User = {
@@ -2668,7 +2716,11 @@ export type ResolversTypes = {
   FlatRate: ResolverTypeWrapper<FlatRate>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   FlatRateCost: ResolverTypeWrapper<FlatRateCost>;
+  FlatRateCostInput: FlatRateCostInput;
+  FlatRateInput: FlatRateInput;
   FreeShipping: ResolverTypeWrapper<FreeShipping>;
+  FreeShippingCondition: FreeShippingCondition;
+  FreeShippingInput: FreeShippingInput;
   Gender: Gender;
   GetAddressBookByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetAddressBookByIdResponseOrError']>;
   GetAddressesBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetAddressesBookResponseOrError']>;
@@ -2706,6 +2758,7 @@ export type ResolversTypes = {
   GetUsersResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUsersResponseOrError']>;
   ICategoryBase: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['ICategoryBase']>;
   LocalPickUp: ResolverTypeWrapper<LocalPickUp>;
+  LocalPickUpInput: LocalPickUpInput;
   LoginMeta: ResolverTypeWrapper<LoginMeta>;
   LoginMetaInput: LoginMetaInput;
   Media: ResolverTypeWrapper<Media>;
@@ -2809,6 +2862,7 @@ export type ResolversTypes = {
   UploadMediaResponse: ResolverTypeWrapper<UploadMediaResponse>;
   UploadMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UploadMediaResponseOrError']>;
   Ups: ResolverTypeWrapper<Ups>;
+  UpsInput: UpsInput;
   User: ResolverTypeWrapper<User>;
   UserAddress: ResolverTypeWrapper<UserAddress>;
   UserAddressInput: UserAddressInput;
@@ -2885,7 +2939,10 @@ export type ResolversParentTypes = {
   FlatRate: FlatRate;
   Float: Scalars['Float']['output'];
   FlatRateCost: FlatRateCost;
+  FlatRateCostInput: FlatRateCostInput;
+  FlatRateInput: FlatRateInput;
   FreeShipping: FreeShipping;
+  FreeShippingInput: FreeShippingInput;
   GetAddressBookByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAddressBookByIdResponseOrError'];
   GetAddressesBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAddressesBookResponseOrError'];
   GetBrandByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetBrandByIDResponseOrError'];
@@ -2922,6 +2979,7 @@ export type ResolversParentTypes = {
   GetUsersResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUsersResponseOrError'];
   ICategoryBase: ResolversInterfaceTypes<ResolversParentTypes>['ICategoryBase'];
   LocalPickUp: LocalPickUp;
+  LocalPickUpInput: LocalPickUpInput;
   LoginMeta: LoginMeta;
   LoginMetaInput: LoginMetaInput;
   Media: Media;
@@ -3017,6 +3075,7 @@ export type ResolversParentTypes = {
   UploadMediaResponse: UploadMediaResponse;
   UploadMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UploadMediaResponseOrError'];
   Ups: Ups;
+  UpsInput: UpsInput;
   User: User;
   UserAddress: UserAddress;
   UserAddressInput: UserAddressInput;
@@ -3361,7 +3420,7 @@ export type FlatRateCostResolvers<ContextType = Context, ParentType extends Reso
 
 export type FreeShippingResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FreeShipping'] = ResolversParentTypes['FreeShipping']> = {
   applyMinimumOrderRuleBeforeCoupon?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  conditions?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  conditions?: Resolver<ResolversTypes['FreeShippingCondition'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3607,7 +3666,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'defaultMainDescription' | 'isCustomized' | 'name' | 'productConfigurationType' | 'regularPrice' | 'saleQuantityUnit' | 'slug' | 'taxClassId'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
-  createShippingMethod?: Resolver<ResolversTypes['CreateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingMethodArgs, 'title'>>;
+  createShippingMethod?: Resolver<ResolversTypes['CreateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingMethodArgs, 'shippingZoneId' | 'title'>>;
   createShippingZone?: Resolver<ResolversTypes['CreateShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingZoneArgs, 'name' | 'regions'>>;
   createTag?: Resolver<ResolversTypes['CreateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTagArgs, 'name' | 'slug'>>;
   createTaxClass?: Resolver<ResolversTypes['CreateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxClassArgs, 'value'>>;
@@ -3649,7 +3708,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateProduct?: Resolver<ResolversTypes['UpdateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id'>>;
   updateProfile?: Resolver<ResolversTypes['UserProfileUpdateResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'userId'>>;
   updateShippingClass?: Resolver<ResolversTypes['UpdateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingClassArgs, 'id'>>;
-  updateShippingMethod?: Resolver<ResolversTypes['UpdateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingMethodArgs, 'id'>>;
+  updateShippingMethod?: Resolver<ResolversTypes['UpdateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingMethodArgs, 'id' | 'shippingZoneId'>>;
   updateShippingZone?: Resolver<ResolversTypes['UpdateShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingZoneArgs, 'id'>>;
   updateTag?: Resolver<ResolversTypes['UpdateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTagArgs, 'id'>>;
   updateTaxClass?: Resolver<ResolversTypes['UpdateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxClassArgs, 'id'>>;
@@ -4085,6 +4144,7 @@ export type ShippingMethodResolvers<ContextType = Context, ParentType extends Re
   freeShipping?: Resolver<Maybe<ResolversTypes['FreeShipping']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   localPickUp?: Resolver<Maybe<ResolversTypes['LocalPickUp']>, ParentType, ContextType>;
+  shippingZone?: Resolver<Maybe<ResolversTypes['ShippingZone']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ups?: Resolver<Maybe<ResolversTypes['Ups']>, ParentType, ContextType>;

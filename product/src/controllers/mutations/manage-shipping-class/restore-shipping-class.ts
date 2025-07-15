@@ -136,7 +136,18 @@ export const restoreShippingClasses = async (
     // Update Redis
     await Promise.all([
       ...restored.map((shippingClass) =>
-        setShippingClassInfoByIdInRedis(shippingClass.id, shippingClass)
+        setShippingClassInfoByIdInRedis(shippingClass.id, {
+          ...shippingClass,
+          createdBy: shippingClass.createdBy as any,
+          createdAt:
+            shippingClass.createdAt instanceof Date
+              ? shippingClass.createdAt.toISOString()
+              : shippingClass.createdAt,
+          deletedAt:
+            shippingClass.deletedAt instanceof Date
+              ? shippingClass.deletedAt.toISOString()
+              : shippingClass.deletedAt,
+        })
       ),
       clearShippingClassesAndCountCache(),
     ]);

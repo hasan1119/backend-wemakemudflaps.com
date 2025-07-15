@@ -101,9 +101,21 @@ export const getShippingClassById = async (
         };
       }
 
+      shippingClassData = {
+        ...dbShippingClass,
+        createdBy: dbShippingClass.createdBy as any,
+        createdAt:
+          dbShippingClass.createdAt instanceof Date
+            ? dbShippingClass.createdAt.toISOString()
+            : dbShippingClass.createdAt,
+        deletedAt:
+          dbShippingClass.deletedAt instanceof Date
+            ? dbShippingClass.deletedAt.toISOString()
+            : dbShippingClass.deletedAt,
+      };
+
       // Cache shipping class data in Redis
-      await setShippingClassInfoByIdInRedis(id, dbShippingClass);
-      shippingClassData = dbShippingClass;
+      await setShippingClassInfoByIdInRedis(id, shippingClassData);
     }
 
     return {
@@ -115,14 +127,8 @@ export const getShippingClassById = async (
         value: shippingClassData.value,
         description: shippingClassData.description,
         createdBy: shippingClassData.createdBy as any,
-        createdAt:
-          shippingClassData.createdAt instanceof Date
-            ? shippingClassData.createdAt.toISOString()
-            : shippingClassData.createdAt,
-        deletedAt:
-          shippingClassData.deletedAt instanceof Date
-            ? shippingClassData.deletedAt.toISOString()
-            : shippingClassData.deletedAt,
+        createdAt: shippingClassData.createdAt,
+        deletedAt: shippingClassData.deletedAt,
       },
       __typename: "ShippingClassResponse",
     };

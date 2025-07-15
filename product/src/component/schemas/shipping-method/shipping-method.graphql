@@ -8,6 +8,7 @@ type ShippingMethod {
   freeShipping: FreeShipping
   localPickUp: LocalPickUp
   ups: Ups
+  shippingZone: ShippingZone
   createdBy: String!
   createdAt: String
   deletedAt: String
@@ -36,7 +37,7 @@ type FlatRate {
 type FreeShipping {
   id: ID!
   title: String!
-  conditions: String!
+  conditions: FreeShippingCondition!
   minimumOrderAmount: Float
   applyMinimumOrderRuleBeforeCoupon: Boolean!
   createdBy: String!
@@ -79,6 +80,45 @@ type ShippingMethodPaginationResponse {
   message: String!
   shippingMethods: [ShippingMethod!]!
   total: Int!
+}
+
+# ---------------------- Input Types ----------------------
+# ---------------------- Enums ----------------------
+enum FreeShippingCondition {
+  NA
+  Coupon
+  Minimum_Order_Amount
+  Minimum_Order_Amount_or_Coupon
+  Minimum_Order_Amount_and_Coupon
+}
+
+input FlatRateInput {
+  title: String!
+  taxStatus: Boolean!
+  cost: Float!
+  costs: [FlatRateCostInput!]!
+}
+
+input FlatRateCostInput {
+  cost: Float!
+  shippingClassId: ID!
+}
+
+input FreeShippingInput {
+  title: String!
+  conditions: FreeShippingCondition!
+  minimumOrderAmount: Float
+  applyMinimumOrderRuleBeforeCoupon: Boolean!
+}
+
+input LocalPickUpInput {
+  title: String!
+  taxStatus: Boolean!
+  cost: Float!
+}
+
+input UpsInput {
+  title: String!
 }
 
 # ---------------------- Unions ----------------------
