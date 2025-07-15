@@ -315,12 +315,14 @@ export type FlatRateCost = {
 
 export type FlatRateCostInput = {
   cost: Scalars['Float']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
   shippingClassId: Scalars['ID']['input'];
 };
 
 export type FlatRateInput = {
   cost: Scalars['Float']['input'];
   costs: Array<FlatRateCostInput>;
+  id?: InputMaybe<Scalars['ID']['input']>;
   taxStatus: Scalars['Boolean']['input'];
   title: Scalars['String']['input'];
 };
@@ -348,6 +350,7 @@ export enum FreeShippingCondition {
 export type FreeShippingInput = {
   applyMinimumOrderRuleBeforeCoupon: Scalars['Boolean']['input'];
   conditions: FreeShippingCondition;
+  id?: InputMaybe<Scalars['ID']['input']>;
   minimumOrderAmount?: InputMaybe<Scalars['Float']['input']>;
   title: Scalars['String']['input'];
 };
@@ -452,6 +455,7 @@ export type LocalPickUp = {
 
 export type LocalPickUpInput = {
   cost: Scalars['Float']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
   taxStatus: Scalars['Boolean']['input'];
   title: Scalars['String']['input'];
 };
@@ -2301,6 +2305,7 @@ export type Ups = {
 };
 
 export type UpsInput = {
+  id?: InputMaybe<Scalars['ID']['input']>;
   title: Scalars['String']['input'];
 };
 

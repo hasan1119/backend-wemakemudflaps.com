@@ -149,17 +149,15 @@ export const updateShippingMethodSchema = z
     description: z.string().nullable().optional(),
     flatRate: z
       .object({
-        title: z.string().min(1, "Flat rate title is required").optional(),
-        taxStatus: z.boolean().default(false).optional(),
-        cost: z
-          .number()
-          .min(0, "Flat rate cost must be non-negative")
-          .optional(),
+        id: z.string().uuid().optional(),
+        title: z.string().min(1).optional(),
+        taxStatus: z.boolean().optional(),
+        cost: z.number().min(0).optional(),
         costs: z
           .array(
             z.object({
               id: z.string().uuid().optional(),
-              cost: z.number().min(0, "Flat rate cost must be non-negative"),
+              cost: z.number().min(0),
               shippingClassId: z.string().uuid(),
             })
           )
@@ -169,47 +167,43 @@ export const updateShippingMethodSchema = z
       .nullable(),
     freeShipping: z
       .object({
-        title: z.string().min(1, "Free shipping title is required").optional(),
-        conditions: FreeShippingConditionTypeEnum,
-        minimumOrderAmount: z
-          .number()
-          .min(0, "Minimum order amount must be non-negative")
-          .optional()
-          .nullable(),
-        applyMinimumOrderRuleBeforeCoupon: z.boolean(),
+        id: z.string().uuid().optional(),
+        title: z.string().min(1).optional(),
+        conditions: FreeShippingConditionTypeEnum.optional(),
+        minimumOrderAmount: z.number().min(0).optional().nullable(),
+        applyMinimumOrderRuleBeforeCoupon: z.boolean().optional(),
       })
       .optional()
       .nullable(),
     localPickUp: z
       .object({
-        title: z.string().min(1, "Local pick up title is required").optional(),
-        taxStatus: z.boolean().default(false).optional(),
-        cost: z
-          .number()
-          .min(0, "Local pick up cost must be non-negative")
-          .optional()
-          .nullable(),
+        id: z.string().uuid().optional(),
+        title: z.string().min(1).optional(),
+        taxStatus: z.boolean().optional(),
+        cost: z.number().min(0).optional().nullable(),
       })
       .optional()
       .nullable(),
     ups: z
       .object({
-        title: z.string().min(1, "UPS title is required").optional(),
+        id: z.string().uuid().optional(),
+        title: z.string().min(1).optional(),
       })
       .optional()
       .nullable(),
-    shippingZoneId: z.string().uuid("Invalid UUID format").optional(),
   })
   .superRefine((data, ctx) => {
     const methods = [
-      data.flatRate,
-      data.freeShipping,
-      data.localPickUp,
-      data.ups,
+      { key: "flatRate", value: data.flatRate },
+      { key: "freeShipping", value: data.freeShipping },
+      { key: "localPickUp", value: data.localPickUp },
+      { key: "ups", value: data.ups },
     ];
-    const count = methods.filter(Boolean).length;
 
-    if (count !== 1) {
+    const active = methods.filter((m) => !!m.value);
+
+    // 1. Only one shipping method should be provided
+    if (active.length !== 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:
@@ -217,6 +211,24 @@ export const updateShippingMethodSchema = z
         path: [],
       });
     }
+
+    // 2. If any fields are provided inside a method, then `id` must also be provided
+    active.forEach((method) => {
+      const { key, value } = method;
+      if (value) {
+        const hasOtherFields = Object.entries(value).some(
+          ([field, val]) => field !== "id" && val !== undefined
+        );
+
+        if (hasOtherFields && !value.id) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `ID is required for ${key} when updating its fields`,
+            path: [key, "id"],
+          });
+        }
+      }
+    });
   });
 
 /**

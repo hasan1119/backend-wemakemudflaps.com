@@ -28,6 +28,7 @@ import {
   updateCategoryPosition,
   updateProduct,
   updateShippingClass,
+  updateShippingMethod,
   updateShippingZone,
   updateTag,
   updateTaxClass,
@@ -189,11 +190,6 @@ export const productMutationsResolver = {
     restoreTaxRates,
 
     /**
-     * Creates a new shipping method.
-     */
-    createShippingMethod,
-
-    /**
      * Creates a new shipping zone.
      */
     createShippingZone,
@@ -207,5 +203,15 @@ export const productMutationsResolver = {
      * Updates detailed information for a specific shipping zone.
      */
     updateShippingZone,
+
+    /**
+     * Creates a new shipping method.
+     */
+    createShippingMethod,
+
+    /**
+     * Updates detailed information for a specific shipping method.
+     */
+    updateShippingMethod,
   },
 };

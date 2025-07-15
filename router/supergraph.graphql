@@ -489,6 +489,7 @@ type FlatRateCost
 input FlatRateCostInput
   @join__type(graph: PRODUCT)
 {
+  id: ID
   cost: Float!
   shippingClassId: ID!
 }
@@ -496,6 +497,7 @@ input FlatRateCostInput
 input FlatRateInput
   @join__type(graph: PRODUCT)
 {
+  id: ID
   title: String!
   taxStatus: Boolean!
   cost: Float!
@@ -528,6 +530,7 @@ enum FreeShippingCondition
 input FreeShippingInput
   @join__type(graph: PRODUCT)
 {
+  id: ID
   title: String!
   conditions: FreeShippingCondition!
   minimumOrderAmount: Float
@@ -834,6 +837,7 @@ type LocalPickUp
 input LocalPickUpInput
   @join__type(graph: PRODUCT)
 {
+  id: ID
   title: String!
   taxStatus: Boolean!
   cost: Float!
@@ -2176,6 +2180,7 @@ type Ups
 input UpsInput
   @join__type(graph: PRODUCT)
 {
+  id: ID
   title: String!
 }
 

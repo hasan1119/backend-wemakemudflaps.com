@@ -93,6 +93,7 @@ enum FreeShippingCondition {
 }
 
 input FlatRateInput {
+  id: ID
   title: String!
   taxStatus: Boolean!
   cost: Float!
@@ -100,11 +101,13 @@ input FlatRateInput {
 }
 
 input FlatRateCostInput {
+  id: ID
   cost: Float!
   shippingClassId: ID!
 }
 
 input FreeShippingInput {
+  id: ID
   title: String!
   conditions: FreeShippingCondition!
   minimumOrderAmount: Float
@@ -112,12 +115,14 @@ input FreeShippingInput {
 }
 
 input LocalPickUpInput {
+  id: ID
   title: String!
   taxStatus: Boolean!
   cost: Float!
 }
 
 input UpsInput {
+  id: ID
   title: String!
 }
 
