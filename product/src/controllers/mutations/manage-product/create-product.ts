@@ -1,6 +1,13 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearBrandsAndCountCache,
+  clearCategoriesAndCountCache,
+  clearShippingClassesAndCountCache,
+  clearTagsAndCountCache,
+  clearTaxClassesAndCountCache,
+} from "../../../helper/redis";
+import {
   CreateProductResponseOrError,
   MutationCreateProductArgs,
 } from "../../../types";
@@ -13,6 +20,7 @@ import {
   findProductBySlug,
   getBrandsByIds,
   getCategoryByIds,
+  getProductAttributesByIds,
   getProductsByIds,
   getShippingClassById,
   getTagsByIds,
@@ -93,6 +101,7 @@ export const createProduct = async (
       variations,
       upsellIds,
       crossSellIds,
+      attributeIds,
     } = result.data;
 
     // Check database for existing product name
@@ -240,6 +249,19 @@ export const createProduct = async (
       }
     }
 
+    if (attributeIds && attributeIds.length > 0) {
+      const attributes = await getProductAttributesByIds(attributeIds);
+
+      if (attributes.length !== attributeIds.length) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "One or more product attributes not found",
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
     // Create the product in the database
     await createProductService(
       {
@@ -248,6 +270,15 @@ export const createProduct = async (
       } as any,
       user.id
     );
+
+    // Clear caches for related entities
+    await Promise.all([
+      clearBrandsAndCountCache(),
+      clearCategoriesAndCountCache(),
+      clearShippingClassesAndCountCache(),
+      clearTagsAndCountCache(),
+      clearTaxClassesAndCountCache(),
+    ]);
 
     return {
       statusCode: 201,

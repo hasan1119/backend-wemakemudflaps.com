@@ -113,6 +113,10 @@ export { getTaxRateById } from "./queries/tax-rate/get-tax-rate-by-id";
  * 3. Facilitates listing all shipping methods in the system.
  */
 export { createShippingMethod } from "./mutations/manage-shipping-method/create-shipping-method";
+export { deleteShippingMethod } from "./mutations/manage-shipping-method/delete-shipping-method";
+export { updateShippingMethod } from "./mutations/manage-shipping-method/update-shipping-method";
+export { getAllShippingMethods } from "./queries/shipping-method/get-shipping-method";
+export { getShippingMethodById } from "./queries/shipping-method/get-shipping-method-by-id";
 
 /*
  * Exports GraphQL queries and mutations for managing shipping zone data.

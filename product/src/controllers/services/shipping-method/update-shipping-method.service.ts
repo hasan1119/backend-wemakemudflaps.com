@@ -1,39 +1,139 @@
-import { ShippingMethod } from "../../../entities";
-import { updateShippingMethodSchema } from "../../../utils/data-validation/";
-import { shippingMethodRepository } from "../repositories/repositories";
+import { FlatRate, ShippingMethod } from "../../../entities";
+import { FlatRateCost } from "../../../entities/flat-rate-cost.entity";
+import { MutationUpdateShippingMethodArgs } from "../../../types";
+import {
+  flatRateCostRepository,
+  flatRateRepository,
+  freeShippingRepository,
+  localPickUpRepository,
+  shippingMethodRepository,
+  upsRepository,
+} from "../repositories/repositories";
 
 /**
- * Updates a shipping method's title and status only.
+ * Updates an existing shipping method with the provided data.
  *
  * Workflow:
- * 1. Validates the input data using a schema.
- * 2. Updates the shipping method in the repository.
- * 3. Returns the updated ShippingMethod entity.
+ * 1. Finds the shipping method by ID.
+ * 2. Applies the changes from the input.
+ * 3. Saves and returns the updated shipping method entity.
  *
- * @param shippingMethodId - The UUID of the shipping method to update.
- * @param data - Partial data to update (title, status).
- * @returns A promise resolving to the updated shipping method entity.
+ * @param shippingMethodId - The ID of the shipping method to update.
+ * @param data - The data to update on the shipping method.
+ * @returns The updated ShippingMethod entity.
  */
 export const updateShippingMethod = async (
-  shippingMethodId: string,
-  data: any // Should be typed according to your GraphQL args
+  shippingMethod: ShippingMethod,
+  data: MutationUpdateShippingMethodArgs
 ): Promise<ShippingMethod> => {
-  // Validate input
-  const parsed = updateShippingMethodSchema.safeParse({
-    id: shippingMethodId,
-    ...data,
-  });
-  if (!parsed.success) {
-    throw new Error(parsed.error.errors.map((e) => e.message).join(", "));
+  if (data.title !== undefined) shippingMethod.title = data.title;
+  if (data.status !== undefined) shippingMethod.status = data.status;
+  if (data.description !== undefined)
+    shippingMethod.description = data.description;
+
+  // Reset all embedded shipping method types
+  shippingMethod.flatRate = null;
+  shippingMethod.freeShipping = null;
+  shippingMethod.localPickUp = null;
+  shippingMethod.ups = null;
+
+  // 1. Replace with FlatRate
+  if (data.flatRate) {
+    const flatRateData = data.flatRate;
+
+    let flatRate: FlatRate;
+    if (flatRateData.id) {
+      flatRate = await flatRateRepository.findOneOrFail({
+        where: { id: flatRateData.id },
+        relations: ["costs"],
+      });
+
+      flatRate.title = flatRateData.title ?? null;
+      flatRate.taxStatus = flatRateData.taxStatus ?? null;
+      flatRate.cost = flatRateData.cost ?? null;
+
+      if (flatRateData.costs) {
+        const updatedCosts: FlatRateCost[] = [];
+
+        for (const costData of flatRateData.costs) {
+          let cost: FlatRateCost;
+
+          if (costData.id) {
+            cost = await flatRateCostRepository.findOneByOrFail({
+              id: costData.id,
+            });
+            cost.cost = costData.cost;
+            cost.shippingClass = { id: costData.shippingClassId } as any;
+          } else {
+            cost = flatRateCostRepository.create({
+              cost: costData.cost,
+              shippingClass: { id: costData.shippingClassId } as any,
+              flatRate: { id: flatRate.id } as any,
+            });
+          }
+
+          updatedCosts.push(cost);
+        }
+
+        flatRate.costs = updatedCosts;
+      }
+
+      await flatRateRepository.save(flatRate);
+      shippingMethod.flatRate = flatRate;
+    }
   }
-  const { title, status } = parsed.data;
 
-  await shippingMethodRepository.update(shippingMethodId, {
-    ...(title !== undefined && title !== null && { title }),
-    ...(status !== undefined && status !== null && { status }),
-  });
+  // 2. Replace with FreeShipping
+  else if (data.freeShipping) {
+    const freeShippingData = data.freeShipping;
 
-  return await shippingMethodRepository.findOneByOrFail({
-    id: shippingMethodId,
-  });
+    if (freeShippingData.id) {
+      const freeShippingEntity = await freeShippingRepository.findOneOrFail({
+        where: { id: freeShippingData.id },
+      });
+
+      freeShippingEntity.title = freeShippingData.title ?? null;
+      freeShippingEntity.conditions = freeShippingData.conditions ?? null;
+      freeShippingEntity.minimumOrderAmount =
+        freeShippingData.minimumOrderAmount ?? null;
+
+      shippingMethod.freeShipping = freeShippingEntity;
+    }
+  }
+
+  // 3. Replace with LocalPickUp
+  else if (data.localPickUp) {
+    const localPickUpData = data.localPickUp;
+
+    if (localPickUpData.id) {
+      const localPickUpEntity = await localPickUpRepository.findOneOrFail({
+        where: { id: localPickUpData.id },
+      });
+
+      localPickUpEntity.title = localPickUpData.title ?? null;
+      localPickUpEntity.cost = localPickUpData.cost ?? null;
+      localPickUpEntity.taxStatus = localPickUpData.taxStatus ?? null;
+
+      shippingMethod.localPickUp = localPickUpEntity;
+    }
+  }
+
+  // 4. Replace with UPS
+  else if (data.ups) {
+    const upsData = data.ups;
+
+    if (upsData.id) {
+      const upsEntity = await upsRepository.findOneOrFail({
+        where: { id: upsData.id },
+      });
+
+      upsEntity.title = upsData.title ?? null;
+
+      shippingMethod.ups = upsEntity;
+    }
+  }
+
+  // Save updated shipping method
+  await shippingMethodRepository.save(shippingMethod);
+  return shippingMethod;
 };

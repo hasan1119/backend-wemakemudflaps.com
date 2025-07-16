@@ -5,38 +5,38 @@ import {
   setShippingClassInfoByIdInRedis,
 } from "../../../helper/redis";
 import {
-  CreateShippingMethodResponseOrError,
-  MutationCreateShippingMethodArgs,
+  MutationUpdateShippingMethodArgs,
+  UpdateShippingMethodResponseOrError,
 } from "../../../types";
-import { createShippingMethodSchema } from "../../../utils/data-validation";
+import { updateShippingMethodSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  createShippingMethod as createShippingMethodService,
   getShippingClassesByIds,
-  getShippingZoneById,
+  getShippingMethodById,
+  updateShippingMethod as updateShippingMethodService,
 } from "../../services";
 
-/** Handles the creation of a new shipping method in the system.
+/** Handles the updating of a shipping method in the system.
  *
  * Workflow:
- * 1. Verifies user authentication and permission to create shipping methods.
+ * 1. Verifies user authentication and permission to update shipping methods.
  * 2. Validates input data using Zod schema.
  * 3. Checks if flat rate shipping method is provided and validates shipping classes.
  * 4. Checks if the shipping zone exists.
- * 5. Creates the shipping method in the database with audit information from the authenticated user.
- * 6. Returns a success response or error if validation, permission, or creation fails.
+ * 5. Updates the shipping method in the database with audit information from the authenticated user.
+ * 6. Returns a success response or error if validation, permission, or update fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
  * @param args - Input arguments containing shipping method details.
  * @param context - GraphQL context containing authenticated user information.
- * @returns A promise resolving to a CreateShippingMethodResponseOrError object containing status, message, and errors if applicable.
+ * @returns A promise resolving to a UpdateShippingMethodResponseOrError object containing status, message, and errors if applicable.
  */
-export const createShippingMethod = async (
+export const updateShippingMethod = async (
   _: any,
-  args: MutationCreateShippingMethodArgs,
+  args: MutationUpdateShippingMethodArgs,
   { user }: Context
-): Promise<CreateShippingMethodResponseOrError> => {
+): Promise<UpdateShippingMethodResponseOrError> => {
   try {
     // Verify user authentication
     const authError = checkUserAuth(user);
@@ -45,7 +45,7 @@ export const createShippingMethod = async (
     // Check if user has permission to create a shipping method
     const hasPermission = await checkUserPermission({
       user,
-      action: "canCreate",
+      action: "canUpdate",
       entity: "shipping settings",
     });
 
@@ -59,7 +59,7 @@ export const createShippingMethod = async (
     }
 
     // Validate input data with Zod schema
-    const result = await createShippingMethodSchema.safeParseAsync(args);
+    const result = await updateShippingMethodSchema.safeParseAsync(args);
 
     // Return detailed validation errors if input is invalid
     if (!result.success) {
@@ -77,7 +77,7 @@ export const createShippingMethod = async (
       };
     }
 
-    const { shippingZoneId, flatRate } = result.data;
+    const { id, flatRate } = result.data;
 
     // Check if flat rate shipping method is provided
     if (flatRate) {
@@ -140,25 +140,27 @@ export const createShippingMethod = async (
       }
     }
 
-    // Shipping zone exists check can be added here if needed
-    const shippingZone = await getShippingZoneById(shippingZoneId);
+    const shippingMethodExists = await getShippingMethodById(id);
 
-    if (!shippingZone) {
+    if (!shippingMethodExists) {
       return {
         statusCode: 404,
         success: false,
-        message: "Shipping zone not found",
+        message: "Shipping method not found",
         __typename: "ErrorResponse",
       };
     }
 
     // Create the shipping method using the service
-    const shippingMethod = await createShippingMethodService(args, user.id);
+    const shippingMethod = await updateShippingMethodService(
+      shippingMethodExists,
+      args
+    );
 
     return {
-      statusCode: 201,
+      statusCode: 200,
       success: true,
-      message: "Shipping method created successfully",
+      message: "Shipping method updated successfully",
       shippingMethod: {
         ...shippingMethod,
         flatRate: {
@@ -255,7 +257,7 @@ export const createShippingMethod = async (
       __typename: "ShippingMethodResponse",
     };
   } catch (error) {
-    console.error("Error creating shipping method:", error);
+    console.error("Error updating shipping method:", error);
     return {
       statusCode: 500,
       success: false,

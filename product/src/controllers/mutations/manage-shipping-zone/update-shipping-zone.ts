@@ -87,7 +87,11 @@ export const updateShippingZone = async (
     }
 
     // Attempt to update the shipping zone
-    const updatedShippingZone = await updateShippingZoneService(id, args);
+    const updatedShippingZone = await updateShippingZoneService(
+      id,
+      args,
+      shippingZoneExists
+    );
 
     return {
       statusCode: 200,

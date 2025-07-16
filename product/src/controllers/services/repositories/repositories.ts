@@ -3,6 +3,7 @@ import {
   Category,
   Coupon,
   FlatRate,
+  FlatRateCost,
   FreeShipping,
   LocalPickUp,
   Product,
@@ -220,3 +221,10 @@ export const upsRepository = AppDataSource.getRepository(Ups);
  * 1. Retrieves the ShippingZone repository from AppDataSource for database operations.
  */
 export const shippingZoneRepository = AppDataSource.getRepository(ShippingZone);
+
+/* Initializes repository for FlatRateCost entity.
+ *
+ * Workflow:
+ * 1. Retrieves the FlatRateCost repository from AppDataSource for database operations.
+ */
+export const flatRateCostRepository = AppDataSource.getRepository(FlatRateCost);

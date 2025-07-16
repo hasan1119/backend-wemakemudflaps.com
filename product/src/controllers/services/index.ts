@@ -15,6 +15,50 @@ export { checkUserAuth } from "./session-check/session-check";
 export { checkUserPermission } from "./permission/get-user-permission.service";
 
 /**
+ * Exports services for managing product attributes.
+ *
+ * Workflow:
+ * 1. Provides functions to retrieve product attributes by ID or multiple IDs.
+ */
+export {
+  findAttributeByName,
+  findAttributeByNameToUpdate,
+  findAttributeBySlug,
+  findAttributeBySlugToUpdate,
+  getAttributesById,
+  getProductAttributesByIds,
+  paginateProductAttributes,
+  paginateSystemProductAttributes,
+} from "./product-attribute/get-product-attribute.service";
+
+/**
+ * Exports services for creating product attributes.
+ *
+ * Workflow:
+ * 1. Provides a function to create a product attribute based on input.
+ */
+export {
+  createAttributeWithValues,
+  createSystemAttributeWithValues,
+} from "./product-attribute/create-product-attribute.service";
+
+/**
+ * Exports services for deleting product attributes.
+ *
+ * Workflow:
+ * 1. Provides functions for hard deleting entities.
+ */
+export { hardDeleteAttribute } from "./product-attribute/delete-product-attribute.service";
+
+/**
+ * Exports services for updating product attributes.
+ *
+ * Workflow:
+ * 1. Provides functions to update basic fields (name, slug, values).
+ */
+export { updateAttributeWithValues } from "./product-attribute/update-product-attribute.service";
+
+/**
  * Exports services for creating categories and subcategories.
  *
  * Workflow:
@@ -307,7 +351,6 @@ export {
  * 3. Supports paginated retrieval of products.
  */
 export {
-  countProductsWithSearch,
   findProductByName,
   findProductByNameToUpdate,
   findProductBySlug,
@@ -398,10 +441,7 @@ export { createShippingMethod } from "./shipping-method/create-shipping-method.s
  * Workflow:
  * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
  */
-export {
-  hardDeleteShippingMethod,
-  softDeleteShippingMethod,
-} from "./shipping-method/delete-shipping-method.service";
+export { deleteShippingMethod } from "./shipping-method/delete-shipping-method.service";
 
 /**
  * Exports services for fetching and counting shipping methods.

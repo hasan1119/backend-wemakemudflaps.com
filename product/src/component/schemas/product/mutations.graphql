@@ -15,7 +15,6 @@ type Mutation {
     tagIds: [ID!]
     defaultMainDescription: String!
     defaultShortDescription: String
-    defaultTags: [String!]
     categoryIds: [ID!]
     warrantyDigit: Int
     defaultWarrantyPeriod: DefaultWarrantyPeriod
@@ -51,7 +50,7 @@ type Mutation {
     shippingClassId: ID
     upsellIds: [ID!]
     crossSellIds: [ID!]
-    attributes: [ProductAttributeInput!]
+    attributeIds: [ID!]
     variations: [ProductVariationInput!]
     purchaseNote: String
     enableReviews: Boolean
@@ -76,7 +75,6 @@ type Mutation {
     tagIds: [ID!]
     defaultMainDescription: String
     defaultShortDescription: String
-    defaultTags: [String!]
     categoryIds: [ID!]
     warrantyDigit: Int
     defaultWarrantyPeriod: DefaultWarrantyPeriod
@@ -112,7 +110,7 @@ type Mutation {
     shippingClassId: ID
     upsellIds: [ID!]
     crossSellIds: [ID!]
-    attributes: [ProductAttributeInput!]
+    attributeIds: [ID!]
     variations: [ProductVariationInput!]
     purchaseNote: String
     enableReviews: Boolean

@@ -4,16 +4,12 @@
 type ProductAttribute {
   id: ID! # Unique identifier
   name: String! # Name of the attribute
+  slug: String! # URL-friendly identifier
+  systemAttribute: Boolean! # Indicates if this is a system attribute
   values: [ProductAttributeValue!]! # List of possible values for this attribute
+  createdBy: CreatedBy! # Creator identifier
   createdAt: String! # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion (if any)
-  isVisible: Boolean! # For customer visibility
-}
-
-# Input type for creating or updating product attributes
-input ProductAttributeInput {
-  id: ID # Optional ID for update
-  name: String! # Attribute name
 }
 
 # ---------------------- Product Attribute Value Types ----------------------
@@ -27,9 +23,43 @@ type ProductAttributeValue {
   deletedAt: String # Timestamp of soft deletion
 }
 
-# Input type for creating or updating attribute values
+# ---------------------- Input Types for Mutations ----------------------
 input ProductAttributeValueInput {
-  id: ID # Optional ID for update
-  value: String! # The value text
-  attributeId: ID! # Related attribute ID
+  value: String! # The value for the attribute
 }
+
+# ---------------------- Response Types ----------------------
+type ProductAttributeResponse {
+  statusCode: Int!
+  success: Boolean! # Indicates if the operation was successful
+  message: String # Optional message
+  attribute: ProductAttribute # The created or updated product attribute
+}
+
+type ProductAttributePaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String
+  attributes: [ProductAttribute!]! # List of product attributes
+  totalCount: Int! # Total number of attributes
+}
+
+# ---------------------- Unions ----------------------
+union CreateProductAttributeResponseOrError =
+    BaseResponse
+  | ProductAttributeResponse
+  | ErrorResponse
+union GetProductAttributeByIDResponseOrError =
+    BaseResponse
+  | ProductAttributeResponse
+  | ErrorResponse
+union GetAllProductAttributesResponseOrError =
+    BaseResponse
+  | ProductAttributePaginationResponse
+  | ErrorResponse
+union UpdateProductAttributeResponseOrError =
+    BaseResponse
+  | ProductAttributeResponse
+  | ErrorResponse
+union DeleteProductAttributeResponseOrError = BaseResponse | ErrorResponse
+union RestoreProductAttributeResponseOrError = BaseResponse | ErrorResponse

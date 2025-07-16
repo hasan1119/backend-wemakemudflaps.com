@@ -7,6 +7,8 @@ import {
   categoryMutationsDef,
   categoryQueriesDef,
   productAttributeDef,
+  productAttributeMutationsDef,
+  productAttributeQueriesDef,
   productDef,
   productMutationsDef,
   productPricingDef,
@@ -104,6 +106,12 @@ export const typeDefs = mergeTypeDefs([
 
   // Product attribute schema definition
   productAttributeDef,
+
+  // Schema for product attribute queries (fetching product attribute data)
+  productAttributeQueriesDef,
+
+  // Schema for product attribute mutations (modifying product attribute data)
+  productAttributeMutationsDef,
 
   // Product pricing schema definition
   productPricingDef,

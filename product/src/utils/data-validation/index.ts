@@ -11,6 +11,19 @@ export {
 } from "./shipping-method/shipping-method";
 
 /**
+ * Exports product attribute related schemas for product attribute management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, updating, and sorting product attributes.
+ */
+export {
+  CreateProductAttributeInputSchema,
+  productAttributeSortingSchema,
+  ProductAttributeValueInputSchema,
+  UpdateProductAttributeInputSchema,
+} from "./product/product-attribute/product-attribute";
+
+/**
  * Exports category-related schemas for category management.
  *
  * Workflow:

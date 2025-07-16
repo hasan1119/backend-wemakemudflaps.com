@@ -35,7 +35,6 @@ export const updateProduct = async (
     data.defaultMainDescription ?? product.defaultMainDescription;
   product.defaultShortDescription =
     data.defaultShortDescription ?? product.defaultShortDescription;
-  product.defaultTags = data.defaultTags ?? product.defaultTags;
   product.regularPrice = data.regularPrice ?? product.regularPrice;
   product.salePrice = data.salePrice ?? product.salePrice;
 
@@ -115,10 +114,8 @@ export const updateProduct = async (
       : null;
   }
 
-  if (data.attributes !== undefined) {
-    product.attributes = data.attributes.map((attr) => ({
-      id: attr.id,
-    })) as any;
+  if (data.attributeIds !== undefined) {
+    product.attributes = data.attributeIds.map((id) => ({ id })) as any;
   }
 
   // Handle variations update

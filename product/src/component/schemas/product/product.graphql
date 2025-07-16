@@ -19,7 +19,6 @@ type Product @key(fields: "id") {
   # ---------------------- Descriptions & Tags ----------------------
   defaultMainDescription: String! # Full product description
   defaultShortDescription: String # Short description
-  defaultTags: [String!] # Searchable tags
   customBadge: String # Custom badge text (e.g., "New")
   purchaseNote: String # Note shown after purchase
   # ---------------------- Categorization ----------------------

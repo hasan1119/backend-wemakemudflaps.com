@@ -28,7 +28,6 @@ export const createProduct = async (
     videos,
     defaultMainDescription,
     defaultShortDescription,
-    defaultTags,
     regularPrice,
     salePrice,
     salePriceStartAt,
@@ -42,7 +41,7 @@ export const createProduct = async (
     sku,
     model,
     categoryIds,
-    attributes,
+    attributeIds,
     brandIds,
     crossSellIds,
     shippingClassId,
@@ -102,7 +101,6 @@ export const createProduct = async (
     videos,
     defaultMainDescription,
     defaultShortDescription,
-    defaultTags,
     regularPrice,
     salePrice,
     salePriceStartAt,
@@ -151,8 +149,8 @@ export const createProduct = async (
     taxStatus: taxStatus,
     shippingClass: shippingClassId ? ({ id: shippingClassId } as any) : null,
     tierPricingInfo: (createdTierPricing as any) ?? null,
-    attributes: attributes?.length
-      ? (attributes.map((attr) => ({ id: attr.id })) as any)
+    attributes: attributeIds?.length
+      ? (attributeIds.map((id) => ({ id })) as any)
       : [],
     variations: processedVariations?.length ? (processedVariations as any) : [],
     upsells: upsellIds?.length ? (upsellIds.map((id) => ({ id })) as any) : [],

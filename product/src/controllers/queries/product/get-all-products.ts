@@ -1,6 +1,7 @@
 import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { Category } from "../../../entities";
 import {
   GetProductsResponseOrError,
   QueryGetAllProductsArgs,
@@ -14,6 +15,34 @@ import {
   checkUserPermission,
   paginateProducts,
 } from "../../services";
+
+/**
+ * Maps a Category entity to GraphQL-compatible plain object including nested subcategories recursively.
+ */
+function mapCategoryRecursive(category: Category): any {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    thumbnail: category.thumbnail as any,
+    position: category.position,
+    totalProducts: 0,
+    createdBy: category.createdBy as any,
+    createdAt:
+      category.createdAt instanceof Date
+        ? category.createdAt.toISOString()
+        : category.createdAt,
+    deletedAt:
+      category.deletedAt instanceof Date
+        ? category.deletedAt.toISOString()
+        : category.deletedAt || null,
+    subCategories: (category.subCategories || []).map(mapCategoryRecursive),
+    parentCategory: category.parentCategory
+      ? mapCategoryRecursive(category.parentCategory)
+      : null,
+  };
+}
 
 // Combine pagination and sorting schemas for validation
 const combinedSchema = z.intersection(paginationSchema, productSortingSchema);
@@ -143,8 +172,7 @@ export const getAllProducts = async (
       })),
       defaultMainDescription: product.defaultMainDescription,
       defaultShortDescription: product.defaultShortDescription,
-      defaultTags: product.defaultTags,
-      categories: product.categories as any,
+      categories: product.categories?.map(mapCategoryRecursive),
       warrantyDigit: product.warrantyDigit,
       defaultWarrantyPeriod: product.defaultWarrantyPeriod,
       warrantyPolicy: product.warrantyPolicy,
@@ -179,7 +207,31 @@ export const getAllProducts = async (
       shippingClass: product.shippingClass as any,
       upsells: product.upsells as any,
       crossSells: product.crossSells as any,
-      attributes: product.attributes as any,
+      attributes: product.attributes.map((attribute) => ({
+        ...attribute,
+        values: attribute.values.map((value) => ({
+          ...value,
+          attribute: value.attribute as any,
+          createdAt:
+            value.createdAt instanceof Date
+              ? value.createdAt.toISOString()
+              : value.createdAt,
+          deletedAt: value.deletedAt
+            ? value.deletedAt instanceof Date
+              ? value.deletedAt.toISOString()
+              : value.deletedAt
+            : null,
+        })),
+        createdAt:
+          attribute.createdAt instanceof Date
+            ? attribute.createdAt.toISOString()
+            : attribute.createdAt,
+        deletedAt: attribute.deletedAt
+          ? attribute.deletedAt instanceof Date
+            ? attribute.deletedAt.toISOString()
+            : attribute.deletedAt
+          : null,
+      })),
       variations: product.variations as any,
       purchaseNote: product.purchaseNote,
       enableReviews: product.enableReviews,

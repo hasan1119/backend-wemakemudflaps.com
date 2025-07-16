@@ -12,6 +12,7 @@ import {
   findProductBySlugToUpdate,
   getBrandsByIds,
   getCategoryByIds,
+  getProductAttributesByIds,
   getProductById,
   getProductsByIds,
   getShippingClassById,
@@ -92,6 +93,7 @@ export const updateProduct = async (
       taxClassId,
       upsellIds,
       crossSellIds,
+      attributeIds,
     } = result.data;
 
     // Get current product data from DB
@@ -246,6 +248,19 @@ export const updateProduct = async (
           statusCode: 404,
           success: false,
           message: `One or more cross-sell products not found`,
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
+    if (attributeIds && attributeIds.length > 0) {
+      const attributes = await getProductAttributesByIds(attributeIds);
+
+      if (attributes.length !== attributeIds.length) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "One or more product attributes not found",
           __typename: "BaseResponse",
         };
       }

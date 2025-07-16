@@ -1,5 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { Category } from "../../../entities";
 import {
   GetProductByIdResponseOrError,
   QueryGetProductArgs,
@@ -10,6 +11,34 @@ import {
   checkUserPermission,
   getProductById as getProductByIdService,
 } from "../../services";
+
+/**
+ * Maps a Category entity to GraphQL-compatible plain object including nested subcategories recursively.
+ */
+function mapCategoryRecursive(category: Category): any {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description || null,
+    thumbnail: category.thumbnail as any,
+    position: category.position,
+    totalProducts: 0,
+    createdBy: category.createdBy as any,
+    createdAt:
+      category.createdAt instanceof Date
+        ? category.createdAt.toISOString()
+        : category.createdAt,
+    deletedAt:
+      category.deletedAt instanceof Date
+        ? category.deletedAt.toISOString()
+        : category.deletedAt || null,
+    subCategories: (category.subCategories || []).map(mapCategoryRecursive),
+    parentCategory: category.parentCategory
+      ? mapCategoryRecursive(category.parentCategory)
+      : null,
+  };
+}
 
 /**
  * Handles retrieving a product by its ID with validation and permission checks.
@@ -126,8 +155,7 @@ export const getProductById = async (
         })),
         defaultMainDescription: productData.defaultMainDescription,
         defaultShortDescription: productData.defaultShortDescription,
-        defaultTags: productData.defaultTags,
-        categories: productData.categories as any,
+        categories: productData.categories?.map(mapCategoryRecursive),
         warrantyDigit: productData.warrantyDigit,
         defaultWarrantyPeriod: productData.defaultWarrantyPeriod,
         warrantyPolicy: productData.warrantyPolicy,
@@ -162,7 +190,31 @@ export const getProductById = async (
         shippingClass: productData.shippingClass as any,
         upsells: productData.upsells as any,
         crossSells: productData.crossSells as any,
-        attributes: productData.attributes as any,
+        attributes: productData.attributes.map((attribute) => ({
+          ...attribute,
+          values: attribute.values.map((value) => ({
+            ...value,
+            attribute: value.attribute as any,
+            createdAt:
+              value.createdAt instanceof Date
+                ? value.createdAt.toISOString()
+                : value.createdAt,
+            deletedAt: value.deletedAt
+              ? value.deletedAt instanceof Date
+                ? value.deletedAt.toISOString()
+                : value.deletedAt
+              : null,
+          })),
+          createdAt:
+            attribute.createdAt instanceof Date
+              ? attribute.createdAt.toISOString()
+              : attribute.createdAt,
+          deletedAt: attribute.deletedAt
+            ? attribute.deletedAt instanceof Date
+              ? attribute.deletedAt.toISOString()
+              : attribute.deletedAt
+            : null,
+        })),
         variations: productData.variations as any,
         purchaseNote: productData.purchaseNote,
         enableReviews: productData.enableReviews,
@@ -171,9 +223,14 @@ export const getProductById = async (
         isPreview: productData.isPreview,
         isVisible: productData.isVisible,
         createdBy: productData.createdBy as any,
-        createdAt: productData.createdAt.toISOString(),
+        createdAt:
+          productData.createdAt instanceof Date
+            ? productData.createdAt.toISOString()
+            : productData.createdAt,
         deletedAt: productData.deletedAt
-          ? productData.deletedAt?.toISOString()
+          ? productData.deletedAt instanceof Date
+            ? productData.deletedAt.toISOString()
+            : productData.deletedAt
           : null,
       },
       __typename: "ProductResponse",

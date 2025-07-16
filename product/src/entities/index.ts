@@ -180,3 +180,11 @@ export { ShippingMethod } from "./shipping-method.entity";
  * 1. Defines geographical areas for shipping methods.
  */
 export { ShippingZone } from "./shipping-zone.entity";
+
+/**
+ * Exports the FlatRateCost entity for managing costs associated with flat rate shipping.
+ *
+ * Workflow:
+ * 1. Defines costs for different shipping classes under flat rate shipping.
+ */
+export { FlatRateCost } from "./flat-rate-cost.entity";

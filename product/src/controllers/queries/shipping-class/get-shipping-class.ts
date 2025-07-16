@@ -131,9 +131,7 @@ export const getAllShippingClass = async (
 
       // Map database shipping classes to response format
       shippingClassesData = dbShippingClasses.map((shippingClass) => ({
-        id: shippingClass.id,
-        value: shippingClass.value,
-        description: shippingClass.description,
+        ...shippingClass,
         totalProducts: shippingClass.products?.length || 0,
         createdBy: shippingClass.createdBy as any,
         createdAt: shippingClass.createdAt?.toISOString() || null,

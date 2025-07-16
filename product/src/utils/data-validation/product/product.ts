@@ -196,39 +196,6 @@ export const TaxStatusTypeEnum = z.preprocess((val) => {
 }, z.enum([...new Set(Object.values(taxStatusTypeMap))] as [string, ...string[]]));
 
 /**
- * Defines the schema for validating product attribute values input.
- *
- * Workflow:
- * 1. Validates `id` as an optional UUID.
- * 2. Ensures `value` is a non-empty string.
- * 3. Validates `attributeId` as a UUID.
- *
- * @property id - Optional unique identifier for the attribute value.
- * @property value - The string value of the attribute (e.g., "Red", "Large").
- * @property attributeId - The UUID of the associated product attribute.
- */
-export const ProductAttributeValueInputSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
-  value: z.string().min(1, "Attribute value cannot be empty").trim(),
-  attributeId: z.string().uuid({ message: "Invalid UUID format" }),
-});
-
-/**
- * Defines the schema for validating product attributes input.
- *
- * Workflow:
- * 1. Validates `id` as an optional UUID.
- * 2. Ensures `name` is a non-empty string.
- *
- * @property id - Optional unique identifier for the product attribute.
- * @property name - The name of the product attribute (e.g., "Color", "Size").
- */
-export const ProductAttributeInputSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
-  name: z.string().min(1, "Attribute name cannot be empty").trim(),
-});
-
-/**
  * Defines the schema for validating product tiered pricing input.
  *
  * Workflow:
@@ -505,7 +472,7 @@ export const ProductVariationInputSchema = z.object({
  * 3. Validates `sku` and `model` as optional non-empty strings.
  * 4. Validates `defaultImage`, `images`, `videos` as optional arrays of UUIDs.
  * 5. Ensures `defaultMainDescription` is a non-empty string.
- * 6. Validates `defaultShortDescription`, `defaultTags`, `customBadge`, `purchaseNote` as optional non-empty strings or arrays of strings.
+ * 6. Validates `defaultShortDescription`, `customBadge`, `purchaseNote` as optional non-empty strings or arrays of strings.
  * 7. Validates `brandIds`, `tagIds`, `categoryIds` as optional UUIDs or arrays of UUIDs.
  * 8. Validates `warrantyDigit` as an optional positive integer and `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
  * 9. Validates `warrantyPolicy` as an optional non-empty string.
@@ -523,7 +490,7 @@ export const ProductVariationInputSchema = z.object({
  * 21. Validates `weightUnit`, `dimensionUnit` using their respective enums.
  * 22. Validates `weight`, `length`, `width`, `height` as optional positive numbers.
  * 23. Validates `shippingClassId`, `upsellIds`, `crossSellIds` as optional UUIDs or arrays of UUIDs.
- * 24. Validates `attributes` as an optional array of `ProductAttributeInputSchema`.
+ * 24. Validates `attributeIds` as an optional array of product attribute UUIDs.
  * 25. Validates `variations` as an optional array of `ProductVariationInputSchema`.
  *
  * @property productConfigurationType - The configuration type of the product.
@@ -537,7 +504,6 @@ export const ProductVariationInputSchema = z.object({
  * @property videos - Optional array of video UUIDs.
  * @property defaultMainDescription - The main description of the product.
  * @property defaultShortDescription - Optional short description of the product.
- * @property defaultTags - Optional array of keyword tags.
  * @property customBadge - Optional custom badge text.
  * @property purchaseNote - Optional note shown after purchase.
  * @property brandIds - Optional UUIDs of the associated brands.
@@ -575,7 +541,7 @@ export const ProductVariationInputSchema = z.object({
  * @property shippingClassId - Optional UUID of the related shipping class.
  * @property upsellIds - Optional array of upsell product UUIDs.
  * @property crossSellIds - Optional array of cross-sell product UUIDs.
- * @property attributes - Optional array of product attributes.
+ * @property attributeIds - Optional array of product attribute UUIDs.
  * @property variations - Optional array of associated variations.
  * @property enableReviews - Optional flag to enable product reviews.
  * @property isPreview - Optional flag to mark as preview-only.
@@ -615,10 +581,6 @@ export const createProductSchema = z
     defaultShortDescription: z
       .string()
       .min(1, "Short description cannot be empty")
-      .optional()
-      .nullable(),
-    defaultTags: z
-      .array(z.string().min(1, "Tag cannot be empty"))
       .optional()
       .nullable(),
     customBadge: z
@@ -758,7 +720,11 @@ export const createProductSchema = z
       .array(z.string().uuid({ message: "Invalid UUID format" }))
       .optional()
       .nullable(),
-    attributes: z.array(ProductAttributeInputSchema).optional().nullable(),
+    attributeIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .min(1, { message: "At least one UUID is required" })
+      .optional()
+      .nullable(),
     variations: z.array(ProductVariationInputSchema).optional().nullable(),
     enableReviews: z.boolean().optional(),
     isPreview: z.boolean().optional(),
@@ -803,7 +769,6 @@ export const createProductSchema = z
  * @property videos - Optional array of video UUIDs.
  * @property defaultMainDescription - Optional main description of the product.
  * @property defaultShortDescription - Optional short description of the product.
- * @property defaultTags - Optional array of keyword tags.
  * @property customBadge - Optional custom badge text.
  * @property purchaseNote - Optional note shown after purchase.
  * @property brandIds - Optional UUIDs of the associated brands.
@@ -841,7 +806,7 @@ export const createProductSchema = z
  * @property shippingClassId - Optional UUID of the related shipping class.
  * @property upsellIds - Optional array of upsell product UUIDs.
  * @property crossSellIds - Optional array of cross-sell product UUIDs.
- * @property attributes - Optional array of product attributes.
+ * @property attributeIds - Optional array of product attribute UUIDs.
  * @property variations - Optional array of associated variations.
  * @property enableReviews - Optional flag to enable product reviews.
  * @property isPreview - Optional flag to mark as preview-only.
@@ -890,10 +855,6 @@ export const updateProductSchema = z
     defaultShortDescription: z
       .string()
       .min(1, "Short description cannot be empty")
-      .optional()
-      .nullable(),
-    defaultTags: z
-      .array(z.string().min(1, "Tag cannot be empty"))
       .optional()
       .nullable(),
     customBadge: z
@@ -1041,7 +1002,11 @@ export const updateProductSchema = z
       .array(z.string().uuid({ message: "Invalid UUID format" }))
       .optional()
       .nullable(),
-    attributes: z.array(ProductAttributeInputSchema).optional().nullable(),
+    attributeIds: z
+      .array(z.string().uuid({ message: "Invalid UUID format" }))
+      .min(1, { message: "At least one UUID is required" })
+      .optional()
+      .nullable(),
     variations: z.array(ProductVariationInputSchema).optional().nullable(),
     enableReviews: z.boolean().optional().nullable(),
     isPreview: z.boolean().optional().nullable(),

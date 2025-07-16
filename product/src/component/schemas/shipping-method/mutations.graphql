@@ -4,6 +4,11 @@ extend type Mutation {
     title: String!
     status: Boolean
     description: String
+    flatRate: FlatRateInput
+    freeShipping: FreeShippingInput
+    localPickUp: LocalPickUpInput
+    ups: UpsInput
+    shippingZoneId: ID!
   ): CreateShippingMethodResponseOrError!
 
   updateShippingMethod(
@@ -11,6 +16,11 @@ extend type Mutation {
     title: String
     status: Boolean
     description: String
+    flatRate: FlatRateInput
+    freeShipping: FreeShippingInput
+    localPickUp: LocalPickUpInput
+    ups: UpsInput
+    shippingZoneId: ID!
   ): UpdateShippingMethodResponseOrError!
 
   deleteShippingMethod(id: ID!): DeleteShippingMethodResponseOrError!

@@ -94,6 +94,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       "tags",
       "categories",
       "attributes",
+      "attributes.values",
       "variations",
       "variations.brands",
       "variations.tierPricingInfo",
@@ -135,6 +136,7 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       "tags",
       "categories",
       "attributes",
+      "attributes.values",
       "variations",
       "variations.brands",
       "variations.tierPricingInfo",
@@ -190,6 +192,7 @@ export const paginateProducts = async ({
     .leftJoinAndSelect("product.tags", "tags")
     .leftJoinAndSelect("product.categories", "categories")
     .leftJoinAndSelect("product.attributes", "attributes")
+    .leftJoinAndSelect("attributes.values", "attribute_values")
     .leftJoinAndSelect("product.variations", "variations")
     .leftJoinAndSelect("product.shippingClass", "shippingClass")
     .leftJoinAndSelect("product.upsells", "upsells")
@@ -239,44 +242,4 @@ export const paginateProducts = async ({
   const [products, total] = await queryBuilder.getManyAndCount();
 
   return { products, total };
-};
-
-/**
- * Handles counting products matching optional search criteria.
- *
- * Workflow:
- * 1. Constructs a where clause to filter non-deleted products and apply search conditions if provided.
- * 2. Queries the productRepository to count products matching the criteria.
- * 3. Returns the total number of matching products.
- *
- * @param search - Optional search term to filter by name or slug (case-insensitive).
- * @returns A promise resolving to the total number of matching products.
- */
-export const countProductsWithSearch = async (
-  search?: string
-): Promise<number> => {
-  const queryBuilder = productRepository
-    .createQueryBuilder("product")
-    .where("product.deletedAt IS NULL")
-    .leftJoin("product.brands", "brands")
-    .leftJoin("product.category", "category")
-    .leftJoin("product.tags", "tags")
-    .leftJoin("product.subCategories", "subCategories");
-
-  if (search) {
-    const searchTerm = `%${search.trim()}%`;
-
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        qb.where("product.name ILIKE :search", { search: searchTerm })
-          .orWhere("product.slug ILIKE :search", { search: searchTerm })
-          .orWhere("brands.name ILIKE :search", { search: searchTerm })
-          .orWhere("category.name ILIKE :search", { search: searchTerm })
-          .orWhere("tags.name ILIKE :search", { search: searchTerm })
-          .orWhere("subCategories.name ILIKE :search", { search: searchTerm });
-      })
-    );
-  }
-
-  return await queryBuilder.getCount();
 };
