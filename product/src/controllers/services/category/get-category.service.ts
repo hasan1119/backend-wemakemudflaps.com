@@ -242,6 +242,19 @@ function categoryMatchesSearch(cat: Category, searchTerm: string): boolean {
 }
 
 /**
+ * Counts the total number of categories including all nested subcategories.
+ *
+ * @param cat - The root category to start counting from.
+ * @returns The total count of categories including subcategories.
+ */
+function countMatchingCategories(cat: Category): number {
+  const children = cat.subCategories || [];
+  return (
+    1 + children.reduce((sum, sub) => sum + countMatchingCategories(sub), 0)
+  );
+}
+
+/**
  * Handles pagination of categories including their nested subcategories.
  *
  * @param page - The current page number (1-based index).
@@ -305,5 +318,11 @@ export const paginateCategories = async ({
       .filter((cat): cat is Category => cat !== null);
   }
 
-  return { categories: filteredCategories, total: filteredCategories.length };
+  return {
+    categories: filteredCategories,
+    total: filteredCategories.reduce(
+      (acc, cat) => acc + countMatchingCategories(cat),
+      0
+    ),
+  };
 };
