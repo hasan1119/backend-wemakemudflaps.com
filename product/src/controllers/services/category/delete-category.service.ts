@@ -63,13 +63,22 @@ export async function hardDeleteCategory(id: string): Promise<void> {
         await deleteRecursively(sub.id);
       }
 
-      // Remove product-category associations for this category
-      await manager
+      // Remove product-category associations for this category only if any exist
+      const assocCount = await manager
         .createQueryBuilder()
-        .delete()
-        .from("product_categories")
+        .select("COUNT(*)", "count")
+        .from("product_categories", "pc")
         .where('"category_id" = :id', { id: categoryId })
-        .execute();
+        .getRawOne();
+
+      if (assocCount && Number(assocCount.count) > 0) {
+        await manager
+          .createQueryBuilder()
+          .delete()
+          .from("product_categories")
+          .where('"category_id" = :id', { id: categoryId })
+          .execute();
+      }
 
       // Delete this category
       await repo.delete(categoryId);
