@@ -21,8 +21,11 @@ export class TaxClass {
   description: string | null;
 
   // One tax class can be assigned to many products
-  @OneToMany(() => Product, (product) => product.taxClass)
-  products: Product[];
+  @OneToMany(() => Product, (product) => product.taxClass, {
+    cascade: true,
+    nullable: true,
+  })
+  products: Product[] | null;
 
   // One tax class can contain multiple tax rates for different regions
   @OneToMany(() => TaxRate, (taxRate) => taxRate.taxClass)

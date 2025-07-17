@@ -19,8 +19,11 @@ export class Brand {
   slug: string;
 
   // Many-to-many relationship with products
-  @ManyToMany(() => Product, (product) => product.brands)
-  products: Product[];
+  @ManyToMany(() => Product, (product) => product.brands, {
+    cascade: true,
+    nullable: true,
+  })
+  products: Product[] | null;
 
   // User ID who created the brand (string only for Apollo Federation compatibility)
   @Column()

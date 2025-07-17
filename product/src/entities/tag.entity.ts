@@ -15,8 +15,11 @@ export class Tag {
   slug: string;
 
   // Many-to-many relationship with products
-  @ManyToMany(() => Product, (product) => product.tags)
-  products: Product[];
+  @ManyToMany(() => Product, (product) => product.tags, {
+    cascade: true,
+    nullable: true,
+  })
+  products: Product[] | null;
 
   // User ID who created the tag (string only for Apollo Federation compatibility)
   @Column()
