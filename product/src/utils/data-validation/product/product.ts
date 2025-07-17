@@ -219,12 +219,21 @@ export const ProductTieredPriceInputSchema = z.object({
   minQuantity: z
     .number()
     .int()
-    .positive("Min quantity must be a positive integer"),
+    .positive("Min quantity must be a positive integer")
+    .optional()
+    .nullable(),
   maxQuantity: z
     .number()
     .int()
-    .positive("Max quantity must be a positive integer"),
-  quantityUnit: z.string().min(1, "Quantity unit cannot be empty").trim(),
+    .positive("Max quantity must be a positive integer")
+    .optional()
+    .nullable(),
+  quantityUnit: z
+    .string()
+    .min(1, "Quantity unit cannot be empty")
+    .trim()
+    .optional()
+    .nullable(),
   fixedPrice: z
     .number()
     .positive("Fixed price must be a positive number")
@@ -256,12 +265,15 @@ export const ProductTieredPriceInputSchema = z.object({
  */
 export const ProductPriceInputSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
-  pricingType: z.enum(["Fixed", "Percentage"], {
-    errorMap: () => ({
-      message: "Pricing type must be 'Fixed' or 'Percentage'",
-    }),
-  }),
-  tieredPrices: z.array(ProductTieredPriceInputSchema).optional(),
+  pricingType: z
+    .enum(["Fixed", "Percentage"], {
+      errorMap: () => ({
+        message: "Pricing type must be 'Fixed' or 'Percentage'",
+      }),
+    })
+    .optional()
+    .nullable(),
+  tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
   productId: z
     .string()
     .uuid({ message: "Invalid UUID format" })
@@ -270,7 +282,8 @@ export const ProductPriceInputSchema = z.object({
   productVariationId: z
     .string()
     .uuid({ message: "Invalid UUID format" })
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 /**
@@ -289,9 +302,22 @@ export const ProductPriceInputSchema = z.object({
  */
 export const ProductVariationAttributeValueInputSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
-  value: z.string().min(1, "Variation attribute value cannot be empty").trim(),
-  attributeId: z.string().uuid({ message: "Invalid UUID format" }),
-  variationId: z.string().uuid({ message: "Invalid UUID format" }),
+  value: z
+    .string()
+    .min(1, "Variation attribute value cannot be empty")
+    .trim()
+    .optional()
+    .nullable(),
+  attributeId: z
+    .string()
+    .uuid({ message: "Invalid UUID format" })
+    .optional()
+    .nullable(),
+  variationId: z
+    .string()
+    .uuid({ message: "Invalid UUID format" })
+    .optional()
+    .nullable(),
 });
 
 /**
@@ -359,7 +385,7 @@ export const ProductVariationAttributeValueInputSchema = z.object({
 export const ProductVariationInputSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
   sku: z.string().min(1, "SKU cannot be empty").optional().nullable(),
-  productDeliveryType: z.array(ProductDeliveryTypeEnum).optional(),
+  productDeliveryType: z.array(ProductDeliveryTypeEnum).optional().nullable(),
   brandIds: z
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()
@@ -388,7 +414,11 @@ export const ProductVariationInputSchema = z.object({
     .positive("Quantity step must be a positive integer")
     .nullable()
     .optional(),
-  regularPrice: z.number().positive("Regular price must be a positive number"),
+  regularPrice: z
+    .number()
+    .positive("Regular price must be a positive number")
+    .optional()
+    .nullable(),
   salePrice: z
     .number()
     .positive("Sale price must be a positive number")
@@ -427,7 +457,8 @@ export const ProductVariationInputSchema = z.object({
   productId: z.string().uuid({ message: "Invalid UUID format" }),
   attributeValues: z
     .array(ProductVariationAttributeValueInputSchema)
-    .optional(),
+    .optional()
+    .nullable(),
   warrantyDigit: z
     .number()
     .int()
@@ -446,7 +477,11 @@ export const ProductVariationInputSchema = z.object({
     .optional()
     .nullable(),
   taxStatus: TaxStatusTypeEnum.optional().nullable(),
-  taxClassId: z.string().uuid({ message: "Invalid UUID format" }),
+  taxClassId: z
+    .string()
+    .uuid({ message: "Invalid UUID format" })
+    .optional()
+    .nullable(),
   description: z
     .string()
     .min(1, "Description cannot be empty")
@@ -577,7 +612,9 @@ export const createProductSchema = z
     defaultMainDescription: z
       .string()
       .min(1, "Main description cannot be empty")
-      .trim(),
+      .trim()
+      .optional()
+      .nullable(),
     defaultShortDescription: z
       .string()
       .min(1, "Short description cannot be empty")
@@ -619,7 +656,9 @@ export const createProductSchema = z
       .nullable(),
     regularPrice: z
       .number()
-      .positive("Regular price must be a positive number"),
+      .positive("Regular price must be a positive number")
+      .optional()
+      .nullable(),
     salePrice: z
       .number()
       .positive("Sale price must be a positive number")
@@ -637,9 +676,15 @@ export const createProductSchema = z
     saleQuantityUnit: z
       .string()
       .min(1, "Sale quantity unit cannot be empty")
-      .trim(),
+      .trim()
+      .optional()
+      .nullable(),
     taxStatus: TaxStatusTypeEnum.optional().nullable(),
-    taxClassId: z.string().uuid({ message: "Invalid UUID format" }),
+    taxClassId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
     minQuantity: z
       .number()
       .int()
@@ -679,7 +724,7 @@ export const createProductSchema = z
       .optional()
       .nullable(),
     stockStatus: StockStatusEnum.optional().nullable(),
-    soldIndividually: z.boolean().optional(),
+    soldIndividually: z.boolean().optional().nullable(),
     initialNumberInStock: z
       .string()
       .min(1, "Initial number in stock cannot be empty")
@@ -726,9 +771,9 @@ export const createProductSchema = z
       .optional()
       .nullable(),
     variations: z.array(ProductVariationInputSchema).optional().nullable(),
-    enableReviews: z.boolean().optional(),
-    isPreview: z.boolean().optional(),
-    isVisible: z.boolean().optional(),
+    enableReviews: z.boolean().optional().nullable(),
+    isPreview: z.boolean().optional().nullable(),
+    isVisible: z.boolean().optional().nullable(),
   })
   .refine(
     (data) => {

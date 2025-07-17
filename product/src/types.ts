@@ -775,7 +775,7 @@ export type MutationCreateProductArgs = {
   crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   customBadge?: InputMaybe<Scalars['String']['input']>;
   defaultImage?: InputMaybe<Scalars['ID']['input']>;
-  defaultMainDescription: Scalars['String']['input'];
+  defaultMainDescription?: InputMaybe<Scalars['String']['input']>;
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultShortDescription?: InputMaybe<Scalars['String']['input']>;
   defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;
@@ -784,7 +784,7 @@ export type MutationCreateProductArgs = {
   height?: InputMaybe<Scalars['Float']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
-  isCustomized: Scalars['Boolean']['input'];
+  isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
   isPreview?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
@@ -794,16 +794,16 @@ export type MutationCreateProductArgs = {
   minQuantity?: InputMaybe<Scalars['Int']['input']>;
   model?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-  productConfigurationType: ProductConfigurationType;
+  productConfigurationType?: InputMaybe<ProductConfigurationType>;
   productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
   purchaseNote?: InputMaybe<Scalars['String']['input']>;
   quantityStep?: InputMaybe<Scalars['Int']['input']>;
-  regularPrice: Scalars['Float']['input'];
+  regularPrice?: InputMaybe<Scalars['Float']['input']>;
   salePrice?: InputMaybe<Scalars['Float']['input']>;
   salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
   salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
   saleQuantity?: InputMaybe<Scalars['Int']['input']>;
-  saleQuantityUnit: Scalars['String']['input'];
+  saleQuantityUnit?: InputMaybe<Scalars['String']['input']>;
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
@@ -811,7 +811,7 @@ export type MutationCreateProductArgs = {
   stockQuantity?: InputMaybe<Scalars['Int']['input']>;
   stockStatus?: InputMaybe<StockStatus>;
   tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  taxClassId: Scalars['ID']['input'];
+  taxClassId?: InputMaybe<Scalars['ID']['input']>;
   taxStatus?: InputMaybe<TaxStatus>;
   tierPricingInfo?: InputMaybe<ProductPriceInput>;
   upsellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -3772,7 +3772,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'company' | 'country' | 'isDefault' | 'state' | 'streetOne' | 'streetTwo' | 'type' | 'userId' | 'zip'>>;
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
-  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'defaultMainDescription' | 'isCustomized' | 'name' | 'productConfigurationType' | 'regularPrice' | 'saleQuantityUnit' | 'slug' | 'taxClassId'>>;
+  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'name' | 'slug'>>;
   createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
