@@ -584,8 +584,9 @@ export const ProductVariationInputSchema = z.object({
  */
 export const createProductSchema = z
   .object({
-    productConfigurationType: ProductConfigurationTypeEnum,
-    productDeliveryType: z.array(ProductDeliveryTypeEnum),
+    productConfigurationType:
+      ProductConfigurationTypeEnum.optional().nullable(),
+    productDeliveryType: z.array(ProductDeliveryTypeEnum).optional().nullable(),
     name: z
       .string()
       .min(3, "Product name must be at least 3 characters")
