@@ -19,12 +19,15 @@ export async function softDeleteCategory(id: string): Promise<Category> {
 
     await repo.update(categoryId, { deletedAt: now });
 
-    // Soft delete products (if necessary)
+    // Soft delete products: update deletedAt for products associated via join table
     await repo.manager
       .createQueryBuilder()
       .update("product")
       .set({ deletedAt: now })
-      .where('"categoryId" = :id', { id: categoryId }) // Assuming there's a categoryId in Product
+      .where(
+        `id IN (SELECT "product_id" FROM "product_categories" WHERE "category_id" = :id)`,
+        { id: categoryId }
+      )
       .execute();
 
     for (const sub of category.subCategories || []) {
@@ -60,11 +63,12 @@ export async function hardDeleteCategory(id: string): Promise<void> {
         await deleteRecursively(sub.id);
       }
 
-      // Delete products associated with this category
-      await productRepo
+      // Remove product-category associations for this category
+      await manager
         .createQueryBuilder()
         .delete()
-        .where('"categoryId" = :id', { id: categoryId })
+        .from("product_categories")
+        .where('"category_id" = :id', { id: categoryId })
         .execute();
 
       // Delete this category
