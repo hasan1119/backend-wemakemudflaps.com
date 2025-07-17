@@ -42,8 +42,9 @@ export class Category {
   // One category can have multiple products
   @OneToMany(() => Product, (product) => product.categories, {
     cascade: true,
+    nullable: true,
   })
-  products: Product[];
+  products: Product[] | null;
 
   // Position/order in list
   @Column({ type: "int" })
