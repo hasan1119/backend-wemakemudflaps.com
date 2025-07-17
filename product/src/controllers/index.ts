@@ -1,4 +1,21 @@
 /**
+ * Exports GraphQL queries and mutations for managing product attribute data.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating, updating, deleting, and restoring product attributes.
+ * 2. Enables retrieval of a specific product attribute by its ID.
+ * 3. Facilitates listing all product attributes in the system.
+ */
+export {
+  createProductAttribute,
+  createSystemProductAttribute,
+} from "./mutations/manage-product-attribute/create-product-attribute";
+export { deleteProductAttribute } from "./mutations/manage-product-attribute/delete-product-attribute";
+export { updateProductAttribute } from "./mutations/manage-product-attribute/update-product-attribute";
+export { getProductAttributeById } from "./queries/product-attribute/get-product-attribute-by-id";
+export { getAllProductAttribute } from "./queries/product-attribute/get-product-attributes";
+
+/**
  * Exports GraphQL queries and mutations for managing brand data.
  *
  * Workflow:

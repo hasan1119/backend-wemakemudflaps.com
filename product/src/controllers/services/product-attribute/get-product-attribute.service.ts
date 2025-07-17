@@ -12,7 +12,7 @@ import { productAttributeRepository } from "../repositories/repositories";
  * @param id - The UUID of the product attribute to retrieve.
  * @returns A promise resolving to the Product Attribute entity or null if not found.
  */
-export const getAttributesById = async (
+export const getProductAttributeById = async (
   id: string
 ): Promise<ProductAttribute | null> => {
   return await productAttributeRepository.findOne({

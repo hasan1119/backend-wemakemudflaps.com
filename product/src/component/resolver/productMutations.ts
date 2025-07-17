@@ -2,6 +2,7 @@ import {
   createBrand,
   createCategory,
   createProduct,
+  createProductAttribute,
   createShippingClass,
   createShippingMethod,
   createShippingZone,
@@ -11,6 +12,7 @@ import {
   deleteBrand,
   deleteCategory,
   deleteProduct,
+  deleteProductAttribute,
   deleteShippingClass,
   deleteShippingMethod,
   deleteShippingZone,
@@ -28,6 +30,7 @@ import {
   updateCategory,
   updateCategoryPosition,
   updateProduct,
+  updateProductAttribute,
   updateShippingClass,
   updateShippingMethod,
   updateShippingZone,
@@ -149,6 +152,21 @@ export const productMutationsResolver = {
      * Restores previously deleted tax class.
      */
     restoreTaxClasses,
+
+    /**
+     * Creates a new product attribute.
+     */
+    createProductAttribute,
+
+    /**
+     * Updates detailed information for a specific product attribute.
+     */
+    updateProductAttribute,
+
+    /**
+     * Deletes specified product attribute from the system.
+     */
+    deleteProductAttribute,
 
     /**
      * Creates a product.
