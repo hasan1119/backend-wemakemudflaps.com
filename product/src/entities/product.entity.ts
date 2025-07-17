@@ -30,8 +30,10 @@ export class Product {
   @Column({
     type: "enum",
     enum: ["Simple Product", "Variable Product"],
+    nullable: true,
+    default: null,
   })
-  productConfigurationType: string;
+  productConfigurationType: string | null;
 
   // Product categorization by delivery method
   @Column({
