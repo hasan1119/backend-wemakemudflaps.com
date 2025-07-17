@@ -57,8 +57,14 @@ export class ProductVariation {
   quantityStep: number;
 
   // Regular price for the product variation
-  @Column({ type: "decimal", precision: 10, scale: 2 })
-  regularPrice: number;
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
+  regularPrice: number | null;
 
   // Sale price for the variation (nullable)
   @Column({
@@ -137,9 +143,9 @@ export class ProductVariation {
   @OneToMany(
     () => ProductVariationAttributeValue,
     (attrValue) => attrValue.variation,
-    { cascade: true }
+    { cascade: true, nullable: true }
   )
-  attributeValues: ProductVariationAttributeValue[];
+  attributeValues: ProductVariationAttributeValue[] | null;
 
   // Warranty digit for the variation (nullable)
   @Column({ nullable: true, default: null })
@@ -227,16 +233,18 @@ export class ProductVariation {
   @Column({
     type: "enum",
     enum: ["Taxable", "Product only", "Shipping only", "None"],
-    default: "Taxable",
+    nullable: true,
+    default: null,
   })
-  taxStatus: string;
+  taxStatus: string | null;
 
   // Many-to-one relationship with TaxClass (nullable)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {
     onDelete: "SET NULL",
+    nullable: true,
   })
   @JoinColumn({ name: "variation_tax_class_id" })
-  taxClass: TaxClass;
+  taxClass: TaxClass | null;
 
   // Description of the product variation
   @Column({ type: "text", nullable: true, default: null })

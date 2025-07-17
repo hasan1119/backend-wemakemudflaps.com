@@ -18,16 +18,18 @@ export class ProductPrice {
   @Column({
     type: "enum",
     enum: ["Fixed", "Percentage"],
+    nullable: true,
+    default: null,
   })
-  pricingType: string;
+  pricingType: string | null;
 
   // Tiered pricing rules for bulk or quantity-based pricing
   @OneToMany(
     () => ProductTieredPrice,
     (tieredPrice) => tieredPrice.productPrice,
-    { cascade: true, onDelete: "CASCADE" }
+    { cascade: true, onDelete: "CASCADE", nullable: true }
   )
-  tieredPrices: ProductTieredPrice[];
+  tieredPrices: ProductTieredPrice[] | null;
 
   // For simple products, link back to the product
   @OneToOne(() => Product, (product) => product.tierPricingInfo, {
