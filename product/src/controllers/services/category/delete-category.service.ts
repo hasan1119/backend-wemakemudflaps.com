@@ -3,67 +3,94 @@ import { categoryRepository } from "../repositories/repositories";
 import { getCategoryById } from "./get-category.service";
 
 /**
- * Soft deletes (skip to trash) a category or subcategory by setting deletedAt timestamp.
- *
- * Workflow:
- * 1. Sets the deletedAt field of the entity to current timestamp.
- * 2. The entity remains in DB but is considered soft-deleted.
- * 3. Position is NOT changed in soft delete.
+ * Recursively soft deletes a category and all its subcategories and products.
  *
  * @param id - UUID of the category or subcategory.
  * @returns The soft-deleted Category entity.
  */
 export async function softDeleteCategory(id: string): Promise<Category> {
+  const repo = categoryRepository;
   const now = new Date();
-  await categoryRepository.update(id, { deletedAt: now });
+
+  // Recursively mark deletedAt for all children
+  const recursivelySoftDelete = async (categoryId: string) => {
+    const category = await getCategoryById(categoryId);
+    if (!category) return;
+
+    await repo.update(categoryId, { deletedAt: now });
+
+    // Soft delete products (if necessary)
+    await repo.manager
+      .createQueryBuilder()
+      .update("product")
+      .set({ deletedAt: now })
+      .where('"categoryId" = :id', { id: categoryId }) // Assuming there's a categoryId in Product
+      .execute();
+
+    for (const sub of category.subCategories || []) {
+      await recursivelySoftDelete(sub.id);
+    }
+  };
+
+  await recursivelySoftDelete(id);
   return getCategoryById(id);
 }
 
 /**
- * Hard deletes a category or subcategory and adjusts positions accordingly.
+ * Recursively hard deletes a category and all its subcategories and products.
  *
- * Workflow:
- * 1. Fetch the entity and its current position.
- * 2. Check if deletion is allowed by verifying product associations.
- * 3. Delete the entity from the database.
- * 4. Decrement the position of all entities positioned after the deleted one to close the gap.
- * 5. Position update is scoped under the same parent category (i.e., same parentCategoryId).
- *
- * @param id - UUID of the entity to delete.
+ * @param id - UUID of the category or subcategory.
  */
 export async function hardDeleteCategory(id: string): Promise<void> {
   await categoryRepository.manager.transaction(async (manager) => {
     const repo = manager.getRepository(Category);
+    const productRepo = manager.getRepository("product");
 
-    // Find entity with position, parentCategory, subCategories, and products
-    const item = await repo.findOne({
-      where: { id },
-      select: ["id", "position", "parentCategory"],
-      relations: ["parentCategory", "subCategories", "products"],
-    });
-    if (!item) throw new Error(`Category with id ${id} not found`);
-
-    // Delete entity
-    await repo.delete(id);
-
-    // Update positions
-    const parentCategoryId = item.parentCategory?.id ?? null;
-    let qb = repo
-      .createQueryBuilder()
-      .update()
-      .set({ position: () => `"position" - 1` })
-      .where(`"position" > :deletedPosition`, {
-        deletedPosition: item.position,
+    // Recursive delete function
+    const deleteRecursively = async (categoryId: string) => {
+      const category = await repo.findOne({
+        where: { id: categoryId },
+        relations: ["subCategories"],
       });
 
-    if (parentCategoryId) {
-      qb = qb.andWhere(`"parentCategoryId" = :parentCategoryId`, {
-        parentCategoryId,
-      });
-    } else {
-      qb = qb.andWhere(`"parentCategoryId" IS NULL`);
-    }
+      if (!category) return;
 
-    await qb.execute();
+      // First delete subcategories recursively
+      for (const sub of category.subCategories || []) {
+        await deleteRecursively(sub.id);
+      }
+
+      // Delete products associated with this category
+      await productRepo
+        .createQueryBuilder()
+        .delete()
+        .where('"categoryId" = :id', { id: categoryId })
+        .execute();
+
+      // Delete this category
+      await repo.delete(categoryId);
+
+      // Adjust sibling positions
+      const parentCategoryId = category.parentCategory?.id ?? null;
+      let qb = repo
+        .createQueryBuilder()
+        .update()
+        .set({ position: () => `"position" - 1` })
+        .where(`"position" > :deletedPosition`, {
+          deletedPosition: category.position,
+        });
+
+      if (parentCategoryId) {
+        qb = qb.andWhere(`"parentCategoryId" = :parentCategoryId`, {
+          parentCategoryId,
+        });
+      } else {
+        qb = qb.andWhere(`"parentCategoryId" IS NULL`);
+      }
+
+      await qb.execute();
+    };
+
+    await deleteRecursively(id);
   });
 }
