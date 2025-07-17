@@ -6,9 +6,9 @@ import { getCategoryById } from "./get-category.service";
  * Recursively soft deletes a category and all its subcategories and products.
  *
  * @param id - UUID of the category or subcategory.
- * @returns The soft-deleted Category entity.
+ * @returns A promise that resolves when the category is soft-deleted.
  */
-export async function softDeleteCategory(id: string): Promise<Category> {
+export async function softDeleteCategory(id: string): Promise<void> {
   const repo = categoryRepository;
   const now = new Date();
 
@@ -25,7 +25,7 @@ export async function softDeleteCategory(id: string): Promise<Category> {
       .update("product")
       .set({ deletedAt: now })
       .where(
-        `id IN (SELECT "product_id" FROM "product_categories" WHERE "category_id" = :id)`,
+        `id IN (SELECT "productId" FROM "product_categories" WHERE "categoryId" = :id)`,
         { id: categoryId }
       )
       .execute();
@@ -36,7 +36,8 @@ export async function softDeleteCategory(id: string): Promise<Category> {
   };
 
   await recursivelySoftDelete(id);
-  return getCategoryById(id);
+
+  return;
 }
 
 /**
@@ -63,22 +64,13 @@ export async function hardDeleteCategory(id: string): Promise<void> {
         await deleteRecursively(sub.id);
       }
 
-      // Remove product-category associations for this category only if any exist
-      const assocCount = await manager
+      // Remove product-category associations for this category
+      await manager
         .createQueryBuilder()
-        .select("COUNT(*)", "count")
-        .from("product_categories", "pc")
-        .where('"category_id" = :id', { id: categoryId })
-        .getRawOne();
-
-      if (assocCount && Number(assocCount.count) > 0) {
-        await manager
-          .createQueryBuilder()
-          .delete()
-          .from("product_categories")
-          .where('"category_id" = :id', { id: categoryId })
-          .execute();
-      }
+        .delete()
+        .from("product_categories")
+        .where('"categoryId" = :id', { id: categoryId })
+        .execute();
 
       // Delete this category
       await repo.delete(categoryId);

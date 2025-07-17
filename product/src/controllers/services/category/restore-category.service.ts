@@ -1,4 +1,4 @@
-import { In, Not } from "typeorm";
+import { In } from "typeorm";
 import { Category } from "../../../entities";
 import { categoryRepository } from "../repositories/repositories";
 import { getCategoryByIds } from "./get-category.service";
@@ -19,21 +19,7 @@ import { getCategoryByIds } from "./get-category.service";
 export async function restoreCategoriesByIds(
   ids: string[]
 ): Promise<Category[]> {
-  // Find soft-deleted categories matching given IDs
-  const categoriesToRestore = await categoryRepository.find({
-    where: {
-      id: In(ids),
-      deletedAt: Not(null),
-    },
-  });
-
-  if (categoriesToRestore.length === 0) {
-    throw new Error(
-      `No soft-deleted categories found with the provided IDs to restore.`
-    );
-  }
-
-  const categoryIds = categoriesToRestore.map((category) => category.id);
+  const categoryIds = ids.filter((id) => id);
 
   // Restore categories by setting deletedAt to null
   await categoryRepository.update({ id: In(categoryIds) }, { deletedAt: null });
