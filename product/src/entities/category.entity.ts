@@ -31,11 +31,12 @@ export class Category {
   @Column({ type: "text", nullable: true, default: null })
   description: string | null;
 
-  // Tree relations
-  @TreeChildren()
+  // Tree children (subcategories)
+  @TreeChildren({ cascade: true }) // Automatically saves children
   subCategories: Category[];
 
-  @TreeParent()
+  // Tree parent (optional category)
+  @TreeParent({ onDelete: "CASCADE" }) // Important for DB-level cascade
   parentCategory: Category | null;
 
   // One category can have multiple products

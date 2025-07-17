@@ -35,20 +35,19 @@ export async function hardDeleteCategory(id: string): Promise<void> {
   await categoryRepository.manager.transaction(async (manager) => {
     const repo = manager.getRepository(Category);
 
-    // Find entity with position and parentCategoryId
+    // Find entity with position, parentCategory, subCategories, and products
     const item = await repo.findOne({
       where: { id },
       select: ["id", "position", "parentCategory"],
-      relations: ["parentCategory"],
+      relations: ["parentCategory", "subCategories", "products"],
     });
     if (!item) throw new Error(`Category with id ${id} not found`);
 
     // Delete entity
     await repo.delete(id);
 
-    // Determine scope for position update (siblings with same parentCategoryId)
+    // Update positions
     const parentCategoryId = item.parentCategory?.id ?? null;
-
     let qb = repo
       .createQueryBuilder()
       .update()
