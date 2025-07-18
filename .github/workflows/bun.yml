@@ -10,664 +10,206 @@ on:
 # Prevent concurrent deployments of the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false  # Don't cancel in-progress runs to ensure zero downtime
+  cancel-in-progress: false
 
 env:
   HEALTH_CHECK_RETRIES: 6
   HEALTH_CHECK_INTERVAL: 5 # seconds
+  # Common environment variables from secrets
+  FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+  DB_TYPE: ${{ secrets.DB_TYPE }}
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_PORT: ${{ secrets.DB_PORT }}
+  DB_USERNAME: ${{ secrets.DB_USERNAME }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_SYNCHRONIZE: ${{ secrets.DB_SYNCHRONIZE }}
+  DB_ENTITIES: ${{ secrets.DB_ENTITIES }}
+  DB_MIGRATIONS: ${{ secrets.DB_MIGRATIONS }}
+  SALT_ROUNDS: ${{ secrets.SALT_ROUNDS }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  EXPIRE: ${{ secrets.EXPIRE }}
+  REDIS_HOST: ${{ secrets.REDIS_HOST }}
+  REDIS_PORT: ${{ secrets.REDIS_PORT }}
+  REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+  REDIS_SESSION_TTL: ${{ secrets.REDIS_SESSION_TTL }}
+  EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+  EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+  EMAIL_USER: ${{ secrets.EMAIL_USER }}
+  EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+  EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+  NODE_ENV: ${{ secrets.NODE_ENV }}
 
 jobs:
-  # Define common configurations
-  setup:
-    runs-on: self-hosted
-    timeout-minutes: 5
-    outputs:
-      users_info: ${{ steps.export-info.outputs.users_info }}
-      media_info: ${{ steps.export-info.outputs.media_info }}
-      product_info: ${{ steps.export-info.outputs.product_info }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      
-      - name: Check repository structure
-        run: |
-          echo "Repository structure:"
-          ls -la
-          
-          echo "Current workspace directory: $(pwd)"
-          echo "Expected workspace path: ~/actions-runners/wemakemudflaps.com/backend/_work/backend-wemakemudflaps.com/backend-wemakemudflaps.com"
-          
-          echo "Checking for backend services directories:"
-          if [ -d "users" ]; then
-            echo "✅ users directory found"
-            if [ -f "users/package.json" ]; then
-              echo "✅ users/package.json exists"
-            else
-              echo "❌ users/package.json NOT found!"
-              echo "Searching for package.json in users directory:"
-              find users -name "package.json" -type f
-            fi
-          else
-            echo "❌ users directory NOT found!"
-            echo "Current directory: $(pwd)"
-            echo "Listing top-level directories:"
-            find . -maxdepth 1 -type d | sort
-          fi
-          
-          if [ -d "media" ]; then
-            echo "✅ media directory found"
-            if [ -f "media/package.json" ]; then
-              echo "✅ media/package.json exists"
-            else
-              echo "❌ media/package.json NOT found!"
-              echo "Searching for package.json in media directory:"
-              find media -name "package.json" -type f
-            fi
-          else
-            echo "❌ media directory NOT found!"
-          fi
-          
-          if [ -d "product" ]; then
-            echo "✅ product directory found"
-            if [ -f "product/package.json" ]; then
-              echo "✅ product/package.json exists"
-            else
-              echo "❌ product/package.json NOT found!"
-              echo "Searching for package.json in product directory:"
-              find product -name "package.json" -type f
-            fi
-          else
-            echo "❌ product directory NOT found!"
-          fi
-          
-          # If any directories are missing, do a broader search
-          if [ ! -d "users" ] || [ ! -d "media" ] || [ ! -d "product" ]; then
-            echo "Searching for all package.json files in workspace:"
-            find . -name "package.json" -not -path "*/node_modules/*" -type f
-          fi
-      
-      - name: Export subgraph info
-        id: export-info
-        run: |
-          # Use absolute paths to ensure correct location
-          REPO_ROOT=$(pwd)
-          echo "Repository root: $REPO_ROOT"
-          
-          # Check if subdirectories exist and set correct paths
-          if [ -d "$REPO_ROOT/users" ]; then
-            USERS_PATH="$REPO_ROOT/users"
-          else
-            # Search for users directory
-            USERS_PATH=$(find $REPO_ROOT -type d -name "users" -not -path "*/node_modules/*" | head -n 1)
-            if [ -z "$USERS_PATH" ]; then
-              echo "::warning::Could not find users directory. Using default path."
-              USERS_PATH="$REPO_ROOT/users"
-            fi
-          fi
-          
-          if [ -d "$REPO_ROOT/media" ]; then
-            MEDIA_PATH="$REPO_ROOT/media"
-          else
-            # Search for media directory
-            MEDIA_PATH=$(find $REPO_ROOT -type d -name "media" -not -path "*/node_modules/*" | head -n 1)
-            if [ -z "$MEDIA_PATH" ]; then
-              echo "::warning::Could not find media directory. Using default path."
-              MEDIA_PATH="$REPO_ROOT/media"
-            fi
-          fi
-          
-          if [ -d "$REPO_ROOT/product" ]; then
-            PRODUCT_PATH="$REPO_ROOT/product"
-          else
-            # Search for product directory
-            PRODUCT_PATH=$(find $REPO_ROOT -type d -name "product" -not -path "*/node_modules/*" | head -n 1)
-            if [ -z "$PRODUCT_PATH" ]; then
-              echo "::warning::Could not find product directory. Using default path."
-              PRODUCT_PATH="$REPO_ROOT/product"
-            fi
-          fi
-          
-          echo "users_info={\"name\":\"users\",\"path\":\"$USERS_PATH\",\"port\":4001,\"pm2\":\"sunshine_users_subgraph\",\"health_endpoint\":\"/health\"}" >> $GITHUB_OUTPUT
-          echo "media_info={\"name\":\"media\",\"path\":\"$MEDIA_PATH\",\"port\":4002,\"pm2\":\"sunshine_media_subgraph\",\"health_endpoint\":\"/health\"}" >> $GITHUB_OUTPUT
-          echo "product_info={\"name\":\"product\",\"path\":\"$PRODUCT_PATH\",\"port\":4003,\"pm2\":\"sunshine_product_subgraph\",\"health_endpoint\":\"/health\"}" >> $GITHUB_OUTPUT
-          
-          # Log paths for debugging
-          echo "Paths configured:"
-          echo "USERS_PATH: $USERS_PATH"
-          echo "MEDIA_PATH: $MEDIA_PATH"
-          echo "PRODUCT_PATH: $PRODUCT_PATH"
-
-  # 1. Deploy Users Subgraph first
   deploy-users:
     runs-on: self-hosted
     timeout-minutes: 10
-    needs: setup
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Parse subgraph info
-        id: subgraph
-        run: |
-          content='${{ needs.setup.outputs.users_info }}'
-          echo "name=$(echo $content | jq -r '.name')" >> $GITHUB_OUTPUT
-          echo "path=$(echo $content | jq -r '.path')" >> $GITHUB_OUTPUT
-          echo "port=$(echo $content | jq -r '.port')" >> $GITHUB_OUTPUT
-          echo "pm2=$(echo $content | jq -r '.pm2')" >> $GITHUB_OUTPUT
-          echo "health_endpoint=$(echo $content | jq -r '.health_endpoint')" >> $GITHUB_OUTPUT
-      
-      - name: Set environment variables
-        run: |
-          echo "SUB_GRAPH_NAME=${{ steps.subgraph.outputs.name }}" >> $GITHUB_ENV
-          echo "PORT=${{ steps.subgraph.outputs.port }}" >> $GITHUB_ENV
-          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $GITHUB_ENV
-          echo "DB_TYPE=${{ secrets.DB_TYPE }}" >> $GITHUB_ENV
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
-          echo "DB_SYNCHRONIZE=${{ secrets.DB_SYNCHRONIZE }}" >> $GITHUB_ENV
-          echo "DB_ENTITIES=${{ secrets.DB_ENTITIES }}" >> $GITHUB_ENV
-          echo "DB_MIGRATIONS=${{ secrets.DB_MIGRATIONS }}" >> $GITHUB_ENV
-          echo "SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}" >> $GITHUB_ENV
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
-          echo "EXPIRE=${{ secrets.EXPIRE }}" >> $GITHUB_ENV
-          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
-          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> $GITHUB_ENV
-          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
-          echo "REDIS_SESSION_TTL=${{ secrets.REDIS_SESSION_TTL }}" >> $GITHUB_ENV
-          echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> $GITHUB_ENV
-          echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> $GITHUB_ENV
-          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> $GITHUB_ENV
-          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> $GITHUB_ENV
-          echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.subgraph.outputs.path }}/.bun
-            ${{ steps.subgraph.outputs.path }}/node_modules
-          key: ${{ runner.os }}-bun-${{ steps.subgraph.outputs.name }}-${{ hashFiles(format('{0}/bun.lockb', steps.subgraph.outputs.path)) }}
-          restore-keys: |
-            ${{ runner.os }}-bun-${{ steps.subgraph.outputs.name }}-
-            ${{ runner.os }}-bun-
 
       - name: Install dependencies
         run: bun install
-        working-directory: ${{ steps.subgraph.outputs.path }}
-      
-      - name: Check if service is already running and healthy
-        id: health-check
-        continue-on-error: true
-        run: |
-          ENDPOINT="http://localhost:${{ steps.subgraph.outputs.port }}${{ steps.subgraph.outputs.health_endpoint }}"
-          if curl -s -f "$ENDPOINT" > /dev/null; then
-            echo "Current service is healthy"
-            echo "is_healthy=true" >> $GITHUB_OUTPUT
-          else
-            echo "Current service is not healthy or not running"
-            echo "is_healthy=false" >> $GITHUB_OUTPUT
-          fi
+        working-directory: ./users
 
-      # Zero downtime deployment strategy
-      - name: Deploy with zero downtime
+      - name: Deploy Users Subgraph
+        env:
+          PORT: 4001
+          PM2_NAME: sunshine_users_subgraph
         run: |
-          set -e
-          echo "Deploying ${{ steps.subgraph.outputs.name }} subgraph"
-          
-          # Check if PM2 process exists
-          if pm2 list | grep -q "${{ steps.subgraph.outputs.pm2 }}"; then
-            echo "Starting new instance before stopping the old one for zero downtime"
-            
-            # Create a temporary process for the new version
-            TEMP_PM2_NAME="${{ steps.subgraph.outputs.pm2 }}_new"
-            
-            # Start new process on a different port
-            export PORT=$((${{ steps.subgraph.outputs.port }}+1000))
-            echo "Starting new instance on PORT $PORT"
-            
-            pm2 start bun --name $TEMP_PM2_NAME -- start
-            
-            # Wait for new service to be healthy
-            TEMP_ENDPOINT="http://localhost:$PORT${{ steps.subgraph.outputs.health_endpoint }}"
-            RETRY_COUNTER=0
-            
-            echo "Waiting for new service to be healthy at $TEMP_ENDPOINT"
-            until curl -s -f "$TEMP_ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
-              echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
-              RETRY_COUNTER=$((RETRY_COUNTER+1))
-              sleep ${{ env.HEALTH_CHECK_INTERVAL }}
-            done
-            
-            if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
-              echo "::error::New service failed to start properly after multiple attempts!"
-              pm2 logs $TEMP_PM2_NAME --lines 50
-              pm2 delete $TEMP_PM2_NAME
-              exit 1
-            fi
-            
-            echo "New service is healthy, switching over"
-            
-            # Stop the old process
-            pm2 delete ${{ steps.subgraph.outputs.pm2 }}
-            
-            # Restart the new process on the correct port
-            pm2 stop $TEMP_PM2_NAME
-            
-            # Restore original port
-            export PORT=${{ steps.subgraph.outputs.port }}
-            
-            # Start on the correct port with the correct name
-            pm2 start bun --name ${{ steps.subgraph.outputs.pm2 }} -- start
-            
-            # Delete temporary process
-            pm2 delete $TEMP_PM2_NAME
+          if pm2 list | grep -q "$PM2_NAME"; then
+            echo "Reloading $PM2_NAME for zero-downtime deployment."
+            pm2 reload $PM2_NAME
           else
-            echo "No existing process found, starting fresh"
-            pm2 start bun --name ${{ steps.subgraph.outputs.pm2 }} -- start
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start bun --name $PM2_NAME -- start
           fi
-        working-directory: ${{ steps.subgraph.outputs.path }}
-      
-      - name: Verify service health
+        working-directory: ./users
+
+      - name: Verify Service Health
+        env:
+          PORT: 4001
+          PM2_NAME: sunshine_users_subgraph
         run: |
-          ENDPOINT="http://localhost:${{ steps.subgraph.outputs.port }}${{ steps.subgraph.outputs.health_endpoint }}"
+          ENDPOINT="http://localhost:$PORT/health"
           RETRY_COUNTER=0
-          
-          echo "Verifying ${{ steps.subgraph.outputs.name }} health at $ENDPOINT"
+          echo "Verifying users subgraph health at $ENDPOINT"
           until curl -s -f "$ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
             echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
             RETRY_COUNTER=$((RETRY_COUNTER+1))
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
           done
-          
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
-            echo "::error::Service ${{ steps.subgraph.outputs.name }} failed to start properly after multiple attempts!"
-            pm2 logs ${{ steps.subgraph.outputs.pm2 }} --lines 50
+            echo "::error::Service users failed to start/reload properly!"
+            pm2 logs $PM2_NAME --lines 50
             exit 1
           else
-            echo "Service ${{ steps.subgraph.outputs.name }} is healthy and operational!"
+            echo "Service users is healthy and operational!"
           fi
 
-  # 2. Deploy Media Subgraph after Users is healthy
   deploy-media:
     runs-on: self-hosted
+    needs: deploy-users
     timeout-minutes: 10
-    needs: [setup, deploy-users]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Parse subgraph info
-        id: subgraph
-        run: |
-          content='${{ needs.setup.outputs.media_info }}'
-          echo "name=$(echo $content | jq -r '.name')" >> $GITHUB_OUTPUT
-          echo "path=$(echo $content | jq -r '.path')" >> $GITHUB_OUTPUT
-          echo "port=$(echo $content | jq -r '.port')" >> $GITHUB_OUTPUT
-          echo "pm2=$(echo $content | jq -r '.pm2')" >> $GITHUB_OUTPUT
-          echo "health_endpoint=$(echo $content | jq -r '.health_endpoint')" >> $GITHUB_OUTPUT
-      
-      - name: Set environment variables
-        run: |
-          echo "SUB_GRAPH_NAME=${{ steps.subgraph.outputs.name }}" >> $GITHUB_ENV
-          echo "PORT=${{ steps.subgraph.outputs.port }}" >> $GITHUB_ENV
-          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $GITHUB_ENV
-          echo "DB_TYPE=${{ secrets.DB_TYPE }}" >> $GITHUB_ENV
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
-          echo "DB_SYNCHRONIZE=${{ secrets.DB_SYNCHRONIZE }}" >> $GITHUB_ENV
-          echo "DB_ENTITIES=${{ secrets.DB_ENTITIES }}" >> $GITHUB_ENV
-          echo "DB_MIGRATIONS=${{ secrets.DB_MIGRATIONS }}" >> $GITHUB_ENV
-          echo "SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}" >> $GITHUB_ENV
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
-          echo "EXPIRE=${{ secrets.EXPIRE }}" >> $GITHUB_ENV
-          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
-          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> $GITHUB_ENV
-          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
-          echo "REDIS_SESSION_TTL=${{ secrets.REDIS_SESSION_TTL }}" >> $GITHUB_ENV
-          echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> $GITHUB_ENV
-          echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> $GITHUB_ENV
-          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> $GITHUB_ENV
-          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> $GITHUB_ENV
-          echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.subgraph.outputs.path }}/.bun
-            ${{ steps.subgraph.outputs.path }}/node_modules
-          key: ${{ runner.os }}-bun-${{ steps.subgraph.outputs.name }}-${{ hashFiles(format('{0}/bun.lockb', steps.subgraph.outputs.path)) }}
-          restore-keys: |
-            ${{ runner.os }}-bun-${{ steps.subgraph.outputs.name }}-
-            ${{ runner.os }}-bun-
 
       - name: Install dependencies
         run: bun install
-        working-directory: ${{ steps.subgraph.outputs.path }}
-      
-      - name: Check if service is already running and healthy
-        id: health-check
-        continue-on-error: true
-        run: |
-          ENDPOINT="http://localhost:${{ steps.subgraph.outputs.port }}${{ steps.subgraph.outputs.health_endpoint }}"
-          if curl -s -f "$ENDPOINT" > /dev/null; then
-            echo "Current service is healthy"
-            echo "is_healthy=true" >> $GITHUB_OUTPUT
-          else
-            echo "Current service is not healthy or not running"
-            echo "is_healthy=false" >> $GITHUB_OUTPUT
-          fi
+        working-directory: ./media
 
-      # Zero downtime deployment strategy
-      - name: Deploy with zero downtime
+      - name: Deploy Media Subgraph
+        env:
+          PORT: 4002
+          PM2_NAME: sunshine_media_subgraph
         run: |
-          set -e
-          echo "Deploying ${{ steps.subgraph.outputs.name }} subgraph"
-          
-          # Check if PM2 process exists
-          if pm2 list | grep -q "${{ steps.subgraph.outputs.pm2 }}"; then
-            echo "Starting new instance before stopping the old one for zero downtime"
-            
-            # Create a temporary process for the new version
-            TEMP_PM2_NAME="${{ steps.subgraph.outputs.pm2 }}_new"
-            
-            # Start new process on a different port
-            export PORT=$((${{ steps.subgraph.outputs.port }}+1000))
-            echo "Starting new instance on PORT $PORT"
-            
-            pm2 start bun --name $TEMP_PM2_NAME -- start
-            
-            # Wait for new service to be healthy
-            TEMP_ENDPOINT="http://localhost:$PORT${{ steps.subgraph.outputs.health_endpoint }}"
-            RETRY_COUNTER=0
-            
-            echo "Waiting for new service to be healthy at $TEMP_ENDPOINT"
-            until curl -s -f "$TEMP_ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
-              echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
-              RETRY_COUNTER=$((RETRY_COUNTER+1))
-              sleep ${{ env.HEALTH_CHECK_INTERVAL }}
-            done
-            
-            if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
-              echo "::error::New service failed to start properly after multiple attempts!"
-              pm2 logs $TEMP_PM2_NAME --lines 50
-              pm2 delete $TEMP_PM2_NAME
-              exit 1
-            fi
-            
-            echo "New service is healthy, switching over"
-            
-            # Stop the old process
-            pm2 delete ${{ steps.subgraph.outputs.pm2 }}
-            
-            # Restart the new process on the correct port
-            pm2 stop $TEMP_PM2_NAME
-            
-            # Restore original port
-            export PORT=${{ steps.subgraph.outputs.port }}
-            
-            # Start on the correct port with the correct name
-            pm2 start bun --name ${{ steps.subgraph.outputs.pm2 }} -- start
-            
-            # Delete temporary process
-            pm2 delete $TEMP_PM2_NAME
+          if pm2 list | grep -q "$PM2_NAME"; then
+            echo "Reloading $PM2_NAME for zero-downtime deployment."
+            pm2 reload $PM2_NAME
           else
-            echo "No existing process found, starting fresh"
-            pm2 start bun --name ${{ steps.subgraph.outputs.pm2 }} -- start
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start bun --name $PM2_NAME -- start
           fi
-        working-directory: ${{ steps.subgraph.outputs.path }}
-      
-      - name: Verify service health
+        working-directory: ./media
+
+      - name: Verify Service Health
+        env:
+          PORT: 4002
+          PM2_NAME: sunshine_media_subgraph
         run: |
-          ENDPOINT="http://localhost:${{ steps.subgraph.outputs.port }}${{ steps.subgraph.outputs.health_endpoint }}"
+          ENDPOINT="http://localhost:$PORT/health"
           RETRY_COUNTER=0
-          
-          echo "Verifying ${{ steps.subgraph.outputs.name }} health at $ENDPOINT"
+          echo "Verifying media subgraph health at $ENDPOINT"
           until curl -s -f "$ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
             echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
             RETRY_COUNTER=$((RETRY_COUNTER+1))
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
           done
-          
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
-            echo "::error::Service ${{ steps.subgraph.outputs.name }} failed to start properly after multiple attempts!"
-            pm2 logs ${{ steps.subgraph.outputs.pm2 }} --lines 50
+            echo "::error::Service media failed to start/reload properly!"
+            pm2 logs $PM2_NAME --lines 50
             exit 1
           else
-            echo "Service ${{ steps.subgraph.outputs.name }} is healthy and operational!"
+            echo "Service media is healthy and operational!"
           fi
 
-  # 3. Deploy Product Subgraph after Media is healthy
   deploy-product:
     runs-on: self-hosted
+    needs: deploy-media
     timeout-minutes: 10
-    needs: [setup, deploy-media]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Parse subgraph info
-        id: subgraph
-        run: |
-          content='${{ needs.setup.outputs.product_info }}'
-          echo "name=$(echo $content | jq -r '.name')" >> $GITHUB_OUTPUT
-          echo "path=$(echo $content | jq -r '.path')" >> $GITHUB_OUTPUT
-          echo "port=$(echo $content | jq -r '.port')" >> $GITHUB_OUTPUT
-          echo "pm2=$(echo $content | jq -r '.pm2')" >> $GITHUB_OUTPUT
-          echo "health_endpoint=$(echo $content | jq -r '.health_endpoint')" >> $GITHUB_OUTPUT
-      
-      - name: Set environment variables
-        run: |
-          echo "SUB_GRAPH_NAME=${{ steps.subgraph.outputs.name }}" >> $GITHUB_ENV
-          echo "PORT=${{ steps.subgraph.outputs.port }}" >> $GITHUB_ENV
-          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $GITHUB_ENV
-          echo "DB_TYPE=${{ secrets.DB_TYPE }}" >> $GITHUB_ENV
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
-          echo "DB_SYNCHRONIZE=${{ secrets.DB_SYNCHRONIZE }}" >> $GITHUB_ENV
-          echo "DB_ENTITIES=${{ secrets.DB_ENTITIES }}" >> $GITHUB_ENV
-          echo "DB_MIGRATIONS=${{ secrets.DB_MIGRATIONS }}" >> $GITHUB_ENV
-          echo "SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}" >> $GITHUB_ENV
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
-          echo "EXPIRE=${{ secrets.EXPIRE }}" >> $GITHUB_ENV
-          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
-          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> $GITHUB_ENV
-          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
-          echo "REDIS_SESSION_TTL=${{ secrets.REDIS_SESSION_TTL }}" >> $GITHUB_ENV
-          echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> $GITHUB_ENV
-          echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> $GITHUB_ENV
-          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> $GITHUB_ENV
-          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> $GITHUB_ENV
-          echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.subgraph.outputs.path }}/.bun
-            ${{ steps.subgraph.outputs.path }}/node_modules
-          key: ${{ runner.os }}-bun-${{ steps.subgraph.outputs.name }}-${{ hashFiles(format('{0}/bun.lockb', steps.subgraph.outputs.path)) }}
-          restore-keys: |
-            ${{ runner.os }}-bun-${{ steps.subgraph.outputs.name }}-
-            ${{ runner.os }}-bun-
 
       - name: Install dependencies
         run: bun install
-        working-directory: ${{ steps.subgraph.outputs.path }}
-      
-      - name: Check if service is already running and healthy
-        id: health-check
-        continue-on-error: true
-        run: |
-          ENDPOINT="http://localhost:${{ steps.subgraph.outputs.port }}${{ steps.subgraph.outputs.health_endpoint }}"
-          if curl -s -f "$ENDPOINT" > /dev/null; then
-            echo "Current service is healthy"
-            echo "is_healthy=true" >> $GITHUB_OUTPUT
-          else
-            echo "Current service is not healthy or not running"
-            echo "is_healthy=false" >> $GITHUB_OUTPUT
-          fi
+        working-directory: ./product
 
-      # Zero downtime deployment strategy
-      - name: Deploy with zero downtime
+      - name: Deploy Product Subgraph
+        env:
+          PORT: 4003
+          PM2_NAME: sunshine_product_subgraph
         run: |
-          set -e
-          echo "Deploying ${{ steps.subgraph.outputs.name }} subgraph"
-          
-          # Check if PM2 process exists
-          if pm2 list | grep -q "${{ steps.subgraph.outputs.pm2 }}"; then
-            echo "Starting new instance before stopping the old one for zero downtime"
-            
-            # Create a temporary process for the new version
-            TEMP_PM2_NAME="${{ steps.subgraph.outputs.pm2 }}_new"
-            
-            # Start new process on a different port
-            export PORT=$((${{ steps.subgraph.outputs.port }}+1000))
-            echo "Starting new instance on PORT $PORT"
-            
-            pm2 start bun --name $TEMP_PM2_NAME -- start
-            
-            # Wait for new service to be healthy
-            TEMP_ENDPOINT="http://localhost:$PORT${{ steps.subgraph.outputs.health_endpoint }}"
-            RETRY_COUNTER=0
-            
-            echo "Waiting for new service to be healthy at $TEMP_ENDPOINT"
-            until curl -s -f "$TEMP_ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
-              echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
-              RETRY_COUNTER=$((RETRY_COUNTER+1))
-              sleep ${{ env.HEALTH_CHECK_INTERVAL }}
-            done
-            
-            if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
-              echo "::error::New service failed to start properly after multiple attempts!"
-              pm2 logs $TEMP_PM2_NAME --lines 50
-              pm2 delete $TEMP_PM2_NAME
-              exit 1
-            fi
-            
-            echo "New service is healthy, switching over"
-            
-            # Stop the old process
-            pm2 delete ${{ steps.subgraph.outputs.pm2 }}
-            
-            # Restart the new process on the correct port
-            pm2 stop $TEMP_PM2_NAME
-            
-            # Restore original port
-            export PORT=${{ steps.subgraph.outputs.port }}
-            
-            # Start on the correct port with the correct name
-            pm2 start bun --name ${{ steps.subgraph.outputs.pm2 }} -- start
-            
-            # Delete temporary process
-            pm2 delete $TEMP_PM2_NAME
+          if pm2 list | grep -q "$PM2_NAME"; then
+            echo "Reloading $PM2_NAME for zero-downtime deployment."
+            pm2 reload $PM2_NAME
           else
-            echo "No existing process found, starting fresh"
-            pm2 start bun --name ${{ steps.subgraph.outputs.pm2 }} -- start
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start bun --name $PM2_NAME -- start
           fi
-        working-directory: ${{ steps.subgraph.outputs.path }}
-      
-      - name: Verify service health
+        working-directory: ./product
+
+      - name: Verify Service Health
+        env:
+          PORT: 4003
+          PM2_NAME: sunshine_product_subgraph
         run: |
-          ENDPOINT="http://localhost:${{ steps.subgraph.outputs.port }}${{ steps.subgraph.outputs.health_endpoint }}"
+          ENDPOINT="http://localhost:$PORT/health"
           RETRY_COUNTER=0
-          
-          echo "Verifying ${{ steps.subgraph.outputs.name }} health at $ENDPOINT"
+          echo "Verifying product subgraph health at $ENDPOINT"
           until curl -s -f "$ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
             echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
             RETRY_COUNTER=$((RETRY_COUNTER+1))
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
           done
-          
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
-            echo "::error::Service ${{ steps.subgraph.outputs.name }} failed to start properly after multiple attempts!"
-            pm2 logs ${{ steps.subgraph.outputs.pm2 }} --lines 50
+            echo "::error::Service product failed to start/reload properly!"
+            pm2 logs $PM2_NAME --lines 50
             exit 1
           else
-            echo "Service ${{ steps.subgraph.outputs.name }} is healthy and operational!"
+            echo "Service product is healthy and operational!"
           fi
 
-  # 4. Deploy Router after all subgraphs are healthy
   deploy-router:
     runs-on: self-hosted
-    needs: [deploy-users, deploy-media, deploy-product]
+    needs: deploy-product
     timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: router
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
-      - name: Verify all subgraphs are healthy before updating router
+      - name: Verify all subgraphs are healthy
         run: |
           echo "Verifying all subgraphs are healthy before updating the router..."
-          
-          # Check users subgraph
-          USERS_ENDPOINT="http://localhost:4001/health"
-          if ! curl -s -f "$USERS_ENDPOINT" > /dev/null; then
-            echo "::error::Users subgraph is not healthy!"
-            exit 1
-          else
-            echo "Users subgraph is healthy"
-          fi
-          
-          # Check media subgraph
-          MEDIA_ENDPOINT="http://localhost:4002/health"
-          if ! curl -s -f "$MEDIA_ENDPOINT" > /dev/null; then
-            echo "::error::Media subgraph is not healthy!"
-            exit 1
-          else
-            echo "Media subgraph is healthy"
-          fi
-          
-          # Check product subgraph
-          PRODUCT_ENDPOINT="http://localhost:4003/health"
-          if ! curl -s -f "$PRODUCT_ENDPOINT" > /dev/null; then
-            echo "::error::Product subgraph is not healthy!"
-            exit 1
-          else
-            echo "Product subgraph is healthy"
-          fi
-          
+          if ! curl -s -f "http://localhost:4001/health"; then echo "::error::Users subgraph is not healthy!"; exit 1; else echo "Users subgraph is healthy"; fi
+          if ! curl -s -f "http://localhost:4002/health"; then echo "::error::Media subgraph is not healthy!"; exit 1; else echo "Media subgraph is healthy"; fi
+          if ! curl -s -f "http://localhost:4003/health"; then echo "::error::Product subgraph is not healthy!"; exit 1; else echo "Product subgraph is healthy"; fi
           echo "All subgraphs are operational, safe to update router!"
 
       - name: Set up Node.js
@@ -679,109 +221,38 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        
-      - name: Install Rover if not present
-        run: |
-          if ! command -v rover &> /dev/null; then
-            echo "Installing rover..."
-            curl -sSL https://rover.apollo.dev/nix/latest | sh -s -- --force
-            echo "$HOME/.rover/bin" >> $GITHUB_PATH
-            export PATH="$HOME/.rover/bin:$PATH"
-          else
-            echo "Rover already installed. Skipping."
-          fi
+        working-directory: ./router
 
-      - name: Ensure Apollo Router binary is executable
-        run: chmod +x ./router
-
-      # Apply zero-downtime strategy for router
-      - name: Deploy Router with zero downtime
+      - name: Deploy Router
+        env:
+          PM2_NAME: sunshine_router
         run: |
-          set -e
-          ROUTER_PORT=4000
-          TEMP_ROUTER_PORT=5000
-          
-          echo "Checking if Apollo Router is already running..."
-          ROUTER_RUNNING=false
-          if pm2 list | grep -q "sunshine_router"; then
-            echo "Apollo Router is already running"
-            ROUTER_RUNNING=true
-            
-            # Check if current router is healthy
-            if curl -s -f "http://localhost:$ROUTER_PORT/.well-known/apollo/server-health" > /dev/null; then
-              echo "Current Router is healthy"
-            else
-              echo "Current Router is not healthy, will replace it"
-            fi
-          fi
-          
-          if [ "$ROUTER_RUNNING" = true ]; then
-            echo "Starting new Router instance on temporary port before stopping the existing one"
-            
-            # Create temporary process for the new version
-            TEMP_ROUTER_NAME="sunshine_router_new"
-            
-            # Set up environment for temporary router
-            export ROUTER_PORT=$TEMP_ROUTER_PORT
-            
-            # Start new router process
-            echo "Starting new Router on port $TEMP_ROUTER_PORT"
-            pm2 start npm --name $TEMP_ROUTER_NAME -- start
-            
-            # Wait for new router to be healthy
-            RETRY_COUNTER=0
-            echo "Checking health of new Router at http://localhost:$TEMP_ROUTER_PORT/.well-known/apollo/server-health"
-            until curl -s -f "http://localhost:$TEMP_ROUTER_PORT/.well-known/apollo/server-health" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
-              echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
-              RETRY_COUNTER=$((RETRY_COUNTER+1))
-              sleep ${{ env.HEALTH_CHECK_INTERVAL }}
-            done
-            
-            if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
-              echo "::error::New Router failed to start properly after multiple attempts!"
-              pm2 logs $TEMP_ROUTER_NAME --lines 50
-              pm2 delete $TEMP_ROUTER_NAME
-              exit 1
-            fi
-            
-            echo "New Router is healthy, switching traffic over..."
-            
-            # Now we have a healthy new instance, stop the old one
-            pm2 delete sunshine_router
-            
-            # Stop the temporary process
-            pm2 stop $TEMP_ROUTER_NAME
-            
-            # Restore original port environment
-            export ROUTER_PORT=4000
-            
-            # Start with the correct name and port
-            pm2 start npm --name sunshine_router -- start
-            
-            # Delete temporary process
-            pm2 delete $TEMP_ROUTER_NAME
+          if pm2 list | grep -q "$PM2_NAME"; then
+            echo "Reloading $PM2_NAME for zero-downtime deployment."
+            pm2 reload $PM2_NAME
           else
-            echo "No existing Router found, starting fresh"
-            pm2 start npm --name sunshine_router -- start
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start npm --name $PM2_NAME -- start
           fi
-          
+        working-directory: ./router
+
       - name: Verify Router Health
+        env:
+          ROUTER_PORT: 4000
+          PM2_NAME: sunshine_router
         run: |
-          ROUTER_PORT=4000
+          ENDPOINT="http://localhost:$ROUTER_PORT/.well-known/apollo/server-health"
           RETRY_COUNTER=0
-          
-          echo "Verifying Router health at http://localhost:$ROUTER_PORT/.well-known/apollo/server-health"
-          until curl -s -f "http://localhost:$ROUTER_PORT/.well-known/apollo/server-health" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
+          echo "Verifying Router health at $ENDPOINT"
+          until curl -s -f "$ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
             echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
             RETRY_COUNTER=$((RETRY_COUNTER+1))
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
           done
-          
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
-            echo "::error::Apollo Router failed to start properly after multiple attempts!"
-            pm2 logs sunshine_router --lines 50
+            echo "::error::Apollo Router failed to start properly!"
+            pm2 logs $PM2_NAME --lines 50
             exit 1
           else
             echo "Apollo Router is healthy and operational!"
-            echo "Deployment completed successfully with zero downtime!"
           fi
