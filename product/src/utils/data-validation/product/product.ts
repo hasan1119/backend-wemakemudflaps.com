@@ -518,7 +518,7 @@ export const ProductVariationInputSchema = z.object({
  * 14. Validates `saleQuantity` as an optional positive integer and `saleQuantityUnit` as a non-empty string.
  * 15. Validates `taxStatus` as a required `TaxStatusTypeEnum` and `taxClassId` as an optional UUID.
  * 16. Validates `minQuantity`, `defaultQuantity`, `maxQuantity`, `quantityStep` as optional positive integers.
- * 17. Validates `manageStock`, `soldIndividually`, `enableReviews`, `isPreview`, `isVisible` as optional booleans.
+ * 17. Validates `manageStock`, `soldIndividually`, `enableReviews`, `isVisible` as optional booleans.
  * 18. Validates `stockQuantity`, `lowStockThresHold` as optional positive integers.
  * 19. Validates `allowBackOrders` as an optional `BackOrderOptionEnum`.
  * 20. Validates `initialNumberInStock` as an optional non-empty string.
@@ -579,7 +579,6 @@ export const ProductVariationInputSchema = z.object({
  * @property attributeIds - Optional array of product attribute UUIDs.
  * @property variations - Optional array of associated variations.
  * @property enableReviews - Optional flag to enable product reviews.
- * @property isPreview - Optional flag to mark as preview-only.
  * @property isVisible - Optional flag to determine frontend visibility.
  */
 export const createProductSchema = z
@@ -773,7 +772,6 @@ export const createProductSchema = z
       .nullable(),
     variations: z.array(ProductVariationInputSchema).optional().nullable(),
     enableReviews: z.boolean().optional().nullable(),
-    isPreview: z.boolean().optional().nullable(),
     isVisible: z.boolean().optional().nullable(),
   })
   .refine(
@@ -855,7 +853,6 @@ export const createProductSchema = z
  * @property attributeIds - Optional array of product attribute UUIDs.
  * @property variations - Optional array of associated variations.
  * @property enableReviews - Optional flag to enable product reviews.
- * @property isPreview - Optional flag to mark as preview-only.
  * @property isVisible - Optional flag to determine frontend visibility.
  * @property deletedAt - Optional timestamp for soft deletion.
  */
@@ -1055,7 +1052,6 @@ export const updateProductSchema = z
       .nullable(),
     variations: z.array(ProductVariationInputSchema).optional().nullable(),
     enableReviews: z.boolean().optional().nullable(),
-    isPreview: z.boolean().optional().nullable(),
     isVisible: z.boolean().optional().nullable(),
     deletedAt: z.string().datetime().optional().nullable(),
   })

@@ -55,7 +55,6 @@ type Mutation {
     purchaseNote: String
     enableReviews: Boolean
     customBadge: String
-    isPreview: Boolean
     isVisible: Boolean
   ): CreateProductResponseOrError!
 
@@ -115,7 +114,6 @@ type Mutation {
     purchaseNote: String
     enableReviews: Boolean
     customBadge: String
-    isPreview: Boolean
     isVisible: Boolean
   ): UpdateProductResponseOrError!
 

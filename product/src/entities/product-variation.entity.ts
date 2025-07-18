@@ -8,8 +8,8 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Brand } from "./brand.entity";
+import { ProductAttributeValue } from "./product-attribute-value.entity";
 import { ProductPrice } from "./product-price.entity";
-import { ProductVariationAttributeValue } from "./product-variation-attribute-value.entity";
 import { Product } from "./product.entity";
 import { ShippingClass } from "./shipping-class.entity";
 import { TaxClass } from "./tax-class.entity";
@@ -140,12 +140,11 @@ export class ProductVariation {
   product: Promise<Product>;
 
   // To store attribute values for the variation
-  @OneToMany(
-    () => ProductVariationAttributeValue,
-    (attrValue) => attrValue.variation,
-    { cascade: true, nullable: true }
-  )
-  attributeValues: ProductVariationAttributeValue[] | null;
+  @OneToMany(() => ProductAttributeValue, (attrValue) => attrValue.variation, {
+    cascade: true,
+    nullable: true,
+  })
+  attributeValues: ProductAttributeValue[] | null;
 
   // Warranty digit for the variation (nullable)
   @Column({ nullable: true, default: null })

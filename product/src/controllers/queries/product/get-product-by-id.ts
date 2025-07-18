@@ -220,7 +220,6 @@ export const getProductById = async (
         enableReviews: productData.enableReviews,
         reviews: productData.reviews as any,
         customBadge: productData.customBadge,
-        isPreview: productData.isPreview,
         isVisible: productData.isVisible,
         createdBy: productData.createdBy as any,
         createdAt:

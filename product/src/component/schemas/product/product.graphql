@@ -68,7 +68,6 @@ type Product @key(fields: "id") {
   reviews: [ProductReview!] # List of review
   # ---------------------- Display ----------------------
   enableReviews: Boolean # Enable product reviews
-  isPreview: Boolean # Marks as preview-only
   isVisible: Boolean # Determines frontend visibility
   # ---------------------- Meta ----------------------
   createdAt: String # Creation timestamp

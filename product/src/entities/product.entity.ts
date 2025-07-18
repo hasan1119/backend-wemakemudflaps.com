@@ -413,10 +413,6 @@ export class Product {
   @Column({ nullable: true, default: null })
   customBadge: string | null;
 
-  // For preview mode (Admins/Authorities can see)
-  @Column({ type: "boolean", default: false })
-  isPreview: boolean;
-
   // For customer visibility
   @Column({ type: "boolean", default: false })
   isVisible: boolean;

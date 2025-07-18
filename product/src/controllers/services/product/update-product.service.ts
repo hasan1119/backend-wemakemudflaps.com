@@ -74,7 +74,6 @@ export const updateProduct = async (
   product.purchaseNote = data.purchaseNote;
   product.enableReviews = data.enableReviews;
   product.customBadge = data.customBadge;
-  product.isPreview = data.isPreview;
   product.isVisible = data.isVisible;
   product.productConfigurationType = data.productConfigurationType;
   product.productDeliveryType = data.productDeliveryType;

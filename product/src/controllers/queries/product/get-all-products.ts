@@ -237,7 +237,6 @@ export const getAllProducts = async (
       enableReviews: product.enableReviews,
       reviews: product.reviews as any,
       customBadge: product.customBadge,
-      isPreview: product.isPreview,
       isVisible: product.isVisible,
       createdBy: product.createdBy as any,
       createdAt: product.createdAt.toISOString(),
