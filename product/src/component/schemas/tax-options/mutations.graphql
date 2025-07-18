@@ -3,7 +3,7 @@ type Mutation {
   createTaxOptions(
     pricesEnteredWithTax: Boolean! # Whether prices are entered with tax
     calculateTaxBasedOn: CalculateTaxBasedOn! # Basis for tax calculation (e.g., "subtotal", "total")
-    shippingTaxClass: ID # Tax class applied to shipping
+    shippingTaxClassId: ID # Tax class applied to shipping
     displayPricesInShop: Boolean! # Whether to display prices in the shop
     displayPricesDuringCartAndCheckout: Boolean! # Whether to display prices during cart and checkout
     priceDisplaySuffix: String! # Suffix to display with prices (e.g., "incl. tax")
@@ -14,7 +14,7 @@ type Mutation {
   updateTaxOptions(
     pricesEnteredWithTax: Boolean # Whether prices are entered with tax
     calculateTaxBasedOn: CalculateTaxBasedOn # Basis for tax calculation (e.g., "subtotal", "total")
-    shippingTaxClass: ID # Tax class applied to shipping
+    shippingTaxClassId: ID # Tax class applied to shipping
     displayPricesInShop: Boolean # Whether to display prices in the shop
     displayPricesDuringCartAndCheckout: Boolean! # Whether to display prices during cart and checkout
     priceDisplaySuffix: String # Suffix to display with prices (e.g., "incl. tax")

@@ -130,3 +130,14 @@ export {
   sortShippingZoneSchema,
   updateShippingZoneSchema,
 } from "./shipping-zone/shipping-zone";
+
+/**
+ * Exports tax-options related schemas for tax option management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, and updating tax options.
+ */
+export {
+  createdTaxOptionsSchema,
+  updatedTaxOptionsSchema,
+} from "./tax-options/tax-options";

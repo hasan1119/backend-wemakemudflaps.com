@@ -901,7 +901,7 @@ export type MutationCreateTaxOptionsArgs = {
   priceDisplaySuffix: Scalars['String']['input'];
   pricesEnteredWithTax: Scalars['Boolean']['input'];
   roundTaxAtSubtotalLevel: Scalars['Boolean']['input'];
-  shippingTaxClass?: InputMaybe<Scalars['ID']['input']>;
+  shippingTaxClassId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -1272,7 +1272,7 @@ export type MutationUpdateTaxOptionsArgs = {
   priceDisplaySuffix?: InputMaybe<Scalars['String']['input']>;
   pricesEnteredWithTax?: InputMaybe<Scalars['Boolean']['input']>;
   roundTaxAtSubtotalLevel?: InputMaybe<Scalars['Boolean']['input']>;
-  shippingTaxClass?: InputMaybe<Scalars['ID']['input']>;
+  shippingTaxClassId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
