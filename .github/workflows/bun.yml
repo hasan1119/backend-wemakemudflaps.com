@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  HEALTH_CHECK_RETRIES: 6
+  HEALTH_CHECK_RETRIES: 12
   HEALTH_CHECK_INTERVAL: 5 # seconds
   # Common environment variables from secrets
   FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
@@ -69,6 +69,7 @@ jobs:
             echo "Starting $PM2_NAME for the first time."
             pm2 start bun --name $PM2_NAME -- start
           fi
+          sleep 5
         working-directory: ./users
 
       - name: Verify Service Health
@@ -121,6 +122,7 @@ jobs:
             echo "Starting $PM2_NAME for the first time."
             pm2 start bun --name $PM2_NAME -- start
           fi
+          sleep 5
         working-directory: ./media
 
       - name: Verify Service Health
@@ -173,6 +175,7 @@ jobs:
             echo "Starting $PM2_NAME for the first time."
             pm2 start bun --name $PM2_NAME -- start
           fi
+          sleep 5
         working-directory: ./product
 
       - name: Verify Service Health
@@ -234,6 +237,7 @@ jobs:
             echo "Starting $PM2_NAME for the first time."
             pm2 start npm --name $PM2_NAME -- start
           fi
+          sleep 5
         working-directory: ./router
 
       - name: Verify Router Health
