@@ -202,6 +202,12 @@ jobs:
           PORT=4001
           HEALTH_ENDPOINT="/health"
           
+          # Verify we're in the right directory with package.json
+          if [ ! -f "package.json" ]; then
+            echo "::error::No package.json found in current directory $(pwd)"
+            exit 1
+          fi
+          
           # Check if PM2 process exists
           if pm2 list | grep -q "$PM2_NAME"; then
             echo "Starting new instance before stopping the old one for zero downtime"
@@ -368,6 +374,12 @@ jobs:
           PORT=4002
           HEALTH_ENDPOINT="/health"
           
+          # Verify we're in the right directory with package.json
+          if [ ! -f "package.json" ]; then
+            echo "::error::No package.json found in current directory $(pwd)"
+            exit 1
+          fi
+          
           # Check if PM2 process exists
           if pm2 list | grep -q "$PM2_NAME"; then
             echo "Starting new instance before stopping the old one for zero downtime"
@@ -523,6 +535,12 @@ jobs:
           PM2_NAME="sunshine_product_subgraph"
           PORT=4003
           HEALTH_ENDPOINT="/health"
+          
+          # Verify we're in the right directory with package.json
+          if [ ! -f "package.json" ]; then
+            echo "::error::No package.json found in current directory $(pwd)"
+            exit 1
+          fi
           
           # Check if PM2 process exists
           if pm2 list | grep -q "$PM2_NAME"; then
