@@ -15,6 +15,7 @@ concurrency:
 env:
   HEALTH_CHECK_RETRIES: 10
   HEALTH_CHECK_INTERVAL: 5
+  WORKSPACE_ROOT: '~/actions-runners/wemakemudflaps.com/backend/_work/backend-wemakemudflaps.com/backend-wemakemudflaps.com'
 
 jobs:
   # Check repository structure first
@@ -33,6 +34,9 @@ jobs:
           echo "Repository structure:"
           ls -la
           
+          echo "Current working directory: $(pwd)"
+          echo "Expected workspace path: ${{ env.WORKSPACE_ROOT }}"
+          
           # Store the repository root
           REPO_ROOT=$(pwd)
           echo "repo_root=$REPO_ROOT" >> $GITHUB_OUTPUT
@@ -43,13 +47,31 @@ jobs:
             if [ -f "users/package.json" ]; then
               echo "✅ users/package.json exists"
               echo "users_ok=true" >> $GITHUB_OUTPUT
+              echo "users_path=$REPO_ROOT/users" >> $GITHUB_OUTPUT
             else
               echo "❌ users/package.json NOT found!"
-              echo "users_ok=false" >> $GITHUB_OUTPUT
+              # Try to find it
+              USERS_PKG=$(find $REPO_ROOT -path "*/users/package.json" -not -path "*/node_modules/*" | head -n 1)
+              if [ -n "$USERS_PKG" ]; then
+                USERS_DIR=$(dirname "$USERS_PKG")
+                echo "✅ Found users package.json at: $USERS_PKG"
+                echo "users_ok=true" >> $GITHUB_OUTPUT
+                echo "users_path=$USERS_DIR" >> $GITHUB_OUTPUT
+              else
+                echo "users_ok=false" >> $GITHUB_OUTPUT
+              fi
             fi
           else
-            echo "❌ users directory NOT found!"
-            echo "users_ok=false" >> $GITHUB_OUTPUT
+            echo "❌ users directory NOT found at root level!"
+            # Try to find it elsewhere
+            USERS_DIR=$(find $REPO_ROOT -type d -name "users" -not -path "*/node_modules/*" | head -n 1)
+            if [ -n "$USERS_DIR" ] && [ -f "$USERS_DIR/package.json" ]; then
+              echo "✅ Found users directory at: $USERS_DIR"
+              echo "users_ok=true" >> $GITHUB_OUTPUT
+              echo "users_path=$USERS_DIR" >> $GITHUB_OUTPUT
+            else
+              echo "users_ok=false" >> $GITHUB_OUTPUT
+            fi
           fi
           
           if [ -d "media" ]; then
@@ -57,13 +79,31 @@ jobs:
             if [ -f "media/package.json" ]; then
               echo "✅ media/package.json exists"
               echo "media_ok=true" >> $GITHUB_OUTPUT
+              echo "media_path=$REPO_ROOT/media" >> $GITHUB_OUTPUT
             else
               echo "❌ media/package.json NOT found!"
-              echo "media_ok=false" >> $GITHUB_OUTPUT
+              # Try to find it
+              MEDIA_PKG=$(find $REPO_ROOT -path "*/media/package.json" -not -path "*/node_modules/*" | head -n 1)
+              if [ -n "$MEDIA_PKG" ]; then
+                MEDIA_DIR=$(dirname "$MEDIA_PKG")
+                echo "✅ Found media package.json at: $MEDIA_PKG"
+                echo "media_ok=true" >> $GITHUB_OUTPUT
+                echo "media_path=$MEDIA_DIR" >> $GITHUB_OUTPUT
+              else
+                echo "media_ok=false" >> $GITHUB_OUTPUT
+              fi
             fi
           else
-            echo "❌ media directory NOT found!"
-            echo "media_ok=false" >> $GITHUB_OUTPUT
+            echo "❌ media directory NOT found at root level!"
+            # Try to find it elsewhere
+            MEDIA_DIR=$(find $REPO_ROOT -type d -name "media" -not -path "*/node_modules/*" | head -n 1)
+            if [ -n "$MEDIA_DIR" ] && [ -f "$MEDIA_DIR/package.json" ]; then
+              echo "✅ Found media directory at: $MEDIA_DIR"
+              echo "media_ok=true" >> $GITHUB_OUTPUT
+              echo "media_path=$MEDIA_DIR" >> $GITHUB_OUTPUT
+            else
+              echo "media_ok=false" >> $GITHUB_OUTPUT
+            fi
           fi
           
           if [ -d "product" ]; then
@@ -71,13 +111,31 @@ jobs:
             if [ -f "product/package.json" ]; then
               echo "✅ product/package.json exists"
               echo "product_ok=true" >> $GITHUB_OUTPUT
+              echo "product_path=$REPO_ROOT/product" >> $GITHUB_OUTPUT
             else
               echo "❌ product/package.json NOT found!"
-              echo "product_ok=false" >> $GITHUB_OUTPUT
+              # Try to find it
+              PRODUCT_PKG=$(find $REPO_ROOT -path "*/product/package.json" -not -path "*/node_modules/*" | head -n 1)
+              if [ -n "$PRODUCT_PKG" ]; then
+                PRODUCT_DIR=$(dirname "$PRODUCT_PKG")
+                echo "✅ Found product package.json at: $PRODUCT_PKG"
+                echo "product_ok=true" >> $GITHUB_OUTPUT
+                echo "product_path=$PRODUCT_DIR" >> $GITHUB_OUTPUT
+              else
+                echo "product_ok=false" >> $GITHUB_OUTPUT
+              fi
             fi
           else
-            echo "❌ product directory NOT found!"
-            echo "product_ok=false" >> $GITHUB_OUTPUT
+            echo "❌ product directory NOT found at root level!"
+            # Try to find it elsewhere
+            PRODUCT_DIR=$(find $REPO_ROOT -type d -name "product" -not -path "*/node_modules/*" | head -n 1)
+            if [ -n "$PRODUCT_DIR" ] && [ -f "$PRODUCT_DIR/package.json" ]; then
+              echo "✅ Found product directory at: $PRODUCT_DIR"
+              echo "product_ok=true" >> $GITHUB_OUTPUT
+              echo "product_path=$PRODUCT_DIR" >> $GITHUB_OUTPUT
+            else
+              echo "product_ok=false" >> $GITHUB_OUTPUT
+            fi
           fi
       
       - name: Search for package.json files
@@ -102,13 +160,40 @@ jobs:
           echo "Current directory: $(pwd)"
           echo "Contents of current directory:"
           ls -la
-          echo "Checking for users directory:"
-          if [ -d "users" ]; then
-            echo "users directory exists"
+          
+          USERS_PATH="${{ needs.validate.outputs.users_path }}"
+          if [ -z "$USERS_PATH" ]; then
+            if [ -d "users" ]; then
+              USERS_PATH="$(pwd)/users"
+              echo "Using default users path: $USERS_PATH"
+            else
+              echo "Searching for users directory..."
+              USERS_PATH=$(find $(pwd) -type d -name "users" -not -path "*/node_modules/*" | head -n 1)
+              if [ -n "$USERS_PATH" ]; then
+                echo "Found users directory at: $USERS_PATH"
+              else
+                echo "::error::Could not find users directory!"
+                exit 1
+              fi
+            fi
+          fi
+          
+          echo "Will use users path: $USERS_PATH"
+          echo "users_path=$USERS_PATH" >> $GITHUB_ENV
+          
+          if [ -d "$USERS_PATH" ]; then
             echo "Contents of users directory:"
-            ls -la users/
+            ls -la "$USERS_PATH"
+            
+            if [ -f "$USERS_PATH/package.json" ]; then
+              echo "✅ package.json exists"
+            else
+              echo "::error::package.json not found in users directory!"
+              exit 1
+            fi
           else
-            echo "users directory does not exist"
+            echo "::error::Users directory does not exist at $USERS_PATH"
+            exit 1
           fi
 
       - name: Set up Bun
@@ -120,9 +205,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            users/.bun
-            users/node_modules
-          key: ${{ runner.os }}-bun-users-${{ hashFiles('users/bun.lockb') }}
+            ${{ env.users_path }}/.bun
+            ${{ env.users_path }}/node_modules
+          key: ${{ runner.os }}-bun-users-${{ hashFiles(format('{0}/bun.lockb', env.users_path)) }}
           restore-keys: |
             ${{ runner.os }}-bun-users-
             ${{ runner.os }}-bun-
@@ -131,6 +216,8 @@ jobs:
         run: |
           echo "SUB_GRAPH_NAME=users" >> $GITHUB_ENV
           echo "PORT=4001" >> $GITHUB_ENV
+          echo "PM2_NAME=sunshine_users_subgraph" >> $GITHUB_ENV
+          echo "HEALTH_ENDPOINT=/health" >> $GITHUB_ENV
           echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $GITHUB_ENV
           echo "DB_TYPE=${{ secrets.DB_TYPE }}" >> $GITHUB_ENV
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
@@ -155,45 +242,31 @@ jobs:
           echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
-      - name: Debug directory structure
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Directory structure:"
-          ls -la
-          echo "Looking for package.json files:"
-          find . -name "package.json" -not -path "*/node_modules/*" -type f
-
       - name: Install dependencies
         run: |
-          if [ ! -d "users" ]; then
-            echo "::error::Users directory not found"
-            exit 1
-          fi
-          
-          echo "Changing to users directory..."
-          cd users
           echo "Current directory: $(pwd)"
           echo "Directory contents:"
           ls -la
           
           if [ ! -f "package.json" ]; then
-            echo "::error::package.json not found in users directory"
+            echo "::error::package.json not found in current directory"
             exit 1
           fi
           
           echo "Installing dependencies with Bun..."
-          # Use bun CLI directly to install dependencies
+          bun --version
           bun install || {
             echo "::error::Failed to install dependencies. Trying with --verbose flag"
             bun install --verbose
             exit 1
           }
+        working-directory: ${{ env.users_path }}
 
       - name: Check if service is already running and healthy
         id: health-check
         continue-on-error: true
         run: |
-          ENDPOINT="http://localhost:4001/health"
+          ENDPOINT="http://localhost:${{ env.PORT }}${{ env.HEALTH_ENDPOINT }}"
           if curl -s -f "$ENDPOINT" > /dev/null; then
             echo "Current service is healthy"
             echo "is_healthy=true" >> $GITHUB_OUTPUT
@@ -208,24 +281,15 @@ jobs:
           set -e
           echo "Deploying users subgraph"
           
-          # First change to the users directory
-          if [ ! -d "users" ]; then
-            echo "::error::Users directory not found"
-            exit 1
-          fi
-          
-          cd users
-          echo "Current working directory: $(pwd)"
-          
-          PM2_NAME="sunshine_users_subgraph"
-          PORT=4001
-          HEALTH_ENDPOINT="/health"
-          
-          # Verify we're in the right directory with package.json
+          # Check if we're in the right directory
           if [ ! -f "package.json" ]; then
             echo "::error::No package.json found in current directory $(pwd)"
             exit 1
           fi
+          
+          PM2_NAME="${{ env.PM2_NAME }}"
+          PORT=${{ env.PORT }}
+          HEALTH_ENDPOINT="${{ env.HEALTH_ENDPOINT }}"
           
           # Check if PM2 process exists
           if pm2 list | grep -q "$PM2_NAME"; then
@@ -281,11 +345,11 @@ jobs:
             echo "No existing process found, starting fresh"
             pm2 start bun --name $PM2_NAME --env PORT=$PORT -- start
           fi
-        working-directory: users
+        working-directory: ${{ env.users_path }}
       
       - name: Verify service health
         run: |
-          ENDPOINT="http://localhost:4001/health"
+          ENDPOINT="http://localhost:${{ env.PORT }}${{ env.HEALTH_ENDPOINT }}"
           RETRY_COUNTER=0
           
           echo "Verifying users health at $ENDPOINT"
@@ -296,13 +360,13 @@ jobs:
             
             if [ $RETRY_COUNTER -eq 3 ]; then
               echo "PM2 logs for troubleshooting:"
-              pm2 logs sunshine_users_subgraph --lines 20
+              pm2 logs ${{ env.PM2_NAME }} --lines 20
             fi
           done
           
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
             echo "::error::Service users failed to start properly after multiple attempts!"
-            pm2 logs sunshine_users_subgraph --lines 50
+            pm2 logs ${{ env.PM2_NAME }} --lines 50
             exit 1
           else
             echo "Service users is healthy and operational!"
@@ -312,12 +376,53 @@ jobs:
   deploy-media:
     runs-on: self-hosted
     timeout-minutes: 15
-    needs: deploy-users
+    needs: [validate, deploy-users]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Debug environment
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Contents of current directory:"
+          ls -la
+          
+          MEDIA_PATH="${{ needs.validate.outputs.media_path }}"
+          if [ -z "$MEDIA_PATH" ]; then
+            if [ -d "media" ]; then
+              MEDIA_PATH="$(pwd)/media"
+              echo "Using default media path: $MEDIA_PATH"
+            else
+              echo "Searching for media directory..."
+              MEDIA_PATH=$(find $(pwd) -type d -name "media" -not -path "*/node_modules/*" | head -n 1)
+              if [ -n "$MEDIA_PATH" ]; then
+                echo "Found media directory at: $MEDIA_PATH"
+              else
+                echo "::error::Could not find media directory!"
+                exit 1
+              fi
+            fi
+          fi
+          
+          echo "Will use media path: $MEDIA_PATH"
+          echo "media_path=$MEDIA_PATH" >> $GITHUB_ENV
+          
+          if [ -d "$MEDIA_PATH" ]; then
+            echo "Contents of media directory:"
+            ls -la "$MEDIA_PATH"
+            
+            if [ -f "$MEDIA_PATH/package.json" ]; then
+              echo "✅ package.json exists"
+            else
+              echo "::error::package.json not found in media directory!"
+              exit 1
+            fi
+          else
+            echo "::error::Media directory does not exist at $MEDIA_PATH"
+            exit 1
+          fi
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
@@ -328,9 +433,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            media/.bun
-            media/node_modules
-          key: ${{ runner.os }}-bun-media-${{ hashFiles('media/bun.lockb') }}
+            ${{ env.media_path }}/.bun
+            ${{ env.media_path }}/node_modules
+          key: ${{ runner.os }}-bun-media-${{ hashFiles(format('{0}/bun.lockb', env.media_path)) }}
           restore-keys: |
             ${{ runner.os }}-bun-media-
             ${{ runner.os }}-bun-
@@ -339,6 +444,8 @@ jobs:
         run: |
           echo "SUB_GRAPH_NAME=media" >> $GITHUB_ENV
           echo "PORT=4002" >> $GITHUB_ENV
+          echo "PM2_NAME=sunshine_media_subgraph" >> $GITHUB_ENV
+          echo "HEALTH_ENDPOINT=/health" >> $GITHUB_ENV
           echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $GITHUB_ENV
           echo "DB_TYPE=${{ secrets.DB_TYPE }}" >> $GITHUB_ENV
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
@@ -363,67 +470,54 @@ jobs:
           echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
-      - name: Debug directory structure for media
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Directory structure:"
-          ls -la
-          
-          if [ -d "media" ]; then
-            echo "Contents of media directory:"
-            ls -la media/
-          fi
-
       - name: Install dependencies
         run: |
-          if [ ! -d "media" ]; then
-            echo "::error::Media directory not found"
-            exit 1
-          fi
-          
-          echo "Changing to media directory..."
-          cd media
           echo "Current directory: $(pwd)"
           echo "Directory contents:"
           ls -la
           
           if [ ! -f "package.json" ]; then
-            echo "::error::package.json not found in media directory"
+            echo "::error::package.json not found in current directory"
             exit 1
           fi
           
           echo "Installing dependencies with Bun..."
-          # Ensure we're using the full path to bun
-          which bun
           bun --version
           bun install || {
-            echo "::error::Failed to install dependencies"
+            echo "::error::Failed to install dependencies. Trying with --verbose flag"
+            bun install --verbose
             exit 1
           }
+        working-directory: ${{ env.media_path }}
 
-      - name: Deploy Media subgraph with zero downtime
+      - name: Check if service is already running and healthy
+        id: health-check
+        continue-on-error: true
+        run: |
+          ENDPOINT="http://localhost:${{ env.PORT }}${{ env.HEALTH_ENDPOINT }}"
+          if curl -s -f "$ENDPOINT" > /dev/null; then
+            echo "Current service is healthy"
+            echo "is_healthy=true" >> $GITHUB_OUTPUT
+          else
+            echo "Current service is not healthy or not running"
+            echo "is_healthy=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Zero downtime deployment strategy
+      - name: Deploy with zero downtime
         run: |
           set -e
           echo "Deploying media subgraph"
           
-          # First change to the media directory
-          if [ ! -d "media" ]; then
-            echo "::error::Media directory not found"
-            exit 1
-          fi
-          
-          cd media
-          echo "Current working directory: $(pwd)"
-          
-          PM2_NAME="sunshine_media_subgraph"
-          PORT=4002
-          HEALTH_ENDPOINT="/health"
-          
-          # Verify we're in the right directory with package.json
+          # Check if we're in the right directory
           if [ ! -f "package.json" ]; then
             echo "::error::No package.json found in current directory $(pwd)"
             exit 1
           fi
+          
+          PM2_NAME="${{ env.PM2_NAME }}"
+          PORT=${{ env.PORT }}
+          HEALTH_ENDPOINT="${{ env.HEALTH_ENDPOINT }}"
           
           # Check if PM2 process exists
           if pm2 list | grep -q "$PM2_NAME"; then
@@ -474,11 +568,11 @@ jobs:
             echo "No existing process found, starting fresh"
             pm2 start bun --name $PM2_NAME --env PORT=$PORT -- start
           fi
-        working-directory: media
+        working-directory: ${{ env.media_path }}
       
       - name: Verify service health
         run: |
-          ENDPOINT="http://localhost:4002/health"
+          ENDPOINT="http://localhost:${{ env.PORT }}${{ env.HEALTH_ENDPOINT }}"
           RETRY_COUNTER=0
           
           echo "Verifying media health at $ENDPOINT"
@@ -490,7 +584,7 @@ jobs:
           
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
             echo "::error::Service media failed to start properly after multiple attempts!"
-            pm2 logs sunshine_media_subgraph --lines 50
+            pm2 logs ${{ env.PM2_NAME }} --lines 50
             exit 1
           else
             echo "Service media is healthy and operational!"
@@ -500,12 +594,53 @@ jobs:
   deploy-product:
     runs-on: self-hosted
     timeout-minutes: 15
-    needs: deploy-media
+    needs: [validate, deploy-media]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Debug environment
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Contents of current directory:"
+          ls -la
+          
+          PRODUCT_PATH="${{ needs.validate.outputs.product_path }}"
+          if [ -z "$PRODUCT_PATH" ]; then
+            if [ -d "product" ]; then
+              PRODUCT_PATH="$(pwd)/product"
+              echo "Using default product path: $PRODUCT_PATH"
+            else
+              echo "Searching for product directory..."
+              PRODUCT_PATH=$(find $(pwd) -type d -name "product" -not -path "*/node_modules/*" | head -n 1)
+              if [ -n "$PRODUCT_PATH" ]; then
+                echo "Found product directory at: $PRODUCT_PATH"
+              else
+                echo "::error::Could not find product directory!"
+                exit 1
+              fi
+            fi
+          fi
+          
+          echo "Will use product path: $PRODUCT_PATH"
+          echo "product_path=$PRODUCT_PATH" >> $GITHUB_ENV
+          
+          if [ -d "$PRODUCT_PATH" ]; then
+            echo "Contents of product directory:"
+            ls -la "$PRODUCT_PATH"
+            
+            if [ -f "$PRODUCT_PATH/package.json" ]; then
+              echo "✅ package.json exists"
+            else
+              echo "::error::package.json not found in product directory!"
+              exit 1
+            fi
+          else
+            echo "::error::Product directory does not exist at $PRODUCT_PATH"
+            exit 1
+          fi
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
@@ -516,9 +651,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            product/.bun
-            product/node_modules
-          key: ${{ runner.os }}-bun-product-${{ hashFiles('product/bun.lockb') }}
+            ${{ env.product_path }}/.bun
+            ${{ env.product_path }}/node_modules
+          key: ${{ runner.os }}-bun-product-${{ hashFiles(format('{0}/bun.lockb', env.product_path)) }}
           restore-keys: |
             ${{ runner.os }}-bun-product-
             ${{ runner.os }}-bun-
@@ -527,6 +662,8 @@ jobs:
         run: |
           echo "SUB_GRAPH_NAME=product" >> $GITHUB_ENV
           echo "PORT=4003" >> $GITHUB_ENV
+          echo "PM2_NAME=sunshine_product_subgraph" >> $GITHUB_ENV
+          echo "HEALTH_ENDPOINT=/health" >> $GITHUB_ENV
           echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $GITHUB_ENV
           echo "DB_TYPE=${{ secrets.DB_TYPE }}" >> $GITHUB_ENV
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
@@ -551,67 +688,54 @@ jobs:
           echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
-      - name: Debug directory structure for product
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Directory structure:"
-          ls -la
-          
-          if [ -d "product" ]; then
-            echo "Contents of product directory:"
-            ls -la product/
-          fi
-
       - name: Install dependencies
         run: |
-          if [ ! -d "product" ]; then
-            echo "::error::Product directory not found"
-            exit 1
-          fi
-          
-          echo "Changing to product directory..."
-          cd product
           echo "Current directory: $(pwd)"
           echo "Directory contents:"
           ls -la
           
           if [ ! -f "package.json" ]; then
-            echo "::error::package.json not found in product directory"
+            echo "::error::package.json not found in current directory"
             exit 1
           fi
           
           echo "Installing dependencies with Bun..."
-          # Ensure we're using the full path to bun
-          which bun
           bun --version
-          $(which bun) install || {
-            echo "::error::Failed to install dependencies"
+          bun install || {
+            echo "::error::Failed to install dependencies. Trying with --verbose flag"
+            bun install --verbose
             exit 1
           }
+        working-directory: ${{ env.product_path }}
 
-      - name: Deploy Product subgraph with zero downtime
+      - name: Check if service is already running and healthy
+        id: health-check
+        continue-on-error: true
+        run: |
+          ENDPOINT="http://localhost:${{ env.PORT }}${{ env.HEALTH_ENDPOINT }}"
+          if curl -s -f "$ENDPOINT" > /dev/null; then
+            echo "Current service is healthy"
+            echo "is_healthy=true" >> $GITHUB_OUTPUT
+          else
+            echo "Current service is not healthy or not running"
+            echo "is_healthy=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Zero downtime deployment strategy
+      - name: Deploy with zero downtime
         run: |
           set -e
           echo "Deploying product subgraph"
           
-          # First change to the product directory
-          if [ ! -d "product" ]; then
-            echo "::error::Product directory not found"
-            exit 1
-          fi
-          
-          cd product
-          echo "Current working directory: $(pwd)"
-          
-          PM2_NAME="sunshine_product_subgraph"
-          PORT=4003
-          HEALTH_ENDPOINT="/health"
-          
-          # Verify we're in the right directory with package.json
+          # Check if we're in the right directory
           if [ ! -f "package.json" ]; then
             echo "::error::No package.json found in current directory $(pwd)"
             exit 1
           fi
+          
+          PM2_NAME="${{ env.PM2_NAME }}"
+          PORT=${{ env.PORT }}
+          HEALTH_ENDPOINT="${{ env.HEALTH_ENDPOINT }}"
           
           # Check if PM2 process exists
           if pm2 list | grep -q "$PM2_NAME"; then
@@ -662,11 +786,11 @@ jobs:
             echo "No existing process found, starting fresh"
             pm2 start bun --name $PM2_NAME --env PORT=$PORT -- start
           fi
-        working-directory: product
+        working-directory: ${{ env.product_path }}
       
       - name: Verify service health
         run: |
-          ENDPOINT="http://localhost:4003/health"
+          ENDPOINT="http://localhost:${{ env.PORT }}${{ env.HEALTH_ENDPOINT }}"
           RETRY_COUNTER=0
           
           echo "Verifying product health at $ENDPOINT"
@@ -678,7 +802,7 @@ jobs:
           
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
             echo "::error::Service product failed to start properly after multiple attempts!"
-            pm2 logs sunshine_product_subgraph --lines 50
+            pm2 logs ${{ env.PM2_NAME }} --lines 50
             exit 1
           else
             echo "Service product is healthy and operational!"
@@ -689,10 +813,6 @@ jobs:
     runs-on: self-hosted
     needs: [deploy-users, deploy-media, deploy-product]
     timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: router
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -732,16 +852,35 @@ jobs:
           
           echo "All subgraphs are operational, safe to update router!"
 
-      - name: Debug router directory
+      - name: Find router directory
+        id: find-router
         run: |
           echo "Current directory: $(pwd)"
-          echo "Contents of router directory:"
-          ls -la
           
-          if [ ! -f "package.json" ]; then
-            echo "::warning::No package.json found in router directory"
-            pwd
-            find .. -name "package.json" -not -path "*/node_modules/*" -type f
+          if [ -d "router" ]; then
+            ROUTER_PATH="$(pwd)/router"
+            echo "Router directory found at default location"
+          else
+            echo "Searching for router directory..."
+            ROUTER_PATH=$(find $(pwd) -type d -name "router" -not -path "*/node_modules/*" | head -n 1)
+            if [ -n "$ROUTER_PATH" ]; then
+              echo "Found router directory at: $ROUTER_PATH"
+            else
+              echo "::error::Could not find router directory!"
+              exit 1
+            fi
+          fi
+          
+          echo "router_path=$ROUTER_PATH" >> $GITHUB_ENV
+          
+          echo "Contents of router directory:"
+          ls -la "$ROUTER_PATH"
+          
+          if [ -f "$ROUTER_PATH/package.json" ]; then
+            echo "✅ package.json exists"
+          else
+            echo "::warning::package.json not found in router directory!"
+            find "$ROUTER_PATH" -type f -maxdepth 1
           fi
 
       - name: Set up Node.js
@@ -749,7 +888,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: router/package-lock.json
+          cache-dependency-path: ${{ env.router_path }}/package-lock.json
 
       - name: Install dependencies
         run: |
@@ -759,6 +898,7 @@ jobs:
             echo "::error::No package.json found in router directory"
             exit 1
           fi
+        working-directory: ${{ env.router_path }}
         
       - name: Install Rover if not present
         run: |
@@ -777,7 +917,9 @@ jobs:
             chmod +x ./router
           else
             echo "::warning::Router binary not found"
+            find . -type f -maxdepth 1
           fi
+        working-directory: ${{ env.router_path }}
 
       # Apply zero-downtime strategy for router
       - name: Deploy Router with zero downtime
@@ -854,6 +996,7 @@ jobs:
             echo "No existing Router found, starting fresh"
             pm2 start npm --name sunshine_router -- start
           fi
+        working-directory: ${{ env.router_path }}
           
       - name: Verify Router Health
         run: |
@@ -880,3 +1023,4 @@ jobs:
             echo "Apollo Router is healthy and operational!"
             echo "Deployment completed successfully with zero downtime!"
           fi
+        working-directory: ${{ env.router_path }}
