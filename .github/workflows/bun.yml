@@ -10,7 +10,7 @@ on:
 # Prevent concurrent deployments of the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   HEALTH_CHECK_RETRIES: 12
@@ -225,9 +225,18 @@ jobs:
       - name: Verify all subgraphs are healthy
         run: |
           echo "Verifying all subgraphs are healthy before updating the router..."
-          if ! curl -s -f "http://localhost:4001/health"; then echo "::error::Users subgraph is not healthy!"; exit 1; else echo "Users subgraph is healthy"; fi
-          if ! curl -s -f "http://localhost:4002/health"; then echo "::error::Media subgraph is not healthy!"; exit 1; else echo "Media subgraph is healthy"; fi
-          if ! curl -s -f "http://localhost:4003/health"; then echo "::error::Product subgraph is not healthy!"; exit 1; else echo "Product subgraph is healthy"; fi
+          SUBGRAPHS="users:4001 media:4002 product:4003"
+          for subgraph_info in $SUBGRAPHS; do
+            NAME=$(echo $subgraph_info | cut -d: -f1)
+            PORT=$(echo $subgraph_info | cut -d: -f2)
+            echo "Checking $NAME subgraph..."
+            if ! curl -s -f "http://localhost:$PORT/health"; then
+              echo "::error::$NAME subgraph is not healthy!"
+              exit 1
+            else
+              echo "$NAME subgraph is healthy"
+            fi
+          done
           echo "All subgraphs are operational, safe to update router!"
 
       - name: Set up Node.js
