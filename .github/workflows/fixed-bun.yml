@@ -213,7 +213,8 @@ jobs:
             TEMP_PORT=$((PORT+1000))
             echo "Starting new instance on PORT $TEMP_PORT"
             
-            PORT=$TEMP_PORT pm2 start bun --name $TEMP_PM2_NAME -- start
+            # Set PORT environment variable and start PM2 process
+            pm2 start bun --name $TEMP_PM2_NAME --env PORT=$TEMP_PORT -- start
             
             # Wait for new service to be healthy
             TEMP_ENDPOINT="http://localhost:$TEMP_PORT$HEALTH_ENDPOINT"
@@ -247,13 +248,13 @@ jobs:
             pm2 stop $TEMP_PM2_NAME
             
             # Restore original port and start on the correct port with the correct name
-            PORT=$PORT pm2 start bun --name $PM2_NAME -- start
+            pm2 start bun --name $PM2_NAME --env PORT=$PORT -- start
             
             # Delete temporary process
             pm2 delete $TEMP_PM2_NAME
           else
             echo "No existing process found, starting fresh"
-            pm2 start bun --name $PM2_NAME -- start
+            pm2 start bun --name $PM2_NAME --env PORT=$PORT -- start
           fi
         working-directory: users
       
@@ -378,7 +379,8 @@ jobs:
             TEMP_PORT=$((PORT+1000))
             echo "Starting new instance on PORT $TEMP_PORT"
             
-            PORT=$TEMP_PORT pm2 start bun --name $TEMP_PM2_NAME -- start
+            # Set PORT environment variable and start PM2 process
+            pm2 start bun --name $TEMP_PM2_NAME --env PORT=$TEMP_PORT -- start
             
             # Wait for new service to be healthy
             TEMP_ENDPOINT="http://localhost:$TEMP_PORT$HEALTH_ENDPOINT"
@@ -407,13 +409,13 @@ jobs:
             pm2 stop $TEMP_PM2_NAME
             
             # Restore original port and start on the correct port with the correct name
-            PORT=$PORT pm2 start bun --name $PM2_NAME -- start
+            pm2 start bun --name $PM2_NAME --env PORT=$PORT -- start
             
             # Delete temporary process
             pm2 delete $TEMP_PM2_NAME
           else
             echo "No existing process found, starting fresh"
-            pm2 start bun --name $PM2_NAME -- start
+            pm2 start bun --name $PM2_NAME --env PORT=$PORT -- start
           fi
         working-directory: media
       
@@ -533,7 +535,8 @@ jobs:
             TEMP_PORT=$((PORT+1000))
             echo "Starting new instance on PORT $TEMP_PORT"
             
-            PORT=$TEMP_PORT pm2 start bun --name $TEMP_PM2_NAME -- start
+            # Set PORT environment variable and start PM2 process
+            pm2 start bun --name $TEMP_PM2_NAME --env PORT=$TEMP_PORT -- start
             
             # Wait for new service to be healthy
             TEMP_ENDPOINT="http://localhost:$TEMP_PORT$HEALTH_ENDPOINT"
@@ -562,13 +565,13 @@ jobs:
             pm2 stop $TEMP_PM2_NAME
             
             # Restore original port and start on the correct port with the correct name
-            PORT=$PORT pm2 start bun --name $PM2_NAME -- start
+            pm2 start bun --name $PM2_NAME --env PORT=$PORT -- start
             
             # Delete temporary process
             pm2 delete $TEMP_PM2_NAME
           else
             echo "No existing process found, starting fresh"
-            pm2 start bun --name $PM2_NAME -- start
+            pm2 start bun --name $PM2_NAME --env PORT=$PORT -- start
           fi
         working-directory: product
       
