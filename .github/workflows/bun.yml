@@ -63,13 +63,13 @@ jobs:
           PM2_NAME: sunshine_users_subgraph
         run: |
           if pm2 list | grep -q "$PM2_NAME"; then
-            echo "Reloading $PM2_NAME for zero-downtime deployment."
-            pm2 reload $PM2_NAME
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
           else
             echo "Starting $PM2_NAME for the first time."
             pm2 start bun --name $PM2_NAME -- start
           fi
-          sleep 5
+          sleep 10
         working-directory: ./users
 
       - name: Verify Service Health
@@ -116,13 +116,13 @@ jobs:
           PM2_NAME: sunshine_media_subgraph
         run: |
           if pm2 list | grep -q "$PM2_NAME"; then
-            echo "Reloading $PM2_NAME for zero-downtime deployment."
-            pm2 reload $PM2_NAME
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
           else
             echo "Starting $PM2_NAME for the first time."
             pm2 start bun --name $PM2_NAME -- start
           fi
-          sleep 5
+          sleep 10
         working-directory: ./media
 
       - name: Verify Service Health
@@ -169,13 +169,13 @@ jobs:
           PM2_NAME: sunshine_product_subgraph
         run: |
           if pm2 list | grep -q "$PM2_NAME"; then
-            echo "Reloading $PM2_NAME for zero-downtime deployment."
-            pm2 reload $PM2_NAME
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
           else
             echo "Starting $PM2_NAME for the first time."
             pm2 start bun --name $PM2_NAME -- start
           fi
-          sleep 5
+          sleep 10
         working-directory: ./product
 
       - name: Verify Service Health
@@ -231,13 +231,13 @@ jobs:
           PM2_NAME: sunshine_router
         run: |
           if pm2 list | grep -q "$PM2_NAME"; then
-            echo "Reloading $PM2_NAME for zero-downtime deployment."
-            pm2 reload $PM2_NAME
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
           else
             echo "Starting $PM2_NAME for the first time."
             pm2 start npm --name $PM2_NAME -- start
           fi
-          sleep 5
+          sleep 10
         working-directory: ./router
 
       - name: Verify Router Health
