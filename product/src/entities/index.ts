@@ -71,22 +71,6 @@ export { ProductReview } from "./product-review.entity";
 export { ProductTieredPrice } from "./product-tiered-pricing.entity";
 
 /**
- * Exports the ProductVariationAttributeValue entity for variation attribute values.
- *
- * Workflow:
- * 1. Stores variation-specific values like "XL" for size.
- */
-export { ProductVariationAttributeValue } from "./product-variation-attribute-value.entity";
-
-/**
- * Exports the ProductVariationAttribute entity for defining variation attributes.
- *
- * Workflow:
- * 1. Helps create product variations by defining variation types.
- */
-export { ProductVariationAttribute } from "./product-variation-attribute.entity";
-
-/**
  * Exports the ProductVariation entity for managing different versions of a product.
  *
  * Workflow:

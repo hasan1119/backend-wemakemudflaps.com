@@ -192,6 +192,7 @@ export const getProductById = async (
         crossSells: productData.crossSells as any,
         attributes: productData.attributes.map((attribute) => ({
           ...attribute,
+          createdBy: attribute.createdBy as any,
           values: attribute.values.map((value) => ({
             ...value,
             attribute: value.attribute as any,

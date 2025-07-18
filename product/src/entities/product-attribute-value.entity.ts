@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ProductAttribute } from "./product-attribute.entity";
+import { ProductVariation } from "./product-variation.entity";
 
 @Entity()
 export class ProductAttributeValue {
@@ -13,8 +14,16 @@ export class ProductAttributeValue {
   // Specifies which product attribute this value belongs to (e.g., "Color" → "Red", "Blue", "Green")
   @ManyToOne(() => ProductAttribute, (attribute) => attribute.values, {
     onDelete: "CASCADE", // Cascade delete if the product attribute is deleted
+    nullable: true,
   })
-  attribute: Promise<ProductAttribute>;
+  attribute: Promise<ProductAttribute> | null;
+
+  // Link to the associated product variation
+  @ManyToOne(() => ProductVariation, (variation) => variation.attributeValues, {
+    onDelete: "CASCADE",
+    nullable: true,
+  })
+  variation: Promise<ProductVariation> | null;
 
   // Timestamp when the product attribute value was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

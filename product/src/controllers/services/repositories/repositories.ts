@@ -14,8 +14,6 @@ import {
   ProductReview,
   ProductTieredPrice,
   ProductVariation,
-  ProductVariationAttribute,
-  ProductVariationAttributeValue,
   ShippingClass,
   ShippingMethod,
   ShippingZone,
@@ -104,25 +102,6 @@ export const productReviewRepository =
  */
 export const productTieredPriceRepository =
   AppDataSource.getRepository(ProductTieredPrice);
-
-/**
- * Initializes repository for ProductVariationAttributeValue entity.
- *
- * Workflow:
- * 1. Retrieves the ProductVariationAttributeValue repository from AppDataSource for database operations.
- */
-export const productVariationAttributeValueRepository =
-  AppDataSource.getRepository(ProductVariationAttributeValue);
-
-/**
- * Initializes repository for ProductVariationAttribute entity.
- *
- * Workflow:
- * 1. Retrieves the ProductVariationAttribute repository from AppDataSource for database operations.
- */
-export const productVariationAttributeRepository = AppDataSource.getRepository(
-  ProductVariationAttribute
-);
 
 /**
  * Initializes repository for ProductVariation entity.
