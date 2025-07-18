@@ -63,15 +63,14 @@ jobs:
           PM2_NAME: sunshine_users_subgraph
         run: |
           if pm2 list | grep -q "$PM2_NAME"; then
-            echo "Stopping and deleting existing $PM2_NAME process."
-            pm2 delete $PM2_NAME
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
+          else
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start bun --name $PM2_NAME -- start
           fi
-          echo "Starting $PM2_NAME."
-          pm2 start bun --name $PM2_NAME -- start
-          echo "Waiting 10 seconds for service to initialize..."
-          sleep 10
-          echo "Displaying recent logs for $PM2_NAME:"
-          pm2 logs $PM2_NAME --lines 20 --nostream
+          echo "Waiting 15 seconds for service to initialize..."
+          sleep 15
         working-directory: ./users
 
       - name: Verify Service Health
@@ -86,6 +85,10 @@ jobs:
             echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
             RETRY_COUNTER=$((RETRY_COUNTER+1))
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
+            if [ $RETRY_COUNTER -lt ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+              echo "Dumping logs for $PM2_NAME:"
+              pm2 logs $PM2_NAME --lines 20 --nostream
+            fi
           done
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
             echo "::error::Service users failed to start/reload properly!"
@@ -118,15 +121,14 @@ jobs:
           PM2_NAME: sunshine_media_subgraph
         run: |
           if pm2 list | grep -q "$PM2_NAME"; then
-            echo "Stopping and deleting existing $PM2_NAME process."
-            pm2 delete $PM2_NAME
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
+          else
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start bun --name $PM2_NAME -- start
           fi
-          echo "Starting $PM2_NAME."
-          pm2 start bun --name $PM2_NAME -- start
-          echo "Waiting 10 seconds for service to initialize..."
-          sleep 10
-          echo "Displaying recent logs for $PM2_NAME:"
-          pm2 logs $PM2_NAME --lines 20 --nostream
+          echo "Waiting 15 seconds for service to initialize..."
+          sleep 15
         working-directory: ./media
 
       - name: Verify Service Health
@@ -141,6 +143,10 @@ jobs:
             echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
             RETRY_COUNTER=$((RETRY_COUNTER+1))
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
+            if [ $RETRY_COUNTER -lt ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+              echo "Dumping logs for $PM2_NAME:"
+              pm2 logs $PM2_NAME --lines 20 --nostream
+            fi
           done
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
             echo "::error::Service media failed to start/reload properly!"
@@ -173,15 +179,14 @@ jobs:
           PM2_NAME: sunshine_product_subgraph
         run: |
           if pm2 list | grep -q "$PM2_NAME"; then
-            echo "Stopping and deleting existing $PM2_NAME process."
-            pm2 delete $PM2_NAME
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
+          else
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start bun --name $PM2_NAME -- start
           fi
-          echo "Starting $PM2_NAME."
-          pm2 start bun --name $PM2_NAME -- start
-          echo "Waiting 10 seconds for service to initialize..."
-          sleep 10
-          echo "Displaying recent logs for $PM2_NAME:"
-          pm2 logs $PM2_NAME --lines 20 --nostream
+          echo "Waiting 15 seconds for service to initialize..."
+          sleep 15
         working-directory: ./product
 
       - name: Verify Service Health
@@ -196,6 +201,10 @@ jobs:
             echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
             RETRY_COUNTER=$((RETRY_COUNTER+1))
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
+            if [ $RETRY_COUNTER -lt ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+              echo "Dumping logs for $PM2_NAME:"
+              pm2 logs $PM2_NAME --lines 20 --nostream
+            fi
           done
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
             echo "::error::Service product failed to start/reload properly!"
@@ -237,15 +246,14 @@ jobs:
           PM2_NAME: sunshine_router
         run: |
           if pm2 list | grep -q "$PM2_NAME"; then
-            echo "Stopping and deleting existing $PM2_NAME process."
-            pm2 delete $PM2_NAME
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
+          else
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start npm --name $PM2_NAME -- start
           fi
-          echo "Starting $PM2_NAME."
-          pm2 start npm --name $PM2_NAME -- start
-          echo "Waiting 10 seconds for service to initialize..."
-          sleep 10
-          echo "Displaying recent logs for $PM2_NAME:"
-          pm2 logs $PM2_NAME --lines 20 --nostream
+          echo "Waiting 15 seconds for service to initialize..."
+          sleep 15
         working-directory: ./router
 
       - name: Verify Router Health
@@ -260,6 +268,10 @@ jobs:
             echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
             RETRY_COUNTER=$((RETRY_COUNTER+1))
             sleep ${{ env.HEALTH_CHECK_INTERVAL }}
+            if [ $RETRY_COUNTER -lt ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+              echo "Dumping logs for $PM2_NAME:"
+              pm2 logs $PM2_NAME --lines 20 --nostream
+            fi
           done
           if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
             echo "::error::Apollo Router failed to start properly!"
