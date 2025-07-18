@@ -1,6 +1,7 @@
 import {
   getAllBrands,
   getAllCategories,
+  getAllProductAttribute,
   getAllProducts,
   getAllShippingClass,
   getAllShippingMethods,
@@ -10,6 +11,7 @@ import {
   getAllTaxRates,
   getBrandById,
   getCategoryById,
+  getProductAttributeById,
   getProductById,
   getShippingClassById,
   getShippingMethodById,
@@ -110,6 +112,16 @@ const typesWithMedia = [
  */
 export const productQueriesResolver = {
   Query: {
+    /**
+     * Retrieves detailed information for a product attribute by their unique ID.
+     */
+    getProductAttributeById,
+
+    /**
+     * Fetches a paginated list of all product attributes in the system.
+     */
+    getAllProductAttribute,
+
     /**
      * Retrieves detailed information for a product by their unique ID.
      */

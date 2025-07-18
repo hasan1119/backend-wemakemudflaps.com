@@ -19,8 +19,11 @@ export class ShippingClass {
   description: string | null;
 
   // One shipping class can be used by many products
-  @OneToMany(() => Product, (product) => product.shippingClass)
-  products: Product[];
+  @OneToMany(() => Product, (product) => product.shippingClass, {
+    cascade: true,
+    nullable: true,
+  })
+  products: Product[] | null;
 
   // User ID who created the shipping class (string only for Apollo Federation compatibility)
   @Column()

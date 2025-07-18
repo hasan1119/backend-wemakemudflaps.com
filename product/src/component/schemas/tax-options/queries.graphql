@@ -1,0 +1,4 @@
+# Queries to fetch tax options records and related data from the system.
+type Query {
+  getTaxOptions: GetTaxOptionsResponseOrError!
+}

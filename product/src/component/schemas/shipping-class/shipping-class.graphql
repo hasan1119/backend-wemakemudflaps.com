@@ -3,7 +3,7 @@ type ShippingClass {
   id: ID!
   value: String!
   description: String
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }

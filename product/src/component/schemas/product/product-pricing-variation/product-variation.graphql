@@ -5,7 +5,7 @@ type ProductVariationAttribute {
   id: ID! # Unique identifier
   name: String! # Attribute name
   values: [ProductVariationAttributeValue!]! # Possible values
-  createdAt: String! # Creation time
+  createdAt: String # Creation time
   deletedAt: String # Soft deletion timestamp
 }
 
@@ -21,7 +21,7 @@ type ProductVariationAttributeValue {
   value: String! # Value text
   attribute: ProductVariationAttribute! # Related attribute
   variation: ProductVariation! # Related variation
-  createdAt: String! # Creation time
+  createdAt: String # Creation time
   deletedAt: String # Soft deletion
 }
 
@@ -78,7 +78,7 @@ type ProductVariation {
   images: [Media!] # Gallery images
   videos: [Media!] # Videos
   # ---------------------- Meta ----------------------
-  createdAt: String! # Creation timestamp
+  createdAt: String # Creation timestamp
   deletedAt: String # Soft deletion timestamp
 }
 

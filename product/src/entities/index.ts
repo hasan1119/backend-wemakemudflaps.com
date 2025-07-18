@@ -188,3 +188,11 @@ export { ShippingZone } from "./shipping-zone.entity";
  * 1. Defines costs for different shipping classes under flat rate shipping.
  */
 export { FlatRateCost } from "./flat-rate-cost.entity";
+
+/**
+ * Exports the TaxOptions entity for managing tax settings.
+ *
+ * Workflow:
+ * 1. Configures tax calculation methods, display options, and rounding rules.
+ */
+export { TaxOptions } from "./tax-options.entity";

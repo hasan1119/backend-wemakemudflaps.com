@@ -20,7 +20,7 @@ type LoginMeta {
   session: String! # Unique session identifier.
   fraud: Float! # Probability score indicating risk/fraud likelihood.
   tor: Boolean! # Whether the login came through a Tor exit node.
-  createdAt: String! # Timestamp when the login occurred.
+  createdAt: String # Timestamp when the login occurred.
 }
 
 # ---------------------- User Types ----------------------
@@ -79,8 +79,8 @@ type UserSessionByEmail @shareable {
   isAccountActivated: Boolean!
   tempUpdatedEmail: String!
   tempEmailVerified: Boolean!
-  createdAt: String!
-  deletedAt: String!
+  createdAt: String
+  deletedAt: String
 }
 
 # Cached user session indexed by ID, stored in Redis.
@@ -105,8 +105,8 @@ type UserSessionById @shareable {
   isAccountActivated: Boolean!
   tempUpdatedEmail: String!
   tempEmailVerified: Boolean!
-  createdAt: String!
-  deletedAt: String!
+  createdAt: String
+  deletedAt: String
 }
 
 # Represents a full user object fetched from the database.

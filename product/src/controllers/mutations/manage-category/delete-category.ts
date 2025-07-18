@@ -1,6 +1,5 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Category } from "../../../entities";
 import {
   BaseResponseOrError,
   MutationDeleteCategoryArgs,
@@ -9,7 +8,6 @@ import { deleteCategorySchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  getCategoryById,
   hardDeleteCategory,
   softDeleteCategory,
 } from "../../services";
@@ -78,17 +76,6 @@ export const deleteCategory = async (
     const { ids, skipTrash } = validationResult.data;
 
     for (const id of ids) {
-      // Fetch category
-      const categoryExist: Category | null = await getCategoryById(id);
-      if (!categoryExist) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `Category or subcategory with id ${id} not found`,
-          __typename: "BaseResponse",
-        };
-      }
-
       // Perform delete action
       if (skipTrash) {
         await hardDeleteCategory(id);

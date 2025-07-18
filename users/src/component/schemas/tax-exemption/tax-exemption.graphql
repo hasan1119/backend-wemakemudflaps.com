@@ -30,13 +30,6 @@ type TaxExemptionResponse {
   taxExemption: TaxExemption!
 }
 
-# Delete tax exemption response.
-type DeleteTaxExemptionResponse {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-}
-
 # ---------------------- Unions ----------------------
 
 # Union for creating a tax exemption.
@@ -55,10 +48,4 @@ union UpdateTaxExemptionResponseOrError =
 union GetTaxExemptionsResponseOrError =
     BaseResponse
   | TaxExemptionResponse
-  | ErrorResponse
-
-# Union for deleting a tax exemption.
-union DeleteTaxExemptionResponseOrError =
-    BaseResponse
-  | DeleteTaxExemptionResponse
   | ErrorResponse

@@ -58,8 +58,8 @@ type RoleSession {
   systemDeleteProtection: Boolean!
   systemUpdateProtection: Boolean!
   createdBy: CreatedBy
-  createdAt: String!
-  deletedAt: String!
+  createdAt: String
+  deletedAt: String
 }
 
 # ---------------------- Responses ----------------------

@@ -23,5 +23,5 @@ type Mutation {
   ): ProductAttributeResponse!
 
   # Delete a product attribute.
-  deleteProductAttribute(id: ID!): BaseResponse!
+  deleteProductAttribute(ids: [ID!]!): BaseResponse!
 }

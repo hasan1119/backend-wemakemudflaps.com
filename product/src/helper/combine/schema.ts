@@ -33,6 +33,9 @@ import {
   taxClassDef,
   taxClassMutationsDef,
   taxClassQueriesDef,
+  taxOptionsDef,
+  taxOptionsMutationsDef,
+  taxOptionsQueriesDef,
   taxRateDef,
   taxRateMutationsDef,
   taxRateQueriesDef,
@@ -154,4 +157,13 @@ export const typeDefs = mergeTypeDefs([
 
   // Schema for shipping method mutations (modifying shipping method data)
   shippingMethodMutationsDef,
+
+  // Schema for tax options
+  taxOptionsDef,
+
+  // Schema for tax options queries (fetching tax options data)
+  taxOptionsQueriesDef,
+
+  // Schema for tax options mutations (modifying tax options data)
+  taxOptionsMutationsDef,
 ]);

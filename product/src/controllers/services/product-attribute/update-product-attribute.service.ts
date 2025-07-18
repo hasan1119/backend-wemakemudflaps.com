@@ -4,7 +4,7 @@ import {
   productAttributeRepository,
   productAttributeValueRepository,
 } from "../repositories/repositories";
-import { getAttributesById } from "./get-product-attribute.service";
+import { getProductAttributeById } from "./get-product-attribute.service";
 /**
  * Updates a product attribute and replaces all its values.
  *
@@ -46,5 +46,5 @@ export const updateAttributeWithValues = async (
   }
 
   // Step 4: Return updated attribute
-  return await getAttributesById(attributeId);
+  return await getProductAttributeById(attributeId);
 };

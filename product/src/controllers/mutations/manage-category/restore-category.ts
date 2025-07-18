@@ -80,11 +80,9 @@ export const restoreCategory = async (
       ? await restoreCategoriesByIds(ids)
       : [];
 
-    const totalCategories = restoredCategories.length;
-
     const message =
-      totalCategories > 0
-        ? `Restoration successful: ${totalCategories} item(s) restored.`
+      restoredCategories.length > 0
+        ? `Restoration successful: ${restoredCategories.length} item(s) restored.`
         : "No items restored.";
 
     return {

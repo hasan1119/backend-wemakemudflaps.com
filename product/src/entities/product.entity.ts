@@ -30,8 +30,10 @@ export class Product {
   @Column({
     type: "enum",
     enum: ["Simple Product", "Variable Product"],
+    nullable: true,
+    default: null,
   })
-  productConfigurationType: string;
+  productConfigurationType: string | null;
 
   // Product categorization by delivery method
   @Column({
@@ -39,6 +41,7 @@ export class Product {
     enum: ["Physical Product", "Downloadable Product", "Virtual Product"],
     array: true,
     nullable: true,
+    default: null,
   })
   productDeliveryType: string[] | null;
 
@@ -83,8 +86,8 @@ export class Product {
   tags: Tag[] | null;
 
   // Main product description
-  @Column({ type: "text" })
-  defaultMainDescription: string;
+  @Column({ type: "text", nullable: true, default: null })
+  defaultMainDescription: string | null;
 
   // Short description
   @Column({ type: "text", nullable: true, default: null })
@@ -128,8 +131,14 @@ export class Product {
   /* ====================== General Pricing Info ====================== */
 
   // Regular price for a simple product
-  @Column({ type: "decimal", precision: 10, scale: 2 })
-  regularPrice: number;
+  @Column({
+    type: "decimal",
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
+  regularPrice: number | null;
 
   // Sale price for a simple product
   @Column({
@@ -162,23 +171,25 @@ export class Product {
   saleQuantity: number | null;
 
   // Quantity type (e.g., piece, liter)
-  @Column()
-  saleQuantityUnit: string;
+  @Column({ nullable: true, default: null })
+  saleQuantityUnit: string | null;
 
   // Tax status (controls whether the product cost or shipping is taxable, required on creation)
   @Column({
     type: "enum",
     enum: ["Taxable", "Product only", "Shipping only", "None"],
-    default: "Taxable",
+    nullable: true,
+    default: null,
   })
-  taxStatus: string;
+  taxStatus: string | null;
 
   // Tax class (defines tax rates for the product)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {
     onDelete: "SET NULL",
+    nullable: true,
   })
   @JoinColumn({ name: "tax_class_id" })
-  taxClass: TaxClass;
+  taxClass: TaxClass | null;
 
   /* ====================== Quantity Settings ====================== */
 
@@ -239,8 +250,8 @@ export class Product {
   stockStatus: string | null;
 
   // If true, only one item can be purchased per order
-  @Column({ type: "boolean", default: true })
-  soldIndividually: boolean;
+  @Column({ type: "boolean", nullable: true, default: null })
+  soldIndividually: boolean | null;
 
   // Initial number in stock (for stock progress bar display)
   @Column({ nullable: true, default: null })

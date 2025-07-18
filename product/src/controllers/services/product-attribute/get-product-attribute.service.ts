@@ -12,7 +12,7 @@ import { productAttributeRepository } from "../repositories/repositories";
  * @param id - The UUID of the product attribute to retrieve.
  * @returns A promise resolving to the Product Attribute entity or null if not found.
  */
-export const getAttributesById = async (
+export const getProductAttributeById = async (
   id: string
 ): Promise<ProductAttribute | null> => {
   return await productAttributeRepository.findOne({
@@ -162,65 +162,6 @@ export const paginateSystemProductAttributes = async ({
     .leftJoinAndSelect("attribute.values", "values")
     .where("attribute.deletedAt IS NULL")
     .andWhere("attribute.systemAttribute = :system", { system: true });
-
-  if (search) {
-    const searchTerm = `%${search.trim()}%`;
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        qb.where("attribute.name ILIKE :search", {
-          search: searchTerm,
-        }).orWhere("attribute.slug ILIKE :search", { search: searchTerm });
-      })
-    );
-  }
-
-  queryBuilder
-    .skip(skip)
-    .take(limit)
-    .orderBy(`attribute.${sortBy}`, sortOrder.toUpperCase() as "ASC" | "DESC");
-
-  const [attributes, total] = await queryBuilder.getManyAndCount();
-
-  // Filter out soft-deleted values
-  const filteredAttributes = attributes.map((attribute) => ({
-    ...attribute,
-    values: attribute.values.filter((val) => val.deletedAt === null),
-  }));
-
-  return { attributes: filteredAttributes, total };
-};
-
-/**
- * Retrieves paginated product attributes with optional search and sorting.
- *
- * Workflow:
- * 1. Calculates the skip value based on the current page and limit.
- * 2. Builds a query using TypeORM's QueryBuilder.
- * 3. Applies search filtering if a search term is provided.
- * 4. Applies sorting based on the provided sortBy and sortOrder.
- * 5. Executes the query to get both attributes and total count.
- *
- * @param page - The current page number (1-based index).
- * @param limit - The number of items per page.
- * @param search - Optional search term to filter attributes by name or slug.
- * @param sortBy - Optional field to sort by (name, slug, createdAt, deletedAt).
- * @param sortOrder - Sort order direction (asc, desc).
- * @return A promise resolving to an object containing the paginated attributes and total count.
- */
-export const paginateProductAttributes = async ({
-  page,
-  limit,
-  search,
-  sortBy = "createdAt",
-  sortOrder = "desc",
-}: GetPaginatedAttributesInput) => {
-  const skip = (page - 1) * limit;
-
-  const queryBuilder = productAttributeRepository
-    .createQueryBuilder("attribute")
-    .leftJoinAndSelect("attribute.values", "values")
-    .where("attribute.deletedAt IS NULL")
-    .andWhere("attribute.systemAttribute = :system", { system: false });
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;

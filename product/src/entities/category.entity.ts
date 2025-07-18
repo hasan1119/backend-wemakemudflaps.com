@@ -31,18 +31,20 @@ export class Category {
   @Column({ type: "text", nullable: true, default: null })
   description: string | null;
 
-  // Tree relations
-  @TreeChildren()
+  // Tree children (subcategories)
+  @TreeChildren({ cascade: true }) // Automatically saves children
   subCategories: Category[];
 
-  @TreeParent()
+  // Tree parent (optional category)
+  @TreeParent({ onDelete: "CASCADE" }) // Important for DB-level cascade
   parentCategory: Category | null;
 
   // One category can have multiple products
   @OneToMany(() => Product, (product) => product.categories, {
     cascade: true,
+    nullable: true,
   })
-  products: Product[];
+  products: Product[] | null;
 
   // Position/order in list
   @Column({ type: "int" })

@@ -7,7 +7,7 @@ interface ICategoryBase {
   description: String
   thumbnail: Media
   position: Int!
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
@@ -19,7 +19,7 @@ type Category implements ICategoryBase {
   description: String
   thumbnail: Media
   position: Int!
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
   subCategories: [Category!]! # TreeChildren equivalent

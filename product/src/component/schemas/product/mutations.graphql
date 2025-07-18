@@ -3,9 +3,9 @@ type Mutation {
   # Create a new product.
   # Only accessible by authorized users.
   createProduct(
-    productConfigurationType: productConfigurationType!
+    productConfigurationType: productConfigurationType
     productDeliveryType: [ProductDeliveryType!]
-    isCustomized: Boolean!
+    isCustomized: Boolean
     name: String!
     slug: String!
     defaultImage: ID
@@ -13,21 +13,21 @@ type Mutation {
     videos: [ID!]
     brandIds: [ID!]
     tagIds: [ID!]
-    defaultMainDescription: String!
+    defaultMainDescription: String
     defaultShortDescription: String
     categoryIds: [ID!]
     warrantyDigit: Int
     defaultWarrantyPeriod: DefaultWarrantyPeriod
     warrantyPolicy: String
-    regularPrice: Float!
+    regularPrice: Float
     salePrice: Float
     salePriceStartAt: String
     salePriceEndAt: String
     tierPricingInfo: ProductPriceInput
     saleQuantity: Int
-    saleQuantityUnit: String!
+    saleQuantityUnit: String
     taxStatus: TaxStatus
-    taxClassId: ID!
+    taxClassId: ID
     minQuantity: Int
     defaultQuantity: Int
     maxQuantity: Int

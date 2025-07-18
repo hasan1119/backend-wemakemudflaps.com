@@ -7,16 +7,16 @@ export class ProductTieredPrice {
   id: string;
 
   // Minimum quantity required for this pricing tier
-  @Column()
-  minQuantity: number;
+  @Column({ nullable: true, default: null })
+  minQuantity: number | null;
 
   // Maximum quantity allowed for this tier
-  @Column()
-  maxQuantity: number;
+  @Column({ nullable: true, default: null })
+  maxQuantity: number | null;
 
   // Quantity type (e.g., piece, liter and so on)
-  @Column()
-  quantityUnit: string;
+  @Column({ nullable: true, default: null })
+  quantityUnit: string | null;
 
   // Fixed price for this tier (if applicable)
   @Column({

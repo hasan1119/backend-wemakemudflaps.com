@@ -1,0 +1,58 @@
+# ---------------------- Tax Options types ----------------------
+
+enum CalculateTaxBasedOn {
+  SHIPPING_ADDRESS # Tax calculated based on shipping address
+  BILLING_ADDRESS # Tax calculated based on billing address
+  STORE_ADDRESS # Tax calculated based on store address
+}
+
+enum DisplayTaxTotals {
+  AS_A_SINGLE_ITEM # Display tax totals as a single item
+  ITEMIZED # Display tax totals itemized
+}
+
+# Represents a single tax options record.
+type TaxOptions {
+  id: ID! # Unique identifier of the tax options record
+  pricesEnteredWithTax: Boolean! # Whether prices are entered with tax
+  calculateTaxBasedOn: String! # Basis for tax calculation (e.g., "subtotal", "total")
+  shippingTaxClass: ShippingClass! # Tax class applied to shipping
+  displayPricesInShop: Boolean! # Whether to display prices in the shop
+  displayPricesDuringCartAndCheckout: Boolean! # Whether to display prices during cart and checkout
+  priceDisplaySuffix: String! # Suffix to display with prices (e.g., "incl. tax")
+  displayTaxTotals: String! # How to display tax totals (e.g., "as_a_single_item", "itemized")
+  roundTaxAtSubtotalLevel: Boolean! # Whether to round tax at the subtotal level
+  createdBy: CreatedBy # User who created the tax options
+  createdAt: String # Timestamp when the tax options were created
+  updatedAt: String # Timestamp when the tax options were last updated
+}
+
+# ---------------------- Responses ----------------------
+
+# Single tax options response.
+type TaxOptionsResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  TaxOptions: TaxOptions!
+}
+
+# ---------------------- Unions ----------------------
+
+# Union for creating a tax options.
+union CreateTaxOptionsResponseOrError =
+    BaseResponse
+  | TaxOptionsResponse
+  | ErrorResponse
+
+# Union for updating a tax options.
+union UpdateTaxOptionsResponseOrError =
+    BaseResponse
+  | TaxOptionsResponse
+  | ErrorResponse
+
+# Union for fetching all tax options.
+union GetTaxOptionsResponseOrError =
+    BaseResponse
+  | TaxOptionsResponse
+  | ErrorResponse
