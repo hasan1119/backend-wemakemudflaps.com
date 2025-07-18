@@ -1,6 +1,9 @@
 import { Brackets, ILike, In, Not } from "typeorm";
-import { ProductAttribute } from "../../../entities";
-import { productAttributeRepository } from "../repositories/repositories";
+import { ProductAttribute, ProductAttributeValue } from "../../../entities";
+import {
+  productAttributeRepository,
+  productAttributeValueRepository,
+} from "../repositories/repositories";
 
 /**
  * Retrieves a Product Attribute entity by its ID.
@@ -45,6 +48,30 @@ export const getProductAttributesByIds = async (
       deletedAt: null,
     },
     relations: ["values"],
+  });
+};
+
+/**
+ * Retrieves multiple Product Attribute Value entities by their IDs.
+ *
+ * Workflow:
+ * 1. Returns an empty array if the input array is empty.
+ * 2. Uses TypeORM `In` to find all Product Attribute Value entities by ID.
+ * 3. Filters out soft-deleted values (`deletedAt IS NULL`).
+ *
+ * @param ids - An array of product attribute value UUIDs to retrieve.
+ * @returns A promise resolving to an array of Product Attribute Value entities.
+ */
+export const getProductAttributeValuesByIds = async (
+  ids: string[]
+): Promise<ProductAttributeValue[]> => {
+  if (!ids.length) return [];
+
+  return await productAttributeValueRepository.find({
+    where: {
+      id: In(ids),
+      deletedAt: null,
+    },
   });
 };
 
