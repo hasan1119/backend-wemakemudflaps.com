@@ -14,7 +14,7 @@ concurrency:
 
 env:
   HEALTH_CHECK_RETRIES: 10
-  HEALTH_CHECK_INTERVAL: 10 # seconds
+  HEALTH_CHECK_INTERVAL: 5
 
 jobs:
   # Check repository structure first
@@ -155,6 +155,14 @@ jobs:
           echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
+      - name: Debug directory structure
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Directory structure:"
+          ls -la
+          echo "Looking for package.json files:"
+          find . -name "package.json" -not -path "*/node_modules/*" -type f
+
       - name: Install dependencies
         run: |
           if [ ! -d "users" ]; then
@@ -162,6 +170,7 @@ jobs:
             exit 1
           fi
           
+          echo "Changing to users directory..."
           cd users
           echo "Current directory: $(pwd)"
           echo "Directory contents:"
@@ -173,6 +182,7 @@ jobs:
           fi
           
           echo "Installing dependencies with Bun..."
+          # Use bun CLI directly to install dependencies
           bun install || {
             echo "::error::Failed to install dependencies. Trying with --verbose flag"
             bun install --verbose
@@ -197,6 +207,15 @@ jobs:
         run: |
           set -e
           echo "Deploying users subgraph"
+          
+          # First change to the users directory
+          if [ ! -d "users" ]; then
+            echo "::error::Users directory not found"
+            exit 1
+          fi
+          
+          cd users
+          echo "Current working directory: $(pwd)"
           
           PM2_NAME="sunshine_users_subgraph"
           PORT=4001
@@ -344,6 +363,17 @@ jobs:
           echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
+      - name: Debug directory structure for media
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Directory structure:"
+          ls -la
+          
+          if [ -d "media" ]; then
+            echo "Contents of media directory:"
+            ls -la media/
+          fi
+
       - name: Install dependencies
         run: |
           if [ ! -d "media" ]; then
@@ -351,8 +381,11 @@ jobs:
             exit 1
           fi
           
+          echo "Changing to media directory..."
           cd media
           echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
           
           if [ ! -f "package.json" ]; then
             echo "::error::package.json not found in media directory"
@@ -360,15 +393,27 @@ jobs:
           fi
           
           echo "Installing dependencies with Bun..."
+          # Ensure we're using the full path to bun
+          which bun
+          bun --version
           bun install || {
             echo "::error::Failed to install dependencies"
             exit 1
           }
 
-      - name: Deploy with zero downtime
+      - name: Deploy Media subgraph with zero downtime
         run: |
           set -e
           echo "Deploying media subgraph"
+          
+          # First change to the media directory
+          if [ ! -d "media" ]; then
+            echo "::error::Media directory not found"
+            exit 1
+          fi
+          
+          cd media
+          echo "Current working directory: $(pwd)"
           
           PM2_NAME="sunshine_media_subgraph"
           PORT=4002
@@ -506,6 +551,17 @@ jobs:
           echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
+      - name: Debug directory structure for product
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Directory structure:"
+          ls -la
+          
+          if [ -d "product" ]; then
+            echo "Contents of product directory:"
+            ls -la product/
+          fi
+
       - name: Install dependencies
         run: |
           if [ ! -d "product" ]; then
@@ -513,8 +569,11 @@ jobs:
             exit 1
           fi
           
+          echo "Changing to product directory..."
           cd product
           echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
           
           if [ ! -f "package.json" ]; then
             echo "::error::package.json not found in product directory"
@@ -522,15 +581,27 @@ jobs:
           fi
           
           echo "Installing dependencies with Bun..."
-          bun install || {
+          # Ensure we're using the full path to bun
+          which bun
+          bun --version
+          $(which bun) install || {
             echo "::error::Failed to install dependencies"
             exit 1
           }
 
-      - name: Deploy with zero downtime
+      - name: Deploy Product subgraph with zero downtime
         run: |
           set -e
           echo "Deploying product subgraph"
+          
+          # First change to the product directory
+          if [ ! -d "product" ]; then
+            echo "::error::Product directory not found"
+            exit 1
+          fi
+          
+          cd product
+          echo "Current working directory: $(pwd)"
           
           PM2_NAME="sunshine_product_subgraph"
           PORT=4003
@@ -669,6 +740,8 @@ jobs:
           
           if [ ! -f "package.json" ]; then
             echo "::warning::No package.json found in router directory"
+            pwd
+            find .. -name "package.json" -not -path "*/node_modules/*" -type f
           fi
 
       - name: Set up Node.js
