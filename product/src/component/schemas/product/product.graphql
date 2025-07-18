@@ -11,7 +11,7 @@ type Product @key(fields: "id") {
   slug: String! # Product slug
   sku: String # Stock keeping unit
   model: String # Product model
-  createdBy: CreatedBy! # Creator identifier
+  createdBy: CreatedBy # Creator identifier
   # ---------------------- Media ----------------------
   defaultImage: Media # Primary product image
   images: [Media!] # Gallery images

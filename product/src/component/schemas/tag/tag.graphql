@@ -3,7 +3,7 @@ type Tag {
   id: ID!
   name: String!
   slug: String!
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }

@@ -1,16 +1,16 @@
 # ---------------------- Tax Rate Types ----------------------
 type TaxRate {
   id: ID!
-  country: String!
+  country: String
   state: String
   city: String
   postcode: String
-  rate: Float!
-  label: String!
-  appliesToShipping: Boolean!
-  isCompound: Boolean!
-  priority: Int!
-  createdBy: CreatedBy!
+  rate: Float
+  label: String
+  appliesToShipping: Boolean
+  isCompound: Boolean
+  priority: Int
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }

@@ -4,7 +4,7 @@ type Brand {
   name: String!
   slug: String!
   thumbnail: Media
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
@@ -24,7 +24,7 @@ type BrandPaginationDataSession {
   slug: String!
   thumbnail: Media
   totalProducts: Int!
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }

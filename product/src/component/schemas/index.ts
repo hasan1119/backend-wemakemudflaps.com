@@ -566,3 +566,48 @@ export const shippingZoneMutationsDef = gql(
     encoding: "utf-8",
   })
 );
+
+/**
+ * Loads and parses the GraphQL schema for tax options-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `tax-options/tax-options.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for tax options as a DocumentNode.
+ */
+export const taxOptionsDef = gql(
+  readFileSync(path.join(__dirname, "./tax-options/tax-options.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL queries for tax options-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `tax-options/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for tax options as a DocumentNode.
+ */
+export const taxOptionsQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./tax-options/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for tax options-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `tax-options/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for tax options as a DocumentNode.
+ */
+export const taxOptionsMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./tax-options/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);

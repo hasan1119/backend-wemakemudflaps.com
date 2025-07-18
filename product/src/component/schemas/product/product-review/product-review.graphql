@@ -10,7 +10,7 @@ type ProductReview {
   guestName: String # Guest's name (optional)
   guestEmail: String # Guest's email (optional)
   product: Product! # Related product
-  createdAt: String! # Timestamp of creation
+  createdAt: String # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion
 }
 

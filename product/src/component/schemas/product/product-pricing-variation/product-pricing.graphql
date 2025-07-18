@@ -13,7 +13,7 @@ type ProductPrice {
   tieredPrices: [ProductTieredPrice!]! # List of tiered prices
   product: Product # Related product
   productVariation: ProductVariation # Related variation
-  createdAt: String! # Timestamp of creation
+  createdAt: String # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion
 }
 
@@ -37,7 +37,7 @@ type ProductTieredPrice {
   percentageDiscount: Float # Discount percentage
   quantityUnit: String! # Quantity type (e.g., piece, liter and so on)
   productPrice: ProductPrice # Related product price
-  createdAt: String! # Timestamp of creation
+  createdAt: String # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion
 }
 

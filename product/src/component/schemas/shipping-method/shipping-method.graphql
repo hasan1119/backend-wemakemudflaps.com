@@ -9,7 +9,7 @@ type ShippingMethod {
   localPickUp: LocalPickUp
   ups: Ups
   shippingZone: ShippingZone
-  createdBy: String!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
@@ -28,7 +28,7 @@ type FlatRate {
   taxStatus: Boolean!
   cost: Float!
   costs: [FlatRateCost!]!
-  createdBy: String!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
@@ -40,7 +40,7 @@ type FreeShipping {
   conditions: String!
   minimumOrderAmount: Float
   applyMinimumOrderRuleBeforeCoupon: Boolean!
-  createdBy: String!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
@@ -51,7 +51,7 @@ type LocalPickUp {
   title: String!
   taxStatus: Boolean!
   cost: Float!
-  createdBy: String!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
@@ -60,7 +60,7 @@ type LocalPickUp {
 type Ups {
   id: ID!
   title: String!
-  createdBy: String!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
