@@ -212,6 +212,38 @@ jobs:
             ${{ runner.os }}-bun-users-
             ${{ runner.os }}-bun-
       
+      - name: Check and kill process using port
+        run: |
+          PORT=4001
+          echo "Checking if port $PORT is in use..."
+          
+          # Find process using the port
+          PID=$(lsof -ti:$PORT 2>/dev/null || true)
+          
+          if [ ! -z "$PID" ]; then
+            echo "Port $PORT is in use by process $PID. Killing it..."
+            kill -9 $PID 2>/dev/null || true
+            sleep 2
+            
+            # Verify the port is free
+            if lsof -ti:$PORT 2>/dev/null; then
+              echo "::warning::Port $PORT is still in use after killing process"
+              # Force kill with sudo if needed
+              sudo kill -9 $(lsof -ti:$PORT) 2>/dev/null || true
+              sleep 2
+            fi
+          else
+            echo "Port $PORT is free"
+          fi
+          
+          # Double check the port is available
+          if lsof -ti:$PORT 2>/dev/null; then
+            echo "::error::Unable to free port $PORT"
+            exit 1
+          else
+            echo "✅ Port $PORT is now available"
+          fi
+
       - name: Set environment variables
         run: |
           echo "SUB_GRAPH_NAME=users" >> $GITHUB_ENV
@@ -440,6 +472,38 @@ jobs:
             ${{ runner.os }}-bun-media-
             ${{ runner.os }}-bun-
       
+      - name: Check and kill process using port
+        run: |
+          PORT=4002
+          echo "Checking if port $PORT is in use..."
+          
+          # Find process using the port
+          PID=$(lsof -ti:$PORT 2>/dev/null || true)
+          
+          if [ ! -z "$PID" ]; then
+            echo "Port $PORT is in use by process $PID. Killing it..."
+            kill -9 $PID 2>/dev/null || true
+            sleep 2
+            
+            # Verify the port is free
+            if lsof -ti:$PORT 2>/dev/null; then
+              echo "::warning::Port $PORT is still in use after killing process"
+              # Force kill with sudo if needed
+              sudo kill -9 $(lsof -ti:$PORT) 2>/dev/null || true
+              sleep 2
+            fi
+          else
+            echo "Port $PORT is free"
+          fi
+          
+          # Double check the port is available
+          if lsof -ti:$PORT 2>/dev/null; then
+            echo "::error::Unable to free port $PORT"
+            exit 1
+          else
+            echo "✅ Port $PORT is now available"
+          fi
+
       - name: Set environment variables
         run: |
           echo "SUB_GRAPH_NAME=media" >> $GITHUB_ENV
@@ -657,6 +721,38 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-product-
             ${{ runner.os }}-bun-
+
+      - name: Check and kill process using port
+        run: |
+          PORT=4003
+          echo "Checking if port $PORT is in use..."
+          
+          # Find process using the port
+          PID=$(lsof -ti:$PORT 2>/dev/null || true)
+          
+          if [ ! -z "$PID" ]; then
+            echo "Port $PORT is in use by process $PID. Killing it..."
+            kill -9 $PID 2>/dev/null || true
+            sleep 2
+            
+            # Verify the port is free
+            if lsof -ti:$PORT 2>/dev/null; then
+              echo "::warning::Port $PORT is still in use after killing process"
+              # Force kill with sudo if needed
+              sudo kill -9 $(lsof -ti:$PORT) 2>/dev/null || true
+              sleep 2
+            fi
+          else
+            echo "Port $PORT is free"
+          fi
+          
+          # Double check the port is available
+          if lsof -ti:$PORT 2>/dev/null; then
+            echo "::error::Unable to free port $PORT"
+            exit 1
+          else
+            echo "✅ Port $PORT is now available"
+          fi
 
       - name: Set environment variables
         run: |
@@ -920,6 +1016,59 @@ jobs:
             find . -type f -maxdepth 1
           fi
         working-directory: ${{ env.router_path }}
+
+      - name: Check and kill processes using router ports
+        run: |
+          # Check main router port (4000)
+          ROUTER_PORT=4000
+          echo "Checking if router port $ROUTER_PORT is in use..."
+          
+          PID=$(lsof -ti:$ROUTER_PORT 2>/dev/null || true)
+          if [ ! -z "$PID" ]; then
+            echo "Port $ROUTER_PORT is in use by process $PID. Killing it..."
+            kill -9 $PID 2>/dev/null || true
+            sleep 2
+            
+            if lsof -ti:$ROUTER_PORT 2>/dev/null; then
+              echo "::warning::Port $ROUTER_PORT is still in use after killing process"
+              sudo kill -9 $(lsof -ti:$ROUTER_PORT) 2>/dev/null || true
+              sleep 2
+            fi
+          else
+            echo "Router port $ROUTER_PORT is free"
+          fi
+          
+          # Check temporary router port (5000)
+          TEMP_ROUTER_PORT=5000
+          echo "Checking if temporary router port $TEMP_ROUTER_PORT is in use..."
+          
+          PID=$(lsof -ti:$TEMP_ROUTER_PORT 2>/dev/null || true)
+          if [ ! -z "$PID" ]; then
+            echo "Port $TEMP_ROUTER_PORT is in use by process $PID. Killing it..."
+            kill -9 $PID 2>/dev/null || true
+            sleep 2
+            
+            if lsof -ti:$TEMP_ROUTER_PORT 2>/dev/null; then
+              echo "::warning::Port $TEMP_ROUTER_PORT is still in use after killing process"
+              sudo kill -9 $(lsof -ti:$TEMP_ROUTER_PORT) 2>/dev/null || true
+              sleep 2
+            fi
+          else
+            echo "Temporary router port $TEMP_ROUTER_PORT is free"
+          fi
+          
+          # Verify both ports are available
+          if lsof -ti:$ROUTER_PORT 2>/dev/null; then
+            echo "::error::Unable to free router port $ROUTER_PORT"
+            exit 1
+          fi
+          
+          if lsof -ti:$TEMP_ROUTER_PORT 2>/dev/null; then
+            echo "::error::Unable to free temporary router port $TEMP_ROUTER_PORT"
+            exit 1
+          fi
+          
+          echo "✅ Both router ports ($ROUTER_PORT and $TEMP_ROUTER_PORT) are now available"
 
       # Apply zero-downtime strategy for router
       - name: Deploy Router with zero downtime
