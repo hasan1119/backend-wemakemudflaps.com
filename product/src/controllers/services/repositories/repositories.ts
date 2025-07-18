@@ -21,6 +21,7 @@ import {
   ShippingZone,
   Tag,
   TaxClass,
+  TaxOptions,
   TaxRate,
   Ups,
 } from "../../../entities";
@@ -228,3 +229,11 @@ export const shippingZoneRepository = AppDataSource.getRepository(ShippingZone);
  * 1. Retrieves the FlatRateCost repository from AppDataSource for database operations.
  */
 export const flatRateCostRepository = AppDataSource.getRepository(FlatRateCost);
+
+/**
+ * Initializes repository for TaxOptions entity.
+ *
+ * Workflow:
+ * 1. Retrieves the TaxOptions repository from AppDataSource for database operations.
+ */
+export const taxOptionsRepository = AppDataSource.getRepository(TaxOptions);

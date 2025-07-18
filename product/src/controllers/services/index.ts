@@ -271,6 +271,30 @@ export { restoreShippingClass } from "./shipping-class/restore-shipping-class.se
 export { updateShippingClass } from "./shipping-class/update-shipping-class.service";
 
 /**
+ * Exports services for creating tax options.
+ *
+ * Workflow:
+ * 1. Provides a function to create tax options based on input.
+ */
+export { createTaxOptions } from "./tax-options/create-tax-options.service";
+
+/**
+ * Exports services for deleting tax options.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export { updateTaxOptions } from "./tax-options/update-tax-options.service";
+
+/**
+ * Exports services for fetching and counting tax options.
+ *
+ * Workflow:
+ * 1. Provides functions to fetch tax options by ID with relations.
+ */
+export { getTaxOptions } from "./tax-options/get-tax-options.service";
+
+/**
  * Exports services for creating tax class.
  *
  * Workflow:
