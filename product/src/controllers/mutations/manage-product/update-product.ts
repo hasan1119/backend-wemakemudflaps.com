@@ -8,7 +8,6 @@ import { updateProductSchema } from "../../../utils/data-validation/product/prod
 import {
   checkUserAuth,
   checkUserPermission,
-  findProductByNameToUpdate,
   findProductBySlugToUpdate,
   getBrandsByIds,
   getCategoryByIds,
@@ -18,6 +17,7 @@ import {
   getShippingClassById,
   getTagsByIds,
   getTaxClassById,
+  getTaxClassByIds,
   updateProduct as updateProductService,
 } from "../../services";
 
@@ -107,19 +107,6 @@ export const updateProduct = async (
       };
     }
 
-    // Check for duplicate name (if changed)
-    if (name && name !== currentProduct.name) {
-      let nameExists = await findProductByNameToUpdate(id, name);
-      if (nameExists) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Product name: "${name}" already exists`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
     // Check for duplicate slug (if changed)
     if (slug && slug !== currentProduct.slug) {
       let slugExists = await findProductBySlugToUpdate(id, slug);
@@ -171,8 +158,6 @@ export const updateProduct = async (
       }
     }
 
-    // Validate and fetch variation brands
-    let updatedVariations = variations;
     if (variations && variations.length > 0) {
       const variationBrandIds = variations
         .flatMap((variation) => variation.brandIds ?? [])
@@ -180,6 +165,7 @@ export const updateProduct = async (
 
       if (variationBrandIds.length > 0) {
         const variationBrands = await getBrandsByIds(variationBrandIds);
+
         if (variationBrands.length !== variationBrandIds.length) {
           return {
             statusCode: 404,
@@ -188,21 +174,23 @@ export const updateProduct = async (
             __typename: "BaseResponse",
           };
         }
-
-        // Map brandIds to brand objects for each variation
-        updatedVariations = variations.map((variation) => {
-          const brandObjs = (variation.brandIds ?? [])
-            .map((bid) => variationBrands.find((b) => b.id === bid))
-            .filter(Boolean);
-
-          return {
-            ...variation,
-            brands: brandObjs,
-          };
-        });
       }
-    } else {
-      updatedVariations = [];
+
+      const variationsTaxClassIds = variations.flatMap(
+        (variation) => variation.taxClassId ?? []
+      );
+
+      if (variationsTaxClassIds.length > 0) {
+        const taxClasses = await getTaxClassByIds(variationsTaxClassIds);
+        if (!taxClasses) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "One or more tax classes inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+      }
     }
 
     if (shippingClassId) {
@@ -269,7 +257,6 @@ export const updateProduct = async (
     // Update the product in the database
     await updateProductService(currentProduct, {
       ...result.data,
-      variations: updatedVariations,
     } as any);
 
     return {

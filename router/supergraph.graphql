@@ -1384,10 +1384,8 @@ type ProductPrice
 input ProductPriceInput
   @join__type(graph: PRODUCT)
 {
-  id: ID
   pricingType: PricingTypeEnum!
   tieredPrices: [ProductTieredPriceInput!]
-  productId: ID
   productVariationId: ID
 }
 
@@ -1465,12 +1463,10 @@ type ProductTieredPrice
 input ProductTieredPriceInput
   @join__type(graph: PRODUCT)
 {
-  id: ID
   minQuantity: Int!
   maxQuantity: Int!
   fixedPrice: Float
   percentageDiscount: Float
-  productPriceId: ID
 }
 
 type ProductVariation
@@ -1497,7 +1493,7 @@ type ProductVariation
   width: Float
   height: Float
   product: Product!
-  attributeValues: [ProductVariationAttributeValue!]!
+  attributeValues: [ProductAttributeValue!]!
   warrantyDigit: Int
   defaultWarrantyPeriod: String
   warrantyPolicy: String
@@ -1509,43 +1505,6 @@ type ProductVariation
   videos: [Media!]
   createdAt: String
   deletedAt: String
-}
-
-type ProductVariationAttribute
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  name: String!
-  values: [ProductVariationAttributeValue!]!
-  createdAt: String
-  deletedAt: String
-}
-
-input ProductVariationAttributeInput
-  @join__type(graph: PRODUCT)
-{
-  id: ID
-  name: String!
-}
-
-type ProductVariationAttributeValue
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  value: String!
-  attribute: ProductVariationAttribute!
-  variation: ProductVariation!
-  createdAt: String
-  deletedAt: String
-}
-
-input ProductVariationAttributeValueInput
-  @join__type(graph: PRODUCT)
-{
-  id: ID
-  value: String!
-  attributeId: ID!
-  variationId: ID!
 }
 
 input ProductVariationInput
@@ -1563,7 +1522,7 @@ input ProductVariationInput
   salePrice: Float
   salePriceStartAt: String
   salePriceEndAt: String
-  tierPricingInfoId: ID
+  tierPricingInfo: ProductPriceInput
   stockStatus: String
   weightUnit: WeightUnit
   weight: Float
@@ -1571,8 +1530,7 @@ input ProductVariationInput
   length: Float
   width: Float
   height: Float
-  productId: ID!
-  attributeValues: [ProductVariationAttributeValueInput!]
+  attributeValues: [ID!]
   warrantyDigit: Int
   defaultWarrantyPeriod: DefaultWarrantyPeriod
   warrantyPolicy: String

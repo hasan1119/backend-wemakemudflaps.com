@@ -11,8 +11,6 @@ import {
   checkUserPermission,
   createAttributeWithValues,
   createSystemAttributeWithValues,
-  findAttributeByName,
-  findAttributeBySlug,
 } from "../../services";
 
 /**
@@ -60,29 +58,6 @@ export const handleCreateProductAttribute = async (
       message: "Validation failed",
       errors,
       __typename: "ErrorResponse",
-    };
-  }
-
-  const { name, slug } = result.data;
-
-  // Step 4: Check for duplicates
-  const attributeExists = await findAttributeByName(name);
-  if (attributeExists) {
-    return {
-      statusCode: 400,
-      success: false,
-      message: `A product attribute with the name "${name}" already exists`,
-      __typename: "BaseResponse",
-    };
-  }
-
-  const existingSlugAttribute = await findAttributeBySlug(slug);
-  if (existingSlugAttribute) {
-    return {
-      statusCode: 400,
-      success: false,
-      message: `A product attribute with the slug "${slug}" already exists`,
-      __typename: "BaseResponse",
     };
   }
 

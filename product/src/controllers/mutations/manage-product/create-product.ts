@@ -15,7 +15,6 @@ import {
   checkUserAuth,
   checkUserPermission,
   createProduct as createProductService,
-  findProductByName,
   findProductBySlug,
   getBrandsByIds,
   getCategoryByIds,
@@ -24,6 +23,7 @@ import {
   getShippingClassById,
   getTagsByIds,
   getTaxClassById,
+  getTaxClassByIds,
 } from "../../services";
 
 /**
@@ -103,17 +103,6 @@ export const createProduct = async (
       attributeIds,
     } = result.data;
 
-    // Check database for existing product name
-    const existingProduct = await findProductByName(name);
-    if (existingProduct) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: `A product with this name: ${name} already exists`,
-        __typename: "BaseResponse",
-      };
-    }
-
     // Check database for existing product slug
     const existingSlugProduct = await findProductBySlug(slug);
     if (existingSlugProduct) {
@@ -163,9 +152,6 @@ export const createProduct = async (
       }
     }
 
-    // Variation brands validation - outside of variations block
-    let updatedVariations = variations;
-
     if (variations && variations.length > 0) {
       const variationBrandIds = variations
         .flatMap((variation) => variation.brandIds ?? [])
@@ -182,20 +168,23 @@ export const createProduct = async (
             __typename: "BaseResponse",
           };
         }
-
-        updatedVariations = variations.map((variation) => {
-          const brandObjs = (variation.brandIds ?? [])
-            .map((bid) => variationBrands.find((b) => b.id === bid))
-            .filter(Boolean); // null filter
-
-          return {
-            ...variation,
-            brands: brandObjs,
-          };
-        });
       }
-    } else {
-      updatedVariations = [];
+
+      const variationsTaxClassIds = variations.flatMap(
+        (variation) => variation.taxClassId ?? []
+      );
+
+      if (variationsTaxClassIds.length > 0) {
+        const taxClasses = await getTaxClassByIds(variationsTaxClassIds);
+        if (!taxClasses) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "One or more tax classes inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+      }
     }
 
     if (shippingClassId) {
@@ -265,7 +254,6 @@ export const createProduct = async (
     await createProductService(
       {
         ...result.data,
-        variations: updatedVariations,
       } as any,
       user.id
     );

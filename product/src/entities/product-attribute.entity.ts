@@ -7,11 +7,11 @@ export class ProductAttribute {
   id: string;
 
   // The name of the product attribute (e.g., "Size", "Color")
-  @Column({ unique: true })
+  @Column()
   name: string;
 
   // A slug is a URL-friendly version of the name, typically used in URLs
-  @Column({ unique: true })
+  @Column()
   slug: string;
 
   // Indicates if the attribute is a system attribute (e.g., predefined attributes like "Color", "Size")

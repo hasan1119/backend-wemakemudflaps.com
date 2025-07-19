@@ -375,8 +375,6 @@ export {
  * 3. Supports paginated retrieval of products.
  */
 export {
-  findProductByName,
-  findProductByNameToUpdate,
   findProductBySlug,
   findProductBySlugToUpdate,
   getProductById,

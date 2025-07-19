@@ -19,10 +19,8 @@ type ProductPrice {
 
 # Input type for product price
 input ProductPriceInput {
-  id: ID # Optional ID for update
   pricingType: PricingTypeEnum! # Type of pricing
   tieredPrices: [ProductTieredPriceInput!] # Tiered pricing details
-  productId: ID # Related product ID
   productVariationId: ID # Related variation ID
 }
 
@@ -43,10 +41,8 @@ type ProductTieredPrice {
 
 # Input for creating or updating tiered price brackets
 input ProductTieredPriceInput {
-  id: ID # Optional ID for update
   minQuantity: Int! # Minimum quantity
   maxQuantity: Int! # Maximum quantity
   fixedPrice: Float # Price value
   percentageDiscount: Float # Discount value
-  productPriceId: ID # Related price ID
 }

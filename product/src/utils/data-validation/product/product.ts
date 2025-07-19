@@ -215,7 +215,6 @@ export const TaxStatusTypeEnum = z.preprocess((val) => {
  * @property productPriceId - Optional UUID of the associated product price.
  */
 export const ProductTieredPriceInputSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
   minQuantity: z
     .number()
     .int()
@@ -240,11 +239,6 @@ export const ProductTieredPriceInputSchema = z.object({
     .optional()
     .nullable(),
   percentageDiscount: z.number().min(0).max(100).optional().nullable(),
-  productPriceId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .nullable()
-    .optional(),
 });
 
 /**
@@ -264,7 +258,6 @@ export const ProductTieredPriceInputSchema = z.object({
  * @property productVariationId - Optional UUID of the associated product variation.
  */
 export const ProductPriceInputSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
   pricingType: z
     .enum(["Fixed", "Percentage"], {
       errorMap: () => ({
@@ -274,46 +267,7 @@ export const ProductPriceInputSchema = z.object({
     .optional()
     .nullable(),
   tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
-  productId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .nullable()
-    .optional(),
   productVariationId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-});
-
-/**
- * Defines the schema for validating product variation attribute values input.
- *
- * Workflow:
- * 1. Validates `id` as an optional UUID.
- * 2. Ensures `value` is a non-empty string.
- * 3. Validates `attributeId` as a UUID.
- * 4. Validates `variationId` as a UUID.
- *
- * @property id - Optional unique identifier for the variation attribute value.
- * @property value - The string value of the variation attribute.
- * @property attributeId - The UUID of the associated product variation attribute.
- * @property variationId - The UUID of the associated product variation.
- */
-export const ProductVariationAttributeValueInputSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
-  value: z
-    .string()
-    .min(1, "Variation attribute value cannot be empty")
-    .trim()
-    .optional()
-    .nullable(),
-  attributeId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-  variationId: z
     .string()
     .uuid({ message: "Invalid UUID format" })
     .optional()
@@ -426,11 +380,7 @@ export const ProductVariationInputSchema = z.object({
     .nullable(),
   salePriceStartAt: z.string().datetime().optional().nullable(),
   salePriceEndAt: z.string().datetime().optional().nullable(),
-  tierPricingInfoId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
+  tierPricingInfo: ProductPriceInputSchema.optional().nullable(),
   stockStatus: StockStatusEnum.optional().nullable(),
   weightUnit: WeightUnitEnum.optional().nullable(),
   weight: z
@@ -456,7 +406,7 @@ export const ProductVariationInputSchema = z.object({
     .nullable(),
   productId: z.string().uuid({ message: "Invalid UUID format" }),
   attributeValues: z
-    .array(ProductVariationAttributeValueInputSchema)
+    .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()
     .nullable(),
   warrantyDigit: z
@@ -495,7 +445,6 @@ export const ProductVariationInputSchema = z.object({
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()
     .nullable(),
-  deletedAt: z.string().datetime().optional().nullable(),
 });
 
 /**

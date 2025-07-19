@@ -1,4 +1,4 @@
-import { Product, ProductPrice } from "../../../entities";
+import { Product } from "../../../entities";
 import { MutationCreateProductArgs } from "../../../types";
 import {
   productPriceRepository,
@@ -76,22 +76,6 @@ export const createProduct = async (
     warrantyPolicy,
   } = data ?? {};
 
-  // Handle tier pricing creation separately
-  let createdTierPricing: ProductPrice | null = null;
-  if (tierPricingInfo) {
-    const newTierPricing = productPriceRepository.create(tierPricingInfo);
-    createdTierPricing = await productPriceRepository.save(newTierPricing);
-  }
-
-  // Prepare variations with brand relation fixed
-  const processedVariations = variations?.map((variation) => {
-    const { brandIds, ...rest } = variation;
-    return {
-      ...rest,
-      brands: brandIds?.length ? brandIds.map((id) => ({ id })) : [],
-    };
-  });
-
   const product = productRepository.create({
     name,
     slug,
@@ -136,7 +120,6 @@ export const createProduct = async (
     defaultWarrantyPeriod,
     warrantyPolicy,
     createdBy: userId ?? null,
-
     // Relations
     categories: categoryIds?.length
       ? (categoryIds.map((id) => ({ id })) as any)
@@ -146,16 +129,62 @@ export const createProduct = async (
     taxClass: { id: taxClassId } as any,
     taxStatus: taxStatus,
     shippingClass: shippingClassId ? ({ id: shippingClassId } as any) : null,
-    tierPricingInfo: (createdTierPricing as any) ?? null,
     attributes: attributeIds?.length
       ? (attributeIds.map((id) => ({ id })) as any)
       : [],
-    variations: processedVariations?.length ? (processedVariations as any) : [],
+
     upsells: upsellIds?.length ? (upsellIds.map((id) => ({ id })) as any) : [],
     crossSells: crossSellIds?.length
       ? (crossSellIds.map((id) => ({ id })) as any)
       : [],
   });
+
+  const processedVariations = variations?.map((v) => {
+    return {
+      ...v,
+      brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : [],
+      attributeValues: v.attributeValues?.length
+        ? v.attributeValues.map((av) => ({ id: av }))
+        : [],
+      tierPricingInfo: v.tierPricingInfo
+        ? {
+            pricingType: v.tierPricingInfo.pricingType,
+            tieredPrices: {
+              tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
+                ...tp,
+              })),
+            },
+          }
+        : null,
+      shippingClass: v.shippingClassId
+        ? ({ id: v.shippingClassId } as any)
+        : null,
+
+      taxClassId: v.taxClassId ? ({ id: v.taxClassId } as any) : null,
+
+      product: { id: product.id } as any, // Link back to the main product
+    };
+  });
+
+  const processedTierPricingInfo = tierPricingInfo
+    ? {
+        pricingType: tierPricingInfo.pricingType,
+        tieredPrices: {
+          tieredPrices: tierPricingInfo.tieredPrices?.map((tp) => ({
+            ...tp,
+          })),
+        },
+        product: { id: product.id } as any, // Link back to the main product
+      }
+    : null;
+
+  product.tierPricingInfo = processedTierPricingInfo
+    ? await productPriceRepository.save({ processedTierPricingInfo } as any)
+    : null;
+
+  product.variations = processedVariations?.length
+    ? (processedVariations as any)
+    : [];
 
   return await productRepository.save(product);
 };

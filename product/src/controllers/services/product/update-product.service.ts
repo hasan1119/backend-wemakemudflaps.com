@@ -3,6 +3,7 @@ import { MutationUpdateProductArgs } from "../../../types";
 import {
   productPriceRepository,
   productRepository,
+  productVariationRepository,
 } from "../repositories/repositories";
 
 /**
@@ -111,116 +112,42 @@ export const updateProduct = async (
   }
 
   // Replace variations
-  if (data.variations !== undefined) {
-    const existingVariations = await productRepository
-      .createQueryBuilder("product")
-      .relation(Product, "variations")
-      .of(product)
-      .loadMany();
+  if (data.variations) {
+    // Delete previous
+    await productVariationRepository.delete({
+      product: { id: currentProduct.id },
+    });
 
-    const newVariationIds = data.variations
-      .filter((v: any) => v.id)
-      .map((v: any) => v.id);
+    const processedVariations = data.variations?.map((v) => {
+      return {
+        ...v,
+        brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : [],
+        attributeValues: v.attributeValues?.length
+          ? v.attributeValues.map((av) => ({ id: av }))
+          : [],
+        tierPricingInfo: v.tierPricingInfo
+          ? {
+              pricingType: v.tierPricingInfo.pricingType,
+              tieredPrices: {
+                tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
+                  ...tp,
+                })),
+              },
+            }
+          : null,
+        shippingClass: v.shippingClassId
+          ? ({ id: v.shippingClassId } as any)
+          : null,
 
-    const oldVariationIds = existingVariations.map((v) => v.id);
+        taxClassId: v.taxClassId ? ({ id: v.taxClassId } as any) : null,
 
-    const toDeleteIds = oldVariationIds.filter(
-      (id) => !newVariationIds.includes(id)
-    );
+        product: { id: product.id } as any, // Link back to the main product
+      };
+    });
 
-    if (toDeleteIds.length > 0) {
-      await productRepository.manager
-        .getRepository("ProductVariation")
-        .delete(toDeleteIds);
-    }
-
-    const variationRepo =
-      productRepository.manager.getRepository("ProductVariation");
-    const tierPriceRepo =
-      productRepository.manager.getRepository("ProductPrice");
-
-    for (const variationInput of data.variations) {
-      let variationEntity;
-
-      if (variationInput.id) {
-        variationEntity = existingVariations.find(
-          (v) => v.id === variationInput.id
-        );
-        if (!variationEntity) continue;
-
-        Object.assign(variationEntity, variationInput);
-
-        if (variationInput.salePriceStartAt !== undefined) {
-          variationEntity.salePriceStartAt =
-            typeof variationInput.salePriceStartAt === "string"
-              ? new Date(variationInput.salePriceStartAt)
-              : variationInput.salePriceStartAt;
-        }
-
-        if (variationInput.salePriceEndAt !== undefined) {
-          variationEntity.salePriceEndAt =
-            typeof variationInput.salePriceEndAt === "string"
-              ? new Date(variationInput.salePriceEndAt)
-              : variationInput.salePriceEndAt;
-        }
-
-        if (variationInput.brandIds !== undefined) {
-          variationEntity.brands = variationInput.brandIds.map((id) => ({
-            id,
-          })) as any;
-        }
-
-        if (variationInput.shippingClassId !== undefined) {
-          variationEntity.shippingClass = variationInput.shippingClassId
-            ? ({ id: variationInput.shippingClassId } as any)
-            : null;
-        }
-
-        if (variationInput.taxClassId !== undefined) {
-          variationEntity.taxClass = variationInput.taxClassId as any;
-        }
-
-        if (variationInput.attributeValues !== undefined) {
-          variationEntity.attributeValues = variationInput.attributeValues.map(
-            (attr) => ({
-              id: attr.id,
-              value: attr.value,
-              attributeId: attr.attributeId,
-              variationId: attr.variationId,
-            })
-          ) as any;
-        }
-
-        if (variationInput.tierPricingInfoId !== undefined) {
-          const tierPricing = variationInput.tierPricingInfoId
-            ? await tierPriceRepo.findOne({
-                where: { id: variationInput.tierPricingInfoId },
-              })
-            : null;
-          variationEntity.tierPricingInfo = tierPricing
-            ? Promise.resolve(tierPricing)
-            : null;
-        }
-
-        await variationRepo.save(variationEntity);
-      } else {
-        variationEntity = variationRepo.create({
-          ...variationInput,
-          product: Promise.resolve(product),
-        });
-
-        if (variationInput.tierPricingInfoId) {
-          const tierPricing = await tierPriceRepo.findOne({
-            where: { id: variationInput.tierPricingInfoId },
-          });
-          if (tierPricing) {
-            variationEntity.tierPricingInfo = Promise.resolve(tierPricing);
-          }
-        }
-
-        await variationRepo.save(variationEntity);
-      }
-    }
+    product.variations = processedVariations?.length
+      ? (processedVariations as any)
+      : [];
   }
 
   // Replace upsells
@@ -235,9 +162,26 @@ export const updateProduct = async (
 
   // Replace tier pricing info for main product
   if (data.tierPricingInfo !== undefined) {
-    const newTier = productPriceRepository.create(data.tierPricingInfo);
-    const savedTier = await productPriceRepository.save(newTier);
-    product.tierPricingInfo = Promise.resolve(savedTier);
+    // Delete previous
+    await productPriceRepository.delete({
+      product: { id: currentProduct.id },
+    });
+
+    const processedTierPricingInfo = data.tierPricingInfo
+      ? {
+          pricingType: data.tierPricingInfo.pricingType,
+          tieredPrices: {
+            tieredPrices: data.tierPricingInfo.tieredPrices?.map((tp) => ({
+              ...tp,
+            })),
+          },
+          product: { id: product.id } as any, // Link back to the main product
+        }
+      : null;
+
+    product.tierPricingInfo = processedTierPricingInfo
+      ? await productPriceRepository.save({ processedTierPricingInfo } as any)
+      : null;
   }
 
   // Save and return updated product

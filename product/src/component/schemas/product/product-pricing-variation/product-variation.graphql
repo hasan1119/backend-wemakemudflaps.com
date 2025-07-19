@@ -1,38 +1,3 @@
-# ---------------------- Product Variation Attribute Types ----------------------
-
-# Attributes that define variations (e.g., Color)
-type ProductVariationAttribute {
-  id: ID! # Unique identifier
-  name: String! # Attribute name
-  values: [ProductVariationAttributeValue!]! # Possible values
-  createdAt: String # Creation time
-  deletedAt: String # Soft deletion timestamp
-}
-
-# Input type for variation attribute
-input ProductVariationAttributeInput {
-  id: ID # Optional ID
-  name: String! # Attribute name
-}
-
-# Represents a value of a variation attribute (e.g., "Red")
-type ProductVariationAttributeValue {
-  id: ID! # Unique identifier
-  value: String! # Value text
-  attribute: ProductVariationAttribute! # Related attribute
-  variation: ProductVariation! # Related variation
-  createdAt: String # Creation time
-  deletedAt: String # Soft deletion
-}
-
-# Input for variation attribute value
-input ProductVariationAttributeValueInput {
-  id: ID # Optional ID
-  value: String! # Value
-  attributeId: ID! # Related attribute
-  variationId: ID! # Related variation
-}
-
 # ---------------------- Product Variation Types ----------------------
 
 # Represents a variation of a product (e.g., "T-Shirt - Red - L")
@@ -64,7 +29,7 @@ type ProductVariation {
   height: Float # Height of the product
   # ---------------------- Relations ----------------------
   product: Product! # The parent product
-  attributeValues: [ProductVariationAttributeValue!]! # List of variation-specific attribute values (e.g., Color: Red)
+  attributeValues: [ProductAttributeValue!]! # List of variation-specific attribute values (e.g., Color: Red)
   # ---------------------- Warranty Info ----------------------
   warrantyDigit: Int # Numeric part of warranty duration
   defaultWarrantyPeriod: String # Period string (e.g., "months", "years")
@@ -99,7 +64,7 @@ input ProductVariationInput {
   salePrice: Float # Optional sale price
   salePriceStartAt: String # Sale start datetime
   salePriceEndAt: String # Sale end datetime
-  tierPricingInfoId: ID # Associated tier pricing ID
+  tierPricingInfo: ProductPriceInput # Associated tier pricing information
   # ---------------------- Stock & Inventory ----------------------
   stockStatus: String # Stock status
   # ---------------------- Physical Attributes ----------------------
@@ -110,8 +75,7 @@ input ProductVariationInput {
   width: Float # Width of item
   height: Float # Height of item
   # ---------------------- Relations ----------------------
-  productId: ID! # Parent product ID (required)
-  attributeValues: [ProductVariationAttributeValueInput!] # List of variation attribute values
+  attributeValues: [ID!] # List of variation attribute values
   # ---------------------- Warranty Info ----------------------
   warrantyDigit: Int # Duration number for warranty
   defaultWarrantyPeriod: DefaultWarrantyPeriod # Period type (e.g., "months")

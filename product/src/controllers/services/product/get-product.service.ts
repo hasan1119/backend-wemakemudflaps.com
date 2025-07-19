@@ -1,23 +1,6 @@
-import { Brackets, ILike, In, Not } from "typeorm";
+import { Brackets, ILike, Not } from "typeorm";
 import { Product } from "../../../entities";
 import { productRepository } from "../repositories/repositories";
-
-/**
- * Finds a Product entity by its name (case-insensitive).
- *
- * @param name - The name of the product to find.
- * @returns A promise resolving to the Product entity or null if not found.
- */
-export const findProductByName = async (
-  name: string
-): Promise<Product | null> => {
-  return await productRepository.findOne({
-    where: {
-      name: ILike(name),
-      deletedAt: null,
-    },
-  });
-};
 
 /**
  * Finds a Product entity by its slug (case-insensitive).
@@ -31,26 +14,6 @@ export const findProductBySlug = async (
   return await productRepository.findOne({
     where: {
       slug: ILike(slug),
-      deletedAt: null,
-    },
-  });
-};
-
-/**
- * Finds a Product entity by its name (case-insensitive) to update product info.
- *
- * @param id - The UUID of the product.
- * @param name - The name of the product to find.
- * @returns A promise resolving to the Product entity or null if not found.
- */
-export const findProductByNameToUpdate = async (
-  id: string,
-  name: string
-): Promise<Product | null> => {
-  return await productRepository.findOne({
-    where: {
-      id: Not(id),
-      name: ILike(name),
       deletedAt: null,
     },
   });
@@ -87,30 +50,96 @@ export const findProductBySlugToUpdate = async (
  * @returns A promise that resolves to the Product entity, or null if no match is found.
  */
 export const getProductById = async (id: string): Promise<Product | null> => {
-  return await productRepository.findOne({
-    where: { id, deletedAt: null },
-    relations: [
-      "brands",
-      "tags",
+  // Build query with soft delete filtering for all relations
+  const queryBuilder = productRepository
+    .createQueryBuilder("product")
+    .where("product.id = :id AND product.deletedAt IS NULL", { id })
+    // Product relations
+    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
+    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
+    .leftJoinAndSelect(
+      "product.categories",
       "categories",
+      "categories.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.attributes",
       "attributes",
+      "attributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
       "attributes.values",
+      "attribute_values",
+      "attribute_values.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.variations",
       "variations",
-      "variations.brands",
-      "variations.tierPricingInfo",
-      "variations.tierPricingInfo.tieredPrices",
-      "variations.attributeValues",
-      "variations.attributeValues.attribute",
-      "variations.shippingClass",
-      "variations.taxClass",
+      "variations.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.shippingClass",
       "shippingClass",
+      "shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.upsells",
       "upsells",
+      "upsells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.crossSells",
       "crossSells",
+      "crossSells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.reviews",
       "reviews",
+      "reviews.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.taxClass",
       "taxClass",
-      "tierPricingInfo",
-    ],
-  });
+      "taxClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
+    // Variation relations
+    .leftJoinAndSelect(
+      "variations.brands",
+      "variation_brands",
+      "variation_brands.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.tierPricingInfo",
+      "variation_tierPricingInfo"
+    )
+    .leftJoinAndSelect(
+      "variation_tierPricingInfo.tieredPrices",
+      "variation_tieredPrices"
+    )
+    .leftJoinAndSelect(
+      "variations.attributeValues",
+      "variation_attributeValues",
+      "variation_attributeValues.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variation_attributeValues.attribute",
+      "variation_attribute",
+      "variation_attribute.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.shippingClass",
+      "variation_shippingClass",
+      "variation_shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.taxClass",
+      "variation_taxClass",
+      "variation_taxClass.deletedAt IS NULL"
+    );
+
+  // Execute query
+  return await queryBuilder.getOne();
 };
 
 /**
@@ -126,33 +155,96 @@ export const getProductById = async (id: string): Promise<Product | null> => {
  * @returns A promise resolving to an array of Product entities.
  */
 export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
-  return await productRepository.find({
-    where: {
-      id: In(ids),
-      deletedAt: null,
-    },
-    relations: [
-      "brands",
-      "tags",
+  // Build query with soft delete filtering for all relations
+  const queryBuilder = productRepository
+    .createQueryBuilder("product")
+    .where("product.id IN (:...ids) AND product.deletedAt IS NULL", { ids })
+    // Product relations
+    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
+    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
+    .leftJoinAndSelect(
+      "product.categories",
       "categories",
+      "categories.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.attributes",
       "attributes",
+      "attributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
       "attributes.values",
+      "attribute_values",
+      "attribute_values.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.variations",
       "variations",
-      "variations.brands",
-      "variations.tierPricingInfo",
-      "variations.tierPricingInfo.tieredPrices",
-      "variations.attributeValues",
-      "variations.attributeValues.attribute",
-      "variations.shippingClass",
-      "variations.taxClass",
+      "variations.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.shippingClass",
       "shippingClass",
+      "shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.upsells",
       "upsells",
+      "upsells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.crossSells",
       "crossSells",
+      "crossSells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.reviews",
       "reviews",
+      "reviews.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.taxClass",
       "taxClass",
-      "tierPricingInfo",
-    ],
-  });
+      "taxClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
+    // Variation relations
+    .leftJoinAndSelect(
+      "variations.brands",
+      "variation_brands",
+      "variation_brands.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.tierPricingInfo",
+      "variation_tierPricingInfo"
+    )
+    .leftJoinAndSelect(
+      "variation_tierPricingInfo.tieredPrices",
+      "variation_tieredPrices"
+    )
+    .leftJoinAndSelect(
+      "variations.attributeValues",
+      "variation_attributeValues",
+      "variation_attributeValues.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variation_attributeValues.attribute",
+      "variation_attribute",
+      "variation_attribute.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.shippingClass",
+      "variation_shippingClass",
+      "variation_shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.taxClass",
+      "variation_taxClass",
+      "variation_taxClass.deletedAt IS NULL"
+    );
+
+  // Execute query
+  return await queryBuilder.getMany();
 };
 
 interface GetPaginatedProductsInput {
@@ -187,20 +279,61 @@ export const paginateProducts = async ({
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.deletedAt IS NULL")
-    // Relations eager loading via left joins
-    .leftJoinAndSelect("product.brands", "brands")
-    .leftJoinAndSelect("product.tags", "tags")
-    .leftJoinAndSelect("product.categories", "categories")
-    .leftJoinAndSelect("product.attributes", "attributes")
-    .leftJoinAndSelect("attributes.values", "attribute_values")
-    .leftJoinAndSelect("product.variations", "variations")
-    .leftJoinAndSelect("product.shippingClass", "shippingClass")
-    .leftJoinAndSelect("product.upsells", "upsells")
-    .leftJoinAndSelect("product.crossSells", "crossSells")
-    .leftJoinAndSelect("product.reviews", "reviews")
-    .leftJoinAndSelect("product.taxClass", "taxClass")
+    // Product relations
+    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
+    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
+    .leftJoinAndSelect(
+      "product.categories",
+      "categories",
+      "categories.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.attributes",
+      "attributes",
+      "attributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.values",
+      "attribute_values",
+      "attribute_values.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.variations",
+      "variations",
+      "variations.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.shippingClass",
+      "shippingClass",
+      "shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.upsells",
+      "upsells",
+      "upsells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.crossSells",
+      "crossSells",
+      "crossSells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.reviews",
+      "reviews",
+      "reviews.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.taxClass",
+      "taxClass",
+      "taxClass.deletedAt IS NULL"
+    )
     .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect("variations.brands", "variation_brands")
+    // Variation relations
+    .leftJoinAndSelect(
+      "variations.brands",
+      "variation_brands",
+      "variation_brands.deletedAt IS NULL"
+    )
     .leftJoinAndSelect(
       "variations.tierPricingInfo",
       "variation_tierPricingInfo"
@@ -211,14 +344,24 @@ export const paginateProducts = async ({
     )
     .leftJoinAndSelect(
       "variations.attributeValues",
-      "variation_attributeValues"
+      "variation_attributeValues",
+      "variation_attributeValues.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
       "variation_attributeValues.attribute",
-      "variation_attribute"
+      "variation_attribute",
+      "variation_attribute.deletedAt IS NULL"
     )
-    .leftJoinAndSelect("variations.shippingClass", "variation_shippingClass")
-    .leftJoinAndSelect("variations.taxClass", "variation_taxClass");
+    .leftJoinAndSelect(
+      "variations.shippingClass",
+      "variation_shippingClass",
+      "variation_shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.taxClass",
+      "variation_taxClass",
+      "variation_taxClass.deletedAt IS NULL"
+    );
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;

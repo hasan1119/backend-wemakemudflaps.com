@@ -8,8 +8,6 @@ import { UpdateProductAttributeInputSchema } from "../../../utils/data-validatio
 import {
   checkUserAuth,
   checkUserPermission,
-  findAttributeByNameToUpdate,
-  findBrandBySlugToUpdate,
   getProductAttributeById,
   updateAttributeWithValues,
 } from "../../services";
@@ -65,7 +63,7 @@ export const updateProductAttribute = async (
       };
     }
 
-    const { id, name, slug, values } = result.data;
+    const { id } = result.data;
 
     const currentProductAttribute = await getProductAttributeById(id); // fallback to DB
 
@@ -78,64 +76,36 @@ export const updateProductAttribute = async (
       };
     }
 
-    // Check for duplicate name (if changed)
-    if (typeof name === "string" && name !== currentProductAttribute.name) {
-      const nameExists = await findAttributeByNameToUpdate(id, name);
+    // Update the product attribute in the database
+    const updatedProductAttribute = await updateAttributeWithValues(id, args);
 
-      if (nameExists) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Brand name: "${name}" already exists`,
-          __typename: "BaseResponse",
-        };
-      }
-
-      // Check for duplicate name (if changed)
-      if (slug && slug !== currentProductAttribute.slug) {
-        const slugExists = await findBrandBySlugToUpdate(id, slug);
-
-        if (slugExists) {
-          return {
-            statusCode: 400,
-            success: false,
-            message: `Brand slug: "${slug}" already exists`,
-            __typename: "BaseResponse",
-          };
-        }
-      }
-
-      // Update the product attribute in the database
-      const updatedProductAttribute = await updateAttributeWithValues(id, args);
-
-      return {
-        statusCode: 200,
-        success: true,
-        message: "Product attribute updated successfully",
-        attribute: {
-          id: updatedProductAttribute.id,
-          name: updatedProductAttribute.name,
-          slug: updatedProductAttribute.slug,
-          systemAttribute: updatedProductAttribute.systemAttribute,
-          values: await Promise.all(
-            updatedProductAttribute.values.map(async (val: any) => ({
-              ...val,
-              attribute:
-                val.attribute && typeof val.attribute.then === "function"
-                  ? await val.attribute
-                  : val.attribute,
-            }))
-          ),
-          createdBy: updatedProductAttribute.createdBy as any,
-          createdAt: updatedProductAttribute.createdAt.toISOString(),
-          deletedAt:
-            updatedProductAttribute.deletedAt instanceof Date
-              ? updatedProductAttribute.deletedAt.toISOString()
-              : updatedProductAttribute.deletedAt,
-        },
-        __typename: "ProductAttributeResponse",
-      };
-    }
+    return {
+      statusCode: 200,
+      success: true,
+      message: "Product attribute updated successfully",
+      attribute: {
+        id: updatedProductAttribute.id,
+        name: updatedProductAttribute.name,
+        slug: updatedProductAttribute.slug,
+        systemAttribute: updatedProductAttribute.systemAttribute,
+        values: await Promise.all(
+          updatedProductAttribute.values.map(async (val: any) => ({
+            ...val,
+            attribute:
+              val.attribute && typeof val.attribute.then === "function"
+                ? await val.attribute
+                : val.attribute,
+          }))
+        ),
+        createdBy: updatedProductAttribute.createdBy as any,
+        createdAt: updatedProductAttribute.createdAt.toISOString(),
+        deletedAt:
+          updatedProductAttribute.deletedAt instanceof Date
+            ? updatedProductAttribute.deletedAt.toISOString()
+            : updatedProductAttribute.deletedAt,
+      },
+      __typename: "ProductAttributeResponse",
+    };
   } catch (error: any) {
     console.error("Error updating product attribute:", error);
     return {
