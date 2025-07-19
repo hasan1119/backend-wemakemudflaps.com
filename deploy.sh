@@ -92,11 +92,11 @@ if [ $GEN_STATUS -ne 0 ]; then
   exit $GEN_STATUS
 fi
 
-# if pm2 list | grep -q "router"; then
-#   echo "Reloading router pm2 process"
-#   pm2 reload router
-# else
-#   echo "Starting router pm2 process"
-#   pm2 start npm --name "router" -- run start
-# fi
+if pm2 list | grep -q "router"; then
+  echo "Reloading router pm2 process"
+  pm2 reload router
+else
+  echo "Starting router pm2 process"
+  pm2 start npm --name "router" -- run start
+fi
 
