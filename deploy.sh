@@ -82,7 +82,8 @@ for subgraph in "${!SUBGRAPHS[@]}"; do
   done
 done
 
-npm run gen:sg
+sudo rover supergraph compose --config supergraph.yaml --elv2-license accept > supergraph.graphql
+
 GEN_STATUS=$?
 if [ $GEN_STATUS -ne 0 ]; then
   echo "Supergraph generation failed. Exiting."
