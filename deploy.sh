@@ -69,3 +69,31 @@ for subgraph in "${!SUBGRAPHS[@]}"; do
   cd "$APP_DIR" || exit
 done
 
+# After all subgraphs, handle router
+
+cd "$APP_DIR/router" || exit
+echo "Generating supergraph..."
+# wait for all subgraphs tcp port to be ready to accept connections
+for subgraph in "${!SUBGRAPHS[@]}"; do
+  IFS=' ' read -r PORT _ <<< "${SUBGRAPHS[$subgraph]}"
+  while ! nc -z localhost "$PORT"; do
+    echo "Waiting for $subgraph subgraph to be ready on port $PORT..."
+    sleep 1
+  done
+done
+
+npm run gen:sg
+GEN_STATUS=$?
+if [ $GEN_STATUS -ne 0 ]; then
+  echo "Supergraph generation failed. Exiting."
+  exit $GEN_STATUS
+fi
+
+if pm2 list | grep -q "router"; then
+  echo "Reloading router pm2 process"
+  pm2 reload router
+else
+  echo "Starting router pm2 process"
+  pm2 start npm --name "router" -- run start
+fi
+
