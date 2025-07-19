@@ -144,21 +144,21 @@ export const createShippingMethodSchema = z
 export const updateShippingMethodSchema = z
   .object({
     id: z.string().uuid(),
-    title: z.string().min(1, "Title is required").optional(),
-    status: z.boolean().optional(),
-    description: z.string().nullable().optional(),
+    title: z.string().min(1, "Title is required").optional().nullable(),
+    status: z.boolean().optional().nullable(),
+    description: z.string().optional().nullable(),
     flatRate: z
       .object({
-        id: z.string().uuid().optional(),
-        title: z.string().min(1).optional(),
-        taxStatus: z.boolean().optional(),
-        cost: z.number().min(0).optional(),
+        id: z.string().uuid(),
+        title: z.string().min(1).optional().nullable(),
+        taxStatus: z.boolean().optional().nullable(),
+        cost: z.number().min(0).optional().nullable(),
         costs: z
           .array(
             z.object({
-              id: z.string().uuid().optional(),
-              cost: z.number().min(0),
-              shippingClassId: z.string().uuid(),
+              id: z.string().uuid(),
+              cost: z.number().min(0).optional().nullable(),
+              shippingClassId: z.string().uuid().optional().nullable(),
             })
           )
           .optional(),
@@ -167,30 +167,31 @@ export const updateShippingMethodSchema = z
       .nullable(),
     freeShipping: z
       .object({
-        id: z.string().uuid().optional(),
-        title: z.string().min(1).optional(),
-        conditions: FreeShippingConditionTypeEnum.optional(),
+        id: z.string().uuid(),
+        title: z.string().min(1).optional().nullable(),
+        conditions: FreeShippingConditionTypeEnum.optional().nullable(),
         minimumOrderAmount: z.number().min(0).optional().nullable(),
-        applyMinimumOrderRuleBeforeCoupon: z.boolean().optional(),
+        applyMinimumOrderRuleBeforeCoupon: z.boolean().optional().nullable(),
       })
       .optional()
       .nullable(),
     localPickUp: z
       .object({
-        id: z.string().uuid().optional(),
-        title: z.string().min(1).optional(),
-        taxStatus: z.boolean().optional(),
+        id: z.string().uuid(),
+        title: z.string().min(1).optional().nullable(),
+        taxStatus: z.boolean().optional().nullable(),
         cost: z.number().min(0).optional().nullable(),
       })
       .optional()
       .nullable(),
     ups: z
       .object({
-        id: z.string().uuid().optional(),
-        title: z.string().min(1).optional(),
+        id: z.string().uuid(),
+        title: z.string().min(1).optional().nullable(),
       })
       .optional()
       .nullable(),
+    shippingZoneId: z.string().uuid("Invalid UUID format"),
   })
   .superRefine((data, ctx) => {
     const methods = [

@@ -1,4 +1,4 @@
-import { FlatRate, ShippingMethod } from "../../../entities";
+import { ShippingMethod } from "../../../entities";
 import { FlatRateCost } from "../../../entities/flat-rate-cost.entity";
 import { MutationUpdateShippingMethodArgs } from "../../../types";
 import {
@@ -13,13 +13,10 @@ import {
 /**
  * Updates an existing shipping method with the provided data.
  *
- * Workflow:
- * 1. Finds the shipping method by ID.
- * 2. Applies the changes from the input.
- * 3. Saves and returns the updated shipping method entity.
+ * This version does not create new nested entities; it only updates existing ones.
  *
- * @param shippingMethodId - The ID of the shipping method to update.
- * @param data - The data to update on the shipping method.
+ * @param shippingMethod - The existing shipping method entity to update.
+ * @param data - The update input data.
  * @returns The updated ShippingMethod entity.
  */
 export const updateShippingMethod = async (
@@ -31,109 +28,88 @@ export const updateShippingMethod = async (
   if (data.description !== undefined)
     shippingMethod.description = data.description;
 
-  // Reset all embedded shipping method types
+  // Reset all embedded method types
   shippingMethod.flatRate = null;
   shippingMethod.freeShipping = null;
   shippingMethod.localPickUp = null;
   shippingMethod.ups = null;
 
-  // 1. Replace with FlatRate
-  if (data.flatRate) {
-    const flatRateData = data.flatRate;
+  // 1. Update FlatRate if provided
+  if (data.flatRate?.id) {
+    const flatRate = await flatRateRepository.findOneOrFail({
+      where: { id: data.flatRate.id },
+      relations: ["costs"],
+    });
 
-    let flatRate: FlatRate;
-    if (flatRateData.id) {
-      flatRate = await flatRateRepository.findOneOrFail({
-        where: { id: flatRateData.id },
-        relations: ["costs"],
-      });
+    flatRate.title = data.flatRate.title ?? flatRate.title;
+    flatRate.taxStatus = data.flatRate.taxStatus ?? flatRate.taxStatus;
+    flatRate.cost = data.flatRate.cost ?? flatRate.cost;
 
-      flatRate.title = flatRateData.title ?? null;
-      flatRate.taxStatus = flatRateData.taxStatus ?? null;
-      flatRate.cost = flatRateData.cost ?? null;
+    if (data.flatRate.costs) {
+      const updatedCosts: FlatRateCost[] = [];
 
-      if (flatRateData.costs) {
-        const updatedCosts: FlatRateCost[] = [];
+      for (const costData of data.flatRate.costs) {
+        if (!costData.id) continue; // Skip if no ID; no new creation
 
-        for (const costData of flatRateData.costs) {
-          let cost: FlatRateCost;
+        const cost = await flatRateCostRepository.findOneOrFail({
+          where: { id: costData.id },
+        });
 
-          if (costData.id) {
-            cost = await flatRateCostRepository.findOneByOrFail({
-              id: costData.id,
-            });
-            cost.cost = costData.cost;
-            cost.shippingClass = { id: costData.shippingClassId } as any;
-          } else {
-            cost = flatRateCostRepository.create({
-              cost: costData.cost,
-              shippingClass: { id: costData.shippingClassId } as any,
-              flatRate: { id: flatRate.id } as any,
-            });
-          }
+        cost.cost = costData.cost ?? cost.cost;
+        cost.shippingClass = { id: costData.shippingClassId } as any;
 
-          updatedCosts.push(cost);
-        }
-
-        flatRate.costs = updatedCosts;
+        updatedCosts.push(cost);
       }
 
-      await flatRateRepository.save(flatRate);
-      shippingMethod.flatRate = flatRate;
+      flatRate.costs = updatedCosts;
     }
+
+    await flatRateRepository.save(flatRate);
+    shippingMethod.flatRate = flatRate;
   }
 
-  // 2. Replace with FreeShipping
-  else if (data.freeShipping) {
-    const freeShippingData = data.freeShipping;
+  // 2. Update FreeShipping if provided
+  if (data.freeShipping?.id) {
+    const freeShipping = await freeShippingRepository.findOneOrFail({
+      where: { id: data.freeShipping.id },
+    });
 
-    if (freeShippingData.id) {
-      const freeShippingEntity = await freeShippingRepository.findOneOrFail({
-        where: { id: freeShippingData.id },
-      });
+    freeShipping.title = data.freeShipping.title ?? freeShipping.title;
+    freeShipping.conditions =
+      data.freeShipping.conditions ?? freeShipping.conditions;
+    freeShipping.minimumOrderAmount =
+      data.freeShipping.minimumOrderAmount ?? freeShipping.minimumOrderAmount;
 
-      freeShippingEntity.title = freeShippingData.title ?? null;
-      freeShippingEntity.conditions = freeShippingData.conditions ?? null;
-      freeShippingEntity.minimumOrderAmount =
-        freeShippingData.minimumOrderAmount ?? null;
-
-      shippingMethod.freeShipping = freeShippingEntity;
-    }
+    await freeShippingRepository.save(freeShipping);
+    shippingMethod.freeShipping = freeShipping;
   }
 
-  // 3. Replace with LocalPickUp
-  else if (data.localPickUp) {
-    const localPickUpData = data.localPickUp;
+  // 3. Update LocalPickUp if provided
+  if (data.localPickUp?.id) {
+    const localPickUp = await localPickUpRepository.findOneOrFail({
+      where: { id: data.localPickUp.id },
+    });
 
-    if (localPickUpData.id) {
-      const localPickUpEntity = await localPickUpRepository.findOneOrFail({
-        where: { id: localPickUpData.id },
-      });
+    localPickUp.title = data.localPickUp.title ?? localPickUp.title;
+    localPickUp.cost = data.localPickUp.cost ?? localPickUp.cost;
+    localPickUp.taxStatus = data.localPickUp.taxStatus ?? localPickUp.taxStatus;
 
-      localPickUpEntity.title = localPickUpData.title ?? null;
-      localPickUpEntity.cost = localPickUpData.cost ?? null;
-      localPickUpEntity.taxStatus = localPickUpData.taxStatus ?? null;
-
-      shippingMethod.localPickUp = localPickUpEntity;
-    }
+    await localPickUpRepository.save(localPickUp);
+    shippingMethod.localPickUp = localPickUp;
   }
 
-  // 4. Replace with UPS
-  else if (data.ups) {
-    const upsData = data.ups;
+  // 4. Update UPS if provided
+  if (data.ups?.id) {
+    const ups = await upsRepository.findOneOrFail({
+      where: { id: data.ups.id },
+    });
 
-    if (upsData.id) {
-      const upsEntity = await upsRepository.findOneOrFail({
-        where: { id: upsData.id },
-      });
+    ups.title = data.ups.title ?? ups.title;
 
-      upsEntity.title = upsData.title ?? null;
-
-      shippingMethod.ups = upsEntity;
-    }
+    await upsRepository.save(ups);
+    shippingMethod.ups = ups;
   }
 
-  // Save updated shipping method
   await shippingMethodRepository.save(shippingMethod);
   return shippingMethod;
 };

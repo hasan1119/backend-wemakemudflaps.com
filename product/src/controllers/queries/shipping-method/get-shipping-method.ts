@@ -108,6 +108,8 @@ export const getAllShippingMethods = async (
 
     total = queryTotal;
 
+    console.log(shippingMethodsData);
+
     // Map database shipping methods to response format
     shippingMethodsData = dbShippingMethods.map((shippingMethod) => ({
       ...shippingMethod,

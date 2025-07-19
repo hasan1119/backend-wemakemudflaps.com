@@ -32,6 +32,28 @@ export const createShippingMethod = async (
             ...rest,
             shippingClass: { id: shippingClassId } as any,
           })) || [],
+        createdBy: userId,
+      }
+    : null;
+
+  const freeShipping = data.freeShipping
+    ? {
+        ...removeId(data.freeShipping),
+        createdBy: userId,
+      }
+    : null;
+
+  const localPickUp = data.localPickUp
+    ? {
+        ...removeId(data.localPickUp),
+        createdBy: userId,
+      }
+    : null;
+
+  const ups = data.ups
+    ? {
+        ...removeId(data.ups),
+        createdBy: userId,
       }
     : null;
 
@@ -41,13 +63,11 @@ export const createShippingMethod = async (
     status: data.status ?? true,
     description: data.description ?? null,
     flatRate,
-    freeShipping: removeId(data.freeShipping),
-    localPickUp: removeId(data.localPickUp),
-    ups: removeId(data.ups),
+    freeShipping,
+    localPickUp,
+    ups,
     createdBy: userId,
   });
 
-  await shippingMethodRepository.save(shippingMethod);
-
-  return shippingMethod;
+  return await shippingMethodRepository.save(shippingMethod);
 };
