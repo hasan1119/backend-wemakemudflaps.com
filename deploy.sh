@@ -42,6 +42,8 @@ export EMAIL_USER="${EMAIL_USER:-}" # set as needed
 export EMAIL_FROM="${EMAIL_FROM:-}" # set as needed
 export EMAIL_PASSWORD="${EMAIL_PASSWORD:-}" # set as needed
 export NODE_ENV="${NODE_ENV:-}" # set as needed
+export SUDO_PASSWORD="${SUDO_PASSWORD:-}" # set as needed
+
 
 # Setup Bun (assumes bun is installed and in PATH)
 if ! command -v bun &> /dev/null; then
@@ -82,7 +84,7 @@ for subgraph in "${!SUBGRAPHS[@]}"; do
   done
 done
 
-sudo rover supergraph compose --config supergraph.yaml --elv2-license accept > supergraph.graphql
+echo "$SUDO_PASSWORD" | sudo -S rover supergraph compose --config supergraph.yaml --elv2-license accept > supergraph.graphql
 
 GEN_STATUS=$?
 if [ $GEN_STATUS -ne 0 ]; then
@@ -90,11 +92,11 @@ if [ $GEN_STATUS -ne 0 ]; then
   exit $GEN_STATUS
 fi
 
-if pm2 list | grep -q "router"; then
-  echo "Reloading router pm2 process"
-  pm2 reload router
-else
-  echo "Starting router pm2 process"
-  pm2 start npm --name "router" -- run start
-fi
+# if pm2 list | grep -q "router"; then
+#   echo "Reloading router pm2 process"
+#   pm2 reload router
+# else
+#   echo "Starting router pm2 process"
+#   pm2 start npm --name "router" -- run start
+# fi
 

@@ -57,6 +57,7 @@ jobs:
           echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> $GITHUB_ENV
           echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
+          echo "SUDO_PASSWORD=${{ secrets.SUDO_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
