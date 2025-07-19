@@ -43,6 +43,15 @@ export const getTaxOptions = async (
 
     const taxOptions = await getTaxOptionsService();
 
+    if (!taxOptions) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: "Tax options not found",
+        __typename: "BaseResponse",
+      };
+    }
+
     return {
       statusCode: 200,
       success: true,
