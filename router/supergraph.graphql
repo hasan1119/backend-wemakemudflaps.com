@@ -829,9 +829,9 @@ scalar join__DirectiveArguments
 scalar join__FieldSet
 
 enum join__Graph {
-  MEDIA @join__graph(name: "media", url: "http://localhost:4002/")
-  PRODUCT @join__graph(name: "product", url: "http://localhost:4003/")
-  USER @join__graph(name: "user", url: "http://localhost:4001/")
+  MEDIA @join__graph(name: "media", url: "http://localhost:4002")
+  PRODUCT @join__graph(name: "product", url: "http://localhost:4003")
+  USER @join__graph(name: "user", url: "http://localhost:4001")
 }
 
 scalar link__Import

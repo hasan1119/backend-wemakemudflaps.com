@@ -1,14 +1,13 @@
-# Example :
 subgraphs:
   user:
-    routing_url: http://localhost:4001/
+    routing_url: http://localhost:4001
     schema:
-      subgraph_url: http://localhost:4001/
+      subgraph_url: http://localhost:4001
   media:
-    routing_url: http://localhost:4002/
+    routing_url: http://localhost:4002
     schema:
-      subgraph_url: http://localhost:4002/
+      subgraph_url: http://localhost:4002
   product:
-    routing_url: http://localhost:4003/
+    routing_url: http://localhost:4003
     schema:
-      subgraph_url: http://localhost:4003/
+      subgraph_url: http://localhost:4003
