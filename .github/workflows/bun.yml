@@ -63,7 +63,7 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install
-        working-directory: ${{ matrix.subgraph.path }}
-
+      - name: Make deploy script executable
+        run: chmod +x "$HOME/projects/steven/backend/deploy.sh"
+      - name: Run deployment script
+        run: '$HOME/projects/steven/backend/deploy.sh'
