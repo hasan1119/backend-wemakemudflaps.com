@@ -58,6 +58,14 @@ for subgraph in "${!SUBGRAPHS[@]}"; do
   echo "Setting up $subgraph subgraph (port: $PORT, pm2: $PM2)"
   cd "$APP_DIR/$subgraph" || exit
   bun install
+  # check if pm2 process is running for this subgraph then reload it otherwise start it
+  if pm2 list | grep -q "$PM2"; then
+    echo "Reloading $subgraph subgraph (pm2: $PM2)"
+    pm2 reload "$PM2"
+  else
+    echo "Starting $subgraph subgraph (pm2: $PM2)"
+    pm2 start npm --name "$PM2" -- run start
+  fi
   cd "$APP_DIR" || exit
 done
 
