@@ -74,7 +74,7 @@ enum AllowBackOrders
   @join__type(graph: PRODUCT)
 {
   DONT_ALLOW @join__enumValue(graph: PRODUCT)
-  ALLOW_WITH_NOTIFICATION @join__enumValue(graph: PRODUCT)
+  ALLOW_BUT_NOTIFY_CUSTOMER @join__enumValue(graph: PRODUCT)
   ALLOW @join__enumValue(graph: PRODUCT)
 }
 
@@ -1982,7 +1982,7 @@ type TaxOptionsResponse
   statusCode: Int!
   success: Boolean!
   message: String!
-  TaxOptions: TaxOptions!
+  taxOptions: TaxOptions!
 }
 
 type TaxRate

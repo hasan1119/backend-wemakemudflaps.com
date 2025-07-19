@@ -91,6 +91,18 @@ export { updateTaxClass } from "./mutations/manage-tax-class/update-tax-class";
 export { getAllTaxClass } from "./queries/tax-class/get-tax-class";
 export { getTaxClassById } from "./queries/tax-class/get-tax-class-by-id";
 
+/*
+ * Exports GraphQL queries and mutations for managing tax options data.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating and updating tax options.
+ * 2. Enables retrieval of tax options.
+ * 3. Facilitates validation of tax options input data.
+ */
+export { createTaxOptions } from "./mutations/manage-tax-options/create-tax-options";
+export { updateTaxOptions } from "./mutations/manage-tax-options/update-tax-options";
+export { getTaxOptions } from "./queries/tax-options/get-tax-options";
+
 /**
  * Exports GraphQL queries and mutations for managing tax status data.
  *

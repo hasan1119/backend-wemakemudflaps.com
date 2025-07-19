@@ -18,6 +18,7 @@ import {
   getShippingZoneById,
   getTagById,
   getTaxClassById,
+  getTaxOptions,
   getTaxRateById,
 } from "../../controllers";
 
@@ -69,6 +70,7 @@ const typesWithCreatedBy = [
   "TaxRate",
   "TaxRateSession",
   "TaxClassPaginationDataSession",
+  "TaxOptions",
   "Product",
   "ProductPaginationDataSession",
   "Category",
@@ -210,6 +212,8 @@ export const productQueriesResolver = {
      * Fetches a paginated list of all shipping methods in the system.
      */
     getAllShippingMethods,
+
+    getTaxOptions,
   },
 
   // Dynamically assign resolvers for createdBy and thumbnail

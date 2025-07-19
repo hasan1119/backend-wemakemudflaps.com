@@ -57,7 +57,7 @@ enum DefaultWarrantyPeriod {
 # Enum for allowing backorders selection
 enum AllowBackOrders {
   DONT_ALLOW
-  ALLOW_WITH_NOTIFICATION
+  ALLOW_BUT_NOTIFY_CUSTOMER # Allow backorders but notify customer
   ALLOW
 }
 

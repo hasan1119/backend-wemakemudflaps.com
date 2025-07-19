@@ -59,7 +59,7 @@ export type AddressesBookResponse = {
 
 export enum AllowBackOrders {
   Allow = 'ALLOW',
-  AllowWithNotification = 'ALLOW_WITH_NOTIFICATION',
+  AllowButNotifyCustomer = 'ALLOW_BUT_NOTIFY_CUSTOMER',
   DontAllow = 'DONT_ALLOW'
 }
 
@@ -2231,10 +2231,10 @@ export type TaxOptions = {
 
 export type TaxOptionsResponse = {
   __typename?: 'TaxOptionsResponse';
-  TaxOptions: TaxOptions;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
+  taxOptions: TaxOptions;
 };
 
 export type TaxRate = {
@@ -4418,10 +4418,10 @@ export type TaxOptionsResolvers<ContextType = Context, ParentType extends Resolv
 };
 
 export type TaxOptionsResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxOptionsResponse'] = ResolversParentTypes['TaxOptionsResponse']> = {
-  TaxOptions?: Resolver<ResolversTypes['TaxOptions'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  taxOptions?: Resolver<ResolversTypes['TaxOptions'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

@@ -75,7 +75,7 @@ export const WarrantyPeriodEnum = z.preprocess((val) => {
 // Defines a mapping for backorder option values
 export const BackOrderOptionTypeMap: Record<string, string> = {
   DONT_ALLOW: "Don't allow",
-  ALLOW_WITH_NOTIFICATION: "Allow but notify customer",
+  ALLOW_BUT_NOTIFY_CUSTOMER: "Allow but notify customer",
   ALLOW: "Allow",
 };
 

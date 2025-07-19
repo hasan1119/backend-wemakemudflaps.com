@@ -34,7 +34,7 @@ type TaxOptionsResponse {
   statusCode: Int!
   success: Boolean!
   message: String!
-  TaxOptions: TaxOptions!
+  taxOptions: TaxOptions!
 }
 
 # ---------------------- Unions ----------------------

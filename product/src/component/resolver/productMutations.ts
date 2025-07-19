@@ -8,6 +8,7 @@ import {
   createShippingZone,
   createTag,
   createTaxClass,
+  createTaxOptions,
   createTaxRate,
   deleteBrand,
   deleteCategory,
@@ -36,6 +37,7 @@ import {
   updateShippingZone,
   updateTag,
   updateTaxClass,
+  updateTaxOptions,
   updateTaxRate,
 } from "../../controllers";
 
@@ -237,5 +239,15 @@ export const productMutationsResolver = {
      * Deletes a specific shipping method.
      */
     deleteShippingMethod,
+
+    /**
+     * Restores previously deleted shipping zone.
+     */
+    createTaxOptions,
+
+    /**
+     * Restores previously deleted shipping zone.
+     */
+    updateTaxOptions,
   },
 };
