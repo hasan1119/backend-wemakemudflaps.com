@@ -1,18 +1,6 @@
 # ---------------------- Category & Sub Category Types ----------------------
-# Common Interface for Category and SubCategory to avoid duplication
-interface ICategoryBase {
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  position: Int!
-  createdBy: CreatedBy
-  createdAt: String
-  deletedAt: String
-}
 
-type Category implements ICategoryBase {
+type Category {
   id: ID!
   name: String!
   slug: String!
@@ -51,7 +39,7 @@ type CategoryPaginationDataSession {
   thumbnail: Media
   position: Int!
   totalProducts: Int
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
   subCategories: [Category!]!
