@@ -2,7 +2,6 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearBrandsAndCountCache,
-  clearCategoriesAndCountCache,
   clearShippingClassesAndCountCache,
   clearTagsAndCountCache,
   clearTaxClassesAndCountCache,
@@ -274,7 +273,7 @@ export const createProduct = async (
     // Clear caches for related entities
     await Promise.all([
       clearBrandsAndCountCache(),
-      clearCategoriesAndCountCache(),
+      // clearCategoriesAndCountCache(),
       clearShippingClassesAndCountCache(),
       clearTagsAndCountCache(),
       clearTaxClassesAndCountCache(),

@@ -48,7 +48,6 @@ export async function softDeleteCategory(id: string): Promise<void> {
 export async function hardDeleteCategory(id: string): Promise<void> {
   await categoryRepository.manager.transaction(async (manager) => {
     const repo = manager.getRepository(Category);
-    const productRepo = manager.getRepository("product");
 
     // Recursive delete function
     const deleteRecursively = async (categoryId: string) => {

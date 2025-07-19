@@ -5,58 +5,48 @@ on:
     branches: ['main']
   pull_request:
     branches: ['main']
+  workflow_dispatch:
+
+# Prevent concurrent deployments of the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  HEALTH_CHECK_RETRIES: 12
+  HEALTH_CHECK_INTERVAL: 5 # seconds
+  # Common environment variables from secrets
+  FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+  DB_TYPE: ${{ secrets.DB_TYPE }}
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_PORT: ${{ secrets.DB_PORT }}
+  DB_USERNAME: ${{ secrets.DB_USERNAME }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_SYNCHRONIZE: ${{ secrets.DB_SYNCHRONIZE }}
+  DB_ENTITIES: ${{ secrets.DB_ENTITIES }}
+  DB_MIGRATIONS: ${{ secrets.DB_MIGRATIONS }}
+  SALT_ROUNDS: ${{ secrets.SALT_ROUNDS }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  EXPIRE: ${{ secrets.EXPIRE }}
+  REDIS_HOST: ${{ secrets.REDIS_HOST }}
+  REDIS_PORT: ${{ secrets.REDIS_PORT }}
+  REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+  REDIS_SESSION_TTL: ${{ secrets.REDIS_SESSION_TTL }}
+  EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+  EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+  EMAIL_USER: ${{ secrets.EMAIL_USER }}
+  EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+  EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+  NODE_ENV: ${{ secrets.NODE_ENV }}
 
 jobs:
-  subgraphs:
+  deploy-users:
     runs-on: self-hosted
-    strategy:
-      matrix:
-        subgraph:
-          - name: users
-            path: users
-            port: 4001
-            pm2: steven_users_subgraph
-            
-          - name: media
-            path: media
-            port: 4002
-            pm2: steven_media_subgraph
-          
-          # - name: orders
-          #   path: orders
-          #   port: 4003
-          #   pm2: 3
-
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set subgraph-specific and shared environment
-        run: |
-          echo "SUB_GRAPH_NAME=${{ matrix.subgraph.name }}" >> $GITHUB_ENV
-          echo "PORT=${{ matrix.subgraph.port }}" >> $GITHUB_ENV
-          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> $GITHUB_ENV
-          echo "DB_TYPE=${{ secrets.DB_TYPE }}" >> $GITHUB_ENV
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
-          echo "DB_SYNCHRONIZE=${{ secrets.DB_SYNCHRONIZE }}" >> $GITHUB_ENV
-          echo "DB_ENTITIES=${{ secrets.DB_ENTITIES }}" >> $GITHUB_ENV
-          echo "DB_MIGRATIONS=${{ secrets.DB_MIGRATIONS }}" >> $GITHUB_ENV
-          echo "SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}" >> $GITHUB_ENV
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
-          echo "EXPIRE=${{ secrets.EXPIRE }}" >> $GITHUB_ENV
-          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
-          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> $GITHUB_ENV
-          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> $GITHUB_ENV
-          echo "REDIS_SESSION_TTL=${{ secrets.REDIS_SESSION_TTL }}" >> $GITHUB_ENV
-          echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> $GITHUB_ENV
-          echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> $GITHUB_ENV
-          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> $GITHUB_ENV
-          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> $GITHUB_ENV
-          echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> $GITHUB_ENV
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
@@ -65,57 +55,237 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-        working-directory: ${{ matrix.subgraph.path }}
+        working-directory: ./users
 
-      - name: Delete process if it exists
+      - name: Deploy Users Subgraph
+        env:
+          PORT: 4001
+          PM2_NAME: sunshine_users_subgraph
         run: |
-          if pm2 list | grep -q "${{ matrix.subgraph.pm2 }}"; then
-            echo "Deleting existing PM2 process"
-            pm2 delete ${{ matrix.subgraph.pm2 }}
+          if pm2 list | grep -q "$PM2_NAME"; then
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
           else
-            echo "No existing process to delete"
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start bun --name $PM2_NAME -- start
+          fi
+          echo "Waiting 15 seconds for service to initialize..."
+          sleep 15
+        working-directory: ./users
+
+      - name: Verify Service Health
+        env:
+          PORT: 4001
+          PM2_NAME: sunshine_users_subgraph
+        run: |
+          ENDPOINT="http://localhost:$PORT/health"
+          RETRY_COUNTER=0
+          echo "Verifying users subgraph health at $ENDPOINT"
+          until curl -s -f "$ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
+            echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
+            RETRY_COUNTER=$((RETRY_COUNTER+1))
+            sleep ${{ env.HEALTH_CHECK_INTERVAL }}
+            if [ $RETRY_COUNTER -lt ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+              echo "Dumping logs for $PM2_NAME:"
+              pm2 logs $PM2_NAME --lines 20 --nostream
+            fi
+          done
+          if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+            echo "::error::Service users failed to start/reload properly!"
+            pm2 logs $PM2_NAME --lines 50
+            exit 1
+          else
+            echo "Service users is healthy and operational!"
           fi
 
-      - name: Restart subgraph with PM2
-        run: pm2 start bun --name ${{ matrix.subgraph.pm2 }} -- start
-        working-directory: ${{ matrix.subgraph.path }}
+  deploy-media:
+    runs-on: self-hosted
+    needs: deploy-users
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # - name: Start Apollo Router
-      #   run: pm2 restart rover_dev
-      #   working-directory: router
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
-  # router:
-  #   runs-on: self-hosted
-  #   needs: subgraphs
-  #   defaults:
-  #     run:
-  #       working-directory: router
+      - name: Install dependencies
+        run: bun install
+        working-directory: ./media
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+      - name: Deploy Media Subgraph
+        env:
+          PORT: 4002
+          PM2_NAME: sunshine_media_subgraph
+        run: |
+          if pm2 list | grep -q "$PM2_NAME"; then
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
+          else
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start bun --name $PM2_NAME -- start
+          fi
+          echo "Waiting 15 seconds for service to initialize..."
+          sleep 15
+        working-directory: ./media
 
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 20
+      - name: Verify Service Health
+        env:
+          PORT: 4002
+          PM2_NAME: sunshine_media_subgraph
+        run: |
+          ENDPOINT="http://localhost:$PORT/health"
+          RETRY_COUNTER=0
+          echo "Verifying media subgraph health at $ENDPOINT"
+          until curl -s -f "$ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
+            echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
+            RETRY_COUNTER=$((RETRY_COUNTER+1))
+            sleep ${{ env.HEALTH_CHECK_INTERVAL }}
+            if [ $RETRY_COUNTER -lt ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+              echo "Dumping logs for $PM2_NAME:"
+              pm2 logs $PM2_NAME --lines 20 --nostream
+            fi
+          done
+          if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+            echo "::error::Service media failed to start/reload properly!"
+            pm2 logs $PM2_NAME --lines 50
+            exit 1
+          else
+            echo "Service media is healthy and operational!"
+          fi
 
-  #     - name: Install Rover if not present
-  #       run: |
-  #         if ! command -v rover &> /dev/null; then
-  #           echo "Installing rover..."
-  #           curl -sSL https://rover.apollo.dev/nix/latest | sh -s -- --force
-  #           echo "$HOME/.rover/bin" >> $GITHUB_PATH
-  #           export PATH="$HOME/.rover/bin:$PATH"
-  #         else
-  #           echo "Rover already installed. Skipping."
-  #         fi
+  deploy-product:
+    runs-on: self-hosted
+    needs: deploy-media
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  #     - name: Ensure Apollo Router binary is executable
-  #       run: chmod +x ./router
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
-  #     - name: Start Apollo Router
-  #       run: |
-  #         if pm2 list | grep -q "steven_router"; then
-  #           pm2 delete steven_router
-  #         fi
-  #         pm2 start npm --name steven_router -- start
+      - name: Install dependencies
+        run: bun install
+        working-directory: ./product
+
+      - name: Deploy Product Subgraph
+        env:
+          PORT: 4003
+          PM2_NAME: sunshine_product_subgraph
+        run: |
+          if pm2 list | grep -q "$PM2_NAME"; then
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
+          else
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start bun --name $PM2_NAME -- start
+          fi
+          echo "Waiting 15 seconds for service to initialize..."
+          sleep 15
+        working-directory: ./product
+
+      - name: Verify Service Health
+        env:
+          PORT: 4003
+          PM2_NAME: sunshine_product_subgraph
+        run: |
+          ENDPOINT="http://localhost:$PORT/health"
+          RETRY_COUNTER=0
+          echo "Verifying product subgraph health at $ENDPOINT"
+          until curl -s -f "$ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
+            echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
+            RETRY_COUNTER=$((RETRY_COUNTER+1))
+            sleep ${{ env.HEALTH_CHECK_INTERVAL }}
+            if [ $RETRY_COUNTER -lt ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+              echo "Dumping logs for $PM2_NAME:"
+              pm2 logs $PM2_NAME --lines 20 --nostream
+            fi
+          done
+          if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+            echo "::error::Service product failed to start/reload properly!"
+            pm2 logs $PM2_NAME --lines 50
+            exit 1
+          else
+            echo "Service product is healthy and operational!"
+          fi
+
+  deploy-router:
+    runs-on: self-hosted
+    needs: deploy-product
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify all subgraphs are healthy
+        run: |
+          echo "Verifying all subgraphs are healthy before updating the router..."
+          SUBGRAPHS="users:4001 media:4002 product:4003"
+          for subgraph_info in $SUBGRAPHS; do
+            NAME=$(echo $subgraph_info | cut -d: -f1)
+            PORT=$(echo $subgraph_info | cut -d: -f2)
+            echo "Checking $NAME subgraph..."
+            if ! curl -s -f "http://localhost:$PORT/health"; then
+              echo "::error::$NAME subgraph is not healthy!"
+              exit 1
+            else
+              echo "$NAME subgraph is healthy"
+            fi
+          done
+          echo "All subgraphs are operational, safe to update router!"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: router/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./router
+
+      - name: Deploy Router
+        env:
+          PM2_NAME: sunshine_router
+        run: |
+          if pm2 list | grep -q "$PM2_NAME"; then
+            echo "Restarting $PM2_NAME."
+            pm2 restart $PM2_NAME
+          else
+            echo "Starting $PM2_NAME for the first time."
+            pm2 start npm --name $PM2_NAME -- start
+          fi
+          echo "Waiting 15 seconds for service to initialize..."
+          sleep 15
+        working-directory: ./router
+
+      - name: Verify Router Health
+        env:
+          ROUTER_PORT: 4000
+          PM2_NAME: sunshine_router
+        run: |
+          ENDPOINT="http://localhost:$ROUTER_PORT/.well-known/apollo/server-health"
+          RETRY_COUNTER=0
+          echo "Verifying Router health at $ENDPOINT"
+          until curl -s -f "$ENDPOINT" > /dev/null || [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; do
+            echo "Health check attempt $RETRY_COUNTER failed, retrying in ${{ env.HEALTH_CHECK_INTERVAL }} seconds..."
+            RETRY_COUNTER=$((RETRY_COUNTER+1))
+            sleep ${{ env.HEALTH_CHECK_INTERVAL }}
+            if [ $RETRY_COUNTER -lt ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+              echo "Dumping logs for $PM2_NAME:"
+              pm2 logs $PM2_NAME --lines 20 --nostream
+            fi
+          done
+          if [ $RETRY_COUNTER -eq ${{ env.HEALTH_CHECK_RETRIES }} ]; then
+            echo "::error::Apollo Router failed to start properly!"
+            pm2 logs $PM2_NAME --lines 50
+            exit 1
+          else
+            echo "Apollo Router is healthy and operational!"
+          fi

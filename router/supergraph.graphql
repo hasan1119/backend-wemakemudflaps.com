@@ -158,8 +158,7 @@ enum CalculateTaxBasedOn
   STORE_ADDRESS @join__enumValue(graph: PRODUCT)
 }
 
-type Category implements ICategoryBase
-  @join__implements(graph: PRODUCT, interface: "ICategoryBase")
+type Category
   @join__type(graph: PRODUCT)
 {
   id: ID!
@@ -185,7 +184,7 @@ type CategoryPaginationDataSession
   thumbnail: Media
   position: Int!
   totalProducts: Int
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
   subCategories: [Category!]!
@@ -824,20 +823,6 @@ union GetUsersResponseOrError
   @join__unionMember(graph: USER, member: "UsersResponse")
   @join__unionMember(graph: USER, member: "ErrorResponse")
  = BaseResponse | UsersResponse | ErrorResponse
-
-interface ICategoryBase
-  @join__type(graph: PRODUCT)
-{
-  id: ID!
-  name: String!
-  slug: String!
-  description: String
-  thumbnail: Media
-  position: Int!
-  createdBy: CreatedBy
-  createdAt: String
-  deletedAt: String
-}
 
 scalar join__DirectiveArguments
 
