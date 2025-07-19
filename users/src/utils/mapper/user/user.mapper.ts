@@ -80,7 +80,6 @@ export const mapUserToResponseByEmail = async (
 export const mapUserToResponseById = async (
   user: User
 ): Promise<UserSessionById> => {
-  console.log(user);
   return {
     id: user.id,
     avatar: user.avatar,

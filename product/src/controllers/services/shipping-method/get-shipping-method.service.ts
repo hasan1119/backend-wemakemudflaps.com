@@ -18,7 +18,13 @@ export const getShippingMethodById = async (
 ): Promise<ShippingMethod | null> => {
   return await shippingMethodRepository.findOne({
     where: { id, deletedAt: null },
-    relations: ["flatRate", "freeShipping", "localPickUp", "ups"],
+    relations: [
+      "flatRate",
+      "freeShipping",
+      "localPickUp",
+      "ups",
+      "shippingZone",
+    ],
   });
 };
 
@@ -42,7 +48,13 @@ export const getShippingMethodsByIds = async (
       id: In(ids),
       deletedAt: null,
     },
-    relations: ["flatRate", "freeShipping", "localPickUp", "ups"],
+    relations: [
+      "flatRate",
+      "freeShipping",
+      "localPickUp",
+      "ups",
+      "shippingZone",
+    ],
   });
 };
 
@@ -82,6 +94,7 @@ export const paginateShippingMethods = async ({
     .leftJoinAndSelect("shippingMethod.freeShipping", "freeShipping")
     .leftJoinAndSelect("shippingMethod.localPickUp", "localPickUp")
     .leftJoinAndSelect("shippingMethod.ups", "ups")
+    .leftJoinAndSelect("shippingMethod.shippingZone", "shippingZone")
     .where("shippingMethod.deletedAt IS NULL");
 
   if (search) {

@@ -155,8 +155,6 @@ export const createShippingMethod = async (
     // Create the shipping method using the service
     const shippingMethod = await createShippingMethodService(args, user.id);
 
-    console.log("Shipping method created successfully:", shippingMethod);
-
     return {
       statusCode: 201,
       success: true,

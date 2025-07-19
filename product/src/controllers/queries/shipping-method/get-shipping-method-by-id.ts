@@ -88,87 +88,97 @@ export const getShippingMethodById = async (
       shippingMethod: {
         ...dbShippingMethod,
         createdBy: dbShippingMethod.createdBy as any,
-        flatRate: {
-          ...dbShippingMethod.flatRate,
-          createdBy: dbShippingMethod.flatRate.createdBy as any,
-          createdAt:
-            dbShippingMethod.flatRate.createdAt instanceof Date
-              ? dbShippingMethod.flatRate.createdAt.toISOString()
-              : dbShippingMethod.flatRate.createdAt,
-          deletedAt:
-            dbShippingMethod.flatRate.deletedAt instanceof Date
-              ? dbShippingMethod.flatRate.deletedAt.toISOString()
-              : dbShippingMethod.flatRate.deletedAt,
-          costs: dbShippingMethod.flatRate.costs.map((cost) => ({
-            id: cost.id,
-            cost: cost.cost,
-            shippingClass: {
-              id: cost.shippingClass.id,
-              value: cost.shippingClass.value,
-              description: cost.shippingClass.description,
-              createdBy: cost.shippingClass.createdBy as any,
+        flatRate: dbShippingMethod.flatRate
+          ? {
+              ...dbShippingMethod.flatRate,
+              createdBy: dbShippingMethod.flatRate.createdBy as any,
               createdAt:
-                cost.shippingClass.createdAt instanceof Date
-                  ? cost.shippingClass.createdAt.toISOString()
-                  : cost.shippingClass.createdAt,
+                dbShippingMethod.flatRate.createdAt instanceof Date
+                  ? dbShippingMethod.flatRate.createdAt.toISOString()
+                  : dbShippingMethod.flatRate.createdAt,
               deletedAt:
-                cost.shippingClass.deletedAt instanceof Date
-                  ? cost.shippingClass.deletedAt.toISOString()
-                  : cost.shippingClass.deletedAt,
-            },
-          })),
-        },
-        shippingZone: {
-          id: dbShippingMethod.shippingZone.id,
-          name: dbShippingMethod.shippingZone.name,
-          regions: dbShippingMethod.shippingZone.regions,
-          zipCodes: dbShippingMethod.shippingZone.zipCodes,
-          createdBy: dbShippingMethod.shippingZone.createdBy as any,
-          createdAt:
-            dbShippingMethod.shippingZone.createdAt instanceof Date
-              ? dbShippingMethod.shippingZone.createdAt.toISOString()
-              : dbShippingMethod.shippingZone.createdAt,
-          deletedAt:
-            dbShippingMethod.shippingZone.deletedAt instanceof Date
-              ? dbShippingMethod.shippingZone.deletedAt.toISOString()
-              : dbShippingMethod.shippingZone.deletedAt,
-        },
-        freeShipping: {
-          ...dbShippingMethod.freeShipping,
-          createdBy: dbShippingMethod.freeShipping.createdBy as any,
-          createdAt:
-            dbShippingMethod.freeShipping.createdAt instanceof Date
-              ? dbShippingMethod.freeShipping.createdAt.toISOString()
-              : dbShippingMethod.freeShipping.createdAt,
-          deletedAt:
-            dbShippingMethod.freeShipping.deletedAt instanceof Date
-              ? dbShippingMethod.freeShipping.deletedAt.toISOString()
-              : dbShippingMethod.freeShipping.deletedAt,
-        },
-        localPickUp: {
-          ...dbShippingMethod.localPickUp,
-          createdBy: dbShippingMethod.localPickUp.createdBy as any,
-          createdAt:
-            dbShippingMethod.localPickUp.createdAt instanceof Date
-              ? dbShippingMethod.localPickUp.createdAt.toISOString()
-              : dbShippingMethod.localPickUp.createdAt,
-          deletedAt:
-            dbShippingMethod.localPickUp.deletedAt instanceof Date
-              ? dbShippingMethod.localPickUp.deletedAt.toISOString()
-              : dbShippingMethod.localPickUp.deletedAt,
-        },
-        ups: {
-          ...dbShippingMethod.ups,
-          createdBy: dbShippingMethod.ups.createdBy as any,
-          createdAt:
-            dbShippingMethod.ups.createdAt instanceof Date
-              ? dbShippingMethod.ups.createdAt.toISOString()
-              : dbShippingMethod.ups.createdAt,
-          deletedAt:
-            dbShippingMethod.ups.deletedAt instanceof Date
-              ? dbShippingMethod.ups.deletedAt.toISOString()
-              : dbShippingMethod.ups.deletedAt,
-        },
+                dbShippingMethod.flatRate.deletedAt instanceof Date
+                  ? dbShippingMethod.flatRate.deletedAt.toISOString()
+                  : dbShippingMethod.flatRate.deletedAt,
+              costs: dbShippingMethod.flatRate.costs.map((cost) => ({
+                id: cost.id,
+                cost: cost.cost,
+                shippingClass: {
+                  id: cost.shippingClass.id,
+                  value: cost.shippingClass.value,
+                  description: cost.shippingClass.description,
+                  createdBy: cost.shippingClass.createdBy as any,
+                  createdAt:
+                    cost.shippingClass.createdAt instanceof Date
+                      ? cost.shippingClass.createdAt.toISOString()
+                      : cost.shippingClass.createdAt,
+                  deletedAt:
+                    cost.shippingClass.deletedAt instanceof Date
+                      ? cost.shippingClass.deletedAt.toISOString()
+                      : cost.shippingClass.deletedAt,
+                },
+              })),
+            }
+          : null,
+        shippingZone: dbShippingMethod.shippingZone
+          ? {
+              id: dbShippingMethod.shippingZone.id,
+              name: dbShippingMethod.shippingZone.name,
+              regions: dbShippingMethod.shippingZone.regions,
+              zipCodes: dbShippingMethod.shippingZone.zipCodes,
+              createdBy: dbShippingMethod.shippingZone.createdBy as any,
+              createdAt:
+                dbShippingMethod.shippingZone.createdAt instanceof Date
+                  ? dbShippingMethod.shippingZone.createdAt.toISOString()
+                  : dbShippingMethod.shippingZone.createdAt,
+              deletedAt:
+                dbShippingMethod.shippingZone.deletedAt instanceof Date
+                  ? dbShippingMethod.shippingZone.deletedAt.toISOString()
+                  : dbShippingMethod.shippingZone.deletedAt,
+            }
+          : null,
+        freeShipping: dbShippingMethod.freeShipping
+          ? {
+              ...dbShippingMethod.freeShipping,
+              createdBy: dbShippingMethod.freeShipping.createdBy as any,
+              createdAt:
+                dbShippingMethod.freeShipping.createdAt instanceof Date
+                  ? dbShippingMethod.freeShipping.createdAt.toISOString()
+                  : dbShippingMethod.freeShipping.createdAt,
+              deletedAt:
+                dbShippingMethod.freeShipping.deletedAt instanceof Date
+                  ? dbShippingMethod.freeShipping.deletedAt.toISOString()
+                  : dbShippingMethod.freeShipping.deletedAt,
+            }
+          : null,
+        localPickUp: dbShippingMethod.localPickUp
+          ? {
+              ...dbShippingMethod.localPickUp,
+              createdBy: dbShippingMethod.localPickUp.createdBy as any,
+              createdAt:
+                dbShippingMethod.localPickUp.createdAt instanceof Date
+                  ? dbShippingMethod.localPickUp.createdAt.toISOString()
+                  : dbShippingMethod.localPickUp.createdAt,
+              deletedAt:
+                dbShippingMethod.localPickUp.deletedAt instanceof Date
+                  ? dbShippingMethod.localPickUp.deletedAt.toISOString()
+                  : dbShippingMethod.localPickUp.deletedAt,
+            }
+          : null,
+        ups: dbShippingMethod.ups
+          ? {
+              ...dbShippingMethod.ups,
+              createdBy: dbShippingMethod.ups.createdBy as any,
+              createdAt:
+                dbShippingMethod.ups.createdAt instanceof Date
+                  ? dbShippingMethod.ups.createdAt.toISOString()
+                  : dbShippingMethod.ups.createdAt,
+              deletedAt:
+                dbShippingMethod.ups.deletedAt instanceof Date
+                  ? dbShippingMethod.ups.deletedAt.toISOString()
+                  : dbShippingMethod.ups.deletedAt,
+            }
+          : null,
         createdAt:
           dbShippingMethod.createdAt instanceof Date
             ? dbShippingMethod.createdAt.toISOString()

@@ -145,8 +145,6 @@ export const getAllTags = async (
       );
     }
 
-    console.log(tagsData);
-
     return {
       statusCode: 200,
       success: true,
