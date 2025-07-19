@@ -126,7 +126,7 @@ export enum CalculateTaxBasedOn {
   StoreAddress = 'STORE_ADDRESS'
 }
 
-export type Category = ICategoryBase & {
+export type Category = {
   __typename?: 'Category';
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
@@ -144,7 +144,7 @@ export type Category = ICategoryBase & {
 export type CategoryPaginationDataSession = {
   __typename?: 'CategoryPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -443,18 +443,6 @@ export type GetUserByIdResponseOrError = BaseResponse | ErrorResponse | UserResp
 export type GetUserLoginInfoResponseOrError = BaseResponse | ErrorResponse | UserLoginInfoResponse;
 
 export type GetUsersResponseOrError = BaseResponse | ErrorResponse | UsersResponse;
-
-export type ICategoryBase = {
-  createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy?: Maybe<CreatedBy>;
-  deletedAt?: Maybe<Scalars['String']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
-  position: Scalars['Int']['output'];
-  slug: Scalars['String']['output'];
-  thumbnail?: Maybe<Media>;
-};
 
 export type LocalPickUp = {
   __typename?: 'LocalPickUp';
@@ -793,7 +781,6 @@ export type MutationCreateProductArgs = {
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
   isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
-  isPreview?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
   lowStockThresHold?: InputMaybe<Scalars['Int']['input']>;
@@ -1146,7 +1133,6 @@ export type MutationUpdateProductArgs = {
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
   isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
-  isPreview?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
   lowStockThresHold?: InputMaybe<Scalars['Int']['input']>;
@@ -1427,7 +1413,6 @@ export type Product = {
   images?: Maybe<Array<Media>>;
   initialNumberInStock?: Maybe<Scalars['String']['output']>;
   isCustomized: Scalars['Boolean']['output'];
-  isPreview?: Maybe<Scalars['Boolean']['output']>;
   isVisible?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
   lowStockThresHold?: Maybe<Scalars['Int']['output']>;
@@ -2790,10 +2775,6 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   UserProfileUpdateResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( UserProfileUpdateResponse );
 };
 
-/** Mapping of interface types */
-export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = {
-  ICategoryBase: ( Category );
-};
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
@@ -2902,7 +2883,6 @@ export type ResolversTypes = {
   GetUserByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUserByIDResponseOrError']>;
   GetUserLoginInfoResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUserLoginInfoResponseOrError']>;
   GetUsersResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetUsersResponseOrError']>;
-  ICategoryBase: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['ICategoryBase']>;
   LocalPickUp: ResolverTypeWrapper<LocalPickUp>;
   LocalPickUpInput: LocalPickUpInput;
   LoginMeta: ResolverTypeWrapper<LoginMeta>;
@@ -3133,7 +3113,6 @@ export type ResolversParentTypes = {
   GetUserByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUserByIDResponseOrError'];
   GetUserLoginInfoResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUserLoginInfoResponseOrError'];
   GetUsersResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetUsersResponseOrError'];
-  ICategoryBase: ResolversInterfaceTypes<ResolversParentTypes>['ICategoryBase'];
   LocalPickUp: LocalPickUp;
   LocalPickUpInput: LocalPickUpInput;
   LoginMeta: LoginMeta;
@@ -3374,7 +3353,7 @@ export type CategoryResolvers<ContextType = Context, ParentType extends Resolver
 
 export type CategoryPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CategoryPaginationDataSession'] = ResolversParentTypes['CategoryPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3741,19 +3720,6 @@ export type GetUsersResponseOrErrorResolvers<ContextType = Context, ParentType e
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'UsersResponse', ParentType, ContextType>;
 };
 
-export type ICategoryBaseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ICategoryBase'] = ResolversParentTypes['ICategoryBase']> = {
-  __resolveType: TypeResolveFn<'Category', ParentType, ContextType>;
-  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
-  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  thumbnail?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
-};
-
 export type LocalPickUpResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LocalPickUp'] = ResolversParentTypes['LocalPickUp']> = {
   cost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3963,7 +3929,6 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   initialNumberInStock?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isCustomized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  isPreview?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isVisible?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   lowStockThresHold?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -4914,7 +4879,6 @@ export type Resolvers<ContextType = Context> = {
   GetUserByIDResponseOrError?: GetUserByIdResponseOrErrorResolvers<ContextType>;
   GetUserLoginInfoResponseOrError?: GetUserLoginInfoResponseOrErrorResolvers<ContextType>;
   GetUsersResponseOrError?: GetUsersResponseOrErrorResolvers<ContextType>;
-  ICategoryBase?: ICategoryBaseResolvers<ContextType>;
   LocalPickUp?: LocalPickUpResolvers<ContextType>;
   LoginMeta?: LoginMetaResolvers<ContextType>;
   Media?: MediaResolvers<ContextType>;
