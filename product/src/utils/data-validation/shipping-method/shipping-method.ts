@@ -108,11 +108,11 @@ export const createShippingMethodSchema = z
     ];
     const count = methods.filter(Boolean).length;
 
-    if (count !== 1) {
+    if (count > 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:
-          "Exactly one shipping method type must be provided (flatRate, freeShipping, localPickUp, or ups).",
+          "Only one shipping method type can be provided (flatRate, freeShipping, localPickUp, or ups).",
         path: [],
       });
     }
@@ -201,21 +201,20 @@ export const updateShippingMethodSchema = z
       { key: "ups", value: data.ups },
     ];
 
-    const active = methods.filter((m) => !!m.value);
+    const activeMethods = methods.filter((m) => !!m.value);
 
-    // 1. Only one shipping method should be provided
-    if (active.length !== 1) {
+    // ✅ Rule 1: Only one shipping method allowed (or none)
+    if (activeMethods.length > 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:
-          "Exactly one shipping method type must be provided (flatRate, freeShipping, localPickUp, or ups).",
+          "Only one shipping method type can be provided (flatRate, freeShipping, localPickUp, or ups).",
         path: [],
       });
     }
 
-    // 2. If any fields are provided inside a method, then `id` must also be provided
-    active.forEach((method) => {
-      const { key, value } = method;
+    // ✅ Rule 2: If a method has fields (other than id), its id is required
+    activeMethods.forEach(({ key, value }) => {
       if (value) {
         const hasOtherFields = Object.entries(value).some(
           ([field, val]) => field !== "id" && val !== undefined
@@ -230,6 +229,20 @@ export const updateShippingMethodSchema = z
         }
       }
     });
+
+    // ✅ Rule 3: Must provide at least one updatable field besides id and shippingZoneId
+    const { id, shippingZoneId, ...rest } = data;
+    const hasUpdateData = Object.values(rest).some(
+      (val) => val !== undefined && val !== null
+    );
+
+    if (!hasUpdateData) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "At least one field must be provided to update.",
+        path: [],
+      });
+    }
   });
 
 /**

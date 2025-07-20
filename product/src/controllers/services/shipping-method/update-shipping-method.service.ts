@@ -23,10 +23,9 @@ export const updateShippingMethod = async (
   shippingMethod: ShippingMethod,
   data: MutationUpdateShippingMethodArgs
 ): Promise<ShippingMethod> => {
-  if (data.title !== undefined) shippingMethod.title = data.title;
-  if (data.status !== undefined) shippingMethod.status = data.status;
-  if (data.description !== undefined)
-    shippingMethod.description = data.description;
+  if (data.title) shippingMethod.title = data.title;
+  if (data.status) shippingMethod.status = data.status;
+  if (data.description) shippingMethod.description = data.description;
 
   // Reset all embedded method types
   shippingMethod.flatRate = null;
