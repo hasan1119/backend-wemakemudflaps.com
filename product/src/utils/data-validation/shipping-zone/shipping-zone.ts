@@ -39,10 +39,6 @@ export const updateShippingZoneSchema = z
     name: z.string().min(2).max(100).optional().nullable(),
     regions: z.array(z.string().min(2).max(100)).optional().nullable(),
     zipCodes: z.array(z.string().min(2).max(20)).optional().nullable(),
-    shippingMethodIds: z
-      .array(z.string().uuid({ message: "Invalid UUID format" }))
-      .optional()
-      .nullable(),
   })
   .refine(
     (data) =>

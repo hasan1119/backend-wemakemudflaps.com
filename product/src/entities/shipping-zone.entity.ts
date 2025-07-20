@@ -21,8 +21,9 @@ export class ShippingZone {
   // If the shipping zone is deleted then delete the shipping methods associated with it
   @OneToMany(() => ShippingMethod, (method) => method.shippingZone, {
     cascade: true,
+    nullable: true,
   })
-  shippingMethods: ShippingMethod[];
+  shippingMethods: ShippingMethod[] | null;
 
   // User ID who created the tag (string only for Apollo Federation compatibility)
   @Column()
