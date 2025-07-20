@@ -99,4 +99,3 @@ else
   echo "Starting router pm2 process"
   pm2 start npm --name "router" -- run start
 fi
-
