@@ -149,14 +149,14 @@ export const updateShippingMethodSchema = z
     description: z.string().optional().nullable(),
     flatRate: z
       .object({
-        id: z.string().uuid(),
+        id: z.string().uuid().optional().nullable(),
         title: z.string().min(1).optional().nullable(),
         taxStatus: z.boolean().optional().nullable(),
         cost: z.number().min(0).optional().nullable(),
         costs: z
           .array(
             z.object({
-              id: z.string().uuid(),
+              id: z.string().uuid().optional().nullable(),
               cost: z.number().min(0).optional().nullable(),
               shippingClassId: z.string().uuid().optional().nullable(),
             })
@@ -167,7 +167,7 @@ export const updateShippingMethodSchema = z
       .nullable(),
     freeShipping: z
       .object({
-        id: z.string().uuid(),
+        id: z.string().uuid().optional().nullable(),
         title: z.string().min(1).optional().nullable(),
         conditions: FreeShippingConditionTypeEnum.optional().nullable(),
         minimumOrderAmount: z.number().min(0).optional().nullable(),
@@ -177,7 +177,7 @@ export const updateShippingMethodSchema = z
       .nullable(),
     localPickUp: z
       .object({
-        id: z.string().uuid(),
+        id: z.string().uuid().optional().nullable(),
         title: z.string().min(1).optional().nullable(),
         taxStatus: z.boolean().optional().nullable(),
         cost: z.number().min(0).optional().nullable(),
@@ -186,7 +186,7 @@ export const updateShippingMethodSchema = z
       .nullable(),
     ups: z
       .object({
-        id: z.string().uuid(),
+        id: z.string().uuid().optional().nullable(),
         title: z.string().min(1).optional().nullable(),
       })
       .optional()

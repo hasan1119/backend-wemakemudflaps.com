@@ -33,12 +33,18 @@ export const updateShippingMethod = async (
   shippingMethod.localPickUp = null;
   shippingMethod.ups = null;
 
-  // 1. Update FlatRate if provided
-  if (data.flatRate?.id) {
-    const flatRate = await flatRateRepository.findOneOrFail({
-      where: { id: data.flatRate.id },
-      relations: ["costs"],
-    });
+  // 1. Flat Rate
+  if (data.flatRate) {
+    let flatRate;
+
+    if (data.flatRate.id) {
+      flatRate = await flatRateRepository.findOneOrFail({
+        where: { id: data.flatRate.id },
+        relations: ["costs"],
+      });
+    } else {
+      flatRate = flatRateRepository.create();
+    }
 
     flatRate.title = data.flatRate.title ?? flatRate.title;
     flatRate.taxStatus = data.flatRate.taxStatus ?? flatRate.taxStatus;
@@ -48,13 +54,17 @@ export const updateShippingMethod = async (
       const updatedCosts: FlatRateCost[] = [];
 
       for (const costData of data.flatRate.costs) {
-        if (!costData.id) continue; // Skip if no ID; no new creation
+        let cost;
 
-        const cost = await flatRateCostRepository.findOneOrFail({
-          where: { id: costData.id },
-        });
+        if (costData.id) {
+          cost = await flatRateCostRepository.findOneOrFail({
+            where: { id: costData.id },
+          });
+        } else {
+          cost = flatRateCostRepository.create();
+        }
 
-        cost.cost = costData.cost ?? cost.cost;
+        cost.cost = costData.cost ?? 0;
         cost.shippingClass = { id: costData.shippingClassId } as any;
 
         updatedCosts.push(cost);
@@ -67,41 +77,62 @@ export const updateShippingMethod = async (
     shippingMethod.flatRate = flatRate;
   }
 
-  // 2. Update FreeShipping if provided
-  if (data.freeShipping?.id) {
-    const freeShipping = await freeShippingRepository.findOneOrFail({
-      where: { id: data.freeShipping.id },
-    });
+  // 2. Free Shipping
+  if (data.freeShipping) {
+    let freeShipping;
+
+    if (data.freeShipping.id) {
+      freeShipping = await freeShippingRepository.findOneOrFail({
+        where: { id: data.freeShipping.id },
+      });
+    } else {
+      freeShipping = freeShippingRepository.create();
+    }
 
     freeShipping.title = data.freeShipping.title ?? freeShipping.title;
     freeShipping.conditions =
       data.freeShipping.conditions ?? freeShipping.conditions;
     freeShipping.minimumOrderAmount =
       data.freeShipping.minimumOrderAmount ?? freeShipping.minimumOrderAmount;
+    freeShipping.applyMinimumOrderRuleBeforeCoupon =
+      data.freeShipping.applyMinimumOrderRuleBeforeCoupon ??
+      freeShipping.applyMinimumOrderRuleBeforeCoupon;
 
     await freeShippingRepository.save(freeShipping);
     shippingMethod.freeShipping = freeShipping;
   }
 
-  // 3. Update LocalPickUp if provided
-  if (data.localPickUp?.id) {
-    const localPickUp = await localPickUpRepository.findOneOrFail({
-      where: { id: data.localPickUp.id },
-    });
+  // 3. Local PickUp
+  if (data.localPickUp) {
+    let localPickUp;
+
+    if (data.localPickUp.id) {
+      localPickUp = await localPickUpRepository.findOneOrFail({
+        where: { id: data.localPickUp.id },
+      });
+    } else {
+      localPickUp = localPickUpRepository.create();
+    }
 
     localPickUp.title = data.localPickUp.title ?? localPickUp.title;
-    localPickUp.cost = data.localPickUp.cost ?? localPickUp.cost;
     localPickUp.taxStatus = data.localPickUp.taxStatus ?? localPickUp.taxStatus;
+    localPickUp.cost = data.localPickUp.cost ?? localPickUp.cost;
 
     await localPickUpRepository.save(localPickUp);
     shippingMethod.localPickUp = localPickUp;
   }
 
-  // 4. Update UPS if provided
-  if (data.ups?.id) {
-    const ups = await upsRepository.findOneOrFail({
-      where: { id: data.ups.id },
-    });
+  // 4. UPS
+  if (data.ups) {
+    let ups;
+
+    if (data.ups.id) {
+      ups = await upsRepository.findOneOrFail({
+        where: { id: data.ups.id },
+      });
+    } else {
+      ups = upsRepository.create();
+    }
 
     ups.title = data.ups.title ?? ups.title;
 
