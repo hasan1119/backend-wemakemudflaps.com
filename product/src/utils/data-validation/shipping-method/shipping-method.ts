@@ -213,23 +213,6 @@ export const updateShippingMethodSchema = z
       });
     }
 
-    // ✅ Rule 2: If a method has fields (other than id), its id is required
-    activeMethods.forEach(({ key, value }) => {
-      if (value) {
-        const hasOtherFields = Object.entries(value).some(
-          ([field, val]) => field !== "id" && val !== undefined
-        );
-
-        if (hasOtherFields && !value.id) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `ID is required for ${key} when updating its fields`,
-            path: [key, "id"],
-          });
-        }
-      }
-    });
-
     // ✅ Rule 3: Must provide at least one updatable field besides id and shippingZoneId
     const { id, shippingZoneId, ...rest } = data;
     const hasUpdateData = Object.values(rest).some(

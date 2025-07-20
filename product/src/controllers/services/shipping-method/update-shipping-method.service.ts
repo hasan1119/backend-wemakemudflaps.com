@@ -17,11 +17,13 @@ import {
  *
  * @param shippingMethod - The existing shipping method entity to update.
  * @param data - The update input data.
+ * @param userId - The ID of the user performing the update.
  * @returns The updated ShippingMethod entity.
  */
 export const updateShippingMethod = async (
   shippingMethod: ShippingMethod,
-  data: MutationUpdateShippingMethodArgs
+  data: MutationUpdateShippingMethodArgs,
+  userId: string
 ): Promise<ShippingMethod> => {
   if (data.title) shippingMethod.title = data.title;
   if (data.status) shippingMethod.status = data.status;
@@ -44,6 +46,7 @@ export const updateShippingMethod = async (
       });
     } else {
       flatRate = flatRateRepository.create();
+      flatRate.createdBy = userId;
     }
 
     flatRate.title = data.flatRate.title ?? flatRate.title;
@@ -87,6 +90,7 @@ export const updateShippingMethod = async (
       });
     } else {
       freeShipping = freeShippingRepository.create();
+      freeShipping.createdBy = userId;
     }
 
     freeShipping.title = data.freeShipping.title ?? freeShipping.title;
@@ -112,6 +116,7 @@ export const updateShippingMethod = async (
       });
     } else {
       localPickUp = localPickUpRepository.create();
+      localPickUp.createdBy = userId;
     }
 
     localPickUp.title = data.localPickUp.title ?? localPickUp.title;
@@ -132,6 +137,7 @@ export const updateShippingMethod = async (
       });
     } else {
       ups = upsRepository.create();
+      ups.createdBy = userId;
     }
 
     ups.title = data.ups.title ?? ups.title;
