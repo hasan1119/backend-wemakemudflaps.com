@@ -156,7 +156,6 @@ export const updateShippingMethod = async (
     }
 
     const shippingMethodExists = await getShippingMethodById(id);
-
     if (!shippingMethodExists) {
       return {
         statusCode: 404,
@@ -233,7 +232,10 @@ export const updateShippingMethod = async (
           };
         }
 
-        if (shippingMethodExists.flatRate.costs.find((c) => c.id !== cost.id)) {
+        if (
+          shippingMethodExists.flatRate.costs.filter((c) => c.id === cost.id)
+            .length === 0
+        ) {
           return {
             statusCode: 400,
             success: false,

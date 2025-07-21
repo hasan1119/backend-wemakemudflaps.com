@@ -9,6 +9,7 @@ import {
   shippingMethodRepository,
   upsRepository,
 } from "../repositories/repositories";
+import { getShippingMethodById } from "./get-shipping-method.service";
 
 /**
  * Updates an existing shipping method with the provided data.
@@ -147,5 +148,5 @@ export const updateShippingMethod = async (
   }
 
   await shippingMethodRepository.save(shippingMethod);
-  return shippingMethod;
+  return getShippingMethodById(shippingMethod.id);
 };
