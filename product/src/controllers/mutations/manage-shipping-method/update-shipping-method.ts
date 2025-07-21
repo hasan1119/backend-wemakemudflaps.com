@@ -12,6 +12,7 @@ import { updateShippingMethodSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
+  getShippingClassById,
   getShippingClassesByIds,
   getShippingMethodById,
   getShippingZoneById,
@@ -78,7 +79,8 @@ export const updateShippingMethod = async (
       };
     }
 
-    const { id, flatRate, shippingZoneId } = result.data;
+    const { id, flatRate, freeShipping, localPickUp, ups, shippingZoneId } =
+      result.data;
 
     // Shipping zone exists check can be added here if needed
     const shippingZone = await getShippingZoneById(shippingZoneId);
@@ -154,7 +156,6 @@ export const updateShippingMethod = async (
     }
 
     const shippingMethodExists = await getShippingMethodById(id);
-
     if (!shippingMethodExists) {
       return {
         statusCode: 404,
@@ -164,10 +165,181 @@ export const updateShippingMethod = async (
       };
     }
 
-    // Create the shipping method using the service
+    if (shippingMethodExists.flatRate && (freeShipping || localPickUp || ups)) {
+      return {
+        statusCode: 400,
+        success: false,
+        message:
+          "Flat rate shipping method cannot be updated with other shipping method types",
+        __typename: "ErrorResponse",
+      };
+    }
+
+    if (shippingMethodExists.freeShipping && (flatRate || localPickUp || ups)) {
+      return {
+        statusCode: 400,
+        success: false,
+        message:
+          "Free shipping method cannot be updated with other shipping method types",
+        __typename: "ErrorResponse",
+      };
+    }
+
+    if (shippingMethodExists.localPickUp && (flatRate || freeShipping || ups)) {
+      return {
+        statusCode: 400,
+        success: false,
+        message:
+          "Local pick up shipping method cannot be updated with other shipping method types",
+        __typename: "ErrorResponse",
+      };
+    }
+    if (shippingMethodExists.ups && (flatRate || freeShipping || localPickUp)) {
+      return {
+        statusCode: 400,
+        success: false,
+        message:
+          "UPS shipping method cannot be updated with other shipping method types",
+        __typename: "ErrorResponse",
+      };
+    }
+
+    if (shippingMethodExists?.flatRate?.id) {
+      if (!flatRate.id) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Flat rate shipping method ID is required",
+          __typename: "ErrorResponse",
+        };
+      }
+      if (shippingMethodExists.flatRate.id !== flatRate.id) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Flat rate shipping method ID is not valid",
+          __typename: "ErrorResponse",
+        };
+      }
+
+      for (const cost of flatRate.costs) {
+        if (!cost?.id) {
+          return {
+            statusCode: 400,
+            success: false,
+            message: "Flat rate cost ID is required",
+            __typename: "ErrorResponse",
+          };
+        }
+
+        if (
+          shippingMethodExists.flatRate.costs.filter((c) => c.id === cost.id)
+            .length === 0
+        ) {
+          return {
+            statusCode: 400,
+            success: false,
+            message: "Flat rate cost ID is not valid",
+            __typename: "ErrorResponse",
+          };
+        }
+
+        if (!cost?.shippingClassId) {
+          return {
+            statusCode: 400,
+            success: false,
+            message: "Shipping class ID is required for flat rate costs",
+            __typename: "ErrorResponse",
+          };
+        }
+
+        let shippingClass;
+        shippingClass = await getShippingClassInfoByIdFromRedis(
+          cost.shippingClassId
+        );
+        if (!shippingClass) {
+          shippingClass = await getShippingClassById(cost.shippingClassId);
+
+          if (!shippingClass) {
+            return {
+              statusCode: 404,
+              success: false,
+              message: "Shipping class not found",
+              __typename: "ErrorResponse",
+            };
+          }
+          await setShippingClassInfoByIdInRedis(cost.shippingClassId, {
+            ...shippingClass,
+            createdBy: shippingClass.createdBy as any,
+            createdAt: shippingClass.createdAt,
+            deletedAt: shippingClass.deletedAt,
+          });
+        }
+      }
+    }
+
+    if (shippingMethodExists?.freeShipping?.id) {
+      if (!freeShipping?.id) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Free shipping method ID is required",
+          __typename: "ErrorResponse",
+        };
+      }
+      if (shippingMethodExists.freeShipping.id !== freeShipping.id) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Free shipping method ID is not valid",
+          __typename: "ErrorResponse",
+        };
+      }
+    }
+
+    if (shippingMethodExists?.localPickUp?.id) {
+      if (!localPickUp?.id) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Local pick up shipping method ID is required",
+          __typename: "ErrorResponse",
+        };
+      }
+      if (shippingMethodExists.localPickUp.id !== localPickUp.id) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Local pick up shipping method ID is not valid",
+          __typename: "ErrorResponse",
+        };
+      }
+    }
+
+    if (shippingMethodExists?.ups?.id) {
+      if (!ups?.id) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "UPS shipping method ID is required",
+          __typename: "ErrorResponse",
+        };
+      }
+      if (shippingMethodExists.ups.id !== ups.id) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "UPS shipping method ID is not valid",
+          __typename: "ErrorResponse",
+        };
+      }
+    }
+
+    // update the shipping method using the service
     const shippingMethod = await updateShippingMethodService(
       shippingMethodExists,
-      args
+      args,
+      user.id
     );
 
     return {

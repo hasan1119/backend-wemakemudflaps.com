@@ -20,6 +20,8 @@ export const getShippingMethodById = async (
     where: { id, deletedAt: null },
     relations: [
       "flatRate",
+      "flatRate.costs",
+      "flatRate.costs.shippingClass",
       "freeShipping",
       "localPickUp",
       "ups",
@@ -50,6 +52,8 @@ export const getShippingMethodsByIds = async (
     },
     relations: [
       "flatRate",
+      "flatRate.costs",
+      "flatRate.costs.shippingClass",
       "freeShipping",
       "localPickUp",
       "ups",

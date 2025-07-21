@@ -1,5 +1,5 @@
 {
-  "name": "marketing-door-2-door",
+  "name": "router",
   "scripts": {
     "gen:sg": "sudo rover supergraph compose --config supergraph.yaml --elv2-license accept > supergraph.graphql",
     "start": "./router --config router.yaml --supergraph supergraph.graphql",

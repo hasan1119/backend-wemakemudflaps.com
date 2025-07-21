@@ -1220,7 +1220,6 @@ export type MutationUpdateShippingZoneArgs = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   regions?: InputMaybe<Array<Scalars['String']['input']>>;
-  shippingMethodIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   zipCodes?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 

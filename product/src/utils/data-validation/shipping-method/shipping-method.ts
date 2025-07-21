@@ -108,11 +108,11 @@ export const createShippingMethodSchema = z
     ];
     const count = methods.filter(Boolean).length;
 
-    if (count !== 1) {
+    if (count > 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:
-          "Exactly one shipping method type must be provided (flatRate, freeShipping, localPickUp, or ups).",
+          "Only one shipping method type can be provided (flatRate, freeShipping, localPickUp, or ups).",
         path: [],
       });
     }
@@ -149,14 +149,14 @@ export const updateShippingMethodSchema = z
     description: z.string().optional().nullable(),
     flatRate: z
       .object({
-        id: z.string().uuid(),
+        id: z.string().uuid().optional().nullable(),
         title: z.string().min(1).optional().nullable(),
         taxStatus: z.boolean().optional().nullable(),
         cost: z.number().min(0).optional().nullable(),
         costs: z
           .array(
             z.object({
-              id: z.string().uuid(),
+              id: z.string().uuid().optional().nullable(),
               cost: z.number().min(0).optional().nullable(),
               shippingClassId: z.string().uuid().optional().nullable(),
             })
@@ -167,7 +167,7 @@ export const updateShippingMethodSchema = z
       .nullable(),
     freeShipping: z
       .object({
-        id: z.string().uuid(),
+        id: z.string().uuid().optional().nullable(),
         title: z.string().min(1).optional().nullable(),
         conditions: FreeShippingConditionTypeEnum.optional().nullable(),
         minimumOrderAmount: z.number().min(0).optional().nullable(),
@@ -177,7 +177,7 @@ export const updateShippingMethodSchema = z
       .nullable(),
     localPickUp: z
       .object({
-        id: z.string().uuid(),
+        id: z.string().uuid().optional().nullable(),
         title: z.string().min(1).optional().nullable(),
         taxStatus: z.boolean().optional().nullable(),
         cost: z.number().min(0).optional().nullable(),
@@ -186,7 +186,7 @@ export const updateShippingMethodSchema = z
       .nullable(),
     ups: z
       .object({
-        id: z.string().uuid(),
+        id: z.string().uuid().optional().nullable(),
         title: z.string().min(1).optional().nullable(),
       })
       .optional()
@@ -201,35 +201,31 @@ export const updateShippingMethodSchema = z
       { key: "ups", value: data.ups },
     ];
 
-    const active = methods.filter((m) => !!m.value);
+    const activeMethods = methods.filter((m) => !!m.value);
 
-    // 1. Only one shipping method should be provided
-    if (active.length !== 1) {
+    // ✅ Rule 1: Only one shipping method allowed (or none)
+    if (activeMethods.length > 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:
-          "Exactly one shipping method type must be provided (flatRate, freeShipping, localPickUp, or ups).",
+          "Only one shipping method type can be provided (flatRate, freeShipping, localPickUp, or ups).",
         path: [],
       });
     }
 
-    // 2. If any fields are provided inside a method, then `id` must also be provided
-    active.forEach((method) => {
-      const { key, value } = method;
-      if (value) {
-        const hasOtherFields = Object.entries(value).some(
-          ([field, val]) => field !== "id" && val !== undefined
-        );
+    // ✅ Rule 3: Must provide at least one updatable field besides id and shippingZoneId
+    const { id, shippingZoneId, ...rest } = data;
+    const hasUpdateData = Object.values(rest).some(
+      (val) => val !== undefined && val !== null
+    );
 
-        if (hasOtherFields && !value.id) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `ID is required for ${key} when updating its fields`,
-            path: [key, "id"],
-          });
-        }
-      }
-    });
+    if (!hasUpdateData) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "At least one field must be provided to update.",
+        path: [],
+      });
+    }
   });
 
 /**

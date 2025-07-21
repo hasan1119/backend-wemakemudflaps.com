@@ -12,7 +12,7 @@ import { Pool } from "pg";
 const pgConfig = {
   user: "postgres",
   host: "127.0.0.1",
-  password: "Joy112233",
+  password: "password",
   port: 5432,
   database: "steven",
 };
