@@ -1,27 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { CartItem } from "./cart-item.entity";
 
 @Entity()
 export class Cart {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column()
-  quantity: number;
+  @OneToMany(() => CartItem, (item) => item.cart, { cascade: true })
+  items: CartItem[];
 
-  // Product Id associated with the cart (string only for Apollo Federation compatibility))
-  @Column()
-  productId: string;
-
-  // TODO: Handle product variations (store variation ID or manage variations separately)
-  // If product variations exist, consider whether each cart item should store a variation ID
-  // You could add a column like `variationId: string` or use another entity to link variations
+  // Coupon Ids associated with the cart (string only for Apollo Federation compatibility))
+  @Column({ type: "text", array: true, nullable: true })
+  appliedCoupon: string[] | null;
 
   // User Id associated with the cart (string only for Apollo Federation compatibility))
   @Column()
   createdBy: string;
-
-  @Column({ nullable: true, default: null })
-  guestSessionId: string | null; // For guest carts
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
