@@ -6,6 +6,9 @@ import {
   categoryDef,
   categoryMutationsDef,
   categoryQueriesDef,
+  couponDef,
+  couponMutationsDef,
+  couponQueriesDef,
   productAttributeDef,
   productAttributeMutationsDef,
   productAttributeQueriesDef,
@@ -166,4 +169,13 @@ export const typeDefs = mergeTypeDefs([
 
   // Schema for tax options mutations (modifying tax options data)
   taxOptionsMutationsDef,
+
+  // Coupon schema definition
+  couponDef,
+
+  // Schema for coupon queries (fetching coupon data)
+  couponQueriesDef,
+
+  // Schema for coupon mutations (modifying coupon data)
+  couponMutationsDef,
 ]);

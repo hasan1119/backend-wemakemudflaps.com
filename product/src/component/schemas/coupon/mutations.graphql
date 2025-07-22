@@ -9,6 +9,7 @@ type Mutation {
     freeShipping: Boolean
     discountValue: Float
     expiryDate: String
+    maxUsage: Float
     minimumSpend: Float
     maximumSpend: Float
     applicableProducts: [ID!]
@@ -16,7 +17,6 @@ type Mutation {
     applicableCategories: [ID!]
     excludedCategories: [ID!]
     allowedEmails: [String!]
-    usageCount: Number
   ): CreateCouponResponseOrError!
 
   # Update an existing coupon.
@@ -36,7 +36,6 @@ type Mutation {
     applicableCategories: [ID!]
     excludedCategories: [ID!]
     allowedEmails: [String!]
-    usageCount: Number
   ): UpdateCouponResponseOrError!
 
   # Deletes a coupon by IDs.
@@ -45,9 +44,9 @@ type Mutation {
   # Only accessible by authorized users.
   deleteCoupon(ids: [ID]!, skipTrash: Boolean!): DeleteCouponResponseOrError!
 
-  # Mutation to restore a soft-deleted coupon.
-  # Only accessible by authorized users.
-  restoreCoupons(
-    ids: [ID!]! # List of soft-deleted role IDs to be restored.
-  ): RestoreCouponResponseOrError!
+  # # Mutation to restore a soft-deleted coupon.
+  # # Only accessible by authorized users.
+  # restoreCoupons(
+  #   ids: [ID!]! # List of soft-deleted role IDs to be restored.
+  # ): RestoreCouponResponseOrError!
 }

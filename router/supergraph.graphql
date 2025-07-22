@@ -219,6 +219,49 @@ type CategoryResponseById
   category: Category!
 }
 
+type Coupon
+  @join__type(graph: PRODUCT)
+{
+  id: ID!
+  code: String!
+  description: String
+  discountType: String
+  freeShipping: Boolean
+  discountValue: Float
+  expiryDate: String
+  maxUsage: Float
+  minimumSpend: Float
+  maximumSpend: Float
+  applicableProducts: [Product!]!
+  excludedProducts: [Product!]!
+  applicableCategories: [Category!]!
+  excludedCategories: [Category!]!
+  allowedEmails: [String!]!
+  usageCount: Float
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type CouponPaginationResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  coupons: [Coupon!]!
+  total: Int!
+}
+
+type CouponResponse
+  @join__type(graph: PRODUCT)
+{
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  coupon: Coupon!
+}
+
 union CreateAddressBookResponseOrError
   @join__type(graph: USER)
   @join__unionMember(graph: USER, member: "BaseResponse")
@@ -239,6 +282,13 @@ union CreateCategoryResponseOrError
   @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | CategoryResponse | ErrorResponse
+
+union CreateCouponResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CouponResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CouponResponse | ErrorResponse
 
 type CreatedBy
   @join__type(graph: MEDIA, key: "id", extension: true)
@@ -370,6 +420,12 @@ union DeleteBrandResponseOrError
  = BaseResponse | ErrorResponse
 
 union DeleteCategoryResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union DeleteCouponResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
@@ -621,6 +677,20 @@ union GetCategoryByIDResponseOrError
   @join__unionMember(graph: PRODUCT, member: "CategoryResponseById")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | CategoryResponseById | ErrorResponse
+
+union GetCouponByIDResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CouponResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CouponResponse | ErrorResponse
+
+union GetCouponsResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CouponPaginationResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CouponPaginationResponse | ErrorResponse
 
 union GetMediaByIdResponseOrError
   @join__type(graph: MEDIA)
@@ -1130,6 +1200,10 @@ type Mutation
   deleteShippingMethod(id: ID!): DeleteShippingMethodResponseOrError! @join__field(graph: PRODUCT)
   createTaxOptions(pricesEnteredWithTax: Boolean!, calculateTaxBasedOn: CalculateTaxBasedOn!, shippingTaxClassId: ID, displayPricesInShop: Boolean!, displayPricesDuringCartAndCheckout: Boolean!, priceDisplaySuffix: String!, displayTaxTotals: DisplayTaxTotals!, roundTaxAtSubtotalLevel: Boolean!): CreateTaxOptionsResponseOrError! @join__field(graph: PRODUCT)
   updateTaxOptions(pricesEnteredWithTax: Boolean, calculateTaxBasedOn: CalculateTaxBasedOn, shippingTaxClassId: ID, displayPricesInShop: Boolean, displayPricesDuringCartAndCheckout: Boolean!, priceDisplaySuffix: String, displayTaxTotals: DisplayTaxTotals, roundTaxAtSubtotalLevel: Boolean): UpdateTaxOptionsResponseOrError! @join__field(graph: PRODUCT)
+  createCoupon(code: String!, description: String, discountType: discountType, freeShipping: Boolean, discountValue: Float, expiryDate: String, maxUsage: Float, minimumSpend: Float, maximumSpend: Float, applicableProducts: [ID!], excludedProducts: [ID!], applicableCategories: [ID!], excludedCategories: [ID!], allowedEmails: [String!]): CreateCouponResponseOrError! @join__field(graph: PRODUCT)
+  updateCoupon(code: String!, description: String, discountType: discountType, freeShipping: Boolean, discountValue: Float, expiryDate: String, maxUsage: Float, minimumSpend: Float, maximumSpend: Float, applicableProducts: [ID!], excludedProducts: [ID!], applicableCategories: [ID!], excludedCategories: [ID!], allowedEmails: [String!]): UpdateCouponResponseOrError! @join__field(graph: PRODUCT)
+  deleteCoupon(ids: [ID]!, skipTrash: Boolean!): DeleteCouponResponseOrError! @join__field(graph: PRODUCT)
+  restoreCoupons(ids: [ID!]!): RestoreCouponResponseOrError! @join__field(graph: PRODUCT)
   register(firstName: String!, lastName: String!, email: String!, username: String!, password: String!, gender: Gender, company: String): BaseResponseOrError! @join__field(graph: USER)
   login(email: String!, password: String!, meta: LoginMetaInput!): UserLoginResponseOrError! @join__field(graph: USER)
   updateProfile(userId: ID!, firstName: String, lastName: String, email: String, username: String, phone: String, avatar: String, gender: Gender, address: UserAddressInput, website: String, bio: String, company: String): UserProfileUpdateResponseOrError! @join__field(graph: USER)
@@ -1579,6 +1653,8 @@ type Query
   getShippingMethodById(id: ID!): GetShippingMethodByIDResponseOrError! @join__field(graph: PRODUCT)
   getAllShippingMethods(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetShippingMethodsResponseOrError! @join__field(graph: PRODUCT)
   getTaxOptions: GetTaxOptionsResponseOrError! @join__field(graph: PRODUCT)
+  getCouponById(id: ID!): GetCouponByIDResponseOrError! @join__field(graph: PRODUCT)
+  getAllCoupons(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetCouponsResponseOrError! @join__field(graph: PRODUCT)
   getProfile: GetProfileResponseOrError! @join__field(graph: USER)
   getUserById(id: String!): GetUserByIDResponseOrError! @join__field(graph: USER)
   getAllUsers(page: Int!, limit: Int!, search: String, sortBy: String, sortOrder: String): GetUsersResponseOrError! @join__field(graph: USER)
@@ -1599,6 +1675,12 @@ union RestoreBrandResponseOrError
  = BaseResponse | ErrorResponse
 
 union RestoreCategoryResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | ErrorResponse
+
+union RestoreCouponResponseOrError
   @join__type(graph: PRODUCT)
   @join__unionMember(graph: PRODUCT, member: "BaseResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
@@ -2078,6 +2160,13 @@ union UpdateCategoryResponseOrError
   @join__unionMember(graph: PRODUCT, member: "CategoryResponse")
   @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
  = BaseResponse | CategoryResponse | ErrorResponse
+
+union UpdateCouponResponseOrError
+  @join__type(graph: PRODUCT)
+  @join__unionMember(graph: PRODUCT, member: "BaseResponse")
+  @join__unionMember(graph: PRODUCT, member: "CouponResponse")
+  @join__unionMember(graph: PRODUCT, member: "ErrorResponse")
+ = BaseResponse | CouponResponse | ErrorResponse
 
 input UpdateMediaInput
   @join__type(graph: MEDIA)

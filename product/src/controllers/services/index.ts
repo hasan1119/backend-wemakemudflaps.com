@@ -524,3 +524,48 @@ export {
   getShippingZonesByIds,
   paginateShippingZones,
 } from "./shipping-zone/get-shipping-zone.service";
+
+/**
+ * Exports services for creating coupons.
+ *
+ * Workflow:
+ * 1. Provides a function to create a coupon based on input.
+ * 2. Handles relation to products and categories.
+ */
+export { createCoupon } from "./coupon/create-coupon.service";
+
+/**
+ * Exports services for updating coupons.
+ *
+ * Workflow:
+ * 1. Provides functions to update basic fields (code, description, discount).
+ */
+export { updateCoupon } from "./coupon/update-coupon.service";
+
+/**
+ * Exports services for deleting coupons.
+ *
+ * Workflow:
+ * 1. Provides functions for soft deleting (skip to trash) and hard deleting entities.
+ */
+export {
+  hardDeleteCoupon,
+  softDeleteCoupon,
+} from "./coupon/delete-coupon.service";
+
+/**
+ * Exports services for fetching and counting coupons.
+ *
+ * Workflow:
+ * 1. Provides counting of coupons matching optional search criteria.
+ * 2. Provides functions to fetch coupon by ID or code with relations.
+ * 3. Supports paginated retrieval of coupons.
+ */
+export {
+  countCouponUsages,
+  findCouponByCode,
+  findCouponByCodeToUpdate,
+  getCouponById,
+  getCouponsByIds,
+  paginateCoupons,
+} from "./coupon/get-coupon.service";

@@ -611,3 +611,48 @@ export const taxOptionsMutationsDef = gql(
     encoding: "utf-8",
   })
 );
+
+/**
+ * Loads and parses the GraphQL schema for coupon-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `coupon/coupon.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for coupons as a DocumentNode.
+ */
+export const couponDef = gql(
+  readFileSync(path.join(__dirname, "./coupon/coupon.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL queries for coupon-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `coupon/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for coupons as a DocumentNode.
+ */
+export const couponQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./coupon/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for coupon-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `coupon/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for coupons as a DocumentNode.
+ */
+export const couponMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./coupon/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);

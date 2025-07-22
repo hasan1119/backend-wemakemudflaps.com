@@ -15,7 +15,7 @@ type Coupon {
   applicableCategories: [Category!]!
   excludedCategories: [Category!]!
   allowedEmails: [String!]!
-  usageCount: Number
+  usageCount: Float
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String
