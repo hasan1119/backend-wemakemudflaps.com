@@ -21,13 +21,6 @@ export class Coupon {
   @Column({ type: "text", nullable: true, default: null })
   description: string | null;
 
-  // // Specifies whether the discount applies to a product or order
-  // @Column({
-  //   type: "enum",
-  //   enum: ["product", "order", "cart"],
-  // })
-  // discountOn: string;
-
   // Defines the type of discount ( "Percentage Discount", "Fixed Cart Discount" and "Fixed Product Discount")
   @Column({
     type: "enum",
@@ -49,12 +42,12 @@ export class Coupon {
   discountValue: number;
 
   // The expiration date of the coupon
-  @Column()
-  expiryDate: Date;
+  @Column({ nullable: true })
+  expiryDate: Date | null;
 
   // Maximum number of times the coupon can be used (optional)
   @Column({ nullable: true, default: null })
-  maxUsage: number | null;
+  maxUsage: number | null; // if null then the limit is infinite
 
   // Minimum order amount to apply the coupon (optional)
   @Column({
@@ -103,13 +96,6 @@ export class Coupon {
     default: () => "ARRAY[]::text[]",
   })
   allowedEmails: string[] | null;
-
-  // A coupon may be tied to a specific product
-  /*   @ManyToOne(() => Product, (product) => product.coupons, {
-    nullable: true,
-    onDelete: "CASCADE", // Ensures the associated coupon is deleted if the product is deleted
-  })
-  product: Product | null; */
 
   // Total usage count
   @Column({ default: 0 })

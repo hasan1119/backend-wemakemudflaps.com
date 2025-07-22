@@ -62,6 +62,7 @@ const resolveMedia = (mediaId) => {
 const typesWithCreatedBy = [
   "Brand",
   "BrandPaginationDataSession",
+  "Coupon",
   "Tag",
   "TagPaginationDataSession",
   "ShippingClass",

@@ -1,0 +1,53 @@
+# Mutations to manage coupons operations.
+type Mutation {
+  # Create a new coupon.
+  # Only accessible by authorized users.
+  createCoupon(
+    code: String!
+    description: String
+    discountType: discountType
+    freeShipping: Boolean
+    discountValue: Float
+    expiryDate: String
+    minimumSpend: Float
+    maximumSpend: Float
+    applicableProducts: [ID!]
+    excludedProducts: [ID!]
+    applicableCategories: [ID!]
+    excludedCategories: [ID!]
+    allowedEmails: [String!]
+    usageCount: Number
+  ): CreateCouponResponseOrError!
+
+  # Update an existing coupon.
+  # Only accessible by authorized users.
+  updateCoupon(
+    code: String!
+    description: String
+    discountType: discountType
+    freeShipping: Boolean
+    discountValue: Float
+    expiryDate: String
+    maxUsage: Float
+    minimumSpend: Float
+    maximumSpend: Float
+    applicableProducts: [ID!]
+    excludedProducts: [ID!]
+    applicableCategories: [ID!]
+    excludedCategories: [ID!]
+    allowedEmails: [String!]
+    usageCount: Number
+  ): UpdateCouponResponseOrError!
+
+  # Deletes a coupon by IDs.
+  # Performs a soft delete by default (marks as deleted).
+  # If skipTrash is true, performs a permanent delete.
+  # Only accessible by authorized users.
+  deleteCoupon(ids: [ID]!, skipTrash: Boolean!): DeleteCouponResponseOrError!
+
+  # Mutation to restore a soft-deleted coupon.
+  # Only accessible by authorized users.
+  restoreCoupons(
+    ids: [ID!]! # List of soft-deleted role IDs to be restored.
+  ): RestoreCouponResponseOrError!
+}

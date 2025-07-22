@@ -28,6 +28,13 @@ type BaseResponse @shareable {
   message: String!
 }
 
+# Enum for coupon discount type selection
+enum discountType {
+  PERCENTAGE_DISCOUNT
+  FIXED_CART_DISCOUNT
+  FIXED_PRODUCT_DISCOUNT
+}
+
 # Enum for product configuration selection
 enum productConfigurationType {
   SIMPLE_PRODUCT

@@ -11,6 +11,18 @@ export {
 } from "./shipping-method/shipping-method";
 
 /**
+ * Exports coupon related schemas for coupon management.
+ *
+ * Workflow:
+ * 1. Provides schemas for creating, updating, and sorting coupons.
+ */
+export {
+  couponsSortingSchema,
+  createCouponSchema,
+  updateCouponSchema,
+} from "./coupon/coupon";
+
+/**
  * Exports product attribute related schemas for product attribute management.
  *
  * Workflow:

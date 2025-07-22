@@ -441,6 +441,14 @@ enum DimensionUnit
   YARD @join__enumValue(graph: PRODUCT)
 }
 
+enum discountType
+  @join__type(graph: PRODUCT)
+{
+  PERCENTAGE_DISCOUNT @join__enumValue(graph: PRODUCT)
+  FIXED_CART_DISCOUNT @join__enumValue(graph: PRODUCT)
+  FIXED_PRODUCT_DISCOUNT @join__enumValue(graph: PRODUCT)
+}
+
 enum DisplayTaxTotals
   @join__type(graph: PRODUCT)
 {

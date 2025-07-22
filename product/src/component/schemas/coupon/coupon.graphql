@@ -1,0 +1,59 @@
+# ---------------------- Coupon Types ----------------------
+type Coupon {
+  id: ID!
+  code: String!
+  description: String
+  discountType: String
+  freeShipping: Boolean
+  discountValue: Float
+  expiryDate: String
+  maxUsage: Float
+  minimumSpend: Float
+  maximumSpend: Float
+  applicableProducts: [Product!]!
+  excludedProducts: [Product!]!
+  applicableCategories: [Category!]!
+  excludedCategories: [Category!]!
+  allowedEmails: [String!]!
+  usageCount: Number
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a coupon.
+type CouponResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  coupon: Coupon!
+}
+
+# Response for fetching a coupons list.
+type CouponPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  coupons: [Coupon!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateCouponResponseOrError =
+    BaseResponse
+  | CouponResponse
+  | ErrorResponse
+union GetCouponByIDResponseOrError =
+    BaseResponse
+  | CouponResponse
+  | ErrorResponse
+union GetCouponsResponseOrError =
+    BaseResponse
+  | CouponPaginationResponse
+  | ErrorResponse
+union UpdateCouponResponseOrError =
+    BaseResponse
+  | CouponResponse
+  | ErrorResponse
+union DeleteCouponResponseOrError = BaseResponse | ErrorResponse
+union RestoreCouponResponseOrError = BaseResponse | ErrorResponse

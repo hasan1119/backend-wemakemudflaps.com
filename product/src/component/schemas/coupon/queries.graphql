@@ -1,0 +1,22 @@
+# Queries to fetch coupons from the system.
+type Query {
+  # Fetch coupon by ID.
+  # Retrieves a specific coupon details by its unique ID.
+  # Returns a `GetCouponByIDResponseOrError` containing coupon data and request status.
+  getCouponById(
+    id: ID! # Unique identifier of the coupon to retrieve.
+  ): GetCouponByIDResponseOrError!
+
+  # Fetch all coupons with pagination, filtering, and sorting.
+  # Retrieves a paginated list of coupons.
+  # Supports filtering by search term (code, description and etc.) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetCouponsResponseOrError` containing coupon data and request status.
+  getAllCoupons(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of coupons per page.
+    search: String # Optional search term (matches name or slug).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetCouponsResponseOrError!
+}
