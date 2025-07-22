@@ -820,8 +820,8 @@ export type MutationCreateCouponArgs = {
   applicableProducts?: InputMaybe<Array<Scalars['ID']['input']>>;
   code: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
-  discountType?: InputMaybe<DiscountType>;
-  discountValue?: InputMaybe<Scalars['Float']['input']>;
+  discountType: DiscountType;
+  discountValue: Scalars['Float']['input'];
   excludedCategories?: InputMaybe<Array<Scalars['ID']['input']>>;
   excludedProducts?: InputMaybe<Array<Scalars['ID']['input']>>;
   expiryDate?: InputMaybe<Scalars['String']['input']>;
@@ -1004,7 +1004,6 @@ export type MutationDeleteCategoryArgs = {
 
 export type MutationDeleteCouponArgs = {
   ids: Array<InputMaybe<Scalars['ID']['input']>>;
-  skipTrash: Scalars['Boolean']['input'];
 };
 
 
@@ -1196,6 +1195,7 @@ export type MutationUpdateCouponArgs = {
   excludedProducts?: InputMaybe<Array<Scalars['ID']['input']>>;
   expiryDate?: InputMaybe<Scalars['String']['input']>;
   freeShipping?: InputMaybe<Scalars['Boolean']['input']>;
+  id: Scalars['ID']['input'];
   maxUsage?: InputMaybe<Scalars['Float']['input']>;
   maximumSpend?: InputMaybe<Scalars['Float']['input']>;
   minimumSpend?: InputMaybe<Scalars['Float']['input']>;
@@ -3959,7 +3959,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'company' | 'country' | 'isDefault' | 'state' | 'streetOne' | 'streetTwo' | 'type' | 'userId' | 'zip'>>;
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
-  createCoupon?: Resolver<ResolversTypes['CreateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCouponArgs, 'code'>>;
+  createCoupon?: Resolver<ResolversTypes['CreateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCouponArgs, 'code' | 'discountType' | 'discountValue'>>;
   createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'name' | 'slug'>>;
   createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3976,7 +3976,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteAddressBookEntry?: Resolver<ResolversTypes['DeleteAddressesBookResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteAddressBookEntryArgs, 'id' | 'userId'>>;
   deleteBrand?: Resolver<ResolversTypes['DeleteBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteBrandArgs, 'ids' | 'skipTrash'>>;
   deleteCategory?: Resolver<Maybe<ResolversTypes['DeleteCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'ids'>>;
-  deleteCoupon?: Resolver<ResolversTypes['DeleteCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteCouponArgs, 'ids' | 'skipTrash'>>;
+  deleteCoupon?: Resolver<ResolversTypes['DeleteCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteCouponArgs, 'ids'>>;
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionIds'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
   deleteProduct?: Resolver<ResolversTypes['DeleteProductResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'ids' | 'skipTrash'>>;
@@ -4006,7 +4006,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateBrand?: Resolver<ResolversTypes['UpdateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateBrandArgs, 'id'>>;
   updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'id'>>;
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'id' | 'position'>>;
-  updateCoupon?: Resolver<ResolversTypes['UpdateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCouponArgs, 'code'>>;
+  updateCoupon?: Resolver<ResolversTypes['UpdateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCouponArgs, 'code' | 'id'>>;
   updateMediaFileInfo?: Resolver<ResolversTypes['UpdateMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFileInfoArgs, 'inputs'>>;
   updateProduct?: Resolver<ResolversTypes['UpdateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id'>>;
   updateProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationUpdateProductAttributeArgs, 'id' | 'values'>>;

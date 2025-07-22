@@ -62,11 +62,9 @@ const mapArgsToPagination = (args: QueryGetAllProductsArgs) => ({
  * Workflow:
  * 1. Verifies user authentication and checks read permission for products.
  * 2. Validates input (page, limit, search, sortBy, sortOrder) using Zod schemas.
- * 3. Attempts to retrieve products and total count from Redis for performance.
- * 4. On cache miss, fetches products from the database with pagination, search, and sorting.
- * 5. Maps database products to cached format, including creator details.
- * 6. Caches products and total count in Redis.
- * 7. Returns a success response or error if validation, permission, or retrieval fails.
+ * 3. Fetches products from the database with pagination, search, and sorting.
+ * 4. Maps database products to cached format, including creator details.
+ * 5. Returns a success response or error if validation, permission, or retrieval fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
  * @param args - Input arguments containing page, limit, search, sortBy, and sortOrder.

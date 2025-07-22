@@ -5,9 +5,9 @@ type Mutation {
   createCoupon(
     code: String!
     description: String
-    discountType: discountType
+    discountType: discountType!
     freeShipping: Boolean
-    discountValue: Float
+    discountValue: Float!
     expiryDate: String
     maxUsage: Float
     minimumSpend: Float
@@ -22,6 +22,7 @@ type Mutation {
   # Update an existing coupon.
   # Only accessible by authorized users.
   updateCoupon(
+    id: ID!
     code: String!
     description: String
     discountType: discountType
@@ -39,10 +40,8 @@ type Mutation {
   ): UpdateCouponResponseOrError!
 
   # Deletes a coupon by IDs.
-  # Performs a soft delete by default (marks as deleted).
-  # If skipTrash is true, performs a permanent delete.
   # Only accessible by authorized users.
-  deleteCoupon(ids: [ID]!, skipTrash: Boolean!): DeleteCouponResponseOrError!
+  deleteCoupon(ids: [ID]!): DeleteCouponResponseOrError!
 
   # # Mutation to restore a soft-deleted coupon.
   # # Only accessible by authorized users.

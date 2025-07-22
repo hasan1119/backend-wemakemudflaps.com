@@ -32,9 +32,9 @@ export const CouponDiscountTypeEnum = z.preprocess((val) => {
  *
  * @property code - Coupon code (minimum 1 characters).
  * @property description - Optional coupon description (minimum 1 characters).
- * @property discountType - Optional coupon discount type (one of the defined enum values).
+ * @property discountType - Coupon discount type (one of the defined enum values).
  * @property freeShipping - Optional boolean indicating if the coupon provides free shipping.
- * @property discountValue - Optional positive number representing the discount value.
+ * @property discountValue - Positive number representing the discount value.
  * @property maxUsage - Optional positive number representing the maximum usage count.
  * @property expiryDate - Optional string representing the expiration date of the coupon.
  * @property minimumSpend - Optional positive number representing the minimum spend required to apply the coupon.
@@ -53,13 +53,11 @@ export const createCouponSchema = z.object({
     .trim()
     .optional()
     .nullable(),
-  discountType: CouponDiscountTypeEnum.optional().nullable(),
+  discountType: CouponDiscountTypeEnum,
   freeShipping: z.boolean().optional().nullable(),
   discountValue: z
     .number()
-    .positive("Discount value must be a positive number")
-    .optional()
-    .nullable(),
+    .positive("Discount value must be a positive number"),
   maxUsage: z
     .number()
     .positive("Maximum usage must be a positive number")

@@ -1,6 +1,7 @@
 import {
   createBrand,
   createCategory,
+  createCoupon,
   createProduct,
   createProductAttribute,
   createShippingClass,
@@ -12,6 +13,7 @@ import {
   createTaxRate,
   deleteBrand,
   deleteCategory,
+  deleteCoupon,
   deleteProduct,
   deleteProductAttribute,
   deleteShippingClass,
@@ -30,6 +32,7 @@ import {
   updateBrand,
   updateCategory,
   updateCategoryPosition,
+  updateCoupon,
   updateProduct,
   updateProductAttribute,
   updateShippingClass,
@@ -249,5 +252,20 @@ export const productMutationsResolver = {
      * Restores previously deleted shipping zone.
      */
     updateTaxOptions,
+
+    /**
+     * Creates a new coupon.
+     */
+    createCoupon,
+
+    /**
+     * Updates detailed information for a specific coupon.
+     */
+    updateCoupon,
+
+    /**
+     * Deletes specified coupon from the system.
+     */
+    deleteCoupon,
   },
 };

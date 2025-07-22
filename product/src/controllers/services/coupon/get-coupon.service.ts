@@ -10,7 +10,7 @@ import { couponRepository } from "../repositories/repositories";
  */
 export const getCouponById = async (id: string): Promise<Coupon | null> => {
   const coupon = await couponRepository.findOne({
-    where: { id },
+    where: { id, deletedAt: null },
     relations: [
       "applicableProducts",
       "excludedProducts",

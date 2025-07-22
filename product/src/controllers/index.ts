@@ -140,6 +140,7 @@ export { getTaxRateById } from "./queries/tax-rate/get-tax-rate-by-id";
  * 1. Provides mutations for creating, updating, deleting, and restoring shipping methods.
  * 2. Enables retrieval of a specific shipping method by its ID.
  * 3. Facilitates listing all shipping methods in the system.
+ * 4. Handles pagination, search, and sorting of shipping methods.
  */
 export { createShippingMethod } from "./mutations/manage-shipping-method/create-shipping-method";
 export { deleteShippingMethod } from "./mutations/manage-shipping-method/delete-shipping-method";
@@ -160,3 +161,16 @@ export { deleteShippingZone } from "./mutations/manage-shipping-zone/delete-ship
 export { updateShippingZone } from "./mutations/manage-shipping-zone/update-shipping-zone";
 export { getAllShippingZones } from "./queries/shipping-zone/get-shipping-zone";
 export { getShippingZoneById } from "./queries/shipping-zone/get-shipping-zone-by-id";
+
+/** Exports GraphQL queries and mutations for managing coupon data.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating, updating, deleting, and restoring coupons.
+ * 2. Enables retrieval of a specific coupon by its ID.
+ * 3. Facilitates listing all coupons in the system.
+ */
+export { createCoupon } from "./mutations/manage-coupon/create-coupon";
+export { deleteCoupon } from "./mutations/manage-coupon/delete-coupon";
+export { updateCoupon } from "./mutations/manage-coupon/update-coupon";
+export { getCouponById } from "./queries/coupon/get-coupon-by-id";
+export { getAllCoupons } from "./queries/coupon/get-coupons";

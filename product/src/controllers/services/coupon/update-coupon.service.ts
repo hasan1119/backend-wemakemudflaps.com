@@ -46,11 +46,10 @@ export const updateCoupon = async (
     ...(freeShipping !== undefined &&
       freeShipping !== null && { freeShipping }),
     ...(expiryDate !== undefined && expiryDate !== null && { expiryDate }),
-    ...(maxUsage !== undefined && maxUsage !== null && { maxUsage }),
-    ...(minimumSpend !== undefined &&
-      minimumSpend !== null && { minimumSpend }),
-    ...(maximumSpend !== undefined &&
-      maximumSpend !== null && { maximumSpend }),
+    ...(maxUsage !== undefined && { maxUsage }),
+    ...(minimumSpend !== undefined && { minimumSpend }),
+    ...(maximumSpend !== undefined && { maximumSpend }),
+    ...(freeShipping !== undefined && { freeShipping }),
     ...(allowedEmails !== undefined &&
       allowedEmails !== null && {
         allowedEmails: allowedEmails.length ? allowedEmails : null,

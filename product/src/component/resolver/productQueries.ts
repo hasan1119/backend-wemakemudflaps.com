@@ -1,6 +1,7 @@
 import {
   getAllBrands,
   getAllCategories,
+  getAllCoupons,
   getAllProductAttribute,
   getAllProducts,
   getAllShippingClass,
@@ -11,6 +12,7 @@ import {
   getAllTaxRates,
   getBrandById,
   getCategoryById,
+  getCouponById,
   getProductAttributeById,
   getProductById,
   getShippingClassById,
@@ -214,7 +216,20 @@ export const productQueriesResolver = {
      */
     getAllShippingMethods,
 
+    /**
+     * Retrieves detailed information for a tax option by their unique ID.
+     */
     getTaxOptions,
+
+    /**
+     * Retrieves a coupon by its ID, along with all related coupon and their details.
+     */
+    getCouponById,
+
+    /**
+     * Fetches a paginated list of all coupons in the system.
+     */
+    getAllCoupons,
   },
 
   // Dynamically assign resolvers for createdBy and thumbnail
