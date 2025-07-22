@@ -203,7 +203,7 @@ export const updateCoupon = async (
       return {
         statusCode: 404,
         success: false,
-        message: `Coupon not found: ${existingCouponById}, or it may have been deleted`,
+        message: `Coupon not found: ${id}, or it may have been deleted`,
         __typename: "BaseResponse",
       };
     }
