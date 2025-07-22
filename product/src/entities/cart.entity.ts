@@ -1,5 +1,13 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { CartItem } from "./cart-item.entity";
+import { Coupon } from "./coupon.entity";
 
 @Entity()
 export class Cart {
@@ -9,9 +17,10 @@ export class Cart {
   @OneToMany(() => CartItem, (item) => item.cart, { cascade: true })
   items: CartItem[];
 
-  // Coupon Ids associated with the cart (string only for Apollo Federation compatibility))
-  @Column({ type: "text", array: true, nullable: true })
-  appliedCoupon: string[] | null;
+  // Many-to-many relationship with Coupon
+  @ManyToMany(() => Coupon, { nullable: true })
+  @JoinTable()
+  coupons: Coupon[] | null;
 
   // User Id associated with the cart (string only for Apollo Federation compatibility))
   @Column()

@@ -1,5 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Cart } from "./cart.entity";
+import { ProductVariation } from "./product-variation.entity";
+import { Product } from "./product.entity";
 
 @Entity()
 export class CartItem {
@@ -9,16 +11,16 @@ export class CartItem {
   @Column()
   quantity: number;
 
-  // Array of product ID in the cart (string only for Apollo Federation compatibility))
-  @Column({ type: "text", nullable: true })
-  product: string | null; // Array of product IDs in the cart
+  // Optional relation to Product (if this cart item is a specific product)
+  @ManyToOne(() => Product, { nullable: true })
+  product: Product | null;
 
   // Product variation ID associated with the cart (string only for Apollo Federation compatibility))
-  @Column({ type: "text", nullable: true })
-  productVariation: string | null; // Product variation ID associated with the cart
+  @ManyToOne(() => ProductVariation, { nullable: true })
+  productVariation: ProductVariation | null;
 
   @ManyToOne(() => Cart, (cart) => cart.items, { onDelete: "CASCADE" })
-  cart: Cart;
+  cart: Promise<Cart>;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
