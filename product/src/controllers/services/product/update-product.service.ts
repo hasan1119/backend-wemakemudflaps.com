@@ -1,6 +1,8 @@
+import { In } from "typeorm";
 import { Product } from "../../../entities";
 import { MutationUpdateProductArgs } from "../../../types";
 import {
+  productAttributeRepository,
   productPriceRepository,
   productRepository,
   productVariationRepository,
@@ -27,15 +29,17 @@ export const updateProduct = async (
   const product = currentProduct;
 
   // Replace scalar fields directly
-  product.name = data.name;
-  product.slug = data.slug;
-  product.defaultImage = data.defaultImage;
-  product.images = data.images;
-  product.videos = data.videos;
-  product.defaultMainDescription = data.defaultMainDescription;
-  product.defaultShortDescription = data.defaultShortDescription;
-  product.regularPrice = data.regularPrice;
-  product.salePrice = data.salePrice;
+  if (data.name) product.name = data.name;
+  if (data.slug) product.slug = data.slug;
+  if (data.defaultImage) product.defaultImage = data.defaultImage;
+  if (data.images) product.images = data.images;
+  if (data.videos) product.videos = data.videos;
+  if (data.defaultMainDescription)
+    product.defaultMainDescription = data.defaultMainDescription;
+  if (data.defaultShortDescription)
+    product.defaultShortDescription = data.defaultShortDescription;
+  if (data.regularPrice) product.regularPrice = data.regularPrice;
+  if (data.salePrice) product.salePrice = data.salePrice;
 
   if (data.salePriceStartAt !== undefined) {
     product.salePriceStartAt =
@@ -51,38 +55,43 @@ export const updateProduct = async (
         : data.salePriceEndAt;
   }
 
-  product.saleQuantity = data.saleQuantity;
-  product.saleQuantityUnit = data.saleQuantityUnit;
-  product.minQuantity = data.minQuantity;
-  product.defaultQuantity = data.defaultQuantity;
-  product.maxQuantity = data.maxQuantity;
-  product.quantityStep = data.quantityStep;
-  product.sku = data.sku;
-  product.model = data.model;
-  product.manageStock = data.manageStock;
-  product.stockQuantity = data.stockQuantity;
-  product.allowBackOrders = data.allowBackOrders;
-  product.lowStockThresHold = data.lowStockThresHold;
-  product.stockStatus = data.stockStatus;
-  product.soldIndividually = data.soldIndividually;
-  product.initialNumberInStock = data.initialNumberInStock;
-  product.weightUnit = data.weightUnit;
-  product.weight = data.weight;
-  product.dimensionUnit = data.dimensionUnit;
-  product.length = data.length;
-  product.width = data.width;
-  product.height = data.height;
-  product.purchaseNote = data.purchaseNote;
-  product.enableReviews = data.enableReviews;
-  product.customBadge = data.customBadge;
-  product.isVisible = data.isVisible;
-  product.productConfigurationType = data.productConfigurationType;
-  product.productDeliveryType = data.productDeliveryType;
-  product.isCustomized = data.isCustomized;
-  product.warrantyDigit = data.warrantyDigit;
-  product.defaultWarrantyPeriod = data.defaultWarrantyPeriod;
-  product.warrantyPolicy = data.warrantyPolicy;
-  product.taxStatus = data.taxStatus;
+  if (data.saleQuantity) product.saleQuantity = data.saleQuantity;
+  if (data.saleQuantityUnit) product.saleQuantityUnit = data.saleQuantityUnit;
+  if (data.minQuantity) product.minQuantity = data.minQuantity;
+  if (data.defaultQuantity) product.defaultQuantity = data.defaultQuantity;
+  if (data.maxQuantity) product.maxQuantity = data.maxQuantity;
+  if (data.quantityStep) product.quantityStep = data.quantityStep;
+  if (data.sku) product.sku = data.sku;
+  if (data.model) product.model = data.model;
+  if (data.manageStock) product.manageStock = data.manageStock;
+  if (data.stockQuantity) product.stockQuantity = data.stockQuantity;
+  if (data.allowBackOrders) product.allowBackOrders = data.allowBackOrders;
+  if (data.lowStockThresHold)
+    product.lowStockThresHold = data.lowStockThresHold;
+  if (data.stockStatus) product.stockStatus = data.stockStatus;
+  if (data.soldIndividually) product.soldIndividually = data.soldIndividually;
+  if (data.initialNumberInStock)
+    product.initialNumberInStock = data.initialNumberInStock;
+  if (data.weightUnit) product.weightUnit = data.weightUnit;
+  if (data.weight) product.weight = data.weight;
+  if (data.dimensionUnit) product.dimensionUnit = data.dimensionUnit;
+  if (data.length) product.length = data.length;
+  if (data.width) product.width = data.width;
+  if (data.height) product.height = data.height;
+  if (data.purchaseNote) product.purchaseNote = data.purchaseNote;
+  if (data.enableReviews) product.enableReviews = data.enableReviews;
+  if (data.customBadge) product.customBadge = data.customBadge;
+  if (data.isVisible) product.isVisible = data.isVisible;
+  if (data.productConfigurationType)
+    product.productConfigurationType = data.productConfigurationType;
+  if (data.productDeliveryType)
+    product.productDeliveryType = data.productDeliveryType;
+  if (data.isCustomized) product.isCustomized = data.isCustomized;
+  if (data.warrantyDigit) product.warrantyDigit = data.warrantyDigit;
+  if (data.defaultWarrantyPeriod)
+    product.defaultWarrantyPeriod = data.defaultWarrantyPeriod;
+  if (data.warrantyPolicy) product.warrantyPolicy = data.warrantyPolicy;
+  if (data.taxStatus) product.taxStatus = data.taxStatus;
 
   // Replace relational fields
   if (data.categoryIds !== undefined) {
@@ -108,15 +117,23 @@ export const updateProduct = async (
   }
 
   if (data.attributeIds !== undefined) {
+    // Delete previous attributes using current product existing attributes ids if they exist
+    if (currentProduct.attributes?.length) {
+      const idsToDelete = currentProduct.attributes.map((attr) => attr.id);
+      await productAttributeRepository.delete({ id: In(idsToDelete) });
+    }
+
     product.attributes = data.attributeIds.map((id) => ({ id })) as any;
   }
 
   // Replace variations
   if (data.variations) {
-    // Delete previous
-    await productVariationRepository.delete({
-      product: { id: currentProduct.id },
-    });
+    if (currentProduct.variations?.length) {
+      const idsToDelete = currentProduct.variations.map((v) => v.id);
+      await productVariationRepository.delete({
+        id: In(idsToDelete),
+      });
+    }
 
     const processedVariations = data.variations?.map((v) => {
       return {
