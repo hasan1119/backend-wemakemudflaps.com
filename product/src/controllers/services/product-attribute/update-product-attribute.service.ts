@@ -29,10 +29,9 @@ export const updateAttributeWithValues = async (
   });
 
   // Step 2: Hard delete existing values
- await productAttributeValueRepository.delete({
-  attribute: { id: attributeId },
- });
-
+  await productAttributeValueRepository.delete({
+    attribute: { id: attributeId },
+  });
 
   // Step 3: Insert new values
   if (data.values && data.values.length > 0) {

@@ -11,6 +11,8 @@ import {
   checkUserPermission,
   createAttributeWithValues,
   createSystemAttributeWithValues,
+  findSystemAttributeByName,
+  findSystemAttributeBySlug,
 } from "../../services";
 
 /**
@@ -59,6 +61,34 @@ export const handleCreateProductAttribute = async (
       errors,
       __typename: "ErrorResponse",
     };
+  }
+
+  if (isSystemAttribute) {
+    // Step 4: Check for existing system attribute by name
+    const existingSystemAttribute = await findSystemAttributeByName(args.name);
+
+    if (existingSystemAttribute) {
+      return {
+        statusCode: 409,
+        success: false,
+        message: `System attribute with name "${args.name}" already exists`,
+        __typename: "BaseResponse",
+      };
+    }
+
+    // Check for existing system attribute by slug
+    const existingSystemAttributeSlug = await findSystemAttributeBySlug(
+      args.slug
+    );
+
+    if (existingSystemAttributeSlug) {
+      return {
+        statusCode: 409,
+        success: false,
+        message: `System attribute with slug "${args.slug}" already exists`,
+        __typename: "BaseResponse",
+      };
+    }
   }
 
   // Step 5: Create the attribute

@@ -8,6 +8,8 @@ import { UpdateProductAttributeInputSchema } from "../../../utils/data-validatio
 import {
   checkUserAuth,
   checkUserPermission,
+  findSystemAttributeByNameToUpdate,
+  findSystemAttributeBySlugToUpdate,
   getProductAttributeById,
   updateAttributeWithValues,
 } from "../../services";
@@ -74,6 +76,34 @@ export const updateProductAttribute = async (
         message: `Product attribute not found with this id: ${id}, or it may have been deleted`,
         __typename: "BaseResponse",
       };
+    }
+
+    if (currentProductAttribute.systemAttribute) {
+      // Check if the system attribute name or slug is being updated and if it already exists
+      const existingSystemAttribute = await findSystemAttributeByNameToUpdate(
+        id,
+        args.name
+      );
+
+      if (existingSystemAttribute) {
+        return {
+          statusCode: 409,
+          success: false,
+          message: `System attribute with name "${args.name}" already exists`,
+          __typename: "BaseResponse",
+        };
+      }
+
+      const existingSystemAttributeSlug =
+        await findSystemAttributeBySlugToUpdate(id, args.slug);
+      if (existingSystemAttributeSlug) {
+        return {
+          statusCode: 409,
+          success: false,
+          message: `System attribute with slug "${args.slug}" already exists`,
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Update the product attribute in the database

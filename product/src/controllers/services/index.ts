@@ -22,9 +22,11 @@ export { checkUserPermission } from "./permission/get-user-permission.service";
  */
 export {
   findAttributeByName,
-  findAttributeByNameToUpdate,
   findAttributeBySlug,
-  findAttributeBySlugToUpdate,
+  findSystemAttributeByName,
+  findSystemAttributeByNameToUpdate,
+  findSystemAttributeBySlug,
+  findSystemAttributeBySlugToUpdate,
   getProductAttributeById,
   getProductAttributesByIds,
   getProductAttributeValuesByIds,

@@ -94,6 +94,54 @@ export const findAttributeByName = async (
 };
 
 /**
+ * Finds a system Product Attribute entity by its name (case-insensitive).
+ *
+ * Workflow:
+ * 1. Uses TypeORM to find the attribute by name.
+ * 2. Filters out soft-deleted attributes (`deletedAt IS NULL`).
+ * 3. Ensures the attribute is a system attribute (`systemAttribute = true`).
+ *
+ * @param name - The name of the system attribute to find.
+ * @returns A promise resolving to the Product Attribute entity or null if not found.
+ */
+export const findSystemAttributeByName = async (
+  name: string
+): Promise<ProductAttribute | null> => {
+  return await productAttributeRepository.findOne({
+    where: {
+      name: ILike(name),
+      deletedAt: null,
+      systemAttribute: true,
+    },
+    relations: ["values"],
+  });
+};
+
+/**
+ * Finds a system Product Attribute entity by its slug (case-insensitive).
+ *
+ * Workflow:
+ * 1. Uses TypeORM to find the attribute by slug.
+ * 2. Filters out soft-deleted attributes (`deletedAt IS NULL`).
+ * 3. Ensures the attribute is a system attribute (`systemAttribute = true`).
+ *
+ * @param slug - The slug of the system attribute to find.
+ * @returns A promise resolving to the Product Attribute entity or null if not found.
+ */
+export const findSystemAttributeBySlug = async (
+  slug: string
+): Promise<ProductAttribute | null> => {
+  return await productAttributeRepository.findOne({
+    where: {
+      slug: ILike(slug),
+      deletedAt: null,
+      systemAttribute: true,
+    },
+    relations: ["values"],
+  });
+};
+
+/**
  * Finds a Product Attribute entity by its slug (case-insensitive).
  *
  * @param slug - The slug of the attribute to find.
@@ -112,13 +160,13 @@ export const findAttributeBySlug = async (
 };
 
 /**
- * Finds a Product Attribute entity by its name (case-insensitive) to update attribute info.
+ * Finds a System Product Attribute entity by its name (case-insensitive) to update attribute info.
  *
  * @param id - The UUID of the attribute.
  * @param name - The name of the attribute to find.
  * @returns A promise resolving to the Product Attribute entity or null if not found.
  */
-export const findAttributeByNameToUpdate = async (
+export const findSystemAttributeByNameToUpdate = async (
   id: string,
   name: string
 ): Promise<ProductAttribute | null> => {
@@ -126,19 +174,20 @@ export const findAttributeByNameToUpdate = async (
     where: {
       id: Not(id),
       name: ILike(name),
+      systemAttribute: true,
       deletedAt: null,
     },
   });
 };
 
 /**
- * Finds a Product Attribute entity by its slug (case-insensitive) to update attribute info.
+ * Finds a System Product Attribute entity by its slug (case-insensitive) to update attribute info.
  *
  * @param id - The UUID of the attribute.
  * @param slug - The slug of the attribute to find.
  * @returns A promise resolving to the Product Attribute entity or null if not found.
  */
-export const findAttributeBySlugToUpdate = async (
+export const findSystemAttributeBySlugToUpdate = async (
   id: string,
   slug: string
 ): Promise<ProductAttribute | null> => {
@@ -146,6 +195,7 @@ export const findAttributeBySlugToUpdate = async (
     where: {
       id: Not(id),
       slug: ILike(slug),
+      systemAttribute: true,
       deletedAt: null,
     },
   });
