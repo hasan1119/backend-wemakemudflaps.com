@@ -240,6 +240,8 @@ export const paginateSystemProductAttributes = async ({
 
   const queryBuilder = productAttributeRepository
     .createQueryBuilder("attribute")
+    .leftJoinAndSelect("attribute.systemAttributeRef", "systemAttribute")
+    .leftJoinAndSelect("attribute.copiedAttributes", "copiedAttributes")
     .leftJoinAndSelect("attribute.values", "values")
     .where("attribute.deletedAt IS NULL")
     .andWhere("attribute.systemAttribute = :system", { system: true });

@@ -1561,7 +1561,7 @@ export type ProductAttribute = {
 export type ProductAttributePaginationResponse = {
   __typename?: 'ProductAttributePaginationResponse';
   attributes: Array<ProductAttribute>;
-  message?: Maybe<Scalars['String']['output']>;
+  message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
   totalCount: Scalars['Int']['output'];
@@ -4137,7 +4137,7 @@ export type ProductAttributeResolvers<ContextType = Context, ParentType extends 
 
 export type ProductAttributePaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductAttributePaginationResponse'] = ResolversParentTypes['ProductAttributePaginationResponse']> = {
   attributes?: Resolver<Array<ResolversTypes['ProductAttribute']>, ParentType, ContextType>;
-  message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

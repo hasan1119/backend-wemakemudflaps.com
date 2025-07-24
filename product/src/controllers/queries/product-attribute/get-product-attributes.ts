@@ -107,6 +107,8 @@ export const getAllProductAttribute = async (
         sortOrder: safeSortOrder,
       });
 
+    console.log(dbAttributes);
+
     const total = queryTotal;
 
     // Map database product attribute to response format
@@ -128,7 +130,7 @@ export const getAllProductAttribute = async (
               ? value.deletedAt.toISOString()
               : value.deletedAt,
         })),
-        systemAttributeId: attribute.systemAttributeRef.id || null,
+        systemAttributeId: attribute.systemAttributeRef?.id || null,
         createdBy: attribute.createdBy as any,
         createdAt:
           attribute.createdAt instanceof Date

@@ -160,7 +160,7 @@ export const getProductById = async (
         attributes: productData.attributes.map((attribute) => ({
           ...attribute,
           createdBy: attribute.createdBy as any,
-          systemAttributeId: attribute.systemAttributeRef.id || null,
+          systemAttributeId: attribute.systemAttributeRef?.id || null,
           values: attribute.values.map((value) => ({
             ...value,
             createdAt:

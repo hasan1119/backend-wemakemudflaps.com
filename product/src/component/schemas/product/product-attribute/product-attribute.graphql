@@ -34,7 +34,7 @@ type ProductAttributeResponse {
 type ProductAttributePaginationResponse {
   statusCode: Int!
   success: Boolean!
-  message: String
+  message: String!
   attributes: [ProductAttribute!]! # List of product attributes
   totalCount: Int! # Total number of attributes
 }

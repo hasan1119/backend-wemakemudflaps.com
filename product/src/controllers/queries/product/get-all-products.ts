@@ -174,7 +174,7 @@ export const getAllProducts = async (
       crossSells: product.crossSells as any,
       attributes: product.attributes.map((attribute) => ({
         ...attribute,
-        systemAttributeId: attribute.systemAttributeRef.id || null,
+        systemAttributeId: attribute.systemAttributeRef?.id || null,
         createdBy: attribute.createdBy as any,
         values: attribute.values.map((value) => ({
           ...value,
