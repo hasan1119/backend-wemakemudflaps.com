@@ -68,6 +68,16 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       "attributes.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
+      "attributes.systemAttributeRef",
+      "attribute_systemAttribute",
+      "attribute_systemAttribute.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.copiedAttributes",
+      "attribute_copiedAttributes",
+      "attribute_copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
       "attributes.values",
       "attribute_values",
       "attribute_values.deletedAt IS NULL"
@@ -176,6 +186,16 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       "attributes.values",
       "attribute_values",
       "attribute_values.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.systemAttributeRef",
+      "attribute_systemAttribute",
+      "attribute_systemAttribute.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.copiedAttributes",
+      "attribute_copiedAttributes",
+      "attribute_copiedAttributes.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
       "product.variations",

@@ -116,15 +116,19 @@ export const getAllProductAttribute = async (
         name: attribute.name,
         slug: attribute.slug,
         systemAttribute: attribute.systemAttribute,
-        values: await Promise.all(
-          attribute.values.map(async (val: any) => ({
-            ...val,
-            attribute:
-              val.attribute && typeof val.attribute.then === "function"
-                ? await val.attribute
-                : val.attribute,
-          }))
-        ),
+        values: attribute.values.map((value) => ({
+          id: value.id,
+          value: value.value,
+          createdAt:
+            value.createdAt instanceof Date
+              ? value.createdAt.toISOString()
+              : value.createdAt,
+          deletedAt:
+            value.deletedAt instanceof Date
+              ? value.deletedAt.toISOString()
+              : value.deletedAt,
+        })),
+        systemAttributeId: attribute.systemAttributeRef.id || null,
         createdBy: attribute.createdBy as any,
         createdAt:
           attribute.createdAt instanceof Date

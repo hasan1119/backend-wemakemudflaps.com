@@ -7,6 +7,7 @@ import {
   createShippingClass,
   createShippingMethod,
   createShippingZone,
+  createSystemProductAttribute,
   createTag,
   createTaxClass,
   createTaxOptions,
@@ -157,6 +158,11 @@ export const productMutationsResolver = {
      * Restores previously deleted tax class.
      */
     restoreTaxClasses,
+
+    /**
+     * Creates a new system product attribute.
+     */
+    createSystemProductAttribute,
 
     /**
      * Creates a new product attribute.

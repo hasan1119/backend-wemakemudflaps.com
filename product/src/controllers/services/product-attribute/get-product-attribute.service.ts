@@ -23,6 +23,7 @@ export const getProductAttributeById = async (
       id,
       deletedAt: null,
     },
+    relations: ["values", "systemAttributeRef", "copiedAttributes"],
   });
 };
 
@@ -47,7 +48,7 @@ export const getProductAttributesByIds = async (
       id: In(ids),
       deletedAt: null,
     },
-    relations: ["values"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes"],
   });
 };
 
@@ -72,6 +73,7 @@ export const getProductAttributeValuesByIds = async (
       id: In(ids),
       deletedAt: null,
     },
+    relations: ["values", "systemAttributeRef", "copiedAttributes"],
   });
 };
 
@@ -89,7 +91,7 @@ export const findAttributeByName = async (
       name: ILike(name),
       deletedAt: null,
     },
-    relations: ["values"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes"],
   });
 };
 
@@ -113,7 +115,7 @@ export const findSystemAttributeByName = async (
       deletedAt: null,
       systemAttribute: true,
     },
-    relations: ["values"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes"],
   });
 };
 
@@ -137,7 +139,7 @@ export const findSystemAttributeBySlug = async (
       deletedAt: null,
       systemAttribute: true,
     },
-    relations: ["values"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes"],
   });
 };
 
@@ -155,7 +157,7 @@ export const findAttributeBySlug = async (
       slug: ILike(slug),
       deletedAt: null,
     },
-    relations: ["values"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes"],
   });
 };
 
@@ -177,6 +179,7 @@ export const findSystemAttributeByNameToUpdate = async (
       systemAttribute: true,
       deletedAt: null,
     },
+    relations: ["values", "systemAttributeRef", "copiedAttributes"],
   });
 };
 
@@ -198,6 +201,7 @@ export const findSystemAttributeBySlugToUpdate = async (
       systemAttribute: true,
       deletedAt: null,
     },
+    relations: ["values", "systemAttributeRef", "copiedAttributes"],
   });
 };
 

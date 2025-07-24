@@ -2,18 +2,6 @@ import { z } from "zod";
 import { SortOrderTypeEnum } from "../../common/common";
 
 /**
- * Defines the schema for validating product attribute values input.
- *
- * Workflow:
- * 1. Validates that the `value` is a non-empty string.
- *
- * @property value - The value of the product attribute, which must be a non-empty string.
- */
-export const ProductAttributeValueInputSchema = z.object({
-  value: z.string().min(1, "Attribute value cannot be empty").trim(),
-});
-
-/**
  * Defines the schema for creating a new product attribute.
  *
  * Workflow:
@@ -24,13 +12,19 @@ export const ProductAttributeValueInputSchema = z.object({
  * @property name - The name of the product attribute, which must be a non-empty string.
  * @property slug - A URL-friendly identifier for the product attribute, which must be a non-empty string.
  * @property values - An array of product attribute values, which must contain at least one value.
+ * @property systemAttributeId - An optional string representing the ID of a system attribute to replicate, which can be null.
  */
 export const CreateProductAttributeInputSchema = z.object({
   name: z.string().min(1, "Attribute name is required").trim(),
   slug: z.string().min(1, "Slug is required").trim(),
   values: z
-    .array(ProductAttributeValueInputSchema)
+    .array(z.string().min(1, "Value cannot be empty").trim())
     .min(1, "At least one value is required"),
+  systemAttributeId: z
+    .string()
+    .uuid("Invalid UUID ID format")
+    .optional()
+    .nullable(),
 });
 
 /**
@@ -61,7 +55,10 @@ export const UpdateProductAttributeInputSchema = z
       .trim()
       .optional()
       .nullable(),
-    values: z.array(ProductAttributeValueInputSchema).optional().nullable(),
+    values: z
+      .array(z.string().min(1, "Value cannot be empty").trim())
+      .optional()
+      .nullable(),
   })
   .refine(
     (data) =>

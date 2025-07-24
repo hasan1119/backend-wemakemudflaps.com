@@ -13,6 +13,7 @@ import {
   createSystemAttributeWithValues,
   findSystemAttributeByName,
   findSystemAttributeBySlug,
+  getProductAttributeById,
 } from "../../services";
 
 /**
@@ -91,10 +92,28 @@ export const handleCreateProductAttribute = async (
     }
   }
 
+  let existingCustomAttribute = null;
+
+  if (args.systemAttributeId) {
+    // Step 4: Check for existing custom attribute by name
+    existingCustomAttribute = await getProductAttributeById(
+      args.systemAttributeId
+    );
+
+    if (!existingCustomAttribute) {
+      return {
+        statusCode: 409,
+        success: false,
+        message: `System attribute with this id: ${args.systemAttributeId} does not exist`,
+        __typename: "BaseResponse",
+      };
+    }
+  }
+
   // Step 5: Create the attribute
   const productAttribute = isSystemAttribute
     ? await createSystemAttributeWithValues(user.id, args)
-    : await createAttributeWithValues(user.id, args);
+    : await createAttributeWithValues(user.id, args, existingCustomAttribute);
 
   return {
     statusCode: 201,
@@ -105,20 +124,18 @@ export const handleCreateProductAttribute = async (
       name: productAttribute.name,
       slug: productAttribute.slug,
       systemAttribute: productAttribute.systemAttribute,
-      values: await Promise.all(
-        productAttribute.values.map(async (val: any) => ({
-          ...val,
-          attribute:
-            val.attribute && typeof val.attribute.then === "function"
-              ? await val.attribute
-              : val.attribute,
-        }))
-      ),
-      createdBy: productAttribute.createdBy as any,
-      createdAt:
-        productAttribute.createdAt instanceof Date
-          ? productAttribute.createdAt.toISOString()
-          : productAttribute.createdAt,
+      values: productAttribute.values.map((value) => ({
+        id: value.id,
+        value: value.value,
+        createdAt:
+          value.createdAt instanceof Date
+            ? value.createdAt.toISOString()
+            : value.createdAt,
+        deletedAt:
+          value.deletedAt instanceof Date
+            ? value.deletedAt.toISOString()
+            : value.deletedAt,
+      })),
       deletedAt:
         productAttribute.deletedAt instanceof Date
           ? productAttribute.deletedAt.toISOString()

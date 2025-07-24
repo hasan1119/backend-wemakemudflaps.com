@@ -90,15 +90,19 @@ export const getProductAttributeById = async (
         name: dbProductAttribute.name,
         slug: dbProductAttribute.slug,
         systemAttribute: dbProductAttribute.systemAttribute,
-        values: await Promise.all(
-          dbProductAttribute.values.map(async (val: any) => ({
-            ...val,
-            attribute:
-              val.attribute && typeof val.attribute.then === "function"
-                ? await val.attribute
-                : val.attribute,
-          }))
-        ),
+        values: dbProductAttribute.values.map((value) => ({
+          id: value.id,
+          value: value.value,
+          createdAt:
+            value.createdAt instanceof Date
+              ? value.createdAt.toISOString()
+              : value.createdAt,
+          deletedAt:
+            value.deletedAt instanceof Date
+              ? value.deletedAt.toISOString()
+              : value.deletedAt,
+        })),
+        systemAttributeId: dbProductAttribute.systemAttributeRef?.id || null,
         createdBy: dbProductAttribute.createdBy as any,
         createdAt:
           dbProductAttribute.createdAt instanceof Date

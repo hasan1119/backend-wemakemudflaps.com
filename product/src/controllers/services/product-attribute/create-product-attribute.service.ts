@@ -1,6 +1,10 @@
 import { ProductAttribute } from "../../../entities";
 import { MutationCreateProductAttributeArgs } from "../../../types";
-import { productAttributeRepository } from "../repositories/repositories";
+import {
+  productAttributeRepository,
+  productAttributeValueRepository,
+} from "../repositories/repositories";
+import { getProductAttributeById } from "./get-product-attribute.service";
 
 /**
  * Creates a new system product attribute and its associated values.
@@ -19,16 +23,30 @@ export const createSystemAttributeWithValues = async (
 ): Promise<ProductAttribute> => {
   const { name, slug, values } = data ?? {};
 
-  // Step 1: Create the attribute
+  // Step 1: Create and save the attribute
   const newAttribute = productAttributeRepository.create({
     name,
     slug,
     systemAttribute: true,
-    values,
     createdBy: userId,
   });
 
-  return await productAttributeRepository.save(newAttribute);
+  const savedAttribute = await productAttributeRepository.save(newAttribute);
+
+  // Step 2: Create and save values if provided
+  if (values?.length) {
+    const valueEntities = values.map((val) =>
+      productAttributeValueRepository.create({
+        value: val,
+        attribute: { id: savedAttribute.id } as any,
+      })
+    );
+
+    await productAttributeValueRepository.save(valueEntities);
+  }
+
+  // Step 3: Return the full attribute with values loaded
+  return getProductAttributeById(savedAttribute.id);
 };
 
 /**
@@ -45,7 +63,8 @@ export const createSystemAttributeWithValues = async (
  */
 export const createAttributeWithValues = async (
   userId: string,
-  data: MutationCreateProductAttributeArgs
+  data: MutationCreateProductAttributeArgs,
+  existingCustomAttribute?: ProductAttribute | null
 ): Promise<ProductAttribute> => {
   const { name, slug, values } = data ?? {};
 
@@ -54,9 +73,27 @@ export const createAttributeWithValues = async (
     name,
     slug,
     systemAttribute: false,
-    values,
+    values: values?.map((value) => ({ value })),
+    systemAttributeRef: existingCustomAttribute
+      ? existingCustomAttribute
+      : null,
     createdBy: userId,
   });
 
-  return await productAttributeRepository.save(newAttribute);
+  const savedAttribute = await productAttributeRepository.save(newAttribute);
+
+  // Step 2: Create and save values if provided
+  if (values?.length) {
+    const valueEntities = values.map((val) =>
+      productAttributeValueRepository.create({
+        value: val,
+        attribute: { id: savedAttribute.id } as any,
+      })
+    );
+
+    await productAttributeValueRepository.save(valueEntities);
+  }
+
+  // Step 3: Return the full attribute with values loaded
+  return getProductAttributeById(savedAttribute.id);
 };

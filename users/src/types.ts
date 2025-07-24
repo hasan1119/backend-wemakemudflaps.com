@@ -892,7 +892,8 @@ export type MutationCreateProductArgs = {
 export type MutationCreateProductAttributeArgs = {
   name: Scalars['String']['input'];
   slug: Scalars['String']['input'];
-  values: Array<ProductAttributeValueInput>;
+  systemAttributeId?: InputMaybe<Scalars['String']['input']>;
+  values: Array<Scalars['String']['input']>;
 };
 
 
@@ -924,7 +925,7 @@ export type MutationCreateShippingZoneArgs = {
 export type MutationCreateSystemProductAttributeArgs = {
   name: Scalars['String']['input'];
   slug: Scalars['String']['input'];
-  values: Array<ProductAttributeValueInput>;
+  values: Array<Scalars['String']['input']>;
 };
 
 
@@ -1269,7 +1270,7 @@ export type MutationUpdateProductAttributeArgs = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
-  values: Array<ProductAttributeValueInput>;
+  values: Array<Scalars['String']['input']>;
 };
 
 
@@ -1553,6 +1554,7 @@ export type ProductAttribute = {
   name: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   systemAttribute: Scalars['Boolean']['output'];
+  systemAttributeId?: Maybe<Scalars['String']['output']>;
   values: Array<ProductAttributeValue>;
 };
 
@@ -1568,22 +1570,17 @@ export type ProductAttributePaginationResponse = {
 export type ProductAttributeResponse = {
   __typename?: 'ProductAttributeResponse';
   attribute?: Maybe<ProductAttribute>;
-  message?: Maybe<Scalars['String']['output']>;
+  message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
 };
 
 export type ProductAttributeValue = {
   __typename?: 'ProductAttributeValue';
-  attribute: ProductAttribute;
   createdAt?: Maybe<Scalars['String']['output']>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   value: Scalars['String']['output'];
-};
-
-export type ProductAttributeValueInput = {
-  value: Scalars['String']['input'];
 };
 
 export enum ProductDeliveryType {
@@ -3002,7 +2999,6 @@ export type ResolversTypes = {
   ProductAttributePaginationResponse: ResolverTypeWrapper<ProductAttributePaginationResponse>;
   ProductAttributeResponse: ResolverTypeWrapper<ProductAttributeResponse>;
   ProductAttributeValue: ResolverTypeWrapper<ProductAttributeValue>;
-  ProductAttributeValueInput: ProductAttributeValueInput;
   ProductDeliveryType: ProductDeliveryType;
   ProductPaginationResponse: ResolverTypeWrapper<ProductPaginationResponse>;
   ProductPrice: ResolverTypeWrapper<ProductPrice>;
@@ -3234,7 +3230,6 @@ export type ResolversParentTypes = {
   ProductAttributePaginationResponse: ProductAttributePaginationResponse;
   ProductAttributeResponse: ProductAttributeResponse;
   ProductAttributeValue: ProductAttributeValue;
-  ProductAttributeValueInput: ProductAttributeValueInput;
   ProductPaginationResponse: ProductPaginationResponse;
   ProductPrice: ProductPrice;
   ProductPriceInput: ProductPriceInput;
@@ -4135,6 +4130,7 @@ export type ProductAttributeResolvers<ContextType = Context, ParentType extends 
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   systemAttribute?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  systemAttributeId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   values?: Resolver<Array<ResolversTypes['ProductAttributeValue']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -4150,14 +4146,13 @@ export type ProductAttributePaginationResponseResolvers<ContextType = Context, P
 
 export type ProductAttributeResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductAttributeResponse'] = ResolversParentTypes['ProductAttributeResponse']> = {
   attribute?: Resolver<Maybe<ResolversTypes['ProductAttribute']>, ParentType, ContextType>;
-  message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ProductAttributeValueResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductAttributeValue'] = ResolversParentTypes['ProductAttributeValue']> = {
-  attribute?: Resolver<ResolversTypes['ProductAttribute'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;

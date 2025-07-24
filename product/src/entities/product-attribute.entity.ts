@@ -1,4 +1,11 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { ProductAttributeValue } from "./product-attribute-value.entity";
 
 @Entity()
@@ -24,6 +31,25 @@ export class ProductAttribute {
     (attributeValue) => attributeValue.attribute
   )
   values: ProductAttributeValue[];
+
+  // Many copied attributes can point to one system attribute
+  @ManyToOne(
+    () => ProductAttribute,
+    (attribute) => attribute.copiedAttributes,
+    {
+      nullable: true,
+      onDelete: "SET NULL", // optional: removes reference if system attribute is deleted
+    }
+  )
+  @JoinColumn({ name: "systemAttributeId" }) // ties this relation to the column
+  systemAttributeRef: ProductAttribute | null;
+
+  // One system attribute can have many replicated copies
+  @OneToMany(
+    () => ProductAttribute,
+    (attribute) => attribute.systemAttributeRef
+  )
+  copiedAttributes: ProductAttribute[];
 
   // User ID who created the product attribute (string only for Apollo Federation compatibility)
   @Column()

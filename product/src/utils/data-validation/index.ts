@@ -31,7 +31,6 @@ export {
 export {
   CreateProductAttributeInputSchema,
   productAttributeSortingSchema,
-  ProductAttributeValueInputSchema,
   UpdateProductAttributeInputSchema,
 } from "./product/product-attribute/product-attribute";
 

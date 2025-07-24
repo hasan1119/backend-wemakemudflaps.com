@@ -4,14 +4,15 @@ type Mutation {
   createSystemProductAttribute(
     name: String!
     slug: String! # URL-friendly identifier
-    values: [ProductAttributeValueInput!]!
+    values: [String!]!
   ): ProductAttributeResponse!
 
   # Create a new custom product attribute
   createProductAttribute(
     name: String!
     slug: String! # URL-friendly identifier
-    values: [ProductAttributeValueInput!]!
+    values: [String!]!
+    systemAttributeId: String # ID of the system attribute to replicate
   ): ProductAttributeResponse!
 
   # Update an existing product attribute.
@@ -19,7 +20,7 @@ type Mutation {
     id: ID!
     name: String
     slug: String
-    values: [ProductAttributeValueInput!]!
+    values: [String!]!
   ): ProductAttributeResponse!
 
   # Delete a product attribute.

@@ -7,6 +7,7 @@ type ProductAttribute {
   slug: String! # URL-friendly identifier
   systemAttribute: Boolean! # Indicates if this is a system attribute
   values: [ProductAttributeValue!]! # List of possible values for this attribute
+  systemAttributeId: String # ID of the system attribute (if applicable)
   createdBy: CreatedBy # Creator identifier
   createdAt: String # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion (if any)
@@ -18,21 +19,15 @@ type ProductAttribute {
 type ProductAttributeValue {
   id: ID! # Unique identifier
   value: String! # The value (e.g., "Red")
-  attribute: ProductAttribute! # The related attribute
   createdAt: String # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion
-}
-
-# ---------------------- Input Types for Mutations ----------------------
-input ProductAttributeValueInput {
-  value: String! # The value for the attribute
 }
 
 # ---------------------- Response Types ----------------------
 type ProductAttributeResponse {
   statusCode: Int!
   success: Boolean! # Indicates if the operation was successful
-  message: String # Optional message
+  message: String! # Optional message
   attribute: ProductAttribute # The created or updated product attribute
 }
 
