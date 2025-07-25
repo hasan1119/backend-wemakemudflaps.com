@@ -10,7 +10,7 @@ import { getProductAttributeById } from "./get-product-attribute.service";
  * Creates a new system product attribute and its associated values.
  *
  * Workflow:
- * 1. Creates a new product attribute entity with name, slug, systemAttribute set to true.
+ * 1. Creates a new product attribute entity with name, slug, systemAttribute(true), forVariation, visible.
  * 2. If provided, creates associated ProductAttributeValue entities.
  * 3. Returns the full attribute with values.
  *
@@ -53,7 +53,7 @@ export const createSystemAttributeWithValues = async (
  * Creates a new custom product attribute and its associated values.
  *
  * Workflow:
- * 1. Creates a new product attribute entity with name, slug, systemAttribute set to false.
+ * 1. Creates a new product attribute entity with name, slug, systemAttribute(false), forVariation, visible.
  * 2. If provided, creates associated ProductAttributeValue entities.
  * 3. Returns the full attribute with values.
  *

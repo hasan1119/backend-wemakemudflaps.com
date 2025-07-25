@@ -9,7 +9,7 @@ import { getProductAttributeById } from "./get-product-attribute.service";
  * Updates a product attribute and replaces all its values.
  *
  * Workflow:
- * 1. Updates the attribute's main fields (name, slug, systemAttribute).
+ * 1. Updates the attribute's main fields (name, slug, systemAttribute, forVariation, visible).
  * 2. Soft deletes existing attribute values.
  * 3. Creates new values.
  * 4. Returns the updated attribute with fresh values.
