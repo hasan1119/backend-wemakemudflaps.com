@@ -1,11 +1,8 @@
 import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Category, Product } from "../../../entities";
 import {
-  Category as CategoryGql,
   GetCouponsResponseOrError,
-  Product as ProductGql,
   QueryGetAllCouponsArgs,
 } from "../../../types";
 import {
@@ -17,115 +14,6 @@ import {
   checkUserPermission,
   paginateCoupons,
 } from "../../services";
-
-function isDate(value: any): value is Date {
-  return Object.prototype.toString.call(value) === "[object Date]";
-}
-
-function mapCategoryEntityToGql(category: Category | null): CategoryGql | null {
-  if (!category) return null;
-
-  return {
-    ...category,
-    createdAt: isDate(category.createdAt)
-      ? category.createdAt.toISOString()
-      : category.createdAt,
-    deletedAt: isDate(category.deletedAt)
-      ? category.deletedAt.toISOString()
-      : category.deletedAt,
-    parentCategory: category.parentCategory
-      ? mapCategoryEntityToGql(category.parentCategory)
-      : null,
-    subCategories: category.subCategories?.map(mapCategoryEntityToGql) || [],
-    createdBy: category.createdBy as any,
-    thumbnail: category.thumbnail as any,
-  };
-}
-
-function mapProductEntityToGql(product: Product | null): ProductGql | null {
-  if (!product) return null;
-
-  return {
-    ...product,
-    defaultImage: product.defaultImage as any,
-    images: product.images as any,
-    videos: product.videos as any,
-    brands: product.brands?.map((brand) => ({
-      ...brand,
-      thumbnail: brand.thumbnail as any,
-      createdBy: brand.createdBy as any,
-      createdAt:
-        brand.createdAt instanceof Date
-          ? brand.createdAt.toISOString()
-          : brand.createdAt,
-      deletedAt: brand.deletedAt
-        ? brand.deletedAt instanceof Date
-          ? brand.deletedAt.toISOString()
-          : brand.deletedAt
-        : null,
-    })),
-    tags: product.tags?.map((tag) => ({
-      ...tag,
-      createdBy: tag.createdBy as any,
-      createdAt:
-        tag.createdAt instanceof Date
-          ? tag.createdAt.toISOString()
-          : tag.createdAt,
-      deletedAt: tag.deletedAt
-        ? tag.deletedAt instanceof Date
-          ? tag.deletedAt.toISOString()
-          : tag.deletedAt
-        : null,
-    })),
-    categories: product.categories?.map(mapCategoryEntityToGql) || [],
-    salePriceStartAt: product.salePriceStartAt?.toISOString(),
-    salePriceEndAt: product.salePriceEndAt?.toISOString(),
-    tierPricingInfo: product.tierPricingInfo as any,
-    taxStatus: product.taxStatus as any,
-    taxClass: product.taxClass as any,
-    shippingClass: product.shippingClass as any,
-    upsells: product.upsells as any,
-    crossSells: product.crossSells as any,
-    attributes: product.attributes.map((attribute) => ({
-      ...attribute,
-      createdBy: attribute.createdBy as any,
-      values: attribute.values.map((value) => ({
-        ...value,
-        attribute: value.attribute as any,
-        createdAt:
-          value.createdAt instanceof Date
-            ? value.createdAt.toISOString()
-            : value.createdAt,
-        deletedAt: value.deletedAt
-          ? value.deletedAt instanceof Date
-            ? value.deletedAt.toISOString()
-            : value.deletedAt
-          : null,
-      })),
-      createdAt:
-        attribute.createdAt instanceof Date
-          ? attribute.createdAt.toISOString()
-          : attribute.createdAt,
-      deletedAt: attribute.deletedAt
-        ? attribute.deletedAt instanceof Date
-          ? attribute.deletedAt.toISOString()
-          : attribute.deletedAt
-        : null,
-    })),
-    variations: product.variations as any,
-    reviews: product.reviews as any,
-    createdBy: product.createdBy as any,
-    createdAt:
-      product.createdAt instanceof Date
-        ? product.createdAt.toISOString()
-        : product.createdAt,
-    deletedAt: product.deletedAt
-      ? product.deletedAt instanceof Date
-        ? product.deletedAt.toISOString()
-        : product.deletedAt
-      : null,
-  };
-}
 
 // Combine pagination and sorting schemas for validation
 const combinedSchema = z.intersection(paginationSchema, productSortingSchema);
@@ -231,13 +119,25 @@ export const getAllCoupons = async (
       freeShipping: coupon.freeShipping,
       usageCount: coupon.usageCount,
       applicableCategories:
-        coupon.applicableCategories?.map(mapCategoryEntityToGql) || [],
+        coupon.applicableCategories?.map((c) => ({
+          id: c.id,
+          name: c.name,
+        })) || [],
       excludedCategories:
-        coupon.excludedCategories?.map(mapCategoryEntityToGql) || [],
+        coupon.excludedCategories?.map((c) => ({
+          id: c.id,
+          name: c.name,
+        })) || [],
       applicableProducts:
-        coupon.applicableProducts?.map(mapProductEntityToGql) || [],
+        coupon.applicableProducts?.map((c) => ({
+          id: c.id,
+          name: c.name,
+        })) || [],
       excludedProducts:
-        coupon.excludedProducts?.map(mapProductEntityToGql) || [],
+        coupon.excludedProducts?.map((c) => ({
+          id: c.id,
+          name: c.name,
+        })) || [],
       createdBy: coupon.createdBy as any,
       createdAt:
         coupon.createdAt instanceof Date

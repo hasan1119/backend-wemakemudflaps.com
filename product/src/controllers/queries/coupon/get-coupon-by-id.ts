@@ -1,10 +1,7 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { Category, Product } from "../../../entities";
 import {
-  Category as CategoryGql,
   GetCouponByIdResponseOrError,
-  Product as ProductGql,
   QueryGetCouponByIdArgs,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
@@ -13,115 +10,6 @@ import {
   checkUserPermission,
   getCouponById as getCouponByIdService,
 } from "../../services";
-
-function isDate(value: any): value is Date {
-  return Object.prototype.toString.call(value) === "[object Date]";
-}
-
-function mapCategoryEntityToGql(category: Category | null): CategoryGql | null {
-  if (!category) return null;
-
-  return {
-    ...category,
-    createdAt: isDate(category.createdAt)
-      ? category.createdAt.toISOString()
-      : category.createdAt,
-    deletedAt: isDate(category.deletedAt)
-      ? category.deletedAt.toISOString()
-      : category.deletedAt,
-    parentCategory: category.parentCategory
-      ? mapCategoryEntityToGql(category.parentCategory)
-      : null,
-    subCategories: category.subCategories?.map(mapCategoryEntityToGql) || [],
-    createdBy: category.createdBy as any,
-    thumbnail: category.thumbnail as any,
-  };
-}
-
-function mapProductEntityToGql(product: Product | null): ProductGql | null {
-  if (!product) return null;
-
-  return {
-    ...product,
-    defaultImage: product.defaultImage as any,
-    images: product.images as any,
-    videos: product.videos as any,
-    brands: product.brands?.map((brand) => ({
-      ...brand,
-      thumbnail: brand.thumbnail as any,
-      createdBy: brand.createdBy as any,
-      createdAt:
-        brand.createdAt instanceof Date
-          ? brand.createdAt.toISOString()
-          : brand.createdAt,
-      deletedAt: brand.deletedAt
-        ? brand.deletedAt instanceof Date
-          ? brand.deletedAt.toISOString()
-          : brand.deletedAt
-        : null,
-    })),
-    tags: product.tags?.map((tag) => ({
-      ...tag,
-      createdBy: tag.createdBy as any,
-      createdAt:
-        tag.createdAt instanceof Date
-          ? tag.createdAt.toISOString()
-          : tag.createdAt,
-      deletedAt: tag.deletedAt
-        ? tag.deletedAt instanceof Date
-          ? tag.deletedAt.toISOString()
-          : tag.deletedAt
-        : null,
-    })),
-    categories: product.categories?.map(mapCategoryEntityToGql) || [],
-    salePriceStartAt: product.salePriceStartAt?.toISOString(),
-    salePriceEndAt: product.salePriceEndAt?.toISOString(),
-    tierPricingInfo: product.tierPricingInfo as any,
-    taxStatus: product.taxStatus as any,
-    taxClass: product.taxClass as any,
-    shippingClass: product.shippingClass as any,
-    upsells: product.upsells as any,
-    crossSells: product.crossSells as any,
-    attributes: product.attributes.map((attribute) => ({
-      ...attribute,
-      createdBy: attribute.createdBy as any,
-      values: attribute.values.map((value) => ({
-        ...value,
-        attribute: value.attribute as any,
-        createdAt:
-          value.createdAt instanceof Date
-            ? value.createdAt.toISOString()
-            : value.createdAt,
-        deletedAt: value.deletedAt
-          ? value.deletedAt instanceof Date
-            ? value.deletedAt.toISOString()
-            : value.deletedAt
-          : null,
-      })),
-      createdAt:
-        attribute.createdAt instanceof Date
-          ? attribute.createdAt.toISOString()
-          : attribute.createdAt,
-      deletedAt: attribute.deletedAt
-        ? attribute.deletedAt instanceof Date
-          ? attribute.deletedAt.toISOString()
-          : attribute.deletedAt
-        : null,
-    })),
-    variations: product.variations as any,
-    reviews: product.reviews as any,
-    createdBy: product.createdBy as any,
-    createdAt:
-      product.createdAt instanceof Date
-        ? product.createdAt.toISOString()
-        : product.createdAt,
-    deletedAt: product.deletedAt
-      ? product.deletedAt instanceof Date
-        ? product.deletedAt.toISOString()
-        : product.deletedAt
-      : null,
-  };
-}
 
 /**
  * Handles the get coupon by ID in the system.
@@ -216,14 +104,25 @@ export const getCouponById = async (
         freeShipping: existingCoupon.freeShipping,
         usageCount: existingCoupon.usageCount,
         applicableCategories:
-          existingCoupon.applicableCategories?.map(mapCategoryEntityToGql) ||
-          [],
+          existingCoupon.applicableCategories?.map((c) => ({
+            id: c.id,
+            name: c.name,
+          })) || [],
         excludedCategories:
-          existingCoupon.excludedCategories?.map(mapCategoryEntityToGql) || [],
+          existingCoupon.excludedCategories?.map((c) => ({
+            id: c.id,
+            name: c.name,
+          })) || [],
         applicableProducts:
-          existingCoupon.applicableProducts?.map(mapProductEntityToGql) || [],
+          existingCoupon.applicableProducts?.map((c) => ({
+            id: c.id,
+            name: c.name,
+          })) || [],
         excludedProducts:
-          existingCoupon.excludedProducts?.map(mapProductEntityToGql) || [],
+          existingCoupon.excludedProducts?.map((c) => ({
+            id: c.id,
+            name: c.name,
+          })) || [],
         createdBy: existingCoupon.createdBy as any,
         createdAt:
           existingCoupon.createdAt instanceof Date
