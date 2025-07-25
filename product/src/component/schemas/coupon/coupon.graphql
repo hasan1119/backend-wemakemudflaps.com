@@ -21,10 +21,10 @@ type Coupon {
   maxUsage: Float
   minimumSpend: Float
   maximumSpend: Float
-  applicableProducts: [CouponProduct!]
-  excludedProducts: [CouponProduct!]
-  applicableCategories: [CouponCategory!]
-  excludedCategories: [CouponCategory!]
+  applicableProducts: [CouponProduct!]!
+  excludedProducts: [CouponProduct!]!
+  applicableCategories: [CouponCategory!]!
+  excludedCategories: [CouponCategory!]!
   allowedEmails: [String!]!
   usageCount: Float
   createdBy: CreatedBy

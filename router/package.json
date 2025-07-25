@@ -3,7 +3,7 @@
   "scripts": {
     "gen:sg": "sudo rover supergraph compose --config supergraph.yaml --elv2-license accept > supergraph.graphql",
     "start": "./router --config router.yaml --supergraph supergraph.graphql",
-    "dev": "rover dev --supergraph-config ./supergraph.yaml --router-config ./router.yaml --client-timeout 6100000",
+    "dev": "rover dev --supergraph-config ./supergraph.yaml --router-config ./router.yaml --client-timeout 6100000 --elv2-license accept",
     "server": "pm2 start rover --name steven_router -- dev --supergraph-config ./supergraph.yaml --router-config ./router.yaml",
     "pm2": "pm2 start 'sudo rover supergraph compose --config supergraph.yaml --elv2-license accept > supergraph.graphql && ./router --config router.yaml --supergraph supergraph.graphql' --name 'steven_router'"
   }

@@ -93,7 +93,7 @@ export const getCouponById = async (
         description: existingCoupon.description,
         discountType: existingCoupon.discountType,
         discountValue: existingCoupon.discountValue,
-        allowedEmails: existingCoupon.allowedEmails,
+        allowedEmails: existingCoupon.allowedEmails ?? [],
         expiryDate:
           existingCoupon.expiryDate instanceof Date
             ? existingCoupon.expiryDate.toISOString()

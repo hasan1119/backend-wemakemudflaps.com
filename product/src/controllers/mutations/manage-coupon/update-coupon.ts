@@ -170,7 +170,7 @@ export const updateCoupon = async (
         description: coupon.description,
         discountType: coupon.discountType,
         discountValue: coupon.discountValue,
-        allowedEmails: coupon.allowedEmails,
+        allowedEmails: coupon.allowedEmails ?? [],
         expiryDate:
           coupon.expiryDate instanceof Date
             ? coupon.expiryDate.toISOString()
