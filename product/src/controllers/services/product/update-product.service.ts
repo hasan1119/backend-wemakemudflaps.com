@@ -94,29 +94,22 @@ export const updateProduct = async (
   if (data.taxStatus) product.taxStatus = data.taxStatus;
 
   // Replace relational fields
-  if (data.categoryIds !== undefined) {
-    if (data.categoryIds.length === 0 || data.categoryIds === null) {
-      product.categories = [];
-    } else {
-      product.categories = data.categoryIds.map((id) => ({ id })) as any;
-    }
+  if (Array.isArray(data.categoryIds)) {
+    product.categories = data.categoryIds.length
+      ? data.categoryIds.map((id) => ({ id }))
+      : ([] as any);
   }
 
-  if (data.brandIds !== undefined) {
-    if (data.brandIds.length === 0 || data.brandIds === null) {
-      product.brands = [];
-    } else {
-      product.brands = data.brandIds.map((id) => ({ id })) as any;
-    }
+  if (Array.isArray(data.brandIds)) {
+    product.brands = data.brandIds.length
+      ? data.brandIds.map((id) => ({ id }))
+      : ([] as any);
   }
 
-  if (data.tagIds !== undefined) {
-    if (data.tagIds.length === 0 || data.tagIds === null) {
-      product.tags = [];
-    } else {
-      // Ensure tags are mapped correctly
-      product.tags = data.tagIds.map((id) => ({ id })) as any;
-    }
+  if (Array.isArray(data.tagIds)) {
+    product.tags = data.tagIds.length
+      ? data.tagIds.map((id) => ({ id }))
+      : ([] as any);
   }
 
   if (data.taxClassId !== undefined) {
@@ -181,23 +174,17 @@ export const updateProduct = async (
   }
 
   // Replace upsells
-  if (data.upsellIds !== undefined) {
-    if (data.upsellIds.length === 0 || data.upsellIds === null) {
-      product.upsells = [];
-    } else {
-      // Ensure upsells are mapped correctly
-      product.upsells = data.upsellIds.map((id) => ({ id })) as any;
-    }
+  if (Array.isArray(data.upsellIds)) {
+    product.upsells = data.upsellIds.length
+      ? data.upsellIds.map((id) => ({ id }))
+      : ([] as any);
   }
 
   // Replace cross sells
-  if (data.crossSellIds !== undefined) {
-    if (data.crossSellIds.length === 0 || data.crossSellIds === null) {
-      product.crossSells = [];
-    } else {
-      // Ensure cross-sells are mapped correctly
-      product.crossSells = data.crossSellIds.map((id) => ({ id })) as any;
-    }
+  if (Array.isArray(data.crossSellIds)) {
+    product.crossSells = data.crossSellIds.length
+      ? data.crossSellIds.map((id) => ({ id }))
+      : ([] as any);
   }
 
   // Replace tier pricing info for main product
