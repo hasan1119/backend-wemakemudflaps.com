@@ -5,7 +5,7 @@ type Product @key(fields: "id") {
   # ---------------------- Identification ----------------------
   id: ID # Optional product ID (used for updates)
   productConfigurationType: String # Product type (e.g., simple, variable and customized)
-  productDeliveryType: [String!]! # Product type (e.g., physical, virtual and downloadable)
+  productDeliveryType: [String!] # Product type (e.g., physical, virtual and downloadable)
   isCustomized: Boolean! # Product is customized or not
   name: String! # Product name
   slug: String! # Product slug
@@ -17,7 +17,7 @@ type Product @key(fields: "id") {
   images: [Media!] # Gallery images
   videos: [Media!] # Videos
   # ---------------------- Descriptions & Tags ----------------------
-  defaultMainDescription: String! # Full product description
+  defaultMainDescription: String # Full product description
   defaultShortDescription: String # Short description
   customBadge: String # Custom badge text (e.g., "New")
   purchaseNote: String # Note shown after purchase
@@ -30,7 +30,7 @@ type Product @key(fields: "id") {
   defaultWarrantyPeriod: String # Warranty period (e.g., day, days, week, weeks, month, months, year, years, life_time)
   warrantyPolicy: String # Warranty policy description
   # ---------------------- Pricing ----------------------
-  regularPrice: Float! # Regular price
+  regularPrice: Float # Regular price
   salePrice: Float # Sale price (optional)
   salePriceStartAt: String # Sale start date (ISO format)
   salePriceEndAt: String # Sale end date (ISO format)
@@ -61,11 +61,11 @@ type Product @key(fields: "id") {
   height: Float # Height
   # ---------------------- Associations ----------------------
   shippingClass: ShippingClass # Related shipping class
-  upsells: [Product!]! # List of upsell product
-  crossSells: [Product!]! # List of cross-sell product
-  attributes: [ProductAttribute!]! # Product attribute
-  variations: [ProductVariation!]! # Associated variations
-  reviews: [ProductReview!]! # List of review
+  upsells: [Product!] # List of upsell product
+  crossSells: [Product!] # List of cross-sell product
+  attributes: [ProductAttribute!] # Product attribute
+  variations: [ProductVariation!] # Associated variations
+  reviews: [ProductReview!] # List of review
   # ---------------------- Display ----------------------
   enableReviews: Boolean # Enable product reviews
   isVisible: Boolean # Determines frontend visibility

@@ -94,29 +94,52 @@ export const updateProduct = async (
   if (data.taxStatus) product.taxStatus = data.taxStatus;
 
   // Replace relational fields
-  if (Array.isArray(data.categoryIds)) {
-    product.categories = data.categoryIds.length
-      ? data.categoryIds.map((id) => ({ id }))
-      : ([] as any);
+
+  if (data.categoryIds !== undefined) {
+    if (data.categoryIds === null) {
+      product.categories = [];
+    } else {
+      product.categories = data.categoryIds.length
+        ? data.categoryIds.map((id) => ({ id }))
+        : ([] as any);
+    }
   }
 
-  if (Array.isArray(data.brandIds)) {
-    product.brands = data.brandIds.length
-      ? data.brandIds.map((id) => ({ id }))
-      : ([] as any);
+  if (data.brandIds !== undefined) {
+    if (data.brandIds === null) {
+      product.brands = [];
+    } else {
+      product.brands = data.brandIds.length
+        ? data.brandIds.map((id) => ({ id }))
+        : ([] as any);
+    }
   }
 
-  if (Array.isArray(data.tagIds)) {
-    product.tags = data.tagIds.length
-      ? data.tagIds.map((id) => ({ id }))
-      : ([] as any);
+  if (data.tagIds !== undefined) {
+    if (data.tagIds === null) {
+      product.tags = [];
+    } else {
+      product.tags = data.tagIds.length
+        ? data.tagIds.map((id) => ({ id }))
+        : ([] as any);
+    }
   }
 
   if (data.taxClassId !== undefined) {
-    product.taxClass = data.taxClassId as any;
+    if (data.taxClassId === null) {
+      product.taxClass = null;
+    } else {
+      product.taxClass = data.taxClassId
+        ? ({ id: data.taxClassId } as any)
+        : null;
+    }
   }
 
   if (data.shippingClassId !== undefined) {
+    if (data.shippingClassId === null) {
+      product.shippingClass = null;
+    }
+  } else {
     product.shippingClass = data.shippingClassId
       ? ({ id: data.shippingClassId } as any)
       : null;
@@ -174,17 +197,26 @@ export const updateProduct = async (
   }
 
   // Replace upsells
-  if (Array.isArray(data.upsellIds)) {
-    product.upsells = data.upsellIds.length
-      ? data.upsellIds.map((id) => ({ id }))
-      : ([] as any);
-  }
 
+  if (data.upsellIds !== undefined) {
+    if (data.upsellIds === null) {
+      product.upsells = [];
+    } else {
+      product.upsells = data.upsellIds.length
+        ? data.upsellIds.map((id) => ({ id }))
+        : ([] as any);
+    }
+  }
   // Replace cross sells
-  if (Array.isArray(data.crossSellIds)) {
-    product.crossSells = data.crossSellIds.length
-      ? data.crossSellIds.map((id) => ({ id }))
-      : ([] as any);
+
+  if (data.crossSellIds !== undefined) {
+    if (data.crossSellIds === null) {
+      product.crossSells = [];
+    } else {
+      product.crossSells = data.crossSellIds.length
+        ? data.crossSellIds.map((id) => ({ id }))
+        : ([] as any);
+    }
   }
 
   // Replace tier pricing info for main product

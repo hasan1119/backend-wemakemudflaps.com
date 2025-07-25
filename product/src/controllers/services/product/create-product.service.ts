@@ -128,7 +128,7 @@ export const createProduct = async (
       : null,
     brands: brandIds?.length ? brandIds.map((id) => ({ id })) : null,
     tags: tagIds?.length ? (tagIds.map((id) => ({ id })) as any) : null,
-    taxClass: { id: taxClassId } as any,
+    taxClass: taxClassId ? ({ id: taxClassId } as any) : null,
     taxStatus: taxStatus,
     shippingClass: shippingClassId ? ({ id: shippingClassId } as any) : null,
     attributes: attributeIds?.length
@@ -144,8 +144,6 @@ export const createProduct = async (
   });
 
   const savedProduct = await productRepository.save(product);
-
-  console.log(savedProduct);
 
   const processedVariations = variations?.map((v) => {
     return {

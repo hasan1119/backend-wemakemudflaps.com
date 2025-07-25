@@ -26,6 +26,9 @@ import {
  * Maps a Category entity to GraphQL-compatible plain object including nested subcategories recursively.
  */
 function mapCategoryRecursive(category: Category): any {
+  if (!category) {
+    return null;
+  }
   return {
     id: category.id,
     name: category.name,
@@ -54,6 +57,9 @@ function mapCategoryRecursive(category: Category): any {
  * Maps a ProductPrice entity to a plain object for GraphQL response.
  */
 function mapProductPrice(price: ProductPrice): any {
+  if (!price) {
+    return null;
+  }
   return {
     id: price.id,
     pricingType: price.pricingType,
@@ -84,9 +90,7 @@ async function mapProductRecursive(
   visited.add(product.id);
 
   const baseProduct = {
-    id: product.id,
-    name: product.name,
-    slug: product.slug,
+    ...product,
     defaultImage: product.defaultImage as any,
     images: product.images as any,
     videos: product.videos as any,
@@ -502,7 +506,7 @@ export const updateProduct = async (
       statusCode: 200,
       success: true,
       message: "Product updated successfully",
-      product: await mapProductRecursive(productData),
+      product: await mapProductRecursive(product),
       __typename: "ProductResponse",
     };
   } catch (error: any) {

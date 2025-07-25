@@ -1490,15 +1490,15 @@ export enum PricingTypeEnum {
 export type Product = {
   __typename?: 'Product';
   allowBackOrders?: Maybe<Scalars['String']['output']>;
-  attributes: Array<ProductAttribute>;
+  attributes?: Maybe<Array<ProductAttribute>>;
   brands?: Maybe<Array<Brand>>;
   categories?: Maybe<Array<Category>>;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
-  crossSells: Array<Product>;
+  crossSells?: Maybe<Array<Product>>;
   customBadge?: Maybe<Scalars['String']['output']>;
   defaultImage?: Maybe<Media>;
-  defaultMainDescription: Scalars['String']['output'];
+  defaultMainDescription?: Maybe<Scalars['String']['output']>;
   defaultQuantity?: Maybe<Scalars['Int']['output']>;
   defaultShortDescription?: Maybe<Scalars['String']['output']>;
   defaultWarrantyPeriod?: Maybe<Scalars['String']['output']>;
@@ -1519,11 +1519,11 @@ export type Product = {
   model?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   productConfigurationType?: Maybe<Scalars['String']['output']>;
-  productDeliveryType: Array<Scalars['String']['output']>;
+  productDeliveryType?: Maybe<Array<Scalars['String']['output']>>;
   purchaseNote?: Maybe<Scalars['String']['output']>;
   quantityStep?: Maybe<Scalars['Int']['output']>;
-  regularPrice: Scalars['Float']['output'];
-  reviews: Array<ProductReview>;
+  regularPrice?: Maybe<Scalars['Float']['output']>;
+  reviews?: Maybe<Array<ProductReview>>;
   salePrice?: Maybe<Scalars['Float']['output']>;
   salePriceEndAt?: Maybe<Scalars['String']['output']>;
   salePriceStartAt?: Maybe<Scalars['String']['output']>;
@@ -1539,8 +1539,8 @@ export type Product = {
   taxClass?: Maybe<TaxClass>;
   taxStatus?: Maybe<Scalars['String']['output']>;
   tierPricingInfo?: Maybe<ProductPrice>;
-  upsells: Array<Product>;
-  variations: Array<ProductVariation>;
+  upsells?: Maybe<Array<Product>>;
+  variations?: Maybe<Array<ProductVariation>>;
   videos?: Maybe<Array<Media>>;
   warrantyDigit?: Maybe<Scalars['Int']['output']>;
   warrantyPolicy?: Maybe<Scalars['String']['output']>;
@@ -4068,15 +4068,15 @@ export type PersonalizedWithRolePermissionResponseResolvers<ContextType = Contex
 
 export type ProductResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Product'] = ResolversParentTypes['Product']> = {
   allowBackOrders?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  attributes?: Resolver<Array<ResolversTypes['ProductAttribute']>, ParentType, ContextType>;
+  attributes?: Resolver<Maybe<Array<ResolversTypes['ProductAttribute']>>, ParentType, ContextType>;
   brands?: Resolver<Maybe<Array<ResolversTypes['Brand']>>, ParentType, ContextType>;
   categories?: Resolver<Maybe<Array<ResolversTypes['Category']>>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
-  crossSells?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
+  crossSells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
   customBadge?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   defaultImage?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
-  defaultMainDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  defaultMainDescription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   defaultQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   defaultShortDescription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   defaultWarrantyPeriod?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -4097,11 +4097,11 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   model?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   productConfigurationType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  productDeliveryType?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  productDeliveryType?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   purchaseNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   quantityStep?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  regularPrice?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  reviews?: Resolver<Array<ResolversTypes['ProductReview']>, ParentType, ContextType>;
+  regularPrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  reviews?: Resolver<Maybe<Array<ResolversTypes['ProductReview']>>, ParentType, ContextType>;
   salePrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   salePriceEndAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   salePriceStartAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -4117,8 +4117,8 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   taxClass?: Resolver<Maybe<ResolversTypes['TaxClass']>, ParentType, ContextType>;
   taxStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   tierPricingInfo?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
-  upsells?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
-  variations?: Resolver<Array<ResolversTypes['ProductVariation']>, ParentType, ContextType>;
+  upsells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
+  variations?: Resolver<Maybe<Array<ResolversTypes['ProductVariation']>>, ParentType, ContextType>;
   videos?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   warrantyDigit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   warrantyPolicy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
