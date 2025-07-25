@@ -24,10 +24,12 @@ export const updateAttributeWithValues = async (
 ): Promise<ProductAttribute> => {
   // Step 1: Update attribute fields
   await productAttributeRepository.update(attributeId, {
-    ...(data.name !== undefined && { name: data.name }),
-    ...(data.slug !== undefined && { slug: data.slug }),
-    ...(data.forVariation !== undefined && { forVariation: data.forVariation }),
-    ...(data.visible !== undefined && { visible: data.visible }),
+    ...(data.name !== undefined && data.name !== null && { name: data.name }),
+    ...(data.slug !== undefined && data.slug !== null && { slug: data.slug }),
+    ...(data.forVariation !== undefined &&
+      data.forVariation !== null && { forVariation: data.forVariation }),
+    ...(data.visible !== undefined &&
+      data.visible !== null && { visible: data.visible }),
   });
 
   // Step 2: Hard delete existing values
