@@ -48,16 +48,16 @@ export const createCoupon = async (
     allowedEmails: allowedEmails?.length ? allowedEmails : null,
     usageCount: 0,
     createdBy: userId ?? null,
-    applicableProducts: applicableProducts.length
+    applicableProducts: applicableProducts?.length
       ? applicableProducts.map((id) => ({ id }))
       : null,
-    excludedProducts: excludedProducts.length
+    excludedProducts: excludedProducts?.length
       ? excludedProducts.map((id) => ({ id }))
       : null,
-    excludedCategories: excludedCategories.length
+    excludedCategories: excludedCategories?.length
       ? excludedCategories.map((id) => ({ id }))
       : null,
-    applicableCategories: applicableCategories.length
+    applicableCategories: applicableCategories?.length
       ? applicableCategories.map((id) => ({ id }))
       : null,
   });
