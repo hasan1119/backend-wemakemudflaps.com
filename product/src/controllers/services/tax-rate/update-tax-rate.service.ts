@@ -15,17 +15,24 @@ export const updateTaxRate = async (
   data: Partial<MutationUpdateTaxRateArgs>
 ): Promise<TaxRate> => {
   await taxRateRepository.update(taxRateId, {
-    ...(data.country !== undefined && { country: data.country }),
-    ...(data.state !== undefined && { state: data.state }),
-    ...(data.city !== undefined && { city: data.city }),
-    ...(data.postcode !== undefined && { postcode: data.postcode }),
-    ...(data.rate !== undefined && { rate: data.rate }),
-    ...(data.label !== undefined && { label: data.label }),
-    ...(data.appliesToShipping !== undefined && {
-      appliesToShipping: data.appliesToShipping,
-    }),
-    ...(data.isCompound !== undefined && { isCompound: data.isCompound }),
-    ...(data.priority !== undefined && { priority: data.priority }),
+    ...(data.country !== undefined &&
+      data.country !== null && { country: data.country }),
+    ...(data.state !== undefined &&
+      data.state !== null && { state: data.state }),
+    ...(data.city !== undefined && data.city !== null && { city: data.city }),
+    ...(data.postcode !== undefined &&
+      data.postcode !== null && { postcode: data.postcode }),
+    ...(data.rate !== undefined && data.rate !== null && { rate: data.rate }),
+    ...(data.label !== undefined &&
+      data.label !== null && { label: data.label }),
+    ...(data.appliesToShipping !== undefined &&
+      data.appliesToShipping !== null && {
+        appliesToShipping: data.appliesToShipping,
+      }),
+    ...(data.isCompound !== undefined &&
+      data.isCompound !== null && { isCompound: data.isCompound }),
+    ...(data.priority !== undefined &&
+      data.priority !== null && { priority: data.priority }),
   });
 
   return await getTaxRateById(taxRateId);

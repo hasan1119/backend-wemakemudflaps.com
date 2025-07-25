@@ -95,15 +95,28 @@ export const updateProduct = async (
 
   // Replace relational fields
   if (data.categoryIds !== undefined) {
-    product.categories = data.categoryIds.map((id) => ({ id })) as any;
+    if (data.categoryIds.length === 0 || data.categoryIds === null) {
+      product.categories = [];
+    } else {
+      product.categories = data.categoryIds.map((id) => ({ id })) as any;
+    }
   }
 
   if (data.brandIds !== undefined) {
-    product.brands = data.brandIds.map((id) => ({ id })) as any;
+    if (data.brandIds.length === 0 || data.brandIds === null) {
+      product.brands = [];
+    } else {
+      product.brands = data.brandIds.map((id) => ({ id })) as any;
+    }
   }
 
   if (data.tagIds !== undefined) {
-    product.tags = data.tagIds.map((id) => ({ id })) as any;
+    if (data.tagIds.length === 0 || data.tagIds === null) {
+      product.tags = [];
+    } else {
+      // Ensure tags are mapped correctly
+      product.tags = data.tagIds.map((id) => ({ id })) as any;
+    }
   }
 
   if (data.taxClassId !== undefined) {
@@ -169,12 +182,22 @@ export const updateProduct = async (
 
   // Replace upsells
   if (data.upsellIds !== undefined) {
-    product.upsells = data.upsellIds.map((id) => ({ id })) as any;
+    if (data.upsellIds.length === 0 || data.upsellIds === null) {
+      product.upsells = [];
+    } else {
+      // Ensure upsells are mapped correctly
+      product.upsells = data.upsellIds.map((id) => ({ id })) as any;
+    }
   }
 
   // Replace cross sells
   if (data.crossSellIds !== undefined) {
-    product.crossSells = data.crossSellIds.map((id) => ({ id })) as any;
+    if (data.crossSellIds.length === 0 || data.crossSellIds === null) {
+      product.crossSells = [];
+    } else {
+      // Ensure cross-sells are mapped correctly
+      product.crossSells = data.crossSellIds.map((id) => ({ id })) as any;
+    }
   }
 
   // Replace tier pricing info for main product
