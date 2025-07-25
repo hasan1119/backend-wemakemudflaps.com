@@ -1,4 +1,15 @@
 # ---------------------- Coupon Types ----------------------
+
+type CouponProduct {
+  id: ID!
+  name: String!
+}
+
+type CouponCategory {
+  id: ID!
+  name: String!
+}
+
 type Coupon {
   id: ID!
   code: String!
@@ -10,10 +21,10 @@ type Coupon {
   maxUsage: Float
   minimumSpend: Float
   maximumSpend: Float
-  applicableProducts: [Product!]!
-  excludedProducts: [Product!]!
-  applicableCategories: [Category!]!
-  excludedCategories: [Category!]!
+  applicableProducts: [CouponProduct!]!
+  excludedProducts: [CouponProduct!]!
+  applicableCategories: [CouponCategory!]!
+  excludedCategories: [CouponCategory!]!
   allowedEmails: [String!]!
   usageCount: Float
   createdBy: CreatedBy

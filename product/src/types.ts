@@ -185,8 +185,8 @@ export type CategoryResponseById = {
 export type Coupon = {
   __typename?: 'Coupon';
   allowedEmails: Array<Scalars['String']['output']>;
-  applicableCategories: Array<Category>;
-  applicableProducts: Array<Product>;
+  applicableCategories: Array<CouponCategory>;
+  applicableProducts: Array<CouponProduct>;
   code: Scalars['String']['output'];
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
@@ -194,8 +194,8 @@ export type Coupon = {
   description?: Maybe<Scalars['String']['output']>;
   discountType?: Maybe<Scalars['String']['output']>;
   discountValue?: Maybe<Scalars['Float']['output']>;
-  excludedCategories: Array<Category>;
-  excludedProducts: Array<Product>;
+  excludedCategories: Array<CouponCategory>;
+  excludedProducts: Array<CouponProduct>;
   expiryDate?: Maybe<Scalars['String']['output']>;
   freeShipping?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
@@ -205,6 +205,12 @@ export type Coupon = {
   usageCount?: Maybe<Scalars['Float']['output']>;
 };
 
+export type CouponCategory = {
+  __typename?: 'CouponCategory';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type CouponPaginationResponse = {
   __typename?: 'CouponPaginationResponse';
   coupons: Array<Coupon>;
@@ -212,6 +218,12 @@ export type CouponPaginationResponse = {
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
   total: Scalars['Int']['output'];
+};
+
+export type CouponProduct = {
+  __typename?: 'CouponProduct';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type CouponResponse = {
@@ -2894,7 +2906,9 @@ export type ResolversTypes = {
   CategoryResponseById: ResolverTypeWrapper<CategoryResponseById>;
   Coupon: ResolverTypeWrapper<Coupon>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  CouponCategory: ResolverTypeWrapper<CouponCategory>;
   CouponPaginationResponse: ResolverTypeWrapper<CouponPaginationResponse>;
+  CouponProduct: ResolverTypeWrapper<CouponProduct>;
   CouponResponse: ResolverTypeWrapper<CouponResponse>;
   CreateAddressBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateAddressBookResponseOrError']>;
   CreateBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateBrandResponseOrError']>;
@@ -3134,7 +3148,9 @@ export type ResolversParentTypes = {
   CategoryResponseById: CategoryResponseById;
   Coupon: Coupon;
   Float: Scalars['Float']['output'];
+  CouponCategory: CouponCategory;
   CouponPaginationResponse: CouponPaginationResponse;
+  CouponProduct: CouponProduct;
   CouponResponse: CouponResponse;
   CreateAddressBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateAddressBookResponseOrError'];
   CreateBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateBrandResponseOrError'];
@@ -3494,8 +3510,8 @@ export type CategoryResponseByIdResolvers<ContextType = Context, ParentType exte
 
 export type CouponResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Coupon'] = ResolversParentTypes['Coupon']> = {
   allowedEmails?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  applicableCategories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
-  applicableProducts?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
+  applicableCategories?: Resolver<Array<ResolversTypes['CouponCategory']>, ParentType, ContextType>;
+  applicableProducts?: Resolver<Array<ResolversTypes['CouponProduct']>, ParentType, ContextType>;
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
@@ -3503,8 +3519,8 @@ export type CouponResolvers<ContextType = Context, ParentType extends ResolversP
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   discountType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   discountValue?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
-  excludedCategories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
-  excludedProducts?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
+  excludedCategories?: Resolver<Array<ResolversTypes['CouponCategory']>, ParentType, ContextType>;
+  excludedProducts?: Resolver<Array<ResolversTypes['CouponProduct']>, ParentType, ContextType>;
   expiryDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   freeShipping?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3515,12 +3531,24 @@ export type CouponResolvers<ContextType = Context, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CouponCategoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CouponCategory'] = ResolversParentTypes['CouponCategory']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CouponPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CouponPaginationResponse'] = ResolversParentTypes['CouponPaginationResponse']> = {
   coupons?: Resolver<Array<ResolversTypes['Coupon']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CouponProductResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CouponProduct'] = ResolversParentTypes['CouponProduct']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4959,7 +4987,9 @@ export type Resolvers<ContextType = Context> = {
   CategoryResponse?: CategoryResponseResolvers<ContextType>;
   CategoryResponseById?: CategoryResponseByIdResolvers<ContextType>;
   Coupon?: CouponResolvers<ContextType>;
+  CouponCategory?: CouponCategoryResolvers<ContextType>;
   CouponPaginationResponse?: CouponPaginationResponseResolvers<ContextType>;
+  CouponProduct?: CouponProductResolvers<ContextType>;
   CouponResponse?: CouponResponseResolvers<ContextType>;
   CreateAddressBookResponseOrError?: CreateAddressBookResponseOrErrorResolvers<ContextType>;
   CreateBrandResponseOrError?: CreateBrandResponseOrErrorResolvers<ContextType>;
