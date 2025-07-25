@@ -26,6 +26,8 @@ export const updateAttributeWithValues = async (
   await productAttributeRepository.update(attributeId, {
     ...(data.name !== undefined && { name: data.name }),
     ...(data.slug !== undefined && { slug: data.slug }),
+    ...(data.forVariation !== undefined && { forVariation: data.forVariation }),
+    ...(data.visible !== undefined && { visible: data.visible }),
   });
 
   // Step 2: Hard delete existing values
