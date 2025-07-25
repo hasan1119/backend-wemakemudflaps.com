@@ -3,7 +3,7 @@ type Query {
   # Fetch product by ID.
   # Retrieves a specific product details by its unique ID.
   # Returns a `GetProductByIDResponseOrError` containing product data and request status.
-  getProduct(
+  getProductById(
     id: ID! # Unique identifier of the product to retrieve.
   ): GetProductByIdResponseOrError!
 
