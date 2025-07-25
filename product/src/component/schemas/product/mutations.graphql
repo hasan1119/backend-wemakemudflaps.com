@@ -6,8 +6,8 @@ type Mutation {
     productConfigurationType: productConfigurationType
     productDeliveryType: [ProductDeliveryType!]
     isCustomized: Boolean
-    name: String!
-    slug: String!
+    name: String
+    slug: String
     defaultImage: ID
     images: [ID!]
     videos: [ID!]

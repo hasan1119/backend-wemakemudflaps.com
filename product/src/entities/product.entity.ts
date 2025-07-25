@@ -50,11 +50,11 @@ export class Product {
   isCustomized: boolean;
 
   // Product name
-  @Column()
+  @Column({ default: "" })
   name: string;
 
   // Product slug
-  @Column({ unique: true })
+  @Column({ unique: true, default: "" })
   slug: string;
 
   // Default thumbnail image for the product (string only for Apollo Federation compatibility)

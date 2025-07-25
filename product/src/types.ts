@@ -232,7 +232,7 @@ export type CreateCouponResponseOrError = BaseResponse | CouponResponse | ErrorR
 
 export type CreateProductAttributeResponseOrError = BaseResponse | ErrorResponse | ProductAttributeResponse;
 
-export type CreateProductResponseOrError = BaseResponse | ErrorResponse;
+export type CreateProductResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
 
 export type CreateProductReviewResponseOrError = BaseResponse | ErrorResponse | ProductReviewResponse;
 
@@ -857,7 +857,7 @@ export type MutationCreateProductArgs = {
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity?: InputMaybe<Scalars['Int']['input']>;
   model?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   productConfigurationType?: InputMaybe<ProductConfigurationType>;
   productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
   purchaseNote?: InputMaybe<Scalars['String']['input']>;
@@ -870,7 +870,7 @@ export type MutationCreateProductArgs = {
   saleQuantityUnit?: InputMaybe<Scalars['String']['input']>;
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
-  slug: Scalars['String']['input'];
+  slug?: InputMaybe<Scalars['String']['input']>;
   soldIndividually?: InputMaybe<Scalars['Boolean']['input']>;
   stockQuantity?: InputMaybe<Scalars['Int']['input']>;
   stockStatus?: InputMaybe<StockStatus>;
@@ -2431,7 +2431,7 @@ export type UpdateMediaResponseOrError = BaseResponse | ErrorResponse | MediaRes
 
 export type UpdateProductAttributeResponseOrError = BaseResponse | ErrorResponse | ProductAttributeResponse;
 
-export type UpdateProductResponseOrError = BaseResponse | ErrorResponse;
+export type UpdateProductResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
 
 export type UpdateProductReviewResponseOrError = BaseResponse | ErrorResponse | ProductReviewResponse;
 
@@ -2769,7 +2769,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   CreateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse );
   CreateCouponResponseOrError: ( BaseResponse ) | ( CouponResponse ) | ( ErrorResponse );
   CreateProductAttributeResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductAttributeResponse );
-  CreateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  CreateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
   CreateProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
   CreateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   CreateShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
@@ -2850,7 +2850,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   UpdateCouponResponseOrError: ( BaseResponse ) | ( CouponResponse ) | ( ErrorResponse );
   UpdateMediaResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
   UpdateProductAttributeResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductAttributeResponse );
-  UpdateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  UpdateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
   UpdateProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
   UpdateRoleResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( RoleResponse );
   UpdateShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
@@ -3553,7 +3553,7 @@ export type CreateProductAttributeResponseOrErrorResolvers<ContextType = Context
 };
 
 export type CreateProductResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateProductResponseOrError'] = ResolversParentTypes['CreateProductResponseOrError']> = {
-  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
 };
 
 export type CreateProductReviewResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateProductReviewResponseOrError'] = ResolversParentTypes['CreateProductReviewResponseOrError']> = {
@@ -3961,7 +3961,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createCoupon?: Resolver<ResolversTypes['CreateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCouponArgs, 'code' | 'discountType' | 'discountValue'>>;
-  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'name' | 'slug'>>;
+  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, Partial<MutationCreateProductArgs>>;
   createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
@@ -4713,7 +4713,7 @@ export type UpdateProductAttributeResponseOrErrorResolvers<ContextType = Context
 };
 
 export type UpdateProductResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateProductResponseOrError'] = ResolversParentTypes['UpdateProductResponseOrError']> = {
-  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
 };
 
 export type UpdateProductReviewResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateProductReviewResponseOrError'] = ResolversParentTypes['UpdateProductReviewResponseOrError']> = {

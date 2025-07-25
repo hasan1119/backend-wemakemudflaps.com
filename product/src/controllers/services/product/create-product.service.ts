@@ -3,7 +3,9 @@ import { MutationCreateProductArgs } from "../../../types";
 import {
   productPriceRepository,
   productRepository,
+  productVariationRepository,
 } from "../repositories/repositories";
+import { getProductById } from "./get-product.service";
 
 /**
  * Creates a new Product.
@@ -77,8 +79,8 @@ export const createProduct = async (
   } = data ?? {};
 
   const product = productRepository.create({
-    name,
-    slug,
+    name: "Example Product",
+    slug: `example-product-${Date.now()}`,
     defaultImage,
     images,
     videos,
@@ -112,7 +114,7 @@ export const createProduct = async (
     purchaseNote,
     enableReviews,
     customBadge,
-    isVisible,
+    isVisible: false,
     productConfigurationType,
     productDeliveryType,
     isCustomized,
@@ -123,29 +125,35 @@ export const createProduct = async (
     // Relations
     categories: categoryIds?.length
       ? (categoryIds.map((id) => ({ id })) as any)
-      : [],
-    brands: brandIds?.length ? brandIds.map((id) => ({ id })) : [],
-    tags: tagIds?.length ? (tagIds.map((id) => ({ id })) as any) : [],
+      : null,
+    brands: brandIds?.length ? brandIds.map((id) => ({ id })) : null,
+    tags: tagIds?.length ? (tagIds.map((id) => ({ id })) as any) : null,
     taxClass: { id: taxClassId } as any,
     taxStatus: taxStatus,
     shippingClass: shippingClassId ? ({ id: shippingClassId } as any) : null,
     attributes: attributeIds?.length
       ? (attributeIds.map((id) => ({ id })) as any)
-      : [],
+      : null,
 
-    upsells: upsellIds?.length ? (upsellIds.map((id) => ({ id })) as any) : [],
+    upsells: upsellIds?.length
+      ? (upsellIds.map((id) => ({ id })) as any)
+      : null,
     crossSells: crossSellIds?.length
       ? (crossSellIds.map((id) => ({ id })) as any)
-      : [],
+      : null,
   });
+
+  const savedProduct = await productRepository.save(product);
+
+  console.log(savedProduct);
 
   const processedVariations = variations?.map((v) => {
     return {
       ...v,
-      brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : [],
+      brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : null,
       attributeValues: v.attributeValues?.length
         ? v.attributeValues.map((av) => ({ id: av }))
-        : [],
+        : null,
       tierPricingInfo: v.tierPricingInfo
         ? {
             pricingType: v.tierPricingInfo.pricingType,
@@ -162,7 +170,7 @@ export const createProduct = async (
 
       taxClassId: v.taxClassId ? ({ id: v.taxClassId } as any) : null,
 
-      product: { id: product.id } as any, // Link back to the main product
+      product: { id: savedProduct.id } as any, // Link back to the main product
     };
   });
 
@@ -174,17 +182,17 @@ export const createProduct = async (
             ...tp,
           })),
         },
-        product: { id: product.id } as any, // Link back to the main product
+        product: { id: savedProduct.id } as any, // Link back to the main product
       }
     : null;
 
-  product.tierPricingInfo = processedTierPricingInfo
-    ? await productPriceRepository.save({ processedTierPricingInfo } as any)
+  savedProduct.tierPricingInfo = processedTierPricingInfo
+    ? await productPriceRepository.save(processedTierPricingInfo as any)
     : null;
 
-  product.variations = processedVariations?.length
-    ? (processedVariations as any)
-    : [];
+  savedProduct.variations = processedVariations?.length
+    ? await productVariationRepository.save(processedVariations as any)
+    : null;
 
-  return await productRepository.save(product);
+  return getProductById(savedProduct.id);
 };

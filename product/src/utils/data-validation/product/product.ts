@@ -538,11 +538,15 @@ export const createProductSchema = z
     name: z
       .string()
       .min(3, "Product name must be at least 3 characters")
-      .trim(),
+      .trim()
+      .optional()
+      .nullable(),
     slug: z
       .string()
       .min(3, "Product slug must be at least 3 characters")
-      .trim(),
+      .trim()
+      .optional()
+      .nullable(),
     sku: z.string().min(1, "SKU cannot be empty").optional().nullable(),
     model: z.string().min(1, "Model cannot be empty").optional().nullable(),
     defaultImage: z
