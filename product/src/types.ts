@@ -1798,8 +1798,8 @@ export type Query = {
   getCouponById: GetCouponByIdResponseOrError;
   getMediaById: GetMediaByIdResponseOrError;
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError;
-  getProduct: GetProductByIdResponseOrError;
   getProductAttributeById: GetProductAttributeByIdResponseOrError;
+  getProductById: GetProductByIdResponseOrError;
   getProfile: GetProfileResponseOrError;
   getReview?: Maybe<Scalars['String']['output']>;
   getRoleById: GetRoleByIdResponseOrError;
@@ -1980,12 +1980,12 @@ export type QueryGetMediaByIdArgs = {
 };
 
 
-export type QueryGetProductArgs = {
+export type QueryGetProductAttributeByIdArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type QueryGetProductAttributeByIdArgs = {
+export type QueryGetProductByIdArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4328,8 +4328,8 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getCouponById?: Resolver<ResolversTypes['GetCouponByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetCouponByIdArgs, 'id'>>;
   getMediaById?: Resolver<ResolversTypes['GetMediaByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetMediaByIdArgs, 'id'>>;
   getOwnPersonalizedPermissions?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType>;
-  getProduct?: Resolver<ResolversTypes['GetProductByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'id'>>;
   getProductAttributeById?: Resolver<ResolversTypes['GetProductAttributeByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductAttributeByIdArgs, 'id'>>;
+  getProductById?: Resolver<ResolversTypes['GetProductByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductByIdArgs, 'id'>>;
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
   getReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getRoleById?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleByIdArgs, 'id'>>;
