@@ -8,11 +8,15 @@ import { SortOrderTypeEnum } from "../../common/common";
  * 1. Validates that `name` is a non-empty string.
  * 2. Validates `isVisible` as a boolean.
  * 3. Validates `values` as an array of product attribute values, ensuring at least one value is provided.
+ * 4. Validates `systemAttributeId` as an optional UUID string.
+ * 5. Validates `visible` and `forVariation` as optional booleans with default values.
  *
  * @property name - The name of the product attribute, which must be a non-empty string.
  * @property slug - A URL-friendly identifier for the product attribute, which must be a non-empty string.
  * @property values - An array of product attribute values, which must contain at least one value.
  * @property systemAttributeId - An optional string representing the ID of a system attribute to replicate, which can be null.
+ * @property visible - An optional boolean indicating if the attribute should be visible to customers, defaulting to true.
+ * @property forVariation - An optional boolean indicating if the attribute is used for variations, defaulting to false.
  */
 export const CreateProductAttributeInputSchema = z.object({
   name: z.string().min(1, "Attribute name is required").trim(),
@@ -25,6 +29,8 @@ export const CreateProductAttributeInputSchema = z.object({
     .uuid("Invalid UUID ID format")
     .optional()
     .nullable(),
+  visible: z.boolean().default(true).optional().nullable(),
+  forVariation: z.boolean().default(false).optional().nullable(),
 });
 
 /**
@@ -34,11 +40,15 @@ export const CreateProductAttributeInputSchema = z.object({
  * 1. Validates that `name` is a non-empty string if provided.
  * 2. Validates `isVisible` as a boolean if provided.
  * 3. Validates `values` as an optional array of product attribute values.
+ * 4. Validates `id` as a required UUID string.
+ * 5. Validates `visible` and `forVariation` as optional booleans with default values.
  *
  * @property name - The name of the product attribute, which can be an empty string or omitted.
  * @property slug - A URL-friendly identifier for the product attribute, which can be an empty string or omitted.
  * @property isVisible - An optional boolean indicating if the attribute should be visible.
  * @property values - An optional array of product attribute values.
+ * @property forVariation - An optional boolean indicating if the attribute is used for variations.
+ * @property id - The ID of the product attribute to update, which is required.
  */
 export const UpdateProductAttributeInputSchema = z
   .object({
@@ -59,6 +69,8 @@ export const UpdateProductAttributeInputSchema = z
       .array(z.string().min(1, "Value cannot be empty").trim())
       .optional()
       .nullable(),
+    visible: z.boolean().default(true).optional().nullable(),
+    forVariation: z.boolean().default(false).optional().nullable(),
   })
   .refine(
     (data) =>

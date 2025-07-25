@@ -32,6 +32,14 @@ export class ProductAttribute {
   )
   values: ProductAttributeValue[];
 
+  // Indicates if the attribute is visible to customers (e.g., "Size" might be visible, but "Internal Code" might not)
+  @Column({ type: "boolean", default: true })
+  visible: boolean;
+
+  // Indicates if the attribute is used for variations (e.g., "Size" or "Color" for product variations)
+  @Column({ type: "boolean", default: false })
+  forVariation: boolean;
+
   // Many copied attributes can point to one system attribute
   @ManyToOne(
     () => ProductAttribute,

@@ -13,6 +13,8 @@ type Mutation {
     slug: String! # URL-friendly identifier
     values: [String!]!
     systemAttributeId: String # ID of the system attribute to replicate
+    visible: Boolean # Indicates if the attribute is visible to customers
+    forVariation: Boolean # Indicates if the attribute is used for variations
   ): ProductAttributeResponse!
 
   # Update an existing product attribute.
@@ -21,6 +23,8 @@ type Mutation {
     name: String
     slug: String
     values: [String!]!
+    visible: Boolean
+    forVariation: Boolean
   ): ProductAttributeResponse!
 
   # Delete a product attribute.

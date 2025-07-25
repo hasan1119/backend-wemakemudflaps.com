@@ -136,6 +136,8 @@ export const handleCreateProductAttribute = async (
             ? value.deletedAt.toISOString()
             : value.deletedAt,
       })),
+      visible: productAttribute.visible,
+      forVariation: productAttribute.forVariation,
       deletedAt:
         productAttribute.deletedAt instanceof Date
           ? productAttribute.deletedAt.toISOString()

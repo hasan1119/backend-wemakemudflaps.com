@@ -890,10 +890,12 @@ export type MutationCreateProductArgs = {
 
 
 export type MutationCreateProductAttributeArgs = {
+  forVariation?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   systemAttributeId?: InputMaybe<Scalars['String']['input']>;
   values: Array<Scalars['String']['input']>;
+  visible?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -1267,10 +1269,12 @@ export type MutationUpdateProductArgs = {
 
 
 export type MutationUpdateProductAttributeArgs = {
+  forVariation?: InputMaybe<Scalars['Boolean']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
   values: Array<Scalars['String']['input']>;
+  visible?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -1486,12 +1490,12 @@ export enum PricingTypeEnum {
 export type Product = {
   __typename?: 'Product';
   allowBackOrders?: Maybe<Scalars['String']['output']>;
-  attributes?: Maybe<Array<Maybe<ProductAttribute>>>;
+  attributes: Array<ProductAttribute>;
   brands?: Maybe<Array<Brand>>;
   categories?: Maybe<Array<Category>>;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
-  crossSells?: Maybe<Array<Product>>;
+  crossSells: Array<Product>;
   customBadge?: Maybe<Scalars['String']['output']>;
   defaultImage?: Maybe<Media>;
   defaultMainDescription: Scalars['String']['output'];
@@ -1519,7 +1523,7 @@ export type Product = {
   purchaseNote?: Maybe<Scalars['String']['output']>;
   quantityStep?: Maybe<Scalars['Int']['output']>;
   regularPrice: Scalars['Float']['output'];
-  reviews?: Maybe<Array<ProductReview>>;
+  reviews: Array<ProductReview>;
   salePrice?: Maybe<Scalars['Float']['output']>;
   salePriceEndAt?: Maybe<Scalars['String']['output']>;
   salePriceStartAt?: Maybe<Scalars['String']['output']>;
@@ -1535,8 +1539,8 @@ export type Product = {
   taxClass?: Maybe<TaxClass>;
   taxStatus?: Maybe<Scalars['String']['output']>;
   tierPricingInfo?: Maybe<ProductPrice>;
-  upsells?: Maybe<Array<Product>>;
-  variations?: Maybe<Array<Maybe<ProductVariation>>>;
+  upsells: Array<Product>;
+  variations: Array<ProductVariation>;
   videos?: Maybe<Array<Media>>;
   warrantyDigit?: Maybe<Scalars['Int']['output']>;
   warrantyPolicy?: Maybe<Scalars['String']['output']>;
@@ -1550,12 +1554,14 @@ export type ProductAttribute = {
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
+  forVariation: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   systemAttribute: Scalars['Boolean']['output'];
   systemAttributeId?: Maybe<Scalars['String']['output']>;
   values: Array<ProductAttributeValue>;
+  visible: Scalars['Boolean']['output'];
 };
 
 export type ProductAttributePaginationResponse = {
@@ -4062,12 +4068,12 @@ export type PersonalizedWithRolePermissionResponseResolvers<ContextType = Contex
 
 export type ProductResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Product'] = ResolversParentTypes['Product']> = {
   allowBackOrders?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  attributes?: Resolver<Maybe<Array<Maybe<ResolversTypes['ProductAttribute']>>>, ParentType, ContextType>;
+  attributes?: Resolver<Array<ResolversTypes['ProductAttribute']>, ParentType, ContextType>;
   brands?: Resolver<Maybe<Array<ResolversTypes['Brand']>>, ParentType, ContextType>;
   categories?: Resolver<Maybe<Array<ResolversTypes['Category']>>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
-  crossSells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
+  crossSells?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
   customBadge?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   defaultImage?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   defaultMainDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4095,7 +4101,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   purchaseNote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   quantityStep?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   regularPrice?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  reviews?: Resolver<Maybe<Array<ResolversTypes['ProductReview']>>, ParentType, ContextType>;
+  reviews?: Resolver<Array<ResolversTypes['ProductReview']>, ParentType, ContextType>;
   salePrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   salePriceEndAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   salePriceStartAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -4111,8 +4117,8 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   taxClass?: Resolver<Maybe<ResolversTypes['TaxClass']>, ParentType, ContextType>;
   taxStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   tierPricingInfo?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
-  upsells?: Resolver<Maybe<Array<ResolversTypes['Product']>>, ParentType, ContextType>;
-  variations?: Resolver<Maybe<Array<Maybe<ResolversTypes['ProductVariation']>>>, ParentType, ContextType>;
+  upsells?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType>;
+  variations?: Resolver<Array<ResolversTypes['ProductVariation']>, ParentType, ContextType>;
   videos?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   warrantyDigit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   warrantyPolicy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -4126,12 +4132,14 @@ export type ProductAttributeResolvers<ContextType = Context, ParentType extends 
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  forVariation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   systemAttribute?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   systemAttributeId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   values?: Resolver<Array<ResolversTypes['ProductAttributeValue']>, ParentType, ContextType>;
+  visible?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

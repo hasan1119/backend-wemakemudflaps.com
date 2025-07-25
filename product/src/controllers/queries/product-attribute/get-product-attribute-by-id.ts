@@ -103,6 +103,8 @@ export const getProductAttributeById = async (
               : value.deletedAt,
         })),
         systemAttributeId: dbProductAttribute.systemAttributeRef?.id || null,
+        visible: dbProductAttribute.visible,
+        forVariation: dbProductAttribute.forVariation,
         createdBy: dbProductAttribute.createdBy as any,
         createdAt:
           dbProductAttribute.createdAt instanceof Date

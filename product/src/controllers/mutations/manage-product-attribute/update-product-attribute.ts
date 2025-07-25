@@ -106,6 +106,8 @@ export const updateProductAttribute = async (
       }
     }
 
+    currentProductAttribute.systemAttribute && delete args.forVariation;
+
     // Update the product attribute in the database
     const updatedProductAttribute = await updateAttributeWithValues(id, args);
 
@@ -118,15 +120,20 @@ export const updateProductAttribute = async (
         name: updatedProductAttribute.name,
         slug: updatedProductAttribute.slug,
         systemAttribute: updatedProductAttribute.systemAttribute,
-        values: await Promise.all(
-          updatedProductAttribute.values.map(async (val: any) => ({
-            ...val,
-            attribute:
-              val.attribute && typeof val.attribute.then === "function"
-                ? await val.attribute
-                : val.attribute,
-          }))
-        ),
+        values: updatedProductAttribute.values.map((value) => ({
+          id: value.id,
+          value: value.value,
+          createdAt:
+            value.createdAt instanceof Date
+              ? value.createdAt.toISOString()
+              : value.createdAt,
+          deletedAt:
+            value.deletedAt instanceof Date
+              ? value.deletedAt.toISOString()
+              : value.deletedAt,
+        })),
+        visible: updatedProductAttribute.visible,
+        forVariation: updatedProductAttribute.forVariation,
         createdBy: updatedProductAttribute.createdBy as any,
         createdAt: updatedProductAttribute.createdAt.toISOString(),
         deletedAt:

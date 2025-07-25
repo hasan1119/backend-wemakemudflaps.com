@@ -61,11 +61,11 @@ type Product @key(fields: "id") {
   height: Float # Height
   # ---------------------- Associations ----------------------
   shippingClass: ShippingClass # Related shipping class
-  upsells: [Product!] # List of upsell product
-  crossSells: [Product!] # List of cross-sell product
-  attributes: [ProductAttribute] # Product attribute
-  variations: [ProductVariation] # Associated variations
-  reviews: [ProductReview!] # List of review
+  upsells: [Product!]! # List of upsell product
+  crossSells: [Product!]! # List of cross-sell product
+  attributes: [ProductAttribute!]! # Product attribute
+  variations: [ProductVariation!]! # Associated variations
+  reviews: [ProductReview!]! # List of review
   # ---------------------- Display ----------------------
   enableReviews: Boolean # Enable product reviews
   isVisible: Boolean # Determines frontend visibility

@@ -131,6 +131,8 @@ export const getAllProductAttribute = async (
               : value.deletedAt,
         })),
         systemAttributeId: attribute.systemAttributeRef?.id || null,
+        visible: attribute.visible,
+        forVariation: attribute.forVariation,
         createdBy: attribute.createdBy as any,
         createdAt:
           attribute.createdAt instanceof Date

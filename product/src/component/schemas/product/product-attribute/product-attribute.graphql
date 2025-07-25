@@ -8,6 +8,8 @@ type ProductAttribute {
   systemAttribute: Boolean! # Indicates if this is a system attribute
   values: [ProductAttributeValue!]! # List of possible values for this attribute
   systemAttributeId: String # ID of the system attribute (if applicable)
+  visible: Boolean! # Indicates if the attribute is visible to customers
+  forVariation: Boolean! # Indicates if the attribute is used for variations
   createdBy: CreatedBy # Creator identifier
   createdAt: String # Timestamp of creation
   deletedAt: String # Timestamp of soft deletion (if any)

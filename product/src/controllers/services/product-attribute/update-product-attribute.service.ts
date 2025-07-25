@@ -37,7 +37,7 @@ export const updateAttributeWithValues = async (
   if (data.values && data.values.length > 0) {
     const newValues = data.values.map((val) =>
       productAttributeValueRepository.create({
-        value: val.value,
+        value: val,
         attribute: Promise.resolve({ id: attributeId } as ProductAttribute),
       })
     );
