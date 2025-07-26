@@ -1,6 +1,7 @@
 import { Coupon } from "../../../entities";
 import { MutationCreateCouponArgs } from "../../../types";
 import { couponRepository } from "../repositories/repositories";
+import { getCouponById } from "./get-coupon.service";
 
 /**
  * Creates a new Coupon.
@@ -62,5 +63,7 @@ export const createCoupon = async (
       : null,
   });
 
-  return await couponRepository.save(coupon);
+  await couponRepository.save(coupon);
+
+  return getCouponById(coupon.id);
 };

@@ -19,32 +19,6 @@ export const getCouponById = async (id: string): Promise<Coupon | null> => {
     ],
   });
 
-  // const applicableProducts =
-  //   coupon?.applicableProducts?.length > 0
-  //     ? await getProductsByIds(coupon.applicableProducts.map((p) => p.id))
-  //     : [];
-  // const excludedProducts =
-  //   coupon?.excludedProducts?.length > 0
-  //     ? await getProductsByIds(coupon.excludedProducts.map((p) => p.id))
-  //     : [];
-  // const applicableCategories =
-  //   coupon?.applicableCategories?.length > 0
-  //     ? await getCategoryByIds(coupon.applicableCategories.map((c) => c.id))
-  //     : [];
-  // const excludedCategories =
-  //   coupon?.excludedCategories?.length > 0
-  //     ? await getCategoryByIds(coupon.excludedCategories.map((c) => c.id))
-  //     : [];
-
-  // // Return coupon with relation properties as arrays of IDs
-  // return {
-  //   ...coupon,
-  //   applicableProducts,
-  //   excludedProducts,
-  //   applicableCategories,
-  //   excludedCategories,
-  // };
-
   return coupon;
 };
 
