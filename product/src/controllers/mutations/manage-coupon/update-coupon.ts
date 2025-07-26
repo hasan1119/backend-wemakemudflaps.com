@@ -157,7 +157,8 @@ export const updateCoupon = async (
     // Create the coupon in the database
     const coupon = await updateCouponService(
       id,
-      result.data as MutationUpdateCouponArgs
+      result.data as MutationUpdateCouponArgs,
+      existingCouponById
     );
 
     return {
@@ -170,7 +171,7 @@ export const updateCoupon = async (
         description: coupon.description,
         discountType: coupon.discountType,
         discountValue: coupon.discountValue,
-        allowedEmails: coupon.allowedEmails,
+        allowedEmails: coupon.allowedEmails ?? [],
         expiryDate:
           coupon.expiryDate instanceof Date
             ? coupon.expiryDate.toISOString()

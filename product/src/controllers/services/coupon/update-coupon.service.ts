@@ -9,7 +9,8 @@ import { getCouponById } from "./get-coupon.service";
  * Workflow:
  * 1. Resolves new relations based on provided IDs.
  * 2. Updates only provided fields, replacing existing data.
- * 3. Returns the fully updated coupon entity with relations.
+ * 3. Treats `null` values for product/category relations as empty lists (clearing).
+ * 4. Returns the fully updated coupon entity with relations.
  *
  * @param couponId - The UUID of the coupon to update.
  * @param data - Fields to update.
@@ -17,7 +18,8 @@ import { getCouponById } from "./get-coupon.service";
  */
 export const updateCoupon = async (
   couponId: string,
-  data: Partial<MutationUpdateCouponArgs>
+  data: Partial<MutationUpdateCouponArgs>,
+  coupon: Coupon
 ): Promise<Coupon> => {
   const {
     code,
@@ -36,49 +38,47 @@ export const updateCoupon = async (
     excludedCategories,
   } = data;
 
-  await couponRepository.update(couponId, {
-    ...(code !== undefined && code !== null && { code: code.toLowerCase() }),
-    ...(description !== undefined && description !== null && { description }),
-    ...(discountType !== undefined &&
-      discountType !== null && { discountType }),
-    ...(discountValue !== undefined &&
-      discountValue !== null && { discountValue }),
-    ...(freeShipping !== undefined &&
-      freeShipping !== null && { freeShipping }),
-    ...(expiryDate !== undefined && expiryDate !== null && { expiryDate }),
-    ...(maxUsage !== undefined && { maxUsage }),
-    ...(minimumSpend !== undefined && { minimumSpend }),
-    ...(maximumSpend !== undefined && { maximumSpend }),
-    ...(freeShipping !== undefined && { freeShipping }),
-    ...(allowedEmails !== undefined &&
-      allowedEmails !== null && {
-        allowedEmails: allowedEmails.length ? allowedEmails : null,
-      }),
-    ...(applicableProducts !== undefined &&
-      applicableProducts !== null && {
-        applicableProducts: applicableProducts.length
-          ? applicableProducts.map((id) => ({ id }))
-          : null,
-      }),
-    ...(excludedProducts !== undefined &&
-      excludedProducts !== null && {
-        excludedProducts: excludedProducts.length
-          ? excludedProducts.map((id) => ({ id }))
-          : null,
-      }),
-    ...(applicableCategories !== undefined &&
-      applicableCategories !== null && {
-        applicableCategories: applicableCategories.length
-          ? applicableCategories.map((id) => ({ id }))
-          : null,
-      }),
-    ...(excludedCategories !== undefined &&
-      excludedCategories !== null && {
-        excludedCategories: excludedCategories.length
-          ? excludedCategories.map((id) => ({ id }))
-          : null,
-      }),
-  });
+  if (code !== undefined && code !== null) coupon.code = code.toLowerCase();
+  if (description !== undefined && description !== null)
+    coupon.description = description;
+  if (discountType !== undefined && discountType !== null)
+    coupon.discountType = discountType;
+  if (discountValue !== undefined && discountValue !== null)
+    coupon.discountValue = discountValue;
+  if (freeShipping !== undefined && freeShipping !== null)
+    coupon.freeShipping = freeShipping;
+  if (expiryDate !== undefined) coupon.expiryDate = new Date(expiryDate);
+  if (maxUsage !== undefined) coupon.maxUsage = maxUsage;
+  if (minimumSpend !== undefined) coupon.minimumSpend = minimumSpend;
+  if (maximumSpend !== undefined) coupon.maximumSpend = maximumSpend;
+  if (allowedEmails !== undefined) coupon.allowedEmails = allowedEmails ?? [];
+  if (applicableProducts !== undefined) {
+    coupon.applicableProducts =
+      applicableProducts === null
+        ? []
+        : (applicableProducts.map((id) => ({ id })) as any);
+  }
+  if (excludedProducts !== undefined) {
+    coupon.excludedProducts =
+      excludedProducts === null
+        ? []
+        : (excludedProducts.map((id) => ({ id })) as any);
+  }
+  if (applicableCategories !== undefined) {
+    coupon.applicableCategories =
+      applicableCategories === null
+        ? []
+        : (applicableCategories.map((id) => ({ id })) as any);
+  }
+  if (excludedCategories !== undefined) {
+    coupon.excludedCategories =
+      excludedCategories === null
+        ? []
+        : (excludedCategories.map((id) => ({ id })) as any);
+  }
 
-  return await getCouponById(couponId);
+  // Save the updated coupon entity
+  await couponRepository.save(coupon);
+
+  return await getCouponById(coupon.id);
 };
