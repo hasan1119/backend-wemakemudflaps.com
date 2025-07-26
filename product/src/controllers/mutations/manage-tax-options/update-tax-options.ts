@@ -8,6 +8,7 @@ import { updatedTaxOptionsSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
+  getShippingClassById,
   getTaxOptions,
   updateTaxOptions as updateTaxOptionsService,
 } from "../../services";
@@ -74,6 +75,19 @@ export const updateTaxOptions = async (
         message: "Tax options do not exist",
         __typename: "BaseResponse",
       };
+    }
+
+    if (args.shippingTaxClassId) {
+      const shippingClass = await getShippingClassById(args.shippingTaxClassId);
+
+      if (!shippingClass) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Shipping tax class does not exist",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Update the tax options in the database
