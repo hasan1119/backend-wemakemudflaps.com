@@ -110,7 +110,6 @@ export const updateProductAttribute = async (
 
     // Update the product attribute in the database
     const updatedProductAttribute = await updateAttributeWithValues(
-      id,
       args,
       currentProductAttribute
     );
