@@ -156,7 +156,6 @@ export const updateCoupon = async (
     }
     // Create the coupon in the database
     const coupon = await updateCouponService(
-      id,
       result.data as MutationUpdateCouponArgs,
       existingCouponById
     );

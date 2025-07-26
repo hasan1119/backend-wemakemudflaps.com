@@ -1,9 +1,6 @@
 import { ProductAttribute } from "../../../entities";
 import { MutationUpdateProductAttributeArgs } from "../../../types";
-import {
-  productAttributeRepository,
-  productAttributeValueRepository,
-} from "../repositories/repositories";
+import { productAttributeValueRepository } from "../repositories/repositories";
 import { getProductAttributeById } from "./get-product-attribute.service";
 /**
  * Updates a product attribute and replaces all its values.
@@ -14,40 +11,42 @@ import { getProductAttributeById } from "./get-product-attribute.service";
  * 3. Creates new values.
  * 4. Returns the updated attribute with fresh values.
  *
- * @param attributeId - UUID of the attribute to update.
  * @param data - Object containing fields to update and new values.
+ * @param currentProductAttribute - The existing ProductAttribute entity to update.
  * @returns A promise resolving to the updated ProductAttribute.
  */
 export const updateAttributeWithValues = async (
-  attributeId: string,
-  data: MutationUpdateProductAttributeArgs
+  data: MutationUpdateProductAttributeArgs,
+  currentProductAttribute: ProductAttribute
 ): Promise<ProductAttribute> => {
+  const { values, forVariation, name, slug, visible } = data;
+
   // Step 1: Update attribute fields
-  await productAttributeRepository.update(attributeId, {
-    ...(data.name !== undefined && data.name !== null && { name: data.name }),
-    ...(data.slug !== undefined && data.slug !== null && { slug: data.slug }),
-    ...(data.forVariation !== undefined &&
-      data.forVariation !== null && { forVariation: data.forVariation }),
-    ...(data.visible !== undefined &&
-      data.visible !== null && { visible: data.visible }),
-  });
+  if (name !== undefined && name !== null) currentProductAttribute.name = name;
+  if (slug !== undefined && slug !== null) currentProductAttribute.slug = slug;
+  if (forVariation !== undefined && forVariation !== null)
+    currentProductAttribute.forVariation = forVariation;
+  if (visible !== undefined && visible !== null)
+    currentProductAttribute.visible = visible;
 
   // Step 2: Hard delete existing values
   await productAttributeValueRepository.delete({
-    attribute: { id: attributeId },
+    attribute: { id: currentProductAttribute.id },
   });
 
-  // Step 3: Insert new values
-  if (data.values && data.values.length > 0) {
-    const newValues = data.values.map((val) =>
+  if (values && values.length > 0) {
+    const newValues = values.map((val) =>
       productAttributeValueRepository.create({
         value: val,
-        attribute: Promise.resolve({ id: attributeId } as ProductAttribute),
+        attribute: { id: currentProductAttribute.id } as any,
       })
     );
     await productAttributeValueRepository.save(newValues);
   }
 
+  // Step 3: Save updated attribute
+  await productAttributeValueRepository.save(currentProductAttribute);
+
   // Step 4: Return updated attribute
-  return await getProductAttributeById(attributeId);
+  return await getProductAttributeById(currentProductAttribute.id);
 };

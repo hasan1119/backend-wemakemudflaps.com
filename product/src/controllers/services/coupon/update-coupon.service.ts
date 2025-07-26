@@ -12,12 +12,11 @@ import { getCouponById } from "./get-coupon.service";
  * 3. Treats `null` values for product/category relations as empty lists (clearing).
  * 4. Returns the fully updated coupon entity with relations.
  *
- * @param couponId - The UUID of the coupon to update.
  * @param data - Fields to update.
+ * @param coupon - Existing Coupon entity to update.
  * @returns Updated Coupon entity.
  */
 export const updateCoupon = async (
-  couponId: string,
   data: Partial<MutationUpdateCouponArgs>,
   coupon: Coupon
 ): Promise<Coupon> => {

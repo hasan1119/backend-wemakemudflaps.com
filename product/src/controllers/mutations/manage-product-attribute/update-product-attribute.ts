@@ -109,7 +109,11 @@ export const updateProductAttribute = async (
     currentProductAttribute.systemAttribute && delete args.forVariation;
 
     // Update the product attribute in the database
-    const updatedProductAttribute = await updateAttributeWithValues(id, args);
+    const updatedProductAttribute = await updateAttributeWithValues(
+      id,
+      args,
+      currentProductAttribute
+    );
 
     return {
       statusCode: 200,
