@@ -17,7 +17,7 @@ import { getCouponById } from "./get-coupon.service";
  * @returns Updated Coupon entity.
  */
 export const updateCoupon = async (
-  data: Partial<MutationUpdateCouponArgs>,
+  data: MutationUpdateCouponArgs,
   coupon: Coupon
 ): Promise<Coupon> => {
   const {
