@@ -16,7 +16,7 @@ type TaxOptions {
   id: ID! # Unique identifier of the tax options record
   pricesEnteredWithTax: Boolean! # Whether prices are entered with tax
   calculateTaxBasedOn: String! # Basis for tax calculation (e.g., "subtotal", "total")
-  shippingTaxClass: ShippingClass! # Tax class applied to shipping
+  shippingTaxClass: ShippingClass # Tax class applied to shipping
   displayPricesInShop: Boolean! # Whether to display prices in the shop
   displayPricesDuringCartAndCheckout: Boolean! # Whether to display prices during cart and checkout
   priceDisplaySuffix: String! # Suffix to display with prices (e.g., "incl. tax")
