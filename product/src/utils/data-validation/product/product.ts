@@ -243,25 +243,24 @@ export const ProductTieredPriceInputSchema = z
   })
   .refine(
     (data) => {
-      const { minQuantity, maxQuantity } = data;
-
-      // Skip the check if either value is undefined or null
-      if (
-        minQuantity !== null &&
-        minQuantity !== undefined &&
-        maxQuantity !== null &&
-        maxQuantity !== undefined
-      ) {
-        return minQuantity < maxQuantity;
+      if (data.minQuantity != null && data.maxQuantity != null) {
+        return data.minQuantity < data.maxQuantity;
       }
-
-      // If maxQuantity is null/undefined, we skip the validation check
-      return true;
+      return true; // Skip check if either is null/undefined
     },
     {
       message:
-        "Invalid update: minQuantity must be less than maxQuantity and at least one field besides id must be provided.",
-      path: [],
+        "minQuantity must be less than maxQuantity when both are provided.",
+      path: ["minQuantity"],
+    }
+  )
+  .refine(
+    (data) => {
+      return !(data.fixedPrice != null && data.percentageDiscount != null);
+    },
+    {
+      message: "Provide either fixedPrice or percentageDiscount, not both.",
+      path: ["fixedPrice", "percentageDiscount"],
     }
   );
 
