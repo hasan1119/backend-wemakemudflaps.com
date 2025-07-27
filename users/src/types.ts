@@ -1699,9 +1699,10 @@ export type ProductTieredPrice = {
 
 export type ProductTieredPriceInput = {
   fixedPrice?: InputMaybe<Scalars['Float']['input']>;
-  maxQuantity: Scalars['Int']['input'];
+  maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity: Scalars['Int']['input'];
   percentageDiscount?: InputMaybe<Scalars['Float']['input']>;
+  quantityUnit?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ProductVariation = {
