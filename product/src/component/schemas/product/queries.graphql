@@ -23,4 +23,12 @@ type Query {
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort direction: "asc" or "desc".
   ): GetProductsResponseOrError!
+
+  getAllProductsForCustomer(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of products per page.
+    search: String # Optional search term (matches name or slug).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetProductsResponseOrError!
 }

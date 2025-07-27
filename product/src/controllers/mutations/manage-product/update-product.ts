@@ -16,6 +16,7 @@ import {
   getProductById,
   getProductsByIds,
   getShippingClassById,
+  getShippingClassesByIds,
   getTagsByIds,
   getTaxClassById,
   getTaxClassByIds,
@@ -429,6 +430,23 @@ export const updateProduct = async (
             statusCode: 404,
             success: false,
             message: "One or more tax classes inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+      }
+
+      const variationsShippingClassIds = variations.flatMap(
+        (variation) => variation.shippingClassId ?? []
+      );
+      if (variationsShippingClassIds.length > 0) {
+        const shippingClasses = await getShippingClassesByIds(
+          variationsShippingClassIds
+        );
+        if (!shippingClasses) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "One or more shipping classes inside variations not found",
             __typename: "BaseResponse",
           };
         }

@@ -556,3 +556,139 @@ export const paginateProducts = async ({
 
   return { products, total };
 };
+
+export const paginateProductsForCustomer = async ({
+  page,
+  limit,
+  search,
+  sortBy,
+  sortOrder,
+}: GetPaginatedProductsInput) => {
+  const skip = (page - 1) * limit;
+
+  const queryBuilder = productRepository
+    .createQueryBuilder("product")
+    .where("product.deletedAt IS NULL", { isVisible: true })
+    // Product relations
+    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
+    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
+    .leftJoinAndSelect(
+      "product.categories",
+      "categories",
+      "categories.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.attributes",
+      "attributes",
+      "attributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.values",
+      "attribute_values",
+      "attribute_values.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.systemAttributeRef",
+      "attribute_systemAttribute",
+      "attribute_systemAttribute.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.copiedAttributes",
+      "attribute_copiedAttributes",
+      "attribute_copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.variations",
+      "variations",
+      "variations.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.shippingClass",
+      "shippingClass",
+      "shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.upsells",
+      "upsells",
+      "upsells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.crossSells",
+      "crossSells",
+      "crossSells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.reviews",
+      "reviews",
+      "reviews.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.taxClass",
+      "taxClass",
+      "taxClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
+    // Tier Pricing Info
+    .leftJoinAndSelect(
+      "tierPricingInfo.tieredPrices",
+      "tieredPrices",
+      "tieredPrices.deletedAt IS NULL"
+    )
+    // Variation relations
+    .leftJoinAndSelect(
+      "variations.brands",
+      "variation_brands",
+      "variation_brands.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.tierPricingInfo",
+      "variation_tierPricingInfo"
+    )
+    .leftJoinAndSelect(
+      "variation_tierPricingInfo.tieredPrices",
+      "variation_tieredPrices"
+    )
+    .leftJoinAndSelect(
+      "variations.attributeValues",
+      "variation_attributeValues",
+      "variation_attributeValues.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variation_attributeValues.attribute",
+      "variation_attribute",
+      "variation_attribute.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.shippingClass",
+      "variation_shippingClass",
+      "variation_shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.taxClass",
+      "variation_taxClass",
+      "variation_taxClass.deletedAt IS NULL"
+    );
+
+  if (search) {
+    const searchTerm = `%${search.trim()}%`;
+
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        qb.where("product.name ILIKE :search", { search: searchTerm })
+          .orWhere("product.slug ILIKE :search", { search: searchTerm })
+          .orWhere("brands.name ILIKE :search", { search: searchTerm })
+          .orWhere("categories.name ILIKE :search", { search: searchTerm })
+          .orWhere("tags.name ILIKE :search", { search: searchTerm });
+      })
+    );
+  }
+
+  queryBuilder
+    .skip(skip)
+    .take(limit)
+    .orderBy(`product.${sortBy}`, sortOrder.toUpperCase() as "ASC" | "DESC");
+
+  const [products, total] = await queryBuilder.getManyAndCount();
+
+  return { products, total };
+};

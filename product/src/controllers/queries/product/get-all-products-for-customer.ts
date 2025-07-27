@@ -1,32 +1,16 @@
+import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Category, Product, ProductPrice } from "../../../entities";
 import {
-  clearBrandsAndCountCache,
-  clearShippingClassesAndCountCache,
-  clearTagsAndCountCache,
-  clearTaxClassesAndCountCache,
-} from "../../../helper/redis";
-import {
-  CreateProductResponseOrError,
-  MutationCreateProductArgs,
+  GetProductsResponseOrError,
+  QueryGetAllProductsArgs,
 } from "../../../types";
-import { createProductSchema } from "../../../utils/data-validation/product/product";
 import {
-  checkUserAuth,
-  checkUserPermission,
-  createProduct as createProductService,
-  findProductBySlug,
-  getBrandsByIds,
-  getCategoryByIds,
-  getProductAttributesByIds,
-  getProductsByIds,
-  getShippingClassById,
-  getShippingClassesByIds,
-  getTagsByIds,
-  getTaxClassById,
-  getTaxClassByIds,
-} from "../../services";
+  paginationSchema,
+  productSortingSchema,
+} from "../../../utils/data-validation";
+import { paginateProductsForCustomer } from "../../services";
 
 /**
  * Maps a Category entity to GraphQL-compatible plain object including nested subcategories recursively.
@@ -270,55 +254,48 @@ async function mapProductRecursive(
 }
 
 /**
- * Handles the creation of a new product in the system.
+ * Combine pagination and sorting schemas for validation
+ */
+const combinedSchema = z.intersection(paginationSchema, productSortingSchema);
+
+/**
+ * Map GraphQL input arguments to schema fields
+ */
+const mapArgsToPagination = (args: QueryGetAllProductsArgs) => ({
+  page: args.page,
+  limit: args.limit,
+  search: args.search,
+  sortBy: args.sortBy || "createdAt",
+  sortOrder: args.sortOrder || "desc",
+});
+
+/**
+ * Handles fetching a paginated list of products with optional search and sorting.
  *
  * Workflow:
- * 1. Verifies user authentication and permission to create products.
- * 2. Validates input (name, slug, and other product details) using Zod schema.
- * 3. Checks database for product name and slug to prevent duplicates.
- * 4. Creates the product in the database with audit information from the authenticated user.
- * 5. Returns a success response or error if validation, permission, or creation fails.
+ * 1. Verifies user authentication and checks read permission for products.
+ * 2. Validates input (page, limit, search, sortBy, sortOrder) using Zod schemas.
+ * 3. Fetches products from the database with pagination, search, and sorting.
+ * 4. Maps database products to cached format, including creator details.
+ * 5. Returns a success response or error if validation, permission, or retrieval fails.
  *
  * @param _ - Unused parent parameter for GraphQL resolver.
- * @param args - Input arguments containing product details.
+ * @param args - Input arguments containing page, limit, search, sortBy, and sortOrder.
  * @param context - GraphQL context containing authenticated user information.
- * @returns A promise resolving to a CreateProductResponseOrError object containing status, message, and errors if applicable.
+ * @returns A promise resolving to a GetProductsResponseOrError object containing status, message, products, total count, and errors if applicable.
  */
-export const createProduct = async (
+export const getAllProductsForCustomer = async (
   _: any,
-  args: MutationCreateProductArgs,
+  args: QueryGetAllProductsArgs,
   { user }: Context
-): Promise<CreateProductResponseOrError> => {
+): Promise<GetProductsResponseOrError> => {
   try {
-    // Verify user authentication
-    const authError = checkUserAuth(user);
-    if (authError) return authError;
+    // Map and validate input arguments
+    const mappedArgs = mapArgsToPagination(args);
+    const validationResult = await combinedSchema.safeParseAsync(mappedArgs);
 
-    // Check if user has permission to create a product
-    const hasPermission = await checkUserPermission({
-      user,
-      action: "canCreate",
-      entity: "product",
-    });
-
-    if (!hasPermission) {
-      return {
-        statusCode: 403,
-        success: false,
-        message: "You do not have permission to create products",
-        __typename: "BaseResponse",
-      };
-    }
-
-    // Validate input data with Zod schema
-    const result = await createProductSchema.safeParseAsync({
-      ...args,
-      createdBy: user.id,
-    });
-
-    // Return detailed validation errors if input is invalid
-    if (!result.success) {
-      const errors = result.error.errors.map((e) => ({
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((e) => ({
         field: e.path.join("."),
         message: e.message,
       }));
@@ -332,210 +309,38 @@ export const createProduct = async (
       };
     }
 
-    const {
-      name,
-      slug,
-      brandIds,
-      tagIds,
-      categoryIds,
-      shippingClassId,
-      taxClassId,
-      variations,
-      upsellIds,
-      crossSellIds,
-      attributeIds,
-    } = result.data;
+    const { page, limit, search, sortBy, sortOrder } = mappedArgs;
 
-    // Check database for existing product slug
-    const existingSlugProduct = await findProductBySlug(slug);
-    if (existingSlugProduct) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: `A product with this slug: ${slug} already exists`,
-        __typename: "BaseResponse",
-      };
-    }
+    // Ensure sortOrder is "asc" or "desc"
+    const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
-    // Validate existence of related entities
+    // Fetch products from database directly
+    const { products: dbProducts, total } = await paginateProductsForCustomer({
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder: safeSortOrder,
+    });
 
-    if (brandIds && brandIds.length > 0) {
-      const brands = await getBrandsByIds(brandIds);
-      if (brands.length !== brandIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "One or more brands not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (tagIds && tagIds.length > 0) {
-      const tags = await getTagsByIds(tagIds);
-      if (tags.length !== tagIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "One or more tags not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (categoryIds) {
-      const categories = await getCategoryByIds(categoryIds);
-      if (categories.length !== categoryIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `One or more categories not found`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (variations && variations.length > 0) {
-      const variationBrandIds = variations
-        .flatMap((variation) => variation.brandIds ?? [])
-        .filter((v, i, a) => a.indexOf(v) === i); // unique brandIds
-
-      if (variationBrandIds.length > 0) {
-        const variationBrands = await getBrandsByIds(variationBrandIds);
-
-        if (variationBrands.length !== variationBrandIds.length) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "One or more brands inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-
-      const variationsTaxClassIds = variations.flatMap(
-        (variation) => variation.taxClassId ?? []
-      );
-
-      if (variationsTaxClassIds.length > 0) {
-        const taxClasses = await getTaxClassByIds(variationsTaxClassIds);
-        if (!taxClasses) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "One or more tax classes inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-
-      const variationsShippingClassIds = variations.flatMap(
-        (variation) => variation.shippingClassId ?? []
-      );
-      if (variationsShippingClassIds.length > 0) {
-        const shippingClasses = await getShippingClassesByIds(
-          variationsShippingClassIds
-        );
-        if (!shippingClasses) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "One or more shipping classes inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-    }
-
-    if (shippingClassId) {
-      const shippingClass = await getShippingClassById(shippingClassId);
-      if (!shippingClass) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `Shipping Class with ID: ${shippingClassId} not found`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (taxClassId) {
-      const taxClass = await getTaxClassById(taxClassId);
-      if (!taxClass) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `Tax Class with ID: ${taxClassId} not found`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (upsellIds && upsellIds.length > 0) {
-      const upSellsProduct = await getProductsByIds(upsellIds);
-
-      if (upSellsProduct.length !== upsellIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "One or more upsell products not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (crossSellIds && crossSellIds.length > 0) {
-      const crossSellProducts = await getProductsByIds(crossSellIds);
-
-      if (crossSellProducts.length !== crossSellIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `One or more cross-sell products not found`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (attributeIds && attributeIds.length > 0) {
-      const attributes = await getProductAttributesByIds(attributeIds);
-
-      if (attributes.length !== attributeIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "One or more product attributes not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    // Create the product in the database
-    const product = await createProductService(
-      {
-        ...result.data,
-      } as any,
-      user.id
+    // Map database products to response format
+    const productsData = await Promise.all(
+      dbProducts.map((product) => mapProductRecursive(product))
     );
 
-    // Clear caches for related entities
-    await Promise.all([
-      clearBrandsAndCountCache(),
-      // clearCategoriesAndCountCache(),
-      clearShippingClassesAndCountCache(),
-      clearTagsAndCountCache(),
-      clearTaxClassesAndCountCache(),
-    ]);
-
     return {
-      statusCode: 201,
+      statusCode: 200,
       success: true,
-      message: "Product created successfully",
-      product: await mapProductRecursive(product),
-      __typename: "ProductResponse",
+      message: "Product(s) fetched successfully",
+      products: productsData,
+      total,
+      __typename: "ProductPaginationResponse",
     };
   } catch (error: any) {
-    console.error("Error creating product:", error);
+    console.error("Error fetching products:", {
+      message: error.message,
+    });
+
     return {
       statusCode: 500,
       success: false,

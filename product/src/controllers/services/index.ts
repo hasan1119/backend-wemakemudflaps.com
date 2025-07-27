@@ -383,6 +383,7 @@ export {
   getProductsByIds,
   getProductsByIdsToDelete,
   paginateProducts,
+  paginateProductsForCustomer,
 } from "./product/get-product.service";
 
 /**

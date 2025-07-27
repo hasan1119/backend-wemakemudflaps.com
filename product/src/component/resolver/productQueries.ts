@@ -4,6 +4,7 @@ import {
   getAllCoupons,
   getAllProductAttribute,
   getAllProducts,
+  getAllProductsForCustomer,
   getAllShippingClass,
   getAllShippingMethods,
   getAllShippingZones,
@@ -141,6 +142,11 @@ export const productQueriesResolver = {
      * Fetches a paginated list of all products in the system.
      */
     getAllProducts,
+
+    /**
+     * Fetches a paginated list of all products in the system, tailored for customer view.
+     */
+    getAllProductsForCustomer,
 
     /**
      * Retrieves detailed information for a category by their unique ID.
