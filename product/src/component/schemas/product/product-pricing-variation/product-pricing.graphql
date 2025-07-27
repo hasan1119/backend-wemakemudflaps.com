@@ -30,7 +30,7 @@ input ProductPriceInput {
 type ProductTieredPrice {
   id: ID! # Unique identifier
   minQuantity: Int! # Minimum quantity for this price tier
-  maxQuantity: Int! # Maximum quantity
+  maxQuantity: Int # Maximum quantity
   fixedPrice: Float # Fixed price
   percentageDiscount: Float # Discount percentage
   quantityUnit: String # Quantity type (e.g., piece, liter and so on)
