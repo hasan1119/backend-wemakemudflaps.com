@@ -243,7 +243,7 @@ export const ProductTieredPriceInputSchema = z
   })
   .refine(
     (data) => {
-      if (data.minQuantity != null && data.maxQuantity != null) {
+      if (!data.minQuantity && !data.maxQuantity) {
         return data.minQuantity < data.maxQuantity;
       }
       return true; // Skip check if either is null/undefined
@@ -255,12 +255,17 @@ export const ProductTieredPriceInputSchema = z
     }
   )
   .refine(
-    (data) => {
-      return !(data.fixedPrice != null && data.percentageDiscount != null);
-    },
+    (data) => !(data.fixedPrice !== null && data.percentageDiscount !== null),
     {
       message: "Provide either fixedPrice or percentageDiscount, not both.",
-      path: ["fixedPrice", "percentageDiscount"],
+      path: ["fixedPrice"],
+    }
+  )
+  .refine(
+    (data) => data.fixedPrice !== null || data.percentageDiscount !== null,
+    {
+      message: "You must provide either fixedPrice or percentageDiscount.",
+      path: ["fixedPrice"],
     }
   );
 
@@ -280,22 +285,48 @@ export const ProductTieredPriceInputSchema = z
  * @property productId - Optional UUID of the associated product.
  * @property productVariationId - Optional UUID of the associated product variation.
  */
-export const ProductPriceInputSchema = z.object({
-  pricingType: z
-    .enum(["Fixed", "Percentage"], {
-      errorMap: () => ({
-        message: "Pricing type must be 'Fixed' or 'Percentage'",
-      }),
-    })
-    .optional()
-    .nullable(),
-  tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
-  productVariationId: z
-    .string()
-    .uuid({ message: "Invalid UUID format" })
-    .optional()
-    .nullable(),
-});
+export const ProductPriceInputSchema = z
+  .object({
+    pricingType: z
+      .enum(["Fixed", "Percentage"], {
+        errorMap: () => ({
+          message: "Pricing type must be 'Fixed' or 'Percentage'",
+        }),
+      })
+      .optional()
+      .nullable(),
+    tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
+    productVariationId: z
+      .string()
+      .uuid({ message: "Invalid UUID format" })
+      .optional()
+      .nullable(),
+  })
+  .refine(
+    (data) => {
+      // If pricingType is specified, it must align with the pricing logic in tieredPrices
+      if (!data.tieredPrices || !Array.isArray(data.tieredPrices)) return true;
+
+      for (const tier of data.tieredPrices) {
+        if (data.pricingType === "Fixed" && tier.fixedPrice === null) {
+          return false;
+        }
+        if (
+          data.pricingType === "Percentage" &&
+          tier.percentageDiscount === null
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    },
+    {
+      message:
+        "Each tiered price must match the pricingType: either only fixedPrice for 'Fixed', or only percentageDiscount for 'Percentage'.",
+      path: ["tieredPrices"],
+    }
+  );
 
 /**
  * Defines the schema for validating product variations input.
