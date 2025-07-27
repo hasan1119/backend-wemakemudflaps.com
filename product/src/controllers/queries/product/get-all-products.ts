@@ -62,7 +62,7 @@ function mapProductPrice(price: ProductPrice): any {
     tieredPrices: (price.tieredPrices || []).map((tp) => ({
       id: tp.id,
       minQuantity: tp.minQuantity,
-      maxQuantity: tp.maxQuantity,
+      maxQuantity: tp?.maxQuantity,
       quantityUnit: tp.quantityUnit,
       fixedPrice: tp.fixedPrice,
       percentageDiscount: tp.percentageDiscount,
