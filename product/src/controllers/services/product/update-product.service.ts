@@ -7,6 +7,7 @@ import {
   productRepository,
   productVariationRepository,
 } from "../repositories/repositories";
+import { getProductById } from "./get-product.service";
 
 /**
  * Updates a product and its related entities including variations and tier pricing.
@@ -244,5 +245,7 @@ export const updateProduct = async (
   }
 
   // Save and return updated product
-  return await productRepository.save(product);
+  await productRepository.save(product);
+
+  return getProductById(product.id);
 };
