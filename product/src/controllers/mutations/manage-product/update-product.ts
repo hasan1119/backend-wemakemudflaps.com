@@ -438,6 +438,7 @@ export const updateProduct = async (
       const variationsShippingClassIds = variations.flatMap(
         (variation) => variation.shippingClassId ?? []
       );
+
       if (variationsShippingClassIds.length > 0) {
         const shippingClasses = await getShippingClassesByIds(
           variationsShippingClassIds
