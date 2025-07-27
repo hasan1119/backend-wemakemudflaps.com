@@ -206,8 +206,8 @@ export class Product {
   maxQuantity: number | null;
 
   // Step increment when adding product to cart
-  @Column({ nullable: true, default: null })
-  quantityStep: number | null;
+  @Column({ default: 1 })
+  quantityStep: number;
 
   /* ====================== Inventory Info ====================== */
 
