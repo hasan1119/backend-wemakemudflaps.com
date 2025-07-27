@@ -214,32 +214,56 @@ export const TaxStatusTypeEnum = z.preprocess((val) => {
  * @property percentageDiscount - Optional percentage discount for the tier.
  * @property productPriceId - Optional UUID of the associated product price.
  */
-export const ProductTieredPriceInputSchema = z.object({
-  minQuantity: z
-    .number()
-    .int()
-    .positive("Min quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  maxQuantity: z
-    .number()
-    .int()
-    .positive("Max quantity must be a positive integer")
-    .optional()
-    .nullable(),
-  quantityUnit: z
-    .string()
-    .min(1, "Quantity unit cannot be empty")
-    .trim()
-    .optional()
-    .nullable(),
-  fixedPrice: z
-    .number()
-    .positive("Fixed price must be a positive number")
-    .optional()
-    .nullable(),
-  percentageDiscount: z.number().min(0).max(100).optional().nullable(),
-});
+export const ProductTieredPriceInputSchema = z
+  .object({
+    minQuantity: z
+      .number()
+      .int()
+      .positive("Min quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    maxQuantity: z
+      .number()
+      .int()
+      .positive("Max quantity must be a positive integer")
+      .optional()
+      .nullable(),
+    quantityUnit: z
+      .string()
+      .min(1, "Quantity unit cannot be empty")
+      .trim()
+      .optional()
+      .nullable(),
+    fixedPrice: z
+      .number()
+      .positive("Fixed price must be a positive number")
+      .optional()
+      .nullable(),
+    percentageDiscount: z.number().min(0).max(100).optional().nullable(),
+  })
+  .refine(
+    (data) => {
+      const { minQuantity, maxQuantity } = data;
+
+      // Skip the check if either value is undefined or null
+      if (
+        minQuantity !== null &&
+        minQuantity !== undefined &&
+        maxQuantity !== null &&
+        maxQuantity !== undefined
+      ) {
+        return minQuantity < maxQuantity;
+      }
+
+      // If maxQuantity is null/undefined, we skip the validation check
+      return true;
+    },
+    {
+      message:
+        "Invalid update: minQuantity must be less than maxQuantity and at least one field besides id must be provided.",
+      path: [],
+    }
+  );
 
 /**
  * Defines the schema for validating product price input.
