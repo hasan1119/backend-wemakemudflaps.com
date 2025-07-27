@@ -117,6 +117,7 @@ export { restoreProducts } from "./mutations/manage-product/restore-product";
 export { updateProduct } from "./mutations/manage-product/update-product";
 export { getAllProducts } from "./queries/product/get-all-products";
 export { getProductById } from "./queries/product/get-product-by-id";
+export { getProductByIdForCustomer } from "./queries/product/get-product-by-id-for-customer";
 
 /**
  * Exports GraphQL queries and mutations for managing tax rate data.

@@ -6,11 +6,7 @@ import {
   QueryGetProductByIdArgs,
 } from "../../../types";
 import { idSchema } from "../../../utils/data-validation";
-import {
-  checkUserAuth,
-  checkUserPermission,
-  getProductById as getProductByIdService,
-} from "../../services";
+import { getProductById as getProductByIdService } from "../../services";
 
 /**
  * Maps a Category entity to GraphQL-compatible plain object including nested subcategories recursively.
@@ -267,32 +263,12 @@ async function mapProductRecursive(
  * @param context - GraphQL context containing authenticated user information.
  * @returns A promise resolving to a GetProductByIdResponseOrError object containing status, message, product data, and errors if applicable.
  */
-export const getProductById = async (
+export const getProductByIdForCustomer = async (
   _: any,
   args: QueryGetProductByIdArgs,
   { user }: Context
 ): Promise<GetProductByIdResponseOrError> => {
   try {
-    // Verify user authentication
-    const authResponse = checkUserAuth(user);
-    if (authResponse) return authResponse;
-
-    // Check if user has permission to view products
-    const canRead = await checkUserPermission({
-      action: "canRead",
-      entity: "product",
-      user,
-    });
-
-    if (!canRead) {
-      return {
-        statusCode: 403,
-        success: false,
-        message: "You do not have permission to view product info",
-        __typename: "BaseResponse",
-      };
-    }
-
     // Validate input product ID with Zod schema
     const validationResult = await idSchema.safeParseAsync(args);
 
@@ -321,6 +297,15 @@ export const getProductById = async (
         statusCode: 404,
         success: false,
         message: `Product not found with this id: ${id}, or it may have been deleted or moved to the trash`,
+        __typename: "BaseResponse",
+      };
+    }
+
+    if (!productData.isVisible) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "This product is not visible to customers",
         __typename: "BaseResponse",
       };
     }

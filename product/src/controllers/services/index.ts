@@ -381,6 +381,7 @@ export {
   findProductBySlugToUpdate,
   getProductById,
   getProductsByIds,
+  getProductsByIdsToDelete,
   paginateProducts,
 } from "./product/get-product.service";
 

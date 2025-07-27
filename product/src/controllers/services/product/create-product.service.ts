@@ -79,8 +79,8 @@ export const createProduct = async (
   } = data ?? {};
 
   const product = productRepository.create({
-    name: "Example Product",
-    slug: `example-product-${Date.now()}`,
+    name: name || "Example Product",
+    slug: slug || `example-product-${Date.now()}`,
     defaultImage,
     images,
     videos,
@@ -114,7 +114,7 @@ export const createProduct = async (
     purchaseNote,
     enableReviews,
     customBadge,
-    isVisible: false,
+    isVisible: isVisible ?? false,
     productConfigurationType,
     productDeliveryType,
     isCustomized,
@@ -125,22 +125,20 @@ export const createProduct = async (
     // Relations
     categories: categoryIds?.length
       ? (categoryIds.map((id) => ({ id })) as any)
-      : null,
-    brands: brandIds?.length ? brandIds.map((id) => ({ id })) : null,
-    tags: tagIds?.length ? (tagIds.map((id) => ({ id })) as any) : null,
+      : [],
+    brands: brandIds?.length ? brandIds.map((id) => ({ id })) : [],
+    tags: tagIds?.length ? (tagIds.map((id) => ({ id })) as any) : [],
     taxClass: taxClassId ? ({ id: taxClassId } as any) : null,
     taxStatus: taxStatus,
     shippingClass: shippingClassId ? ({ id: shippingClassId } as any) : null,
     attributes: attributeIds?.length
       ? (attributeIds.map((id) => ({ id })) as any)
-      : null,
+      : [],
 
-    upsells: upsellIds?.length
-      ? (upsellIds.map((id) => ({ id })) as any)
-      : null,
+    upsells: upsellIds?.length ? (upsellIds.map((id) => ({ id })) as any) : [],
     crossSells: crossSellIds?.length
       ? (crossSellIds.map((id) => ({ id })) as any)
-      : null,
+      : [],
   });
 
   const savedProduct = await productRepository.save(product);
@@ -148,10 +146,10 @@ export const createProduct = async (
   const processedVariations = variations?.map((v) => {
     return {
       ...v,
-      brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : null,
+      brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : [],
       attributeValues: v.attributeValues?.length
         ? v.attributeValues.map((av) => ({ id: av }))
-        : null,
+        : [],
       tierPricingInfo: v.tierPricingInfo
         ? {
             pricingType: v.tierPricingInfo.pricingType,
@@ -175,12 +173,10 @@ export const createProduct = async (
   const processedTierPricingInfo = tierPricingInfo
     ? {
         pricingType: tierPricingInfo.pricingType,
-        tieredPrices: {
-          tieredPrices: tierPricingInfo.tieredPrices?.map((tp) => ({
-            ...tp,
-          })),
-        },
-        product: { id: savedProduct.id } as any, // Link back to the main product
+        tieredPrices: tierPricingInfo.tieredPrices?.map((tp) => ({
+          ...tp,
+        })),
+        product: { id: savedProduct.id } as any, // Link to product
       }
     : null;
 
@@ -192,5 +188,10 @@ export const createProduct = async (
     ? await productVariationRepository.save(processedVariations as any)
     : null;
 
-  return getProductById(savedProduct.id);
+  // Save the product with variations and tier pricing
+  await productRepository.save(savedProduct);
+
+  const productData = await getProductById(savedProduct.id);
+
+  return productData;
 };

@@ -212,7 +212,7 @@ export class Product {
   /* ====================== Inventory Info ====================== */
 
   // Unique SKU (Stock Keeping Unit) identifier
-  @Column({ unique: true, nullable: true, default: null })
+  @Column({ nullable: true, default: null })
   sku: string | null;
 
   // Model number or identifier

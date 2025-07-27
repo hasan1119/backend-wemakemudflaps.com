@@ -15,6 +15,7 @@ import {
   getCouponById,
   getProductAttributeById,
   getProductById,
+  getProductByIdForCustomer,
   getShippingClassById,
   getShippingMethodById,
   getShippingZoneById,
@@ -130,6 +131,11 @@ export const productQueriesResolver = {
      * Retrieves detailed information for a product by their unique ID.
      */
     getProductById,
+
+    /**
+     * Retrieves detailed information for a product by their unique ID, tailored for customer view.
+     */
+    getProductByIdForCustomer,
 
     /**
      * Fetches a paginated list of all products in the system.

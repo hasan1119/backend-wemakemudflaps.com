@@ -185,8 +185,8 @@ export type CategoryResponseById = {
 export type Coupon = {
   __typename?: 'Coupon';
   allowedEmails: Array<Scalars['String']['output']>;
-  applicableCategories?: Maybe<Array<CouponCategory>>;
-  applicableProducts?: Maybe<Array<CouponProduct>>;
+  applicableCategories: Array<CouponCategory>;
+  applicableProducts: Array<CouponProduct>;
   code: Scalars['String']['output'];
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
@@ -194,8 +194,8 @@ export type Coupon = {
   description?: Maybe<Scalars['String']['output']>;
   discountType?: Maybe<Scalars['String']['output']>;
   discountValue?: Maybe<Scalars['Float']['output']>;
-  excludedCategories?: Maybe<Array<CouponCategory>>;
-  excludedProducts?: Maybe<Array<CouponProduct>>;
+  excludedCategories: Array<CouponCategory>;
+  excludedProducts: Array<CouponProduct>;
   expiryDate?: Maybe<Scalars['String']['output']>;
   freeShipping?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
@@ -2350,7 +2350,7 @@ export type TaxOptions = {
   priceDisplaySuffix: Scalars['String']['output'];
   pricesEnteredWithTax: Scalars['Boolean']['output'];
   roundTaxAtSubtotalLevel: Scalars['Boolean']['output'];
-  shippingTaxClass: ShippingClass;
+  shippingTaxClass?: Maybe<ShippingClass>;
   updatedAt?: Maybe<Scalars['String']['output']>;
 };
 
@@ -3510,8 +3510,8 @@ export type CategoryResponseByIdResolvers<ContextType = Context, ParentType exte
 
 export type CouponResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Coupon'] = ResolversParentTypes['Coupon']> = {
   allowedEmails?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  applicableCategories?: Resolver<Maybe<Array<ResolversTypes['CouponCategory']>>, ParentType, ContextType>;
-  applicableProducts?: Resolver<Maybe<Array<ResolversTypes['CouponProduct']>>, ParentType, ContextType>;
+  applicableCategories?: Resolver<Array<ResolversTypes['CouponCategory']>, ParentType, ContextType>;
+  applicableProducts?: Resolver<Array<ResolversTypes['CouponProduct']>, ParentType, ContextType>;
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
@@ -3519,8 +3519,8 @@ export type CouponResolvers<ContextType = Context, ParentType extends ResolversP
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   discountType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   discountValue?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
-  excludedCategories?: Resolver<Maybe<Array<ResolversTypes['CouponCategory']>>, ParentType, ContextType>;
-  excludedProducts?: Resolver<Maybe<Array<ResolversTypes['CouponProduct']>>, ParentType, ContextType>;
+  excludedCategories?: Resolver<Array<ResolversTypes['CouponCategory']>, ParentType, ContextType>;
+  excludedProducts?: Resolver<Array<ResolversTypes['CouponProduct']>, ParentType, ContextType>;
   expiryDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   freeShipping?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -4651,7 +4651,7 @@ export type TaxOptionsResolvers<ContextType = Context, ParentType extends Resolv
   priceDisplaySuffix?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   pricesEnteredWithTax?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   roundTaxAtSubtotalLevel?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  shippingTaxClass?: Resolver<ResolversTypes['ShippingClass'], ParentType, ContextType>;
+  shippingTaxClass?: Resolver<Maybe<ResolversTypes['ShippingClass']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

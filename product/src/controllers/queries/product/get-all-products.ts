@@ -348,8 +348,8 @@ export const getAllProducts = async (
     });
 
     // Map database products to response format
-    const productsData = dbProducts.map((product) =>
-      mapProductRecursive(product)
+    const productsData = await Promise.all(
+      dbProducts.map((product) => mapProductRecursive(product))
     );
 
     return {

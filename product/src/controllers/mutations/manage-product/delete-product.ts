@@ -12,7 +12,7 @@ import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  getProductsByIds,
+  getProductsByIdsToDelete,
   hardDeleteProduct,
   softDeleteProduct,
 } from "../../services";
@@ -85,7 +85,7 @@ export const deleteProduct = async (
     }
 
     // Fetch products directly from the database
-    const foundProducts = await getProductsByIds(ids);
+    const foundProducts = await getProductsByIdsToDelete(ids);
 
     if (foundProducts.length !== ids.length) {
       const foundIds = new Set(foundProducts.map((p) => p.id));
@@ -104,7 +104,7 @@ export const deleteProduct = async (
       const { id, name, deletedAt } = productData;
 
       if (skipTrash) {
-        await hardDeleteProduct(id);
+        await hardDeleteProduct(productData);
 
         // Clear caches for related entities
         await Promise.all([

@@ -37,7 +37,7 @@ export class ProductVariation {
   brands: Promise<Brand[]> | null;
 
   // SKU for the product variation (nullable)
-  @Column({ unique: true, nullable: true, default: null })
+  @Column({ nullable: true, default: null })
   sku: string | null;
 
   // Minimum quantity for the variation (nullable)
