@@ -1694,7 +1694,7 @@ export type ProductTieredPrice = {
   minQuantity: Scalars['Int']['output'];
   percentageDiscount?: Maybe<Scalars['Float']['output']>;
   productPrice?: Maybe<ProductPrice>;
-  quantityUnit: Scalars['String']['output'];
+  quantityUnit?: Maybe<Scalars['String']['output']>;
 };
 
 export type ProductTieredPriceInput = {
@@ -1785,6 +1785,7 @@ export type Query = {
   getAllPermissionsByUserId: GetPermissionsResponseOrError;
   getAllProductAttribute: GetAllProductAttributesResponseOrError;
   getAllProducts: GetProductsResponseOrError;
+  getAllProductsForCustomer: GetProductsResponseOrError;
   getAllRoles: GetRolesResponseOrError;
   getAllShippingClass: GetShippingClassesResponseOrError;
   getAllShippingMethods: GetShippingMethodsResponseOrError;
@@ -1800,6 +1801,7 @@ export type Query = {
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError;
   getProductAttributeById: GetProductAttributeByIdResponseOrError;
   getProductById: GetProductByIdResponseOrError;
+  getProductByIdForCustomer: GetProductByIdResponseOrError;
   getProfile: GetProfileResponseOrError;
   getReview?: Maybe<Scalars['String']['output']>;
   getRoleById: GetRoleByIdResponseOrError;
@@ -1879,6 +1881,15 @@ export type QueryGetAllProductAttributeArgs = {
 
 
 export type QueryGetAllProductsArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllProductsForCustomerArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -1986,6 +1997,11 @@ export type QueryGetProductAttributeByIdArgs = {
 
 
 export type QueryGetProductByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetProductByIdForCustomerArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4264,7 +4280,7 @@ export type ProductTieredPriceResolvers<ContextType = Context, ParentType extend
   minQuantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   percentageDiscount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   productPrice?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
-  quantityUnit?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  quantityUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4315,6 +4331,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
   getAllProductAttribute?: Resolver<ResolversTypes['GetAllProductAttributesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllProductAttributeArgs, 'limit' | 'page'>>;
   getAllProducts?: Resolver<ResolversTypes['GetProductsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllProductsArgs, 'limit' | 'page'>>;
+  getAllProductsForCustomer?: Resolver<ResolversTypes['GetProductsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllProductsForCustomerArgs, 'limit' | 'page'>>;
   getAllRoles?: Resolver<ResolversTypes['GetRolesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllRolesArgs, 'limit' | 'page'>>;
   getAllShippingClass?: Resolver<ResolversTypes['GetShippingClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingClassArgs, 'limit' | 'page'>>;
   getAllShippingMethods?: Resolver<ResolversTypes['GetShippingMethodsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingMethodsArgs, 'limit' | 'page'>>;
@@ -4330,6 +4347,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getOwnPersonalizedPermissions?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType>;
   getProductAttributeById?: Resolver<ResolversTypes['GetProductAttributeByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductAttributeByIdArgs, 'id'>>;
   getProductById?: Resolver<ResolversTypes['GetProductByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductByIdArgs, 'id'>>;
+  getProductByIdForCustomer?: Resolver<ResolversTypes['GetProductByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductByIdForCustomerArgs, 'id'>>;
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
   getReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getRoleById?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleByIdArgs, 'id'>>;

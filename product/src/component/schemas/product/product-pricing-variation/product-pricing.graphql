@@ -44,5 +44,6 @@ input ProductTieredPriceInput {
   minQuantity: Int! # Minimum quantity
   maxQuantity: Int! # Maximum quantity
   fixedPrice: Float # Price value
+  quantityUnit: String # Unit of quantity (e.g., piece, liter and so on)
   percentageDiscount: Float # Discount value
 }
