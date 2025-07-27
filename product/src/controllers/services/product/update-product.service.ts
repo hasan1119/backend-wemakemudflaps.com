@@ -30,69 +30,121 @@ export const updateProduct = async (
   const product = currentProduct;
 
   // Replace scalar fields directly
-  if (data.name) product.name = data.name;
-  if (data.slug) product.slug = data.slug;
-  if (data.defaultImage) product.defaultImage = data.defaultImage;
-  if (data.images) product.images = data.images;
-  if (data.videos) product.videos = data.videos;
-  if (data.defaultMainDescription)
+  if (data.name !== undefined && data.name !== null) product.name = data.name;
+
+  if (data.slug !== undefined && data.slug !== null) product.slug = data.slug;
+
+  if (data.defaultImage !== undefined) product.defaultImage = data.defaultImage;
+
+  if (data.images !== undefined) product.images = data.images;
+
+  if (data.videos !== undefined) product.videos = data.videos;
+
+  if (data.defaultMainDescription !== undefined)
     product.defaultMainDescription = data.defaultMainDescription;
-  if (data.defaultShortDescription)
+
+  if (data.defaultShortDescription !== undefined)
     product.defaultShortDescription = data.defaultShortDescription;
-  if (data.regularPrice) product.regularPrice = data.regularPrice;
-  if (data.salePrice) product.salePrice = data.salePrice;
+
+  if (data.regularPrice !== undefined) product.regularPrice = data.regularPrice;
+
+  if (data.salePrice !== undefined) product.salePrice = data.salePrice;
 
   if (data.salePriceStartAt !== undefined) {
     product.salePriceStartAt =
-      typeof data.salePriceStartAt === "string"
+      data.salePriceStartAt === null
+        ? null
+        : typeof data.salePriceStartAt === "string"
         ? new Date(data.salePriceStartAt)
         : data.salePriceStartAt;
   }
 
   if (data.salePriceEndAt !== undefined) {
     product.salePriceEndAt =
-      typeof data.salePriceEndAt === "string"
+      data.salePriceEndAt === null
+        ? null
+        : typeof data.salePriceEndAt === "string"
         ? new Date(data.salePriceEndAt)
         : data.salePriceEndAt;
   }
 
-  if (data.saleQuantity) product.saleQuantity = data.saleQuantity;
-  if (data.saleQuantityUnit) product.saleQuantityUnit = data.saleQuantityUnit;
-  if (data.minQuantity) product.minQuantity = data.minQuantity;
-  if (data.defaultQuantity) product.defaultQuantity = data.defaultQuantity;
-  if (data.maxQuantity) product.maxQuantity = data.maxQuantity;
-  if (data.quantityStep) product.quantityStep = data.quantityStep;
-  if (data.sku) product.sku = data.sku;
-  if (data.model) product.model = data.model;
-  if (data.manageStock) product.manageStock = data.manageStock;
-  if (data.stockQuantity) product.stockQuantity = data.stockQuantity;
-  if (data.allowBackOrders) product.allowBackOrders = data.allowBackOrders;
-  if (data.lowStockThresHold)
+  if (data.saleQuantity !== undefined) product.saleQuantity = data.saleQuantity;
+
+  if (data.saleQuantityUnit !== undefined)
+    product.saleQuantityUnit = data.saleQuantityUnit;
+
+  if (data.minQuantity !== undefined) product.minQuantity = data.minQuantity;
+
+  if (data.defaultQuantity !== undefined)
+    product.defaultQuantity = data.defaultQuantity;
+
+  if (data.maxQuantity !== undefined) product.maxQuantity = data.maxQuantity;
+
+  if (data.quantityStep !== undefined) product.quantityStep = data.quantityStep;
+
+  if (data.sku !== undefined) product.sku = data.sku;
+
+  if (data.model !== undefined) product.model = data.model;
+
+  if (data.manageStock !== undefined) product.manageStock = data.manageStock;
+
+  if (data.stockQuantity !== undefined)
+    product.stockQuantity = data.stockQuantity;
+
+  if (data.allowBackOrders !== undefined)
+    product.allowBackOrders = data.allowBackOrders;
+
+  if (data.lowStockThresHold !== undefined)
     product.lowStockThresHold = data.lowStockThresHold;
-  if (data.stockStatus) product.stockStatus = data.stockStatus;
-  if (data.soldIndividually) product.soldIndividually = data.soldIndividually;
-  if (data.initialNumberInStock)
+
+  if (data.stockStatus !== undefined) product.stockStatus = data.stockStatus;
+
+  if (data.soldIndividually !== undefined)
+    product.soldIndividually = data.soldIndividually;
+
+  if (data.initialNumberInStock !== undefined)
     product.initialNumberInStock = data.initialNumberInStock;
-  if (data.weightUnit) product.weightUnit = data.weightUnit;
-  if (data.weight) product.weight = data.weight;
-  if (data.dimensionUnit) product.dimensionUnit = data.dimensionUnit;
-  if (data.length) product.length = data.length;
-  if (data.width) product.width = data.width;
-  if (data.height) product.height = data.height;
-  if (data.purchaseNote) product.purchaseNote = data.purchaseNote;
-  if (data.enableReviews) product.enableReviews = data.enableReviews;
-  if (data.customBadge) product.customBadge = data.customBadge;
-  if (data.isVisible) product.isVisible = data.isVisible;
-  if (data.productConfigurationType)
+
+  if (data.weightUnit !== undefined) product.weightUnit = data.weightUnit;
+
+  if (data.weight !== undefined) product.weight = data.weight;
+
+  if (data.dimensionUnit !== undefined)
+    product.dimensionUnit = data.dimensionUnit;
+
+  if (data.length !== undefined) product.length = data.length;
+
+  if (data.width !== undefined) product.width = data.width;
+
+  if (data.height !== undefined) product.height = data.height;
+
+  if (data.purchaseNote !== undefined) product.purchaseNote = data.purchaseNote;
+
+  if (data.enableReviews !== undefined)
+    product.enableReviews = data.enableReviews;
+
+  if (data.customBadge !== undefined) product.customBadge = data.customBadge;
+
+  if (data.isVisible !== undefined) product.isVisible = data.isVisible;
+
+  if (data.productConfigurationType !== undefined)
     product.productConfigurationType = data.productConfigurationType;
-  if (data.productDeliveryType)
+
+  if (data.productDeliveryType !== undefined)
     product.productDeliveryType = data.productDeliveryType;
-  if (data.isCustomized) product.isCustomized = data.isCustomized;
-  if (data.warrantyDigit) product.warrantyDigit = data.warrantyDigit;
-  if (data.defaultWarrantyPeriod)
+
+  if (data.isCustomized !== undefined) product.isCustomized = data.isCustomized;
+
+  if (data.warrantyDigit !== undefined)
+    product.warrantyDigit = data.warrantyDigit;
+
+  if (data.defaultWarrantyPeriod !== undefined)
     product.defaultWarrantyPeriod = data.defaultWarrantyPeriod;
-  if (data.warrantyPolicy) product.warrantyPolicy = data.warrantyPolicy;
-  if (data.taxStatus) product.taxStatus = data.taxStatus;
+
+  if (data.warrantyPolicy !== undefined)
+    product.warrantyPolicy = data.warrantyPolicy;
+
+  if (data.taxStatus !== undefined) product.taxStatus = data.taxStatus;
 
   // Replace relational fields
 
