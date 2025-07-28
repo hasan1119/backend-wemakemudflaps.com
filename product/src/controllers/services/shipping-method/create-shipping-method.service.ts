@@ -12,11 +12,11 @@ import { shippingMethodRepository } from "../repositories/repositories";
  * 4. Returns the created ShippingMethod entity.
  *
  * @param data - The data for the shipping method to create.
- * @param userId - Optional user ID to associate with the creation.
+ * @param userId - User ID to associate with the creation.
  */
 export const createShippingMethod = async (
   data: MutationCreateShippingMethodArgs,
-  userId?: string
+  userId: string
 ): Promise<ShippingMethod> => {
   const removeId = <T extends object>(obj?: T | null): T | null => {
     if (!obj) return null;

@@ -11,12 +11,12 @@ import { taxClassRepository } from "../repositories/repositories";
  * 3. Creates the tax class with provided values and user context.
  *
  * @param data - Input data for creating the tax class.
- * @param userId - Optional user ID who creates this tax class.
+ * @param userId - User ID who creates this tax class.
  * @returns Created Tax class entity.
  */
 export const createTaxClass = async (
   data: MutationCreateTaxClassArgs,
-  userId?: string
+  userId: string
 ): Promise<TaxClass> => {
   const { value, description } = data ?? {};
 

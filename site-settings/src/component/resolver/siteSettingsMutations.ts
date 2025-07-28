@@ -1,3 +1,5 @@
+import { createSiteSetting, updateSiteSetting } from "../../controllers";
+
 /**
  * Defines GraphQL mutation resolvers for site settings related operations.
  *
@@ -8,9 +10,14 @@
  */
 export const siteSettingsMutationsResolver = {
   Mutation: {
-    createSiteSetting: async (_, args) => {
-      // Call the controller function to create a site setting
-      return console.log("hello");
-    },
+    /**
+     * Creates site settings.
+     */
+    createSiteSetting,
+
+    /**
+     * Updates existing site settings.
+     */
+    updateSiteSetting,
   },
 };

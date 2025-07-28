@@ -15,12 +15,12 @@ import { getProductById } from "./get-product.service";
  * 2. Creates the product with provided values and user context.
  *
  * @param data - Input data for creating the product.
- * @param userId - Optional user ID who creates this product.
+ * @param userId - User ID who creates this product.
  * @returns Created Product entity.
  */
 export const createProduct = async (
   data: MutationCreateProductArgs,
-  userId?: string
+  userId: string
 ): Promise<Product> => {
   const {
     name,

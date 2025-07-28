@@ -12,8 +12,8 @@ type SiteSettings {
   id: ID!
   name: String
   metaData: String
-  favIcon: String
-  logo: String
+  favIcon: Media
+  logo: Media
   contactNumber: String
   contactEmail: String
   shopAddress: ShopAddress

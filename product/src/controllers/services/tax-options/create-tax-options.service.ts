@@ -8,7 +8,7 @@ import { taxOptionsRepository } from "../repositories/repositories";
  * 1. Creates the tax options with provided values and user context.
  *
  * @param data - Input data for creating the tax options.
- * @param userId - Optional user ID who creates this tax options.
+ * @param userId - User ID who creates this tax options.
  * @returns Created TaxOptions entity.
  */
 export const createTaxOptions = async (

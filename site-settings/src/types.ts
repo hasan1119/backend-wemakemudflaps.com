@@ -242,6 +242,8 @@ export type CreateCategoryResponseOrError = BaseResponse | CategoryResponse | Er
 
 export type CreateCouponResponseOrError = BaseResponse | CouponResponse | ErrorResponse;
 
+export type CreateFaqResponseOrError = BaseResponse | ErrorResponse | FaqResponse;
+
 export type CreateProductAttributeResponseOrError = BaseResponse | ErrorResponse | ProductAttributeResponse;
 
 export type CreateProductResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
@@ -255,6 +257,8 @@ export type CreateShippingClassResponseOrError = BaseResponse | ErrorResponse | 
 export type CreateShippingMethodResponseOrError = BaseResponse | ErrorResponse | ShippingMethodResponse;
 
 export type CreateShippingZoneResponseOrError = BaseResponse | ErrorResponse | ShippingZoneResponse;
+
+export type CreateSiteSettingsResponseOrError = BaseResponse | ErrorResponse | SiteSettingsResponse;
 
 export type CreateTagResponseOrError = BaseResponse | ErrorResponse | TagResponse;
 
@@ -300,6 +304,8 @@ export type DeleteBrandResponseOrError = BaseResponse | ErrorResponse;
 export type DeleteCategoryResponseOrError = BaseResponse | ErrorResponse;
 
 export type DeleteCouponResponseOrError = BaseResponse | ErrorResponse;
+
+export type DeleteFaqResponseOrError = BaseResponse | ErrorResponse;
 
 export type DeleteProductAttributeResponseOrError = BaseResponse | ErrorResponse;
 
@@ -347,6 +353,41 @@ export type EmailVerificationResponseOrError = BaseResponse | EmailVerificationR
 export type ErrorResponse = {
   __typename?: 'ErrorResponse';
   errors?: Maybe<Array<FieldError>>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type Faq = {
+  __typename?: 'Faq';
+  answer: Scalars['String']['output'];
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  question: Scalars['String']['output'];
+};
+
+export type FaqPaginationResponse = {
+  __typename?: 'FaqPaginationResponse';
+  faqs: Array<Faq>;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type FaqResponse = {
+  __typename?: 'FaqResponse';
+  faq: Faq;
+  message: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type FaqResponseById = {
+  __typename?: 'FaqResponseById';
+  faq: Faq;
   message: Scalars['String']['output'];
   statusCode: Scalars['Int']['output'];
   success: Scalars['Boolean']['output'];
@@ -444,6 +485,10 @@ export type GetCouponByIdResponseOrError = BaseResponse | CouponResponse | Error
 
 export type GetCouponsResponseOrError = BaseResponse | CouponPaginationResponse | ErrorResponse;
 
+export type GetFaqByIdResponseOrError = BaseResponse | ErrorResponse | FaqResponseById;
+
+export type GetFaqsResponseOrError = BaseResponse | ErrorResponse | FaqPaginationResponse;
+
 export type GetMediaByIdResponseOrError = BaseResponse | ErrorResponse | MediaResponse;
 
 export type GetMediasResponseOrError = BaseResponse | ErrorResponse | MediasResponse;
@@ -481,6 +526,8 @@ export type GetShippingMethodsResponseOrError = BaseResponse | ErrorResponse | S
 export type GetShippingZoneByIdResponseOrError = BaseResponse | ErrorResponse | ShippingZoneResponse;
 
 export type GetShippingZonesResponseOrError = BaseResponse | ErrorResponse | ShippingZonePaginationResponse;
+
+export type GetSiteSettingsResponseOrError = BaseResponse | ErrorResponse | SiteSettingsResponse;
 
 export type GetTagByIdResponseOrError = BaseResponse | ErrorResponse | TagResponse;
 
@@ -717,12 +764,14 @@ export type Mutation = {
   createBrand: CreateBrandResponseOrError;
   createCategory: CreateCategoryResponseOrError;
   createCoupon: CreateCouponResponseOrError;
+  createFaq: CreateFaqResponseOrError;
   createProduct: CreateProductResponseOrError;
   createProductAttribute: ProductAttributeResponse;
   createReview?: Maybe<Scalars['String']['output']>;
   createShippingClass: CreateShippingClassResponseOrError;
   createShippingMethod: CreateShippingMethodResponseOrError;
   createShippingZone: CreateShippingZoneResponseOrError;
+  createSiteSetting: CreateSiteSettingsResponseOrError;
   createSystemProductAttribute: ProductAttributeResponse;
   createTag: CreateTagResponseOrError;
   createTaxClass: CreateTaxClassResponseOrError;
@@ -734,6 +783,7 @@ export type Mutation = {
   deleteBrand: DeleteBrandResponseOrError;
   deleteCategory?: Maybe<DeleteCategoryResponseOrError>;
   deleteCoupon: DeleteCouponResponseOrError;
+  deleteFaqs: DeleteFaqResponseOrError;
   deleteLoginSession: BaseResponseOrError;
   deleteMediaFiles: BaseResponseOrError;
   deleteProduct: DeleteProductResponseOrError;
@@ -764,6 +814,7 @@ export type Mutation = {
   updateCategory: UpdateCategoryResponseOrError;
   updateCategoryPosition: UpdateCategoryResponseOrError;
   updateCoupon: UpdateCouponResponseOrError;
+  updateFaq: UpdateFaqResponseOrError;
   updateMediaFileInfo: UpdateMediaResponseOrError;
   updateProduct: UpdateProductResponseOrError;
   updateProductAttribute: ProductAttributeResponse;
@@ -771,6 +822,7 @@ export type Mutation = {
   updateShippingClass: UpdateShippingClassResponseOrError;
   updateShippingMethod: UpdateShippingMethodResponseOrError;
   updateShippingZone: UpdateShippingZoneResponseOrError;
+  updateSiteSetting: UpdateSiteSettingsResponseOrError;
   updateTag: UpdateTagResponseOrError;
   updateTaxClass: UpdateTaxClassResponseOrError;
   updateTaxExemptionEntry: UpdateTaxExemptionResponseOrError;
@@ -841,6 +893,12 @@ export type MutationCreateCouponArgs = {
   maxUsage?: InputMaybe<Scalars['Float']['input']>;
   maximumSpend?: InputMaybe<Scalars['Float']['input']>;
   minimumSpend?: InputMaybe<Scalars['Float']['input']>;
+};
+
+
+export type MutationCreateFaqArgs = {
+  answer: Scalars['String']['input'];
+  question: Scalars['String']['input'];
 };
 
 
@@ -936,6 +994,17 @@ export type MutationCreateShippingZoneArgs = {
 };
 
 
+export type MutationCreateSiteSettingArgs = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  contactNumber?: InputMaybe<Scalars['String']['input']>;
+  favIcon?: InputMaybe<Scalars['String']['input']>;
+  logo?: InputMaybe<Scalars['String']['input']>;
+  metaData?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  shopAddress?: InputMaybe<ShopAddressInput>;
+};
+
+
 export type MutationCreateSystemProductAttributeArgs = {
   name: Scalars['String']['input'];
   slug: Scalars['String']['input'];
@@ -1018,6 +1087,11 @@ export type MutationDeleteCategoryArgs = {
 
 
 export type MutationDeleteCouponArgs = {
+  ids: Array<InputMaybe<Scalars['ID']['input']>>;
+};
+
+
+export type MutationDeleteFaqsArgs = {
   ids: Array<InputMaybe<Scalars['ID']['input']>>;
 };
 
@@ -1217,6 +1291,13 @@ export type MutationUpdateCouponArgs = {
 };
 
 
+export type MutationUpdateFaqArgs = {
+  answer?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  question?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationUpdateMediaFileInfoArgs = {
   inputs: UpdateMediaInput;
 };
@@ -1334,6 +1415,17 @@ export type MutationUpdateShippingZoneArgs = {
 };
 
 
+export type MutationUpdateSiteSettingArgs = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  contactNumber?: InputMaybe<Scalars['String']['input']>;
+  favIcon?: InputMaybe<Scalars['String']['input']>;
+  logo?: InputMaybe<Scalars['String']['input']>;
+  metaData?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  shopAddress?: InputMaybe<ShopAddressInput>;
+};
+
+
 export type MutationUpdateTagArgs = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
@@ -1447,6 +1539,7 @@ export enum PermissionName {
   ProductReview = 'PRODUCT_REVIEW',
   Role = 'ROLE',
   ShippingSettings = 'SHIPPING_SETTINGS',
+  SiteSettings = 'SITE_SETTINGS',
   SubCategory = 'SUB_CATEGORY',
   Tag = 'TAG',
   TaxExemption = 'TAX_EXEMPTION',
@@ -1690,7 +1783,7 @@ export type ProductTieredPrice = {
   deletedAt?: Maybe<Scalars['String']['output']>;
   fixedPrice?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
-  maxQuantity: Scalars['Int']['output'];
+  maxQuantity?: Maybe<Scalars['Int']['output']>;
   minQuantity: Scalars['Int']['output'];
   percentageDiscount?: Maybe<Scalars['Float']['output']>;
   productPrice?: Maybe<ProductPrice>;
@@ -1782,6 +1875,7 @@ export type Query = {
   getAllBrands: GetBrandsResponseOrError;
   getAllCategories: GetCategoriesResponseOrError;
   getAllCoupons: GetCouponsResponseOrError;
+  getAllFaqs: GetFaqsResponseOrError;
   getAllMedias: GetMediasResponseOrError;
   getAllPermissionsByUserId: GetPermissionsResponseOrError;
   getAllProductAttribute: GetAllProductAttributesResponseOrError;
@@ -1798,6 +1892,7 @@ export type Query = {
   getBrandById: GetBrandByIdResponseOrError;
   getCategoryById: GetCategoryByIdResponseOrError;
   getCouponById: GetCouponByIdResponseOrError;
+  getFaqById: GetFaqByIdResponseOrError;
   getMediaById: GetMediaByIdResponseOrError;
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError;
   getProductAttributeById: GetProductAttributeByIdResponseOrError;
@@ -1809,6 +1904,7 @@ export type Query = {
   getShippingClassById: GetShippingClassByIdResponseOrError;
   getShippingMethodById: GetShippingMethodByIdResponseOrError;
   getShippingZoneById: GetShippingZoneByIdResponseOrError;
+  getSiteSettings: GetSiteSettingsResponseOrError;
   getTagById: GetTagByIdResponseOrError;
   getTaxClassById: GetTaxClassByIdResponseOrError;
   getTaxExemptionEntryByUserId: GetTaxExemptionsResponseOrError;
@@ -1850,6 +1946,15 @@ export type QueryGetAllCategoriesArgs = {
 
 
 export type QueryGetAllCouponsArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllFaqsArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -1983,6 +2088,11 @@ export type QueryGetCategoryByIdArgs = {
 
 
 export type QueryGetCouponByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetFaqByIdArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2237,6 +2347,25 @@ export type ShippingZoneResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+export type ShopAddress = {
+  __typename?: 'ShopAddress';
+  addressLine1?: Maybe<Scalars['String']['output']>;
+  addressLine2?: Maybe<Scalars['String']['output']>;
+  city?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  state?: Maybe<Scalars['String']['output']>;
+  zipCode?: Maybe<Scalars['String']['output']>;
+};
+
+export type ShopAddressInput = {
+  addressLine1?: InputMaybe<Scalars['String']['input']>;
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  state?: InputMaybe<Scalars['String']['input']>;
+  zipCode?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SinglePermissionInput = {
   canCreate?: InputMaybe<Scalars['Boolean']['input']>;
   canDelete?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2244,6 +2373,29 @@ export type SinglePermissionInput = {
   canUpdate?: InputMaybe<Scalars['Boolean']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   name: PermissionName;
+};
+
+export type SiteSettings = {
+  __typename?: 'SiteSettings';
+  contactEmail?: Maybe<Scalars['String']['output']>;
+  contactNumber?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
+  favIcon?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  logo?: Maybe<Scalars['String']['output']>;
+  metaData?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  shopAddress?: Maybe<ShopAddress>;
+};
+
+export type SiteSettingsResponse = {
+  __typename?: 'SiteSettingsResponse';
+  message: Scalars['String']['output'];
+  siteSettings: SiteSettings;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
 };
 
 export enum StockStatus {
@@ -2446,6 +2598,8 @@ export type UpdateCategoryResponseOrError = BaseResponse | CategoryResponse | Er
 
 export type UpdateCouponResponseOrError = BaseResponse | CouponResponse | ErrorResponse;
 
+export type UpdateFaqResponseOrError = BaseResponse | ErrorResponse | FaqResponse;
+
 export type UpdateMediaInput = {
   altText?: InputMaybe<Scalars['String']['input']>;
   category: MediaCategory;
@@ -2471,6 +2625,8 @@ export type UpdateShippingClassResponseOrError = BaseResponse | ErrorResponse | 
 export type UpdateShippingMethodResponseOrError = BaseResponse | ErrorResponse | ShippingMethodResponse;
 
 export type UpdateShippingZoneResponseOrError = BaseResponse | ErrorResponse | ShippingZoneResponse;
+
+export type UpdateSiteSettingsResponseOrError = BaseResponse | ErrorResponse | SiteSettingsResponse;
 
 export type UpdateTagResponseOrError = BaseResponse | ErrorResponse | TagResponse;
 
@@ -2797,6 +2953,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   CreateBrandResponseOrError: ( BaseResponse ) | ( BrandResponse ) | ( ErrorResponse );
   CreateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse );
   CreateCouponResponseOrError: ( BaseResponse ) | ( CouponResponse ) | ( ErrorResponse );
+  CreateFaqResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( FaqResponse );
   CreateProductAttributeResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductAttributeResponse );
   CreateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
   CreateProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
@@ -2804,6 +2961,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   CreateShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
   CreateShippingMethodResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingMethodResponse );
   CreateShippingZoneResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingZoneResponse );
+  CreateSiteSettingsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( SiteSettingsResponse );
   CreateTagResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagResponse );
   CreateTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxClassResponse );
   CreateTaxExemptionResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxExemptionResponse );
@@ -2813,6 +2971,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   DeleteBrandResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   DeleteCategoryResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   DeleteCouponResponseOrError: ( BaseResponse ) | ( ErrorResponse );
+  DeleteFaqResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   DeleteProductAttributeResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   DeleteProductResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   DeleteProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse );
@@ -2832,6 +2991,8 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   GetCategoryByIDResponseOrError: ( BaseResponse ) | ( CategoryResponseById ) | ( ErrorResponse );
   GetCouponByIDResponseOrError: ( BaseResponse ) | ( CouponResponse ) | ( ErrorResponse );
   GetCouponsResponseOrError: ( BaseResponse ) | ( CouponPaginationResponse ) | ( ErrorResponse );
+  GetFaqByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( FaqResponseById );
+  GetFaqsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( FaqPaginationResponse );
   GetMediaByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
   GetMediasResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediasResponse );
   GetPermissionsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( PersonalizedWithRolePermissionResponse );
@@ -2851,6 +3012,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   GetShippingMethodsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingMethodPaginationResponse );
   GetShippingZoneByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingZoneResponse );
   GetShippingZonesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingZonePaginationResponse );
+  GetSiteSettingsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( SiteSettingsResponse );
   GetTagByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagResponse );
   GetTagsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagPaginationResponse );
   GetTaxClassByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxClassResponse );
@@ -2877,6 +3039,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   UpdateBrandResponseOrError: ( BaseResponse ) | ( BrandResponse ) | ( ErrorResponse );
   UpdateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse );
   UpdateCouponResponseOrError: ( BaseResponse ) | ( CouponResponse ) | ( ErrorResponse );
+  UpdateFaqResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( FaqResponse );
   UpdateMediaResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( MediaResponse );
   UpdateProductAttributeResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductAttributeResponse );
   UpdateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
@@ -2885,6 +3048,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   UpdateShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
   UpdateShippingMethodResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingMethodResponse );
   UpdateShippingZoneResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingZoneResponse );
+  UpdateSiteSettingsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( SiteSettingsResponse );
   UpdateTagResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagResponse );
   UpdateTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxClassResponse );
   UpdateTaxExemptionResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxExemptionResponse );
@@ -2931,6 +3095,7 @@ export type ResolversTypes = {
   CreateBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateBrandResponseOrError']>;
   CreateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateCategoryResponseOrError']>;
   CreateCouponResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateCouponResponseOrError']>;
+  CreateFaqResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateFaqResponseOrError']>;
   CreateProductAttributeResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateProductAttributeResponseOrError']>;
   CreateProductResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateProductResponseOrError']>;
   CreateProductReviewResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateProductReviewResponseOrError']>;
@@ -2938,6 +3103,7 @@ export type ResolversTypes = {
   CreateShippingClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateShippingClassResponseOrError']>;
   CreateShippingMethodResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateShippingMethodResponseOrError']>;
   CreateShippingZoneResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateShippingZoneResponseOrError']>;
+  CreateSiteSettingsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateSiteSettingsResponseOrError']>;
   CreateTagResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTagResponseOrError']>;
   CreateTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTaxClassResponseOrError']>;
   CreateTaxExemptionResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTaxExemptionResponseOrError']>;
@@ -2950,6 +3116,7 @@ export type ResolversTypes = {
   DeleteBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteBrandResponseOrError']>;
   DeleteCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteCategoryResponseOrError']>;
   DeleteCouponResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteCouponResponseOrError']>;
+  DeleteFaqResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteFaqResponseOrError']>;
   DeleteProductAttributeResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteProductAttributeResponseOrError']>;
   DeleteProductResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteProductResponseOrError']>;
   DeleteProductReviewResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['DeleteProductReviewResponseOrError']>;
@@ -2964,6 +3131,10 @@ export type ResolversTypes = {
   EmailVerificationResponse: ResolverTypeWrapper<EmailVerificationResponse>;
   EmailVerificationResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['EmailVerificationResponseOrError']>;
   ErrorResponse: ResolverTypeWrapper<ErrorResponse>;
+  Faq: ResolverTypeWrapper<Faq>;
+  FaqPaginationResponse: ResolverTypeWrapper<FaqPaginationResponse>;
+  FaqResponse: ResolverTypeWrapper<FaqResponse>;
+  FaqResponseById: ResolverTypeWrapper<FaqResponseById>;
   FieldError: ResolverTypeWrapper<FieldError>;
   FlatRate: ResolverTypeWrapper<FlatRate>;
   FlatRateCost: ResolverTypeWrapper<FlatRateCost>;
@@ -2982,6 +3153,8 @@ export type ResolversTypes = {
   GetCategoryByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoryByIDResponseOrError']>;
   GetCouponByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCouponByIDResponseOrError']>;
   GetCouponsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCouponsResponseOrError']>;
+  GetFaqByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetFaqByIDResponseOrError']>;
+  GetFaqsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetFaqsResponseOrError']>;
   GetMediaByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediaByIdResponseOrError']>;
   GetMediasResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetMediasResponseOrError']>;
   GetPermissionsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetPermissionsResponseOrError']>;
@@ -3001,6 +3174,7 @@ export type ResolversTypes = {
   GetShippingMethodsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetShippingMethodsResponseOrError']>;
   GetShippingZoneByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetShippingZoneByIDResponseOrError']>;
   GetShippingZonesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetShippingZonesResponseOrError']>;
+  GetSiteSettingsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetSiteSettingsResponseOrError']>;
   GetTagByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTagByIDResponseOrError']>;
   GetTagsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTagsResponseOrError']>;
   GetTaxClassByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTaxClassByIDResponseOrError']>;
@@ -3077,7 +3251,11 @@ export type ResolversTypes = {
   ShippingZone: ResolverTypeWrapper<ShippingZone>;
   ShippingZonePaginationResponse: ResolverTypeWrapper<ShippingZonePaginationResponse>;
   ShippingZoneResponse: ResolverTypeWrapper<ShippingZoneResponse>;
+  ShopAddress: ResolverTypeWrapper<ShopAddress>;
+  ShopAddressInput: ShopAddressInput;
   SinglePermissionInput: SinglePermissionInput;
+  SiteSettings: ResolverTypeWrapper<SiteSettings>;
+  SiteSettingsResponse: ResolverTypeWrapper<SiteSettingsResponse>;
   StockStatus: StockStatus;
   Tag: ResolverTypeWrapper<Tag>;
   TagPaginationDataSession: ResolverTypeWrapper<TagPaginationDataSession>;
@@ -3101,6 +3279,7 @@ export type ResolversTypes = {
   UpdateBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateBrandResponseOrError']>;
   UpdateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryResponseOrError']>;
   UpdateCouponResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCouponResponseOrError']>;
+  UpdateFaqResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateFaqResponseOrError']>;
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateMediaResponseOrError']>;
   UpdateProductAttributeResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateProductAttributeResponseOrError']>;
@@ -3110,6 +3289,7 @@ export type ResolversTypes = {
   UpdateShippingClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateShippingClassResponseOrError']>;
   UpdateShippingMethodResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateShippingMethodResponseOrError']>;
   UpdateShippingZoneResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateShippingZoneResponseOrError']>;
+  UpdateSiteSettingsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateSiteSettingsResponseOrError']>;
   UpdateTagResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTagResponseOrError']>;
   UpdateTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxClassResponseOrError']>;
   UpdateTaxExemptionResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxExemptionResponseOrError']>;
@@ -3173,6 +3353,7 @@ export type ResolversParentTypes = {
   CreateBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateBrandResponseOrError'];
   CreateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateCategoryResponseOrError'];
   CreateCouponResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateCouponResponseOrError'];
+  CreateFaqResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateFaqResponseOrError'];
   CreateProductAttributeResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateProductAttributeResponseOrError'];
   CreateProductResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateProductResponseOrError'];
   CreateProductReviewResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateProductReviewResponseOrError'];
@@ -3180,6 +3361,7 @@ export type ResolversParentTypes = {
   CreateShippingClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateShippingClassResponseOrError'];
   CreateShippingMethodResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateShippingMethodResponseOrError'];
   CreateShippingZoneResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateShippingZoneResponseOrError'];
+  CreateSiteSettingsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateSiteSettingsResponseOrError'];
   CreateTagResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateTagResponseOrError'];
   CreateTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateTaxClassResponseOrError'];
   CreateTaxExemptionResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateTaxExemptionResponseOrError'];
@@ -3191,6 +3373,7 @@ export type ResolversParentTypes = {
   DeleteBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteBrandResponseOrError'];
   DeleteCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteCategoryResponseOrError'];
   DeleteCouponResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteCouponResponseOrError'];
+  DeleteFaqResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteFaqResponseOrError'];
   DeleteProductAttributeResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteProductAttributeResponseOrError'];
   DeleteProductResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteProductResponseOrError'];
   DeleteProductReviewResponseOrError: ResolversUnionTypes<ResolversParentTypes>['DeleteProductReviewResponseOrError'];
@@ -3203,6 +3386,10 @@ export type ResolversParentTypes = {
   EmailVerificationResponse: EmailVerificationResponse;
   EmailVerificationResponseOrError: ResolversUnionTypes<ResolversParentTypes>['EmailVerificationResponseOrError'];
   ErrorResponse: ErrorResponse;
+  Faq: Faq;
+  FaqPaginationResponse: FaqPaginationResponse;
+  FaqResponse: FaqResponse;
+  FaqResponseById: FaqResponseById;
   FieldError: FieldError;
   FlatRate: FlatRate;
   FlatRateCost: FlatRateCost;
@@ -3219,6 +3406,8 @@ export type ResolversParentTypes = {
   GetCategoryByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoryByIDResponseOrError'];
   GetCouponByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCouponByIDResponseOrError'];
   GetCouponsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCouponsResponseOrError'];
+  GetFaqByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetFaqByIDResponseOrError'];
+  GetFaqsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetFaqsResponseOrError'];
   GetMediaByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediaByIdResponseOrError'];
   GetMediasResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetMediasResponseOrError'];
   GetPermissionsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetPermissionsResponseOrError'];
@@ -3238,6 +3427,7 @@ export type ResolversParentTypes = {
   GetShippingMethodsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetShippingMethodsResponseOrError'];
   GetShippingZoneByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetShippingZoneByIDResponseOrError'];
   GetShippingZonesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetShippingZonesResponseOrError'];
+  GetSiteSettingsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetSiteSettingsResponseOrError'];
   GetTagByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTagByIDResponseOrError'];
   GetTagsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTagsResponseOrError'];
   GetTaxClassByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTaxClassByIDResponseOrError'];
@@ -3309,7 +3499,11 @@ export type ResolversParentTypes = {
   ShippingZone: ShippingZone;
   ShippingZonePaginationResponse: ShippingZonePaginationResponse;
   ShippingZoneResponse: ShippingZoneResponse;
+  ShopAddress: ShopAddress;
+  ShopAddressInput: ShopAddressInput;
   SinglePermissionInput: SinglePermissionInput;
+  SiteSettings: SiteSettings;
+  SiteSettingsResponse: SiteSettingsResponse;
   Tag: Tag;
   TagPaginationDataSession: TagPaginationDataSession;
   TagPaginationResponse: TagPaginationResponse;
@@ -3330,6 +3524,7 @@ export type ResolversParentTypes = {
   UpdateBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateBrandResponseOrError'];
   UpdateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryResponseOrError'];
   UpdateCouponResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCouponResponseOrError'];
+  UpdateFaqResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateFaqResponseOrError'];
   UpdateMediaInput: UpdateMediaInput;
   UpdateMediaResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateMediaResponseOrError'];
   UpdateProductAttributeResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateProductAttributeResponseOrError'];
@@ -3339,6 +3534,7 @@ export type ResolversParentTypes = {
   UpdateShippingClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateShippingClassResponseOrError'];
   UpdateShippingMethodResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateShippingMethodResponseOrError'];
   UpdateShippingZoneResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateShippingZoneResponseOrError'];
+  UpdateSiteSettingsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateSiteSettingsResponseOrError'];
   UpdateTagResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTagResponseOrError'];
   UpdateTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxClassResponseOrError'];
   UpdateTaxExemptionResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxExemptionResponseOrError'];
@@ -3593,6 +3789,10 @@ export type CreateCouponResponseOrErrorResolvers<ContextType = Context, ParentTy
   __resolveType: TypeResolveFn<'BaseResponse' | 'CouponResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
+export type CreateFaqResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateFaqResponseOrError'] = ResolversParentTypes['CreateFaqResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'FaqResponse', ParentType, ContextType>;
+};
+
 export type CreateProductAttributeResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateProductAttributeResponseOrError'] = ResolversParentTypes['CreateProductAttributeResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductAttributeResponse', ParentType, ContextType>;
 };
@@ -3619,6 +3819,10 @@ export type CreateShippingMethodResponseOrErrorResolvers<ContextType = Context, 
 
 export type CreateShippingZoneResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateShippingZoneResponseOrError'] = ResolversParentTypes['CreateShippingZoneResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingZoneResponse', ParentType, ContextType>;
+};
+
+export type CreateSiteSettingsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateSiteSettingsResponseOrError'] = ResolversParentTypes['CreateSiteSettingsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'SiteSettingsResponse', ParentType, ContextType>;
 };
 
 export type CreateTagResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTagResponseOrError'] = ResolversParentTypes['CreateTagResponseOrError']> = {
@@ -3672,6 +3876,10 @@ export type DeleteCouponResponseOrErrorResolvers<ContextType = Context, ParentTy
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
+export type DeleteFaqResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteFaqResponseOrError'] = ResolversParentTypes['DeleteFaqResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
+};
+
 export type DeleteProductAttributeResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DeleteProductAttributeResponseOrError'] = ResolversParentTypes['DeleteProductAttributeResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
@@ -3722,6 +3930,41 @@ export type EmailVerificationResponseOrErrorResolvers<ContextType = Context, Par
 
 export type ErrorResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ErrorResponse'] = ResolversParentTypes['ErrorResponse']> = {
   errors?: Resolver<Maybe<Array<ResolversTypes['FieldError']>>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FaqResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Faq'] = ResolversParentTypes['Faq']> = {
+  answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  question?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FaqPaginationResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FaqPaginationResponse'] = ResolversParentTypes['FaqPaginationResponse']> = {
+  faqs?: Resolver<Array<ResolversTypes['Faq']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FaqResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FaqResponse'] = ResolversParentTypes['FaqResponse']> = {
+  faq?: Resolver<ResolversTypes['Faq'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FaqResponseByIdResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FaqResponseById'] = ResolversParentTypes['FaqResponseById']> = {
+  faq?: Resolver<ResolversTypes['Faq'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -3801,6 +4044,14 @@ export type GetCouponsResponseOrErrorResolvers<ContextType = Context, ParentType
   __resolveType: TypeResolveFn<'BaseResponse' | 'CouponPaginationResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
+export type GetFaqByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetFaqByIDResponseOrError'] = ResolversParentTypes['GetFaqByIDResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'FaqResponseById', ParentType, ContextType>;
+};
+
+export type GetFaqsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetFaqsResponseOrError'] = ResolversParentTypes['GetFaqsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'FaqPaginationResponse', ParentType, ContextType>;
+};
+
 export type GetMediaByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetMediaByIdResponseOrError'] = ResolversParentTypes['GetMediaByIdResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'MediaResponse', ParentType, ContextType>;
 };
@@ -3875,6 +4126,10 @@ export type GetShippingZoneByIdResponseOrErrorResolvers<ContextType = Context, P
 
 export type GetShippingZonesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetShippingZonesResponseOrError'] = ResolversParentTypes['GetShippingZonesResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingZonePaginationResponse', ParentType, ContextType>;
+};
+
+export type GetSiteSettingsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetSiteSettingsResponseOrError'] = ResolversParentTypes['GetSiteSettingsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'SiteSettingsResponse', ParentType, ContextType>;
 };
 
 export type GetTagByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetTagByIDResponseOrError'] = ResolversParentTypes['GetTagByIDResponseOrError']> = {
@@ -4006,12 +4261,14 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createCoupon?: Resolver<ResolversTypes['CreateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCouponArgs, 'code' | 'discountType' | 'discountValue'>>;
+  createFaq?: Resolver<ResolversTypes['CreateFaqResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateFaqArgs, 'answer' | 'question'>>;
   createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, Partial<MutationCreateProductArgs>>;
   createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
   createShippingMethod?: Resolver<ResolversTypes['CreateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingMethodArgs, 'shippingZoneId' | 'title'>>;
   createShippingZone?: Resolver<ResolversTypes['CreateShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingZoneArgs, 'name' | 'regions'>>;
+  createSiteSetting?: Resolver<ResolversTypes['CreateSiteSettingsResponseOrError'], ParentType, ContextType, Partial<MutationCreateSiteSettingArgs>>;
   createSystemProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateSystemProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createTag?: Resolver<ResolversTypes['CreateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTagArgs, 'name' | 'slug'>>;
   createTaxClass?: Resolver<ResolversTypes['CreateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxClassArgs, 'value'>>;
@@ -4023,6 +4280,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteBrand?: Resolver<ResolversTypes['DeleteBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteBrandArgs, 'ids' | 'skipTrash'>>;
   deleteCategory?: Resolver<Maybe<ResolversTypes['DeleteCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'ids'>>;
   deleteCoupon?: Resolver<ResolversTypes['DeleteCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteCouponArgs, 'ids'>>;
+  deleteFaqs?: Resolver<ResolversTypes['DeleteFaqResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteFaqsArgs, 'ids'>>;
   deleteLoginSession?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteLoginSessionArgs, 'sessionIds'>>;
   deleteMediaFiles?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteMediaFilesArgs, 'ids' | 'skipTrash'>>;
   deleteProduct?: Resolver<ResolversTypes['DeleteProductResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'ids' | 'skipTrash'>>;
@@ -4053,6 +4311,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'id'>>;
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'id' | 'position'>>;
   updateCoupon?: Resolver<ResolversTypes['UpdateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCouponArgs, 'code' | 'id'>>;
+  updateFaq?: Resolver<ResolversTypes['UpdateFaqResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateFaqArgs, 'id'>>;
   updateMediaFileInfo?: Resolver<ResolversTypes['UpdateMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateMediaFileInfoArgs, 'inputs'>>;
   updateProduct?: Resolver<ResolversTypes['UpdateProductResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id'>>;
   updateProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationUpdateProductAttributeArgs, 'id' | 'values'>>;
@@ -4060,6 +4319,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateShippingClass?: Resolver<ResolversTypes['UpdateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingClassArgs, 'id'>>;
   updateShippingMethod?: Resolver<ResolversTypes['UpdateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingMethodArgs, 'id' | 'shippingZoneId'>>;
   updateShippingZone?: Resolver<ResolversTypes['UpdateShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingZoneArgs, 'id'>>;
+  updateSiteSetting?: Resolver<ResolversTypes['UpdateSiteSettingsResponseOrError'], ParentType, ContextType, Partial<MutationUpdateSiteSettingArgs>>;
   updateTag?: Resolver<ResolversTypes['UpdateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTagArgs, 'id'>>;
   updateTaxClass?: Resolver<ResolversTypes['UpdateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxClassArgs, 'id'>>;
   updateTaxExemptionEntry?: Resolver<ResolversTypes['UpdateTaxExemptionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxExemptionEntryArgs, 'id' | 'userId'>>;
@@ -4277,7 +4537,7 @@ export type ProductTieredPriceResolvers<ContextType = Context, ParentType extend
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   fixedPrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  maxQuantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  maxQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   minQuantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   percentageDiscount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   productPrice?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
@@ -4328,6 +4588,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllBrands?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsArgs, 'limit' | 'page'>>;
   getAllCategories?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
   getAllCoupons?: Resolver<ResolversTypes['GetCouponsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCouponsArgs, 'limit' | 'page'>>;
+  getAllFaqs?: Resolver<ResolversTypes['GetFaqsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllFaqsArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
   getAllPermissionsByUserId?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllPermissionsByUserIdArgs, 'id'>>;
   getAllProductAttribute?: Resolver<ResolversTypes['GetAllProductAttributesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllProductAttributeArgs, 'limit' | 'page'>>;
@@ -4344,6 +4605,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getBrandById?: Resolver<ResolversTypes['GetBrandByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetBrandByIdArgs, 'id'>>;
   getCategoryById?: Resolver<ResolversTypes['GetCategoryByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetCategoryByIdArgs, 'id'>>;
   getCouponById?: Resolver<ResolversTypes['GetCouponByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetCouponByIdArgs, 'id'>>;
+  getFaqById?: Resolver<ResolversTypes['GetFaqByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetFaqByIdArgs, 'id'>>;
   getMediaById?: Resolver<ResolversTypes['GetMediaByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetMediaByIdArgs, 'id'>>;
   getOwnPersonalizedPermissions?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType>;
   getProductAttributeById?: Resolver<ResolversTypes['GetProductAttributeByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductAttributeByIdArgs, 'id'>>;
@@ -4355,6 +4617,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getShippingClassById?: Resolver<ResolversTypes['GetShippingClassByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetShippingClassByIdArgs, 'id'>>;
   getShippingMethodById?: Resolver<ResolversTypes['GetShippingMethodByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetShippingMethodByIdArgs, 'id'>>;
   getShippingZoneById?: Resolver<ResolversTypes['GetShippingZoneByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetShippingZoneByIdArgs, 'id'>>;
+  getSiteSettings?: Resolver<ResolversTypes['GetSiteSettingsResponseOrError'], ParentType, ContextType>;
   getTagById?: Resolver<ResolversTypes['GetTagByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTagByIdArgs, 'id'>>;
   getTaxClassById?: Resolver<ResolversTypes['GetTaxClassByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxClassByIdArgs, 'id'>>;
   getTaxExemptionEntryByUserId?: Resolver<ResolversTypes['GetTaxExemptionsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxExemptionEntryByUserIdArgs, 'userId'>>;
@@ -4563,6 +4826,39 @@ export type ShippingZoneResponseResolvers<ContextType = Context, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ShopAddressResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShopAddress'] = ResolversParentTypes['ShopAddress']> = {
+  addressLine1?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  addressLine2?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  zipCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SiteSettingsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SiteSettings'] = ResolversParentTypes['SiteSettings']> = {
+  contactEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  contactNumber?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  favIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  logo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  metaData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  shopAddress?: Resolver<Maybe<ResolversTypes['ShopAddress']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SiteSettingsResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SiteSettingsResponse'] = ResolversParentTypes['SiteSettingsResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  siteSettings?: Resolver<ResolversTypes['SiteSettings'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type TagResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Tag'] = ResolversParentTypes['Tag']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
@@ -4751,6 +5047,10 @@ export type UpdateCouponResponseOrErrorResolvers<ContextType = Context, ParentTy
   __resolveType: TypeResolveFn<'BaseResponse' | 'CouponResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
+export type UpdateFaqResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateFaqResponseOrError'] = ResolversParentTypes['UpdateFaqResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'FaqResponse', ParentType, ContextType>;
+};
+
 export type UpdateMediaResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateMediaResponseOrError'] = ResolversParentTypes['UpdateMediaResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'MediaResponse', ParentType, ContextType>;
 };
@@ -4781,6 +5081,10 @@ export type UpdateShippingMethodResponseOrErrorResolvers<ContextType = Context, 
 
 export type UpdateShippingZoneResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateShippingZoneResponseOrError'] = ResolversParentTypes['UpdateShippingZoneResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingZoneResponse', ParentType, ContextType>;
+};
+
+export type UpdateSiteSettingsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateSiteSettingsResponseOrError'] = ResolversParentTypes['UpdateSiteSettingsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'SiteSettingsResponse', ParentType, ContextType>;
 };
 
 export type UpdateTagResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTagResponseOrError'] = ResolversParentTypes['UpdateTagResponseOrError']> = {
@@ -5014,6 +5318,7 @@ export type Resolvers<ContextType = Context> = {
   CreateBrandResponseOrError?: CreateBrandResponseOrErrorResolvers<ContextType>;
   CreateCategoryResponseOrError?: CreateCategoryResponseOrErrorResolvers<ContextType>;
   CreateCouponResponseOrError?: CreateCouponResponseOrErrorResolvers<ContextType>;
+  CreateFaqResponseOrError?: CreateFaqResponseOrErrorResolvers<ContextType>;
   CreateProductAttributeResponseOrError?: CreateProductAttributeResponseOrErrorResolvers<ContextType>;
   CreateProductResponseOrError?: CreateProductResponseOrErrorResolvers<ContextType>;
   CreateProductReviewResponseOrError?: CreateProductReviewResponseOrErrorResolvers<ContextType>;
@@ -5021,6 +5326,7 @@ export type Resolvers<ContextType = Context> = {
   CreateShippingClassResponseOrError?: CreateShippingClassResponseOrErrorResolvers<ContextType>;
   CreateShippingMethodResponseOrError?: CreateShippingMethodResponseOrErrorResolvers<ContextType>;
   CreateShippingZoneResponseOrError?: CreateShippingZoneResponseOrErrorResolvers<ContextType>;
+  CreateSiteSettingsResponseOrError?: CreateSiteSettingsResponseOrErrorResolvers<ContextType>;
   CreateTagResponseOrError?: CreateTagResponseOrErrorResolvers<ContextType>;
   CreateTaxClassResponseOrError?: CreateTaxClassResponseOrErrorResolvers<ContextType>;
   CreateTaxExemptionResponseOrError?: CreateTaxExemptionResponseOrErrorResolvers<ContextType>;
@@ -5032,6 +5338,7 @@ export type Resolvers<ContextType = Context> = {
   DeleteBrandResponseOrError?: DeleteBrandResponseOrErrorResolvers<ContextType>;
   DeleteCategoryResponseOrError?: DeleteCategoryResponseOrErrorResolvers<ContextType>;
   DeleteCouponResponseOrError?: DeleteCouponResponseOrErrorResolvers<ContextType>;
+  DeleteFaqResponseOrError?: DeleteFaqResponseOrErrorResolvers<ContextType>;
   DeleteProductAttributeResponseOrError?: DeleteProductAttributeResponseOrErrorResolvers<ContextType>;
   DeleteProductResponseOrError?: DeleteProductResponseOrErrorResolvers<ContextType>;
   DeleteProductReviewResponseOrError?: DeleteProductReviewResponseOrErrorResolvers<ContextType>;
@@ -5044,6 +5351,10 @@ export type Resolvers<ContextType = Context> = {
   EmailVerificationResponse?: EmailVerificationResponseResolvers<ContextType>;
   EmailVerificationResponseOrError?: EmailVerificationResponseOrErrorResolvers<ContextType>;
   ErrorResponse?: ErrorResponseResolvers<ContextType>;
+  Faq?: FaqResolvers<ContextType>;
+  FaqPaginationResponse?: FaqPaginationResponseResolvers<ContextType>;
+  FaqResponse?: FaqResponseResolvers<ContextType>;
+  FaqResponseById?: FaqResponseByIdResolvers<ContextType>;
   FieldError?: FieldErrorResolvers<ContextType>;
   FlatRate?: FlatRateResolvers<ContextType>;
   FlatRateCost?: FlatRateCostResolvers<ContextType>;
@@ -5057,6 +5368,8 @@ export type Resolvers<ContextType = Context> = {
   GetCategoryByIDResponseOrError?: GetCategoryByIdResponseOrErrorResolvers<ContextType>;
   GetCouponByIDResponseOrError?: GetCouponByIdResponseOrErrorResolvers<ContextType>;
   GetCouponsResponseOrError?: GetCouponsResponseOrErrorResolvers<ContextType>;
+  GetFaqByIDResponseOrError?: GetFaqByIdResponseOrErrorResolvers<ContextType>;
+  GetFaqsResponseOrError?: GetFaqsResponseOrErrorResolvers<ContextType>;
   GetMediaByIdResponseOrError?: GetMediaByIdResponseOrErrorResolvers<ContextType>;
   GetMediasResponseOrError?: GetMediasResponseOrErrorResolvers<ContextType>;
   GetPermissionsResponseOrError?: GetPermissionsResponseOrErrorResolvers<ContextType>;
@@ -5076,6 +5389,7 @@ export type Resolvers<ContextType = Context> = {
   GetShippingMethodsResponseOrError?: GetShippingMethodsResponseOrErrorResolvers<ContextType>;
   GetShippingZoneByIDResponseOrError?: GetShippingZoneByIdResponseOrErrorResolvers<ContextType>;
   GetShippingZonesResponseOrError?: GetShippingZonesResponseOrErrorResolvers<ContextType>;
+  GetSiteSettingsResponseOrError?: GetSiteSettingsResponseOrErrorResolvers<ContextType>;
   GetTagByIDResponseOrError?: GetTagByIdResponseOrErrorResolvers<ContextType>;
   GetTagsResponseOrError?: GetTagsResponseOrErrorResolvers<ContextType>;
   GetTaxClassByIDResponseOrError?: GetTaxClassByIdResponseOrErrorResolvers<ContextType>;
@@ -5138,6 +5452,9 @@ export type Resolvers<ContextType = Context> = {
   ShippingZone?: ShippingZoneResolvers<ContextType>;
   ShippingZonePaginationResponse?: ShippingZonePaginationResponseResolvers<ContextType>;
   ShippingZoneResponse?: ShippingZoneResponseResolvers<ContextType>;
+  ShopAddress?: ShopAddressResolvers<ContextType>;
+  SiteSettings?: SiteSettingsResolvers<ContextType>;
+  SiteSettingsResponse?: SiteSettingsResponseResolvers<ContextType>;
   Tag?: TagResolvers<ContextType>;
   TagPaginationDataSession?: TagPaginationDataSessionResolvers<ContextType>;
   TagPaginationResponse?: TagPaginationResponseResolvers<ContextType>;
@@ -5158,6 +5475,7 @@ export type Resolvers<ContextType = Context> = {
   UpdateBrandResponseOrError?: UpdateBrandResponseOrErrorResolvers<ContextType>;
   UpdateCategoryResponseOrError?: UpdateCategoryResponseOrErrorResolvers<ContextType>;
   UpdateCouponResponseOrError?: UpdateCouponResponseOrErrorResolvers<ContextType>;
+  UpdateFaqResponseOrError?: UpdateFaqResponseOrErrorResolvers<ContextType>;
   UpdateMediaResponseOrError?: UpdateMediaResponseOrErrorResolvers<ContextType>;
   UpdateProductAttributeResponseOrError?: UpdateProductAttributeResponseOrErrorResolvers<ContextType>;
   UpdateProductResponseOrError?: UpdateProductResponseOrErrorResolvers<ContextType>;
@@ -5166,6 +5484,7 @@ export type Resolvers<ContextType = Context> = {
   UpdateShippingClassResponseOrError?: UpdateShippingClassResponseOrErrorResolvers<ContextType>;
   UpdateShippingMethodResponseOrError?: UpdateShippingMethodResponseOrErrorResolvers<ContextType>;
   UpdateShippingZoneResponseOrError?: UpdateShippingZoneResponseOrErrorResolvers<ContextType>;
+  UpdateSiteSettingsResponseOrError?: UpdateSiteSettingsResponseOrErrorResolvers<ContextType>;
   UpdateTagResponseOrError?: UpdateTagResponseOrErrorResolvers<ContextType>;
   UpdateTaxClassResponseOrError?: UpdateTaxClassResponseOrErrorResolvers<ContextType>;
   UpdateTaxExemptionResponseOrError?: UpdateTaxExemptionResponseOrErrorResolvers<ContextType>;

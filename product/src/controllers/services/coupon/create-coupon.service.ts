@@ -12,12 +12,12 @@ import { getCouponById } from "./get-coupon.service";
  * 3. Creates and saves the coupon with provided values and user context.
  *
  * @param data - Input data for creating the coupon.
- * @param userId - Optional user ID who creates this coupon.
+ * @param userId - User ID who creates this coupon.
  * @returns Created Coupon entity.
  */
 export const createCoupon = async (
   data: MutationCreateCouponArgs,
-  userId?: string
+  userId: string
 ): Promise<Coupon> => {
   const {
     code,

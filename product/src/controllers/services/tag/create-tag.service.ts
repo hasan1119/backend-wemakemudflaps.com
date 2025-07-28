@@ -11,12 +11,12 @@ import { tagRepository } from "../repositories/repositories";
  * 3. Creates the tag with provided values and user context.
  *
  * @param data - Input data for creating the tag.
- * @param userId - Optional user ID who creates this tag.
+ * @param userId - User ID who creates this tag.
  * @returns Created Tag entity.
  */
 export const createTag = async (
   data: MutationCreateTagArgs,
-  userId?: string
+  userId: string
 ): Promise<Tag> => {
   const { name, slug } = data ?? {};
 

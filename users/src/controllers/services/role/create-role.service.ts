@@ -12,12 +12,12 @@ import { roleRepository } from "../repositories/repositories";
  * 5. Retrieves and returns the newly created role by its ID.
  *
  * @param data - Partial Role data for creating the new role.
- * @param userId - Optional user ID of the creator.
+ * @param userId - User ID of the creator.
  * @returns A promise resolving to the newly created Role entity.
  */
 export const createRole = async (
   data: Partial<Role>,
-  userId?: string
+  userId: string
 ): Promise<Role> => {
   // Create new role entity with provided data
   const role = roleRepository.create({

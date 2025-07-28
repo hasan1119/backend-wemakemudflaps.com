@@ -17,7 +17,7 @@ import { categoryRepository } from "../repositories/repositories";
  */
 export const createCategoryOrSubCategory = async (
   data: MutationCreateCategoryArgs,
-  userId?: string
+  userId: string
 ): Promise<Category> => {
   const { parentCategoryId, description, name, thumbnail, slug } = data ?? {};
 

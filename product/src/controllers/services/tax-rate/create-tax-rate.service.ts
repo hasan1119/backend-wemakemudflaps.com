@@ -10,12 +10,12 @@ import { taxRateRepository } from "../repositories/repositories";
  * 2. Creates the tax rate with provided values and user context.
  *
  * @param data - Input data for creating the tax rate.
- * @param userId - Optional user ID who creates this tax rate.
+ * @param userId - User ID who creates this tax rate.
  * @returns Created Tax rate entity.
  */
 export const createTaxRate = async (
   data: MutationCreateTaxRateArgs,
-  userId?: string
+  userId: string
 ): Promise<TaxRate> => {
   const {
     country,

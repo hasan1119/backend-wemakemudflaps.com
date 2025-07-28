@@ -11,12 +11,12 @@ import { brandRepository } from "../repositories/repositories";
  * 3. Creates the brand with provided values and user context.
  *
  * @param data - Input data for creating the brand.
- * @param userId - Optional user ID who creates this brand.
+ * @param userId - User ID who creates this brand.
  * @returns Created Brand entity.
  */
 export const createBrand = async (
   data: MutationCreateBrandArgs,
-  userId?: string
+  userId: string
 ): Promise<Brand> => {
   const { name, slug, thumbnail } = data ?? {};
 

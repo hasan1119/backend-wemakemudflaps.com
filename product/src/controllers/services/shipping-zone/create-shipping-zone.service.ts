@@ -11,12 +11,12 @@ import { shippingZoneRepository } from "../repositories/repositories";
  * 3. Returns the created ShippingZone entity.
  *
  * @param data - The data for the shipping zone to create.
- * @param userId - Optional user ID to associate with the creation.
+ * @param userId - User ID to associate with the creation.
  * @returns A promise resolving to the created ShippingZone entity.
  */
 export const createShippingZone = async (
   data: MutationCreateShippingZoneArgs,
-  userId?: string
+  userId: string
 ): Promise<ShippingZone> => {
   const shippingZone = shippingZoneRepository.create({
     ...data,

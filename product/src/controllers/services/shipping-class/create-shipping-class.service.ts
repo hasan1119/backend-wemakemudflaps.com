@@ -11,12 +11,12 @@ import { shippingClassRepository } from "../repositories/repositories";
  * 3. Creates the shipping class with provided values and user context.
  *
  * @param data - Input data for creating the shipping class.
- * @param userId - Optional user ID who creates this shipping class.
+ * @param userId - User ID who creates this shipping class.
  * @returns Created Shipping class entity.
  */
 export const createShippingClass = async (
   data: MutationCreateShippingClassArgs,
-  userId?: string
+  userId: string
 ): Promise<ShippingClass> => {
   const { value, description } = data ?? {};
 
