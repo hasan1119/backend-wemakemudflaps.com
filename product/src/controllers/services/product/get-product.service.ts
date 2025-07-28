@@ -670,7 +670,9 @@ export const paginateProductsForCustomer = async ({
 
   const queryBuilder = productRepository
     .createQueryBuilder("product")
-    .where("product.deletedAt IS NULL", { isVisible: true })
+    .where("product.deletedAt IS NULL AND product.isVisible = :isVisible", {
+      isVisible: true,
+    })
     // Product relations
     .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
     .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
