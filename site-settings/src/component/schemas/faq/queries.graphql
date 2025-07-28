@@ -1,0 +1,22 @@
+# Queries to fetch faqs from the system.
+type Query {
+  # Fetch faq by ID.
+  # Retrieves a specific faq details by its unique ID.
+  # Returns a `GetFaqByIDResponseOrError` containing faq data and request status.
+  getFaqById(
+    id: ID! # Unique identifier of the faq to retrieve.
+  ): GetFaqByIDResponseOrError!
+
+  # Fetch all faqs with pagination, filtering, and sorting.
+  # Retrieves a paginated list of faqs.
+  # Supports filtering by search term (question or answer) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetFaqsResponseOrError` containing faq data and request status.
+  getAllFaqs(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of faqs per page.
+    search: String # Optional search term (matches question or answer).
+    sortBy: String # Optional field to sort by (e.g., question, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetFaqsResponseOrError!
+}

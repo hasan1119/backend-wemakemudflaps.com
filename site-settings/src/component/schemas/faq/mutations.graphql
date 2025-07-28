@@ -1,0 +1,21 @@
+# Mutations to manage faqs operations.
+type Mutation {
+  # Create a new faq.
+  # Only accessible by authorized users.
+  createFaq(
+    question: String! # The question for the FAQ.
+    answer: String! # The answer to the FAQ.
+  ): CreateFaqResponseOrError!
+
+  # Update an existing faq.
+  # Only accessible by authorized users.
+  updateFaq(
+    id: ID! # ID of the faq to update.
+    question: String # Optional updated question for the FAQ.
+    answer: String # Optional updated answer for the FAQ.
+  ): UpdateFaqResponseOrError!
+
+  # Deletes a faq by IDs.
+  # Only accessible by authorized users.
+  deleteFaqs(ids: [ID]!): DeleteFaqResponseOrError!
+}

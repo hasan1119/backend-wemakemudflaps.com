@@ -1,0 +1,44 @@
+# ---------------------- Faq Types ----------------------
+type Faq {
+  id: ID!
+  question: String!
+  answer: String!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a faq.
+type FaqResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  faq: Faq!
+}
+
+# Response for fetching a faq by ID.
+type FaqResponseById {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  faq: Faq!
+}
+
+# Response for fetching a faqs list.
+type FaqPaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  faqs: [Faq!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateFaqResponseOrError = BaseResponse | FaqResponse | ErrorResponse
+union GetFaqByIDResponseOrError = BaseResponse | FaqResponseById | ErrorResponse
+union GetFaqsResponseOrError =
+    BaseResponse
+  | FaqPaginationResponse
+  | ErrorResponse
+union UpdateFaqResponseOrError = BaseResponse | FaqResponse | ErrorResponse
+union DeleteFaqResponseOrError = BaseResponse | ErrorResponse

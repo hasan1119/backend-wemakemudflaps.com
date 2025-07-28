@@ -1,0 +1,58 @@
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+@Entity()
+export class SiteSettings {
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
+
+  // Name of the site setting
+  @Column({ nullable: true, default: null })
+  name: string | null;
+
+  // Metadata for the site setting
+  @Column({ nullable: true, default: null })
+  metaData: string | null;
+
+  // Favicon URL for the site setting
+  @Column({ nullable: true, default: null })
+  favIcon: string | null;
+
+  // Logo URL for the site setting
+  @Column({ nullable: true, default: null })
+  logo: string | null;
+
+  // Footer text for the site setting
+  @Column({ nullable: true, default: null })
+  contactNumber: string | null;
+
+  // Contact email for the site setting
+  @Column({ nullable: true, default: null })
+  contactEmail: string | null;
+
+  // Address of the shop for the site setting
+  @Column({
+    type: "jsonb",
+    nullable: true,
+    default: null,
+  })
+  shopAddress: {
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    country?: string | null;
+    zip?: string | null;
+  } | null;
+
+  // User ID who created the site setting (string only for Apollo Federation compatibility)
+  @Column()
+  createdBy: string;
+
+  // Timestamp when the site setting was created
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  createdAt: Date;
+
+  // Timestamp for soft deletion (null if not deleted)
+  @Column({ type: "timestamp", nullable: true, default: null })
+  deletedAt: Date | null;
+}

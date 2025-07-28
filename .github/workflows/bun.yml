@@ -27,6 +27,11 @@ jobs:
             port: 4003
             pm2: steven_product_subgraph
 
+          - name: site-settings
+            path: site-settings
+            port: 4004
+            pm2: steven_site_settings_subgraph
+
     steps:
       - uses: actions/checkout@v3
 

@@ -11,3 +11,7 @@ subgraphs:
     routing_url: http://localhost:4003
     schema:
       subgraph_url: http://localhost:4003
+  site-settings:
+    routing_url: http://localhost:4004
+    schema:
+      subgraph_url: http://localhost:4004
