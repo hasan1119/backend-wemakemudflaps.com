@@ -11,6 +11,8 @@ import { taxOptionsRepository } from "../repositories/repositories";
  * @returns Promise resolving to TaxOptions or null if not found.
  */
 export const getTaxOptions = async (): Promise<TaxOptions | null> => {
-  const taxOptions = await taxOptionsRepository.find();
+  const taxOptions = await taxOptionsRepository.find({
+    relations: ["shippingTaxClass"],
+  });
   return taxOptions[0] || null;
 };

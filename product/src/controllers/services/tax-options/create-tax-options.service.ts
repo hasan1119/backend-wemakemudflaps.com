@@ -1,5 +1,6 @@
 import { MutationCreateTaxOptionsArgs } from "../../../types";
 import { taxOptionsRepository } from "../repositories/repositories";
+import { getTaxOptions } from "./get-tax-options.service";
 
 /**
  * Creates a new TaxOptions.
@@ -28,5 +29,8 @@ export const createTaxOptions = async (
       : null,
     createdBy: userId,
   });
-  return await taxOptionsRepository.save(newTaxOptions);
+
+  await taxOptionsRepository.save(newTaxOptions);
+
+  return await getTaxOptions();
 };
