@@ -1,0 +1,55 @@
+# ---------------------- Site Settings Types ----------------------
+type ShopAddress {
+  addressLine1: String
+  addressLine2: String
+  city: String
+  state: String
+  country: String
+  zipCode: String
+}
+
+type SiteSettings {
+  id: ID!
+  name: String
+  metaData: String
+  favIcon: String
+  logo: String
+  contactNumber: String
+  contactEmail: String
+  shopAddress: ShopAddress
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# ---------------------- Input Types ----------------------
+input ShopAddressInput {
+  addressLine1: String
+  addressLine2: String
+  city: String
+  state: String
+  country: String
+  zipCode: String
+}
+
+# Response for fetching a site settings.
+type SiteSettingsResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  siteSettings: SiteSettings!
+}
+
+# ---------------------- Unions ----------------------
+union CreateSiteSettingsResponseOrError =
+    BaseResponse
+  | SiteSettingsResponse
+  | ErrorResponse
+union GetSiteSettingsResponseOrError =
+    BaseResponse
+  | SiteSettingsResponse
+  | ErrorResponse
+union UpdateSiteSettingsResponseOrError =
+    BaseResponse
+  | SiteSettingsResponse
+  | ErrorResponse

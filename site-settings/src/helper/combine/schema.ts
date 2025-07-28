@@ -1,5 +1,13 @@
 import { mergeTypeDefs } from "@graphql-tools/merge";
-import { faqDef, sharedDef } from "../../component/schemas";
+import {
+  faqDef,
+  faqMutationsDef,
+  faqQueriesDef,
+  sharedDef,
+  siteSettingsDef,
+  siteSettingsMutationsDef,
+  siteSettingsQueriesDef,
+} from "../../component/schemas";
 
 /**
  * Handles merging of all GraphQL schemas into a single unified type definition.
@@ -15,4 +23,19 @@ export const typeDefs = mergeTypeDefs([
 
   // FAQ schema definition for managing frequently asked questions
   faqDef,
+
+  // FAQ queries schema definition for fetching FAQs
+  faqQueriesDef,
+
+  // FAQ mutations schema definition for modifying FAQs
+  faqMutationsDef,
+
+  // Site settings schema definition for managing site configurations
+  siteSettingsDef,
+
+  // Site settings queries schema definition for fetching site settings
+  siteSettingsQueriesDef,
+
+  // Site settings mutations schema definition for modifying site settings
+  siteSettingsMutationsDef,
 ]);

@@ -1,0 +1,7 @@
+# Queries to fetch site settings from the system.
+type Query {
+  # Fetch site settings.
+  # Retrieves a specific site settings details.
+  # Returns a `GetSiteSettingsResponseOrError` containing site settings data and request status.
+  getSiteSettings: GetSiteSettingsResponseOrError!
+}

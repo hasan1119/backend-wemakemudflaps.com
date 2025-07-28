@@ -12,6 +12,7 @@ export const PERMISSIONS = [
   "Sub Category",
   "Tag",
   "Tax Settings",
+  "Site Settings",
   "Faq",
   "News Letter",
   "Pop Up Banner",
@@ -38,6 +39,7 @@ export type PermissionName =
   | "Sub Category"
   | "Tag"
   | "Tax Settings"
+  | "Site Settings"
   | "Faq"
   | "News Letter"
   | "Pop Up Banner"
@@ -63,6 +65,7 @@ export const PERMISSION_NORMALIZATION_MAP: Record<string, string> = {
   SUB_CATEGORY: "Sub Category",
   TAG: "Tag",
   TAX_SETTINGS: "Tax Settings",
+  SITE_SETTINGS: "Site Settings",
   FAQ: "Faq",
   NEWS_LETTER: "News Letter",
   POP_UP_BANNER: "Pop Up Banner",
