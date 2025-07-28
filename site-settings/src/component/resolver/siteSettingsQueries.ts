@@ -1,4 +1,4 @@
-import { getSiteSettings } from "../../controllers/services";
+import { getSiteSettings } from "../../controllers";
 
 /**
  * Shared resolver function for federated `CreatedBy` references.
@@ -28,7 +28,7 @@ const resolveFavIcon = ({ favIcon }) => {
  * Shared resolver function for federated `Media` references (images, videos, etc.).
  * Returns a reference to the `Media` entity using the provided media ID.
  */
-const resolveLogo = (logo) => {
+const resolveLogo = ({ logo }) => {
   if (!logo) return null;
   return {
     __typename: "Media",
@@ -37,13 +37,13 @@ const resolveLogo = (logo) => {
 };
 
 // List of types that use the `resolveCreatedBy` resolver
-const typesWithCreatedBy = ["siteSettings", "Faq"];
+const typesWithCreatedBy = ["SiteSettings", "Faq"];
 
 // List of types that use the favIcon field
-const typesWithFavIcon = ["siteSettings"];
+const typesWithFavIcon = ["SiteSettings"];
 
 // List of types that use the logo field
-const typesWithLogo = ["siteSettings"];
+const typesWithLogo = ["SiteSettings"];
 
 /**
  * Defines GraphQL query resolvers for product-related operations.

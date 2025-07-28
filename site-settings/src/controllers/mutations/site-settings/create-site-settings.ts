@@ -1,6 +1,10 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  getSiteSettingsFromRedis,
+  setSiteSettingsToRedis,
+} from "../../../helper/redis";
+import {
   CreateSiteSettingsResponseOrError,
   MutationCreateBrandArgs,
 } from "../../../types";
@@ -67,11 +71,21 @@ export const createSiteSetting = async (
       };
     }
 
-    const existingSiteSettings = await getSiteSettings();
+    // Check if site settings already exist
+    let existingSettings;
 
-    if (existingSiteSettings) {
+    existingSettings = await getSiteSettingsFromRedis();
+    if (!existingSettings) {
+      existingSettings = await getSiteSettings();
+      if (existingSettings) {
+        // Cache in Redis for future use
+        await setSiteSettingsToRedis(existingSettings);
+      }
+    }
+
+    if (existingSettings) {
       return {
-        statusCode: 400,
+        statusCode: 409,
         success: false,
         message: "Site settings already exist",
         __typename: "BaseResponse",
@@ -81,28 +95,33 @@ export const createSiteSetting = async (
     // Create the site settings in the database
     const siteSettings = await createSiteSettingsService(result.data, user.id);
 
+    const createdSiteSettings = {
+      id: siteSettings.id,
+      name: siteSettings.name,
+      metaData: siteSettings.metaData,
+      favIcon: siteSettings.favIcon as any,
+      logo: siteSettings.logo as any,
+      contactNumber: siteSettings.contactNumber,
+      contactEmail: siteSettings.contactEmail,
+      shopAddress: siteSettings.shopAddress,
+      createdBy: siteSettings.createdBy as any,
+      createdAt:
+        siteSettings.createdAt instanceof Date
+          ? siteSettings.createdAt.toISOString()
+          : siteSettings.createdAt,
+      deletedAt:
+        siteSettings.deletedAt instanceof Date
+          ? siteSettings.deletedAt.toISOString()
+          : siteSettings.deletedAt,
+    };
+
+    await setSiteSettingsToRedis(createdSiteSettings);
+
     return {
       statusCode: 201,
       success: true,
       message: "Site Settings created successfully",
-      siteSettings: {
-        id: siteSettings.id,
-        name: siteSettings.name,
-        favIcon: siteSettings.favIcon as any,
-        logo: siteSettings.logo as any,
-        contactNumber: siteSettings.contactNumber,
-        contactEmail: siteSettings.contactEmail,
-        shopAddress: siteSettings.shopAddress,
-        createdBy: siteSettings.createdBy as any,
-        createdAt:
-          siteSettings.createdAt instanceof Date
-            ? siteSettings.createdAt.toISOString()
-            : siteSettings.createdAt,
-        deletedAt:
-          siteSettings.deletedAt instanceof Date
-            ? siteSettings.deletedAt.toISOString()
-            : siteSettings.deletedAt,
-      },
+      siteSettings: createdSiteSettings,
       __typename: "SiteSettingsResponse",
     };
   } catch (error: any) {

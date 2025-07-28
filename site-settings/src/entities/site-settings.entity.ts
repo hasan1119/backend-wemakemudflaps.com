@@ -41,7 +41,7 @@ export class SiteSettings {
     city?: string | null;
     state?: string | null;
     country?: string | null;
-    zip?: string | null;
+    zipCode?: string | null;
   } | null;
 
   // User ID who created the site setting (string only for Apollo Federation compatibility)

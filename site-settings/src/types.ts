@@ -2382,9 +2382,9 @@ export type SiteSettings = {
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
-  favIcon?: Maybe<Scalars['String']['output']>;
+  favIcon?: Maybe<Media>;
   id: Scalars['ID']['output'];
-  logo?: Maybe<Scalars['String']['output']>;
+  logo?: Maybe<Media>;
   metaData?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   shopAddress?: Maybe<ShopAddress>;
@@ -4842,9 +4842,9 @@ export type SiteSettingsResolvers<ContextType = Context, ParentType extends Reso
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  favIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  favIcon?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  logo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  logo?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   metaData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   shopAddress?: Resolver<Maybe<ResolversTypes['ShopAddress']>, ParentType, ContextType>;

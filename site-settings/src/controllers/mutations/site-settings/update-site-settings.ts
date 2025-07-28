@@ -1,6 +1,10 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  getSiteSettingsFromRedis,
+  setSiteSettingsToRedis,
+} from "../../../helper/redis";
+import {
   MutationUpdateBrandArgs,
   UpdateSiteSettingsResponseOrError,
 } from "../../../types";
@@ -67,15 +71,23 @@ export const updateSiteSetting = async (
       };
     }
 
-    const existingSiteSettings = await getSiteSettings();
+    // Check if site settings already exist
+    let existingSiteSettings;
+
+    existingSiteSettings = await getSiteSettingsFromRedis();
 
     if (!existingSiteSettings) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: "Site settings do not exist",
-        __typename: "BaseResponse",
-      };
+      // If not found in Redis, check the database
+      existingSiteSettings = await getSiteSettings();
+
+      if (!existingSiteSettings) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Site settings do not exist",
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     // Update the site settings in the database
@@ -84,29 +96,34 @@ export const updateSiteSetting = async (
       result.data
     );
 
+    const updatedSiteSettings = {
+      id: siteSettings.id,
+      name: siteSettings.name,
+      metaData: siteSettings.metaData,
+      favIcon: siteSettings.favIcon as any,
+      logo: siteSettings.logo as any,
+      contactNumber: siteSettings.contactNumber,
+      contactEmail: siteSettings.contactEmail,
+      shopAddress: siteSettings.shopAddress,
+      createdBy: siteSettings.createdBy as any,
+      createdAt:
+        siteSettings.createdAt instanceof Date
+          ? siteSettings.createdAt.toISOString()
+          : siteSettings.createdAt,
+      deletedAt:
+        siteSettings.deletedAt instanceof Date
+          ? siteSettings.deletedAt.toISOString()
+          : siteSettings.deletedAt,
+    };
+
+    // Update the site settings in Redis
+    await setSiteSettingsToRedis(updatedSiteSettings);
+
     return {
       statusCode: 200,
       success: true,
       message: "Site Settings updated successfully",
-      siteSettings: {
-        id: siteSettings.id,
-        name: siteSettings.name,
-        metaData: siteSettings.metaData,
-        favIcon: siteSettings.favIcon as any,
-        logo: siteSettings.logo as any,
-        contactNumber: siteSettings.contactNumber,
-        contactEmail: siteSettings.contactEmail,
-        shopAddress: siteSettings.shopAddress,
-        createdBy: siteSettings.createdBy as any,
-        createdAt:
-          siteSettings.createdAt instanceof Date
-            ? siteSettings.createdAt.toISOString()
-            : siteSettings.createdAt,
-        deletedAt:
-          siteSettings.deletedAt instanceof Date
-            ? siteSettings.deletedAt.toISOString()
-            : siteSettings.deletedAt,
-      },
+      siteSettings: updatedSiteSettings,
       __typename: "SiteSettingsResponse",
     };
   } catch (error: any) {

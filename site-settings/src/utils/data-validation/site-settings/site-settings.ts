@@ -88,7 +88,7 @@ export const siteSettingsSchema = z
           .string({ message: "Country must be a string" })
           .optional()
           .nullable(),
-        zip: z
+        zipCode: z
           .string({ message: "ZIP code must be a string" })
           .optional()
           .nullable(),

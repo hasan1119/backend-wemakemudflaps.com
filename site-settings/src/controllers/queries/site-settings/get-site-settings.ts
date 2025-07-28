@@ -1,5 +1,9 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import {
+  getSiteSettingsFromRedis,
+  setSiteSettingsToRedis,
+} from "../../../helper/redis";
 import { GetSiteSettingsResponseOrError } from "../../../types";
 import {
   checkUserAuth,
@@ -24,16 +28,28 @@ export const getSiteSettings = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    const siteSettings = await getSiteSettingsService();
+    // Check if site settings already exist
+    let existingSettings;
 
-    if (!siteSettings) {
+    existingSettings = await getSiteSettingsFromRedis();
+    if (!existingSettings) {
+      existingSettings = await getSiteSettingsService();
+      if (existingSettings) {
+        // Cache in Redis for future use
+        await setSiteSettingsToRedis(existingSettings);
+      }
+    }
+
+    if (!existingSettings) {
       return {
-        statusCode: 404,
+        statusCode: 409,
         success: false,
-        message: "Site settings not found",
+        message: "Site settings already exist",
         __typename: "BaseResponse",
       };
     }
+
+    const siteSettings = existingSettings;
 
     return {
       statusCode: 200,
