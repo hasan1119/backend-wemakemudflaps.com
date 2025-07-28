@@ -59,6 +59,7 @@ export {
   idsSchema,
   paginationSchema,
   skipTrashSchema,
+  slugSchema,
   SortOrderTypeEnum,
 } from "./common/common";
 

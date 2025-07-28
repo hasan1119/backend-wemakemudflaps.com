@@ -501,6 +501,8 @@ export type GetProductAttributeByIdResponseOrError = BaseResponse | ErrorRespons
 
 export type GetProductByIdResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
 
+export type GetProductBySlugResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
+
 export type GetProductReviewByIdResponseOrError = BaseResponse | ErrorResponse | ProductReviewResponse;
 
 export type GetProductReviewsResponseOrError = BaseResponse | ErrorResponse | ProductReviewPaginationResponse;
@@ -1897,7 +1899,7 @@ export type Query = {
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError;
   getProductAttributeById: GetProductAttributeByIdResponseOrError;
   getProductById: GetProductByIdResponseOrError;
-  getProductByIdForCustomer: GetProductByIdResponseOrError;
+  getProductBySlugForCustomer: GetProductBySlugResponseOrError;
   getProfile: GetProfileResponseOrError;
   getReview?: Maybe<Scalars['String']['output']>;
   getRoleById: GetRoleByIdResponseOrError;
@@ -2112,8 +2114,8 @@ export type QueryGetProductByIdArgs = {
 };
 
 
-export type QueryGetProductByIdForCustomerArgs = {
-  id: Scalars['ID']['input'];
+export type QueryGetProductBySlugForCustomerArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -2999,6 +3001,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   GetPersonalizedPermissionsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( PermissionsResponse );
   GetProductAttributeByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductAttributeResponse );
   GetProductByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
+  GetProductBySlugResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
   GetProductReviewByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
   GetProductReviewsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewPaginationResponse );
   GetProductsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductPaginationResponse );
@@ -3161,6 +3164,7 @@ export type ResolversTypes = {
   GetPersonalizedPermissionsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetPersonalizedPermissionsResponseOrError']>;
   GetProductAttributeByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductAttributeByIDResponseOrError']>;
   GetProductByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductByIdResponseOrError']>;
+  GetProductBySlugResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductBySlugResponseOrError']>;
   GetProductReviewByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductReviewByIdResponseOrError']>;
   GetProductReviewsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductReviewsResponseOrError']>;
   GetProductsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductsResponseOrError']>;
@@ -3414,6 +3418,7 @@ export type ResolversParentTypes = {
   GetPersonalizedPermissionsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetPersonalizedPermissionsResponseOrError'];
   GetProductAttributeByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductAttributeByIDResponseOrError'];
   GetProductByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductByIdResponseOrError'];
+  GetProductBySlugResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductBySlugResponseOrError'];
   GetProductReviewByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductReviewByIdResponseOrError'];
   GetProductReviewsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductReviewsResponseOrError'];
   GetProductsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductsResponseOrError'];
@@ -4076,6 +4081,10 @@ export type GetProductByIdResponseOrErrorResolvers<ContextType = Context, Parent
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
 };
 
+export type GetProductBySlugResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProductBySlugResponseOrError'] = ResolversParentTypes['GetProductBySlugResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
+};
+
 export type GetProductReviewByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProductReviewByIdResponseOrError'] = ResolversParentTypes['GetProductReviewByIdResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductReviewResponse', ParentType, ContextType>;
 };
@@ -4610,7 +4619,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getOwnPersonalizedPermissions?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType>;
   getProductAttributeById?: Resolver<ResolversTypes['GetProductAttributeByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductAttributeByIdArgs, 'id'>>;
   getProductById?: Resolver<ResolversTypes['GetProductByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductByIdArgs, 'id'>>;
-  getProductByIdForCustomer?: Resolver<ResolversTypes['GetProductByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductByIdForCustomerArgs, 'id'>>;
+  getProductBySlugForCustomer?: Resolver<ResolversTypes['GetProductBySlugResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductBySlugForCustomerArgs, 'slug'>>;
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
   getReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getRoleById?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleByIdArgs, 'id'>>;
@@ -5376,6 +5385,7 @@ export type Resolvers<ContextType = Context> = {
   GetPersonalizedPermissionsResponseOrError?: GetPersonalizedPermissionsResponseOrErrorResolvers<ContextType>;
   GetProductAttributeByIDResponseOrError?: GetProductAttributeByIdResponseOrErrorResolvers<ContextType>;
   GetProductByIdResponseOrError?: GetProductByIdResponseOrErrorResolvers<ContextType>;
+  GetProductBySlugResponseOrError?: GetProductBySlugResponseOrErrorResolvers<ContextType>;
   GetProductReviewByIdResponseOrError?: GetProductReviewByIdResponseOrErrorResolvers<ContextType>;
   GetProductReviewsResponseOrError?: GetProductReviewsResponseOrErrorResolvers<ContextType>;
   GetProductsResponseOrError?: GetProductsResponseOrErrorResolvers<ContextType>;

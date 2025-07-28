@@ -7,9 +7,9 @@ type Query {
     id: ID! # Unique identifier of the product to retrieve.
   ): GetProductByIdResponseOrError!
 
-  getProductByIdForCustomer(
-    id: ID! # Unique identifier of the product to retrieve for customer view.
-  ): GetProductByIdResponseOrError!
+  getProductBySlugForCustomer(
+    slug: String! # Unique identifier of the product to retrieve for customer view.
+  ): GetProductBySlugResponseOrError!
 
   # Fetch all products with pagination, filtering, and sorting.
   # Retrieves a paginated list of products.

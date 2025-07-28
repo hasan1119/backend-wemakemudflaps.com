@@ -104,6 +104,10 @@ union GetProductByIdResponseOrError =
     BaseResponse
   | ProductResponse
   | ErrorResponse
+union GetProductBySlugResponseOrError =
+    BaseResponse
+  | ProductResponse
+  | ErrorResponse
 union GetProductsResponseOrError =
     BaseResponse
   | ProductPaginationResponse

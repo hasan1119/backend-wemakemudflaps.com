@@ -11,6 +11,24 @@ import { z } from "zod";
 export const idSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }),
 });
+/**
+ *
+ * Defines the schema for validating a slug.
+ *
+ * Workflow:
+ * 1. Validates that the slug field is a valid slug string.
+ *
+ * @property slug - The slug string to validate.
+ */
+export const slugSchema = z.object({
+  slug: z
+    .string()
+    .min(3)
+    .max(100)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+      message: "Invalid slug format",
+    }),
+});
 
 /**
  * Defines the schema for validating an array of UUIDs.

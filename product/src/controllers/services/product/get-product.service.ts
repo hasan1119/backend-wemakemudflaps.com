@@ -3,20 +3,122 @@ import { Product } from "../../../entities";
 import { productRepository } from "../repositories/repositories";
 
 /**
- * Finds a Product entity by its slug (case-insensitive).
+ * Retrieves a single Product entity by its slug (case-insensitive).
  *
- * @param slug - The slug of the product to find.
- * @returns A promise resolving to the Product entity or null if not found.
+ * Workflow:
+ * 1. Uses QueryBuilder to find a product that matches the provided slug.
+ * 2. Includes all relations with soft delete filtering.
+ * 3. Returns the Product entity or null if not found.
+ *
+ * @param slug - The slug of the product to retrieve.
+ * @returns A promise that resolves to the Product entity, or null if no match is found.
  */
 export const findProductBySlug = async (
   slug: string
 ): Promise<Product | null> => {
-  return await productRepository.findOne({
-    where: {
-      slug: ILike(slug),
-      deletedAt: null,
-    },
-  });
+  const queryBuilder = productRepository
+    .createQueryBuilder("product")
+    .where("product.slug ILIKE :slug AND product.deletedAt IS NULL", { slug })
+    // Product relations
+    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
+    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
+    .leftJoinAndSelect(
+      "product.categories",
+      "categories",
+      "categories.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.attributes",
+      "attributes",
+      "attributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.systemAttributeRef",
+      "attribute_systemAttribute",
+      "attribute_systemAttribute.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.copiedAttributes",
+      "attribute_copiedAttributes",
+      "attribute_copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attributes.values",
+      "attribute_values",
+      "attribute_values.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.variations",
+      "variations",
+      "variations.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.shippingClass",
+      "shippingClass",
+      "shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.upsells",
+      "upsells",
+      "upsells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.crossSells",
+      "crossSells",
+      "crossSells.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.reviews",
+      "reviews",
+      "reviews.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "product.taxClass",
+      "taxClass",
+      "taxClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
+    .leftJoinAndSelect(
+      "tierPricingInfo.tieredPrices",
+      "tieredPrices",
+      "tieredPrices.deletedAt IS NULL"
+    )
+    // Variation relations
+    .leftJoinAndSelect(
+      "variations.brands",
+      "variation_brands",
+      "variation_brands.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.tierPricingInfo",
+      "variation_tierPricingInfo"
+    )
+    .leftJoinAndSelect(
+      "variation_tierPricingInfo.tieredPrices",
+      "variation_tieredPrices"
+    )
+    .leftJoinAndSelect(
+      "variations.attributeValues",
+      "variation_attributeValues",
+      "variation_attributeValues.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variation_attributeValues.attribute",
+      "variation_attribute",
+      "variation_attribute.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.shippingClass",
+      "variation_shippingClass",
+      "variation_shippingClass.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "variations.taxClass",
+      "variation_taxClass",
+      "variation_taxClass.deletedAt IS NULL"
+    );
+
+  return await queryBuilder.getOne();
 };
 
 /**
