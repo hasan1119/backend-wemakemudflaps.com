@@ -114,6 +114,12 @@ export const updateProductAttribute = async (
       currentProductAttribute
     );
 
+    // Await the related product if it's a Promise
+    const resolvedProduct =
+      currentProductAttribute.product instanceof Promise
+        ? await currentProductAttribute.product
+        : currentProductAttribute.product;
+
     return {
       statusCode: 200,
       success: true,
@@ -135,6 +141,12 @@ export const updateProductAttribute = async (
               ? value.deletedAt.toISOString()
               : value.deletedAt,
         })),
+        product: resolvedProduct
+          ? {
+              id: resolvedProduct.id,
+              name: resolvedProduct.name,
+            }
+          : null,
         visible: updatedProductAttribute.visible,
         forVariation: updatedProductAttribute.forVariation,
         createdBy: updatedProductAttribute.createdBy as any,

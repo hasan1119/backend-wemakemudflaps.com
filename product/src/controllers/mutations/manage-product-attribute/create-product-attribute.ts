@@ -115,6 +115,12 @@ export const handleCreateProductAttribute = async (
     ? await createSystemAttributeWithValues(user.id, args)
     : await createAttributeWithValues(user.id, args, existingCustomAttribute);
 
+  // Await the related product if it's a Promise
+  const resolvedProduct =
+    productAttribute.product instanceof Promise
+      ? await productAttribute.product
+      : productAttribute.product;
+
   return {
     statusCode: 201,
     success: true,
@@ -136,6 +142,12 @@ export const handleCreateProductAttribute = async (
             ? value.deletedAt.toISOString()
             : value.deletedAt,
       })),
+      product: resolvedProduct
+        ? {
+            id: resolvedProduct.id,
+            name: resolvedProduct.name,
+          }
+        : null,
       visible: productAttribute.visible,
       forVariation: productAttribute.forVariation,
       deletedAt:

@@ -17,6 +17,7 @@ import { SortOrderTypeEnum } from "../../common/common";
  * @property systemAttributeId - An optional string representing the ID of a system attribute to replicate, which can be null.
  * @property visible - An optional boolean indicating if the attribute should be visible to customers, defaulting to true.
  * @property forVariation - An optional boolean indicating if the attribute is used for variations, defaulting to false.
+ * @property productId - An optional string representing the ID of the product associated with this attribute, which can be null.
  */
 export const CreateProductAttributeInputSchema = z.object({
   name: z.string().min(1, "Attribute name is required").trim(),
@@ -31,6 +32,7 @@ export const CreateProductAttributeInputSchema = z.object({
     .nullable(),
   visible: z.boolean().default(true).optional().nullable(),
   forVariation: z.boolean().default(false).optional().nullable(),
+  productId: z.string().uuid("Invalid UUID ID format").optional().nullable(),
 });
 
 /**
@@ -43,12 +45,12 @@ export const CreateProductAttributeInputSchema = z.object({
  * 4. Validates `id` as a required UUID string.
  * 5. Validates `visible` and `forVariation` as optional booleans with default values.
  *
+ * @property id - The ID of the product attribute to update, which is required.
  * @property name - The name of the product attribute, which can be an empty string or omitted.
  * @property slug - A URL-friendly identifier for the product attribute, which can be an empty string or omitted.
  * @property isVisible - An optional boolean indicating if the attribute should be visible.
  * @property values - An optional array of product attribute values.
  * @property forVariation - An optional boolean indicating if the attribute is used for variations.
- * @property id - The ID of the product attribute to update, which is required.
  */
 export const UpdateProductAttributeInputSchema = z
   .object({

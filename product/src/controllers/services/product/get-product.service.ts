@@ -684,7 +684,7 @@ export const paginateProductsForCustomer = async ({
     .leftJoinAndSelect(
       "product.attributes",
       "attributes",
-      "attributes.deletedAt IS NULL"
+      "attributes.deletedAt IS NULL AND attributes.visible = true"
     )
     .leftJoinAndSelect(
       "attributes.values",

@@ -157,6 +157,7 @@ async function mapProductRecursive(
       ...attribute,
       createdBy: attribute.createdBy as any,
       systemAttributeId: attribute.systemAttributeRef?.id || null,
+      product: null,
       values: attribute.values.map((value) => ({
         ...value,
         createdAt:

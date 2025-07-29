@@ -66,7 +66,7 @@ export const createAttributeWithValues = async (
   data: MutationCreateProductAttributeArgs,
   existingCustomAttribute?: ProductAttribute | null
 ): Promise<ProductAttribute> => {
-  const { name, slug, values, visible, forVariation } = data ?? {};
+  const { name, slug, values, visible, forVariation, productId } = data ?? {};
 
   // Step 1: Create the attribute
   const newAttribute = productAttributeRepository.create({
@@ -79,6 +79,7 @@ export const createAttributeWithValues = async (
       : null,
     visible: visible ?? true,
     forVariation: forVariation ?? false,
+    product: { id: productId } as any,
     createdBy: userId,
   });
 

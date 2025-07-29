@@ -23,7 +23,7 @@ export const getProductAttributeById = async (
       id,
       deletedAt: null,
     },
-    relations: ["values", "systemAttributeRef", "copiedAttributes"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
   });
 };
 
@@ -48,7 +48,7 @@ export const getProductAttributesByIds = async (
       id: In(ids),
       deletedAt: null,
     },
-    relations: ["values", "systemAttributeRef", "copiedAttributes"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
   });
 };
 
@@ -73,7 +73,7 @@ export const getProductAttributeValuesByIds = async (
       id: In(ids),
       deletedAt: null,
     },
-    relations: ["values", "systemAttributeRef", "copiedAttributes"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
   });
 };
 
@@ -91,7 +91,7 @@ export const findAttributeByName = async (
       name: ILike(name),
       deletedAt: null,
     },
-    relations: ["values", "systemAttributeRef", "copiedAttributes"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
   });
 };
 
@@ -115,7 +115,7 @@ export const findSystemAttributeByName = async (
       deletedAt: null,
       systemAttribute: true,
     },
-    relations: ["values", "systemAttributeRef", "copiedAttributes"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
   });
 };
 
@@ -139,7 +139,7 @@ export const findSystemAttributeBySlug = async (
       deletedAt: null,
       systemAttribute: true,
     },
-    relations: ["values", "systemAttributeRef", "copiedAttributes"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
   });
 };
 
@@ -157,7 +157,7 @@ export const findAttributeBySlug = async (
       slug: ILike(slug),
       deletedAt: null,
     },
-    relations: ["values", "systemAttributeRef", "copiedAttributes"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
   });
 };
 
@@ -179,7 +179,7 @@ export const findSystemAttributeByNameToUpdate = async (
       systemAttribute: true,
       deletedAt: null,
     },
-    relations: ["values", "systemAttributeRef", "copiedAttributes"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
   });
 };
 
@@ -201,7 +201,7 @@ export const findSystemAttributeBySlugToUpdate = async (
       systemAttribute: true,
       deletedAt: null,
     },
-    relations: ["values", "systemAttributeRef", "copiedAttributes"],
+    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
   });
 };
 
@@ -243,6 +243,7 @@ export const paginateSystemProductAttributes = async ({
     .leftJoinAndSelect("attribute.systemAttributeRef", "systemAttribute")
     .leftJoinAndSelect("attribute.copiedAttributes", "copiedAttributes")
     .leftJoinAndSelect("attribute.values", "values")
+    .leftJoinAndSelect("attribute.product", "product")
     .where("attribute.deletedAt IS NULL")
     .andWhere("attribute.systemAttribute = :system", { system: true });
 

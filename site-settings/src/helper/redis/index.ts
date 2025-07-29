@@ -41,6 +41,8 @@ export {
 export {
   clearFaqsAndCountCache,
   getFaqInfoByIdFromRedis,
+  getFaqsAndCountFromRedis,
   removeFaqInfoByIdFromRedis,
   setFaqInfoByIdInRedis,
+  setFaqsAndCountInRedis,
 } from "./utils/faq/faq-session-manage";

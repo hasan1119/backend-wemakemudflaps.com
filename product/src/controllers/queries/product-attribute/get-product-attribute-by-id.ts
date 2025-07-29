@@ -81,6 +81,12 @@ export const getProductAttributeById = async (
       };
     }
 
+    // Await the related product if it's a Promise
+    const resolvedProduct =
+      dbProductAttribute.product instanceof Promise
+        ? await dbProductAttribute.product
+        : dbProductAttribute.product;
+
     return {
       statusCode: 200,
       success: true,
@@ -102,6 +108,12 @@ export const getProductAttributeById = async (
               ? value.deletedAt.toISOString()
               : value.deletedAt,
         })),
+        product: resolvedProduct
+          ? {
+              id: resolvedProduct.id,
+              name: resolvedProduct.name,
+            }
+          : null,
         systemAttributeId: dbProductAttribute.systemAttributeRef?.id || null,
         visible: dbProductAttribute.visible,
         forVariation: dbProductAttribute.forVariation,

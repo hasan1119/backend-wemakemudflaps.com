@@ -113,36 +113,46 @@ export const getAllProductAttribute = async (
 
     // Map database product attribute to response format
     const attributesData = await Promise.all(
-      dbAttributes.map(async (attribute) => ({
-        id: attribute.id,
-        name: attribute.name,
-        slug: attribute.slug,
-        systemAttribute: attribute.systemAttribute,
-        values: attribute.values.map((value) => ({
-          id: value.id,
-          value: value.value,
+      dbAttributes.map(async (attribute) => {
+        const product = attribute.product ? await attribute.product : null;
+
+        return {
+          id: attribute.id,
+          name: attribute.name,
+          slug: attribute.slug,
+          systemAttribute: attribute.systemAttribute,
+          values: attribute.values.map((value) => ({
+            id: value.id,
+            value: value.value,
+            createdAt:
+              value.createdAt instanceof Date
+                ? value.createdAt.toISOString()
+                : value.createdAt,
+            deletedAt:
+              value.deletedAt instanceof Date
+                ? value.deletedAt.toISOString()
+                : value.deletedAt,
+          })),
+          product: product
+            ? {
+                id: product.id,
+                name: product.name,
+              }
+            : null,
+          systemAttributeId: attribute.systemAttributeRef?.id || null,
+          visible: attribute.visible,
+          forVariation: attribute.forVariation,
+          createdBy: attribute.createdBy as any,
           createdAt:
-            value.createdAt instanceof Date
-              ? value.createdAt.toISOString()
-              : value.createdAt,
+            attribute.createdAt instanceof Date
+              ? attribute.createdAt.toISOString()
+              : attribute.createdAt,
           deletedAt:
-            value.deletedAt instanceof Date
-              ? value.deletedAt.toISOString()
-              : value.deletedAt,
-        })),
-        systemAttributeId: attribute.systemAttributeRef?.id || null,
-        visible: attribute.visible,
-        forVariation: attribute.forVariation,
-        createdBy: attribute.createdBy as any,
-        createdAt:
-          attribute.createdAt instanceof Date
-            ? attribute.createdAt.toISOString()
-            : attribute.createdAt,
-        deletedAt:
-          attribute.deletedAt instanceof Date
-            ? attribute.deletedAt.toISOString()
-            : attribute.deletedAt,
-      }))
+            attribute.deletedAt instanceof Date
+              ? attribute.deletedAt.toISOString()
+              : attribute.deletedAt,
+        };
+      })
     );
 
     return {
