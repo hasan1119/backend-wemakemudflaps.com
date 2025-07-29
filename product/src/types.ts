@@ -63,6 +63,12 @@ export enum AllowBackOrders {
   DontAllow = 'DONT_ALLOW'
 }
 
+export type AttributeProduct = {
+  __typename?: 'AttributeProduct';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type BaseResponse = {
   __typename?: 'BaseResponse';
   message: Scalars['String']['output'];
@@ -964,6 +970,7 @@ export type MutationCreateProductArgs = {
 export type MutationCreateProductAttributeArgs = {
   forVariation?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
+  productId?: InputMaybe<Scalars['ID']['input']>;
   slug: Scalars['String']['input'];
   systemAttributeId?: InputMaybe<Scalars['String']['input']>;
   values: Array<Scalars['String']['input']>;
@@ -1529,14 +1536,12 @@ export enum PermissionName {
   Brand = 'BRAND',
   Category = 'CATEGORY',
   Coupon = 'COUPON',
-  Faq = 'FAQ',
   Media = 'MEDIA',
   NewsLetter = 'NEWS_LETTER',
   Notification = 'NOTIFICATION',
   Order = 'ORDER',
   Permission = 'PERMISSION',
   PopUpBanner = 'POP_UP_BANNER',
-  PrivacyPolicy = 'PRIVACY_POLICY',
   Product = 'PRODUCT',
   ProductReview = 'PRODUCT_REVIEW',
   Role = 'ROLE',
@@ -1546,7 +1551,6 @@ export enum PermissionName {
   Tag = 'TAG',
   TaxExemption = 'TAX_EXEMPTION',
   TaxSettings = 'TAX_SETTINGS',
-  TermsConditions = 'TERMS_CONDITIONS',
   User = 'USER'
 }
 
@@ -1664,6 +1668,7 @@ export type ProductAttribute = {
   forVariation: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  product?: Maybe<AttributeProduct>;
   slug: Scalars['String']['output'];
   systemAttribute: Scalars['Boolean']['output'];
   systemAttributeId?: Maybe<Scalars['String']['output']>;
@@ -3075,6 +3080,7 @@ export type ResolversTypes = {
   AddressType: AddressType;
   AddressesBookResponse: ResolverTypeWrapper<AddressesBookResponse>;
   AllowBackOrders: AllowBackOrders;
+  AttributeProduct: ResolverTypeWrapper<AttributeProduct>;
   BaseResponse: ResolverTypeWrapper<BaseResponse>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   Brand: ResolverTypeWrapper<Brand>;
@@ -3335,6 +3341,7 @@ export type ResolversParentTypes = {
   AddressResponseBook: AddressResponseBook;
   Int: Scalars['Int']['output'];
   AddressesBookResponse: AddressesBookResponse;
+  AttributeProduct: AttributeProduct;
   BaseResponse: BaseResponse;
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   Brand: Brand;
@@ -3608,6 +3615,12 @@ export type AddressesBookResponseResolvers<ContextType = Context, ParentType ext
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AttributeProductResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AttributeProduct'] = ResolversParentTypes['AttributeProduct']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4449,6 +4462,7 @@ export type ProductAttributeResolvers<ContextType = Context, ParentType extends 
   forVariation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  product?: Resolver<Maybe<ResolversTypes['AttributeProduct']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   systemAttribute?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   systemAttributeId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -5306,6 +5320,7 @@ export type Resolvers<ContextType = Context> = {
   AddressBook?: AddressBookResolvers<ContextType>;
   AddressResponseBook?: AddressResponseBookResolvers<ContextType>;
   AddressesBookResponse?: AddressesBookResponseResolvers<ContextType>;
+  AttributeProduct?: AttributeProductResolvers<ContextType>;
   BaseResponse?: BaseResponseResolvers<ContextType>;
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
   Brand?: BrandResolvers<ContextType>;

@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { ProductAttributeValue } from "./product-attribute-value.entity";
+import { Product } from "./product.entity";
 
 @Entity()
 export class ProductAttribute {
@@ -58,6 +59,14 @@ export class ProductAttribute {
     (attribute) => attribute.systemAttributeRef
   )
   copiedAttributes: ProductAttribute[];
+
+  // The product this attribute belongs to (if applicable)
+  @ManyToOne(() => Product, (product) => product.attributes, {
+    nullable: true,
+    onDelete: "CASCADE", // optional: removes attribute if product is deleted
+  })
+  @JoinColumn({ name: "product_id" })
+  product: Promise<Product> | null;
 
   // User ID who created the product attribute (string only for Apollo Federation compatibility)
   @Column()

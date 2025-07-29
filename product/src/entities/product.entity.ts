@@ -374,14 +374,9 @@ export class Product {
   /* ====================== Attributes ====================== */
 
   // Additional product attributes (e.g., material, style)
-  @ManyToMany(() => ProductAttribute, {
-    onDelete: "SET NULL",
+  @OneToMany(() => ProductAttribute, (attribute) => attribute.product, {
+    cascade: true,
     nullable: true,
-  })
-  @JoinTable({
-    name: "product_attributes",
-    joinColumn: { name: "product_id", referencedColumnName: "id" },
-    inverseJoinColumn: { name: "attribute_id", referencedColumnName: "id" },
   })
   attributes: ProductAttribute[] | null;
 

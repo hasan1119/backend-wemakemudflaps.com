@@ -1,5 +1,10 @@
 # ---------------------- Product Attribute Types ----------------------
 
+type AttributeProduct {
+  id: ID!
+  name: String!
+}
+
 # Represents a product attribute such as "Color" or "Size"
 type ProductAttribute {
   id: ID! # Unique identifier
@@ -9,6 +14,7 @@ type ProductAttribute {
   values: [ProductAttributeValue!]! # List of possible values for this attribute
   systemAttributeId: String # ID of the system attribute (if applicable)
   visible: Boolean! # Indicates if the attribute is visible to customers
+  product: AttributeProduct # Product associated with this attribute
   forVariation: Boolean! # Indicates if the attribute is used for variations
   createdBy: CreatedBy # Creator identifier
   createdAt: String # Timestamp of creation
