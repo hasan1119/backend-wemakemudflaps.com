@@ -1,5 +1,5 @@
-import { SiteSettings } from "../../../types";
-import { redis } from "../redis";
+import { SiteSettings } from "../../../../types";
+import { redis } from "../../redis";
 
 // Defines prefixes for Redis keys used for site settings caching
 const PREFIX = {

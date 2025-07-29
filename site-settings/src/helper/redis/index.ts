@@ -29,4 +29,18 @@ export {
 export {
   getSiteSettingsFromRedis,
   setSiteSettingsToRedis,
-} from "./utils/site-settings";
+} from "./utils/site-settings/site-settings-session-manage";
+
+/**
+ * Exports utilities for managing FAQ data in Redis.
+ *
+ * Workflow:
+ * 1. Provides functions for getting, setting, and removing FAQ entries.
+ * 2. Includes functions to clear all FAQ-related cache entries.
+ */
+export {
+  clearFaqsAndCountCache,
+  getFaqInfoByIdFromRedis,
+  removeFaqInfoByIdFromRedis,
+  setFaqInfoByIdInRedis,
+} from "./utils/faq/faq-session-manage";
