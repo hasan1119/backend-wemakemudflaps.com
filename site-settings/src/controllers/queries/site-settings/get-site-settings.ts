@@ -5,10 +5,7 @@ import {
   setSiteSettingsToRedis,
 } from "../../../helper/redis";
 import { GetSiteSettingsResponseOrError } from "../../../types";
-import {
-  checkUserAuth,
-  getSiteSettings as getSiteSettingsService,
-} from "../../services";
+import { getSiteSettings as getSiteSettingsService } from "../../services";
 
 /**
  * Handles the retrieval of site settings.
@@ -24,10 +21,6 @@ export const getSiteSettings = async (
   { user }: Context
 ): Promise<GetSiteSettingsResponseOrError> => {
   try {
-    // Verify user authentication
-    const authResponse = checkUserAuth(user);
-    if (authResponse) return authResponse;
-
     // Check if site settings already exist
     let existingSettings;
 

@@ -1,4 +1,10 @@
-import { createSiteSetting, updateSiteSetting } from "../../controllers";
+import {
+  createFaq,
+  createSiteSetting,
+  deleteFaqs,
+  updateFaq,
+  updateSiteSetting,
+} from "../../controllers";
 
 /**
  * Defines GraphQL mutation resolvers for site settings related operations.
@@ -19,5 +25,20 @@ export const siteSettingsMutationsResolver = {
      * Updates existing site settings.
      */
     updateSiteSetting,
+
+    /**
+     * Creates a new FAQ entry.
+     */
+    createFaq,
+
+    /**
+     * Deletes existing FAQs.
+     */
+    deleteFaqs,
+
+    /**
+     * Updates an existing FAQ entry.
+     */
+    updateFaq,
   },
 };
