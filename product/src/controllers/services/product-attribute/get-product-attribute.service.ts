@@ -1,9 +1,22 @@
-import { Brackets, ILike, In, Not } from "typeorm";
-import { ProductAttribute, ProductAttributeValue } from "../../../entities";
-import {
-  productAttributeRepository,
-  productAttributeValueRepository,
-} from "../repositories/repositories";
+import { Brackets } from "typeorm";
+import { ProductAttribute } from "../../../entities";
+import { productAttributeRepository } from "../repositories/repositories";
+
+/**
+ * Filters out soft-deleted values and sorts them by createdAt descending.
+ */
+export function cleanAndSortAttributeValues(attributes: ProductAttribute[]) {
+  return attributes.map((attribute) => ({
+    ...attribute,
+    values: (attribute.values || [])
+      .filter((val) => val.deletedAt === null)
+      .sort((a, b) => {
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bDate - aDate;
+      }),
+  }));
+}
 
 /**
  * Retrieves a Product Attribute entity by its ID.
@@ -18,13 +31,28 @@ import {
 export const getProductAttributeById = async (
   id: string
 ): Promise<ProductAttribute | null> => {
-  return await productAttributeRepository.findOne({
-    where: {
-      id,
-      deletedAt: null,
-    },
-    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
-  });
+  return await productAttributeRepository
+    .createQueryBuilder("attribute")
+    .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
+    .orderBy("values.createdAt", "ASC")
+    .leftJoinAndSelect(
+      "attribute.systemAttributeRef",
+      "systemAttributeRef",
+      "systemAttributeRef.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.copiedAttributes",
+      "copiedAttributes",
+      "copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.product",
+      "product",
+      "product.deletedAt IS NULL"
+    )
+    .where("attribute.id = :id", { id })
+    .andWhere("attribute.deletedAt IS NULL")
+    .getOne();
 };
 
 /**
@@ -43,38 +71,28 @@ export const getProductAttributesByIds = async (
 ): Promise<ProductAttribute[]> => {
   if (!ids.length) return [];
 
-  return await productAttributeRepository.find({
-    where: {
-      id: In(ids),
-      deletedAt: null,
-    },
-    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
-  });
-};
-
-/**
- * Retrieves multiple Product Attribute Value entities by their IDs.
- *
- * Workflow:
- * 1. Returns an empty array if the input array is empty.
- * 2. Uses TypeORM `In` to find all Product Attribute Value entities by ID.
- * 3. Filters out soft-deleted values (`deletedAt IS NULL`).
- *
- * @param ids - An array of product attribute value UUIDs to retrieve.
- * @returns A promise resolving to an array of Product Attribute Value entities.
- */
-export const getProductAttributeValuesByIds = async (
-  ids: string[]
-): Promise<ProductAttributeValue[]> => {
-  if (!ids.length) return [];
-
-  return await productAttributeValueRepository.find({
-    where: {
-      id: In(ids),
-      deletedAt: null,
-    },
-    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
-  });
+  return await productAttributeRepository
+    .createQueryBuilder("attribute")
+    .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
+    .orderBy("values.createdAt", "ASC")
+    .leftJoinAndSelect(
+      "attribute.systemAttributeRef",
+      "systemAttributeRef",
+      "systemAttributeRef.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.copiedAttributes",
+      "copiedAttributes",
+      "copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.product",
+      "product",
+      "product.deletedAt IS NULL"
+    )
+    .where("attribute.id IN (:...ids)", { ids })
+    .andWhere("attribute.deletedAt IS NULL")
+    .getMany();
 };
 
 /**
@@ -86,13 +104,28 @@ export const getProductAttributeValuesByIds = async (
 export const findAttributeByName = async (
   name: string
 ): Promise<ProductAttribute | null> => {
-  return await productAttributeRepository.findOne({
-    where: {
-      name: ILike(name),
-      deletedAt: null,
-    },
-    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
-  });
+  return await productAttributeRepository
+    .createQueryBuilder("attribute")
+    .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
+    .orderBy("values.createdAt", "ASC")
+    .leftJoinAndSelect(
+      "attribute.systemAttributeRef",
+      "systemAttributeRef",
+      "systemAttributeRef.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.copiedAttributes",
+      "copiedAttributes",
+      "copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.product",
+      "product",
+      "product.deletedAt IS NULL"
+    )
+    .where("attribute.name = :name", { name })
+    .andWhere("attribute.deletedAt IS NULL")
+    .getOne();
 };
 
 /**
@@ -109,14 +142,28 @@ export const findAttributeByName = async (
 export const findSystemAttributeByName = async (
   name: string
 ): Promise<ProductAttribute | null> => {
-  return await productAttributeRepository.findOne({
-    where: {
-      name: ILike(name),
-      deletedAt: null,
-      systemAttribute: true,
-    },
-    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
-  });
+  return await productAttributeRepository
+    .createQueryBuilder("attribute")
+    .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
+    .orderBy("values.createdAt", "ASC")
+    .leftJoinAndSelect(
+      "attribute.systemAttributeRef",
+      "systemAttributeRef",
+      "systemAttributeRef.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.copiedAttributes",
+      "copiedAttributes",
+      "copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.product",
+      "product",
+      "product.deletedAt IS NULL"
+    )
+    .where("attribute.name = :name", { name })
+    .andWhere("attribute.deletedAt IS NULL")
+    .getOne();
 };
 
 /**
@@ -133,14 +180,33 @@ export const findSystemAttributeByName = async (
 export const findSystemAttributeBySlug = async (
   slug: string
 ): Promise<ProductAttribute | null> => {
-  return await productAttributeRepository.findOne({
-    where: {
-      slug: ILike(slug),
-      deletedAt: null,
-      systemAttribute: true,
-    },
-    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
-  });
+  return await productAttributeRepository
+    .createQueryBuilder("attribute")
+    .leftJoinAndSelect(
+      "attribute.values",
+      "values",
+      "values.deletedAt IS NULL  "
+    )
+    .orderBy("values.createdAt", "ASC")
+    .leftJoinAndSelect(
+      "attribute.systemAttributeRef",
+      "systemAttributeRef",
+      "systemAttributeRef.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.copiedAttributes",
+      "copiedAttributes",
+      "copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.product",
+      "product",
+      "product.deletedAt IS NULL"
+    )
+    .where("attribute.slug = :slug", { slug })
+    .andWhere("attribute.deletedAt IS NULL")
+    .andWhere("attribute.systemAttribute = :system", { system: true })
+    .getOne();
 };
 
 /**
@@ -152,13 +218,32 @@ export const findSystemAttributeBySlug = async (
 export const findAttributeBySlug = async (
   slug: string
 ): Promise<ProductAttribute | null> => {
-  return await productAttributeRepository.findOne({
-    where: {
-      slug: ILike(slug),
-      deletedAt: null,
-    },
-    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
-  });
+  return await productAttributeRepository
+    .createQueryBuilder("attribute")
+    .leftJoinAndSelect(
+      "attribute.values",
+      "values",
+      "values.deletedAt IS NULL  "
+    )
+    .orderBy("values.createdAt", "ASC")
+    .leftJoinAndSelect(
+      "attribute.systemAttributeRef",
+      "systemAttributeRef",
+      "systemAttributeRef.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.copiedAttributes",
+      "copiedAttributes",
+      "copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.product",
+      "product",
+      "product.deletedAt IS NULL"
+    )
+    .where("attribute.slug = :slug", { slug })
+    .andWhere("attribute.deletedAt IS NULL")
+    .getOne();
 };
 
 /**
@@ -172,15 +257,30 @@ export const findSystemAttributeByNameToUpdate = async (
   id: string,
   name: string
 ): Promise<ProductAttribute | null> => {
-  return await productAttributeRepository.findOne({
-    where: {
-      id: Not(id),
-      name: ILike(name),
-      systemAttribute: true,
-      deletedAt: null,
-    },
-    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
-  });
+  return await productAttributeRepository
+    .createQueryBuilder("attribute")
+    .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
+    .orderBy("values.createdAt", "ASC")
+    .leftJoinAndSelect(
+      "attribute.systemAttributeRef",
+      "systemAttributeRef",
+      "systemAttributeRef.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.copiedAttributes",
+      "copiedAttributes",
+      "copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.product",
+      "product",
+      "product.deletedAt IS NULL"
+    )
+    .where("attribute.id != :id", { id })
+    .andWhere("attribute.name = :name", { name })
+    .andWhere("attribute.systemAttribute = :system", { system: true })
+    .andWhere("attribute.deletedAt IS NULL")
+    .getOne();
 };
 
 /**
@@ -194,15 +294,30 @@ export const findSystemAttributeBySlugToUpdate = async (
   id: string,
   slug: string
 ): Promise<ProductAttribute | null> => {
-  return await productAttributeRepository.findOne({
-    where: {
-      id: Not(id),
-      slug: ILike(slug),
-      systemAttribute: true,
-      deletedAt: null,
-    },
-    relations: ["values", "systemAttributeRef", "copiedAttributes", "product"],
-  });
+  return await productAttributeRepository
+    .createQueryBuilder("attribute")
+    .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
+    .orderBy("values.createdAt", "ASC")
+    .leftJoinAndSelect(
+      "attribute.systemAttributeRef",
+      "systemAttributeRef",
+      "systemAttributeRef.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.copiedAttributes",
+      "copiedAttributes",
+      "copiedAttributes.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "attribute.product",
+      "product",
+      "product.deletedAt IS NULL"
+    )
+    .where("attribute.id != :id", { id })
+    .andWhere("attribute.slug = :slug", { slug })
+    .andWhere("attribute.systemAttribute = :system", { system: true })
+    .andWhere("attribute.deletedAt IS NULL")
+    .getOne();
 };
 
 interface GetPaginatedAttributesInput {
@@ -243,6 +358,7 @@ export const paginateSystemProductAttributes = async ({
     .leftJoinAndSelect("attribute.systemAttributeRef", "systemAttribute")
     .leftJoinAndSelect("attribute.copiedAttributes", "copiedAttributes")
     .leftJoinAndSelect("attribute.values", "values")
+    .orderBy("values.createdAt", "ASC")
     .leftJoinAndSelect("attribute.product", "product")
     .where("attribute.deletedAt IS NULL")
     .andWhere("attribute.systemAttribute = :system", { system: true });
@@ -265,11 +381,5 @@ export const paginateSystemProductAttributes = async ({
 
   const [attributes, total] = await queryBuilder.getManyAndCount();
 
-  // Filter out soft-deleted values
-  const filteredAttributes = attributes.map((attribute) => ({
-    ...attribute,
-    values: attribute.values.filter((val) => val.deletedAt === null),
-  }));
-
-  return { attributes: filteredAttributes, total };
+  return { attributes, total };
 };

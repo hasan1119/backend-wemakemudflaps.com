@@ -29,7 +29,6 @@ export {
   findSystemAttributeBySlugToUpdate,
   getProductAttributeById,
   getProductAttributesByIds,
-  getProductAttributeValuesByIds,
   paginateSystemProductAttributes,
 } from "./product-attribute/get-product-attribute.service";
 

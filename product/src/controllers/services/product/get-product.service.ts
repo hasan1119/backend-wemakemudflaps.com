@@ -47,6 +47,7 @@ export const findProductBySlug = async (
       "attribute_values",
       "attribute_values.deletedAt IS NULL"
     )
+    .orderBy("attribute_values.createdAt", "ASC")
     .leftJoinAndSelect(
       "product.variations",
       "variations",
@@ -184,6 +185,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       "attribute_values",
       "attribute_values.deletedAt IS NULL"
     )
+    .orderBy("attribute_values.createdAt", "ASC")
     .leftJoinAndSelect(
       "product.variations",
       "variations",
@@ -295,6 +297,7 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       "attribute_values",
       "attribute_values.deletedAt IS NULL"
     )
+    .orderBy("attribute_values.createdAt", "ASC")
     .leftJoinAndSelect(
       "attributes.systemAttributeRef",
       "attribute_systemAttribute",
@@ -417,6 +420,7 @@ export const getProductsByIdsToDelete = async (
       "attribute_values",
       "attribute_values.deletedAt IS NULL"
     )
+    .orderBy("attribute_values.createdAt", "ASC")
     .leftJoinAndSelect(
       "attributes.systemAttributeRef",
       "attribute_systemAttribute",
@@ -553,6 +557,7 @@ export const paginateProducts = async ({
       "attribute_values",
       "attribute_values.deletedAt IS NULL"
     )
+    .orderBy("attribute_values.createdAt", "ASC")
     .leftJoinAndSelect(
       "attributes.systemAttributeRef",
       "attribute_systemAttribute",
@@ -691,6 +696,7 @@ export const paginateProductsForCustomer = async ({
       "attribute_values",
       "attribute_values.deletedAt IS NULL"
     )
+    .orderBy("attribute_values.createdAt", "ASC")
     .leftJoinAndSelect(
       "attributes.systemAttributeRef",
       "attribute_systemAttribute",
