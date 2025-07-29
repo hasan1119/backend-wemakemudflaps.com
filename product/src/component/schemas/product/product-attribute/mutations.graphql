@@ -12,7 +12,7 @@ type Mutation {
     name: String!
     slug: String! # URL-friendly identifier
     values: [String!]!
-    systemAttributeId: String # ID of the system attribute to replicate
+    systemAttributeId: ID # ID of the system attribute to replicate
     visible: Boolean # Indicates if the attribute is visible to customers
     forVariation: Boolean # Indicates if the attribute is used for variations
     productId: ID # ID of the product associated with this attribute
