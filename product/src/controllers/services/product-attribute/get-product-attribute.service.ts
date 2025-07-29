@@ -18,7 +18,6 @@ export const getProductAttributeById = async (
   return await productAttributeRepository
     .createQueryBuilder("attribute")
     .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
-    .orderBy("values.createdAt", "DESC")
     .leftJoinAndSelect(
       "attribute.systemAttributeRef",
       "systemAttributeRef",
@@ -58,7 +57,6 @@ export const getProductAttributesByIds = async (
   return await productAttributeRepository
     .createQueryBuilder("attribute")
     .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
-    .orderBy("values.createdAt", "DESC")
     .leftJoinAndSelect(
       "attribute.systemAttributeRef",
       "systemAttributeRef",
@@ -91,7 +89,6 @@ export const findAttributeByName = async (
   return await productAttributeRepository
     .createQueryBuilder("attribute")
     .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
-    .orderBy("values.createdAt", "DESC")
     .leftJoinAndSelect(
       "attribute.systemAttributeRef",
       "systemAttributeRef",
@@ -129,7 +126,6 @@ export const findSystemAttributeByName = async (
   return await productAttributeRepository
     .createQueryBuilder("attribute")
     .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
-    .orderBy("values.createdAt", "DESC")
     .leftJoinAndSelect(
       "attribute.systemAttributeRef",
       "systemAttributeRef",
@@ -171,7 +167,6 @@ export const findSystemAttributeBySlug = async (
       "values",
       "values.deletedAt IS NULL  "
     )
-    .orderBy("values.createdAt", "DESC")
     .leftJoinAndSelect(
       "attribute.systemAttributeRef",
       "systemAttributeRef",
@@ -209,7 +204,6 @@ export const findAttributeBySlug = async (
       "values",
       "values.deletedAt IS NULL  "
     )
-    .orderBy("values.createdAt", "DESC")
     .leftJoinAndSelect(
       "attribute.systemAttributeRef",
       "systemAttributeRef",
@@ -244,7 +238,6 @@ export const findSystemAttributeByNameToUpdate = async (
   return await productAttributeRepository
     .createQueryBuilder("attribute")
     .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
-    .orderBy("values.createdAt", "DESC")
     .leftJoinAndSelect(
       "attribute.systemAttributeRef",
       "systemAttributeRef",
@@ -281,7 +274,6 @@ export const findSystemAttributeBySlugToUpdate = async (
   return await productAttributeRepository
     .createQueryBuilder("attribute")
     .leftJoinAndSelect("attribute.values", "values", "values.deletedAt IS NULL")
-    .orderBy("values.createdAt", "DESC")
     .leftJoinAndSelect(
       "attribute.systemAttributeRef",
       "systemAttributeRef",
@@ -342,7 +334,6 @@ export const paginateSystemProductAttributes = async ({
     .leftJoinAndSelect("attribute.systemAttributeRef", "systemAttribute")
     .leftJoinAndSelect("attribute.copiedAttributes", "copiedAttributes")
     .leftJoinAndSelect("attribute.values", "values")
-    .orderBy("values.createdAt", "DESC")
     .leftJoinAndSelect("attribute.product", "product")
     .where("attribute.deletedAt IS NULL")
     .andWhere("attribute.systemAttribute = :system", { system: true });
