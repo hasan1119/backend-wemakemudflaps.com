@@ -1,5 +1,5 @@
 import { ApolloServerPlugin } from "@apollo/server";
-import logger from "../../../users/src/utils/logger";
+import logger from "../utils/logger";
 
 const loggingPlugin: ApolloServerPlugin = {
   async requestDidStart(requestContext) {
