@@ -10,6 +10,7 @@ export {
   idsSchema,
   paginationSchema,
   skipTrashSchema,
+  SortOrderTypeEnum,
 } from "./common/common";
 
 /**
@@ -19,3 +20,12 @@ export {
  * 1. Provides schema for validating site settings data.
  */
 export { siteSettingsSchema } from "./site-settings/site-settings";
+
+/**
+ * Exports schemas for validating FAQ data.
+ *
+ * Workflow:
+ * 1. Provides schema for creating, updating, and retrieving FAQs.
+ * 2. Includes validation for question and answer fields.
+ */
+export { createFaqSchema, faqsSortingSchema, updateFaqSchema } from "./faq/faq";

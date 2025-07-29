@@ -13,11 +13,8 @@ export const PERMISSIONS = [
   "Tag",
   "Tax Settings",
   "Site Settings",
-  "Faq",
   "News Letter",
   "Pop Up Banner",
-  "Privacy Policy",
-  "Terms & Conditions",
   "Order",
   "Role",
   "Notification",
@@ -40,11 +37,8 @@ export type PermissionName =
   | "Tag"
   | "Tax Settings"
   | "Site Settings"
-  | "Faq"
   | "News Letter"
   | "Pop Up Banner"
-  | "Privacy Policy"
-  | "Terms & Conditions"
   | "Order"
   | "Role"
   | "Notification"
@@ -66,11 +60,8 @@ export const PERMISSION_NORMALIZATION_MAP: Record<string, string> = {
   TAG: "Tag",
   TAX_SETTINGS: "Tax Settings",
   SITE_SETTINGS: "Site Settings",
-  FAQ: "Faq",
   NEWS_LETTER: "News Letter",
   POP_UP_BANNER: "Pop Up Banner",
-  PRIVACY_POLICY: "Privacy Policy",
-  TERMS_CONDITIONS: "Terms & Conditions",
   ORDER: "Order",
   ROLE: "Role",
   NOTIFICATION: "Notification",

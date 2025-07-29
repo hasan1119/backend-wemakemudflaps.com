@@ -64,3 +64,13 @@ export const paginationSchema = z.object({
     .nullable()
     .optional(),
 });
+
+/**
+ * Enum definition for sort order types used in sorting queries.
+ * Accepts 'asc' for ascending and 'desc' for descending.
+ * Can be optional and nullable.
+ */
+export const SortOrderTypeEnum = z
+  .enum(["asc", "desc"], { message: "Sort order must be 'asc' or 'desc'" })
+  .nullable()
+  .optional();

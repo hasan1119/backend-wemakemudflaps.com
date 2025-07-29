@@ -1,18 +1,6 @@
 import z from "zod";
 
 /**
- * Defines the schema for validating a single UUID.
- *
- * Workflow:
- * 1. Validates that the id field is a valid UUID string.
- *
- * @property id - The UUID string to validate.
- */
-export const idSchema = z.object({
-  id: z.string().uuid({ message: "Invalid UUID format" }),
-});
-
-/**
  * Defines the schema for validating site settings.
  *
  *  Workflow:

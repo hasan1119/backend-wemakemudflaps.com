@@ -37,3 +37,14 @@ export { createSiteSettings } from "./site-settings/create-site-settings.service
  * 1. Provides a function to update the existing SiteSettings entity with new data.
  */
 export { updateSiteSettings } from "./site-settings/update-site-settings.service";
+
+/**
+ * Exports services for managing FAQs.
+ *
+ * Workflow:
+ * 1. Provides functions to create, update, delete, and retrieve FAQs.
+ */
+export { createFaq } from "./faq/create-faq.service";
+export { hardDeleteFaq } from "./faq/delete-faq.service";
+export { getFaqById, getFaqsByIds, paginateFaqs } from "./faq/get-faq.service";
+export { updateFaq } from "./faq/update-faq.service";
