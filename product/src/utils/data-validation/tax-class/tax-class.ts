@@ -67,18 +67,17 @@ export const updateTaxClassSchema = z
  * Defines the schema for validating tax class sorting parameters.
  *
  * Workflow:
- * 1. Validates sortBy as one of the allowed fields (value, description, createdAt, deletedAt).
+ * 1. Validates sortBy as one of the allowed fields (value, description, createdAt).
  * 2. Validates sortOrder as either 'asc' or 'desc'.
  * 3. Allows both fields to be nullable or optional.
  *
- * @property sortBy - Field to sort by (value, description, createdAt, deletedAt).
+ * @property sortBy - Field to sort by (value, description, createdAt).
  * @property sortOrder - Sort order direction (asc, desc).
  */
 export const taxClassSortingSchema = z.object({
   sortBy: z
-    .enum(["value", "description", "createdAt", "deletedAt"], {
-      message:
-        "Sort field must be one of: value, description, createdAt, deletedAt",
+    .enum(["value", "description", "createdAt"], {
+      message: "Sort field must be one of: value, description, createdAt",
     })
     .nullable()
     .optional(),

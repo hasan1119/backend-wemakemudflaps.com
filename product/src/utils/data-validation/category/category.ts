@@ -141,18 +141,18 @@ export const deleteCategorySchema = z.object({
  * Defines the schema for validating category sorting parameters.
  *
  * Workflow:
- * 1. Validates sortBy as one of the allowed fields (name, description, createdAt, deletedAt).
+ * 1. Validates sortBy as one of the allowed fields (name, description, createdAt).
  * 2. Validates sortOrder as either 'asc' or 'desc'.
  * 3. Allows both fields to be nullable or optional.
  *
- * @property sortBy - Field to sort by (name, slug, description, createdAt, deletedAt).
+ * @property sortBy - Field to sort by (name, slug, description, createdAt).
  * @property sortOrder - Sort order direction (asc, desc).
  */
 export const categorySortingSchema = z.object({
   sortBy: z
-    .enum(["name", "slug", "description", "createdAt", "deletedAt"], {
+    .enum(["name", "slug", "description", "createdAt"], {
       message:
-        "Sort field must be one of: name, slug, description, createdAt, deletedAt",
+        "Sort field must be one of: name, slug, description, createdAt, ",
     })
     .nullable()
     .optional(),

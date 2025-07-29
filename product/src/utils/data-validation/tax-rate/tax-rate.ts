@@ -91,7 +91,7 @@ export const updateTaxRateSchema = z
  * Defines the schema for validating tax rate sorting parameters.
  *
  * Workflow:
- * 1. Validates `sortBy` as one of the allowed fields (country, state, city, postcode, rate, label, priority, createdAt, deletedAt).
+ * 1. Validates `sortBy` as one of the allowed fields (country, state, city, postcode, rate, label, priority, createdAt).
  * 2. Validates `sortOrder` as either 'asc' or 'desc'.
  * 3. Allows both fields to be nullable or optional.
  *
@@ -110,11 +110,10 @@ export const taxRateSortingSchema = z.object({
         "label",
         "priority",
         "createdAt",
-        "deletedAt",
       ],
       {
         message:
-          "Sort field must be one of: country, state, city, postcode, rate, label, priority, createdAt, deletedAt",
+          "Sort field must be one of: country, state, city, postcode, rate, label, priority, createdAt",
       }
     )
     .nullable()

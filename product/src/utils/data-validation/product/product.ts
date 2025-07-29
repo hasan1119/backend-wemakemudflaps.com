@@ -1096,18 +1096,18 @@ export const updateProductSchema = z
  * Defines the schema for validating product sorting parameters.
  *
  * Workflow:
- * 1. Validates `sortBy` as one of the allowed fields (name, sku, model, createdAt, deletedAt).
+ * 1. Validates `sortBy` as one of the allowed fields (name, sku, model, createdAt).
  * 2. Validates `sortOrder` as either 'asc' or 'desc'.
  * 3. Allows both fields to be nullable or optional.
  *
- * @property sortBy - Field to sort by (name, sku, model, createdAt, deletedAt).
+ * @property sortBy - Field to sort by (name, sku, model, createdAt).
  * @property sortOrder - Sort order direction (asc, desc).
  */
 export const productSortingSchema = z.object({
   sortBy: z
-    .enum(["name", "sku", "model", "createdAt", "deletedAt"], {
+    .enum(["name", "sku", "model", "regularPrice", "salePrice", "createdAt"], {
       message:
-        "Sort field must be one of: name, sku, model, createdAt, deletedAt",
+        "Sort field must be one of: name, sku, model, regularPrice, salePrice, createdAt",
     })
     .nullable()
     .optional(),

@@ -206,17 +206,17 @@ export const updateCouponSchema = z
  * Defines the schema for validating coupon sorting parameters.
  *
  * Workflow:
- * 1. Validates sortBy as one of the allowed fields (code, createdAt, deletedAt).
+ * 1. Validates sortBy as one of the allowed fields (code, createdAt).
  * 2. Validates sortOrder as either 'asc' or 'desc'.
  * 3. Allows both fields to be nullable or optional.
  *
- * @property sortBy - Field to sort by (code, createdAt, deletedAt).
+ * @property sortBy - Field to sort by (code, createdAt).
  * @property sortOrder - Sort order direction (asc, desc).
  */
 export const couponsSortingSchema = z.object({
   sortBy: z
-    .enum(["code", "createdAt", "deletedAt"], {
-      message: "Sort field must be one of: code, createdAt, deletedAt",
+    .enum(["code", "createdAt"], {
+      message: "Sort field must be one of: code, createdAt",
     })
     .nullable()
     .optional(),

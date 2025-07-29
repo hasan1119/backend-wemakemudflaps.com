@@ -642,6 +642,7 @@ export const paginateProducts = async ({
       new Brackets((qb) => {
         qb.where("product.name ILIKE :search", { search: searchTerm })
           .orWhere("product.slug ILIKE :search", { search: searchTerm })
+          .orWhere("product.sku ILIKE :search", { search: searchTerm })
           .orWhere("brands.name ILIKE :search", { search: searchTerm })
           .orWhere("categories.name ILIKE :search", { search: searchTerm })
           .orWhere("tags.name ILIKE :search", { search: searchTerm });
@@ -653,7 +654,6 @@ export const paginateProducts = async ({
     .skip(skip)
     .take(limit)
     .orderBy(`product.${sortBy}`, sortOrder.toUpperCase() as "ASC" | "DESC");
-
   const [products, total] = await queryBuilder.getManyAndCount();
 
   return { products, total };
@@ -780,6 +780,7 @@ export const paginateProductsForCustomer = async ({
       new Brackets((qb) => {
         qb.where("product.name ILIKE :search", { search: searchTerm })
           .orWhere("product.slug ILIKE :search", { search: searchTerm })
+          .orWhere("product.sku ILIKE :search", { search: searchTerm })
           .orWhere("brands.name ILIKE :search", { search: searchTerm })
           .orWhere("categories.name ILIKE :search", { search: searchTerm })
           .orWhere("tags.name ILIKE :search", { search: searchTerm });

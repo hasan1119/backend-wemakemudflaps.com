@@ -58,17 +58,17 @@ export const updateTagSchema = z
  * Defines the schema for validating tag sorting parameters.
  *
  * Workflow:
- * 1. Validates sortBy as one of the allowed fields (name, slug, createdAt, deletedAt).
+ * 1. Validates sortBy as one of the allowed fields (name, slug, createdAt).
  * 2. Validates sortOrder as either 'asc' or 'desc'.
  * 3. Allows both fields to be nullable or optional.
  *
- * @property sortBy - Field to sort by (name, slug, createdAt, deletedAt).
+ * @property sortBy - Field to sort by (name, slug, createdAt).
  * @property sortOrder - Sort order direction (asc, desc).
  */
 export const tagsSortingSchema = z.object({
   sortBy: z
-    .enum(["name", "slug", "createdAt", "deletedAt"], {
-      message: "Sort field must be one of: name, slug, createdAt, deletedAt",
+    .enum(["name", "slug", "createdAt"], {
+      message: "Sort field must be one of: name, slug, createdAt",
     })
     .nullable()
     .optional(),
