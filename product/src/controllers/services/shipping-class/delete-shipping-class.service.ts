@@ -30,19 +30,19 @@ export const hardDeleteShippingClass = async (
 ): Promise<void> => {
   const entityManager = AppDataSource.manager;
 
-  // Delete from product_shipping_class junction table
-  await entityManager
-    .createQueryBuilder()
-    .delete()
-    .from("product_shipping_class")
-    .where('"shippingClassId" = :id', { id: shippingClassId })
-    .execute();
-
   // Delete from product_variation_shipping_class junction table
   await entityManager
     .createQueryBuilder()
     .delete()
     .from("product_variation_shipping_class")
+    .where('"shippingClassId" = :id', { id: shippingClassId })
+    .execute();
+
+  // Delete from product_shipping_class junction table
+  await entityManager
+    .createQueryBuilder()
+    .delete()
+    .from("product_shipping_class")
     .where('"shippingClassId" = :id', { id: shippingClassId })
     .execute();
 

@@ -28,19 +28,19 @@ export const softDeleteTaxClass = async (
 export const hardDeleteTaxClass = async (taxClassId: string): Promise<void> => {
   const entityManager = AppDataSource.manager;
 
-  // Delete from product_tax_class junction table
-  await entityManager
-    .createQueryBuilder()
-    .delete()
-    .from("product_tax_class")
-    .where('"taxClassId" = :id', { id: taxClassId })
-    .execute();
-
   // Delete from product_variation_tax_class junction table
   await entityManager
     .createQueryBuilder()
     .delete()
     .from("product_variation_tax_class")
+    .where('"taxClassId" = :id', { id: taxClassId })
+    .execute();
+
+  // Delete from product_tax_class junction table
+  await entityManager
+    .createQueryBuilder()
+    .delete()
+    .from("product_tax_class")
     .where('"taxClassId" = :id', { id: taxClassId })
     .execute();
 
