@@ -358,6 +358,17 @@ export const updateCartItem = async (
       };
     }
 
+    if (!product.soldIndividually) {
+      if (args.quantity === 1) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "This product can't be purchased individually",
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
     const userCart = await getCartByUserId(user.id);
 
     if (!userCart) {

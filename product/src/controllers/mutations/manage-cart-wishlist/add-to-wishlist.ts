@@ -359,13 +359,33 @@ export const addToWishlist = async (
       return {
         statusCode: 404,
         success: false,
-        message: "Product not found",
+        message: !product.isVisible
+          ? "Product is not available"
+          : "Product not found",
+        __typename: "BaseResponse",
+      };
+    }
+
+    if (product.stockStatus === "Out of stock") {
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Product is out of stock",
         __typename: "BaseResponse",
       };
     }
 
     // Check if product variation exists
-    if (productVariationId) {
+    if (product.variations) {
+      if (!productVariationId) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Product variation ID is required",
+          __typename: "BaseResponse",
+        };
+      }
+
       const variation = product.variations?.find(
         (v) => v.id === productVariationId
       );
@@ -374,6 +394,15 @@ export const addToWishlist = async (
           statusCode: 404,
           success: false,
           message: "Product variation not found",
+          __typename: "BaseResponse",
+        };
+      }
+
+      if (variation.stockStatus === "Out of stock") {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Product variation is out of stock",
           __typename: "BaseResponse",
         };
       }
