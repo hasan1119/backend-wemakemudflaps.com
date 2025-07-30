@@ -163,7 +163,7 @@ export class Product {
     nullable: true,
     cascade: true,
   })
-  @JoinColumn({ name: "product_tier_pricing_id" })
+  @JoinColumn({ name: "product_tier_pricing" })
   tierPricingInfo: Promise<ProductPrice> | null;
 
   // Sale quantity limit (if the product is a deal)
@@ -188,7 +188,7 @@ export class Product {
     onDelete: "SET NULL",
     nullable: true,
   })
-  @JoinColumn({ name: "tax_class_id" })
+  @JoinColumn({ name: "product_tax_class" })
   taxClass: TaxClass | null;
 
   /* ====================== Quantity Settings ====================== */
@@ -342,7 +342,7 @@ export class Product {
     onDelete: "SET NULL",
     nullable: true,
   })
-  @JoinColumn({ name: "shipping_class_id" })
+  @JoinColumn({ name: "product_shipping_class" })
   shippingClass: ShippingClass | null;
 
   /* ====================== Linked Products ====================== */
@@ -351,11 +351,6 @@ export class Product {
   @ManyToMany(() => Product, { nullable: true })
   @JoinTable({
     name: "product_upsells",
-    joinColumn: { name: "product_id", referencedColumnName: "id" },
-    inverseJoinColumn: {
-      name: "upsell_product_id",
-      referencedColumnName: "id",
-    },
   })
   upsells: Product[] | null;
 
@@ -363,11 +358,6 @@ export class Product {
   @ManyToMany(() => Product, { nullable: true })
   @JoinTable({
     name: "product_cross_sells",
-    joinColumn: { name: "product_id", referencedColumnName: "id" },
-    inverseJoinColumn: {
-      name: "cross_sell_product_id",
-      referencedColumnName: "id",
-    },
   })
   crossSells: Product[] | null;
 
@@ -377,7 +367,9 @@ export class Product {
   @OneToMany(() => ProductAttribute, (attribute) => attribute.product, {
     cascade: true,
     nullable: true,
+    onDelete: "SET NULL",
   })
+  @JoinColumn({ name: "product_attributes" })
   attributes: ProductAttribute[] | null;
 
   /* ====================== Variations ====================== */
