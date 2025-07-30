@@ -17,6 +17,8 @@ type SiteSettings {
   contactNumber: String
   contactEmail: String
   shopAddress: ShopAddress
+  privacyPolicy: String
+  termsAndConditions: String
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String

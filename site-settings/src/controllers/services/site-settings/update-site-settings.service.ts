@@ -58,6 +58,12 @@ export const updateSiteSettings = async (
         }),
       },
     }),
+    ...(data.privacyPolicy !== undefined && {
+      privacyPolicy: data.privacyPolicy,
+    }),
+    ...(data.termsAndConditions !== undefined && {
+      termsAndConditions: data.termsAndConditions,
+    }),
   });
 
   return await getSiteSettings();

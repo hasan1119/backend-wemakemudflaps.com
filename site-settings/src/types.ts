@@ -63,6 +63,12 @@ export enum AllowBackOrders {
   DontAllow = 'DONT_ALLOW'
 }
 
+export type AttributeProduct = {
+  __typename?: 'AttributeProduct';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type BaseResponse = {
   __typename?: 'BaseResponse';
   message: Scalars['String']['output'];
@@ -500,6 +506,8 @@ export type GetPersonalizedPermissionsResponseOrError = BaseResponse | ErrorResp
 export type GetProductAttributeByIdResponseOrError = BaseResponse | ErrorResponse | ProductAttributeResponse;
 
 export type GetProductByIdResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
+
+export type GetProductBySlugResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
 
 export type GetProductReviewByIdResponseOrError = BaseResponse | ErrorResponse | ProductReviewResponse;
 
@@ -962,8 +970,9 @@ export type MutationCreateProductArgs = {
 export type MutationCreateProductAttributeArgs = {
   forVariation?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
+  productId?: InputMaybe<Scalars['ID']['input']>;
   slug: Scalars['String']['input'];
-  systemAttributeId?: InputMaybe<Scalars['String']['input']>;
+  systemAttributeId?: InputMaybe<Scalars['ID']['input']>;
   values: Array<Scalars['String']['input']>;
   visible?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -1001,7 +1010,9 @@ export type MutationCreateSiteSettingArgs = {
   logo?: InputMaybe<Scalars['String']['input']>;
   metaData?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  privacyPolicy?: InputMaybe<Scalars['String']['input']>;
   shopAddress?: InputMaybe<ShopAddressInput>;
+  termsAndConditions?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1422,7 +1433,9 @@ export type MutationUpdateSiteSettingArgs = {
   logo?: InputMaybe<Scalars['String']['input']>;
   metaData?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  privacyPolicy?: InputMaybe<Scalars['String']['input']>;
   shopAddress?: InputMaybe<ShopAddressInput>;
+  termsAndConditions?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1527,14 +1540,12 @@ export enum PermissionName {
   Brand = 'BRAND',
   Category = 'CATEGORY',
   Coupon = 'COUPON',
-  Faq = 'FAQ',
   Media = 'MEDIA',
   NewsLetter = 'NEWS_LETTER',
   Notification = 'NOTIFICATION',
   Order = 'ORDER',
   Permission = 'PERMISSION',
   PopUpBanner = 'POP_UP_BANNER',
-  PrivacyPolicy = 'PRIVACY_POLICY',
   Product = 'PRODUCT',
   ProductReview = 'PRODUCT_REVIEW',
   Role = 'ROLE',
@@ -1544,7 +1555,6 @@ export enum PermissionName {
   Tag = 'TAG',
   TaxExemption = 'TAX_EXEMPTION',
   TaxSettings = 'TAX_SETTINGS',
-  TermsConditions = 'TERMS_CONDITIONS',
   User = 'USER'
 }
 
@@ -1662,6 +1672,7 @@ export type ProductAttribute = {
   forVariation: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  product?: Maybe<AttributeProduct>;
   slug: Scalars['String']['output'];
   systemAttribute: Scalars['Boolean']['output'];
   systemAttributeId?: Maybe<Scalars['String']['output']>;
@@ -1857,7 +1868,7 @@ export type ProductVariationInput = {
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
   stockStatus?: InputMaybe<Scalars['String']['input']>;
-  taxClassId: Scalars['ID']['input'];
+  taxClassId?: InputMaybe<Scalars['ID']['input']>;
   taxStatus?: InputMaybe<TaxStatus>;
   tierPricingInfo?: InputMaybe<ProductPriceInput>;
   videos?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -1897,7 +1908,7 @@ export type Query = {
   getOwnPersonalizedPermissions: GetPermissionsResponseOrError;
   getProductAttributeById: GetProductAttributeByIdResponseOrError;
   getProductById: GetProductByIdResponseOrError;
-  getProductByIdForCustomer: GetProductByIdResponseOrError;
+  getProductBySlugForCustomer: GetProductBySlugResponseOrError;
   getProfile: GetProfileResponseOrError;
   getReview?: Maybe<Scalars['String']['output']>;
   getRoleById: GetRoleByIdResponseOrError;
@@ -2112,8 +2123,8 @@ export type QueryGetProductByIdArgs = {
 };
 
 
-export type QueryGetProductByIdForCustomerArgs = {
-  id: Scalars['ID']['input'];
+export type QueryGetProductBySlugForCustomerArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -2387,7 +2398,9 @@ export type SiteSettings = {
   logo?: Maybe<Media>;
   metaData?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  privacyPolicy?: Maybe<Scalars['String']['output']>;
   shopAddress?: Maybe<ShopAddress>;
+  termsAndConditions?: Maybe<Scalars['String']['output']>;
 };
 
 export type SiteSettingsResponse = {
@@ -2999,6 +3012,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   GetPersonalizedPermissionsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( PermissionsResponse );
   GetProductAttributeByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductAttributeResponse );
   GetProductByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
+  GetProductBySlugResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
   GetProductReviewByIdResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
   GetProductReviewsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewPaginationResponse );
   GetProductsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductPaginationResponse );
@@ -3072,6 +3086,7 @@ export type ResolversTypes = {
   AddressType: AddressType;
   AddressesBookResponse: ResolverTypeWrapper<AddressesBookResponse>;
   AllowBackOrders: AllowBackOrders;
+  AttributeProduct: ResolverTypeWrapper<AttributeProduct>;
   BaseResponse: ResolverTypeWrapper<BaseResponse>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   Brand: ResolverTypeWrapper<Brand>;
@@ -3161,6 +3176,7 @@ export type ResolversTypes = {
   GetPersonalizedPermissionsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetPersonalizedPermissionsResponseOrError']>;
   GetProductAttributeByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductAttributeByIDResponseOrError']>;
   GetProductByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductByIdResponseOrError']>;
+  GetProductBySlugResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductBySlugResponseOrError']>;
   GetProductReviewByIdResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductReviewByIdResponseOrError']>;
   GetProductReviewsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductReviewsResponseOrError']>;
   GetProductsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetProductsResponseOrError']>;
@@ -3331,6 +3347,7 @@ export type ResolversParentTypes = {
   AddressResponseBook: AddressResponseBook;
   Int: Scalars['Int']['output'];
   AddressesBookResponse: AddressesBookResponse;
+  AttributeProduct: AttributeProduct;
   BaseResponse: BaseResponse;
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   Brand: Brand;
@@ -3414,6 +3431,7 @@ export type ResolversParentTypes = {
   GetPersonalizedPermissionsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetPersonalizedPermissionsResponseOrError'];
   GetProductAttributeByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductAttributeByIDResponseOrError'];
   GetProductByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductByIdResponseOrError'];
+  GetProductBySlugResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductBySlugResponseOrError'];
   GetProductReviewByIdResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductReviewByIdResponseOrError'];
   GetProductReviewsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductReviewsResponseOrError'];
   GetProductsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetProductsResponseOrError'];
@@ -3603,6 +3621,12 @@ export type AddressesBookResponseResolvers<ContextType = Context, ParentType ext
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AttributeProductResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AttributeProduct'] = ResolversParentTypes['AttributeProduct']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4076,6 +4100,10 @@ export type GetProductByIdResponseOrErrorResolvers<ContextType = Context, Parent
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
 };
 
+export type GetProductBySlugResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProductBySlugResponseOrError'] = ResolversParentTypes['GetProductBySlugResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductResponse', ParentType, ContextType>;
+};
+
 export type GetProductReviewByIdResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetProductReviewByIdResponseOrError'] = ResolversParentTypes['GetProductReviewByIdResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductReviewResponse', ParentType, ContextType>;
 };
@@ -4440,6 +4468,7 @@ export type ProductAttributeResolvers<ContextType = Context, ParentType extends 
   forVariation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  product?: Resolver<Maybe<ResolversTypes['AttributeProduct']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   systemAttribute?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   systemAttributeId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -4610,7 +4639,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getOwnPersonalizedPermissions?: Resolver<ResolversTypes['GetPermissionsResponseOrError'], ParentType, ContextType>;
   getProductAttributeById?: Resolver<ResolversTypes['GetProductAttributeByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductAttributeByIdArgs, 'id'>>;
   getProductById?: Resolver<ResolversTypes['GetProductByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductByIdArgs, 'id'>>;
-  getProductByIdForCustomer?: Resolver<ResolversTypes['GetProductByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductByIdForCustomerArgs, 'id'>>;
+  getProductBySlugForCustomer?: Resolver<ResolversTypes['GetProductBySlugResponseOrError'], ParentType, ContextType, RequireFields<QueryGetProductBySlugForCustomerArgs, 'slug'>>;
   getProfile?: Resolver<ResolversTypes['GetProfileResponseOrError'], ParentType, ContextType>;
   getReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   getRoleById?: Resolver<ResolversTypes['GetRoleByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetRoleByIdArgs, 'id'>>;
@@ -4847,7 +4876,9 @@ export type SiteSettingsResolvers<ContextType = Context, ParentType extends Reso
   logo?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   metaData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  privacyPolicy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   shopAddress?: Resolver<Maybe<ResolversTypes['ShopAddress']>, ParentType, ContextType>;
+  termsAndConditions?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5297,6 +5328,7 @@ export type Resolvers<ContextType = Context> = {
   AddressBook?: AddressBookResolvers<ContextType>;
   AddressResponseBook?: AddressResponseBookResolvers<ContextType>;
   AddressesBookResponse?: AddressesBookResponseResolvers<ContextType>;
+  AttributeProduct?: AttributeProductResolvers<ContextType>;
   BaseResponse?: BaseResponseResolvers<ContextType>;
   BaseResponseOrError?: BaseResponseOrErrorResolvers<ContextType>;
   Brand?: BrandResolvers<ContextType>;
@@ -5376,6 +5408,7 @@ export type Resolvers<ContextType = Context> = {
   GetPersonalizedPermissionsResponseOrError?: GetPersonalizedPermissionsResponseOrErrorResolvers<ContextType>;
   GetProductAttributeByIDResponseOrError?: GetProductAttributeByIdResponseOrErrorResolvers<ContextType>;
   GetProductByIdResponseOrError?: GetProductByIdResponseOrErrorResolvers<ContextType>;
+  GetProductBySlugResponseOrError?: GetProductBySlugResponseOrErrorResolvers<ContextType>;
   GetProductReviewByIdResponseOrError?: GetProductReviewByIdResponseOrErrorResolvers<ContextType>;
   GetProductReviewsResponseOrError?: GetProductReviewsResponseOrErrorResolvers<ContextType>;
   GetProductsResponseOrError?: GetProductsResponseOrErrorResolvers<ContextType>;

@@ -44,6 +44,14 @@ export class SiteSettings {
     zipCode?: string | null;
   } | null;
 
+  // Privacy policy for the site setting
+  @Column({ nullable: true, default: null })
+  privacyPolicy: string | null;
+
+  // Terms and conditions for the site setting
+  @Column({ nullable: true, default: null })
+  termsAndConditions: string | null;
+
   // User ID who created the site setting (string only for Apollo Federation compatibility)
   @Column()
   createdBy: string;

@@ -104,6 +104,8 @@ export const createSiteSetting = async (
       contactNumber: siteSettings.contactNumber,
       contactEmail: siteSettings.contactEmail,
       shopAddress: siteSettings.shopAddress,
+      privacyPolicy: siteSettings.privacyPolicy,
+      termsAndConditions: siteSettings.termsAndConditions,
       createdBy: siteSettings.createdBy as any,
       createdAt:
         siteSettings.createdAt instanceof Date

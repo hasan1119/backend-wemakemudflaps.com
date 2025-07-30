@@ -10,6 +10,8 @@ type Mutation {
     contactNumber: String # The contact number for the site setting.
     contactEmail: String # The contact email for the site setting.
     shopAddress: ShopAddressInput # The shop address for the site setting.
+    privacyPolicy: String # The privacy policy for the site setting.
+    termsAndConditions: String # The terms and conditions for the site setting.
   ): CreateSiteSettingsResponseOrError!
 
   # Update an existing site setting.
@@ -22,5 +24,7 @@ type Mutation {
     contactNumber: String # Optional updated contact number for the site setting.
     contactEmail: String # Optional updated contact email for the site setting.
     shopAddress: ShopAddressInput # Optional updated shop address for the site setting.
+    privacyPolicy: String # Optional updated privacy policy for the site setting.
+    termsAndConditions: String # Optional updated terms and conditions for the site setting.
   ): UpdateSiteSettingsResponseOrError!
 }

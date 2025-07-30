@@ -21,27 +21,3 @@ export { SiteSettings } from "./site-settings.entity";
  * 1. Provides the Newsletter entity to handle user subscriptions to newsletters and related communications.
  */
 export { Newsletter } from "./news-letter.entity";
-
-/**
- * Exports the PopupBanner entity for managing popup banners.
- *
- * Workflow:
- * 1. Provides the PopupBanner entity to define and store configuration settings for popup banners.
- */
-export { PopupBanner } from "./pop-up-banner.entity";
-
-/**
- * Exports the PrivacyPolicy entity for managing privacy policy content.
- *
- * Workflow:
- * 1. Provides the PrivacyPolicy entity to define and store the site's privacy policy information.
- */
-export { PrivacyPolicy } from "./privacy-and-policy.entity";
-
-/**
- * Exports the TermAndCondition entity for managing terms and conditions content.
- *
- * Workflow:
- * 1. Provides the TermAndCondition entity to define and store the site's terms and conditions information.
- */
-export { TermAndCondition } from "./term-and-condition.entity";

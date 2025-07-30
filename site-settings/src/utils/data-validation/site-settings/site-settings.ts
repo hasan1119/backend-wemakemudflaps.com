@@ -18,6 +18,8 @@ import z from "zod";
  * @property contactNumber - Contact number for the site setting (optional, nullable).
  * @property contactEmail - Contact email for the site setting (optional, nullable).
  * @property shopAddress - Address of the shop (optional, nullable).
+ * @property privacyPolicy - Privacy policy for the site setting (optional, nullable).
+ * @property termsAndConditions - Terms and conditions for the site setting (optional, nullable).
  * The shopAddress object can contain:
  *   - addressLine1: Address line 1 (optional, nullable).
  *   - addressLine2: Address line 2 (optional, nullable).
@@ -81,6 +83,14 @@ export const siteSettingsSchema = z
           .optional()
           .nullable(),
       })
+      .optional()
+      .nullable(),
+    privacyPolicy: z
+      .string({ message: "Privacy policy must be a string" })
+      .optional()
+      .nullable(),
+    termsAndConditions: z
+      .string({ message: "Terms and conditions must be a string" })
       .optional()
       .nullable(),
   })
