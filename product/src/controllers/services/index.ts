@@ -572,3 +572,81 @@ export {
   getCouponsByIds,
   paginateCoupons,
 } from "./coupon/get-coupon.service";
+
+/**
+ * Exports service for restoring soft-deleted coupons by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { addToCart } from "./cart-wishlist/add-to-cart.service";
+
+/**
+ * Exports service for restoring soft-deleted coupons by ID.
+ *
+ * Workflow:
+ * 1. Allows restoring entities by clearing their deletedAt timestamp.
+ */
+export { addToWishList } from "./cart-wishlist/add-to-wishlist.service";
+
+/**
+ * Exports services for applying coupons to carts.
+ *
+ * Workflow:
+ * 1. Provides a function to apply a coupon to a cart based on user ID and cart ID.
+ * 2. Validates coupon applicability and updates cart accordingly.
+ */
+export { applyCoupon } from "./cart-wishlist/apply-coupon.service";
+
+/**
+ * Exports services for fetching carts and wishlists.
+ *
+ * Workflow:
+ * 1. Provides functions to fetch cart or wishlist by ID or user ID.
+ * 2. Supports fetching multiple carts or wishlists by their IDs.
+ */
+export {
+  getCartById,
+  getCartByUserId,
+  getCartsByIds,
+} from "./cart-wishlist/get-cart.service";
+
+/**
+ * Exports services for fetching wishlists.
+ *
+ * Workflow:
+ * 1. Provides functions to fetch wishlist by ID or user ID.
+ * 2. Supports fetching multiple wishlists by their IDs.
+ */
+export {
+  getWishlistById,
+  getWishlistByUserId,
+  getWishlistsByIds,
+} from "./cart-wishlist/get-wishlist.service";
+
+/**
+ * Exports services for removing items from cart and wishlist.
+ *
+ * Workflow:
+ * 1. Provides functions to remove items from cart or wishlist by their IDs.
+ * 2. Updates the cart or wishlist accordingly after removal.
+ */
+export { removeItemsFromCart } from "./cart-wishlist/remove-item-from-cart.service";
+
+/**
+ * Exports services for removing items from wishlist.
+ *
+ * Workflow:
+ * 1. Provides functions to remove items from wishlist by their IDs.
+ * 2. Updates the wishlist accordingly after removal.
+ */
+export { removeItemsFromWishlist } from "./cart-wishlist/remove-item-from-wishlist.service";
+
+/**
+ * Exports services for updating cart items.
+ *
+ * Workflow:
+ * 1. Provides functions to update item quantities in the cart.
+ * 2. Validates the update and adjusts the cart accordingly.
+ */
+export { updateCartItem } from "./cart-wishlist/update-cart-item.service";
