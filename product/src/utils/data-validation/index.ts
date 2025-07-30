@@ -153,3 +153,16 @@ export {
   createdTaxOptionsSchema,
   updatedTaxOptionsSchema,
 } from "./tax-options/tax-options";
+
+/**
+ * Exports cart and wishlist related schemas for cart and wishlist management.
+ *
+ * Workflow:
+ * 1. Provides schemas for adding items to cart/wishlist, updating cart items, and removing items.
+ */
+export {
+  addToCartSchema,
+  addToWishListSchema,
+  applyCouponSchema,
+  updateCartItemSchema,
+} from "./cart-wishlist/cart-wishlist";
