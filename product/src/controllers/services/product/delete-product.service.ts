@@ -1,4 +1,5 @@
 import { Product } from "../../../entities";
+import { AppDataSource } from "../../../helper";
 import { productRepository } from "../repositories/repositories";
 import { getProductById } from "./get-product.service";
 
