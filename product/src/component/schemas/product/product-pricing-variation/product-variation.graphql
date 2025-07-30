@@ -83,7 +83,7 @@ input ProductVariationInput {
   # ---------------------- Miscellaneous ----------------------
   shippingClassId: ID # Shipping class relation
   taxStatus: TaxStatus # Tax status reference
-  taxClassId: ID! # Tax class reference
+  taxClassId: ID # Tax class reference
   description: String # Optional description
   # ---------------------- Media ----------------------
   images: [ID!] # Product gallery IDs

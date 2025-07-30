@@ -4,7 +4,7 @@
     "wait-on": "^8.0.3"
   },
   "scripts": {
-    "dev": "concurrently -k -n subgraph1,subgraph2,subgraph3,subgraph4,router -c blue,green,magenta,cyan,red \"bun dev:sub1\" \"bun dev:sub2\" \"bun dev:sub3\" \"bun dev:sub4\" \"bun dev:router\"",
+    "dev": "concurrently -k -n subgraph1,subgraph2,subgraph3,subgraph4,router -c blue,green,magenta,cyan,yellow \"bun dev:sub1\" \"bun dev:sub2\" \"bun dev:sub3\" \"bun dev:sub4\" \"bun dev:router\"",
     "dev:sub1": "cd users && bun dev",
     "dev:sub2": "cd media && bun dev",
     "dev:sub3": "cd product && bun dev",
