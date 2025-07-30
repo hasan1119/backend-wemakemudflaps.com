@@ -15,16 +15,19 @@ type Mutation {
 
   # Updates the quantity of an item in the cart.
   updateCartItem(
-    cartItemId: ID!
     productId: ID!
     quantity: Int!
   ): UpdateCartOrWishListResponseOrError!
 
   # Removes an item from the cart.
-  removeFromCart(productId: ID!): RemoveFromCartOrWishListResponseOrError!
+  removeItemsFromCart(
+    productId: [ID!]!
+  ): RemoveFromCartOrWishListResponseOrError!
 
   # Removes an item from the wishlist.
-  removeFromWishList(productId: ID!): RemoveFromCartOrWishListResponseOrError!
+  removeItemsFromWishList(
+    productId: [ID!]!
+  ): RemoveFromCartOrWishListResponseOrError!
 
   # Applies a coupon to the cart.
   applyCoupon(couponCodes: [String]!): ApplyCouponResponseOrError!

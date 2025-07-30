@@ -4,16 +4,16 @@ type Cart {
   items: [CartItems!]!
   coupons: [Coupon!]!
   createdBy: CreatedBy
-  createdAt: String!
-  updatedAt: String!
+  createdAt: String
+  deletedAt: String
 }
 
 type Wishlist {
   id: ID!
   items: [WishlistItems!]!
   createdBy: CreatedBy
-  createdAt: String!
-  updatedAt: String!
+  createdAt: String
+  deletedAt: String
 }
 
 type CartItems {

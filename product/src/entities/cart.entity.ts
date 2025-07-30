@@ -18,7 +18,10 @@ export class Cart {
   items: CartItem[];
 
   // Many-to-many relationship with Coupon
-  @ManyToMany(() => Coupon, { nullable: true })
+  @ManyToMany(() => Coupon, {
+    nullable: true,
+    onDelete: "SET NULL", // Set to null if the coupon is deleted
+  })
   @JoinTable()
   coupons: Coupon[] | null;
 

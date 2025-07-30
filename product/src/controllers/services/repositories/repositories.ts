@@ -1,5 +1,6 @@
 import {
   Brand,
+  Cart,
   Category,
   Coupon,
   FlatRate,
@@ -22,8 +23,11 @@ import {
   TaxOptions,
   TaxRate,
   Ups,
+  Wishlist,
+  WishlistItem,
 } from "../../../entities";
 import { AppDataSource } from "../../../helper";
+import { CartItem } from "./../../../entities/cart-item.entity";
 
 /**
  * Initializes repository for Brand entity.
@@ -216,3 +220,35 @@ export const flatRateCostRepository = AppDataSource.getRepository(FlatRateCost);
  * 1. Retrieves the TaxOptions repository from AppDataSource for database operations.
  */
 export const taxOptionsRepository = AppDataSource.getRepository(TaxOptions);
+
+/**
+ * Initializes repository for Cart entity.
+ *
+ * Workflow:
+ * 1. Retrieves the Cart repository from AppDataSource for database operations.
+ */
+export const cartRepository = AppDataSource.getRepository(Cart);
+
+/**
+ * Initializes repository for CartItem entity.
+ *
+ * Workflow:
+ * 1. Retrieves the CartItem repository from AppDataSource for database operations.
+ */
+export const cartItemRepository = AppDataSource.getRepository(CartItem);
+
+/**
+ * Initializes repository for Wishlist entity.
+ *
+ * Workflow:
+ * 1. Retrieves the Wishlist repository from AppDataSource for database operations.
+ */
+export const wishlistRepository = AppDataSource.getRepository(Wishlist);
+
+/**
+ * Initializes repository for WishlistItem entity.
+ *
+ * Workflow:
+ * 1. Retrieves the WishlistItem repository from AppDataSource for database operations.
+ */
+export const wishListItemRepository = AppDataSource.getRepository(WishlistItem);
