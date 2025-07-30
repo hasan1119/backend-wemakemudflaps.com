@@ -29,14 +29,6 @@ type BrandPaginationDataSession {
   deletedAt: String
 }
 
-# Response for fetching a brand by ID.
-type BrandResponseById {
-  statusCode: Int!
-  success: Boolean!
-  message: String!
-  brand: Brand!
-}
-
 # Response for fetching a brands list.
 type BrandPaginationResponse {
   statusCode: Int!
@@ -48,10 +40,7 @@ type BrandPaginationResponse {
 
 # ---------------------- Unions ----------------------
 union CreateBrandResponseOrError = BaseResponse | BrandResponse | ErrorResponse
-union GetBrandByIDResponseOrError =
-    BaseResponse
-  | BrandResponseById
-  | ErrorResponse
+union GetBrandByIDResponseOrError = BaseResponse | BrandResponse | ErrorResponse
 union GetBrandsResponseOrError =
     BaseResponse
   | BrandPaginationResponse

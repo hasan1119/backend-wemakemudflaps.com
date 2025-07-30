@@ -656,3 +656,48 @@ export const couponMutationsDef = gql(
     encoding: "utf-8",
   })
 );
+
+/**
+ * Loads and parses the GraphQL schema for cart and wishlist-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `cart-wishlist/cart-wishlist.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for cart and wishlist as a DocumentNode.
+ */
+export const cartWishlistDef = gql(
+  readFileSync(path.join(__dirname, "./cart-wishlist/cart-wishlist.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL queries for cart and wishlist-related operations.
+ *
+ * Workflow:
+ * 1. Reads the query definitions from the `cart-wishlist/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL queries for cart and wishlist as a DocumentNode.
+ */
+export const cartWishlistQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./cart-wishlist/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses GraphQL mutations for cart and wishlist-related operations.
+ *
+ * Workflow:
+ * 1. Reads the mutation definitions from the `cart-wishlist/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL mutations for cart and wishlist as a DocumentNode.
+ */
+export const cartWishlistMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./cart-wishlist/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);

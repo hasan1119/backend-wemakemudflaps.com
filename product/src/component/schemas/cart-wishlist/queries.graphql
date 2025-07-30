@@ -1,0 +1,8 @@
+# Queries to fetch cart & wishlist from the system.
+type Query {
+  # Fetches the current user's cart.
+  getCart: CartResponse!
+
+  # Fetches the current user's wishlist.
+  getWishlist: WishlistResponse!
+}

@@ -3,6 +3,9 @@ import {
   brandDef,
   brandMutationsDef,
   brandQueriesDef,
+  cartWishlistDef,
+  cartWishlistMutationsDef,
+  cartWishlistQueriesDef,
   categoryDef,
   categoryMutationsDef,
   categoryQueriesDef,
@@ -178,4 +181,13 @@ export const typeDefs = mergeTypeDefs([
 
   // Schema for coupon mutations (modifying coupon data)
   couponMutationsDef,
+
+  // Cart and Wishlist schema definition
+  cartWishlistDef,
+
+  // Schema for cart and wishlist mutations (modifying cart and wishlist data)
+  cartWishlistMutationsDef,
+
+  // Schema for cart and wishlist queries (fetching cart and wishlist data)
+  cartWishlistQueriesDef,
 ]);
