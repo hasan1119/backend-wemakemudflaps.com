@@ -366,7 +366,7 @@ export const addToCart = async (
       };
     }
 
-    if (!product.soldIndividually) {
+    if (product.soldIndividually === false) {
       if (quantity === 1) {
         return {
           statusCode: 400,

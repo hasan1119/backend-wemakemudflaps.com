@@ -358,7 +358,7 @@ export const updateCartItem = async (
       };
     }
 
-    if (!product.soldIndividually) {
+    if (product.soldIndividually === false) {
       if (args.quantity === 1) {
         return {
           statusCode: 400,
