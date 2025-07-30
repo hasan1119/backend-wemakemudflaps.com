@@ -188,7 +188,7 @@ export class Product {
     onDelete: "SET NULL",
     nullable: true,
   })
-  @JoinColumn({ name: "tax_class_id" })
+  @JoinColumn({ name: "product_tax_class" })
   taxClass: TaxClass | null;
 
   /* ====================== Quantity Settings ====================== */
@@ -342,7 +342,7 @@ export class Product {
     onDelete: "SET NULL",
     nullable: true,
   })
-  @JoinColumn({ name: "shipping_class_id" })
+  @JoinColumn({ name: "product_shipping_class" })
   shippingClass: ShippingClass | null;
 
   /* ====================== Linked Products ====================== */
@@ -378,6 +378,7 @@ export class Product {
     cascade: true,
     nullable: true,
   })
+  @JoinColumn({ name: "product_attributes" })
   attributes: ProductAttribute[] | null;
 
   /* ====================== Variations ====================== */

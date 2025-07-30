@@ -1,5 +1,6 @@
 import { In } from "typeorm";
 import { Product } from "../../../entities";
+import { AppDataSource } from "../../../helper";
 import { MutationUpdateProductArgs } from "../../../types";
 import {
   productAttributeRepository,
@@ -27,6 +28,8 @@ export const updateProduct = async (
   currentProduct: Product,
   data: Partial<MutationUpdateProductArgs>
 ): Promise<Product> => {
+  const entityManager = AppDataSource.manager;
+
   const product = currentProduct;
 
   // Replace scalar fields directly
@@ -147,39 +150,54 @@ export const updateProduct = async (
   if (data.taxStatus !== undefined) product.taxStatus = data.taxStatus;
 
   // Replace relational fields
+  if (data.brandIds !== undefined && data.brandIds !== null) {
+    if (data.brandIds?.length) {
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_brands")
+        .where('"productId" = :id', { id: product.id })
+        .execute();
 
-  if (data.categoryIds !== undefined) {
-    if (data.categoryIds === null) {
-      product.categories = [];
-    } else {
-      product.categories = data.categoryIds.length
-        ? data.categoryIds.map((id) => ({ id }))
-        : ([] as any);
+      product.brands = data.brandIds.map((id) => ({ id })) as any;
     }
   }
 
-  if (data.brandIds !== undefined) {
-    if (data.brandIds === null) {
-      product.brands = [];
-    } else {
-      product.brands = data.brandIds.length
-        ? data.brandIds.map((id) => ({ id }))
-        : ([] as any);
+  if (data.tagIds !== undefined && data.tagIds !== null) {
+    if (data.tagIds?.length) {
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_tags")
+        .where('"productId" = :id', { id: product.id })
+        .execute();
+
+      product.tags = data.tagIds.map((id) => ({ id })) as any;
     }
   }
 
-  if (data.tagIds !== undefined) {
-    if (data.tagIds === null) {
-      product.tags = [];
-    } else {
-      product.tags = data.tagIds.length
-        ? data.tagIds.map((id) => ({ id }))
-        : ([] as any);
+  if (data.categoryIds !== undefined && data.categoryIds !== null) {
+    if (data.categoryIds?.length) {
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_categories")
+        .where('"productId" = :id', { id: product.id })
+        .execute();
+
+      product.categories = data.categoryIds.map((id) => ({ id })) as any;
     }
   }
 
   if (data.taxClassId !== undefined) {
     if (data.taxClassId === null) {
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_tax_class")
+        .where('"productId" = :id', { id: product.id })
+        .execute();
+
       product.taxClass = null;
     } else {
       product.taxClass = data.taxClassId
@@ -190,6 +208,13 @@ export const updateProduct = async (
 
   if (data.shippingClassId !== undefined) {
     if (data.shippingClassId === null) {
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_shipping_class")
+        .where('"productId" = :id', { id: product.id })
+        .execute();
+
       product.shippingClass = null;
     }
   } else {
@@ -202,6 +227,15 @@ export const updateProduct = async (
     // Delete previous attributes using current product existing attributes ids if they exist
     if (currentProduct.attributes?.length) {
       const idsToDelete = currentProduct.attributes.map((attr) => attr.id);
+
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_attributes")
+        .where('"productId" = :id', { id: product.id })
+        .andWhere('"attributeId" IN (:...ids)', { ids: idsToDelete })
+        .execute();
+
       await productAttributeRepository.delete({ id: In(idsToDelete) });
     }
 
@@ -212,6 +246,42 @@ export const updateProduct = async (
   if (data.variations) {
     if (currentProduct.variations?.length) {
       const idsToDelete = currentProduct.variations.map((v) => v.id);
+
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_variation_attribute_values")
+        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+        .execute();
+
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_variation_brands")
+        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+        .execute();
+
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_variation_shipping_class")
+        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+        .execute();
+
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_variation_tax_class")
+        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+        .execute();
+
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_variation_tier_pricing")
+        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+        .execute();
+
       await productVariationRepository.delete({
         id: In(idsToDelete),
       });
