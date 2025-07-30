@@ -28,21 +28,33 @@ export const softDeleteTaxClass = async (
 export const hardDeleteTaxClass = async (taxClassId: string): Promise<void> => {
   const entityManager = AppDataSource.manager;
 
-  // Delete from product_variation_tax_class junction table
-  await entityManager
-    .createQueryBuilder()
-    .delete()
-    .from("product_variation_tax_class")
-    .where('"taxClassId" = :id', { id: taxClassId })
-    .execute();
+  // Check if product_variation_tax_class table exists and delete entries
+  const variationTaxClassExists = await entityManager.query(`
+    SELECT to_regclass('public.product_variation_tax_class') IS NOT NULL AS exists
+  `);
+  if (variationTaxClassExists?.[0]?.exists) {
+    // First delete any related entries from the product_variation_tax_class junction table
+    await entityManager
+      .createQueryBuilder()
+      .delete()
+      .from("product_variation_tax_class")
+      .where('"taxClassId" = :id', { id: taxClassId })
+      .execute();
+  }
 
-  // Delete from product_tax_class junction table
-  await entityManager
-    .createQueryBuilder()
-    .delete()
-    .from("product_tax_class")
-    .where('"taxClassId" = :id', { id: taxClassId })
-    .execute();
+  // Check if product_tax_class table exists and delete entries
+  const productTaxClassExists = await entityManager.query(`
+    SELECT to_regclass('public.product_tax_class') IS NOT NULL AS exists
+  `);
+  if (productTaxClassExists?.[0]?.exists) {
+    // First delete any related entries from the product_tax_class junction table
+    await entityManager
+      .createQueryBuilder()
+      .delete()
+      .from("product_tax_class")
+      .where('"taxClassId" = :id', { id: taxClassId })
+      .execute();
+  }
 
   await taxClassRepository.delete({ id: taxClassId });
 };

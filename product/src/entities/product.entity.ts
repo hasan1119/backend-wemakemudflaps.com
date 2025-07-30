@@ -378,6 +378,7 @@ export class Product {
   @OneToMany(() => ProductVariation, (variation) => variation.product, {
     cascade: true,
   })
+  @JoinColumn({ name: "product_variations" })
   variations: ProductVariation[] | null;
 
   /* ====================== Advanced Settings ====================== */

@@ -23,13 +23,19 @@ export const softDeleteTag = async (tagId: string): Promise<Tag> => {
 export const hardDeleteTag = async (tagId: string): Promise<void> => {
   const entityManager = AppDataSource.manager;
 
-  // Delete from product_tags junction table
-  await entityManager
-    .createQueryBuilder()
-    .delete()
-    .from("product_tags")
-    .where('"tagId" = :id', { id: tagId })
-    .execute();
+  // Check if product_variation_tags table exists and delete entries
+  const variationTagExists = await entityManager.query(`
+    SELECT to_regclass('public.product_variation_tags') IS NOT NULL AS exists
+  `);
+  if (variationTagExists?.[0]?.exists) {
+    // First delete any related entries from the product_variation_tags junction table
+    await entityManager
+      .createQueryBuilder()
+      .delete()
+      .from("product_variation_tags")
+      .where('"tagId" = :id', { id: tagId })
+      .execute();
+  }
 
   await tagRepository.delete({ id: tagId });
 };
