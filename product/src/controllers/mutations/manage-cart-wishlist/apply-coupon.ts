@@ -376,6 +376,156 @@ export const applyCoupon = async (
       };
     }
 
+    for (const coupon of coupons) {
+      if (
+        coupon.allowedEmails?.length &&
+        !coupon.allowedEmails.includes(user.email)
+      ) {
+        return {
+          statusCode: 403,
+          success: false,
+          message: `Coupon ${coupon.code} is not allowed for your email address.`,
+          __typename: "ErrorResponse",
+        };
+      }
+
+      if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `Coupon ${coupon.code} has expired.`,
+          __typename: "ErrorResponse",
+        };
+      }
+
+      // Check if coupon is applicable to the total cart price
+      // if (coupon.minimumSpend && userCart.items< coupon.minimumSpend) {
+      //   return {
+      //     statusCode: 400,
+      //     success: false,
+      //     message: `Coupon ${coupon.code} requires a minimum spend of ${coupon.minimumSpend}.`,
+      //     __typename: "ErrorResponse",
+      //   };
+      // }
+
+      // if(coupon.maximumSpend && userCart.items > coupon.maximumSpend) {
+      //   return {
+      //     statusCode: 400,
+      //     success: false,
+      //     message: `Coupon ${coupon.code} cannot be applied to a cart total exceeding ${coupon.maximumSpend}.`,
+      //     __typename: "ErrorResponse",
+      //   };
+      // }
+
+      // Check if coupon is applicable to the user's cart items
+      const applicableToCartItems = userCart.items?.some((item) => {
+        const product = item.product;
+        if (!product) return false;
+
+        // Check if coupon is applicable to any of the product's categories
+        const isApplicableCategory = product.categories?.some((cat) =>
+          coupon.applicableCategories?.some((c) => c.id === cat.id)
+        );
+
+        // Check if coupon is applicable to the product itself
+        const isApplicableProduct = coupon.applicableProducts?.some(
+          (p) => p.id === product.id
+        );
+
+        return (
+          isApplicableCategory ||
+          isApplicableProduct ||
+          (!coupon.applicableCategories?.length &&
+            !coupon.applicableProducts?.length)
+        );
+      });
+
+      if (!applicableToCartItems) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `Coupon ${coupon.code} is not applicable to your cart items.`,
+          __typename: "ErrorResponse",
+        };
+      }
+
+      const excludedFromCartItems = userCart.items?.some((item) => {
+        const product = item.product;
+        if (!product) return false;
+
+        // Check if coupon excludes any of the product's categories
+        const isExcludedCategory = product.categories?.some((cat) =>
+          coupon.excludedCategories?.some((c) => c.id === cat.id)
+        );
+
+        // Check if coupon excludes the product itself
+        const isExcludedProduct = coupon.excludedProducts?.some(
+          (p) => p.id === product.id
+        );
+
+        return (
+          isExcludedCategory ||
+          isExcludedProduct ||
+          coupon.excludedCategories?.length > 0 ||
+          coupon.excludedProducts?.length > 0
+        );
+      });
+
+      if (excludedFromCartItems) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `Coupon ${coupon.code} cannot be applied to some items in your cart.`,
+          __typename: "ErrorResponse",
+        };
+      }
+
+      // Check if coupon has reached its maximum usage limit
+      if (coupon.maxUsage !== null && coupon.usageCount >= coupon.maxUsage) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `Coupon ${coupon.code} has reached its maximum usage limit.`,
+          __typename: "ErrorResponse",
+        };
+      }
+
+      // if (coupon.discountType === "percentage" && coupon.discountValue <= 0) {
+      //   return {
+      //     statusCode: 400,
+      //     success: false,
+      //     message: `Coupon ${coupon.code} has an invalid discount value.`,
+      //     __typename: "ErrorResponse",
+      //   };
+      // }
+      // if (
+      //   coupon.discountType === "fixed" &&
+      //   (coupon.discountValue <= 0 || coupon.discountValue > userCart.totalPrice)
+      // ) {
+      //   return {
+      //     statusCode: 400,
+      //     success: false,
+      //     message: `Coupon ${coupon.code} has an invalid discount value.`,
+      //     __typename: "ErrorResponse",
+      //   };
+      // }
+      // if (
+      //   coupon.discountType === "fixed_product" &&
+      //   (coupon.discountValue <= 0 ||
+      //     coupon.discountValue > userCart.items.reduce(
+      //       (total, item) => total + (item.product?.salePrice || 0),
+      //       0
+      //     ))
+      // ) {
+      //   return {
+      //     statusCode: 400,
+      //     success: false,
+      //     message: `Coupon ${coupon.code} has an invalid discount value.`,
+      //     __typename: "ErrorResponse",
+      //   };
+      // }
+    }
+
     // Apply coupons to the user's cart
     const cart = await applyCouponService(coupons, userCart, user.id);
 
