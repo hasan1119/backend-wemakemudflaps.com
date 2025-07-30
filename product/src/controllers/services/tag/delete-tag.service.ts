@@ -1,4 +1,5 @@
 import { Tag } from "../../../entities";
+import { AppDataSource } from "../../../helper";
 import { tagRepository } from "../repositories/repositories";
 import { getTagById } from "./get-tag.service";
 
@@ -20,5 +21,15 @@ export const softDeleteTag = async (tagId: string): Promise<Tag> => {
  * @param tagId - The UUID of the tag to hard delete.
  */
 export const hardDeleteTag = async (tagId: string): Promise<void> => {
+  const entityManager = AppDataSource.manager;
+
+  // Delete from product_tags junction table
+  await entityManager
+    .createQueryBuilder()
+    .delete()
+    .from("product_tags")
+    .where('"tagId" = :id', { id: tagId })
+    .execute();
+
   await tagRepository.delete({ id: tagId });
 };

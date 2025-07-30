@@ -2,6 +2,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -29,11 +31,14 @@ export class ProductVariation {
   productDeliveryType: string[] | null;
 
   // Associated brand for the product
-  @ManyToOne(() => Brand, (brand) => brand.products, {
+  @ManyToMany(() => Brand, {
+    cascade: true,
     nullable: true,
     onDelete: "SET NULL",
   })
-  @JoinColumn({ name: "variation_brand_id" })
+  @JoinTable({
+    name: "product_variation_brands",
+  })
   brands: Promise<Brand[]> | null;
 
   // SKU for the product variation (nullable)
@@ -89,7 +94,7 @@ export class ProductVariation {
     nullable: true,
     cascade: true,
   })
-  @JoinColumn({ name: "variation_tier_pricing_id" })
+  @JoinColumn({ name: "product_variation_tier_pricing" })
   tierPricingInfo: Promise<ProductPrice> | null;
 
   // Stock status of the product variation (e.g., "In stock", "Out of stock", "On backorder")
@@ -136,14 +141,16 @@ export class ProductVariation {
   @ManyToOne(() => Product, (product) => product.variations, {
     onDelete: "CASCADE", // Ensures the associated variation is deleted if the product is deleted
   })
-  @JoinColumn({ name: "variation_product_id" })
+  @JoinColumn({ name: "variation_product" })
   product: Promise<Product>;
 
   // To store attribute values for the variation
   @OneToMany(() => ProductAttributeValue, (attrValue) => attrValue.variation, {
     cascade: true,
     nullable: true,
+    onDelete: "SET NULL",
   })
+  @JoinColumn({ name: "product_variation_attribute_values" })
   attributeValues: ProductAttributeValue[] | null;
 
   // Warranty digit for the variation (nullable)
@@ -225,7 +232,7 @@ export class ProductVariation {
     onDelete: "SET NULL",
     nullable: true,
   })
-  @JoinColumn({ name: "variation_shipping_class_id" })
+  @JoinColumn({ name: "product_variation_shipping_class" })
   shippingClass: string | null;
 
   // Tax status (controls whether the product cost or shipping is taxable)
@@ -242,7 +249,7 @@ export class ProductVariation {
     onDelete: "SET NULL",
     nullable: true,
   })
-  @JoinColumn({ name: "variation_tax_class_id" })
+  @JoinColumn({ name: "product_variation_tax_class" })
   taxClass: TaxClass | null;
 
   // Description of the product variation
