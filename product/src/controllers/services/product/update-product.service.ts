@@ -323,6 +323,14 @@ export const updateProduct = async (
 
   if (data.upsellIds !== undefined) {
     if (data.upsellIds === null) {
+      // Delete previous upsells
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_upsells")
+        .where('"productId" = :id', { id: product.id })
+        .execute();
+
       product.upsells = [];
     } else {
       product.upsells = data.upsellIds.length
@@ -334,6 +342,14 @@ export const updateProduct = async (
 
   if (data.crossSellIds !== undefined) {
     if (data.crossSellIds === null) {
+      // Delete previous cross sells
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_cross_sells")
+        .where('"productId" = :id', { id: product.id })
+        .execute();
+
       product.crossSells = [];
     } else {
       product.crossSells = data.crossSellIds.length
@@ -344,7 +360,15 @@ export const updateProduct = async (
 
   // Replace tier pricing info for main product
   if (data.tierPricingInfo !== undefined) {
-    // Delete previous
+    // Delete previous tier pricing info
+
+    await entityManager
+      .createQueryBuilder()
+      .delete()
+      .from("product_tier_pricing")
+      .where('"productId" = :id', { id: product.id })
+      .execute();
+
     await productPriceRepository.delete({
       product: { id: currentProduct.id },
     });
