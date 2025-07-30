@@ -393,18 +393,16 @@ export const updateProduct = async (
         tierPricingInfo: v.tierPricingInfo
           ? {
               pricingType: v.tierPricingInfo.pricingType,
-              tieredPrices: {
-                tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
-                  ...tp,
-                })),
-              },
+              tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
+                ...tp,
+              })),
             }
           : null,
         shippingClass: v.shippingClassId
           ? ({ id: v.shippingClassId } as any)
           : null,
 
-        taxClassId: v.taxClassId ? ({ id: v.taxClassId } as any) : null,
+        taxClass: v.taxClassId ? ({ id: v.taxClassId } as any) : null,
 
         product: { id: product.id } as any, // Link back to the main product
       };
@@ -489,17 +487,15 @@ export const updateProduct = async (
     const processedTierPricingInfo = data.tierPricingInfo
       ? {
           pricingType: data.tierPricingInfo.pricingType,
-          tieredPrices: {
-            tieredPrices: data.tierPricingInfo.tieredPrices?.map((tp) => ({
-              ...tp,
-            })),
-          },
+          tieredPrices: data.tierPricingInfo.tieredPrices?.map((tp) => ({
+            ...tp,
+          })),
           product: { id: product.id } as any, // Link back to the main product
         }
       : null;
 
     product.tierPricingInfo = processedTierPricingInfo
-      ? await productPriceRepository.save({ processedTierPricingInfo } as any)
+      ? await productPriceRepository.save(processedTierPricingInfo as any)
       : null;
   }
 
