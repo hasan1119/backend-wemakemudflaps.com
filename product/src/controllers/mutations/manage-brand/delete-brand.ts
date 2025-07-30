@@ -31,7 +31,7 @@ const clearBrandCache = async (id: string, name: string, slug: string) => {
 // Perform soft delete and update cache
 const softDeleteAndCache = async (id: string) => {
   const deletedData = await softDeleteBrand(id);
-  setBrandInfoByIdInRedis(id, deletedData);
+  await setBrandInfoByIdInRedis(id, deletedData);
   await clearBrandsAndCountCache();
 };
 
