@@ -162,17 +162,105 @@ export const hardDeleteProduct = async (
   // }
 
   // if (productData.variations) {
+  //   const idsToDelete = productData.variations.map((v) => v.id);
+
   //   // Check if product_variations table exists and delete entries
   //   const variationExists = await entityManager.query(`
-  //     SELECT to_regclass('public.product_variations') IS NOT NULL AS exists
-  //   `);
+  //       SELECT to_regclass('public.product_variations') IS NOT NULL AS exists
+  //     `);
+
   //   if (variationExists?.[0]?.exists) {
-  //     // First delete any related entries from the product_variations table
   //     await entityManager
   //       .createQueryBuilder()
   //       .delete()
   //       .from("product_variations")
   //       .where('"productId" = :id', { id: productData.id })
+  //       .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
+  //       .execute();
+  //   }
+
+  //   // Check if product_variation_brands table exists and delete entries
+  //   const variationBrandExists = await entityManager.query(`
+  //       SELECT to_regclass('public.product_variation_brands') IS NOT NULL AS exists
+  //     `);
+
+  //   if (variationBrandExists?.[0]?.exists) {
+  //     await entityManager
+  //       .createQueryBuilder()
+  //       .delete()
+  //       .from("product_variation_brands")
+  //       .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+  //       .execute();
+  //   }
+
+  //   // Check if product_variation_attributes table exists and delete entries
+  //   const variationAttributeExists = await entityManager.query(`
+  //       SELECT to_regclass('public.product_variation_attributes') IS NOT NULL AS exists
+  //     `);
+
+  //   if (variationAttributeExists?.[0]?.exists) {
+  //     await entityManager
+  //       .createQueryBuilder()
+  //       .delete()
+  //       .from("product_variation_attributes")
+  //       .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+  //       .execute();
+  //   }
+
+  //   // Check if product_variation_shipping_class table exists and delete entries
+  //   const variationShippingClassExists = await entityManager.query(`
+  //       SELECT to_regclass('public.product_variation_shipping_class') IS NOT NULL AS exists
+  //     `);
+
+  //   if (variationShippingClassExists?.[0]?.exists) {
+  //     await entityManager
+  //       .createQueryBuilder()
+  //       .delete()
+  //       .from("product_variation_shipping_class")
+  //       .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+  //       .execute();
+  //   }
+
+  //   // Check if product_variation_tax_class table exists and delete entries
+  //   const variationTaxClassExists = await entityManager.query(`
+  //       SELECT to_regclass('public.product_variation_tax_class') IS NOT NULL AS exists
+  //     `);
+
+  //   if (variationTaxClassExists?.[0]?.exists) {
+  //     await entityManager
+  //       .createQueryBuilder()
+  //       .delete()
+  //       .from("product_variation_tax_class")
+  //       .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+  //       .execute();
+  //   }
+
+  //   // Check if product_variation_tier_pricing table exists and delete entries
+  //   const variationTierPricingExists = await entityManager.query(`
+  //       SELECT to_regclass('public.product_variation_tier_pricing') IS NOT NULL AS exists
+  //     `);
+
+  //   if (variationTierPricingExists?.[0]?.exists) {
+  //     await entityManager
+  //       .createQueryBuilder()
+  //       .delete()
+  //       .from("product_variation_tier_pricing")
+  //       .where('"variationId" IN (:...ids)', { ids: idsToDelete })
+  //       .execute();
+  //   }
+
+  //   // Check if product_variations table exists and delete entries
+  //   const variationTableExists = await entityManager.query(`
+  //       SELECT to_regclass('public.product_variations') IS NOT NULL AS exists
+  //     `);
+
+  //   if (variationTableExists?.[0]?.exists) {
+  //     await entityManager
+  //       .createQueryBuilder()
+  //       .delete()
+  //       .from("product_variations")
+  //       .where('"productId" = :id', { id: productData.id })
+  //       .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
   //       .execute();
   //   }
   // }
