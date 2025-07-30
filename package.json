@@ -10,6 +10,7 @@
     "dev:sub3": "cd product && bun dev",
     "dev:sub4": "cd site-settings && bun dev",
     "dev:router": "wait-on tcp:4001 tcp:4002 tcp:4003 tcp:4004 && bun start:router",
-    "start:router": "cd router && bun dev"
+    "start:router": "cd router && bun dev",
+    "reset:db": "cd users && bun run reset:db"
   }
 }
