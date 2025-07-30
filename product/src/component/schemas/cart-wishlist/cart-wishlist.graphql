@@ -16,6 +16,8 @@ type Wishlist {
   deletedAt: String
 }
 
+# ---------------------- Cart & Wishlist Item Types ----------------------
+
 type CartItems {
   id: ID!
   quantity: Int!
@@ -58,3 +60,8 @@ union UpdateCartOrWishListResponseOrError =
   | ErrorResponse
 union RemoveFromCartOrWishListResponseOrError = BaseResponse | ErrorResponse
 union ApplyCouponResponseOrError = BaseResponse | CartResponse | ErrorResponse
+union GetCartOrWishListResponseOrError =
+    BaseResponse
+  | CartResponse
+  | WishlistResponse
+  | ErrorResponse

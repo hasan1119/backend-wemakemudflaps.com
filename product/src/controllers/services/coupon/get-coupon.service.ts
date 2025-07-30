@@ -67,6 +67,29 @@ export const findCouponByCode = async (
 };
 
 /**
+ * Finds multiple Coupon entities by their codes.
+ *
+ * @param codes - An array of coupon codes to find.
+ * @returns A promise resolving to an array of Coupon entities.
+ */
+export const findCouponsByCodes = async (
+  codes: string[]
+): Promise<Coupon[]> => {
+  return await couponRepository.find({
+    where: {
+      code: In(codes),
+      deletedAt: null,
+    },
+    relations: [
+      "applicableProducts",
+      "excludedProducts",
+      "applicableCategories",
+      "excludedCategories",
+    ],
+  });
+};
+
+/**
  * Finds a Coupon entity by its code, excluding a specific ID.
  *
  * @param id - The UUID of the coupon to exclude.

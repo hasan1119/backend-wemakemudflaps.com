@@ -49,5 +49,5 @@ export const updateCartItem = async (
   cartItem.quantity = quantity;
   await cartItemRepository.save(cartItem);
 
-  return getCartByUserId(userId) as Promise<Cart>;
+  return getCartByUserId(userId);
 };

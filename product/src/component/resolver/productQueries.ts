@@ -12,6 +12,7 @@ import {
   getAllTaxClass,
   getAllTaxRates,
   getBrandById,
+  getCart,
   getCategoryById,
   getCouponById,
   getProductAttributeById,
@@ -24,6 +25,7 @@ import {
   getTaxClassById,
   getTaxOptions,
   getTaxRateById,
+  getWishlist,
 } from "../../controllers";
 
 /**
@@ -67,6 +69,7 @@ const typesWithCreatedBy = [
   "Brand",
   "BrandPaginationDataSession",
   "Coupon",
+  "Cart",
   "Tag",
   "TagPaginationDataSession",
   "ShippingClass",
@@ -87,6 +90,7 @@ const typesWithCreatedBy = [
   "LocalPickUp",
   "Ups",
   "ProductAttribute",
+  "Wishlist",
 ];
 
 // List of types that use the thumbnail field
@@ -242,6 +246,16 @@ export const productQueriesResolver = {
      * Fetches a paginated list of all coupons in the system.
      */
     getAllCoupons,
+
+    /**
+     * Retrieves the current user's cart, including items and metadata.
+     */
+    getCart,
+
+    /**
+     * Retrieves the current user's wishlist, including items and metadata.
+     */
+    getWishlist,
   },
 
   // Dynamically assign resolvers for createdBy and thumbnail

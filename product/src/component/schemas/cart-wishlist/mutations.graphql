@@ -21,12 +21,12 @@ type Mutation {
 
   # Removes an item from the cart.
   removeItemsFromCart(
-    productId: [ID!]!
+    productIds: [ID!]!
   ): RemoveFromCartOrWishListResponseOrError!
 
   # Removes an item from the wishlist.
   removeItemsFromWishList(
-    productId: [ID!]!
+    productIds: [ID!]!
   ): RemoveFromCartOrWishListResponseOrError!
 
   # Applies a coupon to the cart.

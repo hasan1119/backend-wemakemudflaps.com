@@ -505,6 +505,8 @@ export type GetBrandByIdResponseOrError = BaseResponse | BrandResponse | ErrorRe
 
 export type GetBrandsResponseOrError = BaseResponse | BrandPaginationResponse | ErrorResponse;
 
+export type GetCartOrWishListResponseOrError = BaseResponse | CartResponse | ErrorResponse | WishlistResponse;
+
 export type GetCategoriesResponseOrError = BaseResponse | CategoryPaginationResponse | ErrorResponse;
 
 export type GetCategoryByIdResponseOrError = BaseResponse | CategoryResponseById | ErrorResponse;
@@ -1241,12 +1243,12 @@ export type MutationRegisterArgs = {
 
 
 export type MutationRemoveItemsFromCartArgs = {
-  productId: Array<Scalars['ID']['input']>;
+  productIds: Array<Scalars['ID']['input']>;
 };
 
 
 export type MutationRemoveItemsFromWishListArgs = {
-  productId: Array<Scalars['ID']['input']>;
+  productIds: Array<Scalars['ID']['input']>;
 };
 
 
@@ -1963,7 +1965,7 @@ export type Query = {
   getAllTaxRates: GetTaxRatesResponseOrError;
   getAllUsers: GetUsersResponseOrError;
   getBrandById: GetBrandByIdResponseOrError;
-  getCart: CartResponse;
+  getCart: GetCartOrWishListResponseOrError;
   getCategoryById: GetCategoryByIdResponseOrError;
   getCouponById: GetCouponByIdResponseOrError;
   getFaqById: GetFaqByIdResponseOrError;
@@ -1986,7 +1988,7 @@ export type Query = {
   getTaxRateById: GetTaxRateByIdResponseOrError;
   getUserById: GetUserByIdResponseOrError;
   getUserOwnLoginInfo: GetUserLoginInfoResponseOrError;
-  getWishlist: WishlistResponse;
+  getWishlist: GetCartOrWishListResponseOrError;
 };
 
 
@@ -3094,6 +3096,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   GetAllProductAttributesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductAttributePaginationResponse );
   GetBrandByIDResponseOrError: ( BaseResponse ) | ( BrandResponse ) | ( ErrorResponse );
   GetBrandsResponseOrError: ( BaseResponse ) | ( BrandPaginationResponse ) | ( ErrorResponse );
+  GetCartOrWishListResponseOrError: ( BaseResponse ) | ( CartResponse ) | ( ErrorResponse ) | ( WishlistResponse );
   GetCategoriesResponseOrError: ( BaseResponse ) | ( CategoryPaginationResponse ) | ( ErrorResponse );
   GetCategoryByIDResponseOrError: ( BaseResponse ) | ( CategoryResponseById ) | ( ErrorResponse );
   GetCouponByIDResponseOrError: ( BaseResponse ) | ( CouponResponse ) | ( ErrorResponse );
@@ -3264,6 +3267,7 @@ export type ResolversTypes = {
   GetAllProductAttributesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetAllProductAttributesResponseOrError']>;
   GetBrandByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetBrandByIDResponseOrError']>;
   GetBrandsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetBrandsResponseOrError']>;
+  GetCartOrWishListResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCartOrWishListResponseOrError']>;
   GetCategoriesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoriesResponseOrError']>;
   GetCategoryByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoryByIDResponseOrError']>;
   GetCouponByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCouponByIDResponseOrError']>;
@@ -3528,6 +3532,7 @@ export type ResolversParentTypes = {
   GetAllProductAttributesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAllProductAttributesResponseOrError'];
   GetBrandByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetBrandByIDResponseOrError'];
   GetBrandsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetBrandsResponseOrError'];
+  GetCartOrWishListResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCartOrWishListResponseOrError'];
   GetCategoriesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoriesResponseOrError'];
   GetCategoryByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoryByIDResponseOrError'];
   GetCouponByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCouponByIDResponseOrError'];
@@ -4192,6 +4197,10 @@ export type GetBrandsResponseOrErrorResolvers<ContextType = Context, ParentType 
   __resolveType: TypeResolveFn<'BaseResponse' | 'BrandPaginationResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
+export type GetCartOrWishListResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetCartOrWishListResponseOrError'] = ResolversParentTypes['GetCartOrWishListResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CartResponse' | 'ErrorResponse' | 'WishlistResponse', ParentType, ContextType>;
+};
+
 export type GetCategoriesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetCategoriesResponseOrError'] = ResolversParentTypes['GetCategoriesResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryPaginationResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
@@ -4467,8 +4476,8 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'meta' | 'password'>>;
   logout?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password' | 'username'>>;
-  removeItemsFromCart?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromCartArgs, 'productId'>>;
-  removeItemsFromWishList?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromWishListArgs, 'productId'>>;
+  removeItemsFromCart?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromCartArgs, 'productIds'>>;
+  removeItemsFromWishList?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromWishListArgs, 'productIds'>>;
   resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   restoreBrands?: Resolver<ResolversTypes['RestoreBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreBrandsArgs, 'ids'>>;
   restoreCategory?: Resolver<Maybe<ResolversTypes['RestoreCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationRestoreCategoryArgs, 'ids'>>;
@@ -4778,7 +4787,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllTaxRates?: Resolver<ResolversTypes['GetTaxRatesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxRatesArgs, 'limit' | 'page' | 'taxClassId'>>;
   getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'limit' | 'page'>>;
   getBrandById?: Resolver<ResolversTypes['GetBrandByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetBrandByIdArgs, 'id'>>;
-  getCart?: Resolver<ResolversTypes['CartResponse'], ParentType, ContextType>;
+  getCart?: Resolver<ResolversTypes['GetCartOrWishListResponseOrError'], ParentType, ContextType>;
   getCategoryById?: Resolver<ResolversTypes['GetCategoryByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetCategoryByIdArgs, 'id'>>;
   getCouponById?: Resolver<ResolversTypes['GetCouponByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetCouponByIdArgs, 'id'>>;
   getFaqById?: Resolver<ResolversTypes['GetFaqByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetFaqByIdArgs, 'id'>>;
@@ -4801,7 +4810,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getTaxRateById?: Resolver<ResolversTypes['GetTaxRateByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxRateByIdArgs, 'id'>>;
   getUserById?: Resolver<ResolversTypes['GetUserByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetUserByIdArgs, 'id'>>;
   getUserOwnLoginInfo?: Resolver<ResolversTypes['GetUserLoginInfoResponseOrError'], ParentType, ContextType>;
-  getWishlist?: Resolver<ResolversTypes['WishlistResponse'], ParentType, ContextType>;
+  getWishlist?: Resolver<ResolversTypes['GetCartOrWishListResponseOrError'], ParentType, ContextType>;
 };
 
 export type RemoveFromCartOrWishListResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RemoveFromCartOrWishListResponseOrError'] = ResolversParentTypes['RemoveFromCartOrWishListResponseOrError']> = {
@@ -5580,6 +5589,7 @@ export type Resolvers<ContextType = Context> = {
   GetAllProductAttributesResponseOrError?: GetAllProductAttributesResponseOrErrorResolvers<ContextType>;
   GetBrandByIDResponseOrError?: GetBrandByIdResponseOrErrorResolvers<ContextType>;
   GetBrandsResponseOrError?: GetBrandsResponseOrErrorResolvers<ContextType>;
+  GetCartOrWishListResponseOrError?: GetCartOrWishListResponseOrErrorResolvers<ContextType>;
   GetCategoriesResponseOrError?: GetCategoriesResponseOrErrorResolvers<ContextType>;
   GetCategoryByIDResponseOrError?: GetCategoryByIdResponseOrErrorResolvers<ContextType>;
   GetCouponByIDResponseOrError?: GetCouponByIdResponseOrErrorResolvers<ContextType>;

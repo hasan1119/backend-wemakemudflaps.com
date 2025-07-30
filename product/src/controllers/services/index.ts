@@ -568,6 +568,7 @@ export {
   countCouponUsages,
   findCouponByCode,
   findCouponByCodeToUpdate,
+  findCouponsByCodes,
   getCouponById,
   getCouponsByIds,
   paginateCoupons,

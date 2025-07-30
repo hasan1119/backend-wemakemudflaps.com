@@ -176,3 +176,19 @@ export { deleteCoupon } from "./mutations/manage-coupon/delete-coupon";
 export { updateCoupon } from "./mutations/manage-coupon/update-coupon";
 export { getCouponById } from "./queries/coupon/get-coupon-by-id";
 export { getAllCoupons } from "./queries/coupon/get-coupons";
+
+/** Exports GraphQL queries and mutations for managing cart and wishlist data.
+ *
+ * Workflow:
+ * 1. Provides mutations for creating, updating, deleting, and restoring carts and wishlists.
+ * 2. Enables retrieval of a specific cart or wishlist by its ID.
+ * 3. Facilitates listing all carts and wishlists in the system.
+ */
+export { addToCart } from "./mutations/manage-cart-wishlist/add-to-cart";
+export { addToWishlist } from "./mutations/manage-cart-wishlist/add-to-wishlist";
+export { applyCoupon } from "./mutations/manage-cart-wishlist/apply-coupon";
+export { removeItemsFromCart } from "./mutations/manage-cart-wishlist/remove-item-from-cart";
+export { removeItemsFromWishList } from "./mutations/manage-cart-wishlist/remove-item-from-wishlist";
+export { updateCartItem } from "./mutations/manage-cart-wishlist/update-cart-item";
+export { getCart } from "./queries/cart-wishlist/get-cart";
+export { getWishlist } from "./queries/cart-wishlist/get-wishlist";

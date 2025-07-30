@@ -1,4 +1,7 @@
 import {
+  addToCart,
+  addToWishlist,
+  applyCoupon,
   createBrand,
   createCategory,
   createCoupon,
@@ -23,6 +26,8 @@ import {
   deleteTag,
   deleteTaxClass,
   deleteTaxRate,
+  removeItemsFromCart,
+  removeItemsFromWishList,
   restoreBrands,
   restoreCategory,
   restoreProducts,
@@ -31,6 +36,7 @@ import {
   restoreTaxClasses,
   restoreTaxRates,
   updateBrand,
+  updateCartItem,
   updateCategory,
   updateCategoryPosition,
   updateCoupon,
@@ -273,5 +279,35 @@ export const productMutationsResolver = {
      * Deletes specified coupon from the system.
      */
     deleteCoupon,
+
+    /**
+     * Adds a product to the cart.
+     */
+    addToCart,
+
+    /**
+     * Adds a product to the wishlist.
+     */
+    addToWishlist,
+
+    /**
+     * Applies a coupon to the cart.
+     */
+    applyCoupon,
+
+    /**
+     * Removes items from the cart.
+     */
+    removeItemsFromCart,
+
+    /**
+     * Removes items from the wishlist.
+     */
+    removeItemsFromWishList,
+
+    /**
+     * Updates a specific cart item.
+     */
+    updateCartItem,
   },
 };

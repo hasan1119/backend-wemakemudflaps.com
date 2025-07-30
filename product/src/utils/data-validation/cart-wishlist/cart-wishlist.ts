@@ -53,7 +53,6 @@ export const addToWishListSchema = z.object({
  * @property quantity - Updated quantity (minimum: 1).
  */
 export const updateCartItemSchema = z.object({
-  cartItemId: z.string().uuid({ message: "Invalid cart item ID format" }),
   productId: z.string().uuid({ message: "Invalid product ID format" }),
   quantity: z.number().min(1, "Quantity must be at least 1"),
 });
@@ -62,12 +61,12 @@ export const updateCartItemSchema = z.object({
  * Defines the schema for validating input when applying coupons.
  *
  * Workflow:
- * 1. Validates couponCode as an array of non-empty strings.
+ * 1. Validates couponCodes as an array of non-empty strings.
  *
- * @property couponCode - Array of coupon code strings (each must be non-empty).
+ * @property couponCodes- Array of coupon code strings (each must be non-empty).
  */
 export const applyCouponSchema = z.object({
-  couponCode: z.array(z.string().min(1, "Coupon code cannot be empty"), {
+  couponCodes: z.array(z.string().min(1, "Coupon code cannot be empty"), {
     message: "Coupon code must be a string",
   }),
 });
