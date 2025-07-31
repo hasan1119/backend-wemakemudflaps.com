@@ -20,6 +20,7 @@ import {
   getBrandsByIds,
   getCategoryByIds,
   getProductAttributesByIds,
+  getProductAttributeValuesByIds,
   getProductsByIds,
   getShippingClassById,
   getShippingClassesByIds,
@@ -452,6 +453,27 @@ export const createProduct = async (
             statusCode: 404,
             success: false,
             message: "One or more shipping classes inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+      }
+
+      const variationsAttributeIds = variations.flatMap(
+        (variation) => variation.attributeValues?.map((av) => av) || []
+      );
+
+      if (variationsAttributeIds.length > 0) {
+        const attributes =
+          (await getProductAttributeValuesByIds(variationsAttributeIds)) ?? [];
+
+        console.log(attributes);
+
+        if (attributes.length !== variationsAttributeIds.length) {
+          return {
+            statusCode: 404,
+            success: false,
+            message:
+              "One or more product attributes inside variations not found",
             __typename: "BaseResponse",
           };
         }

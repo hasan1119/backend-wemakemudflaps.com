@@ -1,5 +1,6 @@
 import { Product } from "../../../entities";
 import { MutationCreateProductArgs } from "../../../types";
+import { getBrandsByIds } from "../brand/get-brand.service";
 import {
   productPriceRepository,
   productRepository,
@@ -143,32 +144,37 @@ export const createProduct = async (
 
   const savedProduct = await productRepository.save(product);
 
-  const processedVariations = variations?.map((v) => {
-    return {
-      ...v,
-      brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : [],
-      attributeValues: v.attributeValues?.length
-        ? v.attributeValues.map((av) => ({ id: av }))
-        : [],
-      tierPricingInfo: v.tierPricingInfo
-        ? {
-            pricingType: v.tierPricingInfo.pricingType,
-            tieredPrices: {
+  // Process variations
+  const processedVariations = [];
+  if (variations?.length) {
+    for (const v of variations) {
+      // Fetch brands for this variation
+      const variationBrands = v.brandIds?.length
+        ? await getBrandsByIds(v.brandIds)
+        : [];
+
+      const variation = productVariationRepository.create({
+        ...v,
+        brands: variationBrands as any,
+        attributeValues: v.attributeValues?.length
+          ? v.attributeValues.map((av) => ({ id: av }))
+          : ([] as any),
+        tierPricingInfo: v.tierPricingInfo
+          ? {
+              pricingType: v.tierPricingInfo.pricingType,
               tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
                 ...tp,
               })),
-            },
-          }
-        : null,
-      shippingClass: v.shippingClassId
-        ? ({ id: v.shippingClassId } as any)
-        : null,
+            }
+          : null,
+        shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
+        taxClass: v.taxClassId ? { id: v.taxClassId } : null,
+        product: { id: savedProduct.id }, // Link to the main product
+      });
 
-      taxClassId: v.taxClassId ? ({ id: v.taxClassId } as any) : null,
-
-      product: { id: savedProduct.id } as any, // Link back to the main product
-    };
-  });
+      processedVariations.push(variation);
+    }
+  }
 
   const processedTierPricingInfo = tierPricingInfo
     ? {
@@ -187,8 +193,6 @@ export const createProduct = async (
   savedProduct.variations = processedVariations?.length
     ? await productVariationRepository.save(processedVariations as any)
     : null;
-
-  console.log("Saved Product Variations:", savedProduct.variations);
 
   // Save the product with variations and tier pricing
   await productRepository.save(savedProduct);

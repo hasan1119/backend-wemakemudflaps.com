@@ -263,7 +263,7 @@ export const updateProduct = async (
         await productVariationRepository.delete({ id: In(idsToDelete) });
       }
 
-      const processedVariations = data.variations?.map(async (v) => {
+      const processedVariations = data.variations?.map((v) => {
         return {
           ...v,
           brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : [],
@@ -280,9 +280,13 @@ export const updateProduct = async (
                 },
               }
             : null,
-          shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
-          taxClass: v.taxClassId ? { id: v.taxClassId } : null,
-          product, // Assign the full product entity
+          shippingClass: v.shippingClassId
+            ? ({ id: v.shippingClassId } as any)
+            : null,
+
+          taxClassId: v.taxClassId ? ({ id: v.taxClassId } as any) : null,
+
+          product: { id: currentProduct.id } as any, // Link back to the main product
         };
       });
 

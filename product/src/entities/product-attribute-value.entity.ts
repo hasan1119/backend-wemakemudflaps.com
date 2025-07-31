@@ -20,7 +20,7 @@ export class ProductAttributeValue {
 
   // Link to the associated product variation
   @ManyToOne(() => ProductVariation, (variation) => variation.attributeValues, {
-    onDelete: "CASCADE",
+    onDelete: "SET NULL", // Set to null if the variation is deleted
     nullable: true,
   })
   variation: Promise<ProductVariation> | null;

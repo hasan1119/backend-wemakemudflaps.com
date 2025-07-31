@@ -13,6 +13,7 @@ import {
   getBrandsByIds,
   getCategoryByIds,
   getProductAttributesByIds,
+  getProductAttributeValuesByIds,
   getProductById,
   getProductsByIds,
   getShippingClassById,
@@ -488,6 +489,25 @@ export const updateProduct = async (
           message: `Shipping Class with ID: ${shippingClassId} not found`,
           __typename: "BaseResponse",
         };
+      }
+
+      const variationsAttributeIds = variations.flatMap(
+        (variation) => variation.attributeValues?.map((av) => av) || []
+      );
+
+      if (variationsAttributeIds.length > 0) {
+        const attributes =
+          (await getProductAttributeValuesByIds(variationsAttributeIds)) ?? [];
+
+        if (attributes.length !== variationsAttributeIds.length) {
+          return {
+            statusCode: 404,
+            success: false,
+            message:
+              "One or more product attributes inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
       }
     }
 
