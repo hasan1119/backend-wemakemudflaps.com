@@ -141,7 +141,7 @@ export class ProductVariation {
   @ManyToOne(() => Product, (product) => product.variations, {
     onDelete: "CASCADE", // Ensures the associated variation is deleted if the product is deleted
   })
-  @JoinColumn({ name: "variation_product" })
+  @JoinColumn({ name: "productId" })
   product: Promise<Product>;
 
   // To store attribute values for the variation
