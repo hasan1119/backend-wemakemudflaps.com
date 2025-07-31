@@ -32,7 +32,8 @@ function mapCategoryRecursive(category: Category): any {
       category.deletedAt instanceof Date
         ? category.deletedAt.toISOString()
         : category.deletedAt || null,
-    subCategories: (category.subCategories || []).map(mapCategoryRecursive),
+    subCategories:
+      (category.subCategories || []).map(mapCategoryRecursive) || null,
     parentCategory: category.parentCategory
       ? mapCategoryRecursive(category.parentCategory)
       : null,
@@ -51,16 +52,17 @@ function mapProductPrice(price: ProductPrice): any {
     pricingType: price.pricingType,
     createdAt: price.createdAt.toISOString(),
     deletedAt: price.deletedAt ? price.deletedAt.toISOString() : null,
-    tieredPrices: (price.tieredPrices || []).map((tp) => ({
-      id: tp.id,
-      minQuantity: tp.minQuantity,
-      maxQuantity: tp?.maxQuantity,
-      quantityUnit: tp.quantityUnit,
-      fixedPrice: tp.fixedPrice,
-      percentageDiscount: tp.percentageDiscount,
-      createdAt: tp.createdAt.toISOString(),
-      deletedAt: tp.deletedAt ? tp.deletedAt.toISOString() : null,
-    })),
+    tieredPrices:
+      (price.tieredPrices || []).map((tp) => ({
+        id: tp.id,
+        minQuantity: tp.minQuantity,
+        maxQuantity: tp?.maxQuantity,
+        quantityUnit: tp.quantityUnit,
+        fixedPrice: tp.fixedPrice,
+        percentageDiscount: tp.percentageDiscount,
+        createdAt: tp.createdAt.toISOString(),
+        deletedAt: tp.deletedAt ? tp.deletedAt.toISOString() : null,
+      })) || null,
   };
 }
 
@@ -81,34 +83,36 @@ async function mapProductRecursive(
     images: product.images as any,
     videos: product.videos as any,
     salePrice: product.salePrice,
-    brands: product.brands?.map((brand) => ({
-      ...brand,
-      thumbnail: brand.thumbnail as any,
-      createdBy: brand.createdBy as any,
-      createdAt:
-        brand.createdAt instanceof Date
-          ? brand.createdAt.toISOString()
-          : brand.createdAt,
-      deletedAt: brand.deletedAt
-        ? brand.deletedAt instanceof Date
-          ? brand.deletedAt.toISOString()
-          : brand.deletedAt
-        : null,
-    })),
-    tags: product.tags?.map((tag) => ({
-      ...tag,
-      createdBy: tag.createdBy as any,
-      createdAt:
-        tag.createdAt instanceof Date
-          ? tag.createdAt.toISOString()
-          : tag.createdAt,
-      deletedAt: tag.deletedAt
-        ? tag.deletedAt instanceof Date
-          ? tag.deletedAt.toISOString()
-          : tag.deletedAt
-        : null,
-    })),
-    categories: product.categories?.map(mapCategoryRecursive),
+    brands:
+      product.brands?.map((brand) => ({
+        ...brand,
+        thumbnail: brand.thumbnail as any,
+        createdBy: brand.createdBy as any,
+        createdAt:
+          brand.createdAt instanceof Date
+            ? brand.createdAt.toISOString()
+            : brand.createdAt,
+        deletedAt: brand.deletedAt
+          ? brand.deletedAt instanceof Date
+            ? brand.deletedAt.toISOString()
+            : brand.deletedAt
+          : null,
+      })) || null,
+    tags:
+      product.tags?.map((tag) => ({
+        ...tag,
+        createdBy: tag.createdBy as any,
+        createdAt:
+          tag.createdAt instanceof Date
+            ? tag.createdAt.toISOString()
+            : tag.createdAt,
+        deletedAt: tag.deletedAt
+          ? tag.deletedAt instanceof Date
+            ? tag.deletedAt.toISOString()
+            : tag.deletedAt
+          : null,
+      })) || null,
+    categories: product.categories?.map(mapCategoryRecursive) || null,
     salePriceStartAt: product.salePriceStartAt?.toISOString(),
     salePriceEndAt: product.salePriceEndAt?.toISOString(),
     tierPricingInfo: product.tierPricingInfo
@@ -149,18 +153,19 @@ async function mapProductRecursive(
       ...attribute,
       createdBy: attribute.createdBy as any,
       systemAttributeId: attribute.systemAttributeRef?.id || null,
-      values: attribute.values.map((value) => ({
-        ...value,
-        createdAt:
-          value.createdAt instanceof Date
-            ? value.createdAt.toISOString()
-            : value.createdAt,
-        deletedAt: value.deletedAt
-          ? value.deletedAt instanceof Date
-            ? value.deletedAt.toISOString()
-            : value.deletedAt
-          : null,
-      })),
+      values:
+        attribute.values.map((value) => ({
+          ...value,
+          createdAt:
+            value.createdAt instanceof Date
+              ? value.createdAt.toISOString()
+              : value.createdAt,
+          deletedAt: value.deletedAt
+            ? value.deletedAt instanceof Date
+              ? value.deletedAt.toISOString()
+              : value.deletedAt
+            : null,
+        })) || null,
       createdAt:
         attribute.createdAt instanceof Date
           ? attribute.createdAt.toISOString()
@@ -171,44 +176,46 @@ async function mapProductRecursive(
           : attribute.deletedAt
         : null,
     })),
-    variations: product.variations.map((variation) => ({
-      ...variation,
-      attributeValues: variation.attributeValues.map((av) => ({
-        ...av,
+    variations:
+      product.variations.map((variation) => ({
+        ...variation,
+        attributeValues: variation.attributeValues.map((av) => ({
+          ...av,
+          createdAt:
+            av.createdAt instanceof Date
+              ? av.createdAt.toISOString()
+              : av.createdAt,
+          deletedAt: av.deletedAt
+            ? av.deletedAt instanceof Date
+              ? av.deletedAt.toISOString()
+              : av.deletedAt
+            : null,
+        })),
+        images: variation.images as any,
+        videos: variation.videos as any,
         createdAt:
-          av.createdAt instanceof Date
-            ? av.createdAt.toISOString()
-            : av.createdAt,
-        deletedAt: av.deletedAt
-          ? av.deletedAt instanceof Date
-            ? av.deletedAt.toISOString()
-            : av.deletedAt
+          variation.createdAt instanceof Date
+            ? variation.createdAt.toISOString()
+            : variation.createdAt,
+        deletedAt: variation.deletedAt
+          ? variation.deletedAt instanceof Date
+            ? variation.deletedAt.toISOString()
+            : variation.deletedAt
           : null,
-      })),
-      images: variation.images as any,
-      videos: variation.videos as any,
-      createdAt:
-        variation.createdAt instanceof Date
-          ? variation.createdAt.toISOString()
-          : variation.createdAt,
-      deletedAt: variation.deletedAt
-        ? variation.deletedAt instanceof Date
-          ? variation.deletedAt.toISOString()
-          : variation.deletedAt
-        : null,
-    })),
-    reviews: product.reviews.map((review) => ({
-      ...review,
-      createdAt:
-        review.createdAt instanceof Date
-          ? review.createdAt.toISOString()
-          : review.createdAt,
-      deletedAt: review.deletedAt
-        ? review.deletedAt instanceof Date
-          ? review.deletedAt.toISOString()
-          : review.deletedAt
-        : null,
-    })),
+      })) || null,
+    reviews:
+      product.reviews.map((review) => ({
+        ...review,
+        createdAt:
+          review.createdAt instanceof Date
+            ? review.createdAt.toISOString()
+            : review.createdAt,
+        deletedAt: review.deletedAt
+          ? review.deletedAt instanceof Date
+            ? review.deletedAt.toISOString()
+            : review.deletedAt
+          : null,
+      })) || null,
     createdBy: product.createdBy as any,
     createdAt:
       product.createdAt instanceof Date
@@ -224,28 +231,30 @@ async function mapProductRecursive(
   // Map upsells and crossSells, skipping recursive mapping for already visited products
   return {
     ...baseProduct,
-    upsells: product.upsells.map((upsell) =>
-      visited.has(upsell.id)
-        ? {
-            id: upsell.id,
-            name: upsell.name,
-            slug: upsell.slug,
-            defaultImage: upsell.defaultImage as any,
-            salePrice: upsell.salePrice,
-          }
-        : mapProductRecursive(upsell, new Set(visited))
-    ),
-    crossSells: product.crossSells.map((crossSell) =>
-      visited.has(crossSell.id)
-        ? {
-            id: crossSell.id,
-            name: crossSell.name,
-            slug: crossSell.slug,
-            defaultImage: crossSell.defaultImage as any,
-            salePrice: crossSell.salePrice,
-          }
-        : mapProductRecursive(crossSell, new Set(visited))
-    ),
+    upsells:
+      product.upsells.map((upsell) =>
+        visited.has(upsell.id)
+          ? {
+              id: upsell.id,
+              name: upsell.name,
+              slug: upsell.slug,
+              defaultImage: upsell.defaultImage as any,
+              salePrice: upsell.salePrice,
+            }
+          : mapProductRecursive(upsell, new Set(visited))
+      ) || null,
+    crossSells:
+      product.crossSells.map((crossSell) =>
+        visited.has(crossSell.id)
+          ? {
+              id: crossSell.id,
+              name: crossSell.name,
+              slug: crossSell.slug,
+              defaultImage: crossSell.defaultImage as any,
+              salePrice: crossSell.salePrice,
+            }
+          : mapProductRecursive(crossSell, new Set(visited))
+      ) || null,
   };
 }
 

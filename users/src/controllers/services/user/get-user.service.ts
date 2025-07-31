@@ -25,7 +25,7 @@ import {
  */
 export const isUsernameAvailable = async (
   username: string,
-  userId: string
+  userId?: string
 ): Promise<boolean> => {
   const user = !userId
     ? await userRepository.findOne({

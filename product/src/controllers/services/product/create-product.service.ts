@@ -188,6 +188,8 @@ export const createProduct = async (
     ? await productVariationRepository.save(processedVariations as any)
     : null;
 
+  console.log("Saved Product Variations:", savedProduct.variations);
+
   // Save the product with variations and tier pricing
   await productRepository.save(savedProduct);
 

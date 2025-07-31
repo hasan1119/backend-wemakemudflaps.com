@@ -276,13 +276,11 @@ export const ProductTieredPriceInputSchema = z
  * 1. Validates `id` as an optional UUID.
  * 2. Ensures `pricingType` is either "Fixed" or "Percentage".
  * 3. Validates `tieredPrices` as an optional array of `ProductTieredPriceInputSchema`.
- * 4. Validates `productId` as an optional UUID.
  * 5. Validates `productVariationId` as an optional UUID.
  *
  * @property id - Optional unique identifier for the product price.
  * @property pricingType - The type of pricing (Fixed or Percentage).
  * @property tieredPrices - Optional array of tiered pricing details.
- * @property productId - Optional UUID of the associated product.
  * @property productVariationId - Optional UUID of the associated product variation.
  */
 export const ProductPriceInputSchema = z
@@ -346,16 +344,15 @@ export const ProductPriceInputSchema = z
  * 12. Validates `weight` as an optional positive number.
  * 13. Validates `dimensionUnit` as an optional `DimensionUnitEnum`.
  * 14. Validates `length`, `width`, `height` as optional positive numbers.
- * 15. Validates `productId` as a UUID.
- * 16. Validates `attributeValues` as an optional array of `ProductVariationAttributeValueInputSchema`.
- * 17. Validates `warrantyDigit` as an optional positive integer.
- * 18. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
- * 19. Validates `warrantyPolicy` as an optional non-empty string.
- * 20. Validates `shippingClassId`, `taxClassId` as optional UUIDs.
- * 21. Validates `taxStatus` as an optional `TaxStatusTypeEnum`.
- * 22. Validates `description` as an optional non-empty string.
- * 23. Validates `images` and `videos` as optional arrays of UUIDs.
- * 24. Validates `deletedAt` as an optional datetime string.
+ * 15. Validates `attributeValues` as an optional array of `ProductVariationAttributeValueInputSchema`.
+ * 16. Validates `warrantyDigit` as an optional positive integer.
+ * 17. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
+ * 18. Validates `warrantyPolicy` as an optional non-empty string.
+ * 19. Validates `shippingClassId`, `taxClassId` as optional UUIDs.
+ * 20. Validates `taxStatus` as an optional `TaxStatusTypeEnum`.
+ * 21. Validates `description` as an optional non-empty string.
+ * 22. Validates `images` and `videos` as optional arrays of UUIDs.
+ * 23. Validates `deletedAt` as an optional datetime string.
  *
  * @property id - Optional unique identifier for the product variation.
  * @property sku - Optional Stock Keeping Unit for the variation.
@@ -377,7 +374,6 @@ export const ProductPriceInputSchema = z
  * @property length - Optional length of the variation.
  * @property width - Optional width of the variation.
  * @property height - Optional height of the variation.
- * @property productId - The UUID of the parent product.
  * @property attributeValues - Optional array of variation-specific attribute values.
  * @property warrantyDigit - Optional numeric part of warranty duration.
  * @property defaultWarrantyPeriod - Optional period unit for warranty.
@@ -458,7 +454,6 @@ export const ProductVariationInputSchema = z.object({
     .positive("Height must be a positive number")
     .optional()
     .nullable(),
-  productId: z.string().uuid({ message: "Invalid UUID format" }),
   attributeValues: z
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()
