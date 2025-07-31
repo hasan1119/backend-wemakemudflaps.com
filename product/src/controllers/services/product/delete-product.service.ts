@@ -145,7 +145,7 @@ export const hardDeleteProduct = async (
       `);
 
     if (variationExists?.[0]?.exists) {
-      if (idsToDelete.length > 0) {
+      if (idsToDelete?.length > 0) {
         await entityManager
           .createQueryBuilder()
           .delete()
@@ -162,7 +162,7 @@ export const hardDeleteProduct = async (
       `);
 
     if (variationBrandExists?.[0]?.exists) {
-      if (idsToDelete.length > 0) {
+      if (idsToDelete?.length > 0) {
         await entityManager
           .createQueryBuilder()
           .delete()
@@ -178,7 +178,7 @@ export const hardDeleteProduct = async (
       `);
 
     if (variationTableExists?.[0]?.exists) {
-      if (idsToDelete.length > 0) {
+      if (idsToDelete?.length > 0) {
         await entityManager
           .createQueryBuilder()
           .delete()

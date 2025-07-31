@@ -1,4 +1,4 @@
-import { Product } from "../../../entities";
+import { Brand, Product } from "../../../entities";
 import { MutationCreateProductArgs } from "../../../types";
 import { getBrandsByIds } from "../brand/get-brand.service";
 import {
@@ -146,33 +146,45 @@ export const createProduct = async (
 
   // Process variations
   const processedVariations = [];
+  const variationBrandMap: { variation: any; brands: Brand[] }[] = [];
+
   if (variations?.length) {
     for (const v of variations) {
-      // Fetch brands for this variation
-      const variationBrands = v.brandIds?.length
-        ? await getBrandsByIds(v.brandIds)
-        : [];
+      try {
+        // Fetch brands for this variation
+        const variationBrands = v.brandIds?.length
+          ? await getBrandsByIds(v.brandIds)
+          : [];
 
-      const variation = productVariationRepository.create({
-        ...v,
-        brands: variationBrands as any,
-        attributeValues: v.attributeValues?.length
-          ? v.attributeValues.map((av) => ({ id: av }))
-          : ([] as any),
-        tierPricingInfo: v.tierPricingInfo
-          ? {
-              pricingType: v.tierPricingInfo.pricingType,
-              tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
-                ...tp,
-              })),
-            }
-          : null,
-        shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
-        taxClass: v.taxClassId ? { id: v.taxClassId } : null,
-        product: { id: savedProduct.id }, // Link to the main product
-      });
+        // Create variation without brands to avoid type mismatch
+        const variation = productVariationRepository.create({
+          ...v,
+          brands: variationBrands as any,
+          attributeValues: v.attributeValues?.length
+            ? v.attributeValues.map((av) => ({ id: av }))
+            : [],
+          tierPricingInfo: v.tierPricingInfo
+            ? {
+                pricingType: v.tierPricingInfo.pricingType,
+                tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
+                  ...tp,
+                })),
+              }
+            : null,
+          shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
+          taxClass: v.taxClassId ? { id: v.taxClassId } : null,
+          product: { id: savedProduct.id }, // Link to the main product
+        });
 
-      processedVariations.push(variation);
+        processedVariations.push(variation);
+        variationBrandMap.push({ variation, brands: variationBrands });
+      } catch (error) {
+        console.error(
+          `Failed to process variation: ${v.sku || v.id || "unknown"}`,
+          error
+        );
+        throw new Error(`Failed to process variation: ${error.message}`);
+      }
     }
   }
 

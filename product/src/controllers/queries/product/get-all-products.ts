@@ -185,32 +185,54 @@ async function mapProductRecursive(
         : null,
     })),
     variations:
-      product.variations.map((variation) => ({
-        ...variation,
-        attributeValues: variation.attributeValues.map((av) => ({
-          ...av,
-          createdAt:
-            av.createdAt instanceof Date
-              ? av.createdAt.toISOString()
-              : av.createdAt,
-          deletedAt: av.deletedAt
-            ? av.deletedAt instanceof Date
-              ? av.deletedAt.toISOString()
-              : av.deletedAt
+      (await Promise.all(
+        product.variations.map(async (variation) => ({
+          ...variation,
+          brands:
+            (
+              await variation.brands
+            ).map((brand) => ({
+              ...brand,
+              thumbnail: brand.thumbnail as any,
+              createdBy: brand.createdBy as any,
+              createdAt:
+                brand.createdAt instanceof Date
+                  ? brand.createdAt.toISOString()
+                  : brand.createdAt,
+              deletedAt: brand.deletedAt
+                ? brand.deletedAt instanceof Date
+                  ? brand.deletedAt.toISOString()
+                  : brand.deletedAt
+                : null,
+            })) || null,
+          attributeValues: variation.attributeValues.map((av) => ({
+            ...av,
+            createdAt:
+              av.createdAt instanceof Date
+                ? av.createdAt.toISOString()
+                : av.createdAt,
+            deletedAt: av.deletedAt
+              ? av.deletedAt instanceof Date
+                ? av.deletedAt.toISOString()
+                : av.deletedAt
+              : null,
+          })),
+          tierPricingInfo: variation.tierPricingInfo
+            ? mapProductPrice(await variation.tierPricingInfo)
             : null,
-        })),
-        images: variation.images as any,
-        videos: variation.videos as any,
-        createdAt:
-          variation.createdAt instanceof Date
-            ? variation.createdAt.toISOString()
-            : variation.createdAt,
-        deletedAt: variation.deletedAt
-          ? variation.deletedAt instanceof Date
-            ? variation.deletedAt.toISOString()
-            : variation.deletedAt
-          : null,
-      })) || null,
+          images: variation.images as any,
+          videos: variation.videos as any,
+          createdAt:
+            variation.createdAt instanceof Date
+              ? variation.createdAt.toISOString()
+              : variation.createdAt,
+          deletedAt: variation.deletedAt
+            ? variation.deletedAt instanceof Date
+              ? variation.deletedAt.toISOString()
+              : variation.deletedAt
+            : null,
+        }))
+      )) || null,
     reviews:
       product.reviews.map((review) => ({
         ...review,

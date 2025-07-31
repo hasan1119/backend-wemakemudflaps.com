@@ -1,7 +1,8 @@
 import { In } from "typeorm";
-import { Product } from "../../../entities";
+import { Brand, Product } from "../../../entities";
 import { AppDataSource } from "../../../helper";
 import { MutationUpdateProductArgs } from "../../../types";
+import { getBrandsByIds } from "../brand/get-brand.service";
 import {
   productAttributeRepository,
   productPriceRepository,
@@ -240,63 +241,81 @@ export const updateProduct = async (
           SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
         `);
         if (variationExists?.[0]?.exists) {
-          await entityManager
-            .createQueryBuilder()
-            .delete()
-            .from("product_variation")
-            .where('"productId" = :id', { id: product.id })
-            .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
-            .execute();
+          if (idsToDelete?.length > 0) {
+            await entityManager
+              .createQueryBuilder()
+              .delete()
+              .from("product_variation")
+              .where('"productId" = :id', { id: product.id })
+              .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
+              .execute();
+          }
         }
         const variationBrandExists = await entityManager.query(`
           SELECT to_regclass('public.product_variation_brands') IS NOT NULL AS exists
         `);
         if (variationBrandExists?.[0]?.exists) {
-          await entityManager
-            .createQueryBuilder()
-            .delete()
-            .from("product_variation_brands")
-            .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
-            .execute();
+          if (idsToDelete?.length > 0) {
+            await entityManager
+              .createQueryBuilder()
+              .delete()
+              .from("product_variation_brands")
+              .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
+              .execute();
+          }
         }
 
         await productVariationRepository.delete({ id: In(idsToDelete) });
       }
 
-      const processedVariations = data.variations?.map((v) => {
-        return {
-          ...v,
-          brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : [],
-          attributeValues: v.attributeValues?.length
-            ? v.attributeValues.map((av) => ({ id: av }))
-            : [],
-          tierPricingInfo: v.tierPricingInfo
-            ? {
-                pricingType: v.tierPricingInfo.pricingType,
-                tieredPrices: {
-                  tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
-                    ...tp,
-                  })),
-                },
-              }
-            : null,
-          shippingClass: v.shippingClassId
-            ? ({ id: v.shippingClassId } as any)
-            : null,
+      // Process variations
+      const processedVariations = [];
+      const variationBrandMap: { variation: any; brands: Brand[] }[] = [];
 
-          taxClassId: v.taxClassId ? ({ id: v.taxClassId } as any) : null,
+      if (data.variations?.length) {
+        for (const v of data.variations) {
+          try {
+            // Fetch brands for this variation
+            const variationBrands = v.brandIds?.length
+              ? await getBrandsByIds(v.brandIds)
+              : [];
 
-          product: { id: currentProduct.id } as any, // Link back to the main product
-        };
-      });
+            // Create variation without brands to avoid type mismatch
+            const variation = productVariationRepository.create({
+              ...v,
+              brands: variationBrands as any,
+              attributeValues: v.attributeValues?.length
+                ? v.attributeValues.map((av) => ({ id: av }))
+                : [],
+              tierPricingInfo: v.tierPricingInfo
+                ? {
+                    pricingType: v.tierPricingInfo.pricingType,
+                    tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
+                      ...tp,
+                    })),
+                  }
+                : null,
+              shippingClass: v.shippingClassId
+                ? { id: v.shippingClassId }
+                : null,
+              taxClass: v.taxClassId ? { id: v.taxClassId } : null,
+              product: { id: currentProduct.id }, // Link to the main product
+            });
 
-      if (processedVariations?.length) {
-        // Save variations first
-        product.variations = await productVariationRepository.save(
-          processedVariations as any
-        );
-      } else {
-        product.variations = [];
+            processedVariations.push(variation);
+            variationBrandMap.push({ variation, brands: variationBrands });
+          } catch (error) {
+            console.error(
+              `Failed to process variation: ${v.sku || v.id || "unknown"}`,
+              error
+            );
+            throw new Error(`Failed to process variation: ${error.message}`);
+          }
+        }
+
+        product.variations = processedVariations?.length
+          ? await productVariationRepository.save(processedVariations as any)
+          : null;
       }
     }
 
