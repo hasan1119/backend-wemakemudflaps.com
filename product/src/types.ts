@@ -1925,7 +1925,7 @@ export type ProductVariationInput = {
   minQuantity?: InputMaybe<Scalars['Int']['input']>;
   productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
   quantityStep?: InputMaybe<Scalars['Int']['input']>;
-  regularPrice: Scalars['Float']['input'];
+  regularPrice?: InputMaybe<Scalars['Float']['input']>;
   salePrice?: InputMaybe<Scalars['Float']['input']>;
   salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
   salePriceStartAt?: InputMaybe<Scalars['String']['input']>;

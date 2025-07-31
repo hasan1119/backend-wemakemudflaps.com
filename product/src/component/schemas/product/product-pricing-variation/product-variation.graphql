@@ -60,7 +60,7 @@ input ProductVariationInput {
   maxQuantity: Int # Maximum allowed quantity
   quantityStep: Int # Step value for quantity increments
   # ---------------------- Pricing ----------------------
-  regularPrice: Float! # Required regular price
+  regularPrice: Float # Required regular price
   salePrice: Float # Optional sale price
   salePriceStartAt: String # Sale start datetime
   salePriceEndAt: String # Sale end datetime

@@ -139,23 +139,6 @@ export const hardDeleteProduct = async (
   if (productData.variations) {
     const idsToDelete = productData.variations.map((v) => v.id);
 
-    // Check if product_variation table exists and delete entries
-    const variationExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
-      `);
-
-    if (variationExists?.[0]?.exists) {
-      if (idsToDelete?.length > 0) {
-        await entityManager
-          .createQueryBuilder()
-          .delete()
-          .from("product_variation")
-          .where('"productId" = :id', { id: productData.id })
-          .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
-          .execute();
-      }
-    }
-
     // Check if product_variation_brands table exists and delete entries
     const variationBrandExists = await entityManager.query(`
         SELECT to_regclass('public.product_variation_brands') IS NOT NULL AS exists
@@ -172,12 +155,12 @@ export const hardDeleteProduct = async (
       }
     }
 
-    // Check if product_variations table exists and delete entries
-    const variationTableExists = await entityManager.query(`
+    // Check if product_variation table exists and delete entries
+    const variationExists = await entityManager.query(`
         SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
       `);
 
-    if (variationTableExists?.[0]?.exists) {
+    if (variationExists?.[0]?.exists) {
       if (idsToDelete?.length > 0) {
         await entityManager
           .createQueryBuilder()

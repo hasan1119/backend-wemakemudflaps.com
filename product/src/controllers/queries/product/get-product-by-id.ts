@@ -201,18 +201,21 @@ async function mapProductRecursive(
                   : brand.deletedAt
                 : null,
             })) || null,
-          attributeValues: variation.attributeValues.map((av) => ({
-            ...av,
-            createdAt:
-              av.createdAt instanceof Date
-                ? av.createdAt.toISOString()
-                : av.createdAt,
-            deletedAt: av.deletedAt
-              ? av.deletedAt instanceof Date
-                ? av.deletedAt.toISOString()
-                : av.deletedAt
-              : null,
-          })),
+          attributeValues:
+            (
+              await variation.attributeValues
+            ).map((attributeValue) => ({
+              ...attributeValue,
+              createdAt:
+                attributeValue.createdAt instanceof Date
+                  ? attributeValue.createdAt.toISOString()
+                  : attributeValue.createdAt,
+              deletedAt: attributeValue.deletedAt
+                ? attributeValue.deletedAt instanceof Date
+                  ? attributeValue.deletedAt.toISOString()
+                  : attributeValue.deletedAt
+                : null,
+            })) || null,
           tierPricingInfo: variation.tierPricingInfo
             ? mapProductPrice(await variation.tierPricingInfo)
             : null,
