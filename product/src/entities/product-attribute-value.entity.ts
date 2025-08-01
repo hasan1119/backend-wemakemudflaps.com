@@ -1,7 +1,6 @@
 import {
   Column,
   Entity,
-  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -34,9 +33,6 @@ export class ProductAttributeValue {
       nullable: true,
     }
   )
-  @JoinTable({
-    name: "product_variation_attribute_values",
-  })
   variations: Promise<ProductVariation[]> | null;
 
   // Timestamp when the product attribute value was created (auto-generated)

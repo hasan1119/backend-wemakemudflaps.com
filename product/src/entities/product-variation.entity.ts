@@ -33,7 +33,7 @@ export class ProductVariation {
   @ManyToMany(() => Brand, {
     cascade: true,
     nullable: true,
-    onDelete: "SET NULL",
+    onDelete: "SET NULL", // Ensures the associated brand is set to null if the brand is deleted
   })
   @JoinTable({
     name: "product_variation_brands",
@@ -92,6 +92,7 @@ export class ProductVariation {
   @OneToOne(() => ProductPrice, (pricing) => pricing.productVariation, {
     nullable: true,
     cascade: true,
+    onDelete: "CASCADE", // Ensures the associated tier pricing is deleted if the variation is deleted
   })
   @JoinColumn({ name: "product_variation_tier_pricing" })
   tierPricingInfo: Promise<ProductPrice> | null;
@@ -150,8 +151,12 @@ export class ProductVariation {
     {
       cascade: true,
       nullable: true,
+      onDelete: "CASCADE", // Ensures the associated attribute values are deleted if the variation is deleted
     }
   )
+  @JoinTable({
+    name: "product_variation_attribute_values",
+  })
   attributeValues: Promise<ProductAttributeValue[]> | null;
 
   // Warranty digit for the variation (nullable)

@@ -83,12 +83,7 @@ export const hardDeleteProduct = async (
 
   if (tierPricingExists?.[0]?.exists) {
     // First delete any related entries from the product_tier_pricing table
-    await entityManager
-      .createQueryBuilder()
-      .delete()
-      .from("product_tiered_pricing")
-      .where('"productId" = :id', { id: productData.id })
-      .execute();
+    await productPriceRepository.delete({ product: { id: productData.id } });
   }
 
   // Check if product_upsells table exists and delete entries
