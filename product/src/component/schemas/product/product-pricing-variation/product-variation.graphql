@@ -50,7 +50,6 @@ type ProductVariation {
 # Input type for creating/updating a product variation
 input ProductVariationInput {
   # ---------------------- Identification ----------------------
-  id: ID # Optional ID for update
   sku: String # Optional SKU for inventory tracking
   productDeliveryType: [ProductDeliveryType!] # Optional Product type (e.g., physical, virtual and downloadable)
   brandIds: [ID!] # Optional ID to update the brand

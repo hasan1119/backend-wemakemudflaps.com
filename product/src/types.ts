@@ -1796,7 +1796,6 @@ export type ProductPrice = {
 };
 
 export type ProductPriceInput = {
-  id?: InputMaybe<Scalars['ID']['input']>;
   pricingType: PricingTypeEnum;
   tieredPrices?: InputMaybe<Array<ProductTieredPriceInput>>;
 };
@@ -1867,7 +1866,6 @@ export type ProductTieredPrice = {
 
 export type ProductTieredPriceInput = {
   fixedPrice?: InputMaybe<Scalars['Float']['input']>;
-  id?: InputMaybe<Scalars['ID']['input']>;
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity: Scalars['Int']['input'];
   percentageDiscount?: InputMaybe<Scalars['Float']['input']>;
@@ -1919,7 +1917,6 @@ export type ProductVariationInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   dimensionUnit?: InputMaybe<Scalars['String']['input']>;
   height?: InputMaybe<Scalars['Float']['input']>;
-  id?: InputMaybe<Scalars['ID']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   length?: InputMaybe<Scalars['Float']['input']>;
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
