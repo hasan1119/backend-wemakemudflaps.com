@@ -348,8 +348,6 @@ export const getCart = async (
     // Fetch cart
     const cart = await getCartByUserId(user.id);
 
-    console.log(cart);
-
     if (!cart) {
       return {
         statusCode: 404,

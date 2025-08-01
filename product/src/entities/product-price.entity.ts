@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -27,15 +28,19 @@ export class ProductPrice {
   @OneToMany(
     () => ProductTieredPrice,
     (tieredPrice) => tieredPrice.productPrice,
-    { cascade: true, onDelete: "CASCADE", nullable: true }
+    {
+      cascade: true,
+      onDelete: "CASCADE",
+      nullable: true,
+    }
   )
   tieredPrices: ProductTieredPrice[] | null;
 
   // For simple products, link back to the product
   @OneToOne(() => Product, (product) => product.tierPricingInfo, {
     nullable: true,
-    onDelete: "CASCADE",
   })
+  @JoinColumn({ name: "productId" })
   product: Promise<Product> | null;
 
   // For variable products, link to the specific product variation
@@ -43,6 +48,7 @@ export class ProductPrice {
     nullable: true,
     onDelete: "CASCADE",
   })
+  @JoinColumn({ name: "productVariationId" })
   productVariation: Promise<ProductVariation> | null;
 
   // Timestamp when the user was created

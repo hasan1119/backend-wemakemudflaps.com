@@ -333,8 +333,6 @@ export const createProduct = async (
     // Create the product in the database
     const product = await createProductService(user.id);
 
-    console.log(product);
-
     // Clear caches for related entities
     await Promise.all([
       clearBrandsAndCountCache(),

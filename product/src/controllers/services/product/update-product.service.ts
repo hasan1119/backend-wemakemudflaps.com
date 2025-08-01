@@ -182,6 +182,7 @@ export const updateProduct = async (
         brands: v.brandIds?.length
           ? v.brandIds.map((id) => ({ id } as any))
           : [],
+        tierPricingInfo: null,
         attributeValues: v.attributeValues?.length
           ? v.attributeValues.map((av) => ({ id: av }))
           : [],
@@ -191,11 +192,29 @@ export const updateProduct = async (
         quantityStep: v.quantityStep ?? 1,
       } as any);
       processedVariations.push(variation);
-    }
 
-    currentProduct.variations = processedVariations?.length
-      ? await productVariationRepository.save(processedVariations as any)
-      : null;
+      currentProduct.variations = processedVariations?.length
+        ? await productVariationRepository.save(processedVariations as any)
+        : null;
+
+      // Save tier pricing info for the variation
+      if (v.tierPricingInfo) {
+        const processedTierPricingInfo = await productPriceRepository.create({
+          ...v.tierPricingInfo,
+          productVariation: variation, // Link to the variation
+        } as any);
+
+        const savedPricing = await productPriceRepository.save(
+          processedTierPricingInfo
+        );
+
+        // Attach tier pricing back to the variation (only if the relation allows it)
+        if (currentProduct.variations[0]) {
+          currentProduct.variations[0].tierPricingInfo = savedPricing as any;
+        }
+        await productVariationRepository.save(variation);
+      }
+    }
 
     // Replace upsells
     if (data.upsellIds !== undefined) {
@@ -243,20 +262,24 @@ export const updateProduct = async (
 
     // Replace tier pricing info for main product
     if (data.tierPricingInfo !== undefined) {
-      await productPriceRepository.delete({
-        product: { id: currentProduct.id },
-      });
+      if (currentProduct.tierPricingInfo) {
+        const tierPricingInfo = await productPriceRepository.find({
+          where: { product: { id: currentProduct.id } },
+          relations: ["productVariation", "tieredPrices"],
+        });
+
+        product.tierPricingInfo = null;
+
+        await productRepository.save(product);
+
+        await productPriceRepository.remove(tierPricingInfo);
+      }
 
       const processedTierPricingInfo = data.tierPricingInfo
-        ? {
-            pricingType: data.tierPricingInfo.pricingType,
-            tieredPrices: {
-              tieredPrices: data.tierPricingInfo.tieredPrices?.map((tp) => ({
-                ...tp,
-              })),
-            },
-            product: currentProduct, // Assign the full product entity
-          }
+        ? await productPriceRepository.create({
+            ...data.tierPricingInfo,
+            product: { id: currentProduct.id }, // Ensure productId is set
+          } as any)
         : null;
 
       product.tierPricingInfo = processedTierPricingInfo

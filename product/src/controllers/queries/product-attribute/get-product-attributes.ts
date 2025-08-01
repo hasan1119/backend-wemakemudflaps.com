@@ -107,8 +107,6 @@ export const getAllProductAttribute = async (
         sortOrder: safeSortOrder,
       });
 
-    console.log(dbAttributes);
-
     const total = queryTotal;
 
     // Map database product attribute to response format
