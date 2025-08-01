@@ -157,51 +157,21 @@ export const updateProduct = async (
     // Replace variations
     if (data.variations !== undefined) {
       const idsToDelete = currentProduct.variations.map((v) => v.id);
-      // Check if product_variation_brands table exists and delete entries
-      const variationBrandExists = await entityManager.query(`
-          SELECT to_regclass('public.product_variation_brands') IS NOT NULL AS exists
-        `);
-      if (variationBrandExists?.[0]?.exists) {
-        if (idsToDelete?.length > 0) {
-          await entityManager
-            .createQueryBuilder()
-            .delete()
-            .from("product_variation_brands")
-            .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
-            .execute();
-        }
-      }
 
-      // Check if product_variation_attribute_values table exists and delete entries
-      const variationAttributeValuesExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variation_attribute_values') IS NOT NULL AS exists
-      `);
-      if (variationAttributeValuesExists?.[0]?.exists) {
-        if (idsToDelete?.length > 0) {
-          const result = await entityManager
-            .createQueryBuilder()
-            .delete()
-            .from("product_variation_attribute_values")
-            .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
-            .execute();
-          console.log(result);
-        }
-      }
+      const variationsToDelete = await productVariationRepository.find({
+        where: { id: In(idsToDelete), product: { id: currentProduct.id } },
+        relations: ["brands", "attributeValues", "tierPricingInfo"],
+      });
 
-      // Check if product_variation table exists and delete entries
-      const variationExists = await entityManager.query(`
-          SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
-        `);
-      if (variationExists?.[0]?.exists) {
-        if (idsToDelete?.length > 0) {
-          await entityManager
-            .createQueryBuilder()
-            .delete()
-            .from("product_variation")
-            .where('"productId" = :id', { id: currentProduct.id })
-            .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
-            .execute();
+      currentProduct.variations.map(async (variation) => {
+        const tierPricingInfo = await variation.tierPricingInfo;
+        if (tierPricingInfo) {
+          await productPriceRepository.remove(tierPricingInfo);
         }
+      });
+
+      if (variationsToDelete.length > 0) {
+        await productVariationRepository.remove(variationsToDelete);
       }
     }
 
@@ -218,6 +188,7 @@ export const updateProduct = async (
         shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
         taxClass: v.taxClassId ? { id: v.taxClassId } : null,
         product: currentProduct, // Link to the main product
+        quantityStep: v.quantityStep ?? 1,
       } as any);
       processedVariations.push(variation);
     }
@@ -272,17 +243,6 @@ export const updateProduct = async (
 
     // Replace tier pricing info for main product
     if (data.tierPricingInfo !== undefined) {
-      const tierPricingExists = await entityManager.query(`
-        SELECT to_regclass('public.product_tier_pricing') IS NOT NULL AS exists
-      `);
-      if (tierPricingExists?.[0]?.exists) {
-        await entityManager
-          .createQueryBuilder()
-          .delete()
-          .from("product_tier_pricing")
-          .where('"productId" = :id', { id: product.id })
-          .execute();
-      }
       await productPriceRepository.delete({
         product: { id: currentProduct.id },
       });
