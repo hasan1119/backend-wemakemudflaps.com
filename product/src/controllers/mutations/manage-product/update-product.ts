@@ -1,4 +1,3 @@
-import { In } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Category, Product, ProductPrice } from "../../../entities";
@@ -24,11 +23,6 @@ import {
   getTaxClassByIds,
   updateProduct as updateProductService,
 } from "../../services";
-import {
-  productPriceRepository,
-  productTieredPriceRepository,
-  productVariationRepository,
-} from "../../services/repositories/repositories";
 
 /**
  * Maps a Category entity to GraphQL-compatible plain object including nested subcategories recursively.
@@ -475,9 +469,9 @@ export const updateProduct = async (
         }
       }
 
-      const variationsTaxClassIds = variations.flatMap(
-        (variation) => variation.taxClassId ?? []
-      );
+      const variationsTaxClassIds = variations
+        .flatMap((variation) => variation.taxClassId ?? [])
+        .filter((v, i, a) => a.indexOf(v) === i); // unique taxClassIds
 
       if (variationsTaxClassIds.length > 0) {
         const taxClasses = await getTaxClassByIds(variationsTaxClassIds);
@@ -491,9 +485,9 @@ export const updateProduct = async (
         }
       }
 
-      const variationsShippingClassIds = variations.flatMap(
-        (variation) => variation.shippingClassId ?? []
-      );
+      const variationsShippingClassIds = variations
+        .flatMap((variation) => variation.shippingClassId ?? [])
+        .filter((v, i, a) => a.indexOf(v) === i); // unique shippingClassIds
 
       if (variationsShippingClassIds.length > 0) {
         const shippingClasses = await getShippingClassesByIds(
@@ -505,72 +499,6 @@ export const updateProduct = async (
             statusCode: 404,
             success: false,
             message: "One or more shipping classes inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-
-      const variationsPriceIds = variations.flatMap(
-        (variation) => variation.tierPricingInfo.id ?? []
-      );
-
-      if (variationsPriceIds.length > 0) {
-        const existingPrices = await productPriceRepository.find({
-          where: {
-            id: In(variationsPriceIds),
-          },
-        });
-        if (existingPrices.length !== variationsPriceIds.length) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "One or more product prices inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-
-      const variationsTierPricingInfo = variations.flatMap(
-        (variation) =>
-          variation.tierPricingInfo.tieredPrices.flatMap((price) => price.id) ??
-          []
-      );
-
-      if (variationsTierPricingInfo.length > 0) {
-        const existingTieredPrices = await productTieredPriceRepository.find({
-          where: {
-            id: In(variationsTierPricingInfo),
-          },
-        });
-        if (existingTieredPrices.length !== variationsTierPricingInfo.length) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "One or more tiered prices inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-
-      const variationsIDs = variations.flatMap(
-        (variation) => variation.id ?? []
-      );
-
-      if (variationsIDs.length > 0) {
-        const existingVariations = await productVariationRepository.find({
-          where: {
-            id: In(variationsIDs),
-          },
-        });
-        if (
-          existingVariations.length !==
-          variations.flatMap((variation) => variation.attributeValues ?? [])
-            .length
-        ) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "One or more product variations not found",
             __typename: "BaseResponse",
           };
         }

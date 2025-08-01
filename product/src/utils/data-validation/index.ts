@@ -113,11 +113,7 @@ export {
  * Workflow:
  * 1. Provides schemas for creating, and updating categories.
  */
-export {
-  createProductSchema,
-  productSortingSchema,
-  updateProductSchema,
-} from "./product/product";
+export { productSortingSchema, updateProductSchema } from "./product/product";
 
 /**
  * Exports tax-rate related schemas for tax rate management.
