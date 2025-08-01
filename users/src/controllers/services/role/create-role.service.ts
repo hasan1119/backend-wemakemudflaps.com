@@ -17,7 +17,7 @@ import { roleRepository } from "../repositories/repositories";
  */
 export const createRole = async (
   data: Partial<Role>,
-  userId: string
+  userId?: string
 ): Promise<Role> => {
   // Create new role entity with provided data
   const role = roleRepository.create({

@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { ProductAttribute } from "./product-attribute.entity";
 import { ProductVariation } from "./product-variation.entity";
 
@@ -18,12 +25,19 @@ export class ProductAttributeValue {
   })
   attribute: Promise<ProductAttribute> | null;
 
-  // Link to the associated product variation
-  @ManyToOne(() => ProductVariation, (variation) => variation.attributeValues, {
-    onDelete: "CASCADE",
-    nullable: true,
+  // Link to the associated product variations
+  @ManyToMany(
+    () => ProductVariation,
+    (variation) => variation.attributeValues,
+    {
+      onDelete: "CASCADE",
+      nullable: true,
+    }
+  )
+  @JoinTable({
+    name: "product_variation_attribute_values",
   })
-  variation: Promise<ProductVariation> | null;
+  variations: Promise<ProductVariation[]> | null;
 
   // Timestamp when the product attribute value was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

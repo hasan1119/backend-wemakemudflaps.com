@@ -1,6 +1,9 @@
 import { Product } from "../../../entities";
 import { AppDataSource } from "../../../helper";
-import { productRepository } from "../repositories/repositories";
+import {
+  productPriceRepository,
+  productRepository,
+} from "../repositories/repositories";
 import { getProductById } from "./get-product.service";
 
 /**
@@ -73,9 +76,9 @@ export const hardDeleteProduct = async (
       .execute();
   }
 
-  // Check if product_tier_pricing table exists and delete entries
+  // Check if product_tiered_pricing table exists and delete entries
   const tierPricingExists = await entityManager.query(`
-      SELECT to_regclass('public.product_tier_pricing') IS NOT NULL AS exists
+      SELECT to_regclass('public.product_tiered_pricing') IS NOT NULL AS exists
     `);
 
   if (tierPricingExists?.[0]?.exists) {
@@ -83,36 +86,7 @@ export const hardDeleteProduct = async (
     await entityManager
       .createQueryBuilder()
       .delete()
-      .from("product_tier_pricing")
-      .where('"productId" = :id', { id: productData.id })
-      .execute();
-  }
-
-  // Check if product_tax_class table exists and delete entries
-  const taxClassExists = await entityManager.query(`
-      SELECT to_regclass('public.product_tax_class') IS NOT NULL AS exists
-    `);
-  if (taxClassExists?.[0]?.exists) {
-    // First delete any related entries from the product_tax_class junction table
-    await entityManager
-      .createQueryBuilder()
-      .delete()
-      .from("product_tax_class")
-      .where('"productId" = :id', { id: productData.id })
-      .execute();
-  }
-
-  // Check if product_shipping_class table exists and delete entries
-  const shippingClassExists = await entityManager.query(`
-      SELECT to_regclass('public.product_shipping_class') IS NOT NULL AS exists
-    `);
-
-  if (shippingClassExists?.[0]?.exists) {
-    // First delete any related entries from the product_shipping_class junction table
-    await entityManager
-      .createQueryBuilder()
-      .delete()
-      .from("product_shipping_class")
+      .from("product_tiered_pricing")
       .where('"productId" = :id', { id: productData.id })
       .execute();
   }
@@ -128,7 +102,7 @@ export const hardDeleteProduct = async (
       .createQueryBuilder()
       .delete()
       .from("product_upsells")
-      .where('"productId" = :id', { id: productData.id })
+      .where('"productId_1" = :id', { id: productData.id })
       .execute();
   }
 
@@ -143,7 +117,7 @@ export const hardDeleteProduct = async (
       .createQueryBuilder()
       .delete()
       .from("product_cross_sells")
-      .where('"productId" = :id', { id: productData.id })
+      .where('"productId_1" = :id', { id: productData.id })
       .execute();
   }
 
@@ -165,123 +139,71 @@ export const hardDeleteProduct = async (
   if (productData.variations) {
     const idsToDelete = productData.variations.map((v) => v.id);
 
-    // Check if product_variations table exists and delete entries
-    const variationExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variations') IS NOT NULL AS exists
-      `);
-
-    if (variationExists?.[0]?.exists) {
-      await entityManager
-        .createQueryBuilder()
-        .delete()
-        .from("product_variations")
-        .where('"productId" = :id', { id: productData.id })
-        .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
-        .execute();
-    }
-
     // Check if product_variation_brands table exists and delete entries
     const variationBrandExists = await entityManager.query(`
         SELECT to_regclass('public.product_variation_brands') IS NOT NULL AS exists
       `);
 
     if (variationBrandExists?.[0]?.exists) {
-      await entityManager
-        .createQueryBuilder()
-        .delete()
-        .from("product_variation_brands")
-        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
-        .execute();
+      if (idsToDelete?.length > 0) {
+        await entityManager
+          .createQueryBuilder()
+          .delete()
+          .from("product_variation_brands")
+          .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
+          .execute();
+      }
     }
 
-    // Check if product_variation_attributes table exists and delete entries
-    const variationAttributeExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variation_attributes') IS NOT NULL AS exists
+    // Check if product_variation_attribute_values table exists and delete entries
+    const variationAttributeValuesExists = await entityManager.query(`
+        SELECT to_regclass('public.product_variation_attribute_values') IS NOT NULL AS exists
       `);
-
-    if (variationAttributeExists?.[0]?.exists) {
-      await entityManager
-        .createQueryBuilder()
-        .delete()
-        .from("product_variation_attributes")
-        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
-        .execute();
+    if (variationAttributeValuesExists?.[0]?.exists) {
+      if (idsToDelete?.length > 0) {
+        await entityManager
+          .createQueryBuilder()
+          .delete()
+          .from("product_variation_attribute_values")
+          .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
+          .execute();
+      }
     }
 
-    // Check if product_variation_shipping_class table exists and delete entries
-    const variationShippingClassExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variation_shipping_class') IS NOT NULL AS exists
+    // Check if product_variation table exists and delete entries
+    const variationExists = await entityManager.query(`
+        SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
       `);
 
-    if (variationShippingClassExists?.[0]?.exists) {
-      await entityManager
-        .createQueryBuilder()
-        .delete()
-        .from("product_variation_shipping_class")
-        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
-        .execute();
-    }
-
-    // Check if product_variation_tax_class table exists and delete entries
-    const variationTaxClassExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variation_tax_class') IS NOT NULL AS exists
-      `);
-
-    if (variationTaxClassExists?.[0]?.exists) {
-      await entityManager
-        .createQueryBuilder()
-        .delete()
-        .from("product_variation_tax_class")
-        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
-        .execute();
-    }
-
-    // Check if product_variation_tier_pricing table exists and delete entries
-    const variationTierPricingExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variation_tier_pricing') IS NOT NULL AS exists
-      `);
-
-    if (variationTierPricingExists?.[0]?.exists) {
-      await entityManager
-        .createQueryBuilder()
-        .delete()
-        .from("product_variation_tier_pricing")
-        .where('"variationId" IN (:...ids)', { ids: idsToDelete })
-        .execute();
-    }
-
-    // Check if product_variations table exists and delete entries
-    const variationTableExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variations') IS NOT NULL AS exists
-      `);
-
-    if (variationTableExists?.[0]?.exists) {
-      await entityManager
-        .createQueryBuilder()
-        .delete()
-        .from("product_variations")
-        .where('"productId" = :id', { id: productData.id })
-        .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
-        .execute();
+    if (variationExists?.[0]?.exists) {
+      if (idsToDelete?.length > 0) {
+        await entityManager
+          .createQueryBuilder()
+          .delete()
+          .from("product_variation")
+          .where('"productId" = :id', { id: productData.id })
+          .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
+          .execute();
+      }
     }
   }
 
   await productRepository.remove(productData);
 
-  // if (productData.tierPricingInfo) {
-  //   // Fetch and delete all associated ProductTieredPrice entities
-  //   const tierPricingInfo = await productData.tierPricingInfo;
-  //   if (tierPricingInfo) {
-  //     await productPriceRepository.remove(tierPricingInfo);
-  //   }
-  // }
+  if (productData.tierPricingInfo) {
+    // Fetch and delete all associated ProductTieredPrice entities
+    const tierPricingInfo = await productData.tierPricingInfo;
+    if (tierPricingInfo) {
+      await productPriceRepository.remove(tierPricingInfo);
+    }
+  }
 
-  // if (productData.variations) {
-  //   productData.variations.map(async (variation) => {
-  //     const tierPricingInfo = await variation.tierPricingInfo;
-  //     if (tierPricingInfo) {
-  //       await productPriceRepository.remove(tierPricingInfo);
-  //     }
-  //   });
-  // }
+  if (productData.variations) {
+    productData.variations.map(async (variation) => {
+      const tierPricingInfo = await variation.tierPricingInfo;
+      if (tierPricingInfo) {
+        await productPriceRepository.remove(tierPricingInfo);
+      }
+    });
+  }
 };

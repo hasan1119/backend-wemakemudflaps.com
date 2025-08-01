@@ -21,7 +21,6 @@ type ProductPrice {
 input ProductPriceInput {
   pricingType: PricingTypeEnum! # Type of pricing
   tieredPrices: [ProductTieredPriceInput!] # Tiered pricing details
-  productVariationId: ID # Related variation ID
 }
 
 # ---------------------- Product Tiered Price Types ----------------------

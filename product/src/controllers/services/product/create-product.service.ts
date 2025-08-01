@@ -1,5 +1,6 @@
-import { Product } from "../../../entities";
+import { Brand, Product } from "../../../entities";
 import { MutationCreateProductArgs } from "../../../types";
+import { getBrandsByIds } from "../brand/get-brand.service";
 import {
   productPriceRepository,
   productRepository,
@@ -143,32 +144,33 @@ export const createProduct = async (
 
   const savedProduct = await productRepository.save(product);
 
-  const processedVariations = variations?.map((v) => {
-    return {
-      ...v,
-      brands: v.brandIds?.length ? v.brandIds.map((id) => ({ id })) : [],
-      attributeValues: v.attributeValues?.length
-        ? v.attributeValues.map((av) => ({ id: av }))
-        : [],
-      tierPricingInfo: v.tierPricingInfo
-        ? {
-            pricingType: v.tierPricingInfo.pricingType,
-            tieredPrices: {
-              tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
-                ...tp,
-              })),
-            },
-          }
-        : null,
-      shippingClass: v.shippingClassId
-        ? ({ id: v.shippingClassId } as any)
-        : null,
+  // Process variations
+  const processedVariations = [];
+  const variationBrandMap: { variation: any; brands: Brand[] }[] = [];
 
-      taxClassId: v.taxClassId ? ({ id: v.taxClassId } as any) : null,
+  if (variations?.length) {
+    for (const v of variations) {
+      // Fetch brands for this variation
+      const variationBrands = v.brandIds?.length
+        ? await getBrandsByIds(v.brandIds)
+        : [];
 
-      product: { id: savedProduct.id } as any, // Link back to the main product
-    };
-  });
+      // Create variation without brands to avoid type mismatch
+      const variation = productVariationRepository.create({
+        ...v,
+        brands: variationBrands as any,
+        attributeValues: v.attributeValues?.length
+          ? v.attributeValues.map((av) => ({ id: av }))
+          : [],
+        shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
+        taxClass: v.taxClassId ? { id: v.taxClassId } : null,
+        product: { id: savedProduct.id }, // Link to the main product
+      } as any);
+
+      processedVariations.push(variation);
+      variationBrandMap.push({ variation, brands: variationBrands });
+    }
+  }
 
   const processedTierPricingInfo = tierPricingInfo
     ? {

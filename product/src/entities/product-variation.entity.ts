@@ -5,7 +5,6 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -145,13 +144,15 @@ export class ProductVariation {
   product: Promise<Product>;
 
   // To store attribute values for the variation
-  @OneToMany(() => ProductAttributeValue, (attrValue) => attrValue.variation, {
-    cascade: true,
-    nullable: true,
-    onDelete: "SET NULL",
-  })
-  @JoinColumn({ name: "product_variation_attribute_values" })
-  attributeValues: ProductAttributeValue[] | null;
+  @ManyToMany(
+    () => ProductAttributeValue,
+    (attrValue) => attrValue.variations,
+    {
+      cascade: true,
+      nullable: true,
+    }
+  )
+  attributeValues: Promise<ProductAttributeValue[]> | null;
 
   // Warranty digit for the variation (nullable)
   @Column({ nullable: true, default: null })
