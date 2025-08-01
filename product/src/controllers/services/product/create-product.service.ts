@@ -158,18 +158,9 @@ export const createProduct = async (
       // Create variation without brands to avoid type mismatch
       const variation = productVariationRepository.create({
         ...v,
-        brands: variationBrands as any,
         attributeValues: v.attributeValues?.length
           ? v.attributeValues.map((av) => ({ id: av }))
           : [],
-        tierPricingInfo: v.tierPricingInfo
-          ? {
-              pricingType: v.tierPricingInfo.pricingType,
-              tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
-                ...tp,
-              })),
-            }
-          : null,
         shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
         taxClass: v.taxClassId ? { id: v.taxClassId } : null,
         product: { id: savedProduct.id }, // Link to the main product
