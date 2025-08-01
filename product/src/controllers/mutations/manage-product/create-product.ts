@@ -7,26 +7,11 @@ import {
   clearTagsAndCountCache,
   clearTaxClassesAndCountCache,
 } from "../../../helper/redis";
-import {
-  CreateProductResponseOrError,
-  MutationCreateProductArgs,
-} from "../../../types";
-import { createProductSchema } from "../../../utils/data-validation/product/product";
+import { CreateProductResponseOrError } from "../../../types";
 import {
   checkUserAuth,
   checkUserPermission,
   createProduct as createProductService,
-  findProductBySlug,
-  getBrandsByIds,
-  getCategoryByIds,
-  getProductAttributesByIds,
-  getProductAttributeValuesByIds,
-  getProductsByIds,
-  getShippingClassById,
-  getShippingClassesByIds,
-  getTagsByIds,
-  getTaxClassById,
-  getTaxClassByIds,
 } from "../../services";
 
 /**
@@ -321,7 +306,7 @@ async function mapProductRecursive(
  */
 export const createProduct = async (
   _: any,
-  args: MutationCreateProductArgs,
+  __: any,
   { user }: Context
 ): Promise<CreateProductResponseOrError> => {
   try {
@@ -345,234 +330,10 @@ export const createProduct = async (
       };
     }
 
-    // Validate input data with Zod schema
-    const result = await createProductSchema.safeParseAsync({
-      ...args,
-      createdBy: user.id,
-    });
-
-    // Return detailed validation errors if input is invalid
-    if (!result.success) {
-      const errors = result.error.errors.map((e) => ({
-        field: e.path.join("."),
-        message: e.message,
-      }));
-
-      return {
-        statusCode: 400,
-        success: false,
-        message: "Validation failed",
-        errors,
-        __typename: "ErrorResponse",
-      };
-    }
-
-    const {
-      name,
-      slug,
-      brandIds,
-      tagIds,
-      categoryIds,
-      shippingClassId,
-      taxClassId,
-      variations,
-      upsellIds,
-      crossSellIds,
-      attributeIds,
-    } = result.data;
-
-    // Check database for existing product slug
-    const existingSlugProduct = await findProductBySlug(slug);
-    if (existingSlugProduct) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: `A product with this slug: ${slug} already exists`,
-        __typename: "BaseResponse",
-      };
-    }
-
-    // Validate existence of related entities
-
-    if (brandIds && brandIds.length > 0) {
-      const brands = await getBrandsByIds(brandIds);
-      if (brands.length !== brandIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "One or more brands not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (tagIds && tagIds.length > 0) {
-      const tags = await getTagsByIds(tagIds);
-      if (tags.length !== tagIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "One or more tags not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (categoryIds) {
-      const categories = await getCategoryByIds(categoryIds);
-      if (categories.length !== categoryIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `One or more categories not found`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (variations && variations.length > 0) {
-      const variationBrandIds = variations
-        .flatMap((variation) => variation.brandIds ?? [])
-        .filter((v, i, a) => a.indexOf(v) === i); // unique brandIds
-
-      if (variationBrandIds.length > 0) {
-        const variationBrands = await getBrandsByIds(variationBrandIds);
-
-        if (variationBrands.length !== variationBrandIds.length) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "One or more brands inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-
-      const variationsTaxClassIds = variations.flatMap(
-        (variation) => variation.taxClassId ?? []
-      );
-
-      if (variationsTaxClassIds.length > 0) {
-        const taxClasses = await getTaxClassByIds(variationsTaxClassIds);
-        if (taxClasses.length !== variationsTaxClassIds.length) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "One or more tax classes inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-
-      const variationsShippingClassIds = variations.flatMap(
-        (variation) => variation.shippingClassId ?? []
-      );
-
-      if (variationsShippingClassIds.length > 0) {
-        const shippingClasses = await getShippingClassesByIds(
-          variationsShippingClassIds
-        );
-
-        if (shippingClasses.length !== variationsShippingClassIds.length) {
-          return {
-            statusCode: 404,
-            success: false,
-            message: "One or more shipping classes inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-
-      const variationsAttributeIds = variations.flatMap(
-        (variation) => variation.attributeValues?.map((av) => av) || []
-      );
-
-      if (variationsAttributeIds.length > 0) {
-        const attributes =
-          (await getProductAttributeValuesByIds(variationsAttributeIds)) ?? [];
-
-        if (attributes.length !== variationsAttributeIds.length) {
-          return {
-            statusCode: 404,
-            success: false,
-            message:
-              "One or more product attributes inside variations not found",
-            __typename: "BaseResponse",
-          };
-        }
-      }
-    }
-
-    if (shippingClassId) {
-      const shippingClass = await getShippingClassById(shippingClassId);
-      if (!shippingClass) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `Shipping Class with ID: ${shippingClassId} not found`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (taxClassId) {
-      const taxClass = await getTaxClassById(taxClassId);
-      if (!taxClass) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `Tax Class with ID: ${taxClassId} not found`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (upsellIds && upsellIds.length > 0) {
-      const upSellsProduct = await getProductsByIds(upsellIds);
-
-      if (upSellsProduct.length !== upsellIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "One or more upsell products not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (crossSellIds && crossSellIds.length > 0) {
-      const crossSellProducts = await getProductsByIds(crossSellIds);
-
-      if (crossSellProducts.length !== crossSellIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `One or more cross-sell products not found`,
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
-    if (attributeIds && attributeIds.length > 0) {
-      const attributes = await getProductAttributesByIds(attributeIds);
-
-      if (attributes.length !== attributeIds.length) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "One or more product attributes not found",
-          __typename: "BaseResponse",
-        };
-      }
-    }
-
     // Create the product in the database
-    const product = await createProductService(
-      {
-        ...result.data,
-      } as any,
-      user.id
-    );
+    const product = await createProductService(user.id);
+
+    console.log(product);
 
     // Clear caches for related entities
     await Promise.all([

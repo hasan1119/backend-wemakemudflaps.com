@@ -1,8 +1,7 @@
 import { In } from "typeorm";
 import { Product } from "../../../entities";
 import { AppDataSource } from "../../../helper";
-import { Brand, MutationUpdateProductArgs } from "../../../types";
-import { getBrandsByIds } from "../brand/get-brand.service";
+import { MutationUpdateProductArgs } from "../../../types";
 import {
   productAttributeRepository,
   productPriceRepository,
@@ -154,7 +153,6 @@ export const updateProduct = async (
 
     // Process variations
     const processedVariations = [];
-    const variationBrandMap: { variation: any; brands: Brand[] }[] = [];
 
     // Replace variations
     if (data.variations !== undefined) {
@@ -173,20 +171,23 @@ export const updateProduct = async (
             .execute();
         }
       }
+
       // Check if product_variation_attribute_values table exists and delete entries
-      const variationAttributeExists = await entityManager.query(`
+      const variationAttributeValuesExists = await entityManager.query(`
         SELECT to_regclass('public.product_variation_attribute_values') IS NOT NULL AS exists
       `);
-      if (variationAttributeExists?.[0]?.exists) {
+      if (variationAttributeValuesExists?.[0]?.exists) {
         if (idsToDelete?.length > 0) {
-          await entityManager
+          const result = await entityManager
             .createQueryBuilder()
             .delete()
             .from("product_variation_attribute_values")
             .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
             .execute();
+          console.log(result);
         }
       }
+
       // Check if product_variation table exists and delete entries
       const variationExists = await entityManager.query(`
           SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
@@ -205,13 +206,12 @@ export const updateProduct = async (
     }
 
     for (const v of data.variations) {
-      // Fetch brands for this variation
-      const variationBrands = v.brandIds?.length
-        ? await getBrandsByIds(v.brandIds)
-        : [];
       // Create variation without brands to avoid type mismatch
       const variation = productVariationRepository.create({
         ...v,
+        brands: v.brandIds?.length
+          ? v.brandIds.map((id) => ({ id } as any))
+          : [],
         attributeValues: v.attributeValues?.length
           ? v.attributeValues.map((av) => ({ id: av }))
           : [],
@@ -220,10 +220,6 @@ export const updateProduct = async (
         product: currentProduct, // Link to the main product
       } as any);
       processedVariations.push(variation);
-      variationBrandMap.push({
-        variation,
-        brands: variationBrands as any,
-      });
     }
 
     currentProduct.variations = processedVariations?.length
