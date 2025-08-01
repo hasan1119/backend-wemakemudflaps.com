@@ -1,3 +1,4 @@
+import { In } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { Category, Product, ProductPrice } from "../../../entities";
@@ -23,6 +24,11 @@ import {
   getTaxClassByIds,
   updateProduct as updateProductService,
 } from "../../services";
+import {
+  productPriceRepository,
+  productTieredPriceRepository,
+  productVariationRepository,
+} from "../../services/repositories/repositories";
 
 /**
  * Maps a Category entity to GraphQL-compatible plain object including nested subcategories recursively.
@@ -503,6 +509,72 @@ export const updateProduct = async (
           };
         }
       }
+
+      const variationsPriceIds = variations.flatMap(
+        (variation) => variation.tierPricingInfo.id ?? []
+      );
+
+      if (variationsPriceIds.length > 0) {
+        const existingPrices = await productPriceRepository.find({
+          where: {
+            id: In(variationsPriceIds),
+          },
+        });
+        if (existingPrices.length !== variationsPriceIds.length) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "One or more product prices inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+      }
+
+      const variationsTierPricingInfo = variations.flatMap(
+        (variation) =>
+          variation.tierPricingInfo.tieredPrices.flatMap((price) => price.id) ??
+          []
+      );
+
+      if (variationsTierPricingInfo.length > 0) {
+        const existingTieredPrices = await productTieredPriceRepository.find({
+          where: {
+            id: In(variationsTierPricingInfo),
+          },
+        });
+        if (existingTieredPrices.length !== variationsTierPricingInfo.length) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "One or more tiered prices inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+      }
+
+      const variationsIDs = variations.flatMap(
+        (variation) => variation.id ?? []
+      );
+
+      if (variationsIDs.length > 0) {
+        const existingVariations = await productVariationRepository.find({
+          where: {
+            id: In(variationsIDs),
+          },
+        });
+        if (
+          existingVariations.length !==
+          variations.flatMap((variation) => variation.attributeValues ?? [])
+            .length
+        ) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "One or more product variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+      }
     }
 
     if (shippingClassId) {
@@ -611,3 +683,99 @@ export const updateProduct = async (
     };
   }
 };
+/* 
+ // Replace variations
+    if (data.variations) {
+      if (currentProduct.variations?.length) {
+        const idsToDelete = currentProduct.variations.map((v) => v.id);
+
+        // Check if product_variation_brands table exists and delete entries
+        const variationBrandExists = await entityManager.query(`
+          SELECT to_regclass('public.product_variation_brands') IS NOT NULL AS exists
+        `);
+
+        if (variationBrandExists?.[0]?.exists) {
+          if (idsToDelete?.length > 0) {
+            await entityManager
+              .createQueryBuilder()
+              .delete()
+              .from("product_variation_brands")
+              .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
+              .execute();
+          }
+        }
+
+        // Check if product_variation_attribute_values table exists and delete entries
+        const variationAttributeExists = await entityManager.query(`
+        SELECT to_regclass('public.product_variation_attribute_values') IS NOT NULL AS exists
+      `);
+        if (variationAttributeExists?.[0]?.exists) {
+          if (idsToDelete?.length > 0) {
+            await entityManager
+              .createQueryBuilder()
+              .delete()
+              .from("product_variation_attribute_values")
+              .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
+              .execute();
+          }
+        }
+
+        // Check if product_variation table exists and delete entries
+        const variationExists = await entityManager.query(`
+          SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
+        `);
+
+        if (variationExists?.[0]?.exists) {
+          if (idsToDelete?.length > 0) {
+            await entityManager
+              .createQueryBuilder()
+              .delete()
+              .from("product_variation")
+              .where('"productId" = :id', { id: currentProduct.id })
+              .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
+              .execute();
+          }
+        }
+      }
+
+      // Process variations
+      const processedVariations = [];
+      const variationBrandMap: { variation: any; brands: Brand[] }[] = [];
+
+      if (data.variations?.length) {
+        for (const v of data.variations) {
+          // Fetch brands for this variation
+          const variationBrands = v.brandIds?.length
+            ? await getBrandsByIds(v.brandIds)
+            : [];
+
+          // Create variation without brands to avoid type mismatch
+          const variation = productVariationRepository.create({
+            ...v,
+            brands: variationBrands as any,
+            attributeValues: v.attributeValues?.length
+              ? v.attributeValues.map((av) => ({ id: av }))
+              : [],
+            tierPricingInfo: v.tierPricingInfo
+              ? {
+                  pricingType: v.tierPricingInfo.pricingType,
+                  tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
+                    ...tp,
+                  })),
+                }
+              : null,
+            shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
+            taxClass: v.taxClassId ? { id: v.taxClassId } : null,
+            product: { id: currentProduct.id }, // Link to the main product
+          } as any);
+
+          processedVariations.push(variation);
+          variationBrandMap.push({ variation, brands: variationBrands });
+        }
+
+        product.variations = processedVariations?.length
+          ? await productVariationRepository.save(processedVariations as any)
+          : null;
+      }
+    }
+*/

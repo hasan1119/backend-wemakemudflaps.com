@@ -158,6 +158,7 @@ export const createProduct = async (
       // Create variation without brands to avoid type mismatch
       const variation = productVariationRepository.create({
         ...v,
+        brands: variationBrands as any,
         attributeValues: v.attributeValues?.length
           ? v.attributeValues.map((av) => ({ id: av }))
           : [],

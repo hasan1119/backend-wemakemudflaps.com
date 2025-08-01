@@ -206,13 +206,11 @@ export const TaxStatusTypeEnum = z.preprocess((val) => {
  * 5. Validates `percentageDiscount` as an optional number between 0 and 100.
  * 6. Validates `productPriceId` as an optional UUID.
  *
- * @property id - Optional unique identifier for the tiered price.
  * @property minQuantity - The minimum quantity for this price tier.
  * @property maxQuantity - The maximum quantity for this price tier.
  * @property quantityUnit - The unit of quantity (e.g., "piece", "liter").
  * @property fixedPrice - Optional fixed price for the tier.
  * @property percentageDiscount - Optional percentage discount for the tier.
- * @property productPriceId - Optional UUID of the associated product price.
  */
 export const ProductTieredPriceInputSchema = z
   .object({
@@ -278,10 +276,8 @@ export const ProductTieredPriceInputSchema = z
  * 3. Validates `tieredPrices` as an optional array of `ProductTieredPriceInputSchema`.
  * 5. Validates `productVariationId` as an optional UUID.
  *
- * @property id - Optional unique identifier for the product price.
  * @property pricingType - The type of pricing (Fixed or Percentage).
  * @property tieredPrices - Optional array of tiered pricing details.
- * @property productVariationId - Optional UUID of the associated product variation.
  */
 export const ProductPriceInputSchema = z
   .object({
@@ -294,11 +290,6 @@ export const ProductPriceInputSchema = z
       .optional()
       .nullable(),
     tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
-    productVariationId: z
-      .string()
-      .uuid({ message: "Invalid UUID format" })
-      .optional()
-      .nullable(),
   })
   .refine(
     (data) => {

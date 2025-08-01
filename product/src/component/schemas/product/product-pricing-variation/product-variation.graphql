@@ -5,15 +5,15 @@ type ProductVariation {
   # ---------------------- Identification ----------------------
   id: ID! # Unique identifier
   sku: String # Stock Keeping Unit (optional)
-  productDeliveryType: [String!]! # Product type (e.g., physical, virtual and downloadable)
+  productDeliveryType: [String!] # Product type (e.g., physical, virtual and downloadable)
   brands: [Brand!] # Associated brands for the product variation
   # ---------------------- Quantity Rules ----------------------
   minQuantity: Int # Minimum quantity allowed in order
   defaultQuantity: Int # Default quantity for this variation
   maxQuantity: Int # Maximum quantity allowed in order
-  quantityStep: Int! # Step value for quantity increments
+  quantityStep: Int # Step value for quantity increments
   # ---------------------- Pricing ----------------------
-  regularPrice: Float! # Regular price of the variation
+  regularPrice: Float # Regular price of the variation
   salePrice: Float # Sale price if applicable
   salePriceStartAt: String # Start time for sale pricing
   salePriceEndAt: String # End time for sale pricing
@@ -28,8 +28,8 @@ type ProductVariation {
   width: Float # Width of the product
   height: Float # Height of the product
   # ---------------------- Relations ----------------------
-  product: Product! # The parent product
-  attributeValues: [ProductAttributeValue!]! # List of variation-specific attribute values (e.g., Color: Red)
+  product: Product # The parent product
+  attributeValues: [ProductAttributeValue!] # List of variation-specific attribute values (e.g., Color: Red)
   # ---------------------- Warranty Info ----------------------
   warrantyDigit: Int # Numeric part of warranty duration
   defaultWarrantyPeriod: String # Period string (e.g., "months", "years")

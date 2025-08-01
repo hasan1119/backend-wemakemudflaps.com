@@ -156,10 +156,10 @@ export const hardDeleteProduct = async (
     }
 
     // Check if product_variation_attribute_values table exists and delete entries
-    const variationAttributeExists = await entityManager.query(`
+    const variationAttributeValuesExists = await entityManager.query(`
         SELECT to_regclass('public.product_variation_attribute_values') IS NOT NULL AS exists
       `);
-    if (variationAttributeExists?.[0]?.exists) {
+    if (variationAttributeValuesExists?.[0]?.exists) {
       if (idsToDelete?.length > 0) {
         await entityManager
           .createQueryBuilder()

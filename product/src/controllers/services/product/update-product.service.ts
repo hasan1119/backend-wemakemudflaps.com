@@ -1,7 +1,7 @@
 import { In } from "typeorm";
-import { Brand, Product } from "../../../entities";
+import { Product } from "../../../entities";
 import { AppDataSource } from "../../../helper";
-import { MutationUpdateProductArgs } from "../../../types";
+import { Brand, MutationUpdateProductArgs } from "../../../types";
 import { getBrandsByIds } from "../brand/get-brand.service";
 import {
   productAttributeRepository,
@@ -152,87 +152,83 @@ export const updateProduct = async (
         : null;
     }
 
+    // Process variations
+    const processedVariations = [];
+    const variationBrandMap: { variation: any; brands: Brand[] }[] = [];
+
     // Replace variations
-    if (data.variations) {
-      if (currentProduct.variations?.length) {
-        const idsToDelete = currentProduct.variations.map((v) => v.id);
-
-        // Check if product_variation_brands table exists and delete entries
-        const variationBrandExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variation_brands') IS NOT NULL AS exists
-      `);
-
-        if (variationBrandExists?.[0]?.exists) {
-          if (idsToDelete?.length > 0) {
-            await entityManager
-              .createQueryBuilder()
-              .delete()
-              .from("product_variation_brands")
-              .where('"productVariationId" IN (:...ids)', {
-                ids: idsToDelete,
-              })
-              .execute();
-          }
-        }
-
-        // Check if product_variation table exists and delete entries
-        const variationExists = await entityManager.query(`
-        SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
-      `);
-
-        if (variationExists?.[0]?.exists) {
-          if (idsToDelete?.length > 0) {
-            await entityManager
-              .createQueryBuilder()
-              .delete()
-              .from("product_variation")
-              .where('"productId" = :id', { id: currentProduct.id })
-              .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
-              .execute();
-          }
+    if (data.variations !== undefined) {
+      const idsToDelete = currentProduct.variations.map((v) => v.id);
+      // Check if product_variation_brands table exists and delete entries
+      const variationBrandExists = await entityManager.query(`
+          SELECT to_regclass('public.product_variation_brands') IS NOT NULL AS exists
+        `);
+      if (variationBrandExists?.[0]?.exists) {
+        if (idsToDelete?.length > 0) {
+          await entityManager
+            .createQueryBuilder()
+            .delete()
+            .from("product_variation_brands")
+            .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
+            .execute();
         }
       }
-
-      // Process variations
-      const processedVariations = [];
-      const variationBrandMap: { variation: any; brands: Brand[] }[] = [];
-
-      if (data.variations?.length) {
-        for (const v of data.variations) {
-          // Fetch brands for this variation
-          const variationBrands = v.brandIds?.length
-            ? await getBrandsByIds(v.brandIds)
-            : [];
-
-          // Create variation without brands to avoid type mismatch
-          const variation = productVariationRepository.create({
-            ...v,
-            brands: variationBrands as any,
-            attributeValues: v.attributeValues?.length
-              ? v.attributeValues.map((av) => ({ id: av }))
-              : [],
-            tierPricingInfo: v.tierPricingInfo
-              ? {
-                  pricingType: v.tierPricingInfo.pricingType,
-                  tieredPrices: v.tierPricingInfo.tieredPrices?.map((tp) => ({
-                    ...tp,
-                  })),
-                }
-              : null,
-            shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
-            taxClass: v.taxClassId ? { id: v.taxClassId } : null,
-            product: { id: currentProduct.id }, // Link to the main product
-          } as any);
-
-          processedVariations.push(variation);
-          variationBrandMap.push({ variation, brands: variationBrands });
+      // Check if product_variation_attribute_values table exists and delete entries
+      const variationAttributeExists = await entityManager.query(`
+        SELECT to_regclass('public.product_variation_attribute_values') IS NOT NULL AS exists
+      `);
+      if (variationAttributeExists?.[0]?.exists) {
+        if (idsToDelete?.length > 0) {
+          await entityManager
+            .createQueryBuilder()
+            .delete()
+            .from("product_variation_attribute_values")
+            .where('"productVariationId" IN (:...ids)', { ids: idsToDelete })
+            .execute();
         }
-
-        product.variations = processedVariations?.length
-          ? await productVariationRepository.save(processedVariations as any)
-          : null;
+      }
+      // Check if product_variation table exists and delete entries
+      const variationExists = await entityManager.query(`
+          SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
+        `);
+      if (variationExists?.[0]?.exists) {
+        if (idsToDelete?.length > 0) {
+          await entityManager
+            .createQueryBuilder()
+            .delete()
+            .from("product_variation")
+            .where('"productId" = :id', { id: currentProduct.id })
+            .andWhere('"id" IN (:...ids)', { ids: idsToDelete })
+            .execute();
+        }
       }
     }
+
+    for (const v of data.variations) {
+      // Fetch brands for this variation
+      const variationBrands = v.brandIds?.length
+        ? await getBrandsByIds(v.brandIds)
+        : [];
+      // Create variation without brands to avoid type mismatch
+      const variation = productVariationRepository.create({
+        ...v,
+        attributeValues: v.attributeValues?.length
+          ? v.attributeValues.map((av) => ({ id: av }))
+          : [],
+        shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
+        taxClass: v.taxClassId ? { id: v.taxClassId } : null,
+        product: currentProduct, // Link to the main product
+      } as any);
+      processedVariations.push(variation);
+      variationBrandMap.push({
+        variation,
+        brands: variationBrands as any,
+      });
+    }
+
+    currentProduct.variations = processedVariations?.length
+      ? await productVariationRepository.save(processedVariations as any)
+      : null;
 
     // Replace upsells
     if (data.upsellIds !== undefined) {
@@ -303,7 +299,7 @@ export const updateProduct = async (
                 ...tp,
               })),
             },
-            product, // Assign the full product entity
+            product: currentProduct, // Assign the full product entity
           }
         : null;
 
