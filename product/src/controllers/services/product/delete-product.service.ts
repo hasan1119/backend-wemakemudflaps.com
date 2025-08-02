@@ -217,14 +217,6 @@ export const hardDeleteProduct = async (
 
   await productRepository.remove(productData);
 
-  // if (productData.tierPricingInfo) {
-  //   // Fetch and delete all associated ProductTieredPrice entities
-  //   const tierPricingInfo = await productData.tierPricingInfo;
-  //   if (tierPricingInfo) {
-  //     await productPriceRepository.remove(tierPricingInfo);
-  //   }
-  // }
-
   if (productData.variations) {
     productData.variations.map(async (variation) => {
       const tierPricingInfo = await variation.tierPricingInfo;
