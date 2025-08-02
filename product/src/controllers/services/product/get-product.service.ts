@@ -534,6 +534,7 @@ export const paginateProducts = async ({
 }: GetPaginatedProductsInput) => {
   const skip = (page - 1) * limit;
 
+  // Build query with soft delete for all relations
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.deletedAt IS NULL")
@@ -703,7 +704,7 @@ export const paginateProductsForCustomer = async ({
 }: GetPaginatedProductsInput) => {
   const skip = (page - 1) * limit;
 
-  // Build query with soft delete filtering for all relations
+  // Build query with soft delete for all relations
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.deletedAt IS NULL AND product.isVisible = :isVisible", {
