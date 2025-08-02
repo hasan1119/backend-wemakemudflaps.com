@@ -1,6 +1,8 @@
 import {
   getAllBrands,
+  getAllBrandsForCustomers,
   getAllCategories,
+  getAllCategoriesForCustomers,
   getAllCoupons,
   getAllProductAttribute,
   getAllProducts,
@@ -9,6 +11,7 @@ import {
   getAllShippingMethods,
   getAllShippingZones,
   getAllTags,
+  getAllTagsForCustomers,
   getAllTaxClass,
   getAllTaxRates,
   getBrandById,
@@ -163,6 +166,11 @@ export const productQueriesResolver = {
     getAllCategories,
 
     /**
+     * Fetches a paginated list of all categories in the system, tailored for customer view.
+     */
+    getAllCategoriesForCustomers,
+
+    /**
      * Retrieves detailed information for a tag by their unique ID.
      */
     getTagById,
@@ -173,6 +181,11 @@ export const productQueriesResolver = {
     getAllTags,
 
     /**
+     * Fetches a paginated list of all tags in the system, tailored for customer view.
+     */
+    getAllTagsForCustomers,
+
+    /**
      * Retrieves detailed information for a brand by their unique ID.
      */
     getBrandById,
@@ -181,6 +194,11 @@ export const productQueriesResolver = {
      * Fetches a paginated list of all brands in the system.
      */
     getAllBrands,
+
+    /**
+     * Fetches a paginated list of all brands in the system, tailored for customer view.
+     */
+    getAllBrandsForCustomers,
 
     /**
      * Retrieves detailed information for a shipping class by their unique ID.

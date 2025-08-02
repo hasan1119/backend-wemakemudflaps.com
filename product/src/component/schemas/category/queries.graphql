@@ -20,4 +20,17 @@ type Query {
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort direction: "asc" or "desc".
   ): GetCategoriesResponseOrError!
+
+  # Fetch all categories for a specific customer with pagination, filtering, and sorting.
+  # Retrieves a paginated list of categories associated with a customer.
+  # Supports filtering by search term (name or description) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetCategoriesResponseOrError` containing categories data and request status.
+  getAllCategoriesForCustomers(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of categories per page.
+    search: String # Optional search term (matches name or description).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetCategoriesResponseOrError!
 }

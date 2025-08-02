@@ -19,4 +19,17 @@ type Query {
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort direction: "asc" or "desc".
   ): GetTagsResponseOrError!
+
+  # Fetch all tags for customers with pagination, filtering, and sorting.
+  # Retrieves a paginated list of tags specifically for customer use.
+  # Supports filtering by search term (name or slug) and sorting options.
+  # Defaults to sorting by `createdAt` in descending order if none is provided.
+  # Returns a `GetTagsResponseOrError` containing tag data and request status.
+  getAllTagsForCustomers(
+    page: Int! # Page number to retrieve (1-based index).
+    limit: Int! # Number of tags per page.
+    search: String # Optional search term (matches name or slug).
+    sortBy: String # Optional field to sort by (e.g., name, createdAt).
+    sortOrder: String # Optional sort direction: "asc" or "desc".
+  ): GetTagsResponseOrError!
 }

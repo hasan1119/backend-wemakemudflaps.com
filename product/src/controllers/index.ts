@@ -28,8 +28,8 @@ export { deleteBrand } from "./mutations/manage-brand/delete-brand";
 export { restoreBrands } from "./mutations/manage-brand/restore-brand";
 export { updateBrand } from "./mutations/manage-brand/update-brand";
 export { getBrandById } from "./queries/brand/get-brand-by-id";
+export { getAllBrandsForCustomers } from "./queries/brand/get-brand-for-customers";
 export { getAllBrands } from "./queries/brand/get-brands";
-
 /**
  * Exports GraphQL queries and mutations for managing category data.
  *
@@ -44,6 +44,7 @@ export { restoreCategory } from "./mutations/manage-category/restore-category";
 export { updateCategory } from "./mutations/manage-category/update-category";
 export { updateCategoryPosition } from "./mutations/manage-category/update-category-position";
 export { getAllCategories } from "./queries/category/get-categories";
+export { getAllCategoriesForCustomers } from "./queries/category/get-categories-for-customer";
 export { getCategoryById } from "./queries/category/get-category-by-id";
 
 /**
@@ -59,8 +60,8 @@ export { deleteTag } from "./mutations/manage-tag/delete-tag";
 export { restoreTags } from "./mutations/manage-tag/restore-tag";
 export { updateTag } from "./mutations/manage-tag/update-tag";
 export { getTagById } from "./queries/tag/get-tag-by-id";
+export { getAllTagsForCustomers } from "./queries/tag/get-tag-for-customers";
 export { getAllTags } from "./queries/tag/get-tags";
-
 /**
  * Exports GraphQL queries and mutations for managing shipping class data.
  *

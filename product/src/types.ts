@@ -1896,7 +1896,9 @@ export type Query = {
   getAddressBookEntryById: GetAddressBookByIdResponseOrError;
   getAddressEntires: GetAddressesBookResponseOrError;
   getAllBrands: GetBrandsResponseOrError;
+  getAllBrandsForCustomers: GetBrandsResponseOrError;
   getAllCategories: GetCategoriesResponseOrError;
+  getAllCategoriesForCustomers: GetCategoriesResponseOrError;
   getAllCoupons: GetCouponsResponseOrError;
   getAllFaqs: GetFaqsResponseOrError;
   getAllMedias: GetMediasResponseOrError;
@@ -1909,6 +1911,7 @@ export type Query = {
   getAllShippingMethods: GetShippingMethodsResponseOrError;
   getAllShippingZones: GetShippingZonesResponseOrError;
   getAllTags: GetTagsResponseOrError;
+  getAllTagsForCustomers: GetTagsResponseOrError;
   getAllTaxClass: GetTaxClassesResponseOrError;
   getAllTaxRates: GetTaxRatesResponseOrError;
   getAllUsers: GetUsersResponseOrError;
@@ -1961,7 +1964,25 @@ export type QueryGetAllBrandsArgs = {
 };
 
 
+export type QueryGetAllBrandsForCustomersArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryGetAllCategoriesArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllCategoriesForCustomersArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -2068,6 +2089,15 @@ export type QueryGetAllShippingZonesArgs = {
 
 
 export type QueryGetAllTagsArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllTagsForCustomersArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -4722,7 +4752,9 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAddressBookEntryById?: Resolver<ResolversTypes['GetAddressBookByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressBookEntryByIdArgs, 'id' | 'userId'>>;
   getAddressEntires?: Resolver<ResolversTypes['GetAddressesBookResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressEntiresArgs, 'type' | 'userId'>>;
   getAllBrands?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsArgs, 'limit' | 'page'>>;
+  getAllBrandsForCustomers?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsForCustomersArgs, 'limit' | 'page'>>;
   getAllCategories?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
+  getAllCategoriesForCustomers?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesForCustomersArgs, 'limit' | 'page'>>;
   getAllCoupons?: Resolver<ResolversTypes['GetCouponsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCouponsArgs, 'limit' | 'page'>>;
   getAllFaqs?: Resolver<ResolversTypes['GetFaqsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllFaqsArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
@@ -4735,6 +4767,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllShippingMethods?: Resolver<ResolversTypes['GetShippingMethodsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingMethodsArgs, 'limit' | 'page'>>;
   getAllShippingZones?: Resolver<ResolversTypes['GetShippingZonesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingZonesArgs, 'limit' | 'page'>>;
   getAllTags?: Resolver<ResolversTypes['GetTagsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTagsArgs, 'limit' | 'page'>>;
+  getAllTagsForCustomers?: Resolver<ResolversTypes['GetTagsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTagsForCustomersArgs, 'limit' | 'page'>>;
   getAllTaxClass?: Resolver<ResolversTypes['GetTaxClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxClassArgs, 'limit' | 'page'>>;
   getAllTaxRates?: Resolver<ResolversTypes['GetTaxRatesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxRatesArgs, 'limit' | 'page' | 'taxClassId'>>;
   getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'limit' | 'page'>>;
