@@ -70,7 +70,7 @@ export const updateProduct = async (
       product.defaultQuantity = data.defaultQuantity;
     if (data.maxQuantity !== undefined) product.maxQuantity = data.maxQuantity;
     if (data.quantityStep !== undefined)
-      product.quantityStep = data.quantityStep;
+      product.quantityStep = data.quantityStep ?? 1;
     if (data.sku !== undefined) product.sku = data.sku;
     if (data.model !== undefined) product.model = data.model;
     if (data.manageStock !== undefined) product.manageStock = data.manageStock;
@@ -95,9 +95,10 @@ export const updateProduct = async (
     if (data.purchaseNote !== undefined)
       product.purchaseNote = data.purchaseNote;
     if (data.enableReviews !== undefined)
-      product.enableReviews = data.enableReviews;
+      product.enableReviews = data.enableReviews ?? true;
     if (data.customBadge !== undefined) product.customBadge = data.customBadge;
-    if (data.isVisible !== undefined) product.isVisible = data.isVisible;
+    if (data.isVisible !== undefined)
+      product.isVisible = data.isVisible ?? false;
     if (data.productConfigurationType !== undefined)
       product.productConfigurationType = data.productConfigurationType;
     if (data.productDeliveryType !== undefined)
@@ -229,7 +230,7 @@ export const updateProduct = async (
             .createQueryBuilder()
             .delete()
             .from("product_upsells")
-            .where('"productId" = :id', { id: product.id })
+            .where('"productId_1" = :id', { id: product.id })
             .execute()) ||
             (await entityManager
               .createQueryBuilder()
@@ -257,7 +258,7 @@ export const updateProduct = async (
             .createQueryBuilder()
             .delete()
             .from("product_cross_sells")
-            .where('"productId" = :id', { id: product.id })
+            .where('"productId_1" = :id', { id: product.id })
             .execute()) ||
             (await entityManager
               .createQueryBuilder()

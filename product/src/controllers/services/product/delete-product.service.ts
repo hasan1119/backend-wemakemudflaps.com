@@ -30,7 +30,6 @@ export const hardDeleteProduct = async (
   productData: Product
 ): Promise<void> => {
   const entityManager = AppDataSource.manager;
-  console.log("delete");
 
   // Check if product_brands table exists and delete entries
   const brandExists = await entityManager.query(`
@@ -201,15 +200,30 @@ export const hardDeleteProduct = async (
     }
   }
 
+  const tierPricingInfo = productData.tierPricingInfo
+    ? await productData.tierPricingInfo
+    : null;
+
+  await productRepository.update(
+    { id: productData.id },
+    {
+      tierPricingInfo: null,
+      taxClass: null,
+      shippingClass: null,
+    }
+  );
+
+  await productPriceRepository.delete({ id: tierPricingInfo?.id });
+
   await productRepository.remove(productData);
 
-  if (productData.tierPricingInfo) {
-    // Fetch and delete all associated ProductTieredPrice entities
-    const tierPricingInfo = await productData.tierPricingInfo;
-    if (tierPricingInfo) {
-      await productPriceRepository.remove(tierPricingInfo);
-    }
-  }
+  // if (productData.tierPricingInfo) {
+  //   // Fetch and delete all associated ProductTieredPrice entities
+  //   const tierPricingInfo = await productData.tierPricingInfo;
+  //   if (tierPricingInfo) {
+  //     await productPriceRepository.remove(tierPricingInfo);
+  //   }
+  // }
 
   if (productData.variations) {
     productData.variations.map(async (variation) => {
