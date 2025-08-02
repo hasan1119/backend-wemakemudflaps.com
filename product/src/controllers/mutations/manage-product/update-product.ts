@@ -516,20 +516,39 @@ export const updateProduct = async (
         };
       }
 
-      const variationsAttributeIds = variations.flatMap(
+      const variationsAttributeValuesIds = variations.flatMap(
         (variation) => variation.attributeValues?.map((av) => av) || []
       );
 
-      if (variationsAttributeIds.length > 0) {
-        const attributes =
-          (await getProductAttributeValuesByIds(variationsAttributeIds)) ?? [];
+      if (variationsAttributeValuesIds.length > 0) {
+        const attributesValues =
+          (await getProductAttributeValuesByIds(
+            variationsAttributeValuesIds
+          )) ?? [];
 
-        if (attributes.length !== variationsAttributeIds.length) {
+        if (attributesValues.length !== variationsAttributeValuesIds.length) {
           return {
             statusCode: 404,
             success: false,
             message:
               "One or more product attributes inside variations not found",
+            __typename: "BaseResponse",
+          };
+        }
+
+        const hasSystemAttribute = await Promise.all(
+          attributesValues.map(async (value) => {
+            const attribute = await value.attribute;
+            return attribute?.systemAttribute === true;
+          })
+        );
+
+        if (hasSystemAttribute.some(Boolean)) {
+          return {
+            statusCode: 400,
+            success: false,
+            message:
+              "Cannot update product with system attribute values inside variations. Please remove system attribute values before updating.",
             __typename: "BaseResponse",
           };
         }
@@ -580,6 +599,20 @@ export const updateProduct = async (
           statusCode: 404,
           success: false,
           message: "One or more product attributes not found",
+          __typename: "BaseResponse",
+        };
+      }
+
+      const isSystemAttributeUsed = attributes.some(
+        (attribute) => attribute.systemAttribute === true
+      );
+
+      if (isSystemAttributeUsed) {
+        return {
+          statusCode: 400,
+          success: false,
+          message:
+            "Cannot update product with system attributes. Please remove system attributes before updating.",
           __typename: "BaseResponse",
         };
       }
