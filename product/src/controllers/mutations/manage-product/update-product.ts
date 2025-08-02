@@ -398,20 +398,6 @@ export const updateProduct = async (
       }
     }
 
-    if (
-      productConfigurationType === "Simple Product" ||
-      (currentProduct.productConfigurationType === "Simple Product" &&
-        variations &&
-        variations.length > 0)
-    ) {
-      return {
-        statusCode: 400,
-        success: false,
-        message: "Simple products cannot have variations",
-        __typename: "BaseResponse",
-      };
-    }
-
     // Validate existence of related entities
     if (brandIds && brandIds.length > 0) {
       const brands = await getBrandsByIds(brandIds);
