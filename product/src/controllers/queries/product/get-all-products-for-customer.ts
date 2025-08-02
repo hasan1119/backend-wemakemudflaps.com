@@ -5,6 +5,7 @@ import { Category, Product, ProductPrice } from "../../../entities";
 import {
   GetProductsResponseOrError,
   QueryGetAllProductsArgs,
+  QueryGetAllProductsForCustomerArgs,
 } from "../../../types";
 import {
   paginationSchema,
@@ -295,12 +296,13 @@ const combinedSchema = z.intersection(paginationSchema, productSortingSchema);
 /**
  * Map GraphQL input arguments to schema fields
  */
-const mapArgsToPagination = (args: QueryGetAllProductsArgs) => ({
+const mapArgsToPagination = (args: QueryGetAllProductsForCustomerArgs) => ({
   page: args.page,
   limit: args.limit,
   search: args.search,
   sortBy: args.sortBy || "createdAt",
   sortOrder: args.sortOrder || "desc",
+  filtering: args.filtering || {},
 });
 
 /**
@@ -343,7 +345,7 @@ export const getAllProductsForCustomer = async (
       };
     }
 
-    const { page, limit, search, sortBy, sortOrder } = mappedArgs;
+    const { page, limit, search, sortBy, sortOrder, filtering } = mappedArgs;
 
     // Ensure sortOrder is "asc" or "desc"
     const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
@@ -355,6 +357,7 @@ export const getAllProductsForCustomer = async (
       search,
       sortBy,
       sortOrder: safeSortOrder,
+      filtering: filtering || {},
     });
 
     // Map database products to response format

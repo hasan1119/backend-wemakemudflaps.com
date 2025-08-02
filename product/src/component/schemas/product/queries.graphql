@@ -22,6 +22,7 @@ type Query {
     search: String # Optional search term (matches name or slug).
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort direction: "asc" or "desc".
+    filtering: FilteringInput # Optional filtering input for brands, categories, tags, and delivery types.
   ): GetProductsResponseOrError!
 
   getAllProductsForCustomer(
@@ -30,5 +31,6 @@ type Query {
     search: String # Optional search term (matches name or slug).
     sortBy: String # Optional field to sort by (e.g., name, createdAt).
     sortOrder: String # Optional sort direction: "asc" or "desc".
+    filtering: FilteringInput # Optional filtering input for brands, categories, tags, and delivery types.
   ): GetProductsResponseOrError!
 }

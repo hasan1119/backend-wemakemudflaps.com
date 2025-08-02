@@ -832,4 +832,25 @@ export const productSortingSchema = z.object({
     .nullable()
     .optional(),
   sortOrder: SortOrderTypeEnum,
+  filtering: z
+    .object({
+      brandIds: z
+        .array(z.string().uuid({ message: "Invalid UUID format" }))
+        .optional()
+        .nullable(),
+      categoryIds: z
+        .array(z.string().uuid({ message: "Invalid UUID format" }))
+        .optional()
+        .nullable(),
+      tagIds: z
+        .array(z.string().uuid({ message: "Invalid UUID format" }))
+        .optional()
+        .nullable(),
+      productDeliveryTypeMap: z
+        .array(ProductDeliveryTypeEnum)
+        .optional()
+        .nullable(),
+    })
+    .optional()
+    .nullable(),
 });

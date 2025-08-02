@@ -305,6 +305,7 @@ const mapArgsToPagination = (args: QueryGetAllProductsArgs) => ({
   search: args.search,
   sortBy: args.sortBy || "createdAt",
   sortOrder: args.sortOrder || "desc",
+  filtering: args.filtering || {},
 });
 
 /**
@@ -367,7 +368,7 @@ export const getAllProducts = async (
       };
     }
 
-    const { page, limit, search, sortBy, sortOrder } = mappedArgs;
+    const { page, limit, search, sortBy, sortOrder, filtering } = mappedArgs;
 
     // Ensure sortOrder is "asc" or "desc"
     const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
@@ -379,6 +380,7 @@ export const getAllProducts = async (
       search,
       sortBy,
       sortOrder: safeSortOrder,
+      filtering,
     });
 
     // Map database products to response format

@@ -89,6 +89,17 @@ type ProductPaginationResponse {
   total: Int!
 }
 
+input FilteringInput {
+  # Optional filter by brand IDs
+  brandIds: [ID!]
+  # Optional filter by category IDs
+  categoryIds: [ID!]
+  # Optional filter by tag IDs
+  tagIds: [ID!]
+  # Optional filter by product delivery type (e.g., physical, virtual, downloadable)
+  productDeliveryTypes: [ProductDeliveryType!]
+}
+
 # ---------------------- Product Response Unions ----------------------
 union CreateProductResponseOrError =
     BaseResponse

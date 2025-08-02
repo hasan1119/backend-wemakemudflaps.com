@@ -509,6 +509,7 @@ interface GetPaginatedProductsInput {
   search?: string | null;
   sortBy?: string | null;
   sortOrder: "asc" | "desc";
+  filtering?: Record<string, any>;
 }
 
 /**
@@ -529,6 +530,7 @@ export const paginateProducts = async ({
   search,
   sortBy,
   sortOrder,
+  filtering = {},
 }: GetPaginatedProductsInput) => {
   const skip = (page - 1) * limit;
 
@@ -635,6 +637,38 @@ export const paginateProducts = async ({
       "variation_taxClass.deletedAt IS NULL"
     );
 
+  // Apply filtering
+  if (filtering) {
+    const { brandIds, categoryIds, tagIds, productDeliveryTypes } = filtering;
+
+    // Filter by brand IDs
+    if (brandIds?.length) {
+      queryBuilder.andWhere("brands.id IN (:...brandIds)", { brandIds });
+    }
+
+    // Filter by category IDs
+    if (categoryIds?.length) {
+      queryBuilder.andWhere("categories.id IN (:...categoryIds)", {
+        categoryIds,
+      });
+    }
+
+    // Filter by tag IDs
+    if (tagIds?.length) {
+      queryBuilder.andWhere("tags.id IN (:...tagIds)", { tagIds });
+    }
+
+    // Filter by product delivery types
+    if (productDeliveryTypes?.length) {
+      queryBuilder.andWhere(
+        "product.productDeliveryType && :productDeliveryTypes",
+        {
+          productDeliveryTypes,
+        }
+      );
+    }
+  }
+
   if (search) {
     const searchTerm = `%${search.trim()}%`;
 
@@ -665,9 +699,11 @@ export const paginateProductsForCustomer = async ({
   search,
   sortBy,
   sortOrder,
+  filtering = {},
 }: GetPaginatedProductsInput) => {
   const skip = (page - 1) * limit;
 
+  // Build query with soft delete filtering for all relations
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.deletedAt IS NULL AND product.isVisible = :isVisible", {
@@ -772,6 +808,38 @@ export const paginateProductsForCustomer = async ({
       "variation_taxClass",
       "variation_taxClass.deletedAt IS NULL"
     );
+
+  // Apply filtering
+  if (filtering) {
+    const { brandIds, categoryIds, tagIds, productDeliveryTypes } = filtering;
+
+    // Filter by brand IDs
+    if (brandIds?.length) {
+      queryBuilder.andWhere("brands.id IN (:...brandIds)", { brandIds });
+    }
+
+    // Filter by category IDs
+    if (categoryIds?.length) {
+      queryBuilder.andWhere("categories.id IN (:...categoryIds)", {
+        categoryIds,
+      });
+    }
+
+    // Filter by tag IDs
+    if (tagIds?.length) {
+      queryBuilder.andWhere("tags.id IN (:...tagIds)", { tagIds });
+    }
+
+    // Filter by product delivery types
+    if (productDeliveryTypes?.length) {
+      queryBuilder.andWhere(
+        "product.productDeliveryType && :productDeliveryTypes",
+        {
+          productDeliveryTypes,
+        }
+      );
+    }
+  }
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;

@@ -427,6 +427,13 @@ export type FieldError = {
   message: Scalars['String']['output'];
 };
 
+export type FilteringInput = {
+  brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productDeliveryTypes?: InputMaybe<Array<ProductDeliveryType>>;
+  tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
 export type FlatRate = {
   __typename?: 'FlatRate';
   cost: Scalars['Float']['output'];
@@ -2005,6 +2012,7 @@ export type QueryGetAllProductAttributeArgs = {
 
 
 export type QueryGetAllProductsArgs = {
+  filtering?: InputMaybe<FilteringInput>;
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -2014,6 +2022,7 @@ export type QueryGetAllProductsArgs = {
 
 
 export type QueryGetAllProductsForCustomerArgs = {
+  filtering?: InputMaybe<FilteringInput>;
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -3195,6 +3204,7 @@ export type ResolversTypes = {
   FaqResponse: ResolverTypeWrapper<FaqResponse>;
   FaqResponseById: ResolverTypeWrapper<FaqResponseById>;
   FieldError: ResolverTypeWrapper<FieldError>;
+  FilteringInput: FilteringInput;
   FlatRate: ResolverTypeWrapper<FlatRate>;
   FlatRateCost: ResolverTypeWrapper<FlatRateCost>;
   FlatRateCostInput: FlatRateCostInput;
@@ -3462,6 +3472,7 @@ export type ResolversParentTypes = {
   FaqResponse: FaqResponse;
   FaqResponseById: FaqResponseById;
   FieldError: FieldError;
+  FilteringInput: FilteringInput;
   FlatRate: FlatRate;
   FlatRateCost: FlatRateCost;
   FlatRateCostInput: FlatRateCostInput;
