@@ -125,7 +125,7 @@ export const updateProduct = async (
         : null;
     }
 
-    if (data.categoryIds !== undefined && data.categoryIds !== null) {
+    if (data.categoryIds !== undefined) {
       product.categories = data.categoryIds?.length
         ? data.categoryIds.map((id) => ({ id } as any))
         : null;
@@ -175,44 +175,46 @@ export const updateProduct = async (
       }
     }
 
-    for (const v of data.variations) {
-      // Create variation without brands to avoid type mismatch
-      const variation = productVariationRepository.create({
-        ...v,
-        brands: v.brandIds?.length
-          ? v.brandIds.map((id) => ({ id } as any))
-          : [],
-        tierPricingInfo: null,
-        attributeValues: v.attributeValues?.length
-          ? v.attributeValues.map((av) => ({ id: av }))
-          : [],
-        shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
-        taxClass: v.taxClassId ? { id: v.taxClassId } : null,
-        product: currentProduct, // Link to the main product
-        quantityStep: v.quantityStep ?? 1,
-      } as any);
-      processedVariations.push(variation);
-
-      currentProduct.variations = processedVariations?.length
-        ? await productVariationRepository.save(processedVariations as any)
-        : null;
-
-      // Save tier pricing info for the variation
-      if (v.tierPricingInfo) {
-        const processedTierPricingInfo = await productPriceRepository.create({
-          ...v.tierPricingInfo,
-          productVariation: variation, // Link to the variation
+    if (data.variations && data.variations.length > 0) {
+      for (const v of data.variations) {
+        // Create variation without brands to avoid type mismatch
+        const variation = productVariationRepository.create({
+          ...v,
+          brands: v.brandIds?.length
+            ? v.brandIds.map((id) => ({ id } as any))
+            : [],
+          tierPricingInfo: null,
+          attributeValues: v.attributeValues?.length
+            ? v.attributeValues.map((av) => ({ id: av }))
+            : [],
+          shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
+          taxClass: v.taxClassId ? { id: v.taxClassId } : null,
+          product: currentProduct, // Link to the main product
+          quantityStep: v.quantityStep ?? 1,
         } as any);
+        processedVariations.push(variation);
 
-        const savedPricing = await productPriceRepository.save(
-          processedTierPricingInfo
-        );
+        currentProduct.variations = processedVariations?.length
+          ? await productVariationRepository.save(processedVariations as any)
+          : null;
 
-        // Attach tier pricing back to the variation (only if the relation allows it)
-        if (currentProduct.variations[0]) {
-          currentProduct.variations[0].tierPricingInfo = savedPricing as any;
+        // Save tier pricing info for the variation
+        if (v.tierPricingInfo) {
+          const processedTierPricingInfo = await productPriceRepository.create({
+            ...v.tierPricingInfo,
+            productVariation: variation, // Link to the variation
+          } as any);
+
+          const savedPricing = await productPriceRepository.save(
+            processedTierPricingInfo
+          );
+
+          // Attach tier pricing back to the variation (only if the relation allows it)
+          if (currentProduct.variations[0]) {
+            currentProduct.variations[0].tierPricingInfo = savedPricing as any;
+          }
+          await productVariationRepository.save(variation);
         }
-        await productVariationRepository.save(variation);
       }
     }
 

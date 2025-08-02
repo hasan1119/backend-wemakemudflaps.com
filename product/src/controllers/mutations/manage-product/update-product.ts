@@ -487,18 +487,6 @@ export const updateProduct = async (
           };
         }
       }
-    }
-
-    if (shippingClassId) {
-      const shippingClass = await getShippingClassById(shippingClassId);
-      if (!shippingClass) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: `Shipping Class with ID: ${shippingClassId} not found`,
-          __typename: "BaseResponse",
-        };
-      }
 
       const variationsAttributeValuesIds = variations.flatMap(
         (variation) => variation.attributeValues?.map((av) => av) || []
@@ -536,6 +524,18 @@ export const updateProduct = async (
             __typename: "BaseResponse",
           };
         }
+      }
+    }
+
+    if (shippingClassId) {
+      const shippingClass = await getShippingClassById(shippingClassId);
+      if (!shippingClass) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: `Shipping Class with ID: ${shippingClassId} not found`,
+          __typename: "BaseResponse",
+        };
       }
     }
 

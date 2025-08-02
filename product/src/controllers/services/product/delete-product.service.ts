@@ -30,6 +30,7 @@ export const hardDeleteProduct = async (
   productData: Product
 ): Promise<void> => {
   const entityManager = AppDataSource.manager;
+  console.log("delete");
 
   // Check if product_brands table exists and delete entries
   const brandExists = await entityManager.query(`
