@@ -72,7 +72,6 @@ export class Product {
   // Associated brands for the product
   @ManyToMany(() => Brand, (brand) => brand.products, {
     nullable: true,
-    onDelete: "SET NULL",
   })
   @JoinTable({ name: "product_brands" })
   brands: Brand[] | null;
@@ -80,7 +79,6 @@ export class Product {
   // Associated tags for the product
   @ManyToMany(() => Tag, (tag) => tag.products, {
     nullable: true,
-    onDelete: "SET NULL",
   })
   @JoinTable({ name: "product_tags" })
   tags: Tag[] | null;
@@ -185,7 +183,6 @@ export class Product {
 
   // Tax class (defines tax rates for the product)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {
-    onDelete: "SET NULL",
     nullable: true,
   })
   @JoinColumn({ name: "product_tax_class" })
@@ -339,7 +336,6 @@ export class Product {
 
   // Shipping class for grouping similar products for shipping rules
   @ManyToOne(() => ShippingClass, (shippingClass) => shippingClass.products, {
-    onDelete: "SET NULL",
     nullable: true,
   })
   @JoinColumn({ name: "product_shipping_class" })
@@ -367,7 +363,6 @@ export class Product {
   @OneToMany(() => ProductAttribute, (attribute) => attribute.product, {
     cascade: true,
     nullable: true,
-    onDelete: "SET NULL",
   })
   @JoinColumn({ name: "product_attributes" })
   attributes: ProductAttribute[] | null;

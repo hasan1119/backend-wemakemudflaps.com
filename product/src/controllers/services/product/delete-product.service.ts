@@ -98,12 +98,18 @@ export const hardDeleteProduct = async (
 
   if (upsellExists?.[0]?.exists) {
     // First delete any related entries from the product_upsells junction table
-    await entityManager
+    (await entityManager
       .createQueryBuilder()
       .delete()
       .from("product_upsells")
       .where('"productId_1" = :id', { id: productData.id })
-      .execute();
+      .execute()) ||
+      (await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_upsells")
+        .where('"productId_2" = :id', { id: productData.id })
+        .execute());
   }
 
   // Check if product_cross_sells table exists and delete entries
@@ -113,17 +119,23 @@ export const hardDeleteProduct = async (
 
   if (crossSellExists?.[0]?.exists) {
     // First delete any related entries from the product_cross_sells junction table
-    await entityManager
+    (await entityManager
       .createQueryBuilder()
       .delete()
       .from("product_cross_sells")
       .where('"productId_1" = :id', { id: productData.id })
-      .execute();
+      .execute()) ||
+      (await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from("product_cross_sells")
+        .where('"productId_2" = :id', { id: productData.id })
+        .execute());
   }
 
-  // Check if product_attributes table exists and delete entries
+  // Check if product_attribute table exists and delete entries
   const attributeExists = await entityManager.query(`
-      SELECT to_regclass('public.product_attributes') IS NOT NULL AS exists
+      SELECT to_regclass('public.product_attribute') IS NOT NULL AS exists
     `);
 
   if (attributeExists?.[0]?.exists) {
@@ -131,7 +143,7 @@ export const hardDeleteProduct = async (
     await entityManager
       .createQueryBuilder()
       .delete()
-      .from("product_attributes")
+      .from("product_attribute")
       .where('"productId" = :id', { id: productData.id })
       .execute();
   }

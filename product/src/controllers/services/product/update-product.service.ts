@@ -223,12 +223,18 @@ export const updateProduct = async (
           SELECT to_regclass('public.product_upsells') IS NOT NULL AS exists
         `);
         if (upsellExists?.[0]?.exists) {
-          await entityManager
+          (await entityManager
             .createQueryBuilder()
             .delete()
             .from("product_upsells")
             .where('"productId" = :id', { id: product.id })
-            .execute();
+            .execute()) ||
+            (await entityManager
+              .createQueryBuilder()
+              .delete()
+              .from("product_upsells")
+              .where('"productId_2" = :id', { id: product.id })
+              .execute());
         }
         product.upsells = [];
       } else {
@@ -245,12 +251,18 @@ export const updateProduct = async (
           SELECT to_regclass('public.product_cross_sells') IS NOT NULL AS exists
         `);
         if (crossSellExists?.[0]?.exists) {
-          await entityManager
+          (await entityManager
             .createQueryBuilder()
             .delete()
             .from("product_cross_sells")
             .where('"productId" = :id', { id: product.id })
-            .execute();
+            .execute()) ||
+            (await entityManager
+              .createQueryBuilder()
+              .delete()
+              .from("product_cross_sells")
+              .where('"productId_2" = :id', { id: product.id })
+              .execute());
         }
         product.crossSells = [];
       } else {

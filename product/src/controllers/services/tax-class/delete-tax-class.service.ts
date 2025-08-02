@@ -28,31 +28,34 @@ export const softDeleteTaxClass = async (
 export const hardDeleteTaxClass = async (taxClassId: string): Promise<void> => {
   const entityManager = AppDataSource.manager;
 
-  // Check if product_variation_tax_class table exists and delete entries
-  const variationTaxClassExists = await entityManager.query(`
-    SELECT to_regclass('public.product_variation_tax_class') IS NOT NULL AS exists
-  `);
-  if (variationTaxClassExists?.[0]?.exists) {
-    // First delete any related entries from the product_variation_tax_class junction table
+  // Check if product table exists and delete entries
+  const productExists = await entityManager.query(`
+      SELECT to_regclass('public.product') IS NOT NULL AS exists
+    `);
+
+  if (productExists?.[0]?.exists) {
+    // set the tax class of all products to null
     await entityManager
       .createQueryBuilder()
-      .delete()
-      .from("product_variation_tax_class")
-      .where('"taxClassId" = :id', { id: taxClassId })
+      .update("product")
+      .set({ product_tax_class: null })
+      .where("product_tax_class = :taxClassId", { taxClassId })
       .execute();
   }
 
-  // Check if product_tax_class table exists and delete entries
-  const productTaxClassExists = await entityManager.query(`
-    SELECT to_regclass('public.product_tax_class') IS NOT NULL AS exists
-  `);
-  if (productTaxClassExists?.[0]?.exists) {
-    // First delete any related entries from the product_tax_class junction table
+  // Check if product_variation table exists and delete entries
+  const productVariationExists = await entityManager.query(`
+
+      SELECT to_regclass('public.product_variation') IS NOT NULL AS exists
+    `);
+
+  if (productVariationExists?.[0]?.exists) {
+    // set the tax class of all product variations to null
     await entityManager
       .createQueryBuilder()
-      .delete()
-      .from("product_tax_class")
-      .where('"taxClassId" = :id', { id: taxClassId })
+      .update("product_variation")
+      .set({ product_variation_tax_class: null })
+      .where("product_variation_tax_class = :taxClassId", { taxClassId })
       .execute();
   }
 
