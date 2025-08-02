@@ -361,7 +361,6 @@ export const updateProduct = async (
 
     const {
       id,
-      name,
       productConfigurationType,
       slug,
       brandIds,

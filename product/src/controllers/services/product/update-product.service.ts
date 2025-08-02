@@ -98,8 +98,31 @@ export const updateProduct = async (
       product.enableReviews = data.enableReviews;
     if (data.customBadge !== undefined) product.customBadge = data.customBadge;
     if (data.isVisible !== undefined) product.isVisible = data.isVisible;
-    if (data.productConfigurationType !== undefined)
+    if (data.productConfigurationType !== undefined) {
       product.productConfigurationType = data.productConfigurationType;
+
+      if (product.productConfigurationType === "Simple Product") {
+        const idsToDelete = currentProduct.variations.map((v) => v.id);
+
+        const variationsToDelete = await productVariationRepository.find({
+          where: { id: In(idsToDelete), product: { id: currentProduct.id } },
+          relations: ["brands", "attributeValues", "tierPricingInfo"],
+        });
+
+        currentProduct.variations.map(async (variation) => {
+          const tierPricingInfo = await variation.tierPricingInfo;
+          if (tierPricingInfo) {
+            await productPriceRepository.remove(tierPricingInfo);
+          }
+        });
+
+        if (variationsToDelete.length > 0) {
+          await productVariationRepository.remove(variationsToDelete);
+        }
+      }
+
+      product.variations = null;
+    }
     if (data.productDeliveryType !== undefined)
       product.productDeliveryType = data.productDeliveryType;
     if (data.isCustomized !== undefined)
