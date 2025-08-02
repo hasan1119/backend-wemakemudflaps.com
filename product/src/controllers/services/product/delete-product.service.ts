@@ -144,7 +144,7 @@ export const hardDeleteProduct = async (
       .createQueryBuilder()
       .delete()
       .from("product_attribute")
-      .where('"productId" = :id', { id: productData.id })
+      .where('"product_id" = :id', { id: productData.id })
       .execute();
   }
 
