@@ -315,6 +315,42 @@ export const ProductPriceInputSchema = z
         "Each tiered price must match the pricingType: either only fixedPrice for 'Fixed', or only percentageDiscount for 'Percentage'.",
       path: ["tieredPrices"],
     }
+  )
+  .refine(
+    (data) => {
+      if (!data.tieredPrices || !Array.isArray(data.tieredPrices)) return true;
+
+      let previousMax: number | null = null;
+
+      for (let i = 0; i < data.tieredPrices.length; i++) {
+        const tier = data.tieredPrices[i];
+        const { minQuantity, maxQuantity } = tier;
+
+        // minQuantity must be a number
+        if (typeof minQuantity !== "number") return false;
+
+        // If previousMax exists, minQuantity must be exactly previousMax + 1
+        if (previousMax !== null && minQuantity !== previousMax + 1)
+          return false;
+
+        // maxQuantity can be null only for the last item
+        const isLast = i === data.tieredPrices.length - 1;
+        if (maxQuantity == null && !isLast) return false;
+
+        // If maxQuantity is defined, must be > minQuantity
+        if (typeof maxQuantity === "number" && minQuantity >= maxQuantity)
+          return false;
+
+        previousMax = maxQuantity ?? null; // carry forward for next iteration
+      }
+
+      return true;
+    },
+    {
+      message:
+        "Each tier's minQuantity must be exactly one more than previous maxQuantity. Only the last tier can have an open-ended maxQuantity (null).",
+      path: ["tieredPrices"],
+    }
   );
 
 /**
@@ -329,21 +365,20 @@ export const ProductPriceInputSchema = z
  * 6. Ensures `regularPrice` is a positive number.
  * 7. Validates `salePrice` as an optional positive number.
  * 8. Validates `salePriceStartAt` and `salePriceEndAt` as optional datetime strings.
- * 9. Validates `tierPricingInfoId` as an optional UUID.
- * 10. Validates `stockStatus` as an optional `StockStatusEnum`.
- * 11. Validates `weightUnit` as an optional `WeightUnitEnum`.
- * 12. Validates `weight` as an optional positive number.
- * 13. Validates `dimensionUnit` as an optional `DimensionUnitEnum`.
- * 14. Validates `length`, `width`, `height` as optional positive numbers.
- * 15. Validates `attributeValues` as an optional array of `ProductVariationAttributeValueInputSchema`.
- * 16. Validates `warrantyDigit` as an optional positive integer.
- * 17. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
- * 18. Validates `warrantyPolicy` as an optional non-empty string.
- * 19. Validates `shippingClassId`, `taxClassId` as optional UUIDs.
- * 20. Validates `taxStatus` as an optional `TaxStatusTypeEnum`.
- * 21. Validates `description` as an optional non-empty string.
- * 22. Validates `images` and `videos` as optional arrays of UUIDs.
- * 23. Validates `deletedAt` as an optional datetime string.
+ * 9. Validates `stockStatus` as an optional `StockStatusEnum`.
+ * 10. Validates `weightUnit` as an optional `WeightUnitEnum`.
+ * 11. Validates `weight` as an optional positive number.
+ * 12. Validates `dimensionUnit` as an optional `DimensionUnitEnum`.
+ * 13. Validates `length`, `width`, `height` as optional positive numbers.
+ * 14. Validates `attributeValues` as an optional array of `ProductVariationAttributeValueInputSchema`.
+ * 15. Validates `warrantyDigit` as an optional positive integer.
+ * 16. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
+ * 17. Validates `warrantyPolicy` as an optional non-empty string.
+ * 18. Validates `shippingClassId`, `taxClassId` as optional UUIDs.
+ * 19. Validates `taxStatus` as an optional `TaxStatusTypeEnum`.
+ * 20. Validates `description` as an optional non-empty string.
+ * 21. Validates `images` and `videos` as optional arrays of UUIDs.
+ * 22. Validates `deletedAt` as an optional datetime string.
  *
  * @property id - Optional unique identifier for the product variation.
  * @property sku - Optional Stock Keeping Unit for the variation.
@@ -357,7 +392,6 @@ export const ProductPriceInputSchema = z
  * @property salePrice - Optional sale price of the variation.
  * @property salePriceStartAt - Optional start date for sale pricing.
  * @property salePriceEndAt - Optional end date for sale pricing.
- * @property tierPricingInfoId - Optional UUID of the associated tiered pricing information.
  * @property stockStatus - Optional stock status of the variation.
  * @property weightUnit - Optional unit of weight for the variation.
  * @property weight - Optional weight of the variation.
