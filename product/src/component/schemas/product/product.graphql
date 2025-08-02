@@ -97,7 +97,7 @@ input FilteringInput {
   # Optional filter by tag IDs
   tagIds: [ID!]
   # Optional filter by product delivery type (e.g., physical, virtual, downloadable)
-  productDeliveryTypes: [ProductDeliveryType!]
+  productDeliveryType: [ProductDeliveryType!]
 }
 
 # ---------------------- Product Response Unions ----------------------

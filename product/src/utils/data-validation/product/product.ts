@@ -818,10 +818,20 @@ export const updateProductSchema = z
  * Workflow:
  * 1. Validates `sortBy` as one of the allowed fields (name, sku, model, createdAt).
  * 2. Validates `sortOrder` as either 'asc' or 'desc'.
+ * 3. Validates `filtering` as an optional object containing:
+ *   - `brandIds`: Optional array of brand UUIDs.
+ *   - `categoryIds`: Optional array of category UUIDs.
+ *   - `tagIds`: Optional array of tag UUIDs.
+ *   - `productDeliveryType`: Optional array of product delivery types.
  * 3. Allows both fields to be nullable or optional.
  *
  * @property sortBy - Field to sort by (name, sku, model, createdAt).
  * @property sortOrder - Sort order direction (asc, desc).
+ * @property filtering - Optional object containing filters:
+ *   - `brandIds`: Optional array of brand UUIDs.
+ *   - `categoryIds`: Optional array of category UUIDs.
+ *   - `tagIds`: Optional array of tag UUIDs.
+ *   - `productDeliveryType`: Optional array of product delivery types.
  */
 export const productSortingSchema = z.object({
   sortBy: z
@@ -846,7 +856,7 @@ export const productSortingSchema = z.object({
         .array(z.string().uuid({ message: "Invalid UUID format" }))
         .optional()
         .nullable(),
-      productDeliveryTypeMap: z
+      productDeliveryType: z
         .array(ProductDeliveryTypeEnum)
         .optional()
         .nullable(),

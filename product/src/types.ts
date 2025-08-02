@@ -430,7 +430,7 @@ export type FieldError = {
 export type FilteringInput = {
   brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  productDeliveryTypes?: InputMaybe<Array<ProductDeliveryType>>;
+  productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
   tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
