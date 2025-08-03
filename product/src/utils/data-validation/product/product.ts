@@ -645,25 +645,6 @@ export const updateProductSchema = z
     deletedAt: z.string().datetime().optional().nullable(),
   })
   .refine(
-    (data) => {
-      if (data.productConfigurationType === "SIMPLE_PRODUCT") {
-        // For simple product, variations must be null or undefined or empty
-        return (
-          data.variations === undefined ||
-          data.variations === null ||
-          (Array.isArray(data.variations) && data.variations.length === 0)
-        );
-      }
-      // For non-simple product types, no restriction on variations here
-      return true;
-    },
-    {
-      message:
-        "Variations are not allowed when productConfigurationType is 'Simple Product'",
-      path: ["variations"], // error reported on variations field
-    }
-  )
-  .refine(
     (data) =>
       Object.keys(data).some(
         (key) => key !== "id" && data[key as keyof typeof data] !== undefined
