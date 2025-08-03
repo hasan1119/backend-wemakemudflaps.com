@@ -1345,7 +1345,7 @@ export type MutationUpdateProductArgs = {
   height?: InputMaybe<Scalars['Float']['input']>;
   id: Scalars['ID']['input'];
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
-  initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
+  initialNumberInStock?: InputMaybe<Scalars['Int']['input']>;
   isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;

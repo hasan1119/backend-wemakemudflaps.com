@@ -45,7 +45,7 @@ type Mutation {
     lowStockThresHold: Int
     stockStatus: StockStatus
     soldIndividually: Boolean
-    initialNumberInStock: String
+    initialNumberInStock: Int
     weightUnit: WeightUnit
     weight: Float
     dimensionUnit: DimensionUnit

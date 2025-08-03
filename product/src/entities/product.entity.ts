@@ -308,7 +308,7 @@ export class Product {
 
   // Initial number in stock (for stock progress bar display)
   @Column({ nullable: true, default: null })
-  initialNumberInStock: string | null;
+  initialNumberInStock: number | null;
 
   /* ====================== Shipping Info ====================== */
 

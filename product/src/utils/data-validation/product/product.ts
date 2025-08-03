@@ -618,8 +618,9 @@ export const updateProductSchema = z
       .nullable(),
     soldIndividually: z.boolean().optional().nullable(),
     initialNumberInStock: z
-      .string()
-      .min(1, "Initial number in stock cannot be empty")
+      .number()
+      .int()
+      .min(0, "Initial number in stock must be a non-negative integer")
       .optional()
       .nullable(),
     weightUnit: z

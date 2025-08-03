@@ -77,18 +77,20 @@ export const updateProduct = async (
     if (data.stockQuantity !== undefined)
       product.stockQuantity = data.stockQuantity;
     if (data.allowBackOrders !== undefined)
-      product.allowBackOrders = data.allowBackOrders;
+      product.allowBackOrders = data.allowBackOrders as any;
     if (data.lowStockThresHold !== undefined)
       product.lowStockThresHold = data.lowStockThresHold;
-    if (data.stockStatus !== undefined) product.stockStatus = data.stockStatus;
+    if (data.stockStatus !== undefined)
+      product.stockStatus = data.stockStatus as any;
     if (data.soldIndividually !== undefined)
       product.soldIndividually = data.soldIndividually;
     if (data.initialNumberInStock !== undefined)
-      product.initialNumberInStock = data.initialNumberInStock;
-    if (data.weightUnit !== undefined) product.weightUnit = data.weightUnit;
+      product.initialNumberInStock = data.initialNumberInStock as any;
+    if (data.weightUnit !== undefined)
+      product.weightUnit = data.weightUnit as any;
     if (data.weight !== undefined) product.weight = data.weight;
     if (data.dimensionUnit !== undefined)
-      product.dimensionUnit = data.dimensionUnit;
+      product.dimensionUnit = data.dimensionUnit as any;
     if (data.length !== undefined) product.length = data.length;
     if (data.width !== undefined) product.width = data.width;
     if (data.height !== undefined) product.height = data.height;
@@ -100,18 +102,18 @@ export const updateProduct = async (
     if (data.isVisible !== undefined)
       product.isVisible = data.isVisible ?? false;
     if (data.productConfigurationType !== undefined)
-      product.productConfigurationType = data.productConfigurationType;
+      product.productConfigurationType = data.productConfigurationType as any;
     if (data.productDeliveryType !== undefined)
-      product.productDeliveryType = data.productDeliveryType;
+      product.productDeliveryType = data.productDeliveryType as any;
     if (data.isCustomized !== undefined)
       product.isCustomized = data.isCustomized;
     if (data.warrantyDigit !== undefined)
       product.warrantyDigit = data.warrantyDigit;
     if (data.defaultWarrantyPeriod !== undefined)
-      product.defaultWarrantyPeriod = data.defaultWarrantyPeriod;
+      product.defaultWarrantyPeriod = data.defaultWarrantyPeriod as any;
     if (data.warrantyPolicy !== undefined)
       product.warrantyPolicy = data.warrantyPolicy;
-    if (data.taxStatus !== undefined) product.taxStatus = data.taxStatus;
+    if (data.taxStatus !== undefined) product.taxStatus = data.taxStatus as any;
 
     // Replace relational fields
     if (data.brandIds !== undefined) {
