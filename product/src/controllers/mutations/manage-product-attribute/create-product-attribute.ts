@@ -14,6 +14,7 @@ import {
   findSystemAttributeByName,
   findSystemAttributeBySlug,
   getProductAttributeById,
+  getProductById,
 } from "../../services";
 
 /**
@@ -105,6 +106,18 @@ export const handleCreateProductAttribute = async (
         statusCode: 409,
         success: false,
         message: `System attribute with this id: ${args.systemAttributeId} does not exist`,
+        __typename: "BaseResponse",
+      };
+    }
+  }
+
+  if (args.productId) {
+    const product = await getProductById(args.productId);
+    if (!product) {
+      return {
+        statusCode: 404,
+        success: false,
+        message: `Product with ID ${args.productId} does not exist`,
         __typename: "BaseResponse",
       };
     }

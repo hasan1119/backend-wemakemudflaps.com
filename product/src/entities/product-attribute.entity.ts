@@ -65,7 +65,7 @@ export class ProductAttribute {
     nullable: true,
     onDelete: "CASCADE", // optional: removes attribute if product is deleted
   })
-  @JoinColumn({ name: "product_id" })
+  @JoinColumn({ name: "productId" })
   product: Promise<Product> | null;
 
   // User ID who created the product attribute (string only for Apollo Federation compatibility)
