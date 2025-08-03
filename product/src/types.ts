@@ -1638,7 +1638,7 @@ export type Product = {
   id?: Maybe<Scalars['ID']['output']>;
   images?: Maybe<Array<Media>>;
   initialNumberInStock?: Maybe<Scalars['Int']['output']>;
-  isCustomized: Scalars['Boolean']['output'];
+  isCustomized?: Maybe<Scalars['Boolean']['output']>;
   isVisible?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
   lowStockThresHold?: Maybe<Scalars['Int']['output']>;
@@ -4557,7 +4557,7 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   initialNumberInStock?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  isCustomized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  isCustomized?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isVisible?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   lowStockThresHold?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;

@@ -112,8 +112,8 @@ export class Product {
   productDeliveryType: ProductDeliveryTypeEnum[] | null;
 
   // Product customized
-  @Column({ default: false })
-  isCustomized: boolean;
+  @Column({ default: false, nullable: true })
+  isCustomized: boolean | null;
 
   // Product name
   @Column({ default: "" })

@@ -6,7 +6,7 @@ type Product @key(fields: "id") {
   id: ID # Optional product ID (used for updates)
   productConfigurationType: String # Product type (e.g., simple, variable and customized)
   productDeliveryType: [String!] # Product type (e.g., physical, virtual and downloadable)
-  isCustomized: Boolean! # Product is customized or not
+  isCustomized: Boolean # Product is customized or not
   name: String! # Product name
   slug: String! # Product slug
   sku: String # Stock keeping unit

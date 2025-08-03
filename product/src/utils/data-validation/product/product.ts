@@ -354,6 +354,7 @@ export const ProductVariationInputSchema = z.object({
  * @property id - The UUID of the product to update.
  * @property productConfigurationType - Optional configuration type of the product.
  * @property productDeliveryType - Optional delivery type(s) of the product.
+ * @property isCustomized - Optional flag indicating if the product is customized.
  * @property name - Optional name of the product.
  * @property slug - Optional URL-friendly slug of the product.
  * @property sku - Optional Stock Keeping Unit.
@@ -419,6 +420,7 @@ export const updateProductSchema = z
       )
       .optional()
       .nullable(),
+    isCustomized: z.boolean().optional().nullable(),
     name: z
       .string()
       .min(3, "Product name must be at least 3 characters")

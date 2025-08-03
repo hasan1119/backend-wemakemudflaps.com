@@ -427,6 +427,13 @@ export type FieldError = {
   message: Scalars['String']['output'];
 };
 
+export type FilteringInput = {
+  brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
+  tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
 export type FlatRate = {
   __typename?: 'FlatRate';
   cost: Scalars['Float']['output'];
@@ -473,10 +480,10 @@ export type FreeShipping = {
 };
 
 export enum FreeShippingCondition {
-  Coupon = 'Coupon',
-  MinimumOrderAmount = 'Minimum_Order_Amount',
-  MinimumOrderAmountAndCoupon = 'Minimum_Order_Amount_and_Coupon',
-  MinimumOrderAmountOrCoupon = 'Minimum_Order_Amount_or_Coupon',
+  Coupon = 'COUPON',
+  MinimumOrderAmount = 'MINIMUM_ORDER_AMOUNT',
+  MinimumOrderAmountAndCoupon = 'MINIMUM_ORDER_AMOUNT_AND_COUPON',
+  MinimumOrderAmountOrCoupon = 'MINIMUM_ORDER_AMOUNT_OR_COUPON',
   Na = 'NA'
 }
 
@@ -958,63 +965,6 @@ export type MutationCreateFaqArgs = {
 };
 
 
-export type MutationCreateProductArgs = {
-  allowBackOrders?: InputMaybe<AllowBackOrders>;
-  attributeIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  customBadge?: InputMaybe<Scalars['String']['input']>;
-  defaultImage?: InputMaybe<Scalars['ID']['input']>;
-  defaultMainDescription?: InputMaybe<Scalars['String']['input']>;
-  defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
-  defaultShortDescription?: InputMaybe<Scalars['String']['input']>;
-  defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;
-  dimensionUnit?: InputMaybe<DimensionUnit>;
-  enableReviews?: InputMaybe<Scalars['Boolean']['input']>;
-  height?: InputMaybe<Scalars['Float']['input']>;
-  images?: InputMaybe<Array<Scalars['ID']['input']>>;
-  initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
-  isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
-  isVisible?: InputMaybe<Scalars['Boolean']['input']>;
-  length?: InputMaybe<Scalars['Float']['input']>;
-  lowStockThresHold?: InputMaybe<Scalars['Int']['input']>;
-  manageStock?: InputMaybe<Scalars['Boolean']['input']>;
-  maxQuantity?: InputMaybe<Scalars['Int']['input']>;
-  minQuantity?: InputMaybe<Scalars['Int']['input']>;
-  model?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  productConfigurationType?: InputMaybe<ProductConfigurationType>;
-  productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
-  purchaseNote?: InputMaybe<Scalars['String']['input']>;
-  quantityStep?: InputMaybe<Scalars['Int']['input']>;
-  regularPrice?: InputMaybe<Scalars['Float']['input']>;
-  salePrice?: InputMaybe<Scalars['Float']['input']>;
-  salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
-  salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
-  saleQuantity?: InputMaybe<Scalars['Int']['input']>;
-  saleQuantityUnit?: InputMaybe<Scalars['String']['input']>;
-  shippingClassId?: InputMaybe<Scalars['ID']['input']>;
-  sku?: InputMaybe<Scalars['String']['input']>;
-  slug?: InputMaybe<Scalars['String']['input']>;
-  soldIndividually?: InputMaybe<Scalars['Boolean']['input']>;
-  stockQuantity?: InputMaybe<Scalars['Int']['input']>;
-  stockStatus?: InputMaybe<StockStatus>;
-  tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  taxClassId?: InputMaybe<Scalars['ID']['input']>;
-  taxStatus?: InputMaybe<TaxStatus>;
-  tierPricingInfo?: InputMaybe<ProductPriceInput>;
-  upsellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  variations?: InputMaybe<Array<ProductVariationInput>>;
-  videos?: InputMaybe<Array<Scalars['ID']['input']>>;
-  warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
-  warrantyPolicy?: InputMaybe<Scalars['String']['input']>;
-  weight?: InputMaybe<Scalars['Float']['input']>;
-  weightUnit?: InputMaybe<WeightUnit>;
-  width?: InputMaybe<Scalars['Float']['input']>;
-};
-
-
 export type MutationCreateProductAttributeArgs = {
   forVariation?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
@@ -1395,7 +1345,7 @@ export type MutationUpdateProductArgs = {
   height?: InputMaybe<Scalars['Float']['input']>;
   id: Scalars['ID']['input'];
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
-  initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
+  initialNumberInStock?: InputMaybe<Scalars['Int']['input']>;
   isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
@@ -1687,8 +1637,8 @@ export type Product = {
   height?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['ID']['output']>;
   images?: Maybe<Array<Media>>;
-  initialNumberInStock?: Maybe<Scalars['String']['output']>;
-  isCustomized: Scalars['Boolean']['output'];
+  initialNumberInStock?: Maybe<Scalars['Int']['output']>;
+  isCustomized?: Maybe<Scalars['Boolean']['output']>;
   isVisible?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
   lowStockThresHold?: Maybe<Scalars['Int']['output']>;
@@ -1910,12 +1860,12 @@ export type ProductVariation = {
 };
 
 export type ProductVariationInput = {
-  attributeValues?: InputMaybe<Array<Scalars['ID']['input']>>;
+  attributeValueIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;
   description?: InputMaybe<Scalars['String']['input']>;
-  dimensionUnit?: InputMaybe<Scalars['String']['input']>;
+  dimensionUnit?: InputMaybe<DimensionUnit>;
   height?: InputMaybe<Scalars['Float']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   length?: InputMaybe<Scalars['Float']['input']>;
@@ -1946,7 +1896,9 @@ export type Query = {
   getAddressBookEntryById: GetAddressBookByIdResponseOrError;
   getAddressEntires: GetAddressesBookResponseOrError;
   getAllBrands: GetBrandsResponseOrError;
+  getAllBrandsForCustomers: GetBrandsResponseOrError;
   getAllCategories: GetCategoriesResponseOrError;
+  getAllCategoriesForCustomers: GetCategoriesResponseOrError;
   getAllCoupons: GetCouponsResponseOrError;
   getAllFaqs: GetFaqsResponseOrError;
   getAllMedias: GetMediasResponseOrError;
@@ -1959,6 +1911,7 @@ export type Query = {
   getAllShippingMethods: GetShippingMethodsResponseOrError;
   getAllShippingZones: GetShippingZonesResponseOrError;
   getAllTags: GetTagsResponseOrError;
+  getAllTagsForCustomers: GetTagsResponseOrError;
   getAllTaxClass: GetTaxClassesResponseOrError;
   getAllTaxRates: GetTaxRatesResponseOrError;
   getAllUsers: GetUsersResponseOrError;
@@ -2011,7 +1964,25 @@ export type QueryGetAllBrandsArgs = {
 };
 
 
+export type QueryGetAllBrandsForCustomersArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryGetAllCategoriesArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllCategoriesForCustomersArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -2062,6 +2033,7 @@ export type QueryGetAllProductAttributeArgs = {
 
 
 export type QueryGetAllProductsArgs = {
+  filtering?: InputMaybe<FilteringInput>;
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -2071,6 +2043,7 @@ export type QueryGetAllProductsArgs = {
 
 
 export type QueryGetAllProductsForCustomerArgs = {
+  filtering?: InputMaybe<FilteringInput>;
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -2116,6 +2089,15 @@ export type QueryGetAllShippingZonesArgs = {
 
 
 export type QueryGetAllTagsArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllTagsForCustomersArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -3252,6 +3234,7 @@ export type ResolversTypes = {
   FaqResponse: ResolverTypeWrapper<FaqResponse>;
   FaqResponseById: ResolverTypeWrapper<FaqResponseById>;
   FieldError: ResolverTypeWrapper<FieldError>;
+  FilteringInput: FilteringInput;
   FlatRate: ResolverTypeWrapper<FlatRate>;
   FlatRateCost: ResolverTypeWrapper<FlatRateCost>;
   FlatRateCostInput: FlatRateCostInput;
@@ -3519,6 +3502,7 @@ export type ResolversParentTypes = {
   FaqResponse: FaqResponse;
   FaqResponseById: FaqResponseById;
   FieldError: FieldError;
+  FilteringInput: FilteringInput;
   FlatRate: FlatRate;
   FlatRateCost: FlatRateCost;
   FlatRateCostInput: FlatRateCostInput;
@@ -4440,7 +4424,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createCoupon?: Resolver<ResolversTypes['CreateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCouponArgs, 'code' | 'discountType' | 'discountValue'>>;
   createFaq?: Resolver<ResolversTypes['CreateFaqResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateFaqArgs, 'answer' | 'question'>>;
-  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, Partial<MutationCreateProductArgs>>;
+  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType>;
   createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
@@ -4572,8 +4556,8 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
-  initialNumberInStock?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  isCustomized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  initialNumberInStock?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  isCustomized?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isVisible?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   lowStockThresHold?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -4768,7 +4752,9 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAddressBookEntryById?: Resolver<ResolversTypes['GetAddressBookByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressBookEntryByIdArgs, 'id' | 'userId'>>;
   getAddressEntires?: Resolver<ResolversTypes['GetAddressesBookResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressEntiresArgs, 'type' | 'userId'>>;
   getAllBrands?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsArgs, 'limit' | 'page'>>;
+  getAllBrandsForCustomers?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsForCustomersArgs, 'limit' | 'page'>>;
   getAllCategories?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
+  getAllCategoriesForCustomers?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesForCustomersArgs, 'limit' | 'page'>>;
   getAllCoupons?: Resolver<ResolversTypes['GetCouponsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCouponsArgs, 'limit' | 'page'>>;
   getAllFaqs?: Resolver<ResolversTypes['GetFaqsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllFaqsArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
@@ -4781,6 +4767,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllShippingMethods?: Resolver<ResolversTypes['GetShippingMethodsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingMethodsArgs, 'limit' | 'page'>>;
   getAllShippingZones?: Resolver<ResolversTypes['GetShippingZonesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingZonesArgs, 'limit' | 'page'>>;
   getAllTags?: Resolver<ResolversTypes['GetTagsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTagsArgs, 'limit' | 'page'>>;
+  getAllTagsForCustomers?: Resolver<ResolversTypes['GetTagsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTagsForCustomersArgs, 'limit' | 'page'>>;
   getAllTaxClass?: Resolver<ResolversTypes['GetTaxClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxClassArgs, 'limit' | 'page'>>;
   getAllTaxRates?: Resolver<ResolversTypes['GetTaxRatesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxRatesArgs, 'limit' | 'page' | 'taxClassId'>>;
   getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'limit' | 'page'>>;
