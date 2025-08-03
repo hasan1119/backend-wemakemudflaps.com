@@ -59,13 +59,6 @@ export const ProductTieredPriceInputSchema = z
     }
   )
   .refine(
-    (data) => !(data.fixedPrice !== null && data.percentageDiscount !== null),
-    {
-      message: "Provide either fixedPrice or percentageDiscount, not both.",
-      path: ["fixedPrice"],
-    }
-  )
-  .refine(
     (data) => data.fixedPrice !== null || data.percentageDiscount !== null,
     {
       message: "You must provide either fixedPrice or percentageDiscount.",
@@ -97,31 +90,6 @@ export const ProductPriceInputSchema = z
       .nullable(),
     tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
   })
-  .refine(
-    (data) => {
-      // If pricingType is specified, it must align with the pricing logic in tieredPrices
-      if (!data.tieredPrices || !Array.isArray(data.tieredPrices)) return true;
-
-      for (const tier of data.tieredPrices) {
-        if (data.pricingType === "Fixed" && tier.fixedPrice === null) {
-          return false;
-        }
-        if (
-          data.pricingType === "Percentage" &&
-          tier.percentageDiscount === null
-        ) {
-          return false;
-        }
-      }
-
-      return true;
-    },
-    {
-      message:
-        "Each tiered price must match the pricingType: either only fixedPrice for 'Fixed', or only percentageDiscount for 'Percentage'.",
-      path: ["tieredPrices"],
-    }
-  )
   .refine(
     (data) => {
       if (!data.tieredPrices || !Array.isArray(data.tieredPrices)) return true;
