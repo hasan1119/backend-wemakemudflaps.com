@@ -143,7 +143,7 @@ export const ProductPriceInputSchema = z
  * 11. Validates `weight` as an optional positive number.
  * 12. Validates `dimensionUnit` as an optional `DimensionUnitEnum`.
  * 13. Validates `length`, `width`, `height` as optional positive numbers.
- * 14. Validates `attributeValues` as an optional array of `ProductVariationAttributeValueInputSchema`.
+ * 14. Validates `attributeValueIds` as an optional array of UUIDs.
  * 15. Validates `warrantyDigit` as an optional positive integer.
  * 16. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
  * 17. Validates `warrantyPolicy` as an optional non-empty string.
@@ -172,7 +172,7 @@ export const ProductPriceInputSchema = z
  * @property length - Optional length of the variation.
  * @property width - Optional width of the variation.
  * @property height - Optional height of the variation.
- * @property attributeValues - Optional array of variation-specific attribute values.
+ * @property attributeValueIds - Optional array of variation-specific attribute values.
  * @property warrantyDigit - Optional numeric part of warranty duration.
  * @property defaultWarrantyPeriod - Optional period unit for warranty.
  * @property warrantyPolicy - Optional description of the warranty policy.
@@ -286,7 +286,7 @@ export const ProductVariationInputSchema = z.object({
     .positive("Height must be a positive number")
     .optional()
     .nullable(),
-  attributeValues: z
+  attributeValueIds: z
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()
     .nullable(),
