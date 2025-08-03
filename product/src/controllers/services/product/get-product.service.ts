@@ -83,6 +83,7 @@ export const findProductBySlug = async (
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
+    .addOrderBy("tieredPrices.maxQuantity", "ASC")
     // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
@@ -97,6 +98,7 @@ export const findProductBySlug = async (
       "variation_tierPricingInfo.tieredPrices",
       "variation_tieredPrices"
     )
+    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
     .leftJoinAndSelect(
       "variations.attributeValues",
       "variation_attributeValues",
@@ -221,6 +223,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
+    .addOrderBy("tieredPrices.maxQuantity", "ASC")
     // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
@@ -235,6 +238,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       "variation_tierPricingInfo.tieredPrices",
       "variation_tieredPrices"
     )
+    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
     .leftJoinAndSelect(
       "variations.attributeValues",
       "variation_attributeValues",
@@ -342,6 +346,7 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
+    .addOrderBy("tieredPrices.maxQuantity", "ASC")
     // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
@@ -356,6 +361,7 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       "variation_tierPricingInfo.tieredPrices",
       "variation_tieredPrices"
     )
+    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
     .leftJoinAndSelect(
       "variations.attributeValues",
       "variation_attributeValues",
@@ -464,6 +470,7 @@ export const getProductsByIdsToDelete = async (
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
+    .addOrderBy("tieredPrices.maxQuantity", "ASC")
     // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
@@ -478,6 +485,7 @@ export const getProductsByIdsToDelete = async (
       "variation_tierPricingInfo.tieredPrices",
       "variation_tieredPrices"
     )
+    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
     .leftJoinAndSelect(
       "variations.attributeValues",
       "variation_attributeValues",
@@ -603,6 +611,7 @@ export const paginateProducts = async ({
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
+    .addOrderBy("tieredPrices.maxQuantity", "ASC")
     // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
@@ -613,10 +622,7 @@ export const paginateProducts = async ({
       "variations.tierPricingInfo",
       "variation_tierPricingInfo"
     )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo.tieredPrices",
-      "variation_tieredPrices"
-    )
+    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
     .leftJoinAndSelect(
       "variations.attributeValues",
       "variation_attributeValues",
@@ -775,6 +781,7 @@ export const paginateProductsForCustomer = async ({
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
+    .addOrderBy("tieredPrices.maxQuantity", "ASC")
     // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
@@ -789,6 +796,7 @@ export const paginateProductsForCustomer = async ({
       "variation_tierPricingInfo.tieredPrices",
       "variation_tieredPrices"
     )
+    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
     .leftJoinAndSelect(
       "variations.attributeValues",
       "variation_attributeValues",
