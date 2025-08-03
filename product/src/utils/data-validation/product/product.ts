@@ -90,27 +90,47 @@ export const ProductPriceInputSchema = z
       .nullable(),
     tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
   })
-  // Only single tier price allowed null for the maximum quantity and if there is multiple tier prices, then the last tier price must could have null for the maximum quantity
+  /*
+   */
   .refine(
     (data) => {
-      const tieredPrices = data.tieredPrices;
+      if (!data.tieredPrices || !Array.isArray(data.tieredPrices)) return true;
 
-      if (!tieredPrices || tieredPrices.length === 0) {
-        return true; // No tiered prices, no validation needed
+      let previousMax: number | null = null;
+
+      if (data.tieredPrices.length === 1) {
+        const tier = data.tieredPrices[0];
+        // If there's only one tier, minQuantity must be 1 and maxQuantity can be null
+        if (!tier.maxQuantity) return true;
+        return true;
+      } else {
+        for (let i = 0; i < data.tieredPrices.length; i++) {
+          const tier = data.tieredPrices[i];
+          const { minQuantity, maxQuantity } = tier;
+
+          // minQuantity must be a number
+          if (typeof minQuantity !== "number") return false;
+
+          // If previousMax exists, minQuantity must be exactly bigger than previousMax
+          if (previousMax !== null && minQuantity <= previousMax) return false;
+
+          // maxQuantity can be null only for the last item
+          const isLast = i === data.tieredPrices.length - 1;
+          if (maxQuantity == null && !isLast) return false;
+
+          // If maxQuantity is defined, must be > minQuantity
+          if (typeof maxQuantity === "number" && minQuantity >= maxQuantity)
+            return false;
+
+          previousMax = maxQuantity ?? null; // carry forward for next iteration
+        }
       }
 
-      const lastTier = tieredPrices[tieredPrices.length - 1];
-
-      if (tieredPrices.length === 1 || lastTier.maxQuantity === null) {
-        // If there's only one tier, it can have null maxQuantity and if there are multiple tiers, only the last tier can have null maxQuantity
-        return (
-          tieredPrices[0].maxQuantity === null || lastTier.maxQuantity === null
-        );
-      }
+      return true;
     },
     {
       message:
-        "Only the last tier can have null as maxQuantity, and only one such tier is allowed.",
+        "Each tier's minQuantity must be exactly one more than previous maxQuantity. Only the last tier can have an open-ended maxQuantity (null).",
       path: ["tieredPrices"],
     }
   );
@@ -275,7 +295,7 @@ export const ProductVariationInputSchema = z.object({
     .positive("Height must be a positive number")
     .optional()
     .nullable(),
-  attributeValueIds: z
+  attributeValues: z
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()
     .nullable(),
@@ -650,6 +670,25 @@ export const updateProductSchema = z
     isVisible: z.boolean().optional().nullable(),
     deletedAt: z.string().datetime().optional().nullable(),
   })
+  .refine(
+    (data) => {
+      if (data.productConfigurationType === "SIMPLE_PRODUCT") {
+        // For simple product, variations must be null or undefined or empty
+        return (
+          data.variations === undefined ||
+          data.variations === null ||
+          (Array.isArray(data.variations) && data.variations.length === 0)
+        );
+      }
+      // For non-simple product types, no restriction on variations here
+      return true;
+    },
+    {
+      message:
+        "Variations are not allowed when productConfigurationType is 'Simple Product'",
+      path: ["variations"], // error reported on variations field
+    }
+  )
   .refine(
     (data) =>
       Object.keys(data).some(
