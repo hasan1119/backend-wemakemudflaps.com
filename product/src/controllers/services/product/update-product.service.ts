@@ -150,6 +150,10 @@ export const updateProduct = async (
     }
 
     if (data.attributeIds !== undefined) {
+      product.attributes = null;
+
+      await productRepository.save(product);
+
       const idsToDelete = currentProduct.attributes.map((attr) => attr.id);
       await productAttributeRepository.delete({ id: In(idsToDelete) });
       product.attributes = data.attributeIds?.length
