@@ -90,21 +90,29 @@ export const ProductPriceInputSchema = z
       .nullable(),
     tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
   })
-  // Only last tier can have null maxQuantity
+  // Only single tier price allowed null for the maximum quantity and if there is multiple tier prices, then the last tier price must could have null for the maximum quantity
   .refine(
     (data) => {
-      if (data.tieredPrices && data.tieredPrices.length > 0) {
-        const lastTier = data.tieredPrices[data.tieredPrices.length - 1];
-        return (
-          lastTier.maxQuantity === null ||
-          lastTier.maxQuantity === undefined ||
-          lastTier.minQuantity < lastTier.maxQuantity
-        );
+      const tieredPrices = data.tieredPrices;
+
+      if (!tieredPrices || tieredPrices.length === 0) return true;
+
+      const nullMaxIndexes = tieredPrices
+        .map((tier, index) => (tier?.maxQuantity == null ? index : null))
+        .filter((i): i is number => i !== null);
+
+      if (nullMaxIndexes.length > 1) return false;
+
+      if (nullMaxIndexes.length === 1) {
+        const lastIndex = tieredPrices.length - 1;
+        if (nullMaxIndexes[0] !== lastIndex) return false;
       }
-      return true; // Skip check if no tiered prices
+
+      return true;
     },
     {
-      message: "Last tier's minQuantity must be less than maxQuantity.",
+      message:
+        "Only the last tier can have null as maxQuantity, and only one such tier is allowed.",
       path: ["tieredPrices"],
     }
   );
