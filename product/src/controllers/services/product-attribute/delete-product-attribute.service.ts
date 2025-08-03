@@ -8,5 +8,8 @@ import { productAttributeRepository } from "../repositories/repositories";
 export const hardDeleteAttribute = async (
   attributeId: string
 ): Promise<void> => {
-  await productAttributeRepository.delete({ id: attributeId });
+  await productAttributeRepository.delete({
+    id: attributeId,
+    systemAttribute: true,
+  });
 };

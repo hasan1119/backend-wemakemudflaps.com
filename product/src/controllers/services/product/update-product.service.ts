@@ -150,15 +150,24 @@ export const updateProduct = async (
     }
 
     if (data.attributeIds !== undefined) {
-      product.attributes = null;
+      const currentProductAttributes = currentProduct.attributes.map(
+        (attr) => attr.id
+      );
 
-      await productRepository.save(product);
+      if (data.attributeIds?.length > 0) {
+        await productAttributeRepository.update(
+          { id: In(currentProductAttributes) },
+          { product: null }
+        );
 
-      const idsToDelete = currentProduct.attributes.map((attr) => attr.id);
-      await productAttributeRepository.delete({ id: In(idsToDelete) });
-      product.attributes = data.attributeIds?.length
-        ? data.attributeIds.map((id) => ({ id } as any))
-        : null;
+        product.attributes = data.attributeIds.map((id) => ({ id } as any));
+      } else {
+        await productAttributeRepository.delete({
+          product: { id: currentProduct.id },
+        });
+
+        product.attributes = null;
+      }
     }
 
     // Process variations
@@ -180,12 +189,12 @@ export const updateProduct = async (
         }
       });
 
-      if (variationsToDelete.length > 0) {
+      if (variationsToDelete?.length > 0) {
         await productVariationRepository.remove(variationsToDelete);
       }
     }
 
-    if (data.variations && data.variations.length > 0) {
+    if (data.variations && data.variations?.length > 0) {
       for (const v of data.variations) {
         // Create variation without brands to avoid type mismatch
         const variation = productVariationRepository.create({
@@ -250,7 +259,7 @@ export const updateProduct = async (
         }
         product.upsells = [];
       } else {
-        product.upsells = data.upsellIds.length
+        product.upsells = data.upsellIds?.length
           ? data.upsellIds.map((id) => ({ id } as any))
           : [];
       }
@@ -278,7 +287,7 @@ export const updateProduct = async (
         }
         product.crossSells = [];
       } else {
-        product.crossSells = data.crossSellIds.length
+        product.crossSells = data.crossSellIds?.length
           ? data.crossSellIds.map((id) => ({ id } as any))
           : [];
       }
