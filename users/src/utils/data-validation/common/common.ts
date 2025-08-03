@@ -2,74 +2,50 @@ import { z } from "zod";
 
 // Defines an array of permission names used in permission schemas
 export const PERMISSIONS = [
-  "User",
-  "Brand",
-  "Category",
-  "Product",
-  "Permission",
-  "Product Review",
-  "Shipping Settings",
-  "Sub Category",
-  "Tag",
-  "Tax Settings",
-  "Site Settings",
-  "News Letter",
-  "Pop Up Banner",
-  "Order",
-  "Role",
-  "Notification",
-  "Media",
-  "Coupon",
-  "Address Book",
-  "Tax Exemption",
+  "USER",
+  "BRAND",
+  "CATEGORY",
+  "PRODUCT",
+  "PERMISSION",
+  "PRODUCT_REVIEW",
+  "SHIPPING_SETTINGS",
+  "SUB_CATEGORY",
+  "TAG",
+  "TAX_SETTINGS",
+  "SITE_SETTINGS",
+  "NEWS_LETTER",
+  "POP_UP_BANNER",
+  "ORDER",
+  "ROLE",
+  "NOTIFICATION",
+  "MEDIA",
+  "COUPON",
+  "ADDRESS_BOOK",
+  "TAX_EXEMPTION",
 ];
 
 // Defines a TypeScript type for permission names as a union of literals
 export type PermissionName =
-  | "User"
-  | "Brand"
-  | "Category"
-  | "Product"
-  | "Permission"
-  | "Product Review"
-  | "Shipping Settings"
-  | "Sub Category"
-  | "Tag"
-  | "Tax Settings"
-  | "Site Settings"
-  | "News Letter"
-  | "Pop Up Banner"
-  | "Order"
-  | "Role"
-  | "Notification"
-  | "Media"
-  | "Coupon"
-  | "Address Book"
-  | "Tax Exemption";
-
-// Defines a mapping for permission values used in permission schemas
-export const PERMISSION_NORMALIZATION_MAP: Record<string, string> = {
-  USER: "User",
-  BRAND: "Brand",
-  CATEGORY: "Category",
-  PRODUCT: "Product",
-  PERMISSION: "Permission",
-  PRODUCT_REVIEW: "Product Review",
-  SHIPPING_SETTINGS: "Shipping Settings",
-  SUB_CATEGORY: "Sub Category",
-  TAG: "Tag",
-  TAX_SETTINGS: "Tax Settings",
-  SITE_SETTINGS: "Site Settings",
-  NEWS_LETTER: "News Letter",
-  POP_UP_BANNER: "Pop Up Banner",
-  ORDER: "Order",
-  ROLE: "Role",
-  NOTIFICATION: "Notification",
-  MEDIA: "Media",
-  COUPON: "Coupon",
-  ADDRESS_BOOK: "Address Book",
-  TAX_EXEMPTION: "Tax Exemption",
-};
+  | "USER"
+  | "BRAND"
+  | "CATEGORY"
+  | "PRODUCT"
+  | "PERMISSION"
+  | "PRODUCT_REVIEW"
+  | "SHIPPING_SETTINGS"
+  | "SUB_CATEGORY"
+  | "TAG"
+  | "TAX_SETTINGS"
+  | "SITE_SETTINGS"
+  | "NEWS_LETTER"
+  | "POP_UP_BANNER"
+  | "ORDER"
+  | "ROLE"
+  | "NOTIFICATION"
+  | "MEDIA"
+  | "COUPON"
+  | "ADDRESS_BOOK"
+  | "TAX_EXEMPTION";
 
 // Utility function to check for duplicate permission names
 export const hasDuplicatePermissionNames = (
@@ -86,23 +62,6 @@ export const hasDuplicatePermissionNames = (
 
   return new Set(names).size !== names.length;
 };
-
-/**
- * Defines an enum for permission names used in permission schemas.
- *
- * Workflow:
- * 1. Preprocesses input to match case-insensitive permission names from PERMISSIONS.
- * 2. Returns the matched permission or undefined if no match is found.
- * 3. Validates against the PERMISSIONS array as a Zod enum.
- *
- * @type z.ZodEnum<[string, ...string[]]>
- */
-export const PermissionEnum = z.preprocess((val) => {
-  if (typeof val === "string") {
-    const key = val.trim().toUpperCase();
-    return PERMISSION_NORMALIZATION_MAP[key];
-  }
-}, z.enum(PERMISSIONS as [string, ...string[]]));
 
 /**
  * Enum definition for sort order types used in sorting queries.

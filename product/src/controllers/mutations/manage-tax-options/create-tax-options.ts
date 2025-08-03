@@ -35,7 +35,7 @@ export const createTaxOptions = async (
     const hasPermission = await checkUserPermission({
       user,
       action: "canCreate",
-      entity: "tax settings",
+      entity: "tax_settings",
     });
 
     if (!hasPermission) {

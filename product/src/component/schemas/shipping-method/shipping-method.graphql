@@ -86,10 +86,10 @@ type ShippingMethodPaginationResponse {
 # ---------------------- Enums ----------------------
 enum FreeShippingCondition {
   NA
-  Coupon
-  Minimum_Order_Amount
-  Minimum_Order_Amount_or_Coupon
-  Minimum_Order_Amount_and_Coupon
+  COUPON
+  MINIMUM_ORDER_AMOUNT
+  MINIMUM_ORDER_AMOUNT_OR_COUPON
+  MINIMUM_ORDER_AMOUNT_AND_COUPON
 }
 
 input FlatRateInput {

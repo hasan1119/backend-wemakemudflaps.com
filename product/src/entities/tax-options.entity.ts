@@ -9,6 +9,17 @@ import {
 } from "typeorm";
 import { ShippingClass } from "./shipping-class.entity";
 
+export enum TaxCalculationType {
+  SHIPPING_ADDRESS = "SHIPPING_ADDRESS",
+  BILLING_ADDRESS = "BILLING_ADDRESS",
+  STORE_ADDRESS = "STORE_ADDRESS",
+}
+
+export enum DisplayTaxTotals {
+  AS_A_SINGLE_ITEM = "AS_A_SINGLE_ITEM",
+  ITEMIZED = "ITEMIZED",
+}
+
 @Entity("tax_options")
 export class TaxOptions {
   @PrimaryGeneratedColumn("uuid")
@@ -18,10 +29,11 @@ export class TaxOptions {
   pricesEnteredWithTax: boolean; // true = inclusive, false = exclusive
 
   @Column({
-    enum: ["Shipping Address", "Billing Address", "Store Address"],
-    default: "Shipping Address",
+    type: "enum",
+    enum: TaxCalculationType,
+    default: TaxCalculationType.SHIPPING_ADDRESS,
   })
-  calculateTaxBasedOn: string;
+  calculateTaxBasedOn: TaxCalculationType;
 
   @ManyToOne(() => ShippingClass, { nullable: true })
   @JoinColumn()
@@ -41,10 +53,11 @@ export class TaxOptions {
 
   // Whether to round tax at the total level
   @Column({
-    enum: ["As A Single Item", "Itemized"],
-    default: "As A Single Item",
+    type: "enum",
+    enum: DisplayTaxTotals,
+    default: DisplayTaxTotals.AS_A_SINGLE_ITEM,
   })
-  displayTaxTotals: string;
+  displayTaxTotals: DisplayTaxTotals;
 
   // Whether to round tax at the subtotal level
   @Column({ type: "boolean", default: false })

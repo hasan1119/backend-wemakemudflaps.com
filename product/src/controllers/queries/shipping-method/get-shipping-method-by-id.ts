@@ -36,7 +36,7 @@ export const getShippingMethodById = async (
     // Check if user has permission to view shipping methods
     const canRead = await checkUserPermission({
       action: "canRead",
-      entity: "shipping settings",
+      entity: "shipping_settings",
       user,
     });
 

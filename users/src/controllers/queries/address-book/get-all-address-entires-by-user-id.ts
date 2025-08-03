@@ -63,7 +63,7 @@ export const getAddressEntires = async (
       const hasPermission = await checkUserPermission({
         user,
         action: "canRead",
-        entity: "address book",
+        entity: "address_book",
       });
 
       if (!hasPermission) {

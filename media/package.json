@@ -9,8 +9,7 @@
     "gen": "graphql-codegen",
     "redis": "redis-cli -h techanalyzen.com -p 6379 -a password",
     "redis-flush": "redis-cli -h techanalyzen.com -p 6379 -a password FLUSHALL",
-    "pm2": "pm2 start bun --name 'steven_router' -- start --watch",
-    "db:migrate": "bunx typeorm migration:create src/migrations/migration"
+    "pm2": "pm2 start bun --name 'steven_router' -- start --watch"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.5",

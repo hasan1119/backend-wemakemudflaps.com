@@ -38,7 +38,7 @@ export const deleteShippingMethod = async (
     const hasPermission = await checkUserPermission({
       user,
       action: "canDelete",
-      entity: "shipping settings",
+      entity: "shipping_settings",
     });
 
     if (!hasPermission) {

@@ -1,6 +1,15 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { OrderItem } from "./order-item.entity";
 
+export enum OrderStatus {
+  PENDING = "PENDING",
+  PLACED = "PLACED",
+  CONFIRMED = "CONFIRMED",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELED = "CANCELED",
+}
+
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn("uuid")
@@ -13,16 +22,9 @@ export class Order {
   // Status of the order, indicating its current stage (e.g., placed, confirmed, shipped)
   @Column({
     type: "enum",
-    enum: [
-      "pending",
-      "placed",
-      "confirmed",
-      "shipped",
-      "delivered",
-      "canceled",
-    ],
+    enum: OrderStatus,
   })
-  oderStatus: string;
+  orderStatus: OrderStatus;
 
   // User ID who placed the order (string only for Apollo Federation compatibility)
   @Column({ nullable: true, default: null })

@@ -13,6 +13,13 @@ import { TaxExemption } from "./tax-exemption.entity";
 import { UserLogin } from "./user-login.entity";
 import { Role } from "./user-role.entity";
 
+export enum UserGender {
+  Male = "Male",
+  Female = "Female",
+  Others = "Others",
+  Rather_not_to_say = "Rather_not_to_say",
+}
+
 @Entity()
 export class User {
   // Defines the unique identifier for the user
@@ -46,11 +53,11 @@ export class User {
   // Stores the user's gender (optional)
   @Column({
     type: "enum",
-    enum: ["Male", "Female", "Others", "Rather not to say"],
+    enum: UserGender,
     nullable: true,
     default: null,
   })
-  gender: string | null;
+  gender: UserGender | null;
 
   // Stores the user's address (optional)
   @Column({

@@ -39,7 +39,7 @@ export const updateShippingZone = async (
     // Check if user has permission to update shipping zones
     const canUpdate = await checkUserPermission({
       action: "canUpdate",
-      entity: "shipping settings",
+      entity: "shipping_settings",
       user,
     });
 

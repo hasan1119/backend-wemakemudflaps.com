@@ -19,6 +19,72 @@ import { ShippingClass } from "./shipping-class.entity";
 import { Tag } from "./tag.entity";
 import { TaxClass } from "./tax-class.entity";
 
+export enum ProductConfigurationTypeEnum {
+  SIMPLE_PRODUCT = "SIMPLE_PRODUCT",
+  VARIABLE_PRODUCT = "VARIABLE_PRODUCT",
+}
+
+export enum ProductDeliveryTypeEnum {
+  PHYSICAL_PRODUCT = "PHYSICAL_PRODUCT",
+  DOWNLOADABLE_PRODUCT = "DOWNLOADABLE_PRODUCT",
+  VIRTUAL_PRODUCT = "VIRTUAL_PRODUCT",
+}
+
+export enum WarrantyPeriodEnum {
+  DAY = "DAY",
+  DAYS = "DAYS",
+  WEEK = "WEEK",
+  WEEKS = "WEEKS",
+  MONTH = "MONTH",
+  MONTHS = "MONTHS",
+  YEAR = "YEAR",
+  YEARS = "YEARS",
+  LIFETIME = "LIFETIME",
+}
+
+export enum TaxStatusEnum {
+  TAXABLE = "TAXABLE",
+  PRODUCT_ONLY = "PRODUCT_ONLY",
+  SHIPPING_ONLY = "SHIPPING_ONLY",
+  NONE = "NONE",
+}
+
+export enum BackOrderOptionEnum {
+  DONT_ALLOW = "DONT_ALLOW",
+  ALLOW_BUT_NOTIFY_CUSTOMER = "ALLOW_BUT_NOTIFY_CUSTOMER",
+  ALLOW = "ALLOW",
+}
+
+export enum StockStatusEnum {
+  IN_STOCK = "IN_STOCK",
+  OUT_OF_STOCK = "OUT_OF_STOCK",
+  ON_BACKORDER = "ON_BACKORDER",
+}
+
+export enum WeightUnitEnum {
+  MILLIGRAM = "MILLIGRAM",
+  GRAM = "GRAM",
+  KILOGRAM = "KILOGRAM",
+  TON = "TON",
+  POUND = "POUND",
+  OUNCE = "OUNCE",
+  STONE = "STONE",
+  CARAT = "CARAT",
+  GRAIN = "GRAIN",
+  QUINTAL = "QUINTAL",
+  METRIC_TON = "METRIC_TON",
+}
+
+export enum DimensionUnitEnum {
+  MILLIMETER = "MILLIMETER",
+  CENTIMETER = "CENTIMETER",
+  METER = "METER",
+  KILOMETER = "KILOMETER",
+  INCH = "INCH",
+  FOOT = "FOOT",
+  YARD = "YARD",
+}
+
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn("uuid")
@@ -29,21 +95,21 @@ export class Product {
   // Product categorization by configuration
   @Column({
     type: "enum",
-    enum: ["Simple Product", "Variable Product"],
+    enum: ProductConfigurationTypeEnum,
     nullable: true,
     default: null,
   })
-  productConfigurationType: string | null;
+  productConfigurationType: ProductConfigurationTypeEnum | null;
 
   // Product categorization by delivery method
   @Column({
     type: "enum",
-    enum: ["Physical Product", "Downloadable Product", "Virtual Product"],
+    enum: ProductDeliveryTypeEnum,
     array: true,
     nullable: true,
     default: null,
   })
-  productDeliveryType: string[] | null;
+  productDeliveryType: ProductDeliveryTypeEnum[] | null;
 
   // Product customized
   @Column({ default: false })
@@ -106,21 +172,11 @@ export class Product {
   // Warranty period unit for the product (e.g., "days", "months")
   @Column({
     type: "enum",
-    enum: [
-      "day",
-      "days",
-      "week",
-      "weeks",
-      "month",
-      "months",
-      "year",
-      "years",
-      "life-time",
-    ],
+    enum: WarrantyPeriodEnum,
     nullable: true,
     default: null,
   })
-  defaultWarrantyPeriod: string | null;
+  defaultWarrantyPeriod: WarrantyPeriodEnum | null;
 
   // Warranty policy for the product (nullable)
   @Column({ nullable: true, default: null })
@@ -175,11 +231,11 @@ export class Product {
   // Tax status (controls whether the product cost or shipping is taxable, required on creation)
   @Column({
     type: "enum",
-    enum: ["Taxable", "Product only", "Shipping only", "None"],
+    enum: TaxStatusEnum,
     nullable: true,
     default: null,
   })
-  taxStatus: string | null;
+  taxStatus: TaxStatusEnum | null;
 
   // Tax class (defines tax rates for the product)
   @ManyToOne(() => TaxClass, (taxClass) => taxClass.products, {
@@ -227,11 +283,11 @@ export class Product {
   // Back order settings (defines if back orders are allowed)
   @Column({
     type: "enum",
-    enum: ["Don't allow", "Allow but notify customer", "Allow"],
+    enum: BackOrderOptionEnum,
     nullable: true,
     default: null,
   })
-  allowBackOrders: string | null;
+  allowBackOrders: BackOrderOptionEnum | null;
 
   // Low stock threshold to trigger notification
   @Column({ nullable: true, default: null })
@@ -240,11 +296,11 @@ export class Product {
   // Stock status displayed on the frontend
   @Column({
     type: "enum",
-    enum: ["In stock", "Out of stock", "On backorder"],
+    enum: StockStatusEnum,
     nullable: true,
     default: null,
   })
-  stockStatus: string | null;
+  stockStatus: StockStatusEnum | null;
 
   // If true, only one item can be purchased per order
   @Column({ type: "boolean", nullable: true, default: null })
@@ -259,23 +315,11 @@ export class Product {
   // Unit of weight for the product
   @Column({
     type: "enum",
-    enum: [
-      "Milligram",
-      "Gram",
-      "Kilogram",
-      "Ton",
-      "Pound",
-      "Ounce",
-      "Stone",
-      "Carat",
-      "Grain",
-      "Quintal",
-      "Metric Ton",
-    ],
+    enum: WeightUnitEnum,
     nullable: true,
     default: null,
   })
-  weightUnit: string | null;
+  weightUnit: WeightUnitEnum | null;
 
   // Weight of the product
   @Column({
@@ -290,19 +334,11 @@ export class Product {
   // Dimension unit for the product
   @Column({
     type: "enum",
-    enum: [
-      "Millimeter",
-      "Centimeter",
-      "Meter",
-      "Kilometer",
-      "Inch",
-      "Foot",
-      "Yard",
-    ],
+    enum: DimensionUnitEnum,
     nullable: true,
     default: null,
   })
-  dimensionUnit: string | null;
+  dimensionUnit: DimensionUnitEnum | null;
 
   // Length of the product
   @Column({

@@ -36,7 +36,7 @@ export const getTaxExemptionEntryByUserId = async (
       const hasPermission = await checkUserPermission({
         user,
         action: "canRead",
-        entity: "tax exemption",
+        entity: "tax_exemption",
       });
 
       if (!hasPermission) {

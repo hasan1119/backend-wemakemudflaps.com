@@ -18,7 +18,6 @@ export {
  */
 export {
   createTaxExemptionSchema,
-  TaxExemptionStatus,
   updateTaxExemptionSchema,
 } from "./tax-exemption/tax-exemption";
 
@@ -48,7 +47,6 @@ export {
   idSchema,
   idsSchema,
   paginationSchema,
-  PermissionEnum,
   PERMISSIONS,
   rolesSortingSchema,
   sessionStringSchema,

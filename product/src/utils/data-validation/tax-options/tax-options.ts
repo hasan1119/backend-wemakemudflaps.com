@@ -1,42 +1,5 @@
 import { z } from "zod";
 
-// Defines a mapping for tax calculation methods
-export const CalculateTaxBasedOnMap: Record<string, string> = {
-  SHIPPING_ADDRESS: "Shipping Address",
-  BILLING_ADDRESS: "Billing Address",
-  STORE_ADDRESS: "Store Address",
-};
-
-// Defines a mapping for display tax totals types
-export const displayTaxTotalsTypeMap: Record<string, string> = {
-  AS_A_SINGLE_ITEM: "As A Single Item",
-  ITEMIZED: "Itemized",
-};
-
-/**
- * Enum for calculate tax based on types.
- *
- * @property {"Shipping Address" | "Billing Address" | "Store Address"} value - The type of tax calculation.
- */
-export const CalculateTaxBasedOnEnum = z.preprocess((val) => {
-  if (typeof val === "string" && CalculateTaxBasedOnMap[val]) {
-    return CalculateTaxBasedOnMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(CalculateTaxBasedOnMap))] as [string, ...string[]]));
-
-/**
- * Enum for display tax totals types.
- *
- * @property {"As A Single Item" | "Itemized"} value - The type of tax option.
- */
-export const DisplayTaxTotalsTypeEnum = z.preprocess((val) => {
-  if (typeof val === "string" && displayTaxTotalsTypeMap[val]) {
-    return displayTaxTotalsTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(displayTaxTotalsTypeMap))] as [string, ...string[]]));
-
 /**
  * Schema for validating the creation of a new tax option.
  *
@@ -57,7 +20,11 @@ export const DisplayTaxTotalsTypeEnum = z.preprocess((val) => {
  */
 export const createdTaxOptionsSchema = z.object({
   pricesEnteredWithTax: z.boolean(),
-  calculateTaxBasedOn: CalculateTaxBasedOnEnum,
+  calculateTaxBasedOn: z.enum([
+    "SHIPPING_ADDRESS",
+    "BILLING_ADDRESS",
+    "STORE_ADDRESS",
+  ]),
   shippingTaxClassId: z
     .string()
     .uuid({ message: "Invalid UUID format" })
@@ -66,7 +33,7 @@ export const createdTaxOptionsSchema = z.object({
   displayPricesInShop: z.boolean(),
   displayPricesDuringCartAndCheckout: z.boolean(),
   priceDisplaySuffix: z.string(),
-  displayTaxTotals: DisplayTaxTotalsTypeEnum,
+  displayTaxTotals: z.enum(["AS_A_SINGLE_ITEM", "ITEMIZED"]),
   roundTaxAtSubtotalLevel: z.boolean(),
 });
 
@@ -89,7 +56,10 @@ export const createdTaxOptionsSchema = z.object({
  */
 export const updatedTaxOptionsSchema = z.object({
   pricesEnteredWithTax: z.boolean().optional().nullable(),
-  calculateTaxBasedOn: CalculateTaxBasedOnEnum.optional().nullable(),
+  calculateTaxBasedOn: z
+    .enum(["SHIPPING_ADDRESS", "BILLING_ADDRESS", "STORE_ADDRESS"])
+    .optional()
+    .nullable(),
   shippingTaxClassId: z
     .string()
     .uuid({ message: "Invalid UUID format" })
@@ -98,6 +68,9 @@ export const updatedTaxOptionsSchema = z.object({
   displayPricesInShop: z.boolean().optional().nullable(),
   displayPricesDuringCartAndCheckout: z.boolean().optional().nullable(),
   priceDisplaySuffix: z.string().optional().nullable(),
-  displayTaxTotals: DisplayTaxTotalsTypeEnum.optional().nullable(),
+  displayTaxTotals: z
+    .enum(["AS_A_SINGLE_ITEM", "ITEMIZED"])
+    .optional()
+    .nullable(),
   roundTaxAtSubtotalLevel: z.boolean().optional().nullable(),
 });

@@ -60,7 +60,7 @@ export const createAddressBookEntry = async (
       const hasPermission = await checkUserPermission({
         user,
         action: "canCreate",
-        entity: "address book",
+        entity: "address_book",
       });
 
       if (!hasPermission) {

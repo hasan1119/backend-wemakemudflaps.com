@@ -480,10 +480,10 @@ export type FreeShipping = {
 };
 
 export enum FreeShippingCondition {
-  Coupon = 'Coupon',
-  MinimumOrderAmount = 'Minimum_Order_Amount',
-  MinimumOrderAmountAndCoupon = 'Minimum_Order_Amount_and_Coupon',
-  MinimumOrderAmountOrCoupon = 'Minimum_Order_Amount_or_Coupon',
+  Coupon = 'COUPON',
+  MinimumOrderAmount = 'MINIMUM_ORDER_AMOUNT',
+  MinimumOrderAmountAndCoupon = 'MINIMUM_ORDER_AMOUNT_AND_COUPON',
+  MinimumOrderAmountOrCoupon = 'MINIMUM_ORDER_AMOUNT_OR_COUPON',
   Na = 'NA'
 }
 
@@ -1865,7 +1865,7 @@ export type ProductVariationInput = {
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;
   description?: InputMaybe<Scalars['String']['input']>;
-  dimensionUnit?: InputMaybe<Scalars['String']['input']>;
+  dimensionUnit?: InputMaybe<DimensionUnit>;
   height?: InputMaybe<Scalars['Float']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   length?: InputMaybe<Scalars['Float']['input']>;

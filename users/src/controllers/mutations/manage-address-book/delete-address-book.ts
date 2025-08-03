@@ -62,7 +62,7 @@ export const deleteAddressBookEntry = async (
       const hasPermission = await checkUserPermission({
         user,
         action: "canDelete",
-        entity: "address book",
+        entity: "address_book",
       });
 
       if (!hasPermission) {

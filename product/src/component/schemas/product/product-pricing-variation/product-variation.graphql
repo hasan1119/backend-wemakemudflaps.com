@@ -69,7 +69,7 @@ input ProductVariationInput {
   # ---------------------- Physical Attributes ----------------------
   weightUnit: WeightUnit # Unit for weight
   weight: Float # Weight value
-  dimensionUnit: String # Unit of dimension
+  dimensionUnit: DimensionUnit # Unit of dimension
   length: Float # Length of item
   width: Float # Width of item
   height: Float # Height of item

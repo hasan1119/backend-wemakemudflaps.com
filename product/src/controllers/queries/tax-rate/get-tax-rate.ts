@@ -66,7 +66,7 @@ export const getAllTaxRates = async (
     // Check if user has permission to view tax rates
     const canRead = await checkUserPermission({
       action: "canRead",
-      entity: "tax settings",
+      entity: "tax_settings",
       user,
     });
 

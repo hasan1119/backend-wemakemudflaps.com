@@ -46,7 +46,7 @@ export const createFaq = async (
     const hasPermission = await checkUserPermission({
       user,
       action: "canCreate",
-      entity: "site settings",
+      entity: "site_settings",
     });
 
     if (!hasPermission) {

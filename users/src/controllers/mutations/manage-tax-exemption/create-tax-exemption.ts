@@ -62,7 +62,7 @@ export const createTaxExemptionEntry = async (
       const hasPermission = await checkUserPermission({
         user,
         action: "canCreate",
-        entity: "tax exemption",
+        entity: "tax_exemption",
       });
 
       if (!hasPermission) {

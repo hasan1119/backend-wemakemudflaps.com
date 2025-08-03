@@ -43,7 +43,7 @@ export const deleteFaqs = async (
     // Check if user has permission to delete FAQs
     const canDelete = await checkUserPermission({
       action: "canDelete",
-      entity: "site settings",
+      entity: "site_settings",
       user,
     });
 

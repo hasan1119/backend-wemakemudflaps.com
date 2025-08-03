@@ -10,6 +10,11 @@ import { ProductTieredPrice } from "./product-tiered-pricing.entity";
 import { ProductVariation } from "./product-variation.entity";
 import { Product } from "./product.entity";
 
+export enum PricingType {
+  Fixed = "Fixed",
+  Percentage = "Percentage",
+}
+
 @Entity()
 export class ProductPrice {
   @PrimaryGeneratedColumn("uuid")
@@ -18,11 +23,11 @@ export class ProductPrice {
   // Pricing type: "Fixed" (fixed price per unit) or "Percentage" (discount percentage)
   @Column({
     type: "enum",
-    enum: ["Fixed", "Percentage"],
+    enum: PricingType,
     nullable: true,
     default: null,
   })
-  pricingType: string | null;
+  pricingType: PricingType | null;
 
   // Tiered pricing rules for bulk or quantity-based pricing
   @OneToMany(

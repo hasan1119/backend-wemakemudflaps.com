@@ -25,7 +25,7 @@ export const createShippingZone = async (
     const hasPermission = await checkUserPermission({
       user,
       action: "canCreate",
-      entity: "shipping settings",
+      entity: "shipping_settings",
     });
 
     if (!hasPermission) {

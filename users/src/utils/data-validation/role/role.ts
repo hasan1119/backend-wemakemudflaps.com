@@ -1,10 +1,11 @@
 import { z } from "zod";
-import { PermissionEnum } from "..";
-import { hasDuplicatePermissionNames } from "../common/common";
+import { hasDuplicatePermissionNames, PERMISSIONS } from "../common/common";
 
 // Defines the schema for a single RolePermission object
 const rolePermissionSchema = z.object({
-  name: PermissionEnum,
+  name: z.enum(PERMISSIONS as [string, ...string[]], {
+    message: "Invalid permission name",
+  }),
   description: z
     .string({ message: "Role permission description is required" })
     .trim()

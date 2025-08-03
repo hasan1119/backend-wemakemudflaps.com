@@ -37,7 +37,7 @@ export const deleteShippingZone = async (
     // Check if user has permission to delete shipping zones
     const canDelete = await checkUserPermission({
       action: "canDelete",
-      entity: "shipping settings",
+      entity: "shipping_settings",
       user,
     });
 

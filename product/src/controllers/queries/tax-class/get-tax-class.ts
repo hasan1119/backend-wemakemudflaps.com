@@ -61,7 +61,7 @@ export const getAllTaxClass = async (
     // Check if user has permission to view tax classes
     const canRead = await checkUserPermission({
       action: "canRead",
-      entity: "tax settings",
+      entity: "tax_settings",
       user,
     });
 

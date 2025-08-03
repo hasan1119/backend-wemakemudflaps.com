@@ -8,6 +8,12 @@ import {
 import { Category } from "./category.entity";
 import { Product } from "./product.entity";
 
+export enum CouponType {
+  PERCENTAGE_DISCOUNT = "PERCENTAGE_DISCOUNT",
+  FIXED_CART_DISCOUNT = "FIXED_CART_DISCOUNT",
+  FIXED_PRODUCT_DISCOUNT = "FIXED_PRODUCT_DISCOUNT",
+}
+
 @Entity()
 export class Coupon {
   @PrimaryGeneratedColumn("uuid")
@@ -24,15 +30,11 @@ export class Coupon {
   // Defines the type of discount ( "Percentage Discount", "Fixed Cart Discount" and "Fixed Product Discount")
   @Column({
     type: "enum",
-    enum: [
-      "Percentage Discount",
-      "Fixed Cart Discount",
-      "Fixed Product Discount",
-    ],
+    enum: CouponType,
     nullable: true,
     default: null,
   })
-  discountType: string | null;
+  discountType: CouponType | null;
 
   @Column({ default: false })
   freeShipping: boolean;

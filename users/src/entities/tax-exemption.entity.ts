@@ -9,6 +9,13 @@ import {
 } from "typeorm";
 import { User } from "./user.entity";
 
+export enum TaxExemptionStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
+  Expired = "Expired",
+}
+
 @Entity()
 export class TaxExemption {
   // Primary UUID for the tax exemption entry
@@ -30,10 +37,10 @@ export class TaxExemption {
   // Current status of the exemption request
   @Column({
     type: "enum",
-    enum: ["Pending", "Approved", "Rejected", "Expired"],
-    default: "Pending",
+    enum: TaxExemptionStatus,
+    default: TaxExemptionStatus.Pending,
   })
-  status: string;
+  status: TaxExemptionStatus;
 
   // Date when the exemption certificate expires
   @Column({ type: "timestamptz", nullable: true, default: null })

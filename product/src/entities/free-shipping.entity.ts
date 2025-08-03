@@ -1,5 +1,13 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
+export enum FreeShippingConditions {
+  NA = "NA",
+  COUPON = "COUPON",
+  MINIMUM_ORDER_AMOUNT = "MINIMUM_ORDER_AMOUNT",
+  MINIMUM_ORDER_AMOUNT_OR_COUPON = "MINIMUM_ORDER_AMOUNT_OR_COUPON",
+  MINIMUM_ORDER_AMOUNT_AND_COUPON = "MINIMUM_ORDER_AMOUNT_AND_COUPON",
+}
+
 @Entity()
 export class FreeShipping {
   @PrimaryGeneratedColumn("uuid")
@@ -11,16 +19,10 @@ export class FreeShipping {
 
   @Column({
     type: "text",
-    enum: [
-      "N/A",
-      "Coupon",
-      "Minimum Order Amount",
-      "Minimum Order Amount or Coupon",
-      "Minimum Order Amount & Coupon",
-    ],
-    default: "N/A",
+    enum: FreeShippingConditions,
+    default: FreeShippingConditions.NA,
   })
-  conditions: string;
+  conditions: FreeShippingConditions;
 
   // The minimum order amount required for free shipping, if applicable
   @Column({ type: "decimal", nullable: true, default: null })

@@ -1,13 +1,5 @@
 import { z } from "zod";
 
-// Defines a mapping for gender values used in authentication and profile schemas
-export const genderMap: Record<string, string> = {
-  Male: "Male",
-  Female: "Female",
-  Others: "Others",
-  Rather_not_to_say: "Rather not to say",
-};
-
 /**
  * Defines the schema for validating user registration input.
  *
@@ -67,12 +59,7 @@ export const registerSchema = z.object({
       }
     ),
   gender: z
-    .preprocess((val) => {
-      if (typeof val === "string" && genderMap[val]) {
-        return genderMap[val];
-      }
-      return val;
-    }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]]))
+    .enum(["Male", "Female", "Others", "Rather_not_to_say"])
     .nullable()
     .optional(),
   company: z
@@ -239,12 +226,10 @@ export const updateProfileSchema = z
       .nullable()
       .optional(),
     email: z.string().email({ message: "Invalid email format" }).trim(),
-    gender: z.preprocess((val) => {
-      if (typeof val === "string" && genderMap[val]) {
-        return genderMap[val];
-      }
-      return val;
-    }, z.enum([...new Set(Object.values(genderMap))] as [string, ...string[]])),
+    gender: z
+      .enum(["Male", "Female", "Others", "Rather_not_to_say"])
+      .nullable()
+      .optional(),
     address: z
       .object({
         street: z.string().nullable().optional(),

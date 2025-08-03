@@ -14,7 +14,7 @@ const pgConfig = {
   host: "127.0.0.1",
   password: "Joy112233",
   port: 5432,
-  database: "steven",
+  database: "postgres",
 };
 
 // Redis configuration

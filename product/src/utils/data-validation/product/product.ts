@@ -1,200 +1,6 @@
 import { z } from "zod";
 import { SortOrderTypeEnum } from "../common/common";
 
-// Defines a mapping for product configuration values
-export const productConfigurationTypeMap: Record<string, string> = {
-  SIMPLE_PRODUCT: "Simple Product",
-  VARIABLE_PRODUCT: "Variable Product",
-};
-
-/**
- * Enum for product configuration types.
- *
- * Workflow:
- * 1. Defines the allowed values for product configuration types.
- *
- * @property {"Simple Product" | "Variable Product"} value - The type of product configuration.
- */
-export const ProductConfigurationTypeEnum = z.preprocess((val) => {
-  if (typeof val === "string" && productConfigurationTypeMap[val]) {
-    return productConfigurationTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(productConfigurationTypeMap))] as [string, ...string[]]));
-
-// Defines a mapping for product delivery type values
-export const productDeliveryTypeMap: Record<string, string> = {
-  PHYSICAL_PRODUCT: "Physical Product",
-  DOWNLOADABLE_PRODUCT: "Downloadable Product",
-  VIRTUAL_PRODUCT: "Virtual Product",
-};
-
-/**
- * Enum for product delivery types.
- *
- * Workflow:
- * 1. Defines the allowed values for product delivery types.
- *
- * @property {"Physical Product" | "Downloadable Product" | "Virtual Product"} value - The type of product delivery.
- */
-export const ProductDeliveryTypeEnum = z.preprocess((val) => {
-  if (typeof val === "string" && productDeliveryTypeMap[val]) {
-    return productDeliveryTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(productDeliveryTypeMap))] as [string, ...string[]]));
-
-// Defines a mapping for default warranty period values
-export const WarrantyPeriodTypeMap: Record<string, string> = {
-  DAY: "day",
-  DAYS: "days",
-  WEEK: "week",
-  WEEKS: "weeks",
-  MONTH: "month",
-  MONTHS: "months",
-  YEAR: "year",
-  YEARS: "years",
-  LIFETIME: "life-time",
-};
-
-/**
- * Enum for warranty period units.
- *
- * Workflow:
- * 1. Defines the allowed values for warranty period units.
- *
- * @property {"day" | "days" | "week" | "weeks" | "month" | "months" | "year" | "years" | "life-time"} value - The unit of the warranty period.
- */
-export const WarrantyPeriodEnum = z.preprocess((val) => {
-  if (typeof val === "string" && WarrantyPeriodTypeMap[val]) {
-    return WarrantyPeriodTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(WarrantyPeriodTypeMap))] as [string, ...string[]]));
-
-// Defines a mapping for backorder option values
-export const BackOrderOptionTypeMap: Record<string, string> = {
-  DONT_ALLOW: "Don't allow",
-  ALLOW_BUT_NOTIFY_CUSTOMER: "Allow but notify customer",
-  ALLOW: "Allow",
-};
-
-/**
- * Enum for backorder options.
- *
- * Workflow:
- * 1. Defines the allowed values for backorder options.
- *
- * @property {"Don't allow" | "Allow but notify customer" | "Allow"} value - The backorder option.
- */
-export const BackOrderOptionEnum = z.preprocess((val) => {
-  if (typeof val === "string" && BackOrderOptionTypeMap[val]) {
-    return BackOrderOptionTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(BackOrderOptionTypeMap))] as [string, ...string[]]));
-
-// Defines a mapping for stock status values
-export const StockStatusTypeMap: Record<string, string> = {
-  IN_STOCK: "In stock",
-  OUT_OF_STOCK: "Out of stock",
-  ON_BACKORDER: "On backorder",
-};
-
-/**
- * Enum for stock status.
- *
- * Workflow:
- * 1. Defines the allowed values for stock status.
- *
- * @property {"In stock" | "Out of stock" | "On backorder"} value - The stock status.
- */
-export const StockStatusEnum = z.preprocess((val) => {
-  if (typeof val === "string" && StockStatusTypeMap[val]) {
-    return StockStatusTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(StockStatusTypeMap))] as [string, ...string[]]));
-
-// Defines a mapping for weight unit values
-export const WeightUnitTypeMap: Record<string, string> = {
-  MILLIGRAM: "Milligram",
-  GRAM: "Gram",
-  KILOGRAM: "Kilogram",
-  TON: "Ton",
-  POUND: "Pound",
-  OUNCE: "Ounce",
-  STONE: "Stone",
-  CARAT: "Carat",
-  GRAIN: "Grain",
-  QUINTAL: "Quintal",
-  METRIC_TON: "Metric Ton",
-};
-
-/**
- * Enum for weight units.
- *
- * Workflow:
- * 1. Defines the allowed values for weight units.
- *
- * @property {"Milligram" | "Gram" | "Kilogram" | "Ton" | "Pound" | "Ounce" | "Stone" | "Carat" | "Grain" | "Quintal" | "Metric Ton"} value - The unit of weight.
- */
-export const WeightUnitEnum = z.preprocess((val) => {
-  if (typeof val === "string" && WeightUnitTypeMap[val]) {
-    return WeightUnitTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(WeightUnitTypeMap))] as [string, ...string[]]));
-
-// Defines a mapping for dimension unit values
-export const DimensionUnitTypeMap: Record<string, string> = {
-  MILLIMETER: "Millimeter",
-  CENTIMETER: "Centimeter",
-  METER: "Meter",
-  KILOMETER: "Kilometer",
-  INCH: "Inch",
-  FOOT: "Foot",
-  YARD: "Yard",
-};
-
-/**
- * Enum for dimension units.
- *
- * Workflow:
- * 1. Defines the allowed values for dimension units.
- *
- * @property {"Millimeter" | "Centimeter" | "Meter" | "Kilometer" | "Inch" | "Foot" | "Yard"} value - The unit of dimension.
- */
-export const DimensionUnitEnum = z.preprocess((val) => {
-  if (typeof val === "string" && DimensionUnitTypeMap[val]) {
-    return DimensionUnitTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(DimensionUnitTypeMap))] as [string, ...string[]]));
-
-// Defines a mapping for tax status values
-export const taxStatusTypeMap: Record<string, string> = {
-  TAXABLE: "Taxable",
-  PRODUCT_ONLY: "Product only",
-  SHIPPING_ONLY: "Shipping only",
-  NONE: "None",
-};
-
-/**
- * Enum for tax status types.
- *
- * Workflow:
- * 1. Defines the allowed values for tax status types.
- *
- * @property {"Taxable" | "Product only" | "Shipping only" | "None"} value - The tax status of the product.
- */
-export const TaxStatusTypeEnum = z.preprocess((val) => {
-  if (typeof val === "string" && taxStatusTypeMap[val]) {
-    return taxStatusTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(taxStatusTypeMap))] as [string, ...string[]]));
-
 /**
  * Defines the schema for validating product tiered pricing input.
  *
@@ -414,7 +220,12 @@ export const ProductPriceInputSchema = z
 export const ProductVariationInputSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
   sku: z.string().min(1, "SKU cannot be empty").optional().nullable(),
-  productDeliveryType: z.array(ProductDeliveryTypeEnum).optional().nullable(),
+  productDeliveryType: z
+    .array(
+      z.enum(["PHYSICAL_PRODUCT", "DOWNLOADABLE_PRODUCT", "VIRTUAL_PRODUCT"])
+    )
+    .optional()
+    .nullable(),
   brandIds: z
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()
@@ -456,14 +267,43 @@ export const ProductVariationInputSchema = z.object({
   salePriceStartAt: z.string().datetime().optional().nullable(),
   salePriceEndAt: z.string().datetime().optional().nullable(),
   tierPricingInfo: ProductPriceInputSchema.optional().nullable(),
-  stockStatus: StockStatusEnum.optional().nullable(),
-  weightUnit: WeightUnitEnum.optional().nullable(),
+  stockStatus: z
+    .enum(["IN_STOCK", "OUT_OF_STOCK", "ON_BACKORDER"])
+    .optional()
+    .nullable(),
+  weightUnit: z
+    .enum([
+      "MILLIGRAM",
+      "GRAM",
+      "KILOGRAM",
+      "TON",
+      "POUND",
+      "OUNCE",
+      "STONE",
+      "CARAT",
+      "GRAIN",
+      "QUINTAL",
+      "METRIC_TON",
+    ])
+    .optional()
+    .nullable(),
   weight: z
     .number()
     .positive("Weight must be a positive number")
     .optional()
     .nullable(),
-  dimensionUnit: DimensionUnitEnum.optional().nullable(),
+  dimensionUnit: z
+    .enum([
+      "MILLIMETER",
+      "CENTIMETER",
+      "METER",
+      "KILOMETER",
+      "INCH",
+      "FOOT",
+      "YARD",
+    ])
+    .optional()
+    .nullable(),
   length: z
     .number()
     .positive("Length must be a positive number")
@@ -489,7 +329,20 @@ export const ProductVariationInputSchema = z.object({
     .positive("Warranty digit must be a positive integer")
     .optional()
     .nullable(),
-  defaultWarrantyPeriod: WarrantyPeriodEnum.optional().nullable(),
+  defaultWarrantyPeriod: z
+    .enum([
+      "DAY",
+      "DAYS",
+      "WEEK",
+      "WEEKS",
+      "MONTH",
+      "MONTHS",
+      "YEAR",
+      "YEARS",
+      "LIFE_TIME",
+    ])
+    .optional()
+    .nullable(),
   warrantyPolicy: z
     .string()
     .min(1, "Warranty policy cannot be empty")
@@ -500,7 +353,10 @@ export const ProductVariationInputSchema = z.object({
     .uuid({ message: "Invalid UUID format" })
     .optional()
     .nullable(),
-  taxStatus: TaxStatusTypeEnum.optional().nullable(),
+  taxStatus: z
+    .enum(["TAXABLE", "PRODUCT_ONLY", "SHIPPING_ONLY", "NONE"])
+    .optional()
+    .nullable(),
   taxClassId: z
     .string()
     .uuid({ message: "Invalid UUID format" })
@@ -586,9 +442,16 @@ export const ProductVariationInputSchema = z.object({
 export const updateProductSchema = z
   .object({
     id: z.string().uuid({ message: "Invalid UUID format" }),
-    productConfigurationType:
-      ProductConfigurationTypeEnum.optional().nullable(),
-    productDeliveryType: z.array(ProductDeliveryTypeEnum).optional().nullable(),
+    productConfigurationType: z
+      .enum(["SIMPLE_PRODUCT", "VARIABLE_PRODUCT"])
+      .optional()
+      .nullable(),
+    productDeliveryType: z
+      .array(
+        z.enum(["PHYSICAL_PRODUCT", "DOWNLOADABLE_PRODUCT", "VIRTUAL_PRODUCT"])
+      )
+      .optional()
+      .nullable(),
     name: z
       .string()
       .min(3, "Product name must be at least 3 characters")
@@ -655,7 +518,20 @@ export const updateProductSchema = z
       .positive("Warranty digit must be a positive integer")
       .optional()
       .nullable(),
-    defaultWarrantyPeriod: WarrantyPeriodEnum.optional().nullable(),
+    defaultWarrantyPeriod: z
+      .enum([
+        "DAY",
+        "DAYS",
+        "WEEK",
+        "WEEKS",
+        "MONTH",
+        "MONTHS",
+        "YEAR",
+        "YEARS",
+        "LIFE_TIME",
+      ])
+      .optional()
+      .nullable(),
     warrantyPolicy: z
       .string()
       .min(1, "Warranty policy cannot be empty")
@@ -686,7 +562,10 @@ export const updateProductSchema = z
       .trim()
       .optional()
       .nullable(),
-    taxStatus: TaxStatusTypeEnum.optional().nullable(),
+    taxStatus: z
+      .enum(["TAXABLE", "PRODUCT_ONLY", "SHIPPING_ONLY", "NONE"])
+      .optional()
+      .nullable(),
     taxClassId: z
       .string()
       .uuid({ message: "Invalid UUID format" })
@@ -723,27 +602,59 @@ export const updateProductSchema = z
       .positive("Stock quantity must be a positive integer")
       .optional()
       .nullable(),
-    allowBackOrders: BackOrderOptionEnum.optional().nullable(),
+    allowBackOrders: z
+      .enum(["DONT_ALLOW", "ALLOW_BUT_NOTIFY_CUSTOMER", "ALLOW"])
+      .optional()
+      .nullable(),
     lowStockThresHold: z
       .number()
       .int()
       .positive("Low stock threshold must be a positive integer")
       .optional()
       .nullable(),
-    stockStatus: StockStatusEnum.optional().nullable(),
+    stockStatus: z
+      .enum(["IN_STOCK", "OUT_OF_STOCK", "ON_BACKORDER"])
+      .optional()
+      .nullable(),
     soldIndividually: z.boolean().optional().nullable(),
     initialNumberInStock: z
       .string()
       .min(1, "Initial number in stock cannot be empty")
       .optional()
       .nullable(),
-    weightUnit: WeightUnitEnum.optional().nullable(),
+    weightUnit: z
+      .enum([
+        "MILLIGRAM",
+        "GRAM",
+        "KILOGRAM",
+        "TON",
+        "POUND",
+        "OUNCE",
+        "STONE",
+        "CARAT",
+        "GRAIN",
+        "QUINTAL",
+        "METRIC_TON",
+      ])
+      .optional()
+      .nullable(),
     weight: z
       .number()
       .positive("Weight must be a positive number")
       .optional()
       .nullable(),
-    dimensionUnit: DimensionUnitEnum.optional().nullable(),
+    dimensionUnit: z
+      .enum([
+        "MILLIMETER",
+        "CENTIMETER",
+        "METER",
+        "KILOMETER",
+        "INCH",
+        "FOOT",
+        "YARD",
+      ])
+      .optional()
+      .nullable(),
     length: z
       .number()
       .positive("Length must be a positive number")
@@ -784,7 +695,7 @@ export const updateProductSchema = z
   })
   .refine(
     (data) => {
-      if (data.productConfigurationType === "Simple Product") {
+      if (data.productConfigurationType === "SIMPLE_PRODUCT") {
         // For simple product, variations must be null or undefined or empty
         return (
           data.variations === undefined ||
@@ -857,7 +768,13 @@ export const productSortingSchema = z.object({
         .optional()
         .nullable(),
       productDeliveryType: z
-        .array(ProductDeliveryTypeEnum)
+        .array(
+          z.enum([
+            "PHYSICAL_PRODUCT",
+            "DOWNLOADABLE_PRODUCT",
+            "VIRTUAL_PRODUCT",
+          ])
+        )
         .optional()
         .nullable(),
     })

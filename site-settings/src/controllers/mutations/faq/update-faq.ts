@@ -48,7 +48,7 @@ export const updateFaq = async (
     const hasPermission = await checkUserPermission({
       user,
       action: "canUpdate",
-      entity: "site settings",
+      entity: "site_settings",
     });
 
     if (!hasPermission) {

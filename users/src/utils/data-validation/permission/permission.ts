@@ -1,9 +1,11 @@
 import { z } from "zod";
-import { hasDuplicatePermissionNames, PermissionEnum } from "../common/common";
+import { hasDuplicatePermissionNames, PERMISSIONS } from "../common/common";
 
 // Defines the schema for a single permission object
 const singlePermissionSchema = z.object({
-  name: PermissionEnum,
+  name: z.enum(PERMISSIONS as [string, ...string[]], {
+    message: "Invalid permission name",
+  }),
   canCreate: z
     .boolean({
       message: "canCreate must be a boolean",

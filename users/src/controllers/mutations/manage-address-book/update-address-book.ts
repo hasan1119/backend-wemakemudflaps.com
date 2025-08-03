@@ -68,7 +68,7 @@ export const updateAddressBookEntry = async (
       const hasPermission = await checkUserPermission({
         user,
         action: "canUpdate",
-        entity: "address book",
+        entity: "address_book",
       });
 
       if (!hasPermission) {

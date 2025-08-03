@@ -1,22 +1,6 @@
 import { z } from "zod";
 
 /**
- * Enum representing the possible statuses of a tax exemption.
- *
- * @enum {string}
- * @property Pending - Tax exemption request is pending approval.
- * @property Approved - Tax exemption request has been approved.
- * @property Rejected - Tax exemption request has been rejected.
- * @property Expired - Tax exemption request has expired.
- */
-export enum TaxExemptionStatus {
-  Pending = "Pending",
-  Approved = "Approved",
-  Rejected = "Rejected",
-  Expired = "Expired",
-}
-
-/**
  * Zod schema for validating the creation of a tax exemption entry.
  *
  * Fields:
@@ -72,7 +56,10 @@ export const updateTaxExemptionSchema = z
       .datetime({ message: "Invalid date format" })
       .nullable()
       .optional(),
-    status: z.nativeEnum(TaxExemptionStatus).nullable().optional(),
+    status: z
+      .enum(["Pending", "Approved", "Rejected", "Expired"])
+      .nullable()
+      .optional(),
   })
   .refine(
     (data) =>

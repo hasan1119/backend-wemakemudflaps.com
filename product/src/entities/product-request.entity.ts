@@ -1,5 +1,11 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
+export enum ProductRequestStatus {
+  Pending = "Pending",
+  Rejected = "Rejected",
+  Fulfilled = "Fulfilled",
+}
+
 @Entity()
 export class ProductRequest {
   @PrimaryGeneratedColumn("uuid")
@@ -16,10 +22,10 @@ export class ProductRequest {
   // The status of the product request, which can either be "pending" or "fulfilled"
   @Column({
     type: "enum",
-    enum: ["pending", "rejected", "fulfilled"],
-    default: "pending",
+    enum: ProductRequestStatus,
+    default: ProductRequestStatus.Pending,
   })
-  status: string;
+  status: ProductRequestStatus;
 
   // User ID who user who requested the product (string only for Apollo Federation compatibility)
   @Column({ nullable: true, default: null })

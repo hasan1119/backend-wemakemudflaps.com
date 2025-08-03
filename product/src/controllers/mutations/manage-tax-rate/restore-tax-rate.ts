@@ -47,7 +47,7 @@ export const restoreTaxRates = async (
     // Permission check
     const canUpdate = await checkUserPermission({
       action: "canUpdate",
-      entity: "tax settings",
+      entity: "tax_settings",
       user,
     });
 

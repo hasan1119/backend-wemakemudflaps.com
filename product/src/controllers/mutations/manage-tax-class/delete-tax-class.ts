@@ -66,7 +66,7 @@ export const deleteTaxClass = async (
     // Check if user has permission to delete tax classes
     const canDelete = await checkUserPermission({
       action: "canDelete",
-      entity: "tax settings",
+      entity: "tax_settings",
       user,
     });
 

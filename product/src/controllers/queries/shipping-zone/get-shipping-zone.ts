@@ -55,7 +55,7 @@ export const getAllShippingZones = async (
     // Check if user has permission to view shipping zones
     const canRead = await checkUserPermission({
       action: "canRead",
-      entity: "shipping settings",
+      entity: "shipping_settings",
       user,
     });
 
