@@ -51,7 +51,7 @@ type Product @key(fields: "id") {
   lowStockThresHold: Int # Low stock warning threshold
   stockStatus: String # Current stock status (e.g., in stock, out of stock and on backorder)
   soldIndividually: Boolean # Restrict to one per order
-  initialNumberInStock: String # Initial stock value
+  initialNumberInStock: Int # Initial stock value
   # ---------------------- Physical Attributes ----------------------
   weightUnit: String # Unit of weight (e.g., milligram, gram, kilogram, ton, pound, ounce, stone, carat, grain, quintal and metric ton)
   weight: Float # Weight value
