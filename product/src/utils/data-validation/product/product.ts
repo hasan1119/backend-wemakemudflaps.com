@@ -90,40 +90,31 @@ export const ProductPriceInputSchema = z
       .nullable(),
     tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
   })
-  /*
-   */
   .refine(
     (data) => {
       if (!data.tieredPrices || !Array.isArray(data.tieredPrices)) return true;
 
       let previousMax: number | null = null;
 
-      if (data.tieredPrices.length === 1) {
-        const tier = data.tieredPrices[0];
-        // If there's only one tier, minQuantity must be 1 and maxQuantity can be null
-        if (!tier.maxQuantity) return true;
-        return true;
-      } else {
-        for (let i = 0; i < data.tieredPrices.length; i++) {
-          const tier = data.tieredPrices[i];
-          const { minQuantity, maxQuantity } = tier;
+      for (let i = 0; i < data.tieredPrices.length; i++) {
+        const tier = data.tieredPrices[i];
+        const { minQuantity, maxQuantity } = tier;
 
-          // minQuantity must be a number
-          if (typeof minQuantity !== "number") return false;
+        // minQuantity must be a number
+        if (typeof minQuantity !== "number") return false;
 
-          // If previousMax exists, minQuantity must be exactly bigger than previousMax
-          if (previousMax !== null && minQuantity <= previousMax) return false;
+        // If previousMax exists, minQuantity must be exactly bigger than previousMax
+        if (previousMax !== null && minQuantity <= previousMax) return false;
 
-          // maxQuantity can be null only for the last item
-          const isLast = i === data.tieredPrices.length - 1;
-          if (maxQuantity == null && !isLast) return false;
+        // maxQuantity can be null only for the last item
+        const isLast = i === data.tieredPrices.length - 1;
+        if (maxQuantity == null && !isLast) return false;
 
-          // If maxQuantity is defined, must be > minQuantity
-          if (typeof maxQuantity === "number" && minQuantity >= maxQuantity)
-            return false;
+        // If maxQuantity is defined, must be > minQuantity
+        if (typeof maxQuantity === "number" && minQuantity >= maxQuantity)
+          return false;
 
-          previousMax = maxQuantity ?? null; // carry forward for next iteration
-        }
+        previousMax = maxQuantity ?? null; // carry forward for next iteration
       }
 
       return true;
