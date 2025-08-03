@@ -1860,7 +1860,7 @@ export type ProductVariation = {
 };
 
 export type ProductVariationInput = {
-  attributeValues?: InputMaybe<Array<Scalars['ID']['input']>>;
+  attributeValueIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;

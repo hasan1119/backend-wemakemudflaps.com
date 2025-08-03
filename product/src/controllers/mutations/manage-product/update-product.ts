@@ -488,17 +488,16 @@ export const updateProduct = async (
         }
       }
 
-      const variationsAttributeValuesIds = variations.flatMap(
-        (variation) => variation.attributeValues?.map((av) => av) || []
+      const variationsAttributeValueIds = variations.flatMap(
+        (variation) => variation.attributeValueIds?.map((av) => av) || []
       );
 
-      if (variationsAttributeValuesIds.length > 0) {
+      if (variationsAttributeValueIds.length > 0) {
         const attributesValues =
-          (await getProductAttributeValuesByIds(
-            variationsAttributeValuesIds
-          )) ?? [];
+          (await getProductAttributeValuesByIds(variationsAttributeValueIds)) ??
+          [];
 
-        if (attributesValues.length !== variationsAttributeValuesIds.length) {
+        if (attributesValues.length !== variationsAttributeValueIds.length) {
           return {
             statusCode: 404,
             success: false,

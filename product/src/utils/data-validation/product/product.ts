@@ -90,39 +90,21 @@ export const ProductPriceInputSchema = z
       .nullable(),
     tieredPrices: z.array(ProductTieredPriceInputSchema).optional().nullable(),
   })
+  // Only last tier can have null maxQuantity
   .refine(
     (data) => {
-      if (!data.tieredPrices || !Array.isArray(data.tieredPrices)) return true;
-
-      let previousMax: number | null = null;
-
-      for (let i = 0; i < data.tieredPrices.length; i++) {
-        const tier = data.tieredPrices[i];
-        const { minQuantity, maxQuantity } = tier;
-
-        // minQuantity must be a number
-        if (typeof minQuantity !== "number") return false;
-
-        // If previousMax exists, minQuantity must be exactly previousMax + 1
-        if (previousMax !== null && minQuantity !== previousMax + 1)
-          return false;
-
-        // maxQuantity can be null only for the last item
-        const isLast = i === data.tieredPrices.length - 1;
-        if (maxQuantity == null && !isLast) return false;
-
-        // If maxQuantity is defined, must be > minQuantity
-        if (typeof maxQuantity === "number" && minQuantity >= maxQuantity)
-          return false;
-
-        previousMax = maxQuantity ?? null; // carry forward for next iteration
+      if (data.tieredPrices && data.tieredPrices.length > 0) {
+        const lastTier = data.tieredPrices[data.tieredPrices.length - 1];
+        return (
+          lastTier.maxQuantity === null ||
+          lastTier.maxQuantity === undefined ||
+          lastTier.minQuantity < lastTier.maxQuantity
+        );
       }
-
-      return true;
+      return true; // Skip check if no tiered prices
     },
     {
-      message:
-        "Each tier's minQuantity must be exactly one more than previous maxQuantity. Only the last tier can have an open-ended maxQuantity (null).",
+      message: "Last tier's minQuantity must be less than maxQuantity.",
       path: ["tieredPrices"],
     }
   );
@@ -287,7 +269,7 @@ export const ProductVariationInputSchema = z.object({
     .positive("Height must be a positive number")
     .optional()
     .nullable(),
-  attributeValues: z
+  attributeValueIds: z
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()
     .nullable(),

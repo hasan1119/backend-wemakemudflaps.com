@@ -74,7 +74,7 @@ input ProductVariationInput {
   width: Float # Width of item
   height: Float # Height of item
   # ---------------------- Relations ----------------------
-  attributeValues: [ID!] # List of variation attribute values
+  attributeValueIds: [ID!] # List of variation attribute values
   # ---------------------- Warranty Info ----------------------
   warrantyDigit: Int # Duration number for warranty
   defaultWarrantyPeriod: DefaultWarrantyPeriod # Period type (e.g., "months")

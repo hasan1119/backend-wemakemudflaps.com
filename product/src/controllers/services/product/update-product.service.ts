@@ -203,8 +203,8 @@ export const updateProduct = async (
             ? v.brandIds.map((id) => ({ id } as any))
             : [],
           tierPricingInfo: null,
-          attributeValues: v.attributeValues?.length
-            ? v.attributeValues.map((av) => ({ id: av }))
+          attributeValues: v.attributeValueIds?.length
+            ? v.attributeValueIds.map((av) => ({ id: av }))
             : [],
           shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
           taxClass: v.taxClassId ? { id: v.taxClassId } : null,
