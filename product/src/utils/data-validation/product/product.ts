@@ -95,20 +95,18 @@ export const ProductPriceInputSchema = z
     (data) => {
       const tieredPrices = data.tieredPrices;
 
-      if (!tieredPrices || tieredPrices.length === 0) return true;
-
-      const nullMaxIndexes = tieredPrices
-        .map((tier, index) => (tier?.maxQuantity == null ? index : null))
-        .filter((i): i is number => i !== null);
-
-      if (nullMaxIndexes.length > 1) return false;
-
-      if (nullMaxIndexes.length === 1) {
-        const lastIndex = tieredPrices.length - 1;
-        if (nullMaxIndexes[0] !== lastIndex) return false;
+      if (!tieredPrices || tieredPrices.length === 0) {
+        return true; // No tiered prices, no validation needed
       }
 
-      return true;
+      const lastTier = tieredPrices[tieredPrices.length - 1];
+
+      if (tieredPrices.length === 1 || lastTier.maxQuantity === null) {
+        // If there's only one tier, it can have null maxQuantity and if there are multiple tiers, only the last tier can have null maxQuantity
+        return (
+          tieredPrices[0].maxQuantity === null || lastTier.maxQuantity === null
+        );
+      }
     },
     {
       message:
