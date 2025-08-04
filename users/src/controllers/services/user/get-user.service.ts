@@ -27,15 +27,13 @@ export const isUsernameAvailable = async (
   username: string,
   userId?: string
 ): Promise<boolean> => {
-  const user = !userId
-    ? await userRepository.findOne({
-        where: { username, deletedAt: null },
-        select: { id: true },
-      })
-    : await userRepository.findOne({
-        where: { id: Not(userId), username, deletedAt: null },
-        select: { id: true },
-      });
+  const user = await userRepository.findOne({
+    where: {
+      username,
+      deletedAt: null,
+      ...(userId ? { id: Not(userId) } : {}),
+    },
+  });
 
   return !user;
 };
@@ -44,7 +42,7 @@ export const isUsernameAvailable = async (
  * Handles retrieval of a user's email field by their email address.
  *
  * Workflow:
- * 1. Queries the userRepository to find a user with the specified email.
+ * 1. Queries the userRepository to find a user where email or tempUpdatedEmail matches the provided email.
  * 2. Selects only the email field for efficiency.
  * 3. Returns the email field as an object or null if not found.
  *
@@ -55,8 +53,8 @@ export const getUserEmailOnly = async (
   email: string
 ): Promise<Pick<User, "email"> | null> => {
   return await userRepository.findOne({
-    where: { email },
-    select: { email: true },
+    where: [{ email }, { tempUpdatedEmail: email }],
+    select: { email: true, tempUpdatedEmail: true },
   });
 };
 

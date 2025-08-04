@@ -133,9 +133,9 @@ export const updateProfile = async (
 
     if (userData.username !== username) {
       // Check if username is available
-      const isAvailable = !(await isUsernameAvailable(username, user.id));
+      const isAvailable = await isUsernameAvailable(username, user.id);
 
-      if (isAvailable) {
+      if (!isAvailable) {
         return {
           statusCode: 400,
           success: false,
@@ -143,6 +143,7 @@ export const updateProfile = async (
           __typename: "BaseResponse",
         };
       }
+
       userData.username = username;
     }
 
@@ -166,8 +167,9 @@ export const updateProfile = async (
     if (company !== userData.company) userData.company = company;
 
     if (email !== userData.email) {
-      // Check if the new email is already in use
-      if (await isEmailInUse(email, user.id)) {
+      const isTaken = await isEmailInUse(email, user.id);
+
+      if (isTaken) {
         return {
           statusCode: 409,
           success: false,
