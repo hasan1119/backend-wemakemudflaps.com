@@ -15,11 +15,7 @@ import {
   MutationVerifyEmailArgs,
   UserSession,
 } from "../../../types";
-import {
-  emailSchema,
-  idSchema,
-  sessionStringSchema,
-} from "../../../utils/data-validation";
+import { emailSchema, idSchema } from "../../../utils/data-validation";
 import EncodeToken from "../../../utils/jwt/encode-token";
 import {
   checkUserAuth,
@@ -63,7 +59,7 @@ export const verifyEmail = async (
     const [idResult, emailResult, sessionString] = await Promise.all([
       idSchema.safeParseAsync({ id: userId }),
       emailSchema.safeParseAsync({ email }),
-      sessionStringSchema.safeParseAsync({ sessionId }),
+      idSchema.safeParseAsync({ id: sessionId }),
     ]);
 
     // Return detailed validation errors if input is invalid

@@ -49,7 +49,6 @@ export {
   paginationSchema,
   PERMISSIONS,
   rolesSortingSchema,
-  sessionStringSchema,
   skipTrashSchema,
   SortOrderTypeEnum,
   usersSortingSchema,

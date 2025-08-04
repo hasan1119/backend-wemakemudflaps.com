@@ -2,7 +2,7 @@ import CONFIG from "../../../../config/config";
 import { Context } from "../../../../context";
 import { removeUserTokenInfoByUserSessionIdFromRedis } from "../../../../helper/redis";
 import { BaseResponseOrError } from "../../../../types";
-import { sessionStringSchema } from "../../../../utils/data-validation";
+import { idSchema } from "../../../../utils/data-validation";
 import {
   checkUserAuth,
   deleteUserLoginInfoSessionsByIds,
@@ -31,8 +31,8 @@ export const logout = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    const validationResult = await sessionStringSchema.safeParseAsync({
-      sessionId: user.sessionId,
+    const validationResult = await idSchema.safeParseAsync({
+      id: user.sessionId,
     });
 
     if (!validationResult.success) {
