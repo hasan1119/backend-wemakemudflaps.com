@@ -129,11 +129,11 @@ export const updateProfile = async (
     // Attempt to retrieve cached user data from Redis
     let userData;
 
-    userData = await getUserInfoByUserIdFromRedis(args.userId);
+    userData = await getUserInfoByUserIdFromRedis(targetUserId);
 
     // If user data is not found in Redis, fetch from database
     if (!userData) {
-      userData = await getUserById(args.userId);
+      userData = await getUserById(targetUserId);
 
       if (!userData) {
         return {
