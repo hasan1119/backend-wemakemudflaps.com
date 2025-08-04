@@ -302,6 +302,9 @@ export class ProductVariation {
   @Column("text", { array: true, nullable: true })
   videos: string[] | null;
 
+  @Column({ type: "boolean", default: false, nullable: true })
+  isActive: boolean | null;
+
   // Timestamp when the product variation was created
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;

@@ -225,6 +225,7 @@ export const updateProduct = async (
           shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
           taxClass: v.taxClassId ? { id: v.taxClassId } : null,
           tierPricingInfo: null, // Initialize as null, will set after saving ProductPrice
+          isActive: v.isActive ?? false, // Set isActive field
         } as any);
 
         // Save base variation to get ID

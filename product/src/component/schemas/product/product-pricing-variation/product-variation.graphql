@@ -42,6 +42,8 @@ type ProductVariation {
   # ---------------------- Media ----------------------
   images: [Media!] # Gallery images
   videos: [Media!] # Videos
+  # ---------------------- Status ----------------------
+  isActive: Boolean # Indicates if the variation is active
   # ---------------------- Meta ----------------------
   createdAt: String # Creation timestamp
   deletedAt: String # Soft deletion timestamp
@@ -87,4 +89,6 @@ input ProductVariationInput {
   # ---------------------- Media ----------------------
   images: [ID!] # Product gallery IDs
   videos: [ID!] # Product video IDs
+  # ---------------------- Status ----------------------
+  isActive: Boolean # Indicates if the variation is active
 }

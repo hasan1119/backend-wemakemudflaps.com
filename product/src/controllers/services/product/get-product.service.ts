@@ -49,7 +49,7 @@ export const findProductBySlug = async (
     .leftJoinAndSelect(
       "product.variations",
       "variations",
-      "variations.deletedAt IS NULL"
+      "variations.deletedAt IS NULL AND variations.isActive = true"
     )
     .leftJoinAndSelect(
       "product.shippingClass",
@@ -714,7 +714,7 @@ export const paginateProductsForCustomer = async ({
     .leftJoinAndSelect(
       "product.variations",
       "variations",
-      "variations.deletedAt IS NULL"
+      "variations.deletedAt IS NULL AND variations.isActive = true"
     )
     .leftJoinAndSelect(
       "product.shippingClass",

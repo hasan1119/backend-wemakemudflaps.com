@@ -182,7 +182,7 @@ export const ProductPriceInputSchema = z
  * @property description - Optional description specific to the variation.
  * @property images - Optional array of image UUIDs.
  * @property videos - Optional array of video UUIDs.
- * @property deletedAt - Optional timestamp of soft deletion.
+ * @property isActive - Optional flag indicating if the variation is active.
  */
 export const ProductVariationInputSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
@@ -343,6 +343,7 @@ export const ProductVariationInputSchema = z.object({
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()
     .nullable(),
+  isActive: z.boolean().optional().nullable(),
 });
 
 /**
