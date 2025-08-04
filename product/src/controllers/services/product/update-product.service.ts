@@ -204,7 +204,7 @@ export const updateProduct = async (
 
       if (variationsToDelete?.length > 0) {
         await productVariationRepository.delete({
-          id: In(variationsToDelete.map((v) => v.id)),
+          id: In(idsToDelete),
           product: { id: currentProduct.id },
         });
 
