@@ -147,9 +147,9 @@ export const updateProfile = async (
 
     if (userData.username !== username) {
       // Check if username is available
-      const isAvailable = !(await isUsernameAvailable(username, user.id));
+      const isAvailable = await isUsernameAvailable(username, user.id);
 
-      if (isAvailable) {
+      if (!isAvailable) {
         return {
           statusCode: 400,
           success: false,
