@@ -4,6 +4,7 @@ import { AppDataSource } from "../../../helper";
 import { MutationUpdateProductArgs } from "../../../types";
 import {
   productAttributeRepository,
+  productAttributeValueRepository,
   productPriceRepository,
   productRepository,
   productVariationRepository,
@@ -182,6 +183,12 @@ export const updateProduct = async (
         relations: ["brands", "attributeValues", "tierPricingInfo"],
       });
 
+      // Remove product attribute values for variations
+      await productAttributeRepository.update(
+        { id: In(currentProduct.variations.map((v) => v.id)) },
+        { product: null }
+      );
+
       currentProduct.variations.map(async (variation) => {
         const tierPricingInfo = await variation.tierPricingInfo;
         if (tierPricingInfo) {
@@ -190,9 +197,21 @@ export const updateProduct = async (
       });
 
       if (variationsToDelete?.length > 0) {
-        const result = await productVariationRepository.delete({
+        await productVariationRepository.delete({
           id: In(variationsToDelete.map((v) => v.id)),
           product: { id: currentProduct.id },
+        });
+
+        await productAttributeValueRepository.delete({
+          id: In(
+            (
+              await Promise.all(
+                variationsToDelete.map(async (v) => await v.attributeValues)
+              )
+            )
+              .flat()
+              .map((av) => av.id)
+          ),
         });
       }
     }
