@@ -190,7 +190,10 @@ export const updateProduct = async (
       });
 
       if (variationsToDelete?.length > 0) {
-        await productVariationRepository.remove(variationsToDelete);
+        const result = await productVariationRepository.delete({
+          id: In(variationsToDelete.map((v) => v.id)),
+          product: { id: currentProduct.id },
+        });
       }
     }
 
@@ -235,6 +238,9 @@ export const updateProduct = async (
           await productVariationRepository.save(variation);
         }
       }
+    } else {
+      // If no variations are provided, set variations to null
+      currentProduct.variations = null;
     }
 
     // Replace upsells
