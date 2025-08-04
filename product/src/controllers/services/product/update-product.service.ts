@@ -183,35 +183,40 @@ export const updateProduct = async (
         relations: ["brands", "attributeValues", "tierPricingInfo"],
       });
 
-      const variationsAttributeValuesToDelete = (
-        await Promise.all(
-          variationsToDelete.map(async (v) => await v.attributeValues)
-        )
-      ).flat();
+      if (idsToDelete?.length > 0) {
+        const variationsAttributeValuesToDelete =
+          (
+            await Promise.all(
+              variationsToDelete.map(async (v) => await v.attributeValues)
+            )
+          ).flat() || [];
 
-      // Remove product attribute values for variations
-      await productAttributeValueRepository.update(
-        { id: In(variationsAttributeValuesToDelete) },
-        { variations: null }
-      );
+        if (variationsAttributeValuesToDelete.length > 0) {
+          // Remove product attribute values for variations
+          await productAttributeValueRepository.update(
+            { id: In(variationsAttributeValuesToDelete) },
+            { variations: null }
+          );
 
-      currentProduct.variations.map(async (variation) => {
-        const tierPricingInfo = await variation.tierPricingInfo;
-        if (tierPricingInfo) {
-          await productPriceRepository.remove(tierPricingInfo);
+          await productAttributeValueRepository.delete({
+            variations: { id: In(variationsAttributeValuesToDelete) },
+          });
         }
-      });
 
-      if (variationsToDelete?.length > 0) {
+        currentProduct.variations.map(async (variation) => {
+          const tierPricingInfo = await variation.tierPricingInfo;
+          if (tierPricingInfo) {
+            await productPriceRepository.remove(tierPricingInfo);
+          }
+        });
+
         await productVariationRepository.delete({
           id: In(idsToDelete),
           product: { id: currentProduct.id },
         });
-
-        await productAttributeValueRepository.delete({
-          variations: { id: In(variationsAttributeValuesToDelete) },
-        });
       }
+    } else {
+      currentProduct.variations = null;
     }
 
     if (data.variations && data.variations?.length > 0) {
@@ -255,9 +260,6 @@ export const updateProduct = async (
           await productVariationRepository.save(variation);
         }
       }
-    } else {
-      // If no variations are provided, set variations to null
-      currentProduct.variations = null;
     }
 
     // Replace upsells
