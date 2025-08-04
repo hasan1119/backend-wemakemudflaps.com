@@ -63,6 +63,14 @@ export { Coupon } from "./coupon.entity";
 export { ProductAttributeValue } from "./product-attribute-value.entity";
 
 /**
+ * Exports the ProductVariationAttributeValue entity for managing attribute values in product variations.
+ *
+ * Workflow:
+ * 1. Links attribute values to specific product variations (e.g., "Large" for size in a variation).
+ */
+export { ProductVariationAttributeValue } from "./product-variations-attribute-value.entity";
+
+/**
  * Exports the ProductAttribute entity for defining attributes.
  *
  * Workflow:

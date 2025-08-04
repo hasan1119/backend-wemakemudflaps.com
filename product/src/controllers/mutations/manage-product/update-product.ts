@@ -222,8 +222,45 @@ async function mapProductRecursive(
           attributeValues:
             (
               await variation.attributeValues
-            ).map((attributeValue) => ({
+            ).map(async (attributeValue) => ({
               ...attributeValue,
+              attributeValues: {
+                ...attributeValue,
+                attributeValue: {
+                  ...(await attributeValue.attributeValue),
+                  value: (await attributeValue.attributeValue).value || null,
+                  createdAt:
+                    (await attributeValue.attributeValue).createdAt instanceof
+                    Date
+                      ? (
+                          await attributeValue.attributeValue
+                        ).createdAt.toISOString()
+                      : (
+                          await attributeValue.attributeValue
+                        ).createdAt,
+                  deletedAt: (
+                    await attributeValue.attributeValue
+                  ).deletedAt
+                    ? (await attributeValue.attributeValue).deletedAt instanceof
+                      Date
+                      ? (
+                          await attributeValue.attributeValue
+                        ).deletedAt.toISOString()
+                      : (
+                          await attributeValue.attributeValue
+                        ).deletedAt
+                    : null,
+                },
+                createdAt:
+                  attributeValue.createdAt instanceof Date
+                    ? attributeValue.createdAt.toISOString()
+                    : attributeValue.createdAt,
+                deletedAt: attributeValue.deletedAt
+                  ? attributeValue.deletedAt instanceof Date
+                    ? attributeValue.deletedAt.toISOString()
+                    : attributeValue.deletedAt
+                  : null,
+              },
               createdAt:
                 attributeValue.createdAt instanceof Date
                   ? attributeValue.createdAt.toISOString()
@@ -397,7 +434,6 @@ export const updateProduct = async (
         __typename: "BaseResponse",
       };
     }
-
     // Check for duplicate slug (if changed)
     if (slug && slug !== currentProduct.slug) {
       let slugExists = await findProductBySlugToUpdate(id, slug);
@@ -413,8 +449,11 @@ export const updateProduct = async (
 
     // Validate existence of related entities
     if (brandIds && brandIds.length > 0) {
-      const brands = await getBrandsByIds(brandIds);
-      if (brands.length !== brandIds.length) {
+      // Remove duplicate brandIds
+      const uniqueBrandIds = Array.from(new Set(brandIds));
+
+      const brands = await getBrandsByIds(uniqueBrandIds);
+      if (brands.length !== uniqueBrandIds.length) {
         return {
           statusCode: 404,
           success: false,
@@ -425,8 +464,11 @@ export const updateProduct = async (
     }
 
     if (tagIds && tagIds.length > 0) {
-      const tags = await getTagsByIds(tagIds);
-      if (tags.length !== tagIds.length) {
+      // Remove duplicate tagIds
+      const uniqueTagIds = Array.from(new Set(tagIds));
+
+      const tags = await getTagsByIds(uniqueTagIds);
+      if (tags.length !== uniqueTagIds.length) {
         return {
           statusCode: 404,
           success: false,
@@ -437,9 +479,12 @@ export const updateProduct = async (
     }
 
     if (categoryIds) {
-      const categories = await getCategoryByIds(categoryIds);
+      // Remove duplicate categoryIds
+      const uniqueCategoryIds = Array.from(new Set(categoryIds));
 
-      if (categories.length !== categoryIds.length) {
+      const categories = await getCategoryByIds(uniqueCategoryIds);
+
+      if (categories.length !== uniqueCategoryIds.length) {
         return {
           statusCode: 404,
           success: false,
@@ -457,7 +502,7 @@ export const updateProduct = async (
       if (variationBrandIds.length > 0) {
         const variationBrands = await getBrandsByIds(variationBrandIds);
 
-        if (variationBrands.length !== variationBrandIds.length) {
+        if (!variationBrands.length) {
           return {
             statusCode: 404,
             success: false,
@@ -473,7 +518,7 @@ export const updateProduct = async (
 
       if (variationsTaxClassIds.length > 0) {
         const taxClasses = await getTaxClassByIds(variationsTaxClassIds);
-        if (taxClasses.length !== variationsTaxClassIds.length) {
+        if (!taxClasses.length) {
           return {
             statusCode: 404,
             success: false,
@@ -492,7 +537,7 @@ export const updateProduct = async (
           variationsShippingClassIds
         );
 
-        if (shippingClasses.length !== variationsShippingClassIds.length) {
+        if (!shippingClasses.length) {
           return {
             statusCode: 404,
             success: false,
@@ -511,12 +556,12 @@ export const updateProduct = async (
           (await getProductAttributeValuesByIds(variationsAttributeValueIds)) ??
           [];
 
-        if (attributesValues.length !== variationsAttributeValueIds.length) {
+        if (!attributesValues.length) {
           return {
             statusCode: 404,
             success: false,
             message:
-              "One or more product attributes inside variations not found",
+              "One or more product attribute values inside variations not found",
             __typename: "BaseResponse",
           };
         }
@@ -565,8 +610,11 @@ export const updateProduct = async (
     }
 
     if (upsellIds && upsellIds.length > 0) {
-      const upSellsProduct = await getProductsByIds(upsellIds);
-      if (upSellsProduct.length !== upsellIds.length) {
+      // Remove duplicate upsellIds
+      const uniqueUpsellIds = Array.from(new Set(upsellIds));
+
+      const upSellsProduct = await getProductsByIds(uniqueUpsellIds);
+      if (upSellsProduct.length !== uniqueUpsellIds.length) {
         return {
           statusCode: 404,
           success: false,
@@ -577,8 +625,11 @@ export const updateProduct = async (
     }
 
     if (crossSellIds && crossSellIds.length > 0) {
-      const crossSellProducts = await getProductsByIds(crossSellIds);
-      if (crossSellProducts.length !== crossSellIds.length) {
+      // Remove duplicate crossSellIds
+      const uniqueCrossSellIds = Array.from(new Set(crossSellIds));
+
+      const crossSellProducts = await getProductsByIds(uniqueCrossSellIds);
+      if (crossSellProducts.length !== uniqueCrossSellIds.length) {
         return {
           statusCode: 404,
           success: false,
@@ -589,9 +640,12 @@ export const updateProduct = async (
     }
 
     if (attributeIds && attributeIds.length > 0) {
-      const attributes = await getProductAttributesByIds(attributeIds);
+      // Remove duplicate attributeIds
+      const uniqueAttributeIds = Array.from(new Set(attributeIds));
 
-      if (attributes.length !== attributeIds.length) {
+      const attributes = await getProductAttributesByIds(uniqueAttributeIds);
+
+      if (attributes.length !== uniqueAttributeIds.length) {
         return {
           statusCode: 404,
           success: false,

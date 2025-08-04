@@ -193,6 +193,7 @@ export const ProductVariationInputSchema = z.object({
     )
     .optional()
     .nullable(),
+  // remove duplicate brandIds
   brandIds: z
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()

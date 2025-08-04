@@ -1,12 +1,5 @@
-import {
-  Column,
-  Entity,
-  ManyToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ProductAttribute } from "./product-attribute.entity";
-import { ProductVariation } from "./product-variation.entity";
 
 @Entity()
 export class ProductAttributeValue {
@@ -23,17 +16,6 @@ export class ProductAttributeValue {
     nullable: true,
   })
   attribute: Promise<ProductAttribute> | null;
-
-  // Link to the associated product variations
-  @ManyToMany(
-    () => ProductVariation,
-    (variation) => variation.attributeValues,
-    {
-      onDelete: "CASCADE",
-      nullable: true,
-    }
-  )
-  variations: Promise<ProductVariation[]> | null;
 
   // Timestamp when the product attribute value was created (auto-generated)
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

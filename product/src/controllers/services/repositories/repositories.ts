@@ -15,6 +15,7 @@ import {
   ProductReview,
   ProductTieredPrice,
   ProductVariation,
+  ProductVariationAttributeValue,
   ShippingClass,
   ShippingMethod,
   ShippingZone,
@@ -62,6 +63,15 @@ export const couponRepository = AppDataSource.getRepository(Coupon);
 export const productAttributeValueRepository = AppDataSource.getRepository(
   ProductAttributeValue
 );
+
+/**
+ * Initializes repository for ProductVariationAttributeValue entity with relations.
+ *
+ * Workflow:
+ * 1. Retrieves the ProductVariationAttributeValue repository from AppDataSource for database operations.
+ */
+export const productVariationAttributeValueRepository =
+  AppDataSource.getRepository(ProductVariationAttributeValue);
 
 /**
  * Initializes repository for ProductAttribute entity.

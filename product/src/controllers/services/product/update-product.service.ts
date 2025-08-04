@@ -4,9 +4,9 @@ import { AppDataSource } from "../../../helper";
 import { MutationUpdateProductArgs } from "../../../types";
 import {
   productAttributeRepository,
-  productAttributeValueRepository,
   productPriceRepository,
   productRepository,
+  productVariationAttributeValueRepository,
   productVariationRepository,
 } from "../repositories/repositories";
 import { getProductById } from "./get-product.service";
@@ -171,9 +171,6 @@ export const updateProduct = async (
       }
     }
 
-    // Process variations
-    const processedVariations = [];
-
     // Replace variations
     if (data.variations !== undefined) {
       const idsToDelete = currentProduct.variations.map((v) => v.id);
@@ -183,24 +180,21 @@ export const updateProduct = async (
         relations: ["brands", "attributeValues", "tierPricingInfo"],
       });
 
-      if (idsToDelete?.length > 0) {
+      if (variationsToDelete.length === 0) {
+        currentProduct.variations = null;
+      } else {
         const variationsAttributeValuesToDelete =
-          (
-            await Promise.all(
-              variationsToDelete.map(async (v) => await v.attributeValues)
-            )
-          ).flat() || [];
+          await productVariationAttributeValueRepository.find({
+            where: {
+              variation: { id: In(variationsToDelete.map((v) => v.id)) },
+            },
+            relations: ["variation"],
+          });
 
         if (variationsAttributeValuesToDelete.length > 0) {
-          // Remove product attribute values for variations
-          await productAttributeValueRepository.update(
-            { id: In(variationsAttributeValuesToDelete) },
-            { variations: null }
+          await productVariationAttributeValueRepository.remove(
+            variationsAttributeValuesToDelete
           );
-
-          await productAttributeValueRepository.delete({
-            variations: { id: In(variationsAttributeValuesToDelete) },
-          });
         }
 
         currentProduct.variations.map(async (variation) => {
@@ -210,56 +204,60 @@ export const updateProduct = async (
           }
         });
 
-        await productVariationRepository.delete({
-          id: In(idsToDelete),
-          product: { id: currentProduct.id },
-        });
+        await productVariationRepository.remove(variationsToDelete);
       }
     } else {
       currentProduct.variations = null;
     }
 
+    const newVariations = [];
+
     if (data.variations && data.variations?.length > 0) {
       for (const v of data.variations) {
-        // Create variation without brands to avoid type mismatch
-        const variation = productVariationRepository.create({
+        const baseVariation = productVariationRepository.create({
           ...v,
           brands: v.brandIds?.length
             ? v.brandIds.map((id) => ({ id } as any))
             : [],
-          tierPricingInfo: null,
-          attributeValues: v.attributeValueIds?.length
-            ? v.attributeValueIds.map((av) => ({ id: av }))
-            : [],
+          product: { id: currentProduct.id },
+          quantityStep: v.quantityStep ?? 1,
           shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
           taxClass: v.taxClassId ? { id: v.taxClassId } : null,
-          product: currentProduct, // Link to the main product
-          quantityStep: v.quantityStep ?? 1,
+          tierPricingInfo: null,
         } as any);
-        processedVariations.push(variation);
 
-        currentProduct.variations = processedVariations?.length
-          ? await productVariationRepository.save(processedVariations as any)
-          : null;
+        // Save base variation to get ID
+        const savedVariation = await productVariationRepository.save(
+          baseVariation
+        );
 
-        // Save tier pricing info for the variation
-        if (v.tierPricingInfo) {
-          const processedTierPricingInfo = await productPriceRepository.create({
-            ...v.tierPricingInfo,
-            productVariation: variation, // Link to the variation
-          } as any);
-
-          const savedPricing = await productPriceRepository.save(
-            processedTierPricingInfo
+        // Create attribute values
+        if (v.attributeValueIds?.length > 0) {
+          const attrValueEntities = v.attributeValueIds.map((attrValId) =>
+            productVariationAttributeValueRepository.create({
+              variation: { id: (savedVariation as any).id },
+              attributeValue: { id: attrValId },
+            } as any)
           );
-
-          // Attach tier pricing back to the variation (only if the relation allows it)
-          if (currentProduct.variations[0]) {
-            currentProduct.variations[0].tierPricingInfo = savedPricing as any;
-          }
-          await productVariationRepository.save(variation);
+          await productVariationAttributeValueRepository.save(
+            attrValueEntities as any
+          );
         }
+
+        // Save tier pricing if any
+        if (v.tierPricingInfo) {
+          const newTierPricing = productPriceRepository.create({
+            ...v.tierPricingInfo,
+            productVariation: { id: (savedVariation as any).id },
+          } as any);
+          await productPriceRepository.save(newTierPricing);
+        }
+
+        newVariations.push(savedVariation);
       }
+
+      currentProduct.variations =
+        newVariations.length > 0 ? newVariations : null;
     }
 
     // Replace upsells
@@ -346,7 +344,19 @@ export const updateProduct = async (
     }
 
     // Save and return updated product
-    await productRepository.save(product);
-    return getProductById(product.id);
+    const resultProduct = await getProductById(product.id);
+    const variationDetails = await Promise.all(
+      resultProduct.variations.map(async (v) => ({
+        id: v.id,
+        attributeValues: (
+          await v.attributeValues
+        ).map((av) => ({
+          id: av.id,
+          attributeValue: av.attributeValue.value,
+        })),
+      }))
+    );
+    console.log(variationDetails);
+    return resultProduct;
   });
 };

@@ -19,7 +19,6 @@ export const findProductBySlug = async (
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.slug ILIKE :slug AND product.deletedAt IS NULL", { slug })
-    // Product relations
     .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
     .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
     .leftJoinAndSelect(
@@ -84,7 +83,6 @@ export const findProductBySlug = async (
       "tieredPrices.deletedAt IS NULL"
     )
     .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
       "variation_brands",
@@ -105,9 +103,9 @@ export const findProductBySlug = async (
       "variation_attributeValues.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
-      "variation_attributeValues.attribute",
-      "variation_attribute",
-      "variation_attribute.deletedAt IS NULL"
+      "variation_attributeValues.attributeValue",
+      "variation_attributeValue",
+      "variation_attributeValue.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
       "variations.shippingClass",
@@ -154,11 +152,9 @@ export const findProductBySlugToUpdate = async (
  * @returns A promise that resolves to the Product entity, or null if no match is found.
  */
 export const getProductById = async (id: string): Promise<Product | null> => {
-  // Build query with soft delete filtering for all relations
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.id = :id AND product.deletedAt IS NULL", { id })
-    // Product relations
     .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
     .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
     .leftJoinAndSelect(
@@ -217,14 +213,12 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       "taxClass.deletedAt IS NULL"
     )
     .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    // Tier Pricing Info
     .leftJoinAndSelect(
       "tierPricingInfo.tieredPrices",
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
     .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
       "variation_brands",
@@ -245,9 +239,9 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       "variation_attributeValues.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
-      "variation_attributeValues.attribute",
-      "variation_attribute",
-      "variation_attribute.deletedAt IS NULL"
+      "variation_attributeValues.attributeValue",
+      "variation_attributeValue",
+      "variation_attributeValue.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
       "variations.shippingClass",
@@ -260,7 +254,6 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       "variation_taxClass.deletedAt IS NULL"
     );
 
-  // Execute query
   return await queryBuilder.getOne();
 };
 
@@ -277,11 +270,9 @@ export const getProductById = async (id: string): Promise<Product | null> => {
  * @returns A promise resolving to an array of Product entities.
  */
 export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
-  // Build query with soft delete filtering for all relations
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.id IN (:...ids) AND product.deletedAt IS NULL", { ids })
-    // Product relations
     .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
     .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
     .leftJoinAndSelect(
@@ -340,14 +331,12 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       "taxClass.deletedAt IS NULL"
     )
     .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    // Tier Pricing Info
     .leftJoinAndSelect(
       "tierPricingInfo.tieredPrices",
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
     .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
       "variation_brands",
@@ -368,9 +357,9 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       "variation_attributeValues.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
-      "variation_attributeValues.attribute",
-      "variation_attribute",
-      "variation_attribute.deletedAt IS NULL"
+      "variation_attributeValues.attributeValue",
+      "variation_attributeValue",
+      "variation_attributeValue.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
       "variations.shippingClass",
@@ -383,7 +372,6 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
       "variation_taxClass.deletedAt IS NULL"
     );
 
-  // Execute query
   return await queryBuilder.getMany();
 };
 
@@ -401,11 +389,9 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
 export const getProductsByIdsToDelete = async (
   ids: string[]
 ): Promise<Product[]> => {
-  // Build query with soft delete filtering for all relations
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.id IN (:...ids)", { ids })
-    // Product relations
     .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
     .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
     .leftJoinAndSelect(
@@ -464,14 +450,12 @@ export const getProductsByIdsToDelete = async (
       "taxClass.deletedAt IS NULL"
     )
     .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    // Tier Pricing Info
     .leftJoinAndSelect(
       "tierPricingInfo.tieredPrices",
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
     .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
       "variation_brands",
@@ -492,9 +476,9 @@ export const getProductsByIdsToDelete = async (
       "variation_attributeValues.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
-      "variation_attributeValues.attribute",
-      "variation_attribute",
-      "variation_attribute.deletedAt IS NULL"
+      "variation_attributeValues.attributeValue",
+      "variation_attributeValue",
+      "variation_attributeValue.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
       "variations.shippingClass",
@@ -507,7 +491,6 @@ export const getProductsByIdsToDelete = async (
       "variation_taxClass.deletedAt IS NULL"
     );
 
-  // Execute query
   return await queryBuilder.getMany();
 };
 
@@ -541,12 +524,9 @@ export const paginateProducts = async ({
   filtering = {},
 }: GetPaginatedProductsInput) => {
   const skip = (page - 1) * limit;
-
-  // Build query with soft delete for all relations
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.deletedAt IS NULL")
-    // Product relations
     .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
     .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
     .leftJoinAndSelect(
@@ -605,14 +585,12 @@ export const paginateProducts = async ({
       "taxClass.deletedAt IS NULL"
     )
     .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    // Tier Pricing Info
     .leftJoinAndSelect(
       "tierPricingInfo.tieredPrices",
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
     .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
       "variation_brands",
@@ -622,6 +600,10 @@ export const paginateProducts = async ({
       "variations.tierPricingInfo",
       "variation_tierPricingInfo"
     )
+    .leftJoinAndSelect(
+      "variation_tierPricingInfo.tieredPrices",
+      "variation_tieredPrices"
+    )
     .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
     .leftJoinAndSelect(
       "variations.attributeValues",
@@ -629,9 +611,9 @@ export const paginateProducts = async ({
       "variation_attributeValues.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
-      "variation_attributeValues.attribute",
-      "variation_attribute",
-      "variation_attribute.deletedAt IS NULL"
+      "variation_attributeValues.attributeValue",
+      "variation_attributeValue",
+      "variation_attributeValue.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
       "variations.shippingClass",
@@ -644,41 +626,29 @@ export const paginateProducts = async ({
       "variation_taxClass.deletedAt IS NULL"
     );
 
-  // Apply filtering
   if (filtering) {
     const { brandIds, categoryIds, tagIds, productDeliveryTypes } = filtering;
-
-    // Filter by brand IDs
     if (brandIds?.length) {
       queryBuilder.andWhere("brands.id IN (:...brandIds)", { brandIds });
     }
-
-    // Filter by category IDs
     if (categoryIds?.length) {
       queryBuilder.andWhere("categories.id IN (:...categoryIds)", {
         categoryIds,
       });
     }
-
-    // Filter by tag IDs
     if (tagIds?.length) {
       queryBuilder.andWhere("tags.id IN (:...tagIds)", { tagIds });
     }
-
-    // Filter by product delivery types
     if (productDeliveryTypes?.length) {
       queryBuilder.andWhere(
         "product.productDeliveryType && :productDeliveryTypes",
-        {
-          productDeliveryTypes,
-        }
+        { productDeliveryTypes }
       );
     }
   }
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;
-
     queryBuilder.andWhere(
       new Brackets((qb) => {
         qb.where("product.name ILIKE :search", { search: searchTerm })
@@ -709,14 +679,11 @@ export const paginateProductsForCustomer = async ({
   filtering = {},
 }: GetPaginatedProductsInput) => {
   const skip = (page - 1) * limit;
-
-  // Build query with soft delete for all relations
   const queryBuilder = productRepository
     .createQueryBuilder("product")
     .where("product.deletedAt IS NULL AND product.isVisible = :isVisible", {
       isVisible: true,
     })
-    // Product relations
     .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
     .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
     .leftJoinAndSelect(
@@ -775,14 +742,12 @@ export const paginateProductsForCustomer = async ({
       "taxClass.deletedAt IS NULL"
     )
     .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    // Tier Pricing Info
     .leftJoinAndSelect(
       "tierPricingInfo.tieredPrices",
       "tieredPrices",
       "tieredPrices.deletedAt IS NULL"
     )
     .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    // Variation relations
     .leftJoinAndSelect(
       "variations.brands",
       "variation_brands",
@@ -803,9 +768,9 @@ export const paginateProductsForCustomer = async ({
       "variation_attributeValues.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
-      "variation_attributeValues.attribute",
-      "variation_attribute",
-      "variation_attribute.deletedAt IS NULL"
+      "variation_attributeValues.attributeValue",
+      "variation_attributeValue",
+      "variation_attributeValue.deletedAt IS NULL"
     )
     .leftJoinAndSelect(
       "variations.shippingClass",
@@ -818,41 +783,29 @@ export const paginateProductsForCustomer = async ({
       "variation_taxClass.deletedAt IS NULL"
     );
 
-  // Apply filtering
   if (filtering) {
     const { brandIds, categoryIds, tagIds, productDeliveryTypes } = filtering;
-
-    // Filter by brand IDs
     if (brandIds?.length) {
       queryBuilder.andWhere("brands.id IN (:...brandIds)", { brandIds });
     }
-
-    // Filter by category IDs
     if (categoryIds?.length) {
       queryBuilder.andWhere("categories.id IN (:...categoryIds)", {
         categoryIds,
       });
     }
-
-    // Filter by tag IDs
     if (tagIds?.length) {
       queryBuilder.andWhere("tags.id IN (:...tagIds)", { tagIds });
     }
-
-    // Filter by product delivery types
     if (productDeliveryTypes?.length) {
       queryBuilder.andWhere(
         "product.productDeliveryType && :productDeliveryTypes",
-        {
-          productDeliveryTypes,
-        }
+        { productDeliveryTypes }
       );
     }
   }
 
   if (search) {
     const searchTerm = `%${search.trim()}%`;
-
     queryBuilder.andWhere(
       new Brackets((qb) => {
         qb.where("product.name ILIKE :search", { search: searchTerm })

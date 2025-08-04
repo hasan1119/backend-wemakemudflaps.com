@@ -5,12 +5,13 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Brand } from "./brand.entity";
-import { ProductAttributeValue } from "./product-attribute-value.entity";
 import { ProductPrice } from "./product-price.entity";
+import { ProductVariationAttributeValue } from "./product-variations-attribute-value.entity";
 import { Product } from "./product.entity";
 import { ShippingClass } from "./shipping-class.entity";
 import { TaxClass } from "./tax-class.entity";
@@ -199,19 +200,14 @@ export class ProductVariation {
   product: Promise<Product>;
 
   // To store attribute values for the variation
-  @ManyToMany(
-    () => ProductAttributeValue,
-    (attrValue) => attrValue.variations,
+  @OneToMany(
+    () => ProductVariationAttributeValue,
+    (attributeValue) => attributeValue.variation,
     {
       cascade: true,
-      nullable: true,
-      onDelete: "CASCADE", // Ensures the associated attribute values are deleted if the variation is deleted
     }
   )
-  @JoinTable({
-    name: "product_variation_attribute_values",
-  })
-  attributeValues: Promise<ProductAttributeValue[]> | null;
+  attributeValues: Promise<ProductVariationAttributeValue[]>;
 
   // Warranty digit for the variation (nullable)
   @Column({ nullable: true, default: null })

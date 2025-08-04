@@ -1,4 +1,4 @@
-import { Brackets } from "typeorm";
+import { Brackets, In } from "typeorm";
 import { ProductAttribute, ProductAttributeValue } from "../../../entities";
 import {
   productAttributeRepository,
@@ -96,16 +96,9 @@ export const getProductAttributeValuesByIds = async (
 ): Promise<ProductAttributeValue[]> => {
   if (!ids.length) return [];
 
-  return await productAttributeValueRepository
-    .createQueryBuilder("value")
-    .leftJoinAndSelect(
-      "value.attribute",
-      "attribute",
-      "attribute.deletedAt IS NULL"
-    )
-    .where("value.id IN (:...ids)", { ids })
-    .andWhere("value.deletedAt IS NULL")
-    .getMany();
+  return await productAttributeValueRepository.find({
+    where: { id: In(ids), deletedAt: null },
+  });
 };
 
 /**
