@@ -113,8 +113,14 @@ async function mapProductRecursive(
           : null,
       })) || null,
     categories: product.categories?.map(mapCategoryRecursive) || null,
-    salePriceStartAt: product.salePriceStartAt?.toISOString(),
-    salePriceEndAt: product.salePriceEndAt?.toISOString(),
+    salePriceStartAt:
+      product.salePriceStartAt instanceof Date
+        ? product.salePriceStartAt.toISOString()
+        : product.salePriceStartAt,
+    salePriceEndAt:
+      product.salePriceEndAt instanceof Date
+        ? product.salePriceEndAt.toISOString()
+        : product.salePriceEndAt,
     tierPricingInfo: product.tierPricingInfo
       ? mapProductPrice(await product.tierPricingInfo)
       : null,
@@ -215,6 +221,14 @@ async function mapProductRecursive(
           tierPricingInfo: variation.tierPricingInfo
             ? mapProductPrice(await variation.tierPricingInfo)
             : null,
+          salePriceEndAt:
+            variation.salePriceEndAt instanceof Date
+              ? variation.salePriceEndAt.toISOString()
+              : variation.salePriceEndAt,
+          salePriceStartAt:
+            variation.salePriceStartAt instanceof Date
+              ? variation.salePriceStartAt.toISOString()
+              : variation.salePriceStartAt,
           images: variation.images as any,
           videos: variation.videos as any,
           createdAt:
