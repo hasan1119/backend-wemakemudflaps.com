@@ -68,7 +68,12 @@ export const UpdateProductAttributeInputSchema = z
       .optional()
       .nullable(),
     values: z
-      .array(z.string().min(1, "Value cannot be empty").trim())
+      .array(
+        z.object({
+          id: z.string().uuid("Invalid UUID ID format").optional().nullable(),
+          value: z.string().min(1, "Value cannot be empty").trim(),
+        })
+      )
       .optional()
       .nullable(),
     visible: z.boolean().default(true).optional().nullable(),

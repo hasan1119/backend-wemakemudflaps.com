@@ -1,6 +1,7 @@
 import { Product } from "../../../entities";
 import { AppDataSource } from "../../../helper";
 import {
+  productAttributeRepository,
   productPriceRepository,
   productRepository,
 } from "../repositories/repositories";
@@ -132,6 +133,11 @@ export const hardDeleteProduct = async (
         .where('"productId_2" = :id', { id: productData.id })
         .execute());
   }
+
+  await productAttributeRepository.update(
+    { product: { id: productData.id } },
+    { product: null }
+  );
 
   // Check if product_attribute table exists and delete entries
   const attributeExists = await entityManager.query(`

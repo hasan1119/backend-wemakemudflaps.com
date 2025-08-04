@@ -72,20 +72,6 @@ export const deleteProductAttribute = async (
       const foundIds = new Set(dbAttributes.map((attr) => attr.id));
       const notFoundIds = ids.filter((id) => !foundIds.has(id));
 
-      const notSystemAttributes = dbAttributes.filter(
-        (attr) => attr.systemAttribute === false
-      );
-
-      if (notSystemAttributes.length > 0) {
-        return {
-          statusCode: 403,
-          success: false,
-          message:
-            "You can only delete system attributes. Non-system attributes cannot be deleted.",
-          __typename: "BaseResponse",
-        };
-      }
-
       return {
         statusCode: 404,
         success: false,
@@ -101,7 +87,7 @@ export const deleteProductAttribute = async (
     for (const attr of dbAttributes) {
       const { id, name } = attr;
 
-      await hardDeleteAttribute(id);
+      await hardDeleteAttribute(attr, id);
       deletedAttributes.push(name);
     }
 

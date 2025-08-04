@@ -47,6 +47,12 @@ type ProductAttributePaginationResponse {
   totalCount: Int! # Total number of attributes
 }
 
+# ---------------------- Input ----------------------
+input AttributeValue {
+  id: ID # Unique identifier for the attribute value
+  value: String! # The value for the attribute (e.g., "Red")
+}
+
 # ---------------------- Unions ----------------------
 union CreateProductAttributeResponseOrError =
     BaseResponse

@@ -73,6 +73,11 @@ export type AttributeProduct = {
   name: Scalars['String']['output'];
 };
 
+export type AttributeValue = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  value: Scalars['String']['input'];
+};
+
 export type BaseResponse = {
   __typename?: 'BaseResponse';
   message: Scalars['String']['output'];
@@ -1391,7 +1396,7 @@ export type MutationUpdateProductAttributeArgs = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
-  values: Array<Scalars['String']['input']>;
+  values: Array<AttributeValue>;
   visible?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -3168,6 +3173,7 @@ export type ResolversTypes = {
   AllowBackOrders: AllowBackOrders;
   ApplyCouponResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ApplyCouponResponseOrError']>;
   AttributeProduct: ResolverTypeWrapper<AttributeProduct>;
+  AttributeValue: AttributeValue;
   BaseResponse: ResolverTypeWrapper<BaseResponse>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   Brand: ResolverTypeWrapper<Brand>;
@@ -3440,6 +3446,7 @@ export type ResolversParentTypes = {
   AddressesBookResponse: AddressesBookResponse;
   ApplyCouponResponseOrError: ResolversUnionTypes<ResolversParentTypes>['ApplyCouponResponseOrError'];
   AttributeProduct: AttributeProduct;
+  AttributeValue: AttributeValue;
   BaseResponse: BaseResponse;
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   Brand: Brand;
