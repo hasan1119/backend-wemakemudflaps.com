@@ -49,9 +49,8 @@ export const mapUserToResponseByEmail = async (
           canDelete: permission.canDelete,
         })) ?? [],
     })),
-    permissions: (await mapPermissions(
-      user.permissions
-    )) as PermissionSession[],
+    permissions:
+      ((await mapPermissions(user.permissions)) as PermissionSession[]) || [],
     canUpdatePermissions: user.canUpdatePermissions,
     canUpdateRole: user.canUpdateRole,
     password: user.password, // included intentionally for secure internal usage only
@@ -108,9 +107,9 @@ export const mapUserToResponseById = async (
           canDelete: permission.canDelete,
         })) ?? [],
     })),
-    permissions: (await mapPermissions(
-      user.permissions
-    )) as PermissionSession[],
+    permissions: (await mapPermissions(user.permissions)) as
+      | PermissionSession[]
+      | [],
     canUpdatePermissions: user.canUpdatePermissions,
     canUpdateRole: user.canUpdateRole,
     isAccountActivated: user.isAccountActivated,

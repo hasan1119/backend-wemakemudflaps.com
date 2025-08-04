@@ -14,7 +14,7 @@ import { PermissionSession, RolePermissionSession } from "../../../types";
  */
 export const mapPermissions = async (
   permissions: Permission[] | RolePermission[] | null | undefined
-): Promise<RolePermissionSession[] | PermissionSession[]> => {
+): Promise<RolePermissionSession[] | PermissionSession[] | []> => {
   if (!permissions || permissions.length === 0) return [];
 
   const formattedPermissions = permissions?.map((permission) => {

@@ -24,9 +24,10 @@ export const mapRoleToResponse = async (role: Role): Promise<RoleSession> => {
     id: role.id,
     name: role.name.toUpperCase(),
     description: role?.description,
-    defaultPermissions: (await mapPermissions(
-      role.defaultPermissions
-    )) as RoleSession["defaultPermissions"],
+    defaultPermissions:
+      ((await mapPermissions(
+        role.defaultPermissions
+      )) as RoleSession["defaultPermissions"]) || [],
     systemDeleteProtection: role.systemDeleteProtection,
     systemUpdateProtection: role.systemUpdateProtection,
     createdBy: createdBy
