@@ -27,13 +27,15 @@ export const isUsernameAvailable = async (
   username: string,
   userId?: string
 ): Promise<boolean> => {
-  const user = await userRepository.findOne({
-    where: {
-      username,
-      deletedAt: null,
-      ...(userId ? { id: Not(userId) } : {}),
-    },
-  });
+  const user = !userId
+    ? await userRepository.findOne({
+        where: { username, deletedAt: null },
+        select: { id: true },
+      })
+    : await userRepository.findOne({
+        where: { id: Not(userId), username, deletedAt: null },
+        select: { id: true },
+      });
 
   return !user;
 };
@@ -51,7 +53,7 @@ export const isUsernameAvailable = async (
  */
 export const getUserEmailOnly = async (
   email: string
-): Promise<Pick<User, "email"> | null> => {
+): Promise<Pick<User, "email" | "tempUpdatedEmail"> | null> => {
   return await userRepository.findOne({
     where: [{ email }, { tempUpdatedEmail: email }],
     select: { email: true, tempUpdatedEmail: true },

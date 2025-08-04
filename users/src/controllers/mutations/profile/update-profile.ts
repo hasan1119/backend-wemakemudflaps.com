@@ -13,7 +13,6 @@ import {
   MutationUpdateProfileArgs,
   UserProfileUpdateResponseOrError,
   UserSession,
-  UserSessionById,
 } from "../../../types";
 import { updateProfileSchema } from "../../../utils/data-validation";
 import SendEmail from "../../../utils/email/send-email";
@@ -22,6 +21,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   deleteUserLoginInfoSessionsByIds,
+  getUserById,
   getUserLoginInfoByUserId,
   isEmailInUse,
   isUsernameAvailable,
@@ -127,15 +127,29 @@ export const updateProfile = async (
     }
 
     // Attempt to retrieve cached user data from Redis
-    let userData: UserSessionById;
+    let userData;
 
-    userData = await getUserInfoByUserIdFromRedis(user.id);
+    userData = await getUserInfoByUserIdFromRedis(args.userId);
+
+    // If user data is not found in Redis, fetch from database
+    if (!userData) {
+      userData = await getUserById(args.userId);
+
+      if (!userData) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: "User not found",
+          __typename: "BaseResponse",
+        };
+      }
+    }
 
     if (userData.username !== username) {
       // Check if username is available
-      const isAvailable = await isUsernameAvailable(username, user.id);
+      const isAvailable = !(await isUsernameAvailable(username, user.id));
 
-      if (!isAvailable) {
+      if (isAvailable) {
         return {
           statusCode: 400,
           success: false,
@@ -143,7 +157,6 @@ export const updateProfile = async (
           __typename: "BaseResponse",
         };
       }
-
       userData.username = username;
     }
 
@@ -167,9 +180,8 @@ export const updateProfile = async (
     if (company !== userData.company) userData.company = company;
 
     if (email !== userData.email) {
-      const isTaken = await isEmailInUse(email, user.id);
-
-      if (isTaken) {
+      // Check if the new email is already in use
+      if (await isEmailInUse(email, user.id)) {
         return {
           statusCode: 409,
           success: false,

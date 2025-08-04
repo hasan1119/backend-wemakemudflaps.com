@@ -100,7 +100,6 @@ export {
   removeUserInfoByEmailFromRedis,
   removeUserInfoByUserIdInRedis,
   removeUserTokenInfoByUserSessionIdFromRedis,
-  removeUserUsernameFromRedis,
   setUserCountInDBInRedis,
   setUserEmailInRedis,
   setUserInfoByEmailInRedis,

@@ -1,5 +1,6 @@
 import { Not } from "typeorm";
 import { Permission, User } from "../../../entities";
+import { getUserEmailFromRedis } from "../../../helper/redis";
 import HashInfo from "../../../utils/bcrypt/hash-info";
 import { userRepository } from "../repositories/repositories";
 import { getUserById } from "./get-user.service";
@@ -160,26 +161,31 @@ export const updateUserPasswordAndClearToken = async (
 };
 
 /**
- * Checks if the provided email is already in use by another user.
+ * Handles checking if an email is already in use by another user.
  *
  * Workflow:
- * 1. Queries the userRepository for a user with the specified email or tempUpdatedEmail.
- * 2. Excludes the current user by ID if provided.
- * 3. Returns true if a user with the email exists, false otherwise.
+ * 1. Checks Redis cache for the email to optimize performance.
+ * 2. If not found in Redis, queries the userRepository for any non-deleted user (excluding the specified userId) with the email or tempUpdatedEmail.
+ * 3. Returns true if the email is in use, false otherwise.
  *
- * @param email - The email to check for uniqueness.
- * @param userId - Optional user ID to exclude from the check.
+ * @param email - The email address to check.
+ * @param userId - The UUID of the user to exclude from the check.
  * @returns A promise resolving to a boolean indicating if the email is in use.
  */
 export const isEmailInUse = async (
   email: string,
   userId: string
 ): Promise<boolean> => {
-  // Query database for email or tempUpdatedEmail
+  // Check Redis cache for email
+  if (await getUserEmailFromRedis(email)) {
+    return true;
+  }
+
+  // Query database for email or temp email
   const existingUser = await userRepository.findOne({
     where: [
-      { email, deletedAt: null, id: Not(userId) },
-      { tempUpdatedEmail: email, deletedAt: null, id: Not(userId) },
+      { email, id: Not(userId), deletedAt: null },
+      { tempUpdatedEmail: email, id: Not(userId), deletedAt: null },
     ],
   });
 

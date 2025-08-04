@@ -292,19 +292,6 @@ export const setUserInfoByEmailInRedis = async (
 };
 
 /**
- * Handles removal of cached username data from Redis.
- * Workflow:
- * Deletes the username data from Redis using the username prefix and username.
- * @param username - The username of the user.
- * @returns A promise resolving when the username data is removed.
- */
-export const removeUserUsernameFromRedis = async (
-  username: string
-): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.USERNAME}${username}`, "user-app");
-};
-
-/**
  * Handles removal of user session data from Redis by user ID.
  * Workflow:
  * Deletes the user session data from Redis using the session user prefix and user ID.
