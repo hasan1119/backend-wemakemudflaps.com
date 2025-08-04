@@ -14,7 +14,7 @@ export class ProductVariationAttributeValue {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => ProductVariation, { nullable: true })
+  @ManyToOne(() => ProductVariation)
   @JoinColumn({ name: "productVariationId" })
   variation: Promise<ProductVariation>;
 

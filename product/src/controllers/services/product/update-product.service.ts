@@ -214,6 +214,7 @@ export const updateProduct = async (
 
     if (data.variations && data.variations?.length > 0) {
       for (const v of data.variations) {
+        // Create the base variation
         const baseVariation = productVariationRepository.create({
           ...v,
           brands: v.brandIds?.length
@@ -223,7 +224,7 @@ export const updateProduct = async (
           quantityStep: v.quantityStep ?? 1,
           shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
           taxClass: v.taxClassId ? { id: v.taxClassId } : null,
-          tierPricingInfo: null,
+          tierPricingInfo: null, // Initialize as null, will set after saving ProductPrice
         } as any);
 
         // Save base variation to get ID
@@ -231,7 +232,7 @@ export const updateProduct = async (
           baseVariation
         );
 
-        // Create attribute values
+        // Create and save attribute values
         if (v.attributeValueIds?.length > 0) {
           const attrValueEntities = v.attributeValueIds.map((attrValId) =>
             productVariationAttributeValueRepository.create({
@@ -244,13 +245,34 @@ export const updateProduct = async (
           );
         }
 
-        // Save tier pricing if any
+        // Save tier pricing if provided
         if (v.tierPricingInfo) {
+          // Create tiered prices (ProductTieredPrice entities) if they exist
+          const tieredPrices = v.tierPricingInfo.tieredPrices?.length
+            ? v.tierPricingInfo.tieredPrices.map(
+                (tp) =>
+                  ({
+                    ...tp,
+                  } as any)
+              )
+            : [];
+
+          // Create ProductPrice entity
           const newTierPricing = productPriceRepository.create({
-            ...v.tierPricingInfo,
-            productVariation: { id: (savedVariation as any).id },
+            pricingType: v.tierPricingInfo.pricingType,
+            tieredPrices, // Associate tiered prices
+            productVariation: { id: (savedVariation as any).id }, // Link to variation
           } as any);
-          await productPriceRepository.save(newTierPricing);
+
+          // Save ProductPrice entity (this should cascade to save tieredPrices)
+          const savedTierPricing = await productPriceRepository.save(
+            newTierPricing
+          );
+
+          // Update variation with saved tierPricingInfo
+          (savedVariation as any).tierPricingInfo =
+            Promise.resolve(savedTierPricing);
+          await productVariationRepository.save(savedVariation); // Persist the relation
         }
 
         newVariations.push(savedVariation);
@@ -338,28 +360,14 @@ export const updateProduct = async (
           } as any)
         : null;
 
-      product.tierPricingInfo = processedTierPricingInfo
-        ? await productPriceRepository.save(processedTierPricingInfo as any)
+      (product as any).tierPricingInfo = processedTierPricingInfo
+        ? await productPriceRepository.save(processedTierPricingInfo)
         : null;
+
+      await productRepository.save(product);
     }
 
     // Save and return updated product
-    const resultProduct = await getProductById(product.id);
-    // const variationDetails = await Promise.all(
-    //   resultProduct.variations.map(async (v) => ({
-    //     id: v.id,
-    //     attributeValues: await Promise.all(
-    //       (
-    //         await v.attributeValues
-    //       ).map(async (av) => ({
-    //         id: (await av.attributeValue).id,
-    //         attributeValue: (await av.attributeValue).value,
-    //       }))
-    //     ),
-    //   }))
-    // );
-
-    console.dir(resultProduct, { depth: null });
-    return resultProduct;
+    return await getProductById(product.id);
   });
 };

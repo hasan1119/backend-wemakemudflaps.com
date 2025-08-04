@@ -60,7 +60,6 @@ function mapCategoryRecursive(category: Category): any {
  * Maps a ProductPrice entity to a plain object for GraphQL response.
  */
 function mapProductPrice(price: ProductPrice): any {
-  console.log("Mapping product price:", price);
   if (!price) {
     return null;
   }

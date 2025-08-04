@@ -219,21 +219,28 @@ async function mapProductRecursive(
                   : brand.deletedAt
                 : null,
             })) || null,
-          attributeValues:
-            (
-              await variation.attributeValues
-            ).map((attributeValue) => ({
-              ...attributeValue,
-              createdAt:
-                attributeValue.createdAt instanceof Date
-                  ? attributeValue.createdAt.toISOString()
-                  : attributeValue.createdAt,
-              deletedAt: attributeValue.deletedAt
-                ? attributeValue.deletedAt instanceof Date
-                  ? attributeValue.deletedAt.toISOString()
-                  : attributeValue.deletedAt
-                : null,
-            })) || null,
+          attributeValues: variation.attributeValues
+            ? (await Promise.all(
+                (
+                  await variation.attributeValues
+                ).map(async (attributeValue) => {
+                  const av = await attributeValue.attributeValue;
+                  return {
+                    id: attributeValue.id,
+                    value: av?.value || null,
+                    createdAt:
+                      attributeValue.createdAt instanceof Date
+                        ? attributeValue.createdAt.toISOString()
+                        : attributeValue.createdAt,
+                    deletedAt: attributeValue.deletedAt
+                      ? attributeValue.deletedAt instanceof Date
+                        ? attributeValue.deletedAt.toISOString()
+                        : attributeValue.deletedAt
+                      : null,
+                  };
+                })
+              )) || null
+            : null,
           tierPricingInfo: variation.tierPricingInfo
             ? mapProductPrice(await variation.tierPricingInfo)
             : null,
