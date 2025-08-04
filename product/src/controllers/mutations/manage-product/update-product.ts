@@ -60,6 +60,7 @@ function mapCategoryRecursive(category: Category): any {
  * Maps a ProductPrice entity to a plain object for GraphQL response.
  */
 function mapProductPrice(price: ProductPrice): any {
+  console.log("Mapping product price:", price);
   if (!price) {
     return null;
   }
@@ -219,58 +220,28 @@ async function mapProductRecursive(
                   : brand.deletedAt
                 : null,
             })) || null,
-          attributeValues:
-            (
-              await variation.attributeValues
-            ).map(async (attributeValue) => ({
-              ...attributeValue,
-              attributeValues: {
-                ...attributeValue,
-                attributeValue: {
-                  ...(await attributeValue.attributeValue),
-                  value: (await attributeValue.attributeValue).value || null,
-                  createdAt:
-                    (await attributeValue.attributeValue).createdAt instanceof
-                    Date
-                      ? (
-                          await attributeValue.attributeValue
-                        ).createdAt.toISOString()
-                      : (
-                          await attributeValue.attributeValue
-                        ).createdAt,
-                  deletedAt: (
-                    await attributeValue.attributeValue
-                  ).deletedAt
-                    ? (await attributeValue.attributeValue).deletedAt instanceof
-                      Date
-                      ? (
-                          await attributeValue.attributeValue
-                        ).deletedAt.toISOString()
-                      : (
-                          await attributeValue.attributeValue
-                        ).deletedAt
-                    : null,
-                },
-                createdAt:
-                  attributeValue.createdAt instanceof Date
-                    ? attributeValue.createdAt.toISOString()
-                    : attributeValue.createdAt,
-                deletedAt: attributeValue.deletedAt
-                  ? attributeValue.deletedAt instanceof Date
-                    ? attributeValue.deletedAt.toISOString()
-                    : attributeValue.deletedAt
-                  : null,
-              },
-              createdAt:
-                attributeValue.createdAt instanceof Date
-                  ? attributeValue.createdAt.toISOString()
-                  : attributeValue.createdAt,
-              deletedAt: attributeValue.deletedAt
-                ? attributeValue.deletedAt instanceof Date
-                  ? attributeValue.deletedAt.toISOString()
-                  : attributeValue.deletedAt
-                : null,
-            })) || null,
+          attributeValues: variation.attributeValues
+            ? (await Promise.all(
+                (
+                  await variation.attributeValues
+                ).map(async (attributeValue) => {
+                  const av = await attributeValue.attributeValue;
+                  return {
+                    id: attributeValue.id,
+                    value: av?.value || null,
+                    createdAt:
+                      attributeValue.createdAt instanceof Date
+                        ? attributeValue.createdAt.toISOString()
+                        : attributeValue.createdAt,
+                    deletedAt: attributeValue.deletedAt
+                      ? attributeValue.deletedAt instanceof Date
+                        ? attributeValue.deletedAt.toISOString()
+                        : attributeValue.deletedAt
+                      : null,
+                  };
+                })
+              )) || null
+            : null,
           tierPricingInfo: variation.tierPricingInfo
             ? mapProductPrice(await variation.tierPricingInfo)
             : null,

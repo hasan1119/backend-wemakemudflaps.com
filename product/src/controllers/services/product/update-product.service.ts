@@ -345,18 +345,21 @@ export const updateProduct = async (
 
     // Save and return updated product
     const resultProduct = await getProductById(product.id);
-    const variationDetails = await Promise.all(
-      resultProduct.variations.map(async (v) => ({
-        id: v.id,
-        attributeValues: (
-          await v.attributeValues
-        ).map((av) => ({
-          id: av.id,
-          attributeValue: av.attributeValue.value,
-        })),
-      }))
-    );
-    console.log(variationDetails);
+    // const variationDetails = await Promise.all(
+    //   resultProduct.variations.map(async (v) => ({
+    //     id: v.id,
+    //     attributeValues: await Promise.all(
+    //       (
+    //         await v.attributeValues
+    //       ).map(async (av) => ({
+    //         id: (await av.attributeValue).id,
+    //         attributeValue: (await av.attributeValue).value,
+    //       }))
+    //     ),
+    //   }))
+    // );
+
+    console.dir(resultProduct, { depth: null });
     return resultProduct;
   });
 };
