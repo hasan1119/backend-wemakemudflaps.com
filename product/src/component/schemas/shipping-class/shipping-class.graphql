@@ -22,7 +22,7 @@ type ShippingClassPaginationDataSession {
   value: String!
   description: String
   totalProducts: Int
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }

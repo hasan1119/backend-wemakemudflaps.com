@@ -73,6 +73,11 @@ export type AttributeProduct = {
   name: Scalars['String']['output'];
 };
 
+export type AttributeValue = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  value: Scalars['String']['input'];
+};
+
 export type BaseResponse = {
   __typename?: 'BaseResponse';
   message: Scalars['String']['output'];
@@ -1391,7 +1396,7 @@ export type MutationUpdateProductAttributeArgs = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
-  values: Array<Scalars['String']['input']>;
+  values: Array<AttributeValue>;
   visible?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -1835,6 +1840,7 @@ export type ProductVariation = {
   height?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
   images?: Maybe<Array<Media>>;
+  isActive?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
   maxQuantity?: Maybe<Scalars['Int']['output']>;
   minQuantity?: Maybe<Scalars['Int']['output']>;
@@ -1868,6 +1874,7 @@ export type ProductVariationInput = {
   dimensionUnit?: InputMaybe<DimensionUnit>;
   height?: InputMaybe<Scalars['Float']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity?: InputMaybe<Scalars['Int']['input']>;
@@ -3168,6 +3175,7 @@ export type ResolversTypes = {
   AllowBackOrders: AllowBackOrders;
   ApplyCouponResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ApplyCouponResponseOrError']>;
   AttributeProduct: ResolverTypeWrapper<AttributeProduct>;
+  AttributeValue: AttributeValue;
   BaseResponse: ResolverTypeWrapper<BaseResponse>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   Brand: ResolverTypeWrapper<Brand>;
@@ -3440,6 +3448,7 @@ export type ResolversParentTypes = {
   AddressesBookResponse: AddressesBookResponse;
   ApplyCouponResponseOrError: ResolversUnionTypes<ResolversParentTypes>['ApplyCouponResponseOrError'];
   AttributeProduct: AttributeProduct;
+  AttributeValue: AttributeValue;
   BaseResponse: BaseResponse;
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   Brand: Brand;
@@ -4723,6 +4732,7 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
+  isActive?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   maxQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   minQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
