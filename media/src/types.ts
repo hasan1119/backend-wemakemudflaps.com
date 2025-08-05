@@ -1886,7 +1886,7 @@ export type ProductVariationInput = {
   salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
-  stockStatus?: InputMaybe<Scalars['String']['input']>;
+  stockStatus?: InputMaybe<StockStatus>;
   taxClassId?: InputMaybe<Scalars['ID']['input']>;
   taxStatus?: InputMaybe<TaxStatus>;
   tierPricingInfo?: InputMaybe<ProductPriceInput>;
@@ -2326,7 +2326,7 @@ export type ShippingClass = {
 export type ShippingClassPaginationDataSession = {
   __typename?: 'ShippingClassPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -2485,7 +2485,7 @@ export type Tag = {
 export type TagPaginationDataSession = {
   __typename?: 'TagPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -2523,7 +2523,7 @@ export type TaxClass = {
 export type TaxClassPaginationDataSession = {
   __typename?: 'TaxClassPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -2639,7 +2639,7 @@ export type TaxRateSession = {
   city?: Maybe<Scalars['String']['output']>;
   country: Scalars['String']['output'];
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isCompound: Scalars['Boolean']['output'];
@@ -4923,7 +4923,7 @@ export type ShippingClassResolvers<ContextType = Context, ParentType extends Res
 
 export type ShippingClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingClassPaginationDataSession'] = ResolversParentTypes['ShippingClassPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -5058,7 +5058,7 @@ export type TagResolvers<ContextType = Context, ParentType extends ResolversPare
 
 export type TagPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TagPaginationDataSession'] = ResolversParentTypes['TagPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -5096,7 +5096,7 @@ export type TaxClassResolvers<ContextType = Context, ParentType extends Resolver
 
 export type TaxClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxClassPaginationDataSession'] = ResolversParentTypes['TaxClassPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -5205,7 +5205,7 @@ export type TaxRateSessionResolvers<ContextType = Context, ParentType extends Re
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isCompound?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
