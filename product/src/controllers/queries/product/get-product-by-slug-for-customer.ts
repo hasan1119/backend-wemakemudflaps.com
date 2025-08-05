@@ -82,7 +82,6 @@ async function mapProductRecursive(
     defaultImage: product.defaultImage as any,
     images: product.images as any,
     videos: product.videos as any,
-    salePrice: product.salePrice,
     brands:
       product.brands?.map((brand) => ({
         ...brand,
