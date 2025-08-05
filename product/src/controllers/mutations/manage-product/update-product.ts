@@ -584,6 +584,15 @@ export const updateProduct = async (
       // Remove duplicate upsellIds
       const uniqueUpsellIds = Array.from(new Set(upsellIds));
 
+      if (id && uniqueUpsellIds.includes(args.id)) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Cannot upsell the product to itself",
+          __typename: "BaseResponse",
+        };
+      }
+
       const upSellsProduct = await getProductsByIds(uniqueUpsellIds);
       if (upSellsProduct.length !== uniqueUpsellIds.length) {
         return {
@@ -598,6 +607,15 @@ export const updateProduct = async (
     if (crossSellIds && crossSellIds.length > 0) {
       // Remove duplicate crossSellIds
       const uniqueCrossSellIds = Array.from(new Set(crossSellIds));
+
+      if (id && uniqueCrossSellIds.includes(args.id)) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: "Cannot upsell the product to itself",
+          __typename: "BaseResponse",
+        };
+      }
 
       const crossSellProducts = await getProductsByIds(uniqueCrossSellIds);
       if (crossSellProducts.length !== uniqueCrossSellIds.length) {
