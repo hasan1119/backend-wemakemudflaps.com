@@ -1,29 +1,7 @@
 import { z } from "zod";
 import { SortOrderTypeEnum } from "../common/common";
 
-// Defines a mapping for free shipping condition values
-export const freeShippingConditionTypeMap: Record<string, string> = {
-  NA: "N/A",
-  Coupon: "Coupon",
-  Minimum_Order_Amount: "Minimum Order Amount",
-  Minimum_Order_Amount_or_Coupon: "Minimum Order Amount or Coupon",
-  Minimum_Order_Amount_and_Coupon: "Minimum Order Amount & Coupon",
-};
 
-/**
- * Enum for free shipping condition types.
- *
- * Workflow:
- * 1. Defines the allowed values for free shipping condition types.
- *
- * @property {"N/A" | "Coupon" | "Minimum Order Amount" | "Minimum Order Amount or Coupon" | "Minimum Order Amount & Coupon"} value - The type of free shipping condition.
- */
-export const FreeShippingConditionTypeEnum = z.preprocess((val) => {
-  if (typeof val === "string" && freeShippingConditionTypeMap[val]) {
-    return freeShippingConditionTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(freeShippingConditionTypeMap))] as [string, ...string[]]));
 
 /**
  * Defines the schema for validating a single shipping method object creation input.
@@ -69,7 +47,13 @@ export const createShippingMethodSchema = z
     freeShipping: z
       .object({
         title: z.string().min(1, "Free shipping title is required"),
-        conditions: FreeShippingConditionTypeEnum,
+        conditions: z.enum([
+          "NA",
+          "COUPON",
+          "MINIMUM_ORDER_AMOUNT",
+          "MINIMUM_ORDER_AMOUNT_OR_COUPON",
+          "MINIMUM_ORDER_AMOUNT_AND_COUPON",
+        ]),
         minimumOrderAmount: z
           .number()
           .min(0, "Minimum order amount must be non-negative")
@@ -169,7 +153,13 @@ export const updateShippingMethodSchema = z
       .object({
         id: z.string().uuid().optional().nullable(),
         title: z.string().min(1).optional().nullable(),
-        conditions: FreeShippingConditionTypeEnum.optional().nullable(),
+        conditions: z.enum([
+          "NA",
+          "COUPON",
+          "MINIMUM_ORDER_AMOUNT",
+          "MINIMUM_ORDER_AMOUNT_OR_COUPON",
+          "MINIMUM_ORDER_AMOUNT_AND_COUPON",
+        ]).optional().nullable(),
         minimumOrderAmount: z.number().min(0).optional().nullable(),
         applyMinimumOrderRuleBeforeCoupon: z.boolean().optional().nullable(),
       })

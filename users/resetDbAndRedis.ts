@@ -12,7 +12,7 @@ import { Pool } from "pg";
 const pgConfig = {
   user: "postgres",
   host: "127.0.0.1",
-  password: "Joy112233",
+  password: "password",
   port: 5432,
   database: "postgres",
 };
@@ -57,7 +57,9 @@ async function resetTablesAndRedis() {
         "role",
         "user_login",
         "user",
-        "sub_category",
+        "product_categories",
+        "product",
+        "product_brands",
         "category",
       ];
       const orderedTables = ordered.filter((t) => tables.includes(t));

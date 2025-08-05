@@ -1,27 +1,6 @@
 import { z } from "zod";
 import { SortOrderTypeEnum } from "../common/common";
 
-// Defines a mapping for coupon discount values
-export const couponDiscountTypeMap: Record<string, string> = {
-  PERCENTAGE_DISCOUNT: "Percentage Discount",
-  FIXED_CART_DISCOUNT: "Fixed Cart Discount",
-  FIXED_PRODUCT_DISCOUNT: "Fixed Product Discount",
-};
-
-/**
- * Enum for coupon discount types.
- *
- * Workflow:
- * 1. Defines the allowed values for coupon discount types.
- *
- * @property {"Percentage Discount" | "Fixed Cart Discount" | "Fixed Product Discount"} value - The type of coupon discount.
- */
-export const CouponDiscountTypeEnum = z.preprocess((val) => {
-  if (typeof val === "string" && couponDiscountTypeMap[val]) {
-    return couponDiscountTypeMap[val];
-  }
-  return val;
-}, z.enum([...new Set(Object.values(couponDiscountTypeMap))] as [string, ...string[]]));
 
 /**
  * Defines the schema for validating a single coupon object creation input.
@@ -46,14 +25,14 @@ export const CouponDiscountTypeEnum = z.preprocess((val) => {
  * @property allowedEmails - Optional array of email addresses that can use the coupon.
  */
 export const createCouponSchema = z.object({
-  code: z.string().min(1, "Coupon code must be at least 3 characters").trim(),
+  code: z.string().min(1, "Coupon code must be at least 1 character").trim(),
   description: z
     .string()
-    .min(1, "Coupon description must be at least 3 characters")
+    .min(1, "Coupon description must be at least 1 character")
     .trim()
     .optional()
     .nullable(),
-  discountType: CouponDiscountTypeEnum,
+  discountType: z.enum(["PERCENTAGE_DISCOUNT", "FIXED_CART_DISCOUNT", "FIXED_PRODUCT_DISCOUNT"]),
   freeShipping: z.boolean().optional().nullable(),
   discountValue: z
     .number()
@@ -134,16 +113,16 @@ export const updateCouponSchema = z
     id: z.string().uuid({ message: "Invalid UUID format" }),
     code: z
       .string()
-      .min(1, "Coupon code must be at least 3 characters")
+      .min(1, "Coupon code must be at least 1 character")
       .trim()
       .optional(),
     description: z
       .string()
-      .min(1, "Coupon description must be at least 3 characters")
+      .min(1, "Coupon description must be at least 1 character")
       .trim()
       .optional()
       .nullable(),
-    discountType: CouponDiscountTypeEnum.optional().nullable(),
+    discountType: z.enum(["PERCENTAGE_DISCOUNT", "FIXED_CART_DISCOUNT", "FIXED_PRODUCT_DISCOUNT"]).optional().nullable(),
     freeShipping: z.boolean().optional().nullable(),
     discountValue: z
       .number()
