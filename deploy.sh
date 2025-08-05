@@ -9,8 +9,11 @@ eval "$(ssh-agent -s)"
 ssh-add "$HOME/.ssh/github"
 
 
-echo "Pulling latest code..."
-git pull origin main
+echo "Discarding local changes and pulling latest code..."
+git reset --hard HEAD
+git clean -fd
+git fetch origin
+git reset --hard origin/main
 
 # Subgraph matrix
 declare -A SUBGRAPHS
