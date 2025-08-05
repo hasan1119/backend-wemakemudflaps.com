@@ -402,6 +402,14 @@ export { restoreProduct } from "./product/restore-product.service";
  */
 export { updateProduct } from "./product/update-product.service";
 
+/* Mapping Functions For Products */
+export {
+  mapCategoryRecursive,
+  mapProductPrice,
+  mapProductRecursive,
+  mapProductVariationRecursive,
+} from "./product/product-map-recursive.service";
+
 /**
  * Exports services for creating tax rate.
  *

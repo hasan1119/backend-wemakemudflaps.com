@@ -1829,7 +1829,6 @@ export type ProductTieredPrice = {
   minQuantity: Scalars['Int']['output'];
   percentageDiscount?: Maybe<Scalars['Float']['output']>;
   productPrice?: Maybe<ProductPrice>;
-  quantityUnit?: Maybe<Scalars['String']['output']>;
 };
 
 export type ProductTieredPriceInput = {
@@ -1837,7 +1836,6 @@ export type ProductTieredPriceInput = {
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity: Scalars['Int']['input'];
   percentageDiscount?: InputMaybe<Scalars['Float']['input']>;
-  quantityUnit?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ProductVariation = {
@@ -1864,6 +1862,7 @@ export type ProductVariation = {
   salePrice?: Maybe<Scalars['Float']['output']>;
   salePriceEndAt?: Maybe<Scalars['String']['output']>;
   salePriceStartAt?: Maybe<Scalars['String']['output']>;
+  saleQuantityUnit?: Maybe<Scalars['String']['output']>;
   shippingClass?: Maybe<ShippingClass>;
   sku?: Maybe<Scalars['String']['output']>;
   stockStatus?: Maybe<Scalars['String']['output']>;
@@ -1897,6 +1896,7 @@ export type ProductVariationInput = {
   salePrice?: InputMaybe<Scalars['Float']['input']>;
   salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
   salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
+  saleQuantityUnit?: InputMaybe<Scalars['String']['input']>;
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
   stockStatus?: InputMaybe<StockStatus>;
@@ -4740,7 +4740,6 @@ export type ProductTieredPriceResolvers<ContextType = Context, ParentType extend
   minQuantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   percentageDiscount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   productPrice?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
-  quantityUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4767,6 +4766,7 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   salePrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   salePriceEndAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   salePriceStartAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  saleQuantityUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   shippingClass?: Resolver<Maybe<ResolversTypes['ShippingClass']>, ParentType, ContextType>;
   sku?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   stockStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

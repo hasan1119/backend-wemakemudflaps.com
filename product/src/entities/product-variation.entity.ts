@@ -155,6 +155,10 @@ export class ProductVariation {
   @Column({ type: "timestamp", nullable: true, default: null })
   salePriceEndAt: Date | null;
 
+  // Quantity type (e.g., piece, liter)
+  @Column({ nullable: true, default: null })
+  saleQuantityUnit: string | null;
+
   // One-to-one relationship with ProductPrice for tier pricing info (nullable)
   @OneToOne(() => ProductPrice, (pricing) => pricing.productVariation, {
     nullable: true,

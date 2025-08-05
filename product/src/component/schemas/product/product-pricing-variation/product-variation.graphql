@@ -17,6 +17,7 @@ type ProductVariation {
   salePrice: Float # Sale price if applicable
   salePriceStartAt: String # Start time for sale pricing
   salePriceEndAt: String # End time for sale pricing
+  saleQuantityUnit: String # Optional quantity type (e.g., piece, liter)
   tierPricingInfo: ProductPrice # Related tiered pricing info
   # ---------------------- Stock & Inventory ----------------------
   stockStatus: String # Stock status (e.g., "in_stock", "out_of_stock")
@@ -65,6 +66,7 @@ input ProductVariationInput {
   salePrice: Float # Optional sale price
   salePriceStartAt: String # Sale start datetime
   salePriceEndAt: String # Sale end datetime
+  saleQuantityUnit: String # Optional quantity type (e.g., piece, liter)
   tierPricingInfo: ProductPriceInput # Associated tier pricing information
   # ---------------------- Stock & Inventory ----------------------
   stockStatus: StockStatus # Stock status

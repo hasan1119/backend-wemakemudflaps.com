@@ -14,10 +14,6 @@ export class ProductTieredPrice {
   @Column({ nullable: true, default: null })
   maxQuantity: number | null;
 
-  // Quantity type (e.g., piece, liter and so on)
-  @Column({ nullable: true, default: null })
-  quantityUnit: string | null;
-
   // Fixed price for this tier (if applicable)
   @Column({
     type: "decimal",

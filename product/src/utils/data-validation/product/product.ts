@@ -7,14 +7,12 @@ import { SortOrderTypeEnum } from "../common/common";
  * Workflow:
  * 1. Validates `id` as an optional UUID.
  * 2. Ensures `minQuantity` and `maxQuantity` are positive integers.
- * 3. Ensures `quantityUnit` is a non-empty string.
- * 4. Validates `fixedPrice` as an optional positive number.
- * 5. Validates `percentageDiscount` as an optional number between 0 and 100.
- * 6. Validates `productPriceId` as an optional UUID.
+ * 3. Validates `fixedPrice` as an optional positive number.
+ * 4. Validates `percentageDiscount` as an optional number between 0 and 100.
+ * 5. Validates `productPriceId` as an optional UUID.
  *
  * @property minQuantity - The minimum quantity for this price tier.
  * @property maxQuantity - The maximum quantity for this price tier.
- * @property quantityUnit - The unit of quantity (e.g., "piece", "liter").
  * @property fixedPrice - Optional fixed price for the tier.
  * @property percentageDiscount - Optional percentage discount for the tier.
  */
@@ -30,12 +28,6 @@ export const ProductTieredPriceInputSchema = z
       .number()
       .int()
       .positive("Max quantity must be a positive integer")
-      .optional()
-      .nullable(),
-    quantityUnit: z
-      .string()
-      .min(1, "Quantity unit cannot be empty")
-      .trim()
       .optional()
       .nullable(),
     fixedPrice: z
@@ -138,20 +130,22 @@ export const ProductPriceInputSchema = z
  * 6. Ensures `regularPrice` is a positive number.
  * 7. Validates `salePrice` as an optional positive number.
  * 8. Validates `salePriceStartAt` and `salePriceEndAt` as optional datetime strings.
- * 9. Validates `stockStatus` as an optional `StockStatusEnum`.
- * 10. Validates `weightUnit` as an optional `WeightUnitEnum`.
- * 11. Validates `weight` as an optional positive number.
- * 12. Validates `dimensionUnit` as an optional `DimensionUnitEnum`.
- * 13. Validates `length`, `width`, `height` as optional positive numbers.
- * 14. Validates `attributeValueIds` as an optional array of UUIDs.
- * 15. Validates `warrantyDigit` as an optional positive integer.
- * 16. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
- * 17. Validates `warrantyPolicy` as an optional non-empty string.
- * 18. Validates `shippingClassId`, `taxClassId` as optional UUIDs.
- * 19. Validates `taxStatus` as an optional `TaxStatusTypeEnum`.
- * 20. Validates `description` as an optional non-empty string.
- * 21. Validates `images` and `videos` as optional arrays of UUIDs.
- * 22. Validates `deletedAt` as an optional datetime string.
+ * 9. Validates `tierPricingInfo` as an optional `ProductPriceInputSchema`.
+ * 10. Validates `saleQuantityUnit` as an optional non-empty string.
+ * 10. Validates `stockStatus` as an optional `StockStatusEnum`.
+ * 11. Validates `weightUnit` as an optional `WeightUnitEnum`.
+ * 12. Validates `weight` as an optional positive number.
+ * 13. Validates `dimensionUnit` as an optional `DimensionUnitEnum`.
+ * 14. Validates `length`, `width`, `height` as optional positive numbers.
+ * 15. Validates `attributeValueIds` as an optional array of UUIDs.
+ * 16. Validates `warrantyDigit` as an optional positive integer.
+ * 17. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
+ * 18. Validates `warrantyPolicy` as an optional non-empty string.
+ * 19. Validates `shippingClassId`, `taxClassId` as optional UUIDs.
+ * 20. Validates `taxStatus` as an optional `TaxStatusTypeEnum`.
+ * 21. Validates `description` as an optional non-empty string.
+ * 22. Validates `images` and `videos` as optional arrays of UUIDs.
+ * 23. Validates `deletedAt` as an optional datetime string.
  *
  * @property id - Optional unique identifier for the product variation.
  * @property sku - Optional Stock Keeping Unit for the variation.
@@ -165,6 +159,8 @@ export const ProductPriceInputSchema = z
  * @property salePrice - Optional sale price of the variation.
  * @property salePriceStartAt - Optional start date for sale pricing.
  * @property salePriceEndAt - Optional end date for sale pricing.
+ * @property saleQuantityUnit - Optional sale quantity unit.
+ * @property tierPricingInfo - Optional tiered pricing information.
  * @property stockStatus - Optional stock status of the variation.
  * @property weightUnit - Optional unit of weight for the variation.
  * @property weight - Optional weight of the variation.
@@ -234,6 +230,11 @@ export const ProductVariationInputSchema = z.object({
     .nullable(),
   salePriceStartAt: z.string().datetime().optional().nullable(),
   salePriceEndAt: z.string().datetime().optional().nullable(),
+  saleQuantityUnit: z
+    .string()
+    .min(1, "Sale quantity unit cannot be empty")
+    .optional()
+    .nullable(),
   tierPricingInfo: ProductPriceInputSchema.optional().nullable(),
   stockStatus: z
     .enum(["IN_STOCK", "OUT_OF_STOCK", "ON_BACKORDER"])
