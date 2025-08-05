@@ -96,6 +96,10 @@ export class ProductVariation {
   })
   productDeliveryType: ProductDeliveryTypeEnum[] | null;
 
+  // Variation customized
+  @Column({ default: false, nullable: true })
+  isCustomized: boolean | null;
+
   // Associated brand for the product
   @ManyToMany(() => Brand, {
     cascade: true,

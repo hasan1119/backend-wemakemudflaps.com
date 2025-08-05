@@ -1829,7 +1829,6 @@ export type ProductTieredPrice = {
   minQuantity: Scalars['Int']['output'];
   percentageDiscount?: Maybe<Scalars['Float']['output']>;
   productPrice?: Maybe<ProductPrice>;
-  quantityUnit?: Maybe<Scalars['String']['output']>;
 };
 
 export type ProductTieredPriceInput = {
@@ -1837,7 +1836,6 @@ export type ProductTieredPriceInput = {
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity: Scalars['Int']['input'];
   percentageDiscount?: InputMaybe<Scalars['Float']['input']>;
-  quantityUnit?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ProductVariation = {
@@ -1854,6 +1852,7 @@ export type ProductVariation = {
   id: Scalars['ID']['output'];
   images?: Maybe<Array<Media>>;
   isActive?: Maybe<Scalars['Boolean']['output']>;
+  isCustomized?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
   maxQuantity?: Maybe<Scalars['Int']['output']>;
   minQuantity?: Maybe<Scalars['Int']['output']>;
@@ -1864,6 +1863,7 @@ export type ProductVariation = {
   salePrice?: Maybe<Scalars['Float']['output']>;
   salePriceEndAt?: Maybe<Scalars['String']['output']>;
   salePriceStartAt?: Maybe<Scalars['String']['output']>;
+  saleQuantityUnit?: Maybe<Scalars['String']['output']>;
   shippingClass?: Maybe<ShippingClass>;
   sku?: Maybe<Scalars['String']['output']>;
   stockStatus?: Maybe<Scalars['String']['output']>;
@@ -1888,6 +1888,7 @@ export type ProductVariationInput = {
   height?: InputMaybe<Scalars['Float']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity?: InputMaybe<Scalars['Int']['input']>;
@@ -1897,6 +1898,7 @@ export type ProductVariationInput = {
   salePrice?: InputMaybe<Scalars['Float']['input']>;
   salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
   salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
+  saleQuantityUnit?: InputMaybe<Scalars['String']['input']>;
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
   stockStatus?: InputMaybe<StockStatus>;
@@ -4740,7 +4742,6 @@ export type ProductTieredPriceResolvers<ContextType = Context, ParentType extend
   minQuantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   percentageDiscount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   productPrice?: Resolver<Maybe<ResolversTypes['ProductPrice']>, ParentType, ContextType>;
-  quantityUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4757,6 +4758,7 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
   isActive?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  isCustomized?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   maxQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   minQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -4767,6 +4769,7 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   salePrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   salePriceEndAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   salePriceStartAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  saleQuantityUnit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   shippingClass?: Resolver<Maybe<ResolversTypes['ShippingClass']>, ParentType, ContextType>;
   sku?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   stockStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

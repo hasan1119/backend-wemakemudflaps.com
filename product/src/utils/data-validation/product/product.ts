@@ -126,15 +126,16 @@ export const ProductPriceInputSchema = z
  * 2. Validates `sku` as an optional non-empty string.
  * 3. Validates `brandIds` as optional UUIDs or arrays of UUIDs.
  * 4. Validates `productDeliveryType` as an optional array of `ProductDeliveryTypeEnum`.
- * 5. Validates `minQuantity`, `defaultQuantity`, `maxQuantity`, `quantityStep` as optional positive integers.
- * 6. Ensures `regularPrice` is a positive number.
- * 7. Validates `salePrice` as an optional positive number.
- * 8. Validates `salePriceStartAt` and `salePriceEndAt` as optional datetime strings.
- * 9. Validates `tierPricingInfo` as an optional `ProductPriceInputSchema`.
- * 10. Validates `saleQuantityUnit` as an optional non-empty string.
- * 10. Validates `stockStatus` as an optional `StockStatusEnum`.
- * 11. Validates `weightUnit` as an optional `WeightUnitEnum`.
- * 12. Validates `weight` as an optional positive number.
+ * 5. Validates `isCustomized` as an optional boolean.
+ * 6. Validates `minQuantity`, `defaultQuantity`, `maxQuantity`, `quantityStep` as optional positive integers.
+ * 7. Ensures `regularPrice` is a positive number.
+ * 8. Validates `salePrice` as an optional positive number.
+ * 9. Validates `salePriceStartAt` and `salePriceEndAt` as optional datetime strings.
+ * 10. Validates `tierPricingInfo` as an optional `ProductPriceInputSchema`.
+ * 11. Validates `saleQuantityUnit` as an optional non-empty string.
+ * 12. Validates `stockStatus` as an optional `StockStatusEnum`.
+ * 13. Validates `weightUnit` as an optional `WeightUnitEnum`.
+ * 13. Validates `weight` as an optional positive number.
  * 13. Validates `dimensionUnit` as an optional `DimensionUnitEnum`.
  * 14. Validates `length`, `width`, `height` as optional positive numbers.
  * 15. Validates `attributeValueIds` as an optional array of UUIDs.
@@ -189,7 +190,7 @@ export const ProductVariationInputSchema = z.object({
     )
     .optional()
     .nullable(),
-  // remove duplicate brandIds
+  isCustomized: z.boolean().optional().nullable(),
   brandIds: z
     .array(z.string().uuid({ message: "Invalid UUID format" }))
     .optional()

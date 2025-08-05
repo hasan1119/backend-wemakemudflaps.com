@@ -6,6 +6,7 @@ type ProductVariation {
   id: ID! # Unique identifier
   sku: String # Stock Keeping Unit (optional)
   productDeliveryType: [String!] # Product type (e.g., physical, virtual and downloadable)
+  isCustomized: Boolean # Indicates if the variation is customized
   brands: [Brand!] # Associated brands for the product variation
   # ---------------------- Quantity Rules ----------------------
   minQuantity: Int # Minimum quantity allowed in order
@@ -55,6 +56,7 @@ input ProductVariationInput {
   # ---------------------- Identification ----------------------
   sku: String # Optional SKU for inventory tracking
   productDeliveryType: [ProductDeliveryType!] # Optional Product type (e.g., physical, virtual and downloadable)
+  isCustomized: Boolean # Indicates if the variation is customized
   brandIds: [ID!] # Optional ID to update the brand
   # ---------------------- Quantity Rules ----------------------
   minQuantity: Int # Minimum purchase quantity
