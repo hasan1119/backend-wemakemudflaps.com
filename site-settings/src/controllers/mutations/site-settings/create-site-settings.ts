@@ -6,7 +6,7 @@ import {
 } from "../../../helper/redis";
 import {
   CreateSiteSettingsResponseOrError,
-  MutationCreateBrandArgs,
+  MutationCreateSiteSettingArgs,
 } from "../../../types";
 import { siteSettingsSchema } from "../../../utils/data-validation";
 import {
@@ -28,7 +28,7 @@ import {
  */
 export const createSiteSetting = async (
   _: any,
-  args: MutationCreateBrandArgs,
+  args: MutationCreateSiteSettingArgs,
   { user }: Context
 ): Promise<CreateSiteSettingsResponseOrError> => {
   try {

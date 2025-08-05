@@ -10,8 +10,12 @@ export class SiteSettings {
   name: string | null;
 
   // Metadata for the site setting
-  @Column({ nullable: true, default: null })
-  metaData: string | null;
+  @Column({ type: "jsonb", nullable: true, default: null })
+  metaData: {
+    title?: string | null;
+    description?: string | null;
+    keywords?: string[] | null;
+  } | null;
 
   // Favicon URL for the site setting
   @Column({ nullable: true, default: null })

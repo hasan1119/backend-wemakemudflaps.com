@@ -225,7 +225,7 @@ async function mapProductRecursive(
                 ).map(async (attributeValue) => {
                   const av = await attributeValue.attributeValue;
                   return {
-                    id: attributeValue.id,
+                    id: attributeValue.attributeValue.id, // Main id of that attribute value
                     value: av?.value || null,
                     createdAt:
                       attributeValue.createdAt instanceof Date

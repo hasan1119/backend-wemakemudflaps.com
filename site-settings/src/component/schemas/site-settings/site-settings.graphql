@@ -8,10 +8,16 @@ type ShopAddress {
   zipCode: String
 }
 
+type MetaData {
+  title: String
+  description: String
+  keywords: [String]
+}
+
 type SiteSettings {
   id: ID!
   name: String
-  metaData: String
+  metaData: MetaData
   favIcon: Media
   logo: Media
   contactNumber: String
@@ -32,6 +38,12 @@ input ShopAddressInput {
   state: String
   country: String
   zipCode: String
+}
+
+input MetaDataInput {
+  title: String
+  description: String
+  keywords: [String]
 }
 
 # Response for fetching a site settings.

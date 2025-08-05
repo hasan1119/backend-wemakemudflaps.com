@@ -73,6 +73,11 @@ export type AttributeProduct = {
   name: Scalars['String']['output'];
 };
 
+export type AttributeValue = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  value: Scalars['String']['input'];
+};
+
 export type BaseResponse = {
   __typename?: 'BaseResponse';
   message: Scalars['String']['output'];
@@ -131,11 +136,11 @@ export enum CalculateTaxBasedOn {
 export type Cart = {
   __typename?: 'Cart';
   coupons: Array<Coupon>;
-  createdAt: Scalars['String']['output'];
+  createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   items: Array<CartItems>;
-  updatedAt: Scalars['String']['output'];
 };
 
 export type CartItems = {
@@ -427,6 +432,13 @@ export type FieldError = {
   message: Scalars['String']['output'];
 };
 
+export type FilteringInput = {
+  brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
+  tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
 export type FlatRate = {
   __typename?: 'FlatRate';
   cost: Scalars['Float']['output'];
@@ -473,10 +485,10 @@ export type FreeShipping = {
 };
 
 export enum FreeShippingCondition {
-  Coupon = 'Coupon',
-  MinimumOrderAmount = 'Minimum_Order_Amount',
-  MinimumOrderAmountAndCoupon = 'Minimum_Order_Amount_and_Coupon',
-  MinimumOrderAmountOrCoupon = 'Minimum_Order_Amount_or_Coupon',
+  Coupon = 'COUPON',
+  MinimumOrderAmount = 'MINIMUM_ORDER_AMOUNT',
+  MinimumOrderAmountAndCoupon = 'MINIMUM_ORDER_AMOUNT_AND_COUPON',
+  MinimumOrderAmountOrCoupon = 'MINIMUM_ORDER_AMOUNT_OR_COUPON',
   Na = 'NA'
 }
 
@@ -504,6 +516,8 @@ export type GetAllProductAttributesResponseOrError = BaseResponse | ErrorRespons
 export type GetBrandByIdResponseOrError = BaseResponse | BrandResponse | ErrorResponse;
 
 export type GetBrandsResponseOrError = BaseResponse | BrandPaginationResponse | ErrorResponse;
+
+export type GetCartOrWishListResponseOrError = BaseResponse | CartResponse | ErrorResponse | WishlistResponse;
 
 export type GetCategoriesResponseOrError = BaseResponse | CategoryPaginationResponse | ErrorResponse;
 
@@ -786,6 +800,19 @@ export type MediasResponse = {
   total: Scalars['Int']['output'];
 };
 
+export type MetaData = {
+  __typename?: 'MetaData';
+  description?: Maybe<Scalars['String']['output']>;
+  keywords?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  title?: Maybe<Scalars['String']['output']>;
+};
+
+export type MetaDataInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  keywords?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   accountActivation: ActiveAccountResponseOrError;
@@ -832,8 +859,8 @@ export type Mutation = {
   login: UserLoginResponseOrError;
   logout: BaseResponseOrError;
   register: BaseResponseOrError;
-  removeFromCart: RemoveFromCartOrWishListResponseOrError;
-  removeFromWishList: RemoveFromCartOrWishListResponseOrError;
+  removeItemsFromCart: RemoveFromCartOrWishListResponseOrError;
+  removeItemsFromWishList: RemoveFromCartOrWishListResponseOrError;
   resetPassword: BaseResponseOrError;
   restoreBrands: RestoreBrandResponseOrError;
   restoreCategory?: Maybe<RestoreCategoryResponseOrError>;
@@ -892,7 +919,7 @@ export type MutationAddToWishListArgs = {
 
 
 export type MutationApplyCouponArgs = {
-  couponCode: Scalars['String']['input'];
+  couponCodes: Array<InputMaybe<Scalars['String']['input']>>;
 };
 
 
@@ -956,63 +983,6 @@ export type MutationCreateFaqArgs = {
 };
 
 
-export type MutationCreateProductArgs = {
-  allowBackOrders?: InputMaybe<AllowBackOrders>;
-  attributeIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  crossSellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  customBadge?: InputMaybe<Scalars['String']['input']>;
-  defaultImage?: InputMaybe<Scalars['ID']['input']>;
-  defaultMainDescription?: InputMaybe<Scalars['String']['input']>;
-  defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
-  defaultShortDescription?: InputMaybe<Scalars['String']['input']>;
-  defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;
-  dimensionUnit?: InputMaybe<DimensionUnit>;
-  enableReviews?: InputMaybe<Scalars['Boolean']['input']>;
-  height?: InputMaybe<Scalars['Float']['input']>;
-  images?: InputMaybe<Array<Scalars['ID']['input']>>;
-  initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
-  isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
-  isVisible?: InputMaybe<Scalars['Boolean']['input']>;
-  length?: InputMaybe<Scalars['Float']['input']>;
-  lowStockThresHold?: InputMaybe<Scalars['Int']['input']>;
-  manageStock?: InputMaybe<Scalars['Boolean']['input']>;
-  maxQuantity?: InputMaybe<Scalars['Int']['input']>;
-  minQuantity?: InputMaybe<Scalars['Int']['input']>;
-  model?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  productConfigurationType?: InputMaybe<ProductConfigurationType>;
-  productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
-  purchaseNote?: InputMaybe<Scalars['String']['input']>;
-  quantityStep?: InputMaybe<Scalars['Int']['input']>;
-  regularPrice?: InputMaybe<Scalars['Float']['input']>;
-  salePrice?: InputMaybe<Scalars['Float']['input']>;
-  salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
-  salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
-  saleQuantity?: InputMaybe<Scalars['Int']['input']>;
-  saleQuantityUnit?: InputMaybe<Scalars['String']['input']>;
-  shippingClassId?: InputMaybe<Scalars['ID']['input']>;
-  sku?: InputMaybe<Scalars['String']['input']>;
-  slug?: InputMaybe<Scalars['String']['input']>;
-  soldIndividually?: InputMaybe<Scalars['Boolean']['input']>;
-  stockQuantity?: InputMaybe<Scalars['Int']['input']>;
-  stockStatus?: InputMaybe<StockStatus>;
-  tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  taxClassId?: InputMaybe<Scalars['ID']['input']>;
-  taxStatus?: InputMaybe<TaxStatus>;
-  tierPricingInfo?: InputMaybe<ProductPriceInput>;
-  upsellIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  variations?: InputMaybe<Array<ProductVariationInput>>;
-  videos?: InputMaybe<Array<Scalars['ID']['input']>>;
-  warrantyDigit?: InputMaybe<Scalars['Int']['input']>;
-  warrantyPolicy?: InputMaybe<Scalars['String']['input']>;
-  weight?: InputMaybe<Scalars['Float']['input']>;
-  weightUnit?: InputMaybe<WeightUnit>;
-  width?: InputMaybe<Scalars['Float']['input']>;
-};
-
-
 export type MutationCreateProductAttributeArgs = {
   forVariation?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
@@ -1054,7 +1024,7 @@ export type MutationCreateSiteSettingArgs = {
   contactNumber?: InputMaybe<Scalars['String']['input']>;
   favIcon?: InputMaybe<Scalars['String']['input']>;
   logo?: InputMaybe<Scalars['String']['input']>;
-  metaData?: InputMaybe<Scalars['String']['input']>;
+  metaData?: InputMaybe<MetaDataInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   privacyPolicy?: InputMaybe<Scalars['String']['input']>;
   shopAddress?: InputMaybe<ShopAddressInput>;
@@ -1240,13 +1210,13 @@ export type MutationRegisterArgs = {
 };
 
 
-export type MutationRemoveFromCartArgs = {
-  productId: Scalars['ID']['input'];
+export type MutationRemoveItemsFromCartArgs = {
+  productIds: Array<Scalars['ID']['input']>;
 };
 
 
-export type MutationRemoveFromWishListArgs = {
-  productId: Scalars['ID']['input'];
+export type MutationRemoveItemsFromWishListArgs = {
+  productIds: Array<Scalars['ID']['input']>;
 };
 
 
@@ -1325,7 +1295,6 @@ export type MutationUpdateBrandArgs = {
 
 
 export type MutationUpdateCartItemArgs = {
-  cartItemId: Scalars['ID']['input'];
   productId: Scalars['ID']['input'];
   quantity: Scalars['Int']['input'];
 };
@@ -1394,7 +1363,7 @@ export type MutationUpdateProductArgs = {
   height?: InputMaybe<Scalars['Float']['input']>;
   id: Scalars['ID']['input'];
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
-  initialNumberInStock?: InputMaybe<Scalars['String']['input']>;
+  initialNumberInStock?: InputMaybe<Scalars['Int']['input']>;
   isCustomized?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
@@ -1440,7 +1409,7 @@ export type MutationUpdateProductAttributeArgs = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
-  values: Array<Scalars['String']['input']>;
+  values: Array<AttributeValue>;
   visible?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -1494,7 +1463,7 @@ export type MutationUpdateSiteSettingArgs = {
   contactNumber?: InputMaybe<Scalars['String']['input']>;
   favIcon?: InputMaybe<Scalars['String']['input']>;
   logo?: InputMaybe<Scalars['String']['input']>;
-  metaData?: InputMaybe<Scalars['String']['input']>;
+  metaData?: InputMaybe<MetaDataInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   privacyPolicy?: InputMaybe<Scalars['String']['input']>;
   shopAddress?: InputMaybe<ShopAddressInput>;
@@ -1686,8 +1655,8 @@ export type Product = {
   height?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['ID']['output']>;
   images?: Maybe<Array<Media>>;
-  initialNumberInStock?: Maybe<Scalars['String']['output']>;
-  isCustomized: Scalars['Boolean']['output'];
+  initialNumberInStock?: Maybe<Scalars['Int']['output']>;
+  isCustomized?: Maybe<Scalars['Boolean']['output']>;
   isVisible?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
   lowStockThresHold?: Maybe<Scalars['Int']['output']>;
@@ -1796,7 +1765,6 @@ export type ProductPrice = {
 
 export type ProductPriceInput = {
   pricingType: PricingTypeEnum;
-  productVariationId?: InputMaybe<Scalars['ID']['input']>;
   tieredPrices?: InputMaybe<Array<ProductTieredPriceInput>>;
 };
 
@@ -1874,7 +1842,7 @@ export type ProductTieredPriceInput = {
 
 export type ProductVariation = {
   __typename?: 'ProductVariation';
-  attributeValues: Array<ProductAttributeValue>;
+  attributeValues?: Maybe<Array<ProductAttributeValue>>;
   brands?: Maybe<Array<Brand>>;
   createdAt?: Maybe<Scalars['String']['output']>;
   defaultQuantity?: Maybe<Scalars['Int']['output']>;
@@ -1885,13 +1853,14 @@ export type ProductVariation = {
   height?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
   images?: Maybe<Array<Media>>;
+  isActive?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
   maxQuantity?: Maybe<Scalars['Int']['output']>;
   minQuantity?: Maybe<Scalars['Int']['output']>;
-  product: Product;
-  productDeliveryType: Array<Scalars['String']['output']>;
-  quantityStep: Scalars['Int']['output'];
-  regularPrice: Scalars['Float']['output'];
+  product?: Maybe<Product>;
+  productDeliveryType?: Maybe<Array<Scalars['String']['output']>>;
+  quantityStep?: Maybe<Scalars['Int']['output']>;
+  regularPrice?: Maybe<Scalars['Float']['output']>;
   salePrice?: Maybe<Scalars['Float']['output']>;
   salePriceEndAt?: Maybe<Scalars['String']['output']>;
   salePriceStartAt?: Maybe<Scalars['String']['output']>;
@@ -1910,27 +1879,27 @@ export type ProductVariation = {
 };
 
 export type ProductVariationInput = {
-  attributeValues?: InputMaybe<Array<Scalars['ID']['input']>>;
+  attributeValueIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   defaultQuantity?: InputMaybe<Scalars['Int']['input']>;
   defaultWarrantyPeriod?: InputMaybe<DefaultWarrantyPeriod>;
   description?: InputMaybe<Scalars['String']['input']>;
-  dimensionUnit?: InputMaybe<Scalars['String']['input']>;
+  dimensionUnit?: InputMaybe<DimensionUnit>;
   height?: InputMaybe<Scalars['Float']['input']>;
-  id?: InputMaybe<Scalars['ID']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity?: InputMaybe<Scalars['Int']['input']>;
   productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
   quantityStep?: InputMaybe<Scalars['Int']['input']>;
-  regularPrice: Scalars['Float']['input'];
+  regularPrice?: InputMaybe<Scalars['Float']['input']>;
   salePrice?: InputMaybe<Scalars['Float']['input']>;
   salePriceEndAt?: InputMaybe<Scalars['String']['input']>;
   salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
-  stockStatus?: InputMaybe<Scalars['String']['input']>;
+  stockStatus?: InputMaybe<StockStatus>;
   taxClassId?: InputMaybe<Scalars['ID']['input']>;
   taxStatus?: InputMaybe<TaxStatus>;
   tierPricingInfo?: InputMaybe<ProductPriceInput>;
@@ -1947,7 +1916,9 @@ export type Query = {
   getAddressBookEntryById: GetAddressBookByIdResponseOrError;
   getAddressEntires: GetAddressesBookResponseOrError;
   getAllBrands: GetBrandsResponseOrError;
+  getAllBrandsForCustomers: GetBrandsResponseOrError;
   getAllCategories: GetCategoriesResponseOrError;
+  getAllCategoriesForCustomers: GetCategoriesResponseOrError;
   getAllCoupons: GetCouponsResponseOrError;
   getAllFaqs: GetFaqsResponseOrError;
   getAllMedias: GetMediasResponseOrError;
@@ -1960,11 +1931,12 @@ export type Query = {
   getAllShippingMethods: GetShippingMethodsResponseOrError;
   getAllShippingZones: GetShippingZonesResponseOrError;
   getAllTags: GetTagsResponseOrError;
+  getAllTagsForCustomers: GetTagsResponseOrError;
   getAllTaxClass: GetTaxClassesResponseOrError;
   getAllTaxRates: GetTaxRatesResponseOrError;
   getAllUsers: GetUsersResponseOrError;
   getBrandById: GetBrandByIdResponseOrError;
-  getCart: CartResponse;
+  getCart: GetCartOrWishListResponseOrError;
   getCategoryById: GetCategoryByIdResponseOrError;
   getCouponById: GetCouponByIdResponseOrError;
   getFaqById: GetFaqByIdResponseOrError;
@@ -1987,7 +1959,7 @@ export type Query = {
   getTaxRateById: GetTaxRateByIdResponseOrError;
   getUserById: GetUserByIdResponseOrError;
   getUserOwnLoginInfo: GetUserLoginInfoResponseOrError;
-  getWishlist: WishlistResponse;
+  getWishlist: GetCartOrWishListResponseOrError;
 };
 
 
@@ -2012,7 +1984,25 @@ export type QueryGetAllBrandsArgs = {
 };
 
 
+export type QueryGetAllBrandsForCustomersArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryGetAllCategoriesArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllCategoriesForCustomersArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -2063,6 +2053,7 @@ export type QueryGetAllProductAttributeArgs = {
 
 
 export type QueryGetAllProductsArgs = {
+  filtering?: InputMaybe<FilteringInput>;
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -2072,6 +2063,7 @@ export type QueryGetAllProductsArgs = {
 
 
 export type QueryGetAllProductsForCustomerArgs = {
+  filtering?: InputMaybe<FilteringInput>;
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -2117,6 +2109,15 @@ export type QueryGetAllShippingZonesArgs = {
 
 
 export type QueryGetAllTagsArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  sortOrder?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAllTagsForCustomersArgs = {
   limit: Scalars['Int']['input'];
   page: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -2338,7 +2339,7 @@ export type ShippingClass = {
 export type ShippingClassPaginationDataSession = {
   __typename?: 'ShippingClassPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -2463,7 +2464,7 @@ export type SiteSettings = {
   favIcon?: Maybe<Media>;
   id: Scalars['ID']['output'];
   logo?: Maybe<Media>;
-  metaData?: Maybe<Scalars['String']['output']>;
+  metaData?: Maybe<MetaData>;
   name?: Maybe<Scalars['String']['output']>;
   privacyPolicy?: Maybe<Scalars['String']['output']>;
   shopAddress?: Maybe<ShopAddress>;
@@ -2497,7 +2498,7 @@ export type Tag = {
 export type TagPaginationDataSession = {
   __typename?: 'TagPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -2535,7 +2536,7 @@ export type TaxClass = {
 export type TaxClassPaginationDataSession = {
   __typename?: 'TaxClassPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -2651,7 +2652,7 @@ export type TaxRateSession = {
   city?: Maybe<Scalars['String']['output']>;
   country: Scalars['String']['output'];
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isCompound: Scalars['Boolean']['output'];
@@ -2951,11 +2952,11 @@ export enum WeightUnit {
 
 export type Wishlist = {
   __typename?: 'Wishlist';
-  createdAt: Scalars['String']['output'];
+  createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
+  deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   items: Array<WishlistItems>;
-  updatedAt: Scalars['String']['output'];
 };
 
 export type WishlistItems = {
@@ -3095,6 +3096,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   GetAllProductAttributesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductAttributePaginationResponse );
   GetBrandByIDResponseOrError: ( BaseResponse ) | ( BrandResponse ) | ( ErrorResponse );
   GetBrandsResponseOrError: ( BaseResponse ) | ( BrandPaginationResponse ) | ( ErrorResponse );
+  GetCartOrWishListResponseOrError: ( BaseResponse ) | ( CartResponse ) | ( ErrorResponse ) | ( WishlistResponse );
   GetCategoriesResponseOrError: ( BaseResponse ) | ( CategoryPaginationResponse ) | ( ErrorResponse );
   GetCategoryByIDResponseOrError: ( BaseResponse ) | ( CategoryResponseById ) | ( ErrorResponse );
   GetCouponByIDResponseOrError: ( BaseResponse ) | ( CouponResponse ) | ( ErrorResponse );
@@ -3186,6 +3188,7 @@ export type ResolversTypes = {
   AllowBackOrders: AllowBackOrders;
   ApplyCouponResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ApplyCouponResponseOrError']>;
   AttributeProduct: ResolverTypeWrapper<AttributeProduct>;
+  AttributeValue: AttributeValue;
   BaseResponse: ResolverTypeWrapper<BaseResponse>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   Brand: ResolverTypeWrapper<Brand>;
@@ -3252,6 +3255,7 @@ export type ResolversTypes = {
   FaqResponse: ResolverTypeWrapper<FaqResponse>;
   FaqResponseById: ResolverTypeWrapper<FaqResponseById>;
   FieldError: ResolverTypeWrapper<FieldError>;
+  FilteringInput: FilteringInput;
   FlatRate: ResolverTypeWrapper<FlatRate>;
   FlatRateCost: ResolverTypeWrapper<FlatRateCost>;
   FlatRateCostInput: FlatRateCostInput;
@@ -3265,6 +3269,7 @@ export type ResolversTypes = {
   GetAllProductAttributesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetAllProductAttributesResponseOrError']>;
   GetBrandByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetBrandByIDResponseOrError']>;
   GetBrandsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetBrandsResponseOrError']>;
+  GetCartOrWishListResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCartOrWishListResponseOrError']>;
   GetCategoriesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoriesResponseOrError']>;
   GetCategoryByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCategoryByIDResponseOrError']>;
   GetCouponByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetCouponByIDResponseOrError']>;
@@ -3314,6 +3319,8 @@ export type ResolversTypes = {
   MediaMimeType: MediaMimeType;
   MediaResponse: ResolverTypeWrapper<MediaResponse>;
   MediasResponse: ResolverTypeWrapper<MediasResponse>;
+  MetaData: ResolverTypeWrapper<MetaData>;
+  MetaDataInput: MetaDataInput;
   Mutation: ResolverTypeWrapper<{}>;
   PermissionAgainstRoleInput: PermissionAgainstRoleInput;
   PermissionName: PermissionName;
@@ -3456,6 +3463,7 @@ export type ResolversParentTypes = {
   AddressesBookResponse: AddressesBookResponse;
   ApplyCouponResponseOrError: ResolversUnionTypes<ResolversParentTypes>['ApplyCouponResponseOrError'];
   AttributeProduct: AttributeProduct;
+  AttributeValue: AttributeValue;
   BaseResponse: BaseResponse;
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   Brand: Brand;
@@ -3518,6 +3526,7 @@ export type ResolversParentTypes = {
   FaqResponse: FaqResponse;
   FaqResponseById: FaqResponseById;
   FieldError: FieldError;
+  FilteringInput: FilteringInput;
   FlatRate: FlatRate;
   FlatRateCost: FlatRateCost;
   FlatRateCostInput: FlatRateCostInput;
@@ -3529,6 +3538,7 @@ export type ResolversParentTypes = {
   GetAllProductAttributesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetAllProductAttributesResponseOrError'];
   GetBrandByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetBrandByIDResponseOrError'];
   GetBrandsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetBrandsResponseOrError'];
+  GetCartOrWishListResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCartOrWishListResponseOrError'];
   GetCategoriesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoriesResponseOrError'];
   GetCategoryByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCategoryByIDResponseOrError'];
   GetCouponByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetCouponByIDResponseOrError'];
@@ -3576,6 +3586,8 @@ export type ResolversParentTypes = {
   MediaDimensionInput: MediaDimensionInput;
   MediaResponse: MediaResponse;
   MediasResponse: MediasResponse;
+  MetaData: MetaData;
+  MetaDataInput: MetaDataInput;
   Mutation: {};
   PermissionAgainstRoleInput: PermissionAgainstRoleInput;
   PermissionSession: PermissionSession;
@@ -3806,11 +3818,11 @@ export type BrandResponseResolvers<ContextType = Context, ParentType extends Res
 
 export type CartResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Cart'] = ResolversParentTypes['Cart']> = {
   coupons?: Resolver<Array<ResolversTypes['Coupon']>, ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   items?: Resolver<Array<ResolversTypes['CartItems']>, ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4193,6 +4205,10 @@ export type GetBrandsResponseOrErrorResolvers<ContextType = Context, ParentType 
   __resolveType: TypeResolveFn<'BaseResponse' | 'BrandPaginationResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
+export type GetCartOrWishListResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetCartOrWishListResponseOrError'] = ResolversParentTypes['GetCartOrWishListResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'CartResponse' | 'ErrorResponse' | 'WishlistResponse', ParentType, ContextType>;
+};
+
 export type GetCategoriesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetCategoriesResponseOrError'] = ResolversParentTypes['GetCategoriesResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryPaginationResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
@@ -4423,18 +4439,25 @@ export type MediasResponseResolvers<ContextType = Context, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MetaDataResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MetaData'] = ResolversParentTypes['MetaData']> = {
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  keywords?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   accountActivation?: Resolver<ResolversTypes['ActiveAccountResponseOrError'], ParentType, ContextType, RequireFields<MutationAccountActivationArgs, 'email' | 'userId'>>;
   addToCart?: Resolver<ResolversTypes['AddToCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationAddToCartArgs, 'productId' | 'quantity'>>;
   addToWishList?: Resolver<ResolversTypes['AddToCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationAddToWishListArgs, 'productId'>>;
-  applyCoupon?: Resolver<ResolversTypes['ApplyCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationApplyCouponArgs, 'couponCode'>>;
+  applyCoupon?: Resolver<ResolversTypes['ApplyCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationApplyCouponArgs, 'couponCodes'>>;
   changePassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'newPassword' | 'oldPassword'>>;
   createAddressBookEntry?: Resolver<ResolversTypes['CreateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateAddressBookEntryArgs, 'city' | 'company' | 'country' | 'isDefault' | 'state' | 'streetOne' | 'streetTwo' | 'type' | 'userId' | 'zip'>>;
   createBrand?: Resolver<ResolversTypes['CreateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateBrandArgs, 'name' | 'slug'>>;
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createCoupon?: Resolver<ResolversTypes['CreateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCouponArgs, 'code' | 'discountType' | 'discountValue'>>;
   createFaq?: Resolver<ResolversTypes['CreateFaqResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateFaqArgs, 'answer' | 'question'>>;
-  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType, Partial<MutationCreateProductArgs>>;
+  createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType>;
   createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
@@ -4468,8 +4491,8 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'meta' | 'password'>>;
   logout?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password' | 'username'>>;
-  removeFromCart?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveFromCartArgs, 'productId'>>;
-  removeFromWishList?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveFromWishListArgs, 'productId'>>;
+  removeItemsFromCart?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromCartArgs, 'productIds'>>;
+  removeItemsFromWishList?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromWishListArgs, 'productIds'>>;
   resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   restoreBrands?: Resolver<ResolversTypes['RestoreBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreBrandsArgs, 'ids'>>;
   restoreCategory?: Resolver<Maybe<ResolversTypes['RestoreCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationRestoreCategoryArgs, 'ids'>>;
@@ -4482,7 +4505,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   restoreUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreUserRoleArgs, 'ids'>>;
   updateAddressBookEntry?: Resolver<ResolversTypes['UpdateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateAddressBookEntryArgs, 'id' | 'userId'>>;
   updateBrand?: Resolver<ResolversTypes['UpdateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateBrandArgs, 'id'>>;
-  updateCartItem?: Resolver<ResolversTypes['UpdateCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCartItemArgs, 'cartItemId' | 'productId' | 'quantity'>>;
+  updateCartItem?: Resolver<ResolversTypes['UpdateCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCartItemArgs, 'productId' | 'quantity'>>;
   updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'id'>>;
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'id' | 'position'>>;
   updateCoupon?: Resolver<ResolversTypes['UpdateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCouponArgs, 'code' | 'id'>>;
@@ -4566,8 +4589,8 @@ export type ProductResolvers<ContextType = Context, ParentType extends Resolvers
   height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
-  initialNumberInStock?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  isCustomized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  initialNumberInStock?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  isCustomized?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isVisible?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   lowStockThresHold?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -4722,7 +4745,7 @@ export type ProductTieredPriceResolvers<ContextType = Context, ParentType extend
 };
 
 export type ProductVariationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProductVariation'] = ResolversParentTypes['ProductVariation']> = {
-  attributeValues?: Resolver<Array<ResolversTypes['ProductAttributeValue']>, ParentType, ContextType>;
+  attributeValues?: Resolver<Maybe<Array<ResolversTypes['ProductAttributeValue']>>, ParentType, ContextType>;
   brands?: Resolver<Maybe<Array<ResolversTypes['Brand']>>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   defaultQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -4733,13 +4756,14 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
+  isActive?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   maxQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   minQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  product?: Resolver<ResolversTypes['Product'], ParentType, ContextType>;
-  productDeliveryType?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  quantityStep?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  regularPrice?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  product?: Resolver<Maybe<ResolversTypes['Product']>, ParentType, ContextType>;
+  productDeliveryType?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  quantityStep?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  regularPrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   salePrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   salePriceEndAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   salePriceStartAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -4762,7 +4786,9 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAddressBookEntryById?: Resolver<ResolversTypes['GetAddressBookByIdResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressBookEntryByIdArgs, 'id' | 'userId'>>;
   getAddressEntires?: Resolver<ResolversTypes['GetAddressesBookResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAddressEntiresArgs, 'type' | 'userId'>>;
   getAllBrands?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsArgs, 'limit' | 'page'>>;
+  getAllBrandsForCustomers?: Resolver<ResolversTypes['GetBrandsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllBrandsForCustomersArgs, 'limit' | 'page'>>;
   getAllCategories?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesArgs, 'limit' | 'page'>>;
+  getAllCategoriesForCustomers?: Resolver<ResolversTypes['GetCategoriesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCategoriesForCustomersArgs, 'limit' | 'page'>>;
   getAllCoupons?: Resolver<ResolversTypes['GetCouponsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllCouponsArgs, 'limit' | 'page'>>;
   getAllFaqs?: Resolver<ResolversTypes['GetFaqsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllFaqsArgs, 'limit' | 'page'>>;
   getAllMedias?: Resolver<ResolversTypes['GetMediasResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllMediasArgs, 'limit' | 'page'>>;
@@ -4775,11 +4801,12 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getAllShippingMethods?: Resolver<ResolversTypes['GetShippingMethodsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingMethodsArgs, 'limit' | 'page'>>;
   getAllShippingZones?: Resolver<ResolversTypes['GetShippingZonesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllShippingZonesArgs, 'limit' | 'page'>>;
   getAllTags?: Resolver<ResolversTypes['GetTagsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTagsArgs, 'limit' | 'page'>>;
+  getAllTagsForCustomers?: Resolver<ResolversTypes['GetTagsResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTagsForCustomersArgs, 'limit' | 'page'>>;
   getAllTaxClass?: Resolver<ResolversTypes['GetTaxClassesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxClassArgs, 'limit' | 'page'>>;
   getAllTaxRates?: Resolver<ResolversTypes['GetTaxRatesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllTaxRatesArgs, 'limit' | 'page' | 'taxClassId'>>;
   getAllUsers?: Resolver<ResolversTypes['GetUsersResponseOrError'], ParentType, ContextType, RequireFields<QueryGetAllUsersArgs, 'limit' | 'page'>>;
   getBrandById?: Resolver<ResolversTypes['GetBrandByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetBrandByIdArgs, 'id'>>;
-  getCart?: Resolver<ResolversTypes['CartResponse'], ParentType, ContextType>;
+  getCart?: Resolver<ResolversTypes['GetCartOrWishListResponseOrError'], ParentType, ContextType>;
   getCategoryById?: Resolver<ResolversTypes['GetCategoryByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetCategoryByIdArgs, 'id'>>;
   getCouponById?: Resolver<ResolversTypes['GetCouponByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetCouponByIdArgs, 'id'>>;
   getFaqById?: Resolver<ResolversTypes['GetFaqByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetFaqByIdArgs, 'id'>>;
@@ -4802,7 +4829,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getTaxRateById?: Resolver<ResolversTypes['GetTaxRateByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxRateByIdArgs, 'id'>>;
   getUserById?: Resolver<ResolversTypes['GetUserByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetUserByIdArgs, 'id'>>;
   getUserOwnLoginInfo?: Resolver<ResolversTypes['GetUserLoginInfoResponseOrError'], ParentType, ContextType>;
-  getWishlist?: Resolver<ResolversTypes['WishlistResponse'], ParentType, ContextType>;
+  getWishlist?: Resolver<ResolversTypes['GetCartOrWishListResponseOrError'], ParentType, ContextType>;
 };
 
 export type RemoveFromCartOrWishListResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RemoveFromCartOrWishListResponseOrError'] = ResolversParentTypes['RemoveFromCartOrWishListResponseOrError']> = {
@@ -4920,7 +4947,7 @@ export type ShippingClassResolvers<ContextType = Context, ParentType extends Res
 
 export type ShippingClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingClassPaginationDataSession'] = ResolversParentTypes['ShippingClassPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -5027,7 +5054,7 @@ export type SiteSettingsResolvers<ContextType = Context, ParentType extends Reso
   favIcon?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   logo?: Resolver<Maybe<ResolversTypes['Media']>, ParentType, ContextType>;
-  metaData?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  metaData?: Resolver<Maybe<ResolversTypes['MetaData']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   privacyPolicy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   shopAddress?: Resolver<Maybe<ResolversTypes['ShopAddress']>, ParentType, ContextType>;
@@ -5055,7 +5082,7 @@ export type TagResolvers<ContextType = Context, ParentType extends ResolversPare
 
 export type TagPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TagPaginationDataSession'] = ResolversParentTypes['TagPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -5093,7 +5120,7 @@ export type TaxClassResolvers<ContextType = Context, ParentType extends Resolver
 
 export type TaxClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxClassPaginationDataSession'] = ResolversParentTypes['TaxClassPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -5202,7 +5229,7 @@ export type TaxRateSessionResolvers<ContextType = Context, ParentType extends Re
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isCompound?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -5481,11 +5508,11 @@ export type UsersResponseResolvers<ContextType = Context, ParentType extends Res
 };
 
 export type WishlistResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Wishlist'] = ResolversParentTypes['Wishlist']> = {
-  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   items?: Resolver<Array<ResolversTypes['WishlistItems']>, ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5581,6 +5608,7 @@ export type Resolvers<ContextType = Context> = {
   GetAllProductAttributesResponseOrError?: GetAllProductAttributesResponseOrErrorResolvers<ContextType>;
   GetBrandByIDResponseOrError?: GetBrandByIdResponseOrErrorResolvers<ContextType>;
   GetBrandsResponseOrError?: GetBrandsResponseOrErrorResolvers<ContextType>;
+  GetCartOrWishListResponseOrError?: GetCartOrWishListResponseOrErrorResolvers<ContextType>;
   GetCategoriesResponseOrError?: GetCategoriesResponseOrErrorResolvers<ContextType>;
   GetCategoryByIDResponseOrError?: GetCategoryByIdResponseOrErrorResolvers<ContextType>;
   GetCouponByIDResponseOrError?: GetCouponByIdResponseOrErrorResolvers<ContextType>;
@@ -5625,6 +5653,7 @@ export type Resolvers<ContextType = Context> = {
   MediaDimension?: MediaDimensionResolvers<ContextType>;
   MediaResponse?: MediaResponseResolvers<ContextType>;
   MediasResponse?: MediasResponseResolvers<ContextType>;
+  MetaData?: MetaDataResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PermissionSession?: PermissionSessionResolvers<ContextType>;
   Permissions?: PermissionsResolvers<ContextType>;

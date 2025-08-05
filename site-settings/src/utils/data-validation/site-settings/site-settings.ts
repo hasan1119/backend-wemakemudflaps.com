@@ -36,7 +36,22 @@ export const siteSettingsSchema = z
       .optional()
       .nullable(),
     metaData: z
-      .string({ message: "Meta data must be a string" })
+      .object({
+        title: z
+          .string({ message: "Title must be a string" })
+          .optional()
+          .nullable(),
+        description: z
+          .string({ message: "Description must be a string" })
+          .optional()
+          .nullable(),
+        keywords: z
+          .array(z.string(), {
+            message: "Keywords must be an array of strings",
+          })
+          .optional()
+          .nullable(),
+      })
       .optional()
       .nullable(),
     favIcon: z
