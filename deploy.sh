@@ -10,7 +10,7 @@ ssh-add "$HOME/.ssh/github"
 
 
 echo "Pulling latest code..."
-git pull origin main --force
+git pull origin main
 
 # Subgraph matrix
 declare -A SUBGRAPHS
@@ -93,10 +93,10 @@ if [ $GEN_STATUS -ne 0 ]; then
   exit $GEN_STATUS
 fi
 
-if pm2 list | grep -q "router"; then
+if pm2 list | grep -q "steven_router"; then
   echo "Reloading router pm2 process"
-  pm2 reload router
+  pm2 reload steven_router
 else
   echo "Starting router pm2 process"
-  pm2 start npm --name "router" -- run start
+    pm2 start rover --name steven_router -- dev --supergraph-config ./supergraph.yaml --router-config ./router.yaml
 fi
