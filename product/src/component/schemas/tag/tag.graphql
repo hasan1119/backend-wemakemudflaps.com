@@ -22,7 +22,7 @@ type TagPaginationDataSession {
   name: String!
   slug: String!
   totalProducts: Int
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }

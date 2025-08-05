@@ -67,7 +67,7 @@ input ProductVariationInput {
   salePriceEndAt: String # Sale end datetime
   tierPricingInfo: ProductPriceInput # Associated tier pricing information
   # ---------------------- Stock & Inventory ----------------------
-  stockStatus: String # Stock status
+  stockStatus: StockStatus # Stock status
   # ---------------------- Physical Attributes ----------------------
   weightUnit: WeightUnit # Unit for weight
   weight: Float # Weight value

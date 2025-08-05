@@ -73,6 +73,11 @@ export type AttributeProduct = {
   name: Scalars['String']['output'];
 };
 
+export type AttributeValue = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  value: Scalars['String']['input'];
+};
+
 export type BaseResponse = {
   __typename?: 'BaseResponse';
   message: Scalars['String']['output'];
@@ -1391,7 +1396,7 @@ export type MutationUpdateProductAttributeArgs = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
-  values: Array<Scalars['String']['input']>;
+  values: Array<AttributeValue>;
   visible?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -1835,6 +1840,7 @@ export type ProductVariation = {
   height?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
   images?: Maybe<Array<Media>>;
+  isActive?: Maybe<Scalars['Boolean']['output']>;
   length?: Maybe<Scalars['Float']['output']>;
   maxQuantity?: Maybe<Scalars['Int']['output']>;
   minQuantity?: Maybe<Scalars['Int']['output']>;
@@ -1868,6 +1874,7 @@ export type ProductVariationInput = {
   dimensionUnit?: InputMaybe<DimensionUnit>;
   height?: InputMaybe<Scalars['Float']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity?: InputMaybe<Scalars['Int']['input']>;
@@ -1879,7 +1886,7 @@ export type ProductVariationInput = {
   salePriceStartAt?: InputMaybe<Scalars['String']['input']>;
   shippingClassId?: InputMaybe<Scalars['ID']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
-  stockStatus?: InputMaybe<Scalars['String']['input']>;
+  stockStatus?: InputMaybe<StockStatus>;
   taxClassId?: InputMaybe<Scalars['ID']['input']>;
   taxStatus?: InputMaybe<TaxStatus>;
   tierPricingInfo?: InputMaybe<ProductPriceInput>;
@@ -2319,7 +2326,7 @@ export type ShippingClass = {
 export type ShippingClassPaginationDataSession = {
   __typename?: 'ShippingClassPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -2478,7 +2485,7 @@ export type Tag = {
 export type TagPaginationDataSession = {
   __typename?: 'TagPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -2516,7 +2523,7 @@ export type TaxClass = {
 export type TaxClassPaginationDataSession = {
   __typename?: 'TaxClassPaginationDataSession';
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -2632,7 +2639,7 @@ export type TaxRateSession = {
   city?: Maybe<Scalars['String']['output']>;
   country: Scalars['String']['output'];
   createdAt?: Maybe<Scalars['String']['output']>;
-  createdBy: CreatedBy;
+  createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isCompound: Scalars['Boolean']['output'];
@@ -3168,6 +3175,7 @@ export type ResolversTypes = {
   AllowBackOrders: AllowBackOrders;
   ApplyCouponResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['ApplyCouponResponseOrError']>;
   AttributeProduct: ResolverTypeWrapper<AttributeProduct>;
+  AttributeValue: AttributeValue;
   BaseResponse: ResolverTypeWrapper<BaseResponse>;
   BaseResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['BaseResponseOrError']>;
   Brand: ResolverTypeWrapper<Brand>;
@@ -3440,6 +3448,7 @@ export type ResolversParentTypes = {
   AddressesBookResponse: AddressesBookResponse;
   ApplyCouponResponseOrError: ResolversUnionTypes<ResolversParentTypes>['ApplyCouponResponseOrError'];
   AttributeProduct: AttributeProduct;
+  AttributeValue: AttributeValue;
   BaseResponse: BaseResponse;
   BaseResponseOrError: ResolversUnionTypes<ResolversParentTypes>['BaseResponseOrError'];
   Brand: Brand;
@@ -4723,6 +4732,7 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['Media']>>, ParentType, ContextType>;
+  isActive?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   maxQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   minQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -4913,7 +4923,7 @@ export type ShippingClassResolvers<ContextType = Context, ParentType extends Res
 
 export type ShippingClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShippingClassPaginationDataSession'] = ResolversParentTypes['ShippingClassPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -5048,7 +5058,7 @@ export type TagResolvers<ContextType = Context, ParentType extends ResolversPare
 
 export type TagPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TagPaginationDataSession'] = ResolversParentTypes['TagPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -5086,7 +5096,7 @@ export type TaxClassResolvers<ContextType = Context, ParentType extends Resolver
 
 export type TaxClassPaginationDataSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TaxClassPaginationDataSession'] = ResolversParentTypes['TaxClassPaginationDataSession']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -5195,7 +5205,7 @@ export type TaxRateSessionResolvers<ContextType = Context, ParentType extends Re
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['CreatedBy'], ParentType, ContextType>;
+  createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isCompound?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;

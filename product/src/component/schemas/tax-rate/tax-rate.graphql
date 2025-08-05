@@ -29,7 +29,7 @@ type TaxRateSession {
   appliesToShipping: Boolean!
   isCompound: Boolean!
   priority: Int!
-  createdBy: CreatedBy!
+  createdBy: CreatedBy
   createdAt: String
   deletedAt: String
 }
