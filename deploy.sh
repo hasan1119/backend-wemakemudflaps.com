@@ -10,7 +10,7 @@ ssh-add "$HOME/.ssh/github"
 
 
 echo "Pulling latest code..."
-git pull origin main
+git pull origin main --force
 
 # Subgraph matrix
 declare -A SUBGRAPHS
