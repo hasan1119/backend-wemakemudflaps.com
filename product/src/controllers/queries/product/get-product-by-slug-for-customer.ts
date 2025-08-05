@@ -285,6 +285,7 @@ async function mapProductRecursive(
               name: upsell.name,
               slug: upsell.slug,
               defaultImage: upsell.defaultImage as any,
+              images: upsell.images as any,
               salePrice: upsell.salePrice,
             }
           : mapProductRecursive(upsell, new Set(visited))
@@ -297,6 +298,7 @@ async function mapProductRecursive(
               name: crossSell.name,
               slug: crossSell.slug,
               defaultImage: crossSell.defaultImage as any,
+              images: crossSell.images as any,
               salePrice: crossSell.salePrice,
             }
           : mapProductRecursive(crossSell, new Set(visited))
