@@ -368,6 +368,8 @@ export const updateProduct = async (
       await productRepository.save(product);
     }
 
+    await productRepository.save(product);
+
     // Save and return updated product
     return await getProductById(product.id);
   });
