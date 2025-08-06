@@ -160,5 +160,4 @@ export {
   addToCartSchema,
   addToWishListSchema,
   applyCouponSchema,
-  updateCartItemSchema,
 } from "./cart-wishlist/cart-wishlist";

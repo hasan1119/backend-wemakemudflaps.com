@@ -42,22 +42,6 @@ export const addToWishListSchema = z.object({
 });
 
 /**
- * Defines the schema for validating input when updating a cart item.
- *
- * Workflow:
- * 1. Validates cartItemId and productId as required UUIDs.
- * 2. Ensures quantity is a number >= 1.
- *
- * @property cartItemId - UUID of the cart item to be updated.
- * @property productId - UUID of the associated product.
- * @property quantity - Updated quantity (minimum: 1).
- */
-export const updateCartItemSchema = z.object({
-  productId: z.string().uuid({ message: "Invalid product ID format" }),
-  quantity: z.number().min(1, "Quantity must be at least 1"),
-});
-
-/**
  * Defines the schema for validating input when applying coupons.
  *
  * Workflow:
