@@ -873,7 +873,6 @@ export type Mutation = {
   restoreUserRole: BaseResponseOrError;
   updateAddressBookEntry: UpdateAddressBookResponseOrError;
   updateBrand: UpdateBrandResponseOrError;
-  updateCartItem: UpdateCartOrWishListResponseOrError;
   updateCategory: UpdateCategoryResponseOrError;
   updateCategoryPosition: UpdateCategoryResponseOrError;
   updateCoupon: UpdateCouponResponseOrError;
@@ -1211,12 +1210,12 @@ export type MutationRegisterArgs = {
 
 
 export type MutationRemoveItemsFromCartArgs = {
-  productIds: Array<Scalars['ID']['input']>;
+  cartItemIds: Array<Scalars['ID']['input']>;
 };
 
 
 export type MutationRemoveItemsFromWishListArgs = {
-  productIds: Array<Scalars['ID']['input']>;
+  wishListItemIds: Array<Scalars['ID']['input']>;
 };
 
 
@@ -1291,12 +1290,6 @@ export type MutationUpdateBrandArgs = {
   name?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
   thumbnail?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationUpdateCartItemArgs = {
-  productId: Scalars['ID']['input'];
-  quantity: Scalars['Int']['input'];
 };
 
 
@@ -2677,8 +2670,6 @@ export type UpdateAddressBookResponseOrError = AddressResponseBook | BaseRespons
 
 export type UpdateBrandResponseOrError = BaseResponse | BrandResponse | ErrorResponse;
 
-export type UpdateCartOrWishListResponseOrError = BaseResponse | CartResponse | ErrorResponse | WishlistResponse;
-
 export type UpdateCategoryResponseOrError = BaseResponse | CategoryResponse | ErrorResponse;
 
 export type UpdateCouponResponseOrError = BaseResponse | CouponResponse | ErrorResponse;
@@ -3151,7 +3142,6 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   RestoreTaxRateResponseOrError: ( BaseResponse ) | ( ErrorResponse );
   UpdateAddressBookResponseOrError: ( AddressResponseBook ) | ( BaseResponse ) | ( ErrorResponse );
   UpdateBrandResponseOrError: ( BaseResponse ) | ( BrandResponse ) | ( ErrorResponse );
-  UpdateCartOrWishListResponseOrError: ( BaseResponse ) | ( CartResponse ) | ( ErrorResponse ) | ( WishlistResponse );
   UpdateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse );
   UpdateCouponResponseOrError: ( BaseResponse ) | ( CouponResponse ) | ( ErrorResponse );
   UpdateFaqResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( FaqResponse );
@@ -3404,7 +3394,6 @@ export type ResolversTypes = {
   TaxStatus: TaxStatus;
   UpdateAddressBookResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateAddressBookResponseOrError']>;
   UpdateBrandResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateBrandResponseOrError']>;
-  UpdateCartOrWishListResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCartOrWishListResponseOrError']>;
   UpdateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCategoryResponseOrError']>;
   UpdateCouponResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateCouponResponseOrError']>;
   UpdateFaqResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateFaqResponseOrError']>;
@@ -3665,7 +3654,6 @@ export type ResolversParentTypes = {
   TaxRateSession: TaxRateSession;
   UpdateAddressBookResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateAddressBookResponseOrError'];
   UpdateBrandResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateBrandResponseOrError'];
-  UpdateCartOrWishListResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCartOrWishListResponseOrError'];
   UpdateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCategoryResponseOrError'];
   UpdateCouponResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateCouponResponseOrError'];
   UpdateFaqResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateFaqResponseOrError'];
@@ -4493,8 +4481,8 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   login?: Resolver<ResolversTypes['UserLoginResponseOrError'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'meta' | 'password'>>;
   logout?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'firstName' | 'lastName' | 'password' | 'username'>>;
-  removeItemsFromCart?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromCartArgs, 'productIds'>>;
-  removeItemsFromWishList?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromWishListArgs, 'productIds'>>;
+  removeItemsFromCart?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromCartArgs, 'cartItemIds'>>;
+  removeItemsFromWishList?: Resolver<ResolversTypes['RemoveFromCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationRemoveItemsFromWishListArgs, 'wishListItemIds'>>;
   resetPassword?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   restoreBrands?: Resolver<ResolversTypes['RestoreBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreBrandsArgs, 'ids'>>;
   restoreCategory?: Resolver<Maybe<ResolversTypes['RestoreCategoryResponseOrError']>, ParentType, ContextType, RequireFields<MutationRestoreCategoryArgs, 'ids'>>;
@@ -4507,7 +4495,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   restoreUserRole?: Resolver<ResolversTypes['BaseResponseOrError'], ParentType, ContextType, RequireFields<MutationRestoreUserRoleArgs, 'ids'>>;
   updateAddressBookEntry?: Resolver<ResolversTypes['UpdateAddressBookResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateAddressBookEntryArgs, 'id' | 'userId'>>;
   updateBrand?: Resolver<ResolversTypes['UpdateBrandResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateBrandArgs, 'id'>>;
-  updateCartItem?: Resolver<ResolversTypes['UpdateCartOrWishListResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCartItemArgs, 'productId' | 'quantity'>>;
   updateCategory?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'id'>>;
   updateCategoryPosition?: Resolver<ResolversTypes['UpdateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCategoryPositionArgs, 'id' | 'position'>>;
   updateCoupon?: Resolver<ResolversTypes['UpdateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateCouponArgs, 'code' | 'id'>>;
@@ -5253,10 +5240,6 @@ export type UpdateBrandResponseOrErrorResolvers<ContextType = Context, ParentTyp
   __resolveType: TypeResolveFn<'BaseResponse' | 'BrandResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
 
-export type UpdateCartOrWishListResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateCartOrWishListResponseOrError'] = ResolversParentTypes['UpdateCartOrWishListResponseOrError']> = {
-  __resolveType: TypeResolveFn<'BaseResponse' | 'CartResponse' | 'ErrorResponse' | 'WishlistResponse', ParentType, ContextType>;
-};
-
 export type UpdateCategoryResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateCategoryResponseOrError'] = ResolversParentTypes['UpdateCategoryResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'CategoryResponse' | 'ErrorResponse', ParentType, ContextType>;
 };
@@ -5724,7 +5707,6 @@ export type Resolvers<ContextType = Context> = {
   TaxRateSession?: TaxRateSessionResolvers<ContextType>;
   UpdateAddressBookResponseOrError?: UpdateAddressBookResponseOrErrorResolvers<ContextType>;
   UpdateBrandResponseOrError?: UpdateBrandResponseOrErrorResolvers<ContextType>;
-  UpdateCartOrWishListResponseOrError?: UpdateCartOrWishListResponseOrErrorResolvers<ContextType>;
   UpdateCategoryResponseOrError?: UpdateCategoryResponseOrErrorResolvers<ContextType>;
   UpdateCouponResponseOrError?: UpdateCouponResponseOrErrorResolvers<ContextType>;
   UpdateFaqResponseOrError?: UpdateFaqResponseOrErrorResolvers<ContextType>;

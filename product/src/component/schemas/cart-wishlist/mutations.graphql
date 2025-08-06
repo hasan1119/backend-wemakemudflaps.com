@@ -13,12 +13,6 @@ type Mutation {
     productVariationId: ID
   ): AddToCartOrWishListResponseOrError!
 
-  # Updates the quantity of an item in the cart.
-  updateCartItem(
-    productId: ID!
-    quantity: Int!
-  ): UpdateCartOrWishListResponseOrError!
-
   # Removes an item from the cart.
   removeItemsFromCart(
     cartItemIds: [ID!]!
@@ -26,7 +20,7 @@ type Mutation {
 
   # Removes an item from the wishlist.
   removeItemsFromWishList(
-    productIds: [ID!]!
+    wishListItemIds: [ID!]!
   ): RemoveFromCartOrWishListResponseOrError!
 
   # Applies a coupon to the cart.

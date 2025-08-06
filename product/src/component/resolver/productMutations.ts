@@ -36,7 +36,6 @@ import {
   restoreTaxClasses,
   restoreTaxRates,
   updateBrand,
-  updateCartItem,
   updateCategory,
   updateCategoryPosition,
   updateCoupon,
@@ -304,10 +303,5 @@ export const productMutationsResolver = {
      * Removes items from the wishlist.
      */
     removeItemsFromWishList,
-
-    /**
-     * Updates a specific cart item.
-     */
-    updateCartItem,
   },
 };

@@ -190,6 +190,5 @@ export { addToWishlist } from "./mutations/manage-cart-wishlist/add-to-wishlist"
 export { applyCoupon } from "./mutations/manage-cart-wishlist/apply-coupon";
 export { removeItemsFromCart } from "./mutations/manage-cart-wishlist/remove-item-from-cart";
 export { removeItemsFromWishList } from "./mutations/manage-cart-wishlist/remove-item-from-wishlist";
-export { updateCartItem } from "./mutations/manage-cart-wishlist/update-cart-item";
 export { getCart } from "./queries/cart-wishlist/get-cart";
 export { getWishlist } from "./queries/cart-wishlist/get-wishlist";

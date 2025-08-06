@@ -31,7 +31,7 @@ export const removeItemsFromWishList = async (
 
     // Validate input data with Zod schema
     const result = await idsSchema.safeParseAsync({
-      ids: args.productIds,
+      ids: args.wishListItemIds,
     });
 
     if (!result.success) {
@@ -60,7 +60,7 @@ export const removeItemsFromWishList = async (
       };
     }
 
-    await removeItemsFromWishlistService(result.data.ids, user.id);
+    await removeItemsFromWishlistService(args.wishListItemIds, user.id);
 
     return {
       statusCode: 200,

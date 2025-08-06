@@ -651,12 +651,3 @@ export { removeItemsFromCart } from "./cart-wishlist/remove-item-from-cart.servi
  * 2. Updates the wishlist accordingly after removal.
  */
 export { removeItemsFromWishlist } from "./cart-wishlist/remove-item-from-wishlist.service";
-
-/**
- * Exports services for updating cart items.
- *
- * Workflow:
- * 1. Provides functions to update item quantities in the cart.
- * 2. Validates the update and adjusts the cart accordingly.
- */
-export { updateCartItem } from "./cart-wishlist/update-cart-item.service";

@@ -18,18 +18,17 @@ export const removeItemsFromCart = async (
   cartItemIds: string[],
   userId: string
 ): Promise<Cart> => {
-  const res = await cartItemRepository.find({
+  const cartItem = await cartItemRepository.find({
     where: {
       id: In(cartItemIds),
       cart: { createdBy: userId },
     },
   });
 
-  await cartItemRepository.remove(res);
+  await cartItemRepository.remove(cartItem);
 
   // Retrieve the updated cart with relations
   const cart = await getCartByUserId(userId);
 
-  console.log(cart);
   return cart;
 };

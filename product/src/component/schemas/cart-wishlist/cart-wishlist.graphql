@@ -53,11 +53,6 @@ union AddToCartOrWishListResponseOrError =
   | CartResponse
   | WishlistResponse
   | ErrorResponse
-union UpdateCartOrWishListResponseOrError =
-    BaseResponse
-  | CartResponse
-  | WishlistResponse
-  | ErrorResponse
 union RemoveFromCartOrWishListResponseOrError = BaseResponse | ErrorResponse
 union ApplyCouponResponseOrError = BaseResponse | CartResponse | ErrorResponse
 union GetCartOrWishListResponseOrError =

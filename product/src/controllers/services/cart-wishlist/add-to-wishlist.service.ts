@@ -23,7 +23,7 @@ export const addToWishList = async (
   productVariationId: string | undefined,
   userId: string
 ): Promise<Wishlist> => {
-  // Check for existing wishlist or create a new one
+  // Step 1: Get or create wishlist
   let wishlist = await getWishlistByUserId(userId);
   if (!wishlist) {
     wishlist = wishlistRepository.create({
@@ -33,39 +33,54 @@ export const addToWishList = async (
     await wishlistRepository.save(wishlist);
   }
 
-  // Check if the product/variation is already in the wishlist
-  const existingItem = await wishlistRepository
+  // Step 2: Get full wishlist with all items
+  const fullWishlist = await wishlistRepository
     .createQueryBuilder("wishlist")
     .leftJoinAndSelect("wishlist.items", "items")
     .leftJoinAndSelect("items.product", "product")
     .leftJoinAndSelect("items.productVariation", "productVariation")
     .where("wishlist.createdBy = :userId", { userId })
-    .andWhere("items.product.id = :productId", { productId: product.id })
-    .andWhere(
-      productVariationId
-        ? "items.productVariation.id = :productVariationId"
-        : "items.productVariation IS NULL",
-      { productVariationId }
-    )
     .andWhere("items.deletedAt IS NULL")
     .getOne();
 
-  if (existingItem) {
-    // If the item already exists, skip adding it
-    return await getWishlistByUserId(userId);
-  } else {
-    // Create a new wishlist item
-    const wishlistItem = await wishListItemRepository.create({
-      product: { id: product.id } as any,
-      productVariation: productVariationId
-        ? { id: productVariationId as any }
-        : null,
-      wishlist: { id: wishlist.id } as any,
-    });
+  const allMatchingItems =
+    fullWishlist?.items.filter((item) => item.product.id === product.id) || [];
 
-    await wishListItemRepository.save(wishlistItem);
+  // Case 1: Exact product + variation match already exists → skip
+  const exactMatch = allMatchingItems.find((item) =>
+    productVariationId
+      ? item.productVariation?.id === productVariationId
+      : !item.productVariation
+  );
 
-    // Return the updated wishlist with all relations
-    return await getWishlistByUserId(userId);
+  if (exactMatch) {
+    const result = await getWishlistByUserId(userId);
+    return result; // Already exists, skip - fallback to current wishlist
   }
+
+  // Case 2: Product exists with null variation → update it
+  if (productVariationId) {
+    const nullVariationItem = allMatchingItems.find(
+      (item) => item.productVariation === null
+    );
+
+    if (nullVariationItem) {
+      nullVariationItem.productVariation = { id: productVariationId } as any;
+      await wishListItemRepository.save(nullVariationItem);
+      const result = await getWishlistByUserId(userId);
+      return result; // Fallback to current wishlist if query fails
+    }
+  }
+
+  // Case 3: Add new wishlist item
+  const wishlistItem = wishListItemRepository.create({
+    product: { id: product.id } as any,
+    productVariation: productVariationId
+      ? ({ id: productVariationId } as any)
+      : null,
+    wishlist: { id: wishlist.id } as any,
+  });
+
+  await wishListItemRepository.save(wishlistItem);
+  return await getWishlistByUserId(userId);
 };
