@@ -90,42 +90,65 @@ export const addToCart = async (
       };
     }
 
-    // Check if product variation exists
-    if (product.variations) {
-      if (!productVariationId) {
+    if (product.productConfigurationType !== "SIMPLE_PRODUCT") {
+      // Check if product variation exists
+
+      if (!product.variations || product.variations.length === 0) {
         return {
           statusCode: 400,
           success: false,
-          message: "Product variation ID is required",
+          message: "Product variations are not available",
           __typename: "BaseResponse",
         };
       }
 
-      const variation = product.variations?.find(
-        (v) => v.id === productVariationId
-      );
-      if (!variation) {
-        return {
-          statusCode: 404,
-          success: false,
-          message: "Product variation not found",
-          __typename: "BaseResponse",
-        };
-      }
+      if (product.variations) {
+        if (!productVariationId) {
+          return {
+            statusCode: 400,
+            success: false,
+            message: "Product variation ID is required",
+            __typename: "BaseResponse",
+          };
+        }
 
-      if (variation.stockStatus === "OUT_OF_STOCK") {
-        return {
-          statusCode: 400,
-          success: false,
-          message: "Product variation is out of stock",
-          __typename: "BaseResponse",
-        };
+        const variation = product.variations?.find(
+          (v) => v.id === productVariationId
+        );
+        if (!variation) {
+          return {
+            statusCode: 404,
+            success: false,
+            message: "Product variation not found",
+            __typename: "BaseResponse",
+          };
+        }
+
+        if (!variation.isActive) {
+          return {
+            statusCode: 400,
+            success: false,
+            message: "Product variation is not active",
+            __typename: "BaseResponse",
+          };
+        }
+
+        if (variation.stockStatus === "OUT_OF_STOCK") {
+          return {
+            statusCode: 400,
+            success: false,
+            message: "Product variation is out of stock",
+            __typename: "BaseResponse",
+          };
+        }
       }
     }
 
     const cart = await addToCartService(
       product,
-      productVariationId ?? null,
+      product.productConfigurationType !== "SIMPLE_PRODUCT"
+        ? productVariationId ?? null
+        : null,
       quantity,
       user.id
     );

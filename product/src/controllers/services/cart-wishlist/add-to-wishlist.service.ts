@@ -52,7 +52,7 @@ export const addToWishList = async (
 
   if (existingItem) {
     // If the item already exists, skip adding it
-    return wishlist;
+    return await getWishlistByUserId(userId);
   } else {
     // Create a new wishlist item
     const wishlistItem = await wishListItemRepository.create({
@@ -65,8 +65,7 @@ export const addToWishList = async (
 
     await wishListItemRepository.save(wishlistItem);
 
-    // Add the new item to the wishlist's items array
-    wishlist.items = [...(wishlist.items || []), wishlistItem];
-    await wishlistRepository.save(wishlist);
+    // Return the updated wishlist with all relations
+    return await getWishlistByUserId(userId);
   }
 };

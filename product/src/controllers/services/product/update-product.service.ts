@@ -183,12 +183,9 @@ export const updateProduct = async (
         product: { id: currentProduct.id },
       },
       {
-        product: null,
         productVariation: null,
       }
     );
-
-    await cartItemRepository.remove(cart);
 
     // remove product from the wishlists if exists
     const wishlist = await wishListItemRepository.find({
@@ -200,12 +197,9 @@ export const updateProduct = async (
         product: { id: currentProduct.id },
       },
       {
-        product: null,
         productVariation: null,
       }
     );
-
-    await wishListItemRepository.remove(wishlist);
 
     // Replace variations
     if (data.variations !== undefined) {
