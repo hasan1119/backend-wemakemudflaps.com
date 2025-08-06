@@ -37,7 +37,7 @@ export const getSiteSettings = async (
       return {
         statusCode: 409,
         success: false,
-        message: "Site settings already exist",
+        message: "Site settings doesn't exist",
         __typename: "BaseResponse",
       };
     }
