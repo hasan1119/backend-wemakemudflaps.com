@@ -18,8 +18,6 @@ export const removeItemsFromCart = async (
   cartItemIds: string[],
   userId: string
 ): Promise<Cart> => {
-  console.log(cartItemIds);
-
   const res = await cartItemRepository.find({
     where: {
       id: In(cartItemIds),
