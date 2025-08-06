@@ -1,6 +1,6 @@
 import {
   addToCart,
-  addToWishlist,
+  addToWishList,
   applyCoupon,
   createBrand,
   createCategory,
@@ -287,7 +287,7 @@ export const productMutationsResolver = {
     /**
      * Adds a product to the wishlist.
      */
-    addToWishlist,
+    addToWishList,
 
     /**
      * Applies a coupon to the cart.

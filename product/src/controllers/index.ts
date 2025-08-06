@@ -186,7 +186,7 @@ export { getAllCoupons } from "./queries/coupon/get-coupons";
  * 3. Facilitates listing all carts and wishlists in the system.
  */
 export { addToCart } from "./mutations/manage-cart-wishlist/add-to-cart";
-export { addToWishlist } from "./mutations/manage-cart-wishlist/add-to-wishlist";
+export { addToWishList } from "./mutations/manage-cart-wishlist/add-to-wishlist";
 export { applyCoupon } from "./mutations/manage-cart-wishlist/apply-coupon";
 export { removeItemsFromCart } from "./mutations/manage-cart-wishlist/remove-item-from-cart";
 export { removeItemsFromWishList } from "./mutations/manage-cart-wishlist/remove-item-from-wishlist";

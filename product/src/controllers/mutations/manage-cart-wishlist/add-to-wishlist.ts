@@ -28,7 +28,7 @@ import {
  * @param context - Context containing user authentication info
  * @returns Response with updated cart or wishlist
  */
-export const addToWishlist = async (
+export const addToWishList = async (
   _: any,
   args: MutationAddToWishListArgs,
   { user }: Context
