@@ -23,7 +23,6 @@ export const removeItemsFromCart = async (
       id: In(cartItemIds),
       cart: { createdBy: userId },
     },
-    relations: ["product", "productVariation"],
   });
 
   await cartItemRepository.remove(res);
