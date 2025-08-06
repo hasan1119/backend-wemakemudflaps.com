@@ -1879,6 +1879,7 @@ export type ProductVariationInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   dimensionUnit?: InputMaybe<DimensionUnit>;
   height?: InputMaybe<Scalars['Float']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
   images?: InputMaybe<Array<Scalars['ID']['input']>>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   isCustomized?: InputMaybe<Scalars['Boolean']['input']>;

@@ -1,4 +1,5 @@
 import { In } from "typeorm";
+import { v4 as uuidv4 } from "uuid";
 import { Product } from "../../../entities";
 import { AppDataSource } from "../../../helper";
 import { MutationUpdateProductArgs } from "../../../types";
@@ -173,50 +174,55 @@ export const updateProduct = async (
       }
     }
 
-    // remove product from the cart items if exists
-    const cart = await cartItemRepository.find({
-      where: { product: { id: currentProduct.id } },
-    });
-
-    await cartItemRepository.update(
-      {
-        product: { id: currentProduct.id },
-      },
-      {
-        productVariation: null,
-      }
-    );
-
-    // remove product from the wishlists if exists
-    const wishlist = await wishListItemRepository.find({
-      where: { product: { id: currentProduct.id } },
-    });
-
-    await wishListItemRepository.update(
-      {
-        product: { id: currentProduct.id },
-      },
-      {
-        productVariation: null,
-      }
-    );
-
     // Replace variations
     if (data.variations !== undefined) {
-      const idsToDelete = currentProduct.variations.map((v) => v.id);
+      const idsOfExistingVariations = currentProduct.variations.map(
+        (v) => v.id
+      );
 
       const variationsToDelete = await productVariationRepository.find({
-        where: { id: In(idsToDelete), product: { id: currentProduct.id } },
+        where: {
+          id: In(idsOfExistingVariations),
+          product: { id: currentProduct.id },
+        },
         relations: ["brands", "attributeValues", "tierPricingInfo"],
       });
 
       if (variationsToDelete.length === 0) {
         currentProduct.variations = null;
       } else {
+        // Check the variations to delete against the new data
+        const missingVariationsIds = variationsToDelete
+          .filter((v) => !data.variations?.some((nv) => nv.id === v.id))
+          .map((v) => v.id);
+
+        // Update the cart and wishlist items to remove product variations which are going to delete
+        if (missingVariationsIds.length > 0) {
+          await cartItemRepository.update(
+            {
+              product: { id: currentProduct.id },
+              productVariation: In(missingVariationsIds),
+            },
+            {
+              productVariation: null,
+            }
+          );
+
+          await wishListItemRepository.update(
+            {
+              product: { id: currentProduct.id },
+              productVariation: In(missingVariationsIds),
+            },
+            {
+              productVariation: null,
+            }
+          );
+        }
+
         const variationsAttributeValuesToDelete =
           await productVariationAttributeValueRepository.find({
             where: {
-              variation: { id: In(variationsToDelete.map((v) => v.id)) },
+              variation: { id: In(idsOfExistingVariations) },
             },
             relations: ["variation"],
           });
@@ -247,6 +253,7 @@ export const updateProduct = async (
         // Create the base variation
         const baseVariation = productVariationRepository.create({
           ...v,
+          id: v.id ? v.id : uuidv4(),
           brands: v.brandIds?.length
             ? v.brandIds.map((id) => ({ id } as any))
             : [],
