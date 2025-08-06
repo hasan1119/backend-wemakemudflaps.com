@@ -312,34 +312,79 @@ export async function mapProductRecursive(
  * Maps a ProductVariation entity to a GraphQL-compatible plain object.
  */
 export async function mapProductVariationRecursive(
-  productVariation: any | null
+  variation: any | null
 ): Promise<any> {
-  if (!productVariation) {
+  if (!variation) {
     return null;
   }
+
   return {
-    ...productVariation,
-    attributeValues:
-      (productVariation.attributeValues ?? []).map((av: any) => ({
-        ...av,
+    ...variation,
+    brands:
+      (await variation.brands)?.map((brand: any) => ({
+        ...brand,
+        thumbnail: brand.thumbnail as any,
+        createdBy: brand.createdBy as any,
         createdAt:
-          av.createdAt instanceof Date
-            ? av.createdAt.toISOString()
-            : av.createdAt ?? null,
-        deletedAt:
-          av.deletedAt instanceof Date
-            ? av.deletedAt.toISOString()
-            : av.deletedAt ?? null,
+          brand.createdAt instanceof Date
+            ? brand.createdAt.toISOString()
+            : brand.createdAt,
+        deletedAt: brand.deletedAt
+          ? brand.deletedAt instanceof Date
+            ? brand.deletedAt.toISOString()
+            : brand.deletedAt
+          : null,
       })) || null,
-    images: (productVariation.images as any) ?? [],
-    videos: (productVariation.videos as any) ?? [],
+
+    attributeValues: variation.attributeValues
+      ? (await Promise.all(
+          (
+            await variation.attributeValues
+          ).map(async (attributeValue: any) => {
+            const av = await attributeValue.attributeValue;
+            return {
+              id: attributeValue.attributeValue.id, // Main id of that attribute value
+              value: av?.value || null,
+              createdAt:
+                attributeValue.createdAt instanceof Date
+                  ? attributeValue.createdAt.toISOString()
+                  : attributeValue.createdAt,
+              deletedAt: attributeValue.deletedAt
+                ? attributeValue.deletedAt instanceof Date
+                  ? attributeValue.deletedAt.toISOString()
+                  : attributeValue.deletedAt
+                : null,
+            };
+          })
+        )) || null
+      : null,
+
+    tierPricingInfo: variation.tierPricingInfo
+      ? await mapProductPrice(await variation.tierPricingInfo)
+      : null,
+
+    salePriceEndAt:
+      variation.salePriceEndAt instanceof Date
+        ? variation.salePriceEndAt.toISOString()
+        : variation.salePriceEndAt,
+
+    salePriceStartAt:
+      variation.salePriceStartAt instanceof Date
+        ? variation.salePriceStartAt.toISOString()
+        : variation.salePriceStartAt,
+
+    images: variation.images as any,
+    videos: variation.videos as any,
+
     createdAt:
-      productVariation.createdAt instanceof Date
-        ? productVariation.createdAt.toISOString()
-        : productVariation.createdAt ?? null,
-    deletedAt:
-      productVariation.deletedAt instanceof Date
-        ? productVariation.deletedAt.toISOString()
-        : productVariation.deletedAt ?? null,
+      variation.createdAt instanceof Date
+        ? variation.createdAt.toISOString()
+        : variation.createdAt,
+
+    deletedAt: variation.deletedAt
+      ? variation.deletedAt instanceof Date
+        ? variation.deletedAt.toISOString()
+        : variation.deletedAt
+      : null,
   };
 }

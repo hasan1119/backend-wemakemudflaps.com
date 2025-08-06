@@ -31,7 +31,7 @@ export const removeItemsFromCart = async (
 
     // Validate input data with Zod schema
     const result = await idsSchema.safeParseAsync({
-      ids: args.productIds,
+      ids: args.cartItemIds,
     });
 
     if (!result.success) {

@@ -42,7 +42,9 @@ export const addToCart = async (
   const existingItem = await cartRepository
     .createQueryBuilder("cart")
     .leftJoinAndSelect("cart.items", "items")
-    .where("cart.id = :cartId", { cartId: cart.id })
+    .leftJoinAndSelect("items.product", "product")
+    .leftJoinAndSelect("items.productVariation", "productVariation")
+    .where("cart.createdBy = :userId", { userId })
     .andWhere("items.product.id = :productId", { productId: product.id })
     .andWhere(
       productVariationId
@@ -63,7 +65,7 @@ export const addToCart = async (
           : !item.productVariation)
     );
     if (cartItem) {
-      cartItem.quantity += quantity;
+      cartItem.quantity = quantity;
       await cartItemRepository.save(cartItem);
     }
   } else {
@@ -71,7 +73,7 @@ export const addToCart = async (
     const existingItemToWishlist = await wishlistRepository
       .createQueryBuilder("wishlist")
       .leftJoinAndSelect("wishlist.items", "items")
-      .where("createdBy = :userId", { userId })
+      .where("wishlist.createdBy = :userId", { userId })
       .andWhere("items.product.id = :productId", { productId: product.id })
       .andWhere(
         productVariationId
@@ -89,7 +91,7 @@ export const addToCart = async (
       productVariation: productVariationId
         ? { id: productVariationId as any }
         : null,
-      cart: Promise.resolve(cart),
+      cart: { id: cart.id } as any,
     });
 
     await cartItemRepository.save(cartItem);

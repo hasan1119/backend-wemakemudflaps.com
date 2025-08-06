@@ -37,7 +37,9 @@ export const addToWishList = async (
   const existingItem = await wishlistRepository
     .createQueryBuilder("wishlist")
     .leftJoinAndSelect("wishlist.items", "items")
-    .where("wishlist.id = :wishlistId", { wishlistId: wishlist.id })
+    .leftJoinAndSelect("items.product", "product")
+    .leftJoinAndSelect("items.productVariation", "productVariation")
+    .where("wishlist.createdBy = :userId", { userId })
     .andWhere("items.product.id = :productId", { productId: product.id })
     .andWhere(
       productVariationId
@@ -53,7 +55,7 @@ export const addToWishList = async (
     return wishlist;
   } else {
     // Create a new wishlist item
-    const wishlistItem = wishListItemRepository.create({
+    const wishlistItem = await wishListItemRepository.create({
       product: { id: product.id } as any,
       productVariation: productVariationId
         ? { id: productVariationId as any }

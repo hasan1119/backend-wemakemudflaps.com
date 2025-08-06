@@ -70,15 +70,6 @@ export const addToWishlist = async (
       };
     }
 
-    if (product.stockStatus === "OUT_OF_STOCK") {
-      return {
-        statusCode: 400,
-        success: false,
-        message: "Product is out of stock",
-        __typename: "BaseResponse",
-      };
-    }
-
     // Check if product variation exists
     if (product.variations) {
       if (!productVariationId) {
@@ -98,15 +89,6 @@ export const addToWishlist = async (
           statusCode: 404,
           success: false,
           message: "Product variation not found",
-          __typename: "BaseResponse",
-        };
-      }
-
-      if (variation.stockStatus === "OUT_OF_STOCK") {
-        return {
-          statusCode: 400,
-          success: false,
-          message: "Product variation is out of stock",
           __typename: "BaseResponse",
         };
       }

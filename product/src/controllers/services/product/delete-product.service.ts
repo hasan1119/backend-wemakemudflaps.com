@@ -1,9 +1,11 @@
 import { Product } from "../../../entities";
 import { AppDataSource } from "../../../helper";
 import {
+  cartItemRepository,
   productAttributeRepository,
   productPriceRepository,
   productRepository,
+  wishListItemRepository,
 } from "../repositories/repositories";
 import { getProductById } from "./get-product.service";
 
@@ -31,6 +33,68 @@ export const hardDeleteProduct = async (
   productData: Product
 ): Promise<void> => {
   const entityManager = AppDataSource.manager;
+
+  // remove product from the cart items if exists
+  const cart = await cartItemRepository.find({
+    where: { product: { id: productData.id } },
+  });
+
+  await cartItemRepository.update(
+    {
+      product: { id: productData.id },
+    },
+    {
+      product: null,
+      productVariation: null,
+    }
+  );
+
+  await cartItemRepository.remove(cart);
+
+  // remove product from the wishlists if exists
+  const wishlist = await wishListItemRepository.find({
+    where: { product: { id: productData.id } },
+  });
+
+  await wishListItemRepository.update(
+    {
+      product: { id: productData.id },
+    },
+    {
+      product: null,
+      productVariation: null,
+    }
+  );
+
+  await wishListItemRepository.remove(wishlist);
+
+  // Check if cart_item table exists and delete entries
+  const cartItemExists = await entityManager.query(`
+      SELECT to_regclass('public.cart_item') IS NOT NULL AS exists
+    `);
+
+  if (cartItemExists?.[0]?.exists) {
+    await entityManager
+      .createQueryBuilder()
+      .delete()
+      .from("cart_item")
+      .where('"productId" = :id', { id: productData.id })
+      .execute();
+  }
+
+  // Check if wishlist_item table exists and delete entries
+  const wishlistItemExists = await entityManager.query(`
+      SELECT to_regclass('public.wishlist_item') IS NOT NULL AS exists
+    `);
+
+  if (wishlistItemExists?.[0]?.exists) {
+    await entityManager
+      .createQueryBuilder()
+      .delete()
+      .from("wishlist_item")
+      .where('"productId" = :id', { id: productData.id })
+      .execute();
+  }
 
   // Check if product_brands table exists and delete entries
   const brandExists = await entityManager.query(`

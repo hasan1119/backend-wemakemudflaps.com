@@ -3,11 +3,13 @@ import { Product } from "../../../entities";
 import { AppDataSource } from "../../../helper";
 import { MutationUpdateProductArgs } from "../../../types";
 import {
+  cartItemRepository,
   productAttributeRepository,
   productPriceRepository,
   productRepository,
   productVariationAttributeValueRepository,
   productVariationRepository,
+  wishListItemRepository,
 } from "../repositories/repositories";
 import { getProductById } from "./get-product.service";
 
@@ -170,6 +172,40 @@ export const updateProduct = async (
         product.attributes = null;
       }
     }
+
+    // remove product from the cart items if exists
+    const cart = await cartItemRepository.find({
+      where: { product: { id: currentProduct.id } },
+    });
+
+    await cartItemRepository.update(
+      {
+        product: { id: currentProduct.id },
+      },
+      {
+        product: null,
+        productVariation: null,
+      }
+    );
+
+    await cartItemRepository.remove(cart);
+
+    // remove product from the wishlists if exists
+    const wishlist = await wishListItemRepository.find({
+      where: { product: { id: currentProduct.id } },
+    });
+
+    await wishListItemRepository.update(
+      {
+        product: { id: currentProduct.id },
+      },
+      {
+        product: null,
+        productVariation: null,
+      }
+    );
+
+    await wishListItemRepository.remove(wishlist);
 
     // Replace variations
     if (data.variations !== undefined) {

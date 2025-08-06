@@ -21,7 +21,7 @@ type Mutation {
 
   # Removes an item from the cart.
   removeItemsFromCart(
-    productIds: [ID!]!
+    cartItemIds: [ID!]!
   ): RemoveFromCartOrWishListResponseOrError!
 
   # Removes an item from the wishlist.
