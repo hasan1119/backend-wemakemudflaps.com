@@ -372,10 +372,9 @@ export async function mapProductVariationRecursive(
       variation.salePriceStartAt instanceof Date
         ? variation.salePriceStartAt.toISOString()
         : variation.salePriceStartAt,
-
+    defaultImage: variation.defaultImage as any,
     images: variation.images as any,
     videos: variation.videos as any,
-
     createdAt:
       variation.createdAt instanceof Date
         ? variation.createdAt.toISOString()
