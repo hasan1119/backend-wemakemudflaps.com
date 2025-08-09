@@ -317,16 +317,12 @@ export async function mapProductRecursive(
  * Maps a ProductVariation entity to a GraphQL-compatible plain object.
  */
 export async function mapProductVariationRecursive(
-  variation: any | null
-): Promise<ProductVariation | null> {
-  if (!variation) {
-    return null;
-  }
+  variation: ProductVariation | null
+): Promise<any> {
+  if (!variation) return null;
 
-  return {
-    ...variation,
-    brands:
-      (await variation.brands)?.map((brand: any) => ({
+  const brands = variation.brands
+    ? (await variation.brands).map((brand) => ({
         ...brand,
         thumbnail: brand.thumbnail as any,
         createdBy: brand.createdBy as any,
@@ -334,60 +330,82 @@ export async function mapProductVariationRecursive(
           brand.createdAt instanceof Date
             ? brand.createdAt.toISOString()
             : brand.createdAt,
-        deletedAt: brand.deletedAt
-          ? brand.deletedAt instanceof Date
+        deletedAt:
+          brand.deletedAt instanceof Date
             ? brand.deletedAt.toISOString()
-            : brand.deletedAt
-          : null,
-      })) || null,
+            : brand.deletedAt,
+      }))
+    : [];
 
-    attributeValues: variation.attributeValues
-      ? (await Promise.all(
-          (
-            await variation.attributeValues
-          ).map(async (attributeValue: any) => {
-            const av = await attributeValue.attributeValue;
-            return {
-              id: attributeValue.attributeValue.id, // Main id of that attribute value
-              value: av?.value || null,
-              createdAt:
-                attributeValue.createdAt instanceof Date
-                  ? attributeValue.createdAt.toISOString()
-                  : attributeValue.createdAt,
-              deletedAt: attributeValue.deletedAt
-                ? attributeValue.deletedAt instanceof Date
-                  ? attributeValue.deletedAt.toISOString()
-                  : attributeValue.deletedAt
-                : null,
-            };
-          })
-        )) || null
-      : null,
+  const attributeValues = variation.attributeValues
+    ? await Promise.all(
+        (
+          await variation.attributeValues
+        ).map(async (av) => ({
+          id: av.attributeValue?.id,
+          value: av.attributeValue?.value ?? null,
+          createdAt:
+            av.createdAt instanceof Date
+              ? av.createdAt.toISOString()
+              : av.createdAt,
+          deletedAt:
+            av.deletedAt instanceof Date
+              ? av.deletedAt.toISOString()
+              : av.deletedAt,
+        }))
+      )
+    : [];
 
-    tierPricingInfo: variation.tierPricingInfo
-      ? await mapProductPrice(await variation.tierPricingInfo)
-      : null,
-
-    salePriceEndAt:
-      variation.salePriceEndAt instanceof Date
-        ? variation.salePriceEndAt.toISOString()
-        : variation.salePriceEndAt,
-
+  return {
+    id: variation.id,
+    productDeliveryType: variation.productDeliveryType,
+    name: variation.name,
+    isCustomized: variation.isCustomized,
+    brands,
+    sku: variation.sku,
+    minQuantity: variation.minQuantity,
+    defaultQuantity: variation.defaultQuantity,
+    maxQuantity: variation.maxQuantity,
+    quantityStep: variation.quantityStep,
+    regularPrice: variation.regularPrice,
+    salePrice: variation.salePrice,
     salePriceStartAt:
       variation.salePriceStartAt instanceof Date
         ? variation.salePriceStartAt.toISOString()
         : variation.salePriceStartAt,
-    images: variation.images as any,
-    videos: variation.videos as any,
+    salePriceEndAt:
+      variation.salePriceEndAt instanceof Date
+        ? variation.salePriceEndAt.toISOString()
+        : variation.salePriceEndAt,
+    saleQuantityUnit: variation.saleQuantityUnit,
+    tierPricingInfo: variation.tierPricingInfo
+      ? await mapProductPrice(await variation.tierPricingInfo)
+      : null,
+    stockStatus: variation.stockStatus,
+    weightUnit: variation.weightUnit,
+    weight: variation.weight,
+    attributeValues, // Now plain array, not Promise<>
+    warrantyDigit: variation.warrantyDigit,
+    defaultWarrantyPeriod: variation.defaultWarrantyPeriod,
+    warrantyPolicy: variation.warrantyPolicy,
+    dimensionUnit: variation.dimensionUnit,
+    length: variation.length,
+    width: variation.width,
+    height: variation.height,
+    shippingClass: variation.shippingClass,
+    taxStatus: variation.taxStatus,
+    taxClass: variation.taxClass,
+    description: variation.description,
+    images: variation.images,
+    videos: variation.videos,
+    isActive: variation.isActive,
     createdAt:
       variation.createdAt instanceof Date
         ? variation.createdAt.toISOString()
         : variation.createdAt,
-
-    deletedAt: variation.deletedAt
-      ? variation.deletedAt instanceof Date
+    deletedAt:
+      variation.deletedAt instanceof Date
         ? variation.deletedAt.toISOString()
-        : variation.deletedAt
-      : null,
+        : variation.deletedAt,
   };
 }

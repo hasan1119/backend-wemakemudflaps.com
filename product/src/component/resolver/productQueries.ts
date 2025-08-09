@@ -72,7 +72,6 @@ const typesWithCreatedBy = [
   "Brand",
   "BrandPaginationDataSession",
   "Coupon",
-  "Cart",
   "Tag",
   "TagPaginationDataSession",
   "ShippingClass",
@@ -93,6 +92,7 @@ const typesWithCreatedBy = [
   "LocalPickUp",
   "Ups",
   "ProductAttribute",
+  "Cart",
   "Wishlist",
 ];
 
@@ -113,6 +113,8 @@ const typesWithMedia = [
   "Product",
   "ProductVariation",
   "ProductPaginationDataSession",
+  "CartItems",
+  "WishlistItems",
 ];
 
 /**
