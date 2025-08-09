@@ -174,12 +174,13 @@ export const updateProduct = async (
       }
     }
 
-    // Replace variations
     if (data.variations !== undefined) {
+      // Collect existing variation IDs for current product
       const idsOfExistingVariations = currentProduct.variations.map(
         (v) => v.id
       );
 
+      // Fetch existing variations with related entities
       const variationsToDelete = await productVariationRepository.find({
         where: {
           id: In(idsOfExistingVariations),
@@ -188,69 +189,66 @@ export const updateProduct = async (
         relations: ["brands", "attributeValues", "tierPricingInfo"],
       });
 
-      if (variationsToDelete.length === 0) {
-        currentProduct.variations = null;
-      } else {
-        // Check the variations to delete against the new data
-        const missingVariationsIds = variationsToDelete
-          .filter((v) => !data.variations?.some((nv) => nv.id === v.id))
-          .map((v) => v.id);
+      // Find the variations which are in cart and wishlist
+      const variationsInCart = await cartItemRepository.find({
+        where: {
+          product: { id: currentProduct.id },
+          productVariation: In(variationsToDelete.map((v) => v.id)),
+        },
+        relations: ["productVariation"],
+      });
 
-        // Update the cart and wishlist items to remove product variations which are going to delete
-        if (missingVariationsIds.length > 0) {
-          await cartItemRepository.update(
-            {
-              product: { id: currentProduct.id },
-              productVariation: In(missingVariationsIds),
-            },
-            {
-              productVariation: null,
-            }
-          );
+      const variationsInWishlist = await wishListItemRepository.find({
+        where: {
+          product: { id: currentProduct.id },
+          productVariation: In(variationsToDelete.map((v) => v.id)),
+        },
+        relations: ["productVariation"],
+      });
 
-          await wishListItemRepository.update(
-            {
-              product: { id: currentProduct.id },
-              productVariation: In(missingVariationsIds),
-            },
-            {
-              productVariation: null,
-            }
-          );
-        }
+      if (variationsInCart.length > 0 || variationsInWishlist.length > 0) {
+        // Null cart and wishlist items for variations that will be removed
+        await cartItemRepository.update(
+          { id: In(variationsInCart.map((v) => v.id)) },
+          { productVariation: null }
+        );
+        await wishListItemRepository.update(
+          { id: In(variationsInWishlist.map((v) => v.id)) },
+          { productVariation: null }
+        );
+      }
 
-        const variationsAttributeValuesToDelete =
-          await productVariationAttributeValueRepository.find({
-            where: {
-              variation: { id: In(idsOfExistingVariations) },
-            },
-            relations: ["variation"],
-          });
-
-        if (variationsAttributeValuesToDelete.length > 0) {
-          await productVariationAttributeValueRepository.remove(
-            variationsAttributeValuesToDelete
-          );
-        }
-
-        currentProduct.variations.map(async (variation) => {
-          const tierPricingInfo = await variation.tierPricingInfo;
-          if (tierPricingInfo) {
-            await productPriceRepository.remove(tierPricingInfo);
-          }
+      // Remove all attribute values linked to existing variations
+      const variationsAttributeValuesToDelete =
+        await productVariationAttributeValueRepository.find({
+          where: {
+            variation: { id: In(idsOfExistingVariations) },
+          },
+          relations: ["variation"],
         });
 
-        await productVariationRepository.remove(variationsToDelete);
+      if (variationsAttributeValuesToDelete.length > 0) {
+        await productVariationAttributeValueRepository.remove(
+          variationsAttributeValuesToDelete
+        );
       }
-    } else {
-      currentProduct.variations = null;
-    }
 
-    const newVariations = [];
+      // Remove tier pricing linked to existing variations
+      for (const variation of currentProduct.variations) {
+        const tierPricingInfo = await variation.tierPricingInfo;
+        if (tierPricingInfo) {
+          await productPriceRepository.remove(tierPricingInfo);
+        }
+      }
 
-    if (data.variations && data.variations?.length > 0) {
+      // Remove the old variations
+      await productVariationRepository.remove(variationsToDelete);
+
+      // Prepare to create new variations
+      const newVariations = [];
+
       for (const v of data.variations) {
-        // Create the base variation
+        // Create base variation entity
         const baseVariation = productVariationRepository.create({
           ...v,
           id: v.id ? v.id : uuidv4(),
@@ -262,15 +260,56 @@ export const updateProduct = async (
           shippingClass: v.shippingClassId ? { id: v.shippingClassId } : null,
           taxClass: v.taxClassId ? { id: v.taxClassId } : null,
           tierPricingInfo: null, // Initialize as null, will set after saving ProductPrice
-          isActive: v.isActive ?? false, // Set isActive field
+          isActive: v.isActive ?? false, // Default to inactive if not provided
         } as any);
 
-        // Save base variation to get ID
+        // Save variation to get persisted ID
         const savedVariation = await productVariationRepository.save(
           baseVariation
         );
 
-        // Create and save attribute values
+        // If variation was recreated with same ID, re-link cart and wishlist items
+        if (
+          variationsInCart
+            .map((v) => v.productVariation.id)
+            .includes((savedVariation as any).id)
+        ) {
+          const cartItems = await cartItemRepository.find({
+            where: {
+              product: { id: currentProduct.id },
+              productVariation: null,
+            },
+          });
+
+          if (cartItems) {
+            cartItems.map((item) => {
+              item.productVariation = (savedVariation as any).id;
+              return cartItemRepository.save(item);
+            });
+          }
+        }
+
+        if (
+          variationsInWishlist
+            .map((v) => v.productVariation.id)
+            .includes((savedVariation as any).id)
+        ) {
+          const wishListItems = await wishListItemRepository.find({
+            where: {
+              product: { id: currentProduct.id },
+              productVariation: null,
+            },
+          });
+
+          if (wishListItems) {
+            wishListItems.map((item) => {
+              item.productVariation = (savedVariation as any).id;
+              return wishListItemRepository.save(item);
+            });
+          }
+        }
+
+        // Create and save attribute values for variation
         if (v.attributeValueIds?.length > 0) {
           const attrValueEntities = v.attributeValueIds.map((attrValId) =>
             productVariationAttributeValueRepository.create({
@@ -283,9 +322,8 @@ export const updateProduct = async (
           );
         }
 
-        // Save tier pricing if provided
+        // Save tier pricing info for variation if provided
         if (v.tierPricingInfo) {
-          // Create tiered prices (ProductTieredPrice entities) if they exist
           const tieredPrices = v.tierPricingInfo.tieredPrices?.length
             ? v.tierPricingInfo.tieredPrices.map(
                 (tp) =>
@@ -295,29 +333,30 @@ export const updateProduct = async (
               )
             : [];
 
-          // Create ProductPrice entity
           const newTierPricing = productPriceRepository.create({
             pricingType: v.tierPricingInfo.pricingType,
-            tieredPrices, // Associate tiered prices
-            productVariation: { id: (savedVariation as any).id }, // Link to variation
+            tieredPrices,
+            productVariation: { id: (savedVariation as any).id },
           } as any);
 
-          // Save ProductPrice entity (this should cascade to save tieredPrices)
           const savedTierPricing = await productPriceRepository.save(
             newTierPricing
           );
 
-          // Update variation with saved tierPricingInfo
           (savedVariation as any).tierPricingInfo =
             Promise.resolve(savedTierPricing);
-          await productVariationRepository.save(savedVariation); // Persist the relation
+          await productVariationRepository.save(savedVariation);
         }
 
+        // Push variation into collection
         newVariations.push(savedVariation);
       }
 
       currentProduct.variations =
         newVariations.length > 0 ? newVariations : null;
+    } else {
+      // No variations provided — clear all variations
+      currentProduct.variations = null;
     }
 
     // Replace upsells
