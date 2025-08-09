@@ -1849,6 +1849,7 @@ export type ProductVariation = {
   length?: Maybe<Scalars['Float']['output']>;
   maxQuantity?: Maybe<Scalars['Int']['output']>;
   minQuantity?: Maybe<Scalars['Int']['output']>;
+  name: Scalars['String']['output'];
   product?: Maybe<Product>;
   productDeliveryType?: Maybe<Array<Scalars['String']['output']>>;
   quantityStep?: Maybe<Scalars['Int']['output']>;
@@ -1886,6 +1887,7 @@ export type ProductVariationInput = {
   length?: InputMaybe<Scalars['Float']['input']>;
   maxQuantity?: InputMaybe<Scalars['Int']['input']>;
   minQuantity?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
   productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
   quantityStep?: InputMaybe<Scalars['Int']['input']>;
   regularPrice?: InputMaybe<Scalars['Float']['input']>;
@@ -4750,6 +4752,7 @@ export type ProductVariationResolvers<ContextType = Context, ParentType extends 
   length?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   maxQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   minQuantity?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   product?: Resolver<Maybe<ResolversTypes['Product']>, ParentType, ContextType>;
   productDeliveryType?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   quantityStep?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;

@@ -1,4 +1,9 @@
-import { Category, Product, ProductPrice } from "../../../entities";
+import {
+  Category,
+  Product,
+  ProductPrice,
+  ProductVariation,
+} from "../../../entities";
 
 /**
  * Maps a Category entity to GraphQL-compatible plain object including nested subcategories recursively.
@@ -313,7 +318,7 @@ export async function mapProductRecursive(
  */
 export async function mapProductVariationRecursive(
   variation: any | null
-): Promise<any> {
+): Promise<ProductVariation | null> {
   if (!variation) {
     return null;
   }

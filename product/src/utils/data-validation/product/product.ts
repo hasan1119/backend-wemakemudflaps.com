@@ -123,32 +123,34 @@ export const ProductPriceInputSchema = z
  *
  * Workflow:
  * 1. Validates `id` as an optional UUID.
- * 2. Validates `sku` as an optional non-empty string.
- * 3. Validates `brandIds` as optional UUIDs or arrays of UUIDs.
- * 4. Validates `productDeliveryType` as an optional array of `ProductDeliveryTypeEnum`.
- * 5. Validates `isCustomized` as an optional boolean.
- * 6. Validates `minQuantity`, `defaultQuantity`, `maxQuantity`, `quantityStep` as optional positive integers.
- * 7. Ensures `regularPrice` is a positive number.
- * 8. Validates `salePrice` as an optional positive number.
- * 9. Validates `salePriceStartAt` and `salePriceEndAt` as optional datetime strings.
- * 10. Validates `tierPricingInfo` as an optional `ProductPriceInputSchema`.
- * 11. Validates `saleQuantityUnit` as an optional non-empty string.
- * 12. Validates `stockStatus` as an optional `StockStatusEnum`.
- * 13. Validates `weightUnit` as an optional `WeightUnitEnum`.
- * 13. Validates `weight` as an optional positive number.
- * 13. Validates `dimensionUnit` as an optional `DimensionUnitEnum`.
- * 14. Validates `length`, `width`, `height` as optional positive numbers.
- * 15. Validates `attributeValueIds` as an optional array of UUIDs.
- * 16. Validates `warrantyDigit` as an optional positive integer.
- * 17. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
- * 18. Validates `warrantyPolicy` as an optional non-empty string.
- * 19. Validates `shippingClassId`, `taxClassId` as optional UUIDs.
- * 20. Validates `taxStatus` as an optional `TaxStatusTypeEnum`.
- * 21. Validates `description` as an optional non-empty string.
- * 22. Validates `images` and `videos` as optional arrays of UUIDs.
- * 23. Validates `deletedAt` as an optional datetime string.
+ * 2. Validates `name` as an optional non-empty string.
+ * 3. Validates `sku` as an optional non-empty string.
+ * 4. Validates `brandIds` as optional UUIDs or arrays of UUIDs.
+ * 5. Validates `productDeliveryType` as an optional array of `ProductDeliveryTypeEnum`.
+ * 6. Validates `isCustomized` as an optional boolean.
+ * 7. Validates `minQuantity`, `defaultQuantity`, `maxQuantity`, `quantityStep` as optional positive integers.
+ * 8. Ensures `regularPrice` is a positive number.
+ * 9. Validates `salePrice` as an optional positive number.
+ * 10. Validates `salePriceStartAt` and `salePriceEndAt` as optional datetime strings.
+ * 11. Validates `tierPricingInfo` as an optional `ProductPriceInputSchema`.
+ * 12. Validates `saleQuantityUnit` as an optional non-empty string.
+ * 13. Validates `stockStatus` as an optional `StockStatusEnum`.
+ * 14. Validates `weightUnit` as an optional `WeightUnitEnum`.
+ * 15. Validates `weight` as an optional positive number.
+ * 16. Validates `dimensionUnit` as an optional `DimensionUnitEnum`.
+ * 17. Validates `length`, `width`, `height` as optional positive numbers.
+ * 18. Validates `attributeValueIds` as an optional array of UUIDs.
+ * 19. Validates `warrantyDigit` as an optional positive integer.
+ * 20. Validates `defaultWarrantyPeriod` as an optional `WarrantyPeriodEnum`.
+ * 21. Validates `warrantyPolicy` as an optional non-empty string.
+ * 22. Validates `shippingClassId`, `taxClassId` as optional UUIDs.
+ * 23. Validates `taxStatus` as an optional `TaxStatusTypeEnum`.
+ * 24. Validates `description` as an optional non-empty string.
+ * 25. Validates `images` and `videos` as optional arrays of UUIDs.
+ * 26. Validates `deletedAt` as an optional datetime string.
  *
  * @property id - Optional unique identifier for the product variation.
+ * @property name - Optional name of the variation.
  * @property sku - Optional Stock Keeping Unit for the variation.
  * @property brandIds - Optional UUIDs of the associated brands.
  * @property productDeliveryType - Optional array of product delivery types.
@@ -183,6 +185,7 @@ export const ProductPriceInputSchema = z
  */
 export const ProductVariationInputSchema = z.object({
   id: z.string().uuid({ message: "Invalid UUID format" }).nullable().optional(),
+  name: z.string().min(1, "Name cannot be empty").optional().nullable(),
   sku: z.string().min(1, "SKU cannot be empty").optional().nullable(),
   productDeliveryType: z
     .array(
