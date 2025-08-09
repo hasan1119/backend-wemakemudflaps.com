@@ -19,7 +19,7 @@ export function mapCategoryRecursive(category: Category | null): any {
     description: category.description ?? null,
     thumbnail: category.thumbnail ?? null,
     position: category.position,
-    totalProducts: 0, // Consider calculating this if needed
+    totalProducts: category.products.length ?? 0,
     createdBy: category.createdBy as any,
     createdAt:
       category.createdAt instanceof Date
@@ -357,55 +357,30 @@ export async function mapProductVariationRecursive(
     : [];
 
   return {
-    id: variation.id,
-    productDeliveryType: variation.productDeliveryType,
-    name: variation.name,
-    isCustomized: variation.isCustomized,
+    ...variation,
     brands,
-    sku: variation.sku,
-    minQuantity: variation.minQuantity,
-    defaultQuantity: variation.defaultQuantity,
-    maxQuantity: variation.maxQuantity,
-    quantityStep: variation.quantityStep,
-    regularPrice: variation.regularPrice,
-    salePrice: variation.salePrice,
-    salePriceStartAt:
-      variation.salePriceStartAt instanceof Date
-        ? variation.salePriceStartAt.toISOString()
-        : variation.salePriceStartAt,
+    attributeValues,
+    tierPricingInfo: variation.tierPricingInfo
+      ? mapProductPrice(await variation.tierPricingInfo)
+      : null,
     salePriceEndAt:
       variation.salePriceEndAt instanceof Date
         ? variation.salePriceEndAt.toISOString()
         : variation.salePriceEndAt,
-    saleQuantityUnit: variation.saleQuantityUnit,
-    tierPricingInfo: variation.tierPricingInfo
-      ? await mapProductPrice(await variation.tierPricingInfo)
-      : null,
-    stockStatus: variation.stockStatus,
-    weightUnit: variation.weightUnit,
-    weight: variation.weight,
-    attributeValues, // Now plain array, not Promise<>
-    warrantyDigit: variation.warrantyDigit,
-    defaultWarrantyPeriod: variation.defaultWarrantyPeriod,
-    warrantyPolicy: variation.warrantyPolicy,
-    dimensionUnit: variation.dimensionUnit,
-    length: variation.length,
-    width: variation.width,
-    height: variation.height,
-    shippingClass: variation.shippingClass,
-    taxStatus: variation.taxStatus,
-    taxClass: variation.taxClass,
-    description: variation.description,
-    images: variation.images,
-    videos: variation.videos,
-    isActive: variation.isActive,
+    salePriceStartAt:
+      variation.salePriceStartAt instanceof Date
+        ? variation.salePriceStartAt.toISOString()
+        : variation.salePriceStartAt,
+    images: variation.images as any,
+    videos: variation.videos as any,
     createdAt:
       variation.createdAt instanceof Date
         ? variation.createdAt.toISOString()
         : variation.createdAt,
-    deletedAt:
-      variation.deletedAt instanceof Date
+    deletedAt: variation.deletedAt
+      ? variation.deletedAt instanceof Date
         ? variation.deletedAt.toISOString()
-        : variation.deletedAt,
+        : variation.deletedAt
+      : null,
   };
 }
