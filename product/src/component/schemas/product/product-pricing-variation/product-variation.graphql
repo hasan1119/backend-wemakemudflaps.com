@@ -4,7 +4,7 @@
 type ProductVariation {
   # ---------------------- Identification ----------------------
   id: ID! # Unique identifier
-  name: String! # Variation name
+  name: String # Variation name
   sku: String # Stock Keeping Unit (optional)
   productDeliveryType: [String!] # Product type (e.g., physical, virtual and downloadable)
   isCustomized: Boolean # Indicates if the variation is customized
