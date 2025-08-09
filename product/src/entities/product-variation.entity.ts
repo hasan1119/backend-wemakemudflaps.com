@@ -97,8 +97,8 @@ export class ProductVariation {
   productDeliveryType: ProductDeliveryTypeEnum[] | null;
 
   // Variation name
-  @Column({ default: "" })
-  name: string;
+  @Column({ default: "", nullable: true })
+  name: string | null;
 
   // Variation customized
   @Column({ default: false, nullable: true })
