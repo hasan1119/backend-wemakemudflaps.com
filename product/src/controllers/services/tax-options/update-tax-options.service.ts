@@ -51,7 +51,7 @@ export const updateTaxOptions = async (
       data.shippingTaxClassId !== null && {
         shippingTaxClass: { id: data.shippingTaxClassId },
       }),
-  });
+  } as any);
 
   return await getTaxOptions();
 };

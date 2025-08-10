@@ -28,7 +28,7 @@ export const createTaxOptions = async (
       ? { id: data.shippingTaxClassId }
       : null,
     createdBy: userId,
-  });
+  } as any);
 
   await taxOptionsRepository.save(newTaxOptions);
 

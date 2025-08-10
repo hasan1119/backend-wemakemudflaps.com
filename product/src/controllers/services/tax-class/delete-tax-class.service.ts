@@ -38,8 +38,8 @@ export const hardDeleteTaxClass = async (taxClassId: string): Promise<void> => {
     await entityManager
       .createQueryBuilder()
       .update("product")
-      .set({ product_tax_class: null })
-      .where("product_tax_class = :taxClassId", { taxClassId })
+      .set({ taxClass: null })
+      .where("taxClass = :taxClassId", { taxClassId })
       .execute();
   }
 
@@ -54,8 +54,8 @@ export const hardDeleteTaxClass = async (taxClassId: string): Promise<void> => {
     await entityManager
       .createQueryBuilder()
       .update("product_variation")
-      .set({ product_variation_tax_class: null })
-      .where("product_variation_tax_class = :taxClassId", { taxClassId })
+      .set({ taxClass: null })
+      .where("taxClass = :taxClassId", { taxClassId })
       .execute();
   }
 

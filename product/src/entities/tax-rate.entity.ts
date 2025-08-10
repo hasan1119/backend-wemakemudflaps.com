@@ -23,7 +23,7 @@ export class TaxRate {
   postcode: string | null;
 
   // Tax percentage (e.g., 7.5% is stored as 7.5000)
-  @Column("decimal", { precision: 5, scale: 4 })
+  @Column({ type: "decimal", precision: 7, scale: 4 })
   rate: number;
 
   // Label shown to customers (e.g., "Sales Tax", "VAT")
