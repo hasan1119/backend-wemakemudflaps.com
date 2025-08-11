@@ -56,7 +56,6 @@ export const getSiteSettings = async (
         logo: siteSettings.logo as any,
         contactNumber: siteSettings.contactNumber,
         contactEmail: siteSettings.contactEmail,
-        shopAddresses: siteSettings.shopAddresses as any,
         createdBy: siteSettings.createdBy as any,
         createdAt:
           siteSettings.createdAt instanceof Date
