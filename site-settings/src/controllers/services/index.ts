@@ -31,7 +31,7 @@ export {
  * Workflow:
  * 1. Provides a function to create a new SiteSettings entity with the provided data.
  */
-export { createSiteSettings } from "./site-settings/create-site-settings.service";
+export { createOrUpdateSiteSettings } from "./site-settings/create-or-update-site-settings.service";
 
 /**
  * Exports service for creating or updating shop addresses.
@@ -40,14 +40,6 @@ export { createSiteSettings } from "./site-settings/create-site-settings.service
  * 1. Provides a function to create a new shop address or update an existing one.
  */
 export { createOrUpdateShopAddress } from "./site-settings/create-or-update-shop-address.service";
-
-/**
- * Exports service for updating existing site settings.
- *
- * Workflow:
- * 1. Provides a function to update the existing SiteSettings entity with new data.
- */
-export { updateSiteSettings } from "./site-settings/update-site-settings.service";
 
 /**
  * Exports services for managing FAQs.

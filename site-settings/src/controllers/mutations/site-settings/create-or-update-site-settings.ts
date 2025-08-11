@@ -5,19 +5,19 @@ import {
   setSiteSettingsToRedis,
 } from "../../../helper/redis";
 import {
-  CreateSiteSettingsResponseOrError,
-  MutationCreateSiteSettingArgs,
+  CreateOrUpdateSiteSettingsResponseOrError,
+  MutationCreateOrUpdateSiteSettingArgs,
 } from "../../../types";
 import { siteSettingsSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
-  createSiteSettings as createSiteSettingsService,
+  createOrUpdateSiteSettings as createOrUpdateSiteSettingsService,
   getSiteSettings,
 } from "../../services";
 
 /**
- * Mutation to create site settings.
+ * Mutation to create or update site settings.
  * Validates user authentication and permissions, validates input data,
  * and creates the site settings in the database.
  *
@@ -26,20 +26,32 @@ import {
  * @param context - Context containing user information
  * @returns A response indicating success or failure of the operation
  */
-export const createSiteSetting = async (
+export const createOrUpdateSiteSetting = async (
   _: any,
-  args: MutationCreateSiteSettingArgs,
+  args: MutationCreateOrUpdateSiteSettingArgs,
   { user }: Context
-): Promise<CreateSiteSettingsResponseOrError> => {
+): Promise<CreateOrUpdateSiteSettingsResponseOrError> => {
   try {
     // Verify user authentication
     const authError = checkUserAuth(user);
     if (authError) return authError;
 
+    // Check if site settings already exist
+    let existingSettings;
+
+    existingSettings = await getSiteSettingsFromRedis();
+    if (!existingSettings) {
+      existingSettings = await getSiteSettings();
+      if (existingSettings) {
+        // Cache in Redis for future use
+        await setSiteSettingsToRedis(existingSettings);
+      }
+    }
+
     // Check if user has permission to create a site setting
     const hasPermission = await checkUserPermission({
       user,
-      action: "canCreate",
+      action: existingSettings ? "canUpdate" : "canCreate",
       entity: "site_settings",
     });
 
@@ -47,13 +59,20 @@ export const createSiteSetting = async (
       return {
         statusCode: 403,
         success: false,
-        message: "You do not have permission to create site settings",
+        message: `${
+          existingSettings
+            ? "You do not have permission to update site settings"
+            : "You do not have permission to create site settings"
+        }`,
         __typename: "BaseResponse",
       };
     }
 
     // Validate input data with Zod schema
-    const result = await siteSettingsSchema.safeParseAsync(args);
+    const result = await siteSettingsSchema
+      .innerType()
+      .omit({ shopAddress: true })
+      .safeParseAsync(args);
 
     // Return detailed validation errors if input is invalid
     if (!result.success) {
@@ -71,30 +90,10 @@ export const createSiteSetting = async (
       };
     }
 
-    // Check if site settings already exist
-    let existingSettings;
-
-    existingSettings = await getSiteSettingsFromRedis();
-    if (!existingSettings) {
-      existingSettings = await getSiteSettings();
-      if (existingSettings) {
-        // Cache in Redis for future use
-        await setSiteSettingsToRedis(existingSettings);
-      }
-    }
-
-    if (existingSettings) {
-      return {
-        statusCode: 409,
-        success: false,
-        message: "Site settings already exist",
-        __typename: "BaseResponse",
-      };
-    }
-
     // Create the site settings in the database
-    const siteSettings = await createSiteSettingsService(
+    const siteSettings = await createOrUpdateSiteSettingsService(
       result.data as any,
+      existingSettings || undefined,
       user.id
     );
 

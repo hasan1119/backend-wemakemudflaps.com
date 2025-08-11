@@ -51,7 +51,6 @@ type SiteSettings {
   logo: Media
   contactNumber: String
   contactEmail: String
-  shopAddresses: [ShopAddress]
   privacyPolicy: String
   termsAndConditions: String
   createdBy: CreatedBy
@@ -122,15 +121,11 @@ union GetShopAddressesResponseOrError =
     BaseResponse
   | ShopAddressesResponse
   | ErrorResponse
-union CreateSiteSettingsResponseOrError =
+union CreateOrUpdateSiteSettingsResponseOrError =
     BaseResponse
   | SiteSettingsResponse
   | ErrorResponse
 union GetSiteSettingsResponseOrError =
-    BaseResponse
-  | SiteSettingsResponse
-  | ErrorResponse
-union UpdateSiteSettingsResponseOrError =
     BaseResponse
   | SiteSettingsResponse
   | ErrorResponse

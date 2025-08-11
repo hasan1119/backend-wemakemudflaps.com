@@ -7,8 +7,7 @@
  * 3. Supports retrieval of site settings.
  */
 export { createOrUpdateShopAddress } from "./mutations/site-settings/create-or-update-shop-address";
-export { createSiteSetting } from "./mutations/site-settings/create-site-settings";
-export { updateSiteSetting } from "./mutations/site-settings/update-site-settings";
+export { createOrUpdateSiteSetting } from "./mutations/site-settings/create-or-update-site-settings";
 export { getShopAddresses } from "./queries/site-settings/get-shop-addresses";
 export { getSiteSettings } from "./queries/site-settings/get-site-settings";
 

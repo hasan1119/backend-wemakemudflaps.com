@@ -28,14 +28,12 @@ export const getSiteSettingsFromRedis =
  * @returns A promise that resolves when the operation is complete.
  */
 export const setSiteSettingsToRedis = async (
-  siteSettings: SiteSettings,
-  ttl: number = 3600
+  siteSettings: SiteSettings
 ): Promise<void> => {
   await redis.setSession(
     `${PREFIX.SITE_SETTINGS}`,
     siteSettings,
-    "site-settings",
-    ttl
+    "site-settings"
   );
 };
 

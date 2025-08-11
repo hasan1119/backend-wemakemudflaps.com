@@ -1,10 +1,9 @@
 import {
   createFaq,
   createOrUpdateShopAddress,
-  createSiteSetting,
+  createOrUpdateSiteSetting,
   deleteFaqs,
   updateFaq,
-  updateSiteSetting,
 } from "../../controllers";
 
 /**
@@ -18,19 +17,14 @@ import {
 export const siteSettingsMutationsResolver = {
   Mutation: {
     /**
-     * Creates site settings.
+     * Create or update site settings.
      */
-    createSiteSetting,
+    createOrUpdateSiteSetting,
 
     /**
      * Creates or updates a shop address.
      */
     createOrUpdateShopAddress,
-
-    /**
-     * Updates existing site settings.
-     */
-    updateSiteSetting,
 
     /**
      * Creates a new FAQ entry.
