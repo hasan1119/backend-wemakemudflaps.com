@@ -3,6 +3,7 @@ import {
   createOrUpdateShopAddress,
   createOrUpdateSiteSetting,
   deleteFaqs,
+  deleteShopAddresses,
   updateFaq,
 } from "../../controllers";
 
@@ -25,6 +26,11 @@ export const siteSettingsMutationsResolver = {
      * Creates or updates a shop address.
      */
     createOrUpdateShopAddress,
+
+    /**
+     * Deletes existing shop addresses.
+     */
+    deleteShopAddresses,
 
     /**
      * Creates a new FAQ entry.

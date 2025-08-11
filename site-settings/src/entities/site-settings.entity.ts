@@ -61,6 +61,19 @@ export class SiteSettings {
         state?: string | null;
         country?: string | null;
         zipCode?: string | null;
+        isEveryDayOpen?: boolean | null;
+        weeklyOffDays?:
+          | {
+              day:
+                | "Monday"
+                | "Tuesday"
+                | "Wednesday"
+                | "Thursday"
+                | "Friday"
+                | "Saturday"
+                | "Sunday";
+            }[]
+          | null;
         direction?: string | null; // google map direction
       }[]
     | null;

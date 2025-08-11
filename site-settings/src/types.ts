@@ -856,7 +856,7 @@ export type Mutation = {
   deleteShippingClass: DeleteShippingClassResponseOrError;
   deleteShippingMethod: DeleteShippingMethodResponseOrError;
   deleteShippingZone: DeleteShippingZoneResponseOrError;
-  deleteShopAddress: BaseResponse;
+  deleteShopAddresses: BaseResponse;
   deleteTag: DeleteTagResponseOrError;
   deleteTaxClass: DeleteTaxClassResponseOrError;
   deleteTaxRate: DeleteTaxRateResponseOrError;
@@ -1170,8 +1170,8 @@ export type MutationDeleteShippingZoneArgs = {
 };
 
 
-export type MutationDeleteShopAddressArgs = {
-  id: Scalars['ID']['input'];
+export type MutationDeleteShopAddressesArgs = {
+  ids: Array<Scalars['ID']['input']>;
 };
 
 
@@ -2443,8 +2443,10 @@ export type ShopAddress = {
   direction?: Maybe<Scalars['String']['output']>;
   emails?: Maybe<Array<Maybe<ShopEmail>>>;
   id: Scalars['ID']['output'];
+  isEveryDayOpen?: Maybe<Scalars['Boolean']['output']>;
   phones?: Maybe<Array<Maybe<ShopPhone>>>;
   state?: Maybe<Scalars['String']['output']>;
+  weeklyOffDays?: Maybe<Array<Maybe<WeeklyOffDay>>>;
   zipCode?: Maybe<Scalars['String']['output']>;
 };
 
@@ -2457,8 +2459,10 @@ export type ShopAddressInput = {
   direction?: InputMaybe<Scalars['String']['input']>;
   emails?: InputMaybe<Array<InputMaybe<ShopEmailInput>>>;
   id?: InputMaybe<Scalars['ID']['input']>;
+  isEveryDayOpen?: InputMaybe<Scalars['Boolean']['input']>;
   phones?: InputMaybe<Array<InputMaybe<ShopPhoneInput>>>;
   state?: InputMaybe<Scalars['String']['input']>;
+  weeklyOffDays?: InputMaybe<Array<InputMaybe<WeeklyOffDayInput>>>;
   zipCode?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3001,6 +3005,25 @@ export type UsersResponse = {
   users: Array<User>;
 };
 
+export type WeeklyOffDay = {
+  __typename?: 'WeeklyOffDay';
+  day: WeeklyOffDayEnum;
+};
+
+export enum WeeklyOffDayEnum {
+  Friday = 'Friday',
+  Monday = 'Monday',
+  Saturday = 'Saturday',
+  Sunday = 'Sunday',
+  Thursday = 'Thursday',
+  Tuesday = 'Tuesday',
+  Wednesday = 'Wednesday'
+}
+
+export type WeeklyOffDayInput = {
+  day: WeeklyOffDayEnum;
+};
+
 export enum WeightUnit {
   Carat = 'CARAT',
   Grain = 'GRAIN',
@@ -3515,6 +3538,9 @@ export type ResolversTypes = {
   UserSessionById: ResolverTypeWrapper<UserSessionById>;
   UserSessionRoleObject: ResolverTypeWrapper<UserSessionRoleObject>;
   UsersResponse: ResolverTypeWrapper<UsersResponse>;
+  WeeklyOffDay: ResolverTypeWrapper<WeeklyOffDay>;
+  WeeklyOffDayEnum: WeeklyOffDayEnum;
+  WeeklyOffDayInput: WeeklyOffDayInput;
   WeightUnit: WeightUnit;
   Wishlist: ResolverTypeWrapper<Wishlist>;
   WishlistItems: ResolverTypeWrapper<WishlistItems>;
@@ -3782,6 +3808,8 @@ export type ResolversParentTypes = {
   UserSessionById: UserSessionById;
   UserSessionRoleObject: UserSessionRoleObject;
   UsersResponse: UsersResponse;
+  WeeklyOffDay: WeeklyOffDay;
+  WeeklyOffDayInput: WeeklyOffDayInput;
   Wishlist: Wishlist;
   WishlistItems: WishlistItems;
   WishlistResponse: WishlistResponse;
@@ -4571,7 +4599,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteShippingClass?: Resolver<ResolversTypes['DeleteShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingClassArgs, 'ids' | 'skipTrash'>>;
   deleteShippingMethod?: Resolver<ResolversTypes['DeleteShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingMethodArgs, 'id'>>;
   deleteShippingZone?: Resolver<ResolversTypes['DeleteShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingZoneArgs, 'id'>>;
-  deleteShopAddress?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationDeleteShopAddressArgs, 'id'>>;
+  deleteShopAddresses?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationDeleteShopAddressesArgs, 'ids'>>;
   deleteTag?: Resolver<ResolversTypes['DeleteTagResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTagArgs, 'ids' | 'skipTrash'>>;
   deleteTaxClass?: Resolver<ResolversTypes['DeleteTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTaxClassArgs, 'ids' | 'skipTrash'>>;
   deleteTaxRate?: Resolver<ResolversTypes['DeleteTaxRateResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTaxRateArgs, 'ids' | 'skipTrash'>>;
@@ -5134,8 +5162,10 @@ export type ShopAddressResolvers<ContextType = Context, ParentType extends Resol
   direction?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   emails?: Resolver<Maybe<Array<Maybe<ResolversTypes['ShopEmail']>>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isEveryDayOpen?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   phones?: Resolver<Maybe<Array<Maybe<ResolversTypes['ShopPhone']>>>, ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  weeklyOffDays?: Resolver<Maybe<Array<Maybe<ResolversTypes['WeeklyOffDay']>>>, ParentType, ContextType>;
   zipCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -5622,6 +5652,11 @@ export type UsersResponseResolvers<ContextType = Context, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WeeklyOffDayResolvers<ContextType = Context, ParentType extends ResolversParentTypes['WeeklyOffDay'] = ResolversParentTypes['WeeklyOffDay']> = {
+  day?: Resolver<ResolversTypes['WeeklyOffDayEnum'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type WishlistResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Wishlist'] = ResolversParentTypes['Wishlist']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
@@ -5875,6 +5910,7 @@ export type Resolvers<ContextType = Context> = {
   UserSessionById?: UserSessionByIdResolvers<ContextType>;
   UserSessionRoleObject?: UserSessionRoleObjectResolvers<ContextType>;
   UsersResponse?: UsersResponseResolvers<ContextType>;
+  WeeklyOffDay?: WeeklyOffDayResolvers<ContextType>;
   Wishlist?: WishlistResolvers<ContextType>;
   WishlistItems?: WishlistItemsResolvers<ContextType>;
   WishlistResponse?: WishlistResponseResolvers<ContextType>;

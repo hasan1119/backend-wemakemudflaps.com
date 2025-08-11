@@ -17,9 +17,9 @@ type Mutation {
     input: ShopAddressInput! # The input data for the shop address.
   ): CreateOrUpdateShopAddressResponseOrError!
 
-  # Delete an existing shop address.
+  # Delete existing shop addresses.
   # Only accessible by authorized users.
-  deleteShopAddress(
-    id: ID! # The ID of the shop address to delete.
+  deleteShopAddresses(
+    ids: [ID!]! # The IDs of the shop addresses to delete.
   ): BaseResponse!
 }

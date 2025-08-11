@@ -137,6 +137,7 @@ export const siteSettingsSchema = z
                 .optional()
                 .nullable(),
             }),
+
             { message: "Phones must be an array of phone objects" }
           )
           .optional()
@@ -161,9 +162,56 @@ export const siteSettingsSchema = z
           .string({ message: "Direction must be a string" })
           .optional()
           .nullable(),
+        isEveryDayOpen: z.boolean({
+          message: "isEveryDayOpen must be a boolean",
+        }),
+        weeklyOffDays: z.array(
+          z.object({
+            day: z.enum([
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+              "Sunday",
+            ]),
+          }),
+          { message: "weeklyOffDays must be an array of objects" }
+        ),
       })
       .optional()
-      .nullable(),
+      .nullable()
+      .refine(
+        (data) => {
+          if (!data) return true; // skip if null or undefined
+
+          if (data.isEveryDayOpen) {
+            // If shop open every day, no off days allowed
+            return !data.weeklyOffDays || data.weeklyOffDays.length === 0;
+          } else {
+            // Shop is not open every day, off days required
+            if (!data.weeklyOffDays || data.weeklyOffDays.length === 0) {
+              return false;
+            }
+          }
+
+          // Check for duplicate days if weeklyOffDays is present
+          if (data.weeklyOffDays && data.weeklyOffDays.length > 0) {
+            const uniqueDays = new Set(data.weeklyOffDays.map((d) => d.day));
+            if (uniqueDays.size !== data.weeklyOffDays.length) {
+              return false;
+            }
+          }
+
+          return true;
+        },
+        {
+          message:
+            "If 'isEveryDayOpen' is true, 'weeklyOffDays' must be empty; if false, must have at least one unique day (no duplicates).",
+          path: ["weeklyOffDays"],
+        }
+      ),
     privacyPolicy: z
       .string({ message: "Privacy policy must be a string" })
       .optional()

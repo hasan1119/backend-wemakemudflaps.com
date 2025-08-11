@@ -6,6 +6,16 @@ enum ShopEmailType {
   Other
 }
 
+enum WeeklyOffDayEnum {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
 type ShopEmail {
   type: ShopEmailType!
   email: String!
@@ -23,6 +33,10 @@ type ShopPhone {
   number: String!
 }
 
+type WeeklyOffDay {
+  day: WeeklyOffDayEnum!
+}
+
 type ShopAddress {
   id: ID!
   brunchName: String
@@ -35,6 +49,8 @@ type ShopAddress {
   country: String
   zipCode: String
   direction: String
+  isEveryDayOpen: Boolean
+  weeklyOffDays: [WeeklyOffDay]
 }
 
 type MetaData {
@@ -69,6 +85,10 @@ input ShopPhoneInput {
   number: String!
 }
 
+input WeeklyOffDayInput {
+  day: WeeklyOffDayEnum!
+}
+
 input ShopAddressInput {
   id: ID
   brunchName: String
@@ -81,6 +101,8 @@ input ShopAddressInput {
   country: String
   zipCode: String
   direction: String
+  isEveryDayOpen: Boolean
+  weeklyOffDays: [WeeklyOffDayInput]
 }
 
 input MetaDataInput {

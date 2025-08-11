@@ -8,6 +8,7 @@
  */
 export { createOrUpdateShopAddress } from "./mutations/site-settings/create-or-update-shop-address";
 export { createOrUpdateSiteSetting } from "./mutations/site-settings/create-or-update-site-settings";
+export { deleteShopAddresses } from "./mutations/site-settings/delete-shop-addresses";
 export { getShopAddresses } from "./queries/site-settings/get-shop-addresses";
 export { getSiteSettings } from "./queries/site-settings/get-site-settings";
 

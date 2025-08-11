@@ -42,6 +42,14 @@ export { createOrUpdateSiteSettings } from "./site-settings/create-or-update-sit
 export { createOrUpdateShopAddress } from "./site-settings/create-or-update-shop-address.service";
 
 /**
+ * Exports service for deleting shop addresses.
+ *
+ * Workflow:
+ * 1. Provides a function to delete specified shop addresses from the site settings.
+ */
+export { deleteShopAddresses } from "./site-settings/delete-shop-addresses.service";
+
+/**
  * Exports services for managing FAQs.
  *
  * Workflow:
