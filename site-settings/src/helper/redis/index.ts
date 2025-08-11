@@ -27,7 +27,10 @@ export {
  * 1. Provides functions for getting and setting site settings and shop address.
  */
 export {
+  clearShopAddressesCache,
+  getShopAddressesFromRedis,
   getSiteSettingsFromRedis,
+  setShopAddressesToRedis,
   setSiteSettingsToRedis,
 } from "./utils/site-settings/site-settings-session-manage";
 

@@ -111,6 +111,14 @@ export { ProductReview } from "./product-review.entity";
 export { ProductTieredPrice } from "./product-tiered-pricing.entity";
 
 /**
+ * Exports the ProductBranchStock entity for managing stock information at the branch level.
+ *
+ * Workflow:
+ * 1. Allows tracking of product stock levels across different branches.
+ */
+export { ProductBranchStock } from "./product-branch-stock.entity";
+
+/**
  * Exports the ProductVariation entity for managing different versions of a product.
  *
  * Workflow:

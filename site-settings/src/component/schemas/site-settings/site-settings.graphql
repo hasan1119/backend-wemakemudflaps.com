@@ -1,11 +1,40 @@
 # ---------------------- Site Settings Types ----------------------
+enum ShopEmailType {
+  Corporate
+  Complain
+  Support
+  Other
+}
+
+type ShopEmail {
+  type: ShopEmailType!
+  email: String!
+}
+
+enum ShopPhoneType {
+  Mobile
+  Landline
+  Fax
+  Other
+}
+
+type ShopPhone {
+  type: ShopPhoneType!
+  number: String!
+}
+
 type ShopAddress {
+  id: ID!
+  brunchName: String
   addressLine1: String
   addressLine2: String
+  emails: [ShopEmail]
+  phones: [ShopPhone]
   city: String
   state: String
   country: String
   zipCode: String
+  direction: String
 }
 
 type MetaData {
@@ -22,7 +51,7 @@ type SiteSettings {
   logo: Media
   contactNumber: String
   contactEmail: String
-  shopAddress: ShopAddress
+  shopAddresses: [ShopAddress]
   privacyPolicy: String
   termsAndConditions: String
   createdBy: CreatedBy
@@ -31,13 +60,28 @@ type SiteSettings {
 }
 
 # ---------------------- Input Types ----------------------
+input ShopEmailInput {
+  type: ShopEmailType!
+  email: String!
+}
+
+input ShopPhoneInput {
+  type: ShopPhoneType!
+  number: String!
+}
+
 input ShopAddressInput {
+  id: ID
+  brunchName: String
   addressLine1: String
   addressLine2: String
+  emails: [ShopEmailInput]
+  phones: [ShopPhoneInput]
   city: String
   state: String
   country: String
   zipCode: String
+  direction: String
 }
 
 input MetaDataInput {
@@ -54,7 +98,30 @@ type SiteSettingsResponse {
   siteSettings: SiteSettings!
 }
 
+type ShopAddressResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shopAddress: ShopAddress!
+}
+
+type ShopAddressesResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shopAddresses: [ShopAddress!]!
+  total: Int!
+}
+
 # ---------------------- Unions ----------------------
+union CreateOrUpdateShopAddressResponseOrError =
+    BaseResponse
+  | ShopAddressResponse
+  | ErrorResponse
+union GetShopAddressesResponseOrError =
+    BaseResponse
+  | ShopAddressesResponse
+  | ErrorResponse
 union CreateSiteSettingsResponseOrError =
     BaseResponse
   | SiteSettingsResponse

@@ -10,6 +10,7 @@ import {
   Product,
   ProductAttribute,
   ProductAttributeValue,
+  ProductBranchStock,
   ProductPrice,
   ProductRequest,
   ProductReview,
@@ -116,6 +117,15 @@ export const productReviewRepository =
  */
 export const productTieredPriceRepository =
   AppDataSource.getRepository(ProductTieredPrice);
+
+/**
+ * Initializes repository for ProductBranchStock entity.
+ *
+ * Workflow:
+ * 1. Retrieves the ProductBranchStock repository from AppDataSource for database operations.
+ */
+export const productBranchStockRepository =
+  AppDataSource.getRepository(ProductBranchStock);
 
 /**
  * Initializes repository for ProductVariation entity.

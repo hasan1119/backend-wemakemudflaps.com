@@ -1,3 +1,4 @@
+import { v4 as uuid } from "uuid";
 import { SiteSettings } from "../../../entities";
 import { MutationUpdateSiteSettingArgs } from "../../../types";
 import { siteSettingsRepository } from "../repositories/repositories";
@@ -8,6 +9,7 @@ import { getSiteSettings } from "./get-site-settings.service";
  *
  * Workflow:
  * 1. Updates the site settings with provided values.
+ * 2. For shopAddresses, maps input data to the entity structure, generating UUIDs for new addresses.
  *
  * @param siteSettings - The existing SiteSettings entity to update.
  * @param data - Input data for updating the site settings.
@@ -36,27 +38,29 @@ export const updateSiteSettings = async (
     ...(data.contactEmail !== undefined && {
       contactEmail: data.contactEmail,
     }),
-    ...(data.shopAddress !== undefined && {
-      shopAddress: {
-        ...(data.shopAddress.addressLine1 !== undefined && {
-          addressLine1: data.shopAddress.addressLine1,
-        }),
-        ...(data.shopAddress.addressLine2 !== undefined && {
-          addressLine2: data.shopAddress.addressLine2,
-        }),
-        ...(data.shopAddress.city !== undefined && {
-          city: data.shopAddress.city,
-        }),
-        ...(data.shopAddress.zipCode !== undefined && {
-          zipCode: data.shopAddress.zipCode,
-        }),
-        ...(data.shopAddress.state !== undefined && {
-          state: data.shopAddress.state,
-        }),
-        ...(data.shopAddress.country !== undefined && {
-          country: data.shopAddress.country,
-        }),
-      },
+    ...(data.shopAddresses !== undefined && {
+      shopAddresses:
+        data.shopAddresses?.map((address) => ({
+          id: address.id || uuid(), // Generate UUID if not provided
+          brunchName: address.brunchName,
+          addressLine1: address.addressLine1,
+          addressLine2: address.addressLine2,
+          emails:
+            address.emails?.map((email) => ({
+              type: email.type,
+              email: email.email,
+            })) || [],
+          phones:
+            address.phones?.map((phone) => ({
+              type: phone.type,
+              number: phone.number,
+            })) || [],
+          city: address.city,
+          state: address.state,
+          country: address.country,
+          zipCode: address.zipCode,
+          direction: address.direction,
+        })) || [],
     }),
     ...(data.privacyPolicy !== undefined && {
       privacyPolicy: data.privacyPolicy,

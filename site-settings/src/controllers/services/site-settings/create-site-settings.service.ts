@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { SiteSettings } from "../../../entities";
 import { MutationCreateSiteSettingArgs } from "../../../types";
 import { siteSettingsRepository } from "../repositories/repositories";
@@ -18,6 +19,10 @@ export const createSiteSettings = async (
 ): Promise<SiteSettings> => {
   const siteSettings = siteSettingsRepository.create({
     ...data,
+    shopAddresses: data.shopAddresses.map((address) => ({
+      ...address,
+      id: uuidv4(),
+    })),
     createdBy: userId,
   });
 

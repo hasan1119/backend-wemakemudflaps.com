@@ -93,7 +93,10 @@ export const createSiteSetting = async (
     }
 
     // Create the site settings in the database
-    const siteSettings = await createSiteSettingsService(result.data, user.id);
+    const siteSettings = await createSiteSettingsService(
+      result.data as any,
+      user.id
+    );
 
     const createdSiteSettings = {
       id: siteSettings.id,
@@ -103,7 +106,7 @@ export const createSiteSetting = async (
       logo: siteSettings.logo as any,
       contactNumber: siteSettings.contactNumber,
       contactEmail: siteSettings.contactEmail,
-      shopAddress: siteSettings.shopAddress,
+      shopAddresses: siteSettings.shopAddresses as any,
       privacyPolicy: siteSettings.privacyPolicy,
       termsAndConditions: siteSettings.termsAndConditions,
       createdBy: siteSettings.createdBy as any,

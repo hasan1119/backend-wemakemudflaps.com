@@ -91,6 +91,9 @@ export class Product {
   id: string;
 
   /* ====================== Basic Info ====================== */
+  // Associated branch IDs (stored in a join table)
+  @Column({ type: "uuid", array: true, nullable: true, default: null })
+  branchIds: string[] | null;
 
   // Product categorization by configuration
   @Column({

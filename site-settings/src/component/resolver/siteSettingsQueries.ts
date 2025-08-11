@@ -1,4 +1,9 @@
-import { getAllFaqs, getFaqById, getSiteSettings } from "../../controllers";
+import {
+  getAllFaqs,
+  getFaqById,
+  getShopAddresses,
+  getSiteSettings,
+} from "../../controllers";
 
 /**
  * Shared resolver function for federated `CreatedBy` references.
@@ -59,6 +64,11 @@ export const siteSettingsQueriesResolver = {
      * Retrieves the site settings.
      */
     getSiteSettings,
+
+    /**
+     * Retrieves shop addresses.
+     */
+    getShopAddresses,
 
     /**
      * Retrieves all FAQs.

@@ -4,4 +4,13 @@ type Query {
   # Retrieves a specific site settings details.
   # Returns a `GetSiteSettingsResponseOrError` containing site settings data and request status.
   getSiteSettings: GetSiteSettingsResponseOrError!
+
+  # Fetch shop addresses.
+  # Retrieves a paginated list of shop addresses based on the provided filters.
+  # Returns a `GetShopAddressesResponseOrError` containing shop addresses data and request status.
+  getShopAddresses(
+    page: Int!
+    limit: Int!
+    search: String
+  ): GetShopAddressesResponseOrError!
 }

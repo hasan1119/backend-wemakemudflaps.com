@@ -39,14 +39,31 @@ export class SiteSettings {
     nullable: true,
     default: null,
   })
-  shopAddress: {
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    state?: string | null;
-    country?: string | null;
-    zipCode?: string | null;
-  } | null;
+  shopAddresses:
+    | {
+        id: string;
+        brunchName?: string | null;
+        addressLine1?: string | null;
+        addressLine2?: string | null;
+        emails?:
+          | {
+              type: "Corporate" | "Complain" | "Support" | "Other" | null;
+              email: string | null;
+            }[]
+          | null;
+        phones?:
+          | {
+              type: "Mobile" | "Landline" | "Fax" | "Other" | null;
+              number: string | null;
+            }[]
+          | null;
+        city?: string | null;
+        state?: string | null;
+        country?: string | null;
+        zipCode?: string | null;
+        direction?: string | null; // google map direction
+      }[]
+    | null;
 
   // Privacy policy for the site setting
   @Column({ nullable: true, default: null })

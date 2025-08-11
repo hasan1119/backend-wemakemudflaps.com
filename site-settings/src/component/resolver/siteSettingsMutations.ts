@@ -1,5 +1,6 @@
 import {
   createFaq,
+  createOrUpdateShopAddress,
   createSiteSetting,
   deleteFaqs,
   updateFaq,
@@ -20,6 +21,11 @@ export const siteSettingsMutationsResolver = {
      * Creates site settings.
      */
     createSiteSetting,
+
+    /**
+     * Creates or updates a shop address.
+     */
+    createOrUpdateShopAddress,
 
     /**
      * Updates existing site settings.

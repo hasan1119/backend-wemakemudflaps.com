@@ -87,6 +87,10 @@ export class ProductVariation {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  // Associated branch IDs (stored in a join table)
+  @Column({ type: "uuid", array: true, nullable: true, default: null })
+  branchIds: string[] | null;
+
   // Product categorization by delivery method
   @Column({
     type: "enum",

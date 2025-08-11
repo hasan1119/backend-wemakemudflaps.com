@@ -18,9 +18,12 @@ export { checkUserPermission } from "./permission/get-user-permission.service";
  * Exports service for retrieving site settings.
  *
  * Workflow:
- * 1. Provides a function to fetch the first site settings record from the database.
+ * 1. Provides a function to fetch the first site settings, including shop addresses.
  */
-export { getSiteSettings } from "./site-settings/get-site-settings.service";
+export {
+  getShopAddresses,
+  getSiteSettings,
+} from "./site-settings/get-site-settings.service";
 
 /**
  * Exports service for creating new site settings.
@@ -29,6 +32,14 @@ export { getSiteSettings } from "./site-settings/get-site-settings.service";
  * 1. Provides a function to create a new SiteSettings entity with the provided data.
  */
 export { createSiteSettings } from "./site-settings/create-site-settings.service";
+
+/**
+ * Exports service for creating or updating shop addresses.
+ *
+ * Workflow:
+ * 1. Provides a function to create a new shop address or update an existing one.
+ */
+export { createOrUpdateShopAddress } from "./site-settings/create-or-update-shop-address.service";
 
 /**
  * Exports service for updating existing site settings.

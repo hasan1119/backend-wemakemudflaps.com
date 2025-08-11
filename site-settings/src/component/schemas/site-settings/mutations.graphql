@@ -9,10 +9,20 @@ type Mutation {
     logo: String # The logo for the site setting.
     contactNumber: String # The contact number for the site setting.
     contactEmail: String # The contact email for the site setting.
-    shopAddress: ShopAddressInput # The shop address for the site setting.
+    shopAddresses: [ShopAddressInput!] # The shop addresses for the site setting.
     privacyPolicy: String # The privacy policy for the site setting.
     termsAndConditions: String # The terms and conditions for the site setting.
   ): CreateSiteSettingsResponseOrError!
+
+  createOrUpdateShopAddress(
+    input: ShopAddressInput! # The input data for the shop address.
+  ): CreateOrUpdateShopAddressResponseOrError!
+
+  # Delete an existing shop address.
+  # Only accessible by authorized users.
+  deleteShopAddress(
+    id: ID! # The ID of the shop address to delete.
+  ): BaseResponse!
 
   # Update an existing site setting.
   # Only accessible by authorized users.
@@ -23,7 +33,7 @@ type Mutation {
     logo: String # Optional updated logo for the site setting.
     contactNumber: String # Optional updated contact number for the site setting.
     contactEmail: String # Optional updated contact email for the site setting.
-    shopAddress: ShopAddressInput # Optional updated shop address for the site setting.
+    shopAddresses: [ShopAddressInput!] # Optional updated shop addresses for the site setting.
     privacyPolicy: String # Optional updated privacy policy for the site setting.
     termsAndConditions: String # Optional updated terms and conditions for the site setting.
   ): UpdateSiteSettingsResponseOrError!
