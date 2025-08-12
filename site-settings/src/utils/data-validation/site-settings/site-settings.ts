@@ -159,7 +159,8 @@ export const siteSettingsSchema = z
           .optional()
           .nullable(),
         direction: z
-          .string({ message: "Direction must be a string" })
+          .string()
+          .url({ message: "Direction must be a valid URL" })
           .optional()
           .nullable(),
         isEveryDayOpen: z.boolean({
