@@ -31,28 +31,55 @@ export const createOrUpdateShopAddress = async (
     siteSettings.shopAddresses = [];
   }
 
-  if (data.id) {
+  // Apply business logic for isEveryDayOpen and weeklyOffDays mutual exclusivity
+  const processedData = { ...data };
+
+  // If isEveryDayOpen is true, set weeklyOffDays to null
+  if (processedData.isEveryDayOpen === true) {
+    processedData.weeklyOffDays = null;
+  }
+  // If weeklyOffDays is not null/empty, set isEveryDayOpen to false
+  else if (
+    processedData.weeklyOffDays &&
+    processedData.weeklyOffDays.length > 0
+  ) {
+    processedData.isEveryDayOpen = false;
+  }
+
+  if (processedData.id) {
     // Try to update an existing shop address
     const index = siteSettings.shopAddresses.findIndex(
-      (addr) => addr.id === data.id
+      (addr) => addr.id === processedData.id
     );
     if (index !== -1) {
       siteSettings.shopAddresses[index] = {
         ...siteSettings.shopAddresses[index],
-        ...data,
+        ...processedData,
+        openingAndClosingHours: {
+          opening: processedData.openingAndClosingHours?.opening ?? "",
+          closing: processedData.openingAndClosingHours?.closing ?? "",
+        },
       };
     } else {
       // If ID provided but not found, treat as new
       siteSettings.shopAddresses.push({
-        ...data,
-        id: data.id || uuidv4(),
+        ...processedData,
+        id: processedData.id || uuidv4(),
+        openingAndClosingHours: {
+          opening: processedData.openingAndClosingHours?.opening ?? "",
+          closing: processedData.openingAndClosingHours?.closing ?? "",
+        },
       });
     }
   } else {
     // Create a new shop address
     siteSettings.shopAddresses.push({
-      ...data,
+      ...processedData,
       id: uuidv4(),
+      openingAndClosingHours: {
+        opening: processedData.openingAndClosingHours?.opening ?? "",
+        closing: processedData.openingAndClosingHours?.closing ?? "",
+      },
     });
   }
 
