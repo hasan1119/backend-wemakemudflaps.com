@@ -1,9 +1,13 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { clearShopAddressesCache } from "../../../helper/redis";
+import {
+  clearShopAddressesCache,
+  setShopAddressByIdInRedis,
+} from "../../../helper/redis";
 import {
   CreateOrUpdateShopAddressResponseOrError,
   MutationCreateOrUpdateShopAddressArgs,
+  ShopAddress,
 } from "../../../types";
 import { siteSettingsSchema } from "../../../utils/data-validation";
 import {
@@ -86,12 +90,18 @@ export const createOrUpdateShopAddress = async (
       : shopAddress.shopAddresses[shopAddress.shopAddresses.length - 1];
 
     // Clear the cache for shop addresses
-    await clearShopAddressesCache();
+    await Promise.all([
+      setShopAddressByIdInRedis(
+        updatedAddress.id,
+        updatedAddress as ShopAddress
+      ),
+      clearShopAddressesCache(),
+    ]);
 
     return {
       statusCode: 201,
       success: true,
-      shopAddress: updatedAddress as any,
+      shopAddress: updatedAddress as ShopAddress,
       message: `${
         args.input.id
           ? "Shop Address updated successfully"

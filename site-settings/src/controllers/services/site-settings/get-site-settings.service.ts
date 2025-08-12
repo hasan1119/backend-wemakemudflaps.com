@@ -1,4 +1,8 @@
 import { SiteSettings } from "../../../entities";
+import {
+  getShopAddressByIdFromRedis,
+  setShopAddressByIdInRedis,
+} from "../../../helper/redis";
 import { siteSettingsRepository } from "../repositories/repositories";
 
 /**
@@ -106,4 +110,39 @@ export const getShopAddresses = async (
   const data = addresses.slice(startIndex, startIndex + limit);
 
   return { data, total };
+};
+
+/**
+ * Federated reference resolver for the Media entity.
+ * Used by Apollo Federation to resolve media entities by ID from other subgraphs.
+ *
+ * @param id - ID of the media to resolve
+ * @returns Resolved Media object or null
+ */
+export const ShopAddressData = {
+  __resolveReference: async ({ id }) => {
+    let addressData = await getShopAddressByIdFromRedis(id);
+
+    if (!addressData) {
+      // Fetch from DB by finding site settings containing this shop address ID
+      const siteSettings = await siteSettingsRepository.findOne({
+        where: { deletedAt: null },
+      });
+
+      if (!siteSettings || !siteSettings.shopAddresses) return null;
+
+      const foundAddress = siteSettings.shopAddresses.find(
+        (addr) => addr.id === id
+      );
+      if (!foundAddress) return null;
+
+      addressData = {
+        ...foundAddress,
+      } as any;
+
+      await setShopAddressByIdInRedis(id, addressData);
+    }
+
+    return addressData;
+  },
 };

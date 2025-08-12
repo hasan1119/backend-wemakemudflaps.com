@@ -42,7 +42,7 @@ type OpeningAndClosingHours {
   closing: String
 }
 
-type ShopAddress {
+type ShopAddress @key(fields: "id") @shareable {
   id: ID!
   brunchName: String
   addressLine1: String

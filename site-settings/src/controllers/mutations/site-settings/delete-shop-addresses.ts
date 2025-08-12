@@ -1,7 +1,10 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { deleteShopAddresses as deleteShopAddressesService } from "../../../controllers/services";
-import { clearShopAddressesCache } from "../../../helper/redis";
+import {
+  clearShopAddressesCache,
+  removeShopAddressByIdFromRedis,
+} from "../../../helper/redis";
 import {
   BaseResponseOrError,
   MutationDeleteShopAddressesArgs,
@@ -69,6 +72,12 @@ export const deleteShopAddresses = async (
 
     // Clear the cache for shop addresses
     await clearShopAddressesCache();
+
+    // Clear the cache for shop addresses
+    await Promise.all([
+      clearShopAddressesCache(),
+      ...ids.map((id) => removeShopAddressByIdFromRedis(id)),
+    ]);
 
     return {
       statusCode: 200,
