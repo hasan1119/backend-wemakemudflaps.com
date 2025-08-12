@@ -61,6 +61,11 @@ export class SiteSettings {
         state?: string | null;
         country?: string | null;
         zipCode?: string | null;
+        openingAndClosingHours?: {
+          opening: string | null;
+          closing: string | null;
+        } | null;
+        isActive?: boolean | null;
         isEveryDayOpen?: boolean | null;
         weeklyOffDays?:
           | {

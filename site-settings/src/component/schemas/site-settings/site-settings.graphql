@@ -37,6 +37,11 @@ type WeeklyOffDay {
   day: WeeklyOffDayEnum!
 }
 
+type OpeningAndClosingHours {
+  opening: String
+  closing: String
+}
+
 type ShopAddress {
   id: ID!
   brunchName: String
@@ -49,6 +54,8 @@ type ShopAddress {
   country: String
   zipCode: String
   direction: String
+  isActive: Boolean
+  openingAndClosingHours: OpeningAndClosingHours
   isEveryDayOpen: Boolean
   weeklyOffDays: [WeeklyOffDay]
 }
@@ -89,6 +96,11 @@ input WeeklyOffDayInput {
   day: WeeklyOffDayEnum!
 }
 
+input OpeningAndClosingHoursInput {
+  opening: String
+  closing: String
+}
+
 input ShopAddressInput {
   id: ID
   brunchName: String
@@ -101,6 +113,8 @@ input ShopAddressInput {
   country: String
   zipCode: String
   direction: String
+  openingAndClosingHours: OpeningAndClosingHoursInput
+  isActive: Boolean
   isEveryDayOpen: Boolean
   weeklyOffDays: [WeeklyOffDayInput]
 }

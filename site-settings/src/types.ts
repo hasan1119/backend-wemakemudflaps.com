@@ -1552,6 +1552,17 @@ export type MutationVerifyEmailArgs = {
   userId: Scalars['ID']['input'];
 };
 
+export type OpeningAndClosingHours = {
+  __typename?: 'OpeningAndClosingHours';
+  closing?: Maybe<Scalars['String']['output']>;
+  opening?: Maybe<Scalars['String']['output']>;
+};
+
+export type OpeningAndClosingHoursInput = {
+  closing?: InputMaybe<Scalars['String']['input']>;
+  opening?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type PermissionAgainstRoleInput = {
   canCreate: Scalars['Boolean']['input'];
   canDelete: Scalars['Boolean']['input'];
@@ -2443,7 +2454,9 @@ export type ShopAddress = {
   direction?: Maybe<Scalars['String']['output']>;
   emails?: Maybe<Array<Maybe<ShopEmail>>>;
   id: Scalars['ID']['output'];
+  isActive?: Maybe<Scalars['Boolean']['output']>;
   isEveryDayOpen?: Maybe<Scalars['Boolean']['output']>;
+  openingAndClosingHours?: Maybe<OpeningAndClosingHours>;
   phones?: Maybe<Array<Maybe<ShopPhone>>>;
   state?: Maybe<Scalars['String']['output']>;
   weeklyOffDays?: Maybe<Array<Maybe<WeeklyOffDay>>>;
@@ -2459,7 +2472,9 @@ export type ShopAddressInput = {
   direction?: InputMaybe<Scalars['String']['input']>;
   emails?: InputMaybe<Array<InputMaybe<ShopEmailInput>>>;
   id?: InputMaybe<Scalars['ID']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
   isEveryDayOpen?: InputMaybe<Scalars['Boolean']['input']>;
+  openingAndClosingHours?: InputMaybe<OpeningAndClosingHoursInput>;
   phones?: InputMaybe<Array<InputMaybe<ShopPhoneInput>>>;
   state?: InputMaybe<Scalars['String']['input']>;
   weeklyOffDays?: InputMaybe<Array<InputMaybe<WeeklyOffDayInput>>>;
@@ -3412,6 +3427,8 @@ export type ResolversTypes = {
   MetaData: ResolverTypeWrapper<MetaData>;
   MetaDataInput: MetaDataInput;
   Mutation: ResolverTypeWrapper<{}>;
+  OpeningAndClosingHours: ResolverTypeWrapper<OpeningAndClosingHours>;
+  OpeningAndClosingHoursInput: OpeningAndClosingHoursInput;
   PermissionAgainstRoleInput: PermissionAgainstRoleInput;
   PermissionName: PermissionName;
   PermissionSession: ResolverTypeWrapper<PermissionSession>;
@@ -3690,6 +3707,8 @@ export type ResolversParentTypes = {
   MetaData: MetaData;
   MetaDataInput: MetaDataInput;
   Mutation: {};
+  OpeningAndClosingHours: OpeningAndClosingHours;
+  OpeningAndClosingHoursInput: OpeningAndClosingHoursInput;
   PermissionAgainstRoleInput: PermissionAgainstRoleInput;
   PermissionSession: PermissionSession;
   Permissions: Permissions;
@@ -4645,6 +4664,12 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email' | 'sessionId' | 'userId'>>;
 };
 
+export type OpeningAndClosingHoursResolvers<ContextType = Context, ParentType extends ResolversParentTypes['OpeningAndClosingHours'] = ResolversParentTypes['OpeningAndClosingHours']> = {
+  closing?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  opening?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type PermissionSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PermissionSession'] = ResolversParentTypes['PermissionSession']> = {
   canCreate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   canDelete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -5162,7 +5187,9 @@ export type ShopAddressResolvers<ContextType = Context, ParentType extends Resol
   direction?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   emails?: Resolver<Maybe<Array<Maybe<ResolversTypes['ShopEmail']>>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isEveryDayOpen?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  openingAndClosingHours?: Resolver<Maybe<ResolversTypes['OpeningAndClosingHours']>, ParentType, ContextType>;
   phones?: Resolver<Maybe<Array<Maybe<ResolversTypes['ShopPhone']>>>, ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   weeklyOffDays?: Resolver<Maybe<Array<Maybe<ResolversTypes['WeeklyOffDay']>>>, ParentType, ContextType>;
@@ -5807,6 +5834,7 @@ export type Resolvers<ContextType = Context> = {
   MediasResponse?: MediasResponseResolvers<ContextType>;
   MetaData?: MetaDataResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  OpeningAndClosingHours?: OpeningAndClosingHoursResolvers<ContextType>;
   PermissionSession?: PermissionSessionResolvers<ContextType>;
   Permissions?: PermissionsResolvers<ContextType>;
   PermissionsResponse?: PermissionsResponseResolvers<ContextType>;

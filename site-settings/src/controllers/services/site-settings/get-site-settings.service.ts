@@ -73,7 +73,8 @@ interface ShopAddress {
 export const getShopAddresses = async (
   page: number,
   limit: number,
-  search?: string
+  search?: string,
+  user?: any
 ): Promise<{ data: ShopAddress[]; total: number }> => {
   const siteSettings = await siteSettingsRepository.findOne({
     where: { deletedAt: null },

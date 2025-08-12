@@ -277,6 +277,10 @@ export type CreateCouponResponseOrError = BaseResponse | CouponResponse | ErrorR
 
 export type CreateFaqResponseOrError = BaseResponse | ErrorResponse | FaqResponse;
 
+export type CreateOrUpdateShopAddressResponseOrError = BaseResponse | ErrorResponse | ShopAddressResponse;
+
+export type CreateOrUpdateSiteSettingsResponseOrError = BaseResponse | ErrorResponse | SiteSettingsResponse;
+
 export type CreateProductAttributeResponseOrError = BaseResponse | ErrorResponse | ProductAttributeResponse;
 
 export type CreateProductResponseOrError = BaseResponse | ErrorResponse | ProductResponse;
@@ -290,8 +294,6 @@ export type CreateShippingClassResponseOrError = BaseResponse | ErrorResponse | 
 export type CreateShippingMethodResponseOrError = BaseResponse | ErrorResponse | ShippingMethodResponse;
 
 export type CreateShippingZoneResponseOrError = BaseResponse | ErrorResponse | ShippingZoneResponse;
-
-export type CreateSiteSettingsResponseOrError = BaseResponse | ErrorResponse | SiteSettingsResponse;
 
 export type CreateTagResponseOrError = BaseResponse | ErrorResponse | TagResponse;
 
@@ -571,6 +573,8 @@ export type GetShippingZoneByIdResponseOrError = BaseResponse | ErrorResponse | 
 
 export type GetShippingZonesResponseOrError = BaseResponse | ErrorResponse | ShippingZonePaginationResponse;
 
+export type GetShopAddressesResponseOrError = BaseResponse | ErrorResponse | ShopAddressesResponse;
+
 export type GetSiteSettingsResponseOrError = BaseResponse | ErrorResponse | SiteSettingsResponse;
 
 export type GetTagByIdResponseOrError = BaseResponse | ErrorResponse | TagResponse;
@@ -825,13 +829,14 @@ export type Mutation = {
   createCategory: CreateCategoryResponseOrError;
   createCoupon: CreateCouponResponseOrError;
   createFaq: CreateFaqResponseOrError;
+  createOrUpdateShopAddress: CreateOrUpdateShopAddressResponseOrError;
+  createOrUpdateSiteSetting: CreateOrUpdateSiteSettingsResponseOrError;
   createProduct: CreateProductResponseOrError;
   createProductAttribute: ProductAttributeResponse;
   createReview?: Maybe<Scalars['String']['output']>;
   createShippingClass: CreateShippingClassResponseOrError;
   createShippingMethod: CreateShippingMethodResponseOrError;
   createShippingZone: CreateShippingZoneResponseOrError;
-  createSiteSetting: CreateSiteSettingsResponseOrError;
   createSystemProductAttribute: ProductAttributeResponse;
   createTag: CreateTagResponseOrError;
   createTaxClass: CreateTaxClassResponseOrError;
@@ -851,6 +856,7 @@ export type Mutation = {
   deleteShippingClass: DeleteShippingClassResponseOrError;
   deleteShippingMethod: DeleteShippingMethodResponseOrError;
   deleteShippingZone: DeleteShippingZoneResponseOrError;
+  deleteShopAddresses: BaseResponse;
   deleteTag: DeleteTagResponseOrError;
   deleteTaxClass: DeleteTaxClassResponseOrError;
   deleteTaxRate: DeleteTaxRateResponseOrError;
@@ -884,7 +890,6 @@ export type Mutation = {
   updateShippingClass: UpdateShippingClassResponseOrError;
   updateShippingMethod: UpdateShippingMethodResponseOrError;
   updateShippingZone: UpdateShippingZoneResponseOrError;
-  updateSiteSetting: UpdateSiteSettingsResponseOrError;
   updateTag: UpdateTagResponseOrError;
   updateTaxClass: UpdateTaxClassResponseOrError;
   updateTaxExemptionEntry: UpdateTaxExemptionResponseOrError;
@@ -982,6 +987,23 @@ export type MutationCreateFaqArgs = {
 };
 
 
+export type MutationCreateOrUpdateShopAddressArgs = {
+  input: ShopAddressInput;
+};
+
+
+export type MutationCreateOrUpdateSiteSettingArgs = {
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  contactNumber?: InputMaybe<Scalars['String']['input']>;
+  favIcon?: InputMaybe<Scalars['String']['input']>;
+  logo?: InputMaybe<Scalars['String']['input']>;
+  metaData?: InputMaybe<MetaDataInput>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  privacyPolicy?: InputMaybe<Scalars['String']['input']>;
+  termsAndConditions?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationCreateProductAttributeArgs = {
   forVariation?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
@@ -1015,19 +1037,6 @@ export type MutationCreateShippingZoneArgs = {
   name: Scalars['String']['input'];
   regions: Array<Scalars['String']['input']>;
   zipCodes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-
-export type MutationCreateSiteSettingArgs = {
-  contactEmail?: InputMaybe<Scalars['String']['input']>;
-  contactNumber?: InputMaybe<Scalars['String']['input']>;
-  favIcon?: InputMaybe<Scalars['String']['input']>;
-  logo?: InputMaybe<Scalars['String']['input']>;
-  metaData?: InputMaybe<MetaDataInput>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  privacyPolicy?: InputMaybe<Scalars['String']['input']>;
-  shopAddress?: InputMaybe<ShopAddressInput>;
-  termsAndConditions?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1158,6 +1167,11 @@ export type MutationDeleteShippingMethodArgs = {
 
 export type MutationDeleteShippingZoneArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteShopAddressesArgs = {
+  ids: Array<Scalars['ID']['input']>;
 };
 
 
@@ -1451,19 +1465,6 @@ export type MutationUpdateShippingZoneArgs = {
 };
 
 
-export type MutationUpdateSiteSettingArgs = {
-  contactEmail?: InputMaybe<Scalars['String']['input']>;
-  contactNumber?: InputMaybe<Scalars['String']['input']>;
-  favIcon?: InputMaybe<Scalars['String']['input']>;
-  logo?: InputMaybe<Scalars['String']['input']>;
-  metaData?: InputMaybe<MetaDataInput>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  privacyPolicy?: InputMaybe<Scalars['String']['input']>;
-  shopAddress?: InputMaybe<ShopAddressInput>;
-  termsAndConditions?: InputMaybe<Scalars['String']['input']>;
-};
-
-
 export type MutationUpdateTagArgs = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
@@ -1549,6 +1550,17 @@ export type MutationVerifyEmailArgs = {
   email: Scalars['String']['input'];
   sessionId: Scalars['String']['input'];
   userId: Scalars['ID']['input'];
+};
+
+export type OpeningAndClosingHours = {
+  __typename?: 'OpeningAndClosingHours';
+  closing?: Maybe<Scalars['String']['output']>;
+  opening?: Maybe<Scalars['String']['output']>;
+};
+
+export type OpeningAndClosingHoursInput = {
+  closing?: InputMaybe<Scalars['String']['input']>;
+  opening?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type PermissionAgainstRoleInput = {
@@ -1949,6 +1961,7 @@ export type Query = {
   getShippingClassById: GetShippingClassByIdResponseOrError;
   getShippingMethodById: GetShippingMethodByIdResponseOrError;
   getShippingZoneById: GetShippingZoneByIdResponseOrError;
+  getShopAddresses: GetShopAddressesResponseOrError;
   getSiteSettings: GetSiteSettingsResponseOrError;
   getTagById: GetTagByIdResponseOrError;
   getTaxClassById: GetTaxClassByIdResponseOrError;
@@ -2212,6 +2225,13 @@ export type QueryGetShippingZoneByIdArgs = {
 };
 
 
+export type QueryGetShopAddressesArgs = {
+  limit: Scalars['Int']['input'];
+  page: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryGetTagByIdArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2428,20 +2448,91 @@ export type ShopAddress = {
   __typename?: 'ShopAddress';
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
+  brunchName?: Maybe<Scalars['String']['output']>;
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<Scalars['String']['output']>;
+  direction?: Maybe<Scalars['String']['output']>;
+  emails?: Maybe<Array<Maybe<ShopEmail>>>;
+  id: Scalars['ID']['output'];
+  isActive?: Maybe<Scalars['Boolean']['output']>;
+  isEveryDayOpen?: Maybe<Scalars['Boolean']['output']>;
+  openingAndClosingHours?: Maybe<OpeningAndClosingHours>;
+  phones?: Maybe<Array<Maybe<ShopPhone>>>;
   state?: Maybe<Scalars['String']['output']>;
+  weeklyOffDays?: Maybe<Array<Maybe<WeeklyOffDay>>>;
   zipCode?: Maybe<Scalars['String']['output']>;
 };
 
 export type ShopAddressInput = {
   addressLine1?: InputMaybe<Scalars['String']['input']>;
   addressLine2?: InputMaybe<Scalars['String']['input']>;
+  brunchName?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
+  direction?: InputMaybe<Scalars['String']['input']>;
+  emails?: InputMaybe<Array<InputMaybe<ShopEmailInput>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  isEveryDayOpen?: InputMaybe<Scalars['Boolean']['input']>;
+  openingAndClosingHours?: InputMaybe<OpeningAndClosingHoursInput>;
+  phones?: InputMaybe<Array<InputMaybe<ShopPhoneInput>>>;
   state?: InputMaybe<Scalars['String']['input']>;
+  weeklyOffDays?: InputMaybe<Array<InputMaybe<WeeklyOffDayInput>>>;
   zipCode?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type ShopAddressResponse = {
+  __typename?: 'ShopAddressResponse';
+  message: Scalars['String']['output'];
+  shopAddress: ShopAddress;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
+export type ShopAddressesResponse = {
+  __typename?: 'ShopAddressesResponse';
+  message: Scalars['String']['output'];
+  shopAddresses: Array<ShopAddress>;
+  statusCode: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type ShopEmail = {
+  __typename?: 'ShopEmail';
+  email: Scalars['String']['output'];
+  type: ShopEmailType;
+};
+
+export type ShopEmailInput = {
+  email: Scalars['String']['input'];
+  type: ShopEmailType;
+};
+
+export enum ShopEmailType {
+  Complain = 'Complain',
+  Corporate = 'Corporate',
+  Other = 'Other',
+  Support = 'Support'
+}
+
+export type ShopPhone = {
+  __typename?: 'ShopPhone';
+  number: Scalars['String']['output'];
+  type: ShopPhoneType;
+};
+
+export type ShopPhoneInput = {
+  number: Scalars['String']['input'];
+  type: ShopPhoneType;
+};
+
+export enum ShopPhoneType {
+  Fax = 'Fax',
+  Landline = 'Landline',
+  Mobile = 'Mobile',
+  Other = 'Other'
+}
 
 export type SinglePermissionInput = {
   canCreate?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2465,7 +2556,6 @@ export type SiteSettings = {
   metaData?: Maybe<MetaData>;
   name?: Maybe<Scalars['String']['output']>;
   privacyPolicy?: Maybe<Scalars['String']['output']>;
-  shopAddress?: Maybe<ShopAddress>;
   termsAndConditions?: Maybe<Scalars['String']['output']>;
 };
 
@@ -2705,8 +2795,6 @@ export type UpdateShippingMethodResponseOrError = BaseResponse | ErrorResponse |
 
 export type UpdateShippingZoneResponseOrError = BaseResponse | ErrorResponse | ShippingZoneResponse;
 
-export type UpdateSiteSettingsResponseOrError = BaseResponse | ErrorResponse | SiteSettingsResponse;
-
 export type UpdateTagResponseOrError = BaseResponse | ErrorResponse | TagResponse;
 
 export type UpdateTaxClassResponseOrError = BaseResponse | ErrorResponse | TaxClassResponse;
@@ -2932,6 +3020,25 @@ export type UsersResponse = {
   users: Array<User>;
 };
 
+export type WeeklyOffDay = {
+  __typename?: 'WeeklyOffDay';
+  day: WeeklyOffDayEnum;
+};
+
+export enum WeeklyOffDayEnum {
+  Friday = 'Friday',
+  Monday = 'Monday',
+  Saturday = 'Saturday',
+  Sunday = 'Sunday',
+  Thursday = 'Thursday',
+  Tuesday = 'Tuesday',
+  Wednesday = 'Wednesday'
+}
+
+export type WeeklyOffDayInput = {
+  day: WeeklyOffDayEnum;
+};
+
 export enum WeightUnit {
   Carat = 'CARAT',
   Grain = 'GRAIN',
@@ -3059,6 +3166,8 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   CreateCategoryResponseOrError: ( BaseResponse ) | ( CategoryResponse ) | ( ErrorResponse );
   CreateCouponResponseOrError: ( BaseResponse ) | ( CouponResponse ) | ( ErrorResponse );
   CreateFaqResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( FaqResponse );
+  CreateOrUpdateShopAddressResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShopAddressResponse );
+  CreateOrUpdateSiteSettingsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( SiteSettingsResponse );
   CreateProductAttributeResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductAttributeResponse );
   CreateProductResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductResponse );
   CreateProductReviewResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ProductReviewResponse );
@@ -3066,7 +3175,6 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   CreateShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
   CreateShippingMethodResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingMethodResponse );
   CreateShippingZoneResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingZoneResponse );
-  CreateSiteSettingsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( SiteSettingsResponse );
   CreateTagResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagResponse );
   CreateTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxClassResponse );
   CreateTaxExemptionResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxExemptionResponse );
@@ -3119,6 +3227,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   GetShippingMethodsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingMethodPaginationResponse );
   GetShippingZoneByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingZoneResponse );
   GetShippingZonesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingZonePaginationResponse );
+  GetShopAddressesResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShopAddressesResponse );
   GetSiteSettingsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( SiteSettingsResponse );
   GetTagByIDResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagResponse );
   GetTagsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagPaginationResponse );
@@ -3156,7 +3265,6 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
   UpdateShippingClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingClassResponse );
   UpdateShippingMethodResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingMethodResponse );
   UpdateShippingZoneResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( ShippingZoneResponse );
-  UpdateSiteSettingsResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( SiteSettingsResponse );
   UpdateTagResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TagResponse );
   UpdateTaxClassResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxClassResponse );
   UpdateTaxExemptionResponseOrError: ( BaseResponse ) | ( ErrorResponse ) | ( TaxExemptionResponse );
@@ -3210,6 +3318,8 @@ export type ResolversTypes = {
   CreateCategoryResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateCategoryResponseOrError']>;
   CreateCouponResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateCouponResponseOrError']>;
   CreateFaqResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateFaqResponseOrError']>;
+  CreateOrUpdateShopAddressResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateOrUpdateShopAddressResponseOrError']>;
+  CreateOrUpdateSiteSettingsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateOrUpdateSiteSettingsResponseOrError']>;
   CreateProductAttributeResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateProductAttributeResponseOrError']>;
   CreateProductResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateProductResponseOrError']>;
   CreateProductReviewResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateProductReviewResponseOrError']>;
@@ -3217,7 +3327,6 @@ export type ResolversTypes = {
   CreateShippingClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateShippingClassResponseOrError']>;
   CreateShippingMethodResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateShippingMethodResponseOrError']>;
   CreateShippingZoneResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateShippingZoneResponseOrError']>;
-  CreateSiteSettingsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateSiteSettingsResponseOrError']>;
   CreateTagResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTagResponseOrError']>;
   CreateTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTaxClassResponseOrError']>;
   CreateTaxExemptionResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTaxExemptionResponseOrError']>;
@@ -3291,6 +3400,7 @@ export type ResolversTypes = {
   GetShippingMethodsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetShippingMethodsResponseOrError']>;
   GetShippingZoneByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetShippingZoneByIDResponseOrError']>;
   GetShippingZonesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetShippingZonesResponseOrError']>;
+  GetShopAddressesResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetShopAddressesResponseOrError']>;
   GetSiteSettingsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetSiteSettingsResponseOrError']>;
   GetTagByIDResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTagByIDResponseOrError']>;
   GetTagsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['GetTagsResponseOrError']>;
@@ -3317,6 +3427,8 @@ export type ResolversTypes = {
   MetaData: ResolverTypeWrapper<MetaData>;
   MetaDataInput: MetaDataInput;
   Mutation: ResolverTypeWrapper<{}>;
+  OpeningAndClosingHours: ResolverTypeWrapper<OpeningAndClosingHours>;
+  OpeningAndClosingHoursInput: OpeningAndClosingHoursInput;
   PermissionAgainstRoleInput: PermissionAgainstRoleInput;
   PermissionName: PermissionName;
   PermissionSession: ResolverTypeWrapper<PermissionSession>;
@@ -3373,6 +3485,14 @@ export type ResolversTypes = {
   ShippingZoneResponse: ResolverTypeWrapper<ShippingZoneResponse>;
   ShopAddress: ResolverTypeWrapper<ShopAddress>;
   ShopAddressInput: ShopAddressInput;
+  ShopAddressResponse: ResolverTypeWrapper<ShopAddressResponse>;
+  ShopAddressesResponse: ResolverTypeWrapper<ShopAddressesResponse>;
+  ShopEmail: ResolverTypeWrapper<ShopEmail>;
+  ShopEmailInput: ShopEmailInput;
+  ShopEmailType: ShopEmailType;
+  ShopPhone: ResolverTypeWrapper<ShopPhone>;
+  ShopPhoneInput: ShopPhoneInput;
+  ShopPhoneType: ShopPhoneType;
   SinglePermissionInput: SinglePermissionInput;
   SiteSettings: ResolverTypeWrapper<SiteSettings>;
   SiteSettingsResponse: ResolverTypeWrapper<SiteSettingsResponse>;
@@ -3409,7 +3529,6 @@ export type ResolversTypes = {
   UpdateShippingClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateShippingClassResponseOrError']>;
   UpdateShippingMethodResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateShippingMethodResponseOrError']>;
   UpdateShippingZoneResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateShippingZoneResponseOrError']>;
-  UpdateSiteSettingsResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateSiteSettingsResponseOrError']>;
   UpdateTagResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTagResponseOrError']>;
   UpdateTaxClassResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxClassResponseOrError']>;
   UpdateTaxExemptionResponseOrError: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['UpdateTaxExemptionResponseOrError']>;
@@ -3436,6 +3555,9 @@ export type ResolversTypes = {
   UserSessionById: ResolverTypeWrapper<UserSessionById>;
   UserSessionRoleObject: ResolverTypeWrapper<UserSessionRoleObject>;
   UsersResponse: ResolverTypeWrapper<UsersResponse>;
+  WeeklyOffDay: ResolverTypeWrapper<WeeklyOffDay>;
+  WeeklyOffDayEnum: WeeklyOffDayEnum;
+  WeeklyOffDayInput: WeeklyOffDayInput;
   WeightUnit: WeightUnit;
   Wishlist: ResolverTypeWrapper<Wishlist>;
   WishlistItems: ResolverTypeWrapper<WishlistItems>;
@@ -3483,6 +3605,8 @@ export type ResolversParentTypes = {
   CreateCategoryResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateCategoryResponseOrError'];
   CreateCouponResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateCouponResponseOrError'];
   CreateFaqResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateFaqResponseOrError'];
+  CreateOrUpdateShopAddressResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateOrUpdateShopAddressResponseOrError'];
+  CreateOrUpdateSiteSettingsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateOrUpdateSiteSettingsResponseOrError'];
   CreateProductAttributeResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateProductAttributeResponseOrError'];
   CreateProductResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateProductResponseOrError'];
   CreateProductReviewResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateProductReviewResponseOrError'];
@@ -3490,7 +3614,6 @@ export type ResolversParentTypes = {
   CreateShippingClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateShippingClassResponseOrError'];
   CreateShippingMethodResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateShippingMethodResponseOrError'];
   CreateShippingZoneResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateShippingZoneResponseOrError'];
-  CreateSiteSettingsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateSiteSettingsResponseOrError'];
   CreateTagResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateTagResponseOrError'];
   CreateTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateTaxClassResponseOrError'];
   CreateTaxExemptionResponseOrError: ResolversUnionTypes<ResolversParentTypes>['CreateTaxExemptionResponseOrError'];
@@ -3559,6 +3682,7 @@ export type ResolversParentTypes = {
   GetShippingMethodsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetShippingMethodsResponseOrError'];
   GetShippingZoneByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetShippingZoneByIDResponseOrError'];
   GetShippingZonesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetShippingZonesResponseOrError'];
+  GetShopAddressesResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetShopAddressesResponseOrError'];
   GetSiteSettingsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetSiteSettingsResponseOrError'];
   GetTagByIDResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTagByIDResponseOrError'];
   GetTagsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['GetTagsResponseOrError'];
@@ -3583,6 +3707,8 @@ export type ResolversParentTypes = {
   MetaData: MetaData;
   MetaDataInput: MetaDataInput;
   Mutation: {};
+  OpeningAndClosingHours: OpeningAndClosingHours;
+  OpeningAndClosingHoursInput: OpeningAndClosingHoursInput;
   PermissionAgainstRoleInput: PermissionAgainstRoleInput;
   PermissionSession: PermissionSession;
   Permissions: Permissions;
@@ -3636,6 +3762,12 @@ export type ResolversParentTypes = {
   ShippingZoneResponse: ShippingZoneResponse;
   ShopAddress: ShopAddress;
   ShopAddressInput: ShopAddressInput;
+  ShopAddressResponse: ShopAddressResponse;
+  ShopAddressesResponse: ShopAddressesResponse;
+  ShopEmail: ShopEmail;
+  ShopEmailInput: ShopEmailInput;
+  ShopPhone: ShopPhone;
+  ShopPhoneInput: ShopPhoneInput;
   SinglePermissionInput: SinglePermissionInput;
   SiteSettings: SiteSettings;
   SiteSettingsResponse: SiteSettingsResponse;
@@ -3669,7 +3801,6 @@ export type ResolversParentTypes = {
   UpdateShippingClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateShippingClassResponseOrError'];
   UpdateShippingMethodResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateShippingMethodResponseOrError'];
   UpdateShippingZoneResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateShippingZoneResponseOrError'];
-  UpdateSiteSettingsResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateSiteSettingsResponseOrError'];
   UpdateTagResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTagResponseOrError'];
   UpdateTaxClassResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxClassResponseOrError'];
   UpdateTaxExemptionResponseOrError: ResolversUnionTypes<ResolversParentTypes>['UpdateTaxExemptionResponseOrError'];
@@ -3696,6 +3827,8 @@ export type ResolversParentTypes = {
   UserSessionById: UserSessionById;
   UserSessionRoleObject: UserSessionRoleObject;
   UsersResponse: UsersResponse;
+  WeeklyOffDay: WeeklyOffDay;
+  WeeklyOffDayInput: WeeklyOffDayInput;
   Wishlist: Wishlist;
   WishlistItems: WishlistItems;
   WishlistResponse: WishlistResponse;
@@ -3963,6 +4096,14 @@ export type CreateFaqResponseOrErrorResolvers<ContextType = Context, ParentType 
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'FaqResponse', ParentType, ContextType>;
 };
 
+export type CreateOrUpdateShopAddressResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateOrUpdateShopAddressResponseOrError'] = ResolversParentTypes['CreateOrUpdateShopAddressResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShopAddressResponse', ParentType, ContextType>;
+};
+
+export type CreateOrUpdateSiteSettingsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateOrUpdateSiteSettingsResponseOrError'] = ResolversParentTypes['CreateOrUpdateSiteSettingsResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'SiteSettingsResponse', ParentType, ContextType>;
+};
+
 export type CreateProductAttributeResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateProductAttributeResponseOrError'] = ResolversParentTypes['CreateProductAttributeResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ProductAttributeResponse', ParentType, ContextType>;
 };
@@ -3989,10 +4130,6 @@ export type CreateShippingMethodResponseOrErrorResolvers<ContextType = Context, 
 
 export type CreateShippingZoneResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateShippingZoneResponseOrError'] = ResolversParentTypes['CreateShippingZoneResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingZoneResponse', ParentType, ContextType>;
-};
-
-export type CreateSiteSettingsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateSiteSettingsResponseOrError'] = ResolversParentTypes['CreateSiteSettingsResponseOrError']> = {
-  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'SiteSettingsResponse', ParentType, ContextType>;
 };
 
 export type CreateTagResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CreateTagResponseOrError'] = ResolversParentTypes['CreateTagResponseOrError']> = {
@@ -4306,6 +4443,10 @@ export type GetShippingZonesResponseOrErrorResolvers<ContextType = Context, Pare
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingZonePaginationResponse', ParentType, ContextType>;
 };
 
+export type GetShopAddressesResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetShopAddressesResponseOrError'] = ResolversParentTypes['GetShopAddressesResponseOrError']> = {
+  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShopAddressesResponse', ParentType, ContextType>;
+};
+
 export type GetSiteSettingsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetSiteSettingsResponseOrError'] = ResolversParentTypes['GetSiteSettingsResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'SiteSettingsResponse', ParentType, ContextType>;
 };
@@ -4450,13 +4591,14 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createCategory?: Resolver<ResolversTypes['CreateCategoryResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name' | 'slug'>>;
   createCoupon?: Resolver<ResolversTypes['CreateCouponResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateCouponArgs, 'code' | 'discountType' | 'discountValue'>>;
   createFaq?: Resolver<ResolversTypes['CreateFaqResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateFaqArgs, 'answer' | 'question'>>;
+  createOrUpdateShopAddress?: Resolver<ResolversTypes['CreateOrUpdateShopAddressResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateOrUpdateShopAddressArgs, 'input'>>;
+  createOrUpdateSiteSetting?: Resolver<ResolversTypes['CreateOrUpdateSiteSettingsResponseOrError'], ParentType, ContextType, Partial<MutationCreateOrUpdateSiteSettingArgs>>;
   createProduct?: Resolver<ResolversTypes['CreateProductResponseOrError'], ParentType, ContextType>;
   createProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createReview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createShippingClass?: Resolver<ResolversTypes['CreateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingClassArgs, 'value'>>;
   createShippingMethod?: Resolver<ResolversTypes['CreateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingMethodArgs, 'shippingZoneId' | 'title'>>;
   createShippingZone?: Resolver<ResolversTypes['CreateShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateShippingZoneArgs, 'name' | 'regions'>>;
-  createSiteSetting?: Resolver<ResolversTypes['CreateSiteSettingsResponseOrError'], ParentType, ContextType, Partial<MutationCreateSiteSettingArgs>>;
   createSystemProductAttribute?: Resolver<ResolversTypes['ProductAttributeResponse'], ParentType, ContextType, RequireFields<MutationCreateSystemProductAttributeArgs, 'name' | 'slug' | 'values'>>;
   createTag?: Resolver<ResolversTypes['CreateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTagArgs, 'name' | 'slug'>>;
   createTaxClass?: Resolver<ResolversTypes['CreateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationCreateTaxClassArgs, 'value'>>;
@@ -4476,6 +4618,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteShippingClass?: Resolver<ResolversTypes['DeleteShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingClassArgs, 'ids' | 'skipTrash'>>;
   deleteShippingMethod?: Resolver<ResolversTypes['DeleteShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingMethodArgs, 'id'>>;
   deleteShippingZone?: Resolver<ResolversTypes['DeleteShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteShippingZoneArgs, 'id'>>;
+  deleteShopAddresses?: Resolver<ResolversTypes['BaseResponse'], ParentType, ContextType, RequireFields<MutationDeleteShopAddressesArgs, 'ids'>>;
   deleteTag?: Resolver<ResolversTypes['DeleteTagResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTagArgs, 'ids' | 'skipTrash'>>;
   deleteTaxClass?: Resolver<ResolversTypes['DeleteTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTaxClassArgs, 'ids' | 'skipTrash'>>;
   deleteTaxRate?: Resolver<ResolversTypes['DeleteTaxRateResponseOrError'], ParentType, ContextType, RequireFields<MutationDeleteTaxRateArgs, 'ids' | 'skipTrash'>>;
@@ -4509,7 +4652,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateShippingClass?: Resolver<ResolversTypes['UpdateShippingClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingClassArgs, 'id'>>;
   updateShippingMethod?: Resolver<ResolversTypes['UpdateShippingMethodResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingMethodArgs, 'id' | 'shippingZoneId'>>;
   updateShippingZone?: Resolver<ResolversTypes['UpdateShippingZoneResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateShippingZoneArgs, 'id'>>;
-  updateSiteSetting?: Resolver<ResolversTypes['UpdateSiteSettingsResponseOrError'], ParentType, ContextType, Partial<MutationUpdateSiteSettingArgs>>;
   updateTag?: Resolver<ResolversTypes['UpdateTagResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTagArgs, 'id'>>;
   updateTaxClass?: Resolver<ResolversTypes['UpdateTaxClassResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxClassArgs, 'id'>>;
   updateTaxExemptionEntry?: Resolver<ResolversTypes['UpdateTaxExemptionResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateTaxExemptionEntryArgs, 'id' | 'userId'>>;
@@ -4520,6 +4662,12 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   updateUserRoleInfo?: Resolver<ResolversTypes['UpdateRoleResponseOrError'], ParentType, ContextType, RequireFields<MutationUpdateUserRoleInfoArgs, 'id'>>;
   uploadMediaFiles?: Resolver<ResolversTypes['UploadMediaResponseOrError'], ParentType, ContextType, RequireFields<MutationUploadMediaFilesArgs, 'inputs'>>;
   verifyEmail?: Resolver<ResolversTypes['EmailVerificationResponseOrError'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email' | 'sessionId' | 'userId'>>;
+};
+
+export type OpeningAndClosingHoursResolvers<ContextType = Context, ParentType extends ResolversParentTypes['OpeningAndClosingHours'] = ResolversParentTypes['OpeningAndClosingHours']> = {
+  closing?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  opening?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type PermissionSessionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PermissionSession'] = ResolversParentTypes['PermissionSession']> = {
@@ -4815,6 +4963,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   getShippingClassById?: Resolver<ResolversTypes['GetShippingClassByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetShippingClassByIdArgs, 'id'>>;
   getShippingMethodById?: Resolver<ResolversTypes['GetShippingMethodByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetShippingMethodByIdArgs, 'id'>>;
   getShippingZoneById?: Resolver<ResolversTypes['GetShippingZoneByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetShippingZoneByIdArgs, 'id'>>;
+  getShopAddresses?: Resolver<ResolversTypes['GetShopAddressesResponseOrError'], ParentType, ContextType, RequireFields<QueryGetShopAddressesArgs, 'limit' | 'page'>>;
   getSiteSettings?: Resolver<ResolversTypes['GetSiteSettingsResponseOrError'], ParentType, ContextType>;
   getTagById?: Resolver<ResolversTypes['GetTagByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTagByIdArgs, 'id'>>;
   getTaxClassById?: Resolver<ResolversTypes['GetTaxClassByIDResponseOrError'], ParentType, ContextType, RequireFields<QueryGetTaxClassByIdArgs, 'id'>>;
@@ -5032,10 +5181,48 @@ export type ShippingZoneResponseResolvers<ContextType = Context, ParentType exte
 export type ShopAddressResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShopAddress'] = ResolversParentTypes['ShopAddress']> = {
   addressLine1?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   addressLine2?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  brunchName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  direction?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  emails?: Resolver<Maybe<Array<Maybe<ResolversTypes['ShopEmail']>>>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  isEveryDayOpen?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  openingAndClosingHours?: Resolver<Maybe<ResolversTypes['OpeningAndClosingHours']>, ParentType, ContextType>;
+  phones?: Resolver<Maybe<Array<Maybe<ResolversTypes['ShopPhone']>>>, ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  weeklyOffDays?: Resolver<Maybe<Array<Maybe<ResolversTypes['WeeklyOffDay']>>>, ParentType, ContextType>;
   zipCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ShopAddressResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShopAddressResponse'] = ResolversParentTypes['ShopAddressResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  shopAddress?: Resolver<ResolversTypes['ShopAddress'], ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ShopAddressesResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShopAddressesResponse'] = ResolversParentTypes['ShopAddressesResponse']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  shopAddresses?: Resolver<Array<ResolversTypes['ShopAddress']>, ParentType, ContextType>;
+  statusCode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ShopEmailResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShopEmail'] = ResolversParentTypes['ShopEmail']> = {
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['ShopEmailType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ShopPhoneResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShopPhone'] = ResolversParentTypes['ShopPhone']> = {
+  number?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['ShopPhoneType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5051,7 +5238,6 @@ export type SiteSettingsResolvers<ContextType = Context, ParentType extends Reso
   metaData?: Resolver<Maybe<ResolversTypes['MetaData']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   privacyPolicy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  shopAddress?: Resolver<Maybe<ResolversTypes['ShopAddress']>, ParentType, ContextType>;
   termsAndConditions?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -5288,10 +5474,6 @@ export type UpdateShippingZoneResponseOrErrorResolvers<ContextType = Context, Pa
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'ShippingZoneResponse', ParentType, ContextType>;
 };
 
-export type UpdateSiteSettingsResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateSiteSettingsResponseOrError'] = ResolversParentTypes['UpdateSiteSettingsResponseOrError']> = {
-  __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'SiteSettingsResponse', ParentType, ContextType>;
-};
-
 export type UpdateTagResponseOrErrorResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UpdateTagResponseOrError'] = ResolversParentTypes['UpdateTagResponseOrError']> = {
   __resolveType: TypeResolveFn<'BaseResponse' | 'ErrorResponse' | 'TagResponse', ParentType, ContextType>;
 };
@@ -5497,6 +5679,11 @@ export type UsersResponseResolvers<ContextType = Context, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WeeklyOffDayResolvers<ContextType = Context, ParentType extends ResolversParentTypes['WeeklyOffDay'] = ResolversParentTypes['WeeklyOffDay']> = {
+  day?: Resolver<ResolversTypes['WeeklyOffDayEnum'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type WishlistResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Wishlist'] = ResolversParentTypes['Wishlist']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
@@ -5553,6 +5740,8 @@ export type Resolvers<ContextType = Context> = {
   CreateCategoryResponseOrError?: CreateCategoryResponseOrErrorResolvers<ContextType>;
   CreateCouponResponseOrError?: CreateCouponResponseOrErrorResolvers<ContextType>;
   CreateFaqResponseOrError?: CreateFaqResponseOrErrorResolvers<ContextType>;
+  CreateOrUpdateShopAddressResponseOrError?: CreateOrUpdateShopAddressResponseOrErrorResolvers<ContextType>;
+  CreateOrUpdateSiteSettingsResponseOrError?: CreateOrUpdateSiteSettingsResponseOrErrorResolvers<ContextType>;
   CreateProductAttributeResponseOrError?: CreateProductAttributeResponseOrErrorResolvers<ContextType>;
   CreateProductResponseOrError?: CreateProductResponseOrErrorResolvers<ContextType>;
   CreateProductReviewResponseOrError?: CreateProductReviewResponseOrErrorResolvers<ContextType>;
@@ -5560,7 +5749,6 @@ export type Resolvers<ContextType = Context> = {
   CreateShippingClassResponseOrError?: CreateShippingClassResponseOrErrorResolvers<ContextType>;
   CreateShippingMethodResponseOrError?: CreateShippingMethodResponseOrErrorResolvers<ContextType>;
   CreateShippingZoneResponseOrError?: CreateShippingZoneResponseOrErrorResolvers<ContextType>;
-  CreateSiteSettingsResponseOrError?: CreateSiteSettingsResponseOrErrorResolvers<ContextType>;
   CreateTagResponseOrError?: CreateTagResponseOrErrorResolvers<ContextType>;
   CreateTaxClassResponseOrError?: CreateTaxClassResponseOrErrorResolvers<ContextType>;
   CreateTaxExemptionResponseOrError?: CreateTaxExemptionResponseOrErrorResolvers<ContextType>;
@@ -5625,6 +5813,7 @@ export type Resolvers<ContextType = Context> = {
   GetShippingMethodsResponseOrError?: GetShippingMethodsResponseOrErrorResolvers<ContextType>;
   GetShippingZoneByIDResponseOrError?: GetShippingZoneByIdResponseOrErrorResolvers<ContextType>;
   GetShippingZonesResponseOrError?: GetShippingZonesResponseOrErrorResolvers<ContextType>;
+  GetShopAddressesResponseOrError?: GetShopAddressesResponseOrErrorResolvers<ContextType>;
   GetSiteSettingsResponseOrError?: GetSiteSettingsResponseOrErrorResolvers<ContextType>;
   GetTagByIDResponseOrError?: GetTagByIdResponseOrErrorResolvers<ContextType>;
   GetTagsResponseOrError?: GetTagsResponseOrErrorResolvers<ContextType>;
@@ -5645,6 +5834,7 @@ export type Resolvers<ContextType = Context> = {
   MediasResponse?: MediasResponseResolvers<ContextType>;
   MetaData?: MetaDataResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  OpeningAndClosingHours?: OpeningAndClosingHoursResolvers<ContextType>;
   PermissionSession?: PermissionSessionResolvers<ContextType>;
   Permissions?: PermissionsResolvers<ContextType>;
   PermissionsResponse?: PermissionsResponseResolvers<ContextType>;
@@ -5691,6 +5881,10 @@ export type Resolvers<ContextType = Context> = {
   ShippingZonePaginationResponse?: ShippingZonePaginationResponseResolvers<ContextType>;
   ShippingZoneResponse?: ShippingZoneResponseResolvers<ContextType>;
   ShopAddress?: ShopAddressResolvers<ContextType>;
+  ShopAddressResponse?: ShopAddressResponseResolvers<ContextType>;
+  ShopAddressesResponse?: ShopAddressesResponseResolvers<ContextType>;
+  ShopEmail?: ShopEmailResolvers<ContextType>;
+  ShopPhone?: ShopPhoneResolvers<ContextType>;
   SiteSettings?: SiteSettingsResolvers<ContextType>;
   SiteSettingsResponse?: SiteSettingsResponseResolvers<ContextType>;
   Tag?: TagResolvers<ContextType>;
@@ -5722,7 +5916,6 @@ export type Resolvers<ContextType = Context> = {
   UpdateShippingClassResponseOrError?: UpdateShippingClassResponseOrErrorResolvers<ContextType>;
   UpdateShippingMethodResponseOrError?: UpdateShippingMethodResponseOrErrorResolvers<ContextType>;
   UpdateShippingZoneResponseOrError?: UpdateShippingZoneResponseOrErrorResolvers<ContextType>;
-  UpdateSiteSettingsResponseOrError?: UpdateSiteSettingsResponseOrErrorResolvers<ContextType>;
   UpdateTagResponseOrError?: UpdateTagResponseOrErrorResolvers<ContextType>;
   UpdateTaxClassResponseOrError?: UpdateTaxClassResponseOrErrorResolvers<ContextType>;
   UpdateTaxExemptionResponseOrError?: UpdateTaxExemptionResponseOrErrorResolvers<ContextType>;
@@ -5745,6 +5938,7 @@ export type Resolvers<ContextType = Context> = {
   UserSessionById?: UserSessionByIdResolvers<ContextType>;
   UserSessionRoleObject?: UserSessionRoleObjectResolvers<ContextType>;
   UsersResponse?: UsersResponseResolvers<ContextType>;
+  WeeklyOffDay?: WeeklyOffDayResolvers<ContextType>;
   Wishlist?: WishlistResolvers<ContextType>;
   WishlistItems?: WishlistItemsResolvers<ContextType>;
   WishlistResponse?: WishlistResponseResolvers<ContextType>;

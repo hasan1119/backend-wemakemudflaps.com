@@ -38,6 +38,8 @@ import z from "zod";
  *   - state: State (optional, nullable).
  *   - country: Country (optional, nullable).
  *   - zipCode: ZIP code (optional, nullable).
+ *   - openingAndClosingHours: Object containing opening and closing hours (optional, nullable).
+ *   - isActive: Boolean indicating if the shop is active (optional, nullable).
  *   - direction: Google Maps direction (optional, nullable).
  */
 export const siteSettingsSchema = z
@@ -163,23 +165,71 @@ export const siteSettingsSchema = z
           .url({ message: "Direction must be a valid URL" })
           .optional()
           .nullable(),
-        isEveryDayOpen: z.boolean({
-          message: "isEveryDayOpen must be a boolean",
-        }),
-        weeklyOffDays: z.array(
-          z.object({
-            day: z.enum([
-              "Monday",
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday",
-              "Saturday",
-              "Sunday",
-            ]),
-          }),
-          { message: "weeklyOffDays must be an array of objects" }
-        ),
+        openingAndClosingHours: z
+          .object({
+            opening: z
+              .string({ message: "Opening time must be a string" })
+              .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+                message: "Opening time must be in HH:mm format",
+              })
+              .optional()
+              .nullable(),
+            closing: z
+              .string({ message: "Closing time must be a string" })
+              .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+                message: "Closing time must be in HH:mm format",
+              })
+              .optional()
+              .nullable(),
+          })
+          .optional()
+          .nullable()
+          .refine(
+            (data) => {
+              if (!data || !data.opening || !data.closing) return true; // Skip if not both provided
+
+              // Ensure closing time is after opening time
+              const [openH, openM] = data.opening.split(":").map(Number);
+              const [closeH, closeM] = data.closing.split(":").map(Number);
+              const openMinutes = openH * 60 + openM;
+              const closeMinutes = closeH * 60 + closeM;
+
+              return closeMinutes > openMinutes;
+            },
+            {
+              message: "Closing time must be after opening time",
+              path: ["closing"],
+            }
+          ),
+        isActive: z
+          .boolean({
+            message: "isActive must be a boolean",
+          })
+          .optional()
+          .nullable(),
+        isEveryDayOpen: z
+          .boolean({
+            message: "isEveryDayOpen must be a boolean",
+          })
+          .optional()
+          .nullable(),
+        weeklyOffDays: z
+          .array(
+            z.object({
+              day: z.enum([
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+              ]),
+            }),
+            { message: "weeklyOffDays must be an array of objects" }
+          )
+          .optional()
+          .nullable(),
       })
       .optional()
       .nullable()
