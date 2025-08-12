@@ -48,11 +48,12 @@ export const setSiteSettingsToRedis = async (
 export const getShopAddressesFromRedis = async (
   page: number,
   limit: number,
-  search: string | null
+  search: string | null,
+  forCustomer: boolean
 ): Promise<{ shopAddresses: ShopAddress[] | null; count: number | null }> => {
   const searchKey = search ? search.toLowerCase().trim() : "none";
-  const listKey = `${PREFIX.SHOP_ADDRESSES_LIST}page:${page}:limit:${limit}:search:${searchKey}`;
-  const countKey = `${PREFIX.SHOP_ADDRESSES_COUNT}search:${searchKey}`;
+  const listKey = `${PREFIX.SHOP_ADDRESSES_LIST}page:${page}:limit:${limit}:search:${searchKey}:forCustomer:${forCustomer}`;
+  const countKey = `${PREFIX.SHOP_ADDRESSES_COUNT}search:${searchKey}:forCustomer:${forCustomer}`;
 
   const [listResult, countResult] = await Promise.all([
     redis.getSession<ShopAddress[] | null>(listKey, "site-settings"),
@@ -85,11 +86,12 @@ export const setShopAddressesToRedis = async (
   search: string | null,
   shopAddresses: ShopAddress[],
   total: number,
-  ttl: number = 3600
+  ttl: number = 3600,
+  forCustomer: boolean
 ): Promise<void> => {
   const searchKey = search ? search.toLowerCase().trim() : "none";
-  const listKey = `${PREFIX.SHOP_ADDRESSES_LIST}page:${page}:limit:${limit}:search:${searchKey}`;
-  const countKey = `${PREFIX.SHOP_ADDRESSES_COUNT}search:${searchKey}`;
+  const listKey = `${PREFIX.SHOP_ADDRESSES_LIST}page:${page}:limit:${limit}:search:${searchKey}:forCustomer:${forCustomer}`;
+  const countKey = `${PREFIX.SHOP_ADDRESSES_COUNT}search:${searchKey}:forCustomer:${forCustomer}`;
 
   await Promise.all([
     redis.setSession(listKey, shopAddresses, "site-settings", ttl),

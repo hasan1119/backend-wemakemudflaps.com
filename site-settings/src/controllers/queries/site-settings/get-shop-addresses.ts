@@ -47,7 +47,12 @@ export const getShopAddresses = async (
     const { page, limit, search } = result.data;
 
     //  Attempt to fetch shop addresses and count from Redis cache
-    const cachedData = await getShopAddressesFromRedis(page, limit, search);
+    const cachedData = await getShopAddressesFromRedis(
+      page,
+      limit,
+      search,
+      user ? false : true
+    );
 
     if (cachedData.shopAddresses && cachedData.count !== null) {
       // If cached data found, return it immediately without querying DB
@@ -62,10 +67,23 @@ export const getShopAddresses = async (
     }
 
     //  If no cache, fetch data from database or service layer
-    const { data, total } = await getShopAddressesService(page, limit, search);
+    const { data, total } = await getShopAddressesService(
+      page,
+      limit,
+      search,
+      user ? false : true
+    );
 
     //  Cache the fresh data in Redis for future requests
-    await setShopAddressesToRedis(page, limit, search, data as any, total);
+    await setShopAddressesToRedis(
+      page,
+      limit,
+      search,
+      data as any,
+      total,
+      3600,
+      user ? false : true
+    );
 
     //  Return the fetched data
     return {

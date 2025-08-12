@@ -84,7 +84,10 @@ export const getShopAddresses = async (
     return { data: [], total: 0 };
   }
 
-  let addresses = siteSettings.shopAddresses;
+  // if user is authenticated, show all otherwise show only isActive true addresses
+  let addresses = user
+    ? siteSettings.shopAddresses
+    : siteSettings.shopAddresses.filter((addr) => addr.isActive);
 
   // Optional search filter
   if (search && search.trim()) {
