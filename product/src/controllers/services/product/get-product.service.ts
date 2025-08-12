@@ -1,24 +1,42 @@
-import { Brackets, ILike, Not } from "typeorm";
+import { Brackets, ILike, Not, SelectQueryBuilder } from "typeorm";
 import { Product } from "../../../entities";
 import { productRepository } from "../repositories/repositories";
 
+interface QueryBuilderOptions {
+  includeDeletedProducts?: boolean;
+  customerView?: boolean;
+}
+
 /**
- * Retrieves a single Product entity by its slug (case-insensitive).
+ * Creates a base query builder with all product relations and proper soft delete filtering.
+ * This function eliminates code duplication across all product query functions.
  *
- * Workflow:
- * 1. Uses QueryBuilder to find a product that matches the provided slug.
- * 2. Includes all relations with soft delete filtering.
- * 3. Returns the Product entity or null if not found.
- *
- * @param slug - The slug of the product to retrieve.
- * @returns A promise that resolves to the Product entity, or null if no match is found.
+ * @param options - Configuration options for the query builder
+ * @returns A configured QueryBuilder instance with all relations loaded
  */
-export const findProductBySlug = async (
-  slug: string
-): Promise<Product | null> => {
+const createProductQueryBuilder = (
+  options: QueryBuilderOptions = {}
+): SelectQueryBuilder<Product> => {
+  const { includeDeletedProducts = false, customerView = false } = options;
+
+  let baseWhere = "product.deletedAt IS NULL";
+  if (customerView) {
+    baseWhere += " AND product.isVisible = :isVisible";
+  }
+  if (includeDeletedProducts) {
+    baseWhere = "1=1"; // No deletion filter
+  }
+
+  const attributeCondition = customerView
+    ? "attributes.deletedAt IS NULL AND attributes.visible = true"
+    : "attributes.deletedAt IS NULL";
+
+  const variationCondition = customerView
+    ? "variations.deletedAt IS NULL AND variations.isActive = true"
+    : "variations.deletedAt IS NULL";
+
   const queryBuilder = productRepository
     .createQueryBuilder("product")
-    .where("product.slug ILIKE :slug AND product.deletedAt IS NULL", { slug })
     .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
     .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
     .leftJoinAndSelect(
@@ -26,11 +44,7 @@ export const findProductBySlug = async (
       "categories",
       "categories.deletedAt IS NULL"
     )
-    .leftJoinAndSelect(
-      "product.attributes",
-      "attributes",
-      "attributes.deletedAt IS NULL AND attributes.visible = true"
-    )
+    .leftJoinAndSelect("product.attributes", "attributes", attributeCondition)
     .leftJoinAndSelect(
       "attributes.systemAttributeRef",
       "attribute_systemAttribute",
@@ -46,11 +60,7 @@ export const findProductBySlug = async (
       "attribute_values",
       "attribute_values.deletedAt IS NULL"
     )
-    .leftJoinAndSelect(
-      "product.variations",
-      "variations",
-      "variations.deletedAt IS NULL AND variations.isActive = true"
-    )
+    .leftJoinAndSelect("product.variations", "variations", variationCondition)
     .leftJoinAndSelect(
       "product.shippingClass",
       "shippingClass",
@@ -117,6 +127,33 @@ export const findProductBySlug = async (
       "variation_taxClass",
       "variation_taxClass.deletedAt IS NULL"
     );
+
+  if (customerView) {
+    queryBuilder.where(baseWhere, { isVisible: true });
+  } else if (!includeDeletedProducts) {
+    queryBuilder.where(baseWhere);
+  }
+
+  return queryBuilder;
+};
+
+/**
+ * Retrieves a single Product entity by its slug (case-insensitive).
+ *
+ * Workflow:
+ * 1. Uses QueryBuilder to find a product that matches the provided slug.
+ * 2. Includes all relations with soft delete filtering.
+ * 3. Returns the Product entity or null if not found.
+ *
+ * @param slug - The slug of the product to retrieve.
+ * @returns A promise that resolves to the Product entity, or null if no match is found.
+ */
+export const findProductBySlug = async (
+  slug: string
+): Promise<Product | null> => {
+  const queryBuilder = createProductQueryBuilder({
+    customerView: true,
+  }).andWhere("product.slug ILIKE :slug", { slug });
 
   return await queryBuilder.getOne();
 };
@@ -152,107 +189,10 @@ export const findProductBySlugToUpdate = async (
  * @returns A promise that resolves to the Product entity, or null if no match is found.
  */
 export const getProductById = async (id: string): Promise<Product | null> => {
-  const queryBuilder = productRepository
-    .createQueryBuilder("product")
-    .where("product.id = :id AND product.deletedAt IS NULL", { id })
-    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
-    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
-    .leftJoinAndSelect(
-      "product.categories",
-      "categories",
-      "categories.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.attributes",
-      "attributes",
-      "attributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.systemAttributeRef",
-      "attribute_systemAttribute",
-      "attribute_systemAttribute.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.copiedAttributes",
-      "attribute_copiedAttributes",
-      "attribute_copiedAttributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.values",
-      "attribute_values",
-      "attribute_values.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.variations",
-      "variations",
-      "variations.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.shippingClass",
-      "shippingClass",
-      "shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.upsells",
-      "upsells",
-      "upsells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.crossSells",
-      "crossSells",
-      "crossSells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.reviews",
-      "reviews",
-      "reviews.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.taxClass",
-      "taxClass",
-      "taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect(
-      "tierPricingInfo.tieredPrices",
-      "tieredPrices",
-      "tieredPrices.deletedAt IS NULL"
-    )
-    .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.brands",
-      "variation_brands",
-      "variation_brands.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.tierPricingInfo",
-      "variation_tierPricingInfo"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo.tieredPrices",
-      "variation_tieredPrices"
-    )
-    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.attributeValues",
-      "variation_attributeValues",
-      "variation_attributeValues.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues.attributeValue",
-      "variation_attributeValue",
-      "variation_attributeValue.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.shippingClass",
-      "variation_shippingClass",
-      "variation_shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.taxClass",
-      "variation_taxClass",
-      "variation_taxClass.deletedAt IS NULL"
-    );
+  const queryBuilder = createProductQueryBuilder().andWhere(
+    "product.id = :id",
+    { id }
+  );
 
   return await queryBuilder.getOne();
 };
@@ -270,107 +210,10 @@ export const getProductById = async (id: string): Promise<Product | null> => {
  * @returns A promise resolving to an array of Product entities.
  */
 export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
-  const queryBuilder = productRepository
-    .createQueryBuilder("product")
-    .where("product.id IN (:...ids) AND product.deletedAt IS NULL", { ids })
-    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
-    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
-    .leftJoinAndSelect(
-      "product.categories",
-      "categories",
-      "categories.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.attributes",
-      "attributes",
-      "attributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.values",
-      "attribute_values",
-      "attribute_values.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.systemAttributeRef",
-      "attribute_systemAttribute",
-      "attribute_systemAttribute.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.copiedAttributes",
-      "attribute_copiedAttributes",
-      "attribute_copiedAttributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.variations",
-      "variations",
-      "variations.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.shippingClass",
-      "shippingClass",
-      "shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.upsells",
-      "upsells",
-      "upsells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.crossSells",
-      "crossSells",
-      "crossSells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.reviews",
-      "reviews",
-      "reviews.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.taxClass",
-      "taxClass",
-      "taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect(
-      "tierPricingInfo.tieredPrices",
-      "tieredPrices",
-      "tieredPrices.deletedAt IS NULL"
-    )
-    .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.brands",
-      "variation_brands",
-      "variation_brands.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.tierPricingInfo",
-      "variation_tierPricingInfo"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo.tieredPrices",
-      "variation_tieredPrices"
-    )
-    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.attributeValues",
-      "variation_attributeValues",
-      "variation_attributeValues.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues.attributeValue",
-      "variation_attributeValue",
-      "variation_attributeValue.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.shippingClass",
-      "variation_shippingClass",
-      "variation_shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.taxClass",
-      "variation_taxClass",
-      "variation_taxClass.deletedAt IS NULL"
-    );
+  const queryBuilder = createProductQueryBuilder().andWhere(
+    "product.id IN (:...ids)",
+    { ids }
+  );
 
   return await queryBuilder.getMany();
 };
@@ -389,107 +232,9 @@ export const getProductsByIds = async (ids: string[]): Promise<Product[]> => {
 export const getProductsByIdsToDelete = async (
   ids: string[]
 ): Promise<Product[]> => {
-  const queryBuilder = productRepository
-    .createQueryBuilder("product")
-    .where("product.id IN (:...ids)", { ids })
-    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
-    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
-    .leftJoinAndSelect(
-      "product.categories",
-      "categories",
-      "categories.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.attributes",
-      "attributes",
-      "attributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.values",
-      "attribute_values",
-      "attribute_values.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.systemAttributeRef",
-      "attribute_systemAttribute",
-      "attribute_systemAttribute.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.copiedAttributes",
-      "attribute_copiedAttributes",
-      "attribute_copiedAttributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.variations",
-      "variations",
-      "variations.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.shippingClass",
-      "shippingClass",
-      "shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.upsells",
-      "upsells",
-      "upsells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.crossSells",
-      "crossSells",
-      "crossSells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.reviews",
-      "reviews",
-      "reviews.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.taxClass",
-      "taxClass",
-      "taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect(
-      "tierPricingInfo.tieredPrices",
-      "tieredPrices",
-      "tieredPrices.deletedAt IS NULL"
-    )
-    .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.brands",
-      "variation_brands",
-      "variation_brands.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.tierPricingInfo",
-      "variation_tierPricingInfo"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo.tieredPrices",
-      "variation_tieredPrices"
-    )
-    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.attributeValues",
-      "variation_attributeValues",
-      "variation_attributeValues.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues.attributeValue",
-      "variation_attributeValue",
-      "variation_attributeValue.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.shippingClass",
-      "variation_shippingClass",
-      "variation_shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.taxClass",
-      "variation_taxClass",
-      "variation_taxClass.deletedAt IS NULL"
-    );
+  const queryBuilder = createProductQueryBuilder({
+    includeDeletedProducts: true,
+  }).andWhere("product.id IN (:...ids)", { ids });
 
   return await queryBuilder.getMany();
 };
@@ -502,6 +247,64 @@ interface GetPaginatedProductsInput {
   sortOrder: "asc" | "desc";
   filtering?: Record<string, any>;
 }
+
+/**
+ * Applies filtering logic to a query builder.
+ * This function eliminates code duplication for filtering in pagination functions.
+ *
+ * @param queryBuilder - The query builder to apply filters to
+ * @param filtering - The filtering object containing filter criteria
+ */
+const applyFiltering = (
+  queryBuilder: SelectQueryBuilder<Product>,
+  filtering: Record<string, any>
+): void => {
+  if (!filtering) return;
+
+  const { brandIds, categoryIds, tagIds, productDeliveryTypes } = filtering;
+
+  if (brandIds?.length) {
+    queryBuilder.andWhere("brands.id IN (:...brandIds)", { brandIds });
+  }
+  if (categoryIds?.length) {
+    queryBuilder.andWhere("categories.id IN (:...categoryIds)", {
+      categoryIds,
+    });
+  }
+  if (tagIds?.length) {
+    queryBuilder.andWhere("tags.id IN (:...tagIds)", { tagIds });
+  }
+  if (productDeliveryTypes?.length) {
+    queryBuilder.andWhere(
+      "product.productDeliveryType && :productDeliveryTypes",
+      { productDeliveryTypes }
+    );
+  }
+};
+
+/**
+ * Applies search logic to a query builder.
+ * This function eliminates code duplication for search in pagination functions.
+ *
+ * @param queryBuilder - The query builder to apply search to
+ * @param search - The search term
+ */
+const applySearch = (
+  queryBuilder: SelectQueryBuilder<Product>,
+  search: string
+): void => {
+  const searchTerm = `%${search.trim()}%`;
+  queryBuilder.andWhere(
+    new Brackets((qb) => {
+      qb.where("product.name ILIKE :search", { search: searchTerm })
+        .orWhere("product.slug ILIKE :search", { search: searchTerm })
+        .orWhere("product.sku ILIKE :search", { search: searchTerm })
+        .orWhere("brands.name ILIKE :search", { search: searchTerm })
+        .orWhere("categories.name ILIKE :search", { search: searchTerm })
+        .orWhere("tags.name ILIKE :search", { search: searchTerm });
+    })
+  );
+};
 
 /**
  * Handles pagination of products based on provided parameters.
@@ -524,147 +327,19 @@ export const paginateProducts = async ({
   filtering = {},
 }: GetPaginatedProductsInput) => {
   const skip = (page - 1) * limit;
-  const queryBuilder = productRepository
-    .createQueryBuilder("product")
-    .where("product.deletedAt IS NULL")
-    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
-    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
-    .leftJoinAndSelect(
-      "product.categories",
-      "categories",
-      "categories.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.attributes",
-      "attributes",
-      "attributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.values",
-      "attribute_values",
-      "attribute_values.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.systemAttributeRef",
-      "attribute_systemAttribute",
-      "attribute_systemAttribute.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.copiedAttributes",
-      "attribute_copiedAttributes",
-      "attribute_copiedAttributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.variations",
-      "variations",
-      "variations.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.shippingClass",
-      "shippingClass",
-      "shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.upsells",
-      "upsells",
-      "upsells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.crossSells",
-      "crossSells",
-      "crossSells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.reviews",
-      "reviews",
-      "reviews.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.taxClass",
-      "taxClass",
-      "taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect(
-      "tierPricingInfo.tieredPrices",
-      "tieredPrices",
-      "tieredPrices.deletedAt IS NULL"
-    )
-    .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.brands",
-      "variation_brands",
-      "variation_brands.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.tierPricingInfo",
-      "variation_tierPricingInfo"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo.tieredPrices",
-      "variation_tieredPrices"
-    )
-    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.attributeValues",
-      "variation_attributeValues",
-      "variation_attributeValues.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues.attributeValue",
-      "variation_attributeValue",
-      "variation_attributeValue.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.shippingClass",
-      "variation_shippingClass",
-      "variation_shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.taxClass",
-      "variation_taxClass",
-      "variation_taxClass.deletedAt IS NULL"
-    );
+  const queryBuilder = createProductQueryBuilder();
 
-  if (filtering) {
-    const { brandIds, categoryIds, tagIds, productDeliveryTypes } = filtering;
-    if (brandIds?.length) {
-      queryBuilder.andWhere("brands.id IN (:...brandIds)", { brandIds });
-    }
-    if (categoryIds?.length) {
-      queryBuilder.andWhere("categories.id IN (:...categoryIds)", {
-        categoryIds,
-      });
-    }
-    if (tagIds?.length) {
-      queryBuilder.andWhere("tags.id IN (:...tagIds)", { tagIds });
-    }
-    if (productDeliveryTypes?.length) {
-      queryBuilder.andWhere(
-        "product.productDeliveryType && :productDeliveryTypes",
-        { productDeliveryTypes }
-      );
-    }
-  }
+  applyFiltering(queryBuilder, filtering);
 
   if (search) {
-    const searchTerm = `%${search.trim()}%`;
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        qb.where("product.name ILIKE :search", { search: searchTerm })
-          .orWhere("product.slug ILIKE :search", { search: searchTerm })
-          .orWhere("product.sku ILIKE :search", { search: searchTerm })
-          .orWhere("brands.name ILIKE :search", { search: searchTerm })
-          .orWhere("categories.name ILIKE :search", { search: searchTerm })
-          .orWhere("tags.name ILIKE :search", { search: searchTerm });
-      })
-    );
+    applySearch(queryBuilder, search);
   }
 
   queryBuilder
     .skip(skip)
     .take(limit)
     .orderBy(`product.${sortBy}`, sortOrder.toUpperCase() as "ASC" | "DESC");
+
   const [products, total] = await queryBuilder.getManyAndCount();
 
   return { products, total };
@@ -679,143 +354,12 @@ export const paginateProductsForCustomer = async ({
   filtering = {},
 }: GetPaginatedProductsInput) => {
   const skip = (page - 1) * limit;
-  const queryBuilder = productRepository
-    .createQueryBuilder("product")
-    .where("product.deletedAt IS NULL AND product.isVisible = :isVisible", {
-      isVisible: true,
-    })
-    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
-    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
-    .leftJoinAndSelect(
-      "product.categories",
-      "categories",
-      "categories.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.attributes",
-      "attributes",
-      "attributes.deletedAt IS NULL AND attributes.visible = true"
-    )
-    .leftJoinAndSelect(
-      "attributes.values",
-      "attribute_values",
-      "attribute_values.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.systemAttributeRef",
-      "attribute_systemAttribute",
-      "attribute_systemAttribute.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.copiedAttributes",
-      "attribute_copiedAttributes",
-      "attribute_copiedAttributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.variations",
-      "variations",
-      "variations.deletedAt IS NULL AND variations.isActive = true"
-    )
-    .leftJoinAndSelect(
-      "product.shippingClass",
-      "shippingClass",
-      "shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.upsells",
-      "upsells",
-      "upsells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.crossSells",
-      "crossSells",
-      "crossSells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.reviews",
-      "reviews",
-      "reviews.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.taxClass",
-      "taxClass",
-      "taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect(
-      "tierPricingInfo.tieredPrices",
-      "tieredPrices",
-      "tieredPrices.deletedAt IS NULL"
-    )
-    .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.brands",
-      "variation_brands",
-      "variation_brands.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.tierPricingInfo",
-      "variation_tierPricingInfo"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo.tieredPrices",
-      "variation_tieredPrices"
-    )
-    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.attributeValues",
-      "variation_attributeValues",
-      "variation_attributeValues.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues.attributeValue",
-      "variation_attributeValue",
-      "variation_attributeValue.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.shippingClass",
-      "variation_shippingClass",
-      "variation_shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.taxClass",
-      "variation_taxClass",
-      "variation_taxClass.deletedAt IS NULL"
-    );
+  const queryBuilder = createProductQueryBuilder({ customerView: true });
 
-  if (filtering) {
-    const { brandIds, categoryIds, tagIds, productDeliveryTypes } = filtering;
-    if (brandIds?.length) {
-      queryBuilder.andWhere("brands.id IN (:...brandIds)", { brandIds });
-    }
-    if (categoryIds?.length) {
-      queryBuilder.andWhere("categories.id IN (:...categoryIds)", {
-        categoryIds,
-      });
-    }
-    if (tagIds?.length) {
-      queryBuilder.andWhere("tags.id IN (:...tagIds)", { tagIds });
-    }
-    if (productDeliveryTypes?.length) {
-      queryBuilder.andWhere(
-        "product.productDeliveryType && :productDeliveryTypes",
-        { productDeliveryTypes }
-      );
-    }
-  }
+  applyFiltering(queryBuilder, filtering);
 
   if (search) {
-    const searchTerm = `%${search.trim()}%`;
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        qb.where("product.name ILIKE :search", { search: searchTerm })
-          .orWhere("product.slug ILIKE :search", { search: searchTerm })
-          .orWhere("product.sku ILIKE :search", { search: searchTerm })
-          .orWhere("brands.name ILIKE :search", { search: searchTerm })
-          .orWhere("categories.name ILIKE :search", { search: searchTerm })
-          .orWhere("tags.name ILIKE :search", { search: searchTerm });
-      })
-    );
+    applySearch(queryBuilder, search);
   }
 
   queryBuilder

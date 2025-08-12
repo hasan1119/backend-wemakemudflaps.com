@@ -1,5 +1,38 @@
+import { SelectQueryBuilder } from "typeorm";
 import { Cart } from "../../../entities";
 import { cartRepository } from "../repositories/repositories";
+import {
+  addProductRelationsToQuery,
+  addProductVariationRelationsToQuery,
+} from "./shared/query-builder.utils";
+
+/**
+ * Creates a base cart query builder with all necessary relations.
+ * This function eliminates code duplication across cart query functions.
+ *
+ * @returns A configured QueryBuilder instance with all cart and product relations loaded
+ */
+const createCartQueryBuilder = (): SelectQueryBuilder<Cart> => {
+  let queryBuilder = cartRepository
+    .createQueryBuilder("cart")
+    .leftJoinAndSelect("cart.items", "items")
+    .leftJoinAndSelect("items.product", "product");
+
+  // Add all product relations
+  queryBuilder = addProductRelationsToQuery(queryBuilder, "product");
+
+  // Add product variation relations for items
+  queryBuilder = queryBuilder.leftJoinAndSelect(
+    "items.productVariation",
+    "variation"
+  );
+  queryBuilder = addProductVariationRelationsToQuery(queryBuilder, "variation");
+
+  // Add cart-specific relations
+  queryBuilder = queryBuilder.leftJoinAndSelect("cart.coupons", "coupons");
+
+  return queryBuilder;
+};
 
 /**
  * Retrieves a single Cart entity by its ID using QueryBuilder.
@@ -14,124 +47,7 @@ import { cartRepository } from "../repositories/repositories";
  * @returns A promise that resolves to the Cart entity, or null if no match is found.
  */
 export const getCartById = async (id: string): Promise<Cart | null> => {
-  return await cartRepository
-    .createQueryBuilder("cart")
-    .leftJoinAndSelect("cart.items", "items")
-    .leftJoinAndSelect("items.product", "product")
-    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
-    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
-    .leftJoinAndSelect(
-      "product.categories",
-      "categories",
-      "categories.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.attributes",
-      "attributes",
-      "attributes.deletedAt IS NULL AND attributes.visible = true"
-    )
-    .leftJoinAndSelect(
-      "attributes.systemAttributeRef",
-      "attribute_systemAttribute",
-      "attribute_systemAttribute.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.copiedAttributes",
-      "attribute_copiedAttributes",
-      "attribute_copiedAttributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.values",
-      "attribute_values",
-      "attribute_values.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.variations",
-      "variations",
-      "variations.deletedAt IS NULL AND variations.isActive = true"
-    )
-    .leftJoinAndSelect(
-      "product.shippingClass",
-      "shippingClass",
-      "shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.upsells",
-      "upsells",
-      "upsells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.crossSells",
-      "crossSells",
-      "crossSells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.reviews",
-      "reviews",
-      "reviews.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.taxClass",
-      "taxClass",
-      "taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect(
-      "tierPricingInfo.tieredPrices",
-      "tieredPrices",
-      "tieredPrices.deletedAt IS NULL"
-    )
-    .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.tierPricingInfo",
-      "variation_tierPricingInfo"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo.tieredPrices",
-      "variation_tieredPrices"
-    )
-    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.attributeValues",
-      "variation_attributeValues",
-      "variation_attributeValues.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues.attributeValue",
-      "variation_attributeValue",
-      "variation_attributeValue.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.shippingClass",
-      "variation_shippingClass",
-      "variation_shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.taxClass",
-      "variation_taxClass",
-      "variation_taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("items.productVariation", "variation")
-    .leftJoinAndSelect(
-      "variation.tierPricingInfo",
-      "variation_tierPricingInfo_2"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo_2.tieredPrices",
-      "variation_tieredPrices_2"
-    )
-    .addOrderBy("variation_tieredPrices_2.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variation.attributeValues",
-      "variation_attributeValues_2"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues_2.attributeValue",
-      "variation_attributeValue_2"
-    )
-    .leftJoinAndSelect("variation.shippingClass", "variation_shippingClass_2")
-    .leftJoinAndSelect("variation.taxClass", "variation_taxClass_2")
-    .leftJoinAndSelect("cart.coupons", "coupons")
+  return await createCartQueryBuilder()
     .where("cart.id = :id", { id })
     .andWhere("cart.deletedAt IS NULL")
     .getOne();
@@ -152,124 +68,8 @@ export const getCartById = async (id: string): Promise<Cart | null> => {
  */
 export const getCartsByIds = async (ids: string[]): Promise<Cart[]> => {
   if (!ids.length) return [];
-  return await cartRepository
-    .createQueryBuilder("cart")
-    .leftJoinAndSelect("cart.items", "items")
-    .leftJoinAndSelect("items.product", "product")
-    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
-    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
-    .leftJoinAndSelect(
-      "product.categories",
-      "categories",
-      "categories.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.attributes",
-      "attributes",
-      "attributes.deletedAt IS NULL AND attributes.visible = true"
-    )
-    .leftJoinAndSelect(
-      "attributes.systemAttributeRef",
-      "attribute_systemAttribute",
-      "attribute_systemAttribute.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.copiedAttributes",
-      "attribute_copiedAttributes",
-      "attribute_copiedAttributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.values",
-      "attribute_values",
-      "attribute_values.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.variations",
-      "variations",
-      "variations.deletedAt IS NULL AND variations.isActive = true"
-    )
-    .leftJoinAndSelect(
-      "product.shippingClass",
-      "shippingClass",
-      "shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.upsells",
-      "upsells",
-      "upsells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.crossSells",
-      "crossSells",
-      "crossSells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.reviews",
-      "reviews",
-      "reviews.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.taxClass",
-      "taxClass",
-      "taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect(
-      "tierPricingInfo.tieredPrices",
-      "tieredPrices",
-      "tieredPrices.deletedAt IS NULL"
-    )
-    .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.tierPricingInfo",
-      "variation_tierPricingInfo"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo.tieredPrices",
-      "variation_tieredPrices"
-    )
-    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.attributeValues",
-      "variation_attributeValues",
-      "variation_attributeValues.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues.attributeValue",
-      "variation_attributeValue",
-      "variation_attributeValue.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.shippingClass",
-      "variation_shippingClass",
-      "variation_shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.taxClass",
-      "variation_taxClass",
-      "variation_taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("items.productVariation", "variation")
-    .leftJoinAndSelect(
-      "variation.tierPricingInfo",
-      "variation_tierPricingInfo_2"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo_2.tieredPrices",
-      "variation_tieredPrices_2"
-    )
-    .addOrderBy("variation_tieredPrices_2.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variation.attributeValues",
-      "variation_attributeValues_2"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues_2.attributeValue",
-      "variation_attributeValue_2"
-    )
-    .leftJoinAndSelect("variation.shippingClass", "variation_shippingClass_2")
-    .leftJoinAndSelect("variation.taxClass", "variation_taxClass_2")
-    .leftJoinAndSelect("cart.coupons", "coupons")
+
+  return await createCartQueryBuilder()
     .where("cart.id IN (:...ids)", { ids })
     .andWhere("cart.deletedAt IS NULL")
     .getMany();
@@ -288,124 +88,7 @@ export const getCartsByIds = async (ids: string[]): Promise<Cart[]> => {
  * @returns A promise that resolves to the Cart entity, or null if no match is found.
  */
 export const getCartByUserId = async (userId: string): Promise<Cart | null> => {
-  return await cartRepository
-    .createQueryBuilder("cart")
-    .leftJoinAndSelect("cart.items", "items")
-    .leftJoinAndSelect("items.product", "product")
-    .leftJoinAndSelect("product.brands", "brands", "brands.deletedAt IS NULL")
-    .leftJoinAndSelect("product.tags", "tags", "tags.deletedAt IS NULL")
-    .leftJoinAndSelect(
-      "product.categories",
-      "categories",
-      "categories.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.attributes",
-      "attributes",
-      "attributes.deletedAt IS NULL AND attributes.visible = true"
-    )
-    .leftJoinAndSelect(
-      "attributes.systemAttributeRef",
-      "attribute_systemAttribute",
-      "attribute_systemAttribute.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.copiedAttributes",
-      "attribute_copiedAttributes",
-      "attribute_copiedAttributes.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "attributes.values",
-      "attribute_values",
-      "attribute_values.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.variations",
-      "variations",
-      "variations.deletedAt IS NULL AND variations.isActive = true"
-    )
-    .leftJoinAndSelect(
-      "product.shippingClass",
-      "shippingClass",
-      "shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.upsells",
-      "upsells",
-      "upsells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.crossSells",
-      "crossSells",
-      "crossSells.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.reviews",
-      "reviews",
-      "reviews.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "product.taxClass",
-      "taxClass",
-      "taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("product.tierPricingInfo", "tierPricingInfo")
-    .leftJoinAndSelect(
-      "tierPricingInfo.tieredPrices",
-      "tieredPrices",
-      "tieredPrices.deletedAt IS NULL"
-    )
-    .addOrderBy("tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.tierPricingInfo",
-      "variation_tierPricingInfo"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo.tieredPrices",
-      "variation_tieredPrices"
-    )
-    .addOrderBy("variation_tieredPrices.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variations.attributeValues",
-      "variation_attributeValues",
-      "variation_attributeValues.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues.attributeValue",
-      "variation_attributeValue",
-      "variation_attributeValue.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.shippingClass",
-      "variation_shippingClass",
-      "variation_shippingClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect(
-      "variations.taxClass",
-      "variation_taxClass",
-      "variation_taxClass.deletedAt IS NULL"
-    )
-    .leftJoinAndSelect("items.productVariation", "variation")
-    .leftJoinAndSelect(
-      "variation.tierPricingInfo",
-      "variation_tierPricingInfo_2"
-    )
-    .leftJoinAndSelect(
-      "variation_tierPricingInfo_2.tieredPrices",
-      "variation_tieredPrices_2"
-    )
-    .addOrderBy("variation_tieredPrices_2.maxQuantity", "ASC")
-    .leftJoinAndSelect(
-      "variation.attributeValues",
-      "variation_attributeValues_2"
-    )
-    .leftJoinAndSelect(
-      "variation_attributeValues_2.attributeValue",
-      "variation_attributeValue_2"
-    )
-    .leftJoinAndSelect("variation.shippingClass", "variation_shippingClass_2")
-    .leftJoinAndSelect("variation.taxClass", "variation_taxClass_2")
-    .leftJoinAndSelect("cart.coupons", "coupons")
+  return await createCartQueryBuilder()
     .where("cart.createdBy = :userId", { userId })
     .andWhere("cart.deletedAt IS NULL")
     .getOne();
