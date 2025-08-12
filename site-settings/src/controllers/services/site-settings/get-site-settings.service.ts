@@ -78,7 +78,7 @@ export const getShopAddresses = async (
   page: number,
   limit: number,
   search?: string,
-  user?: any
+  forCustomer: boolean = true
 ): Promise<{ data: ShopAddress[]; total: number }> => {
   const siteSettings = await siteSettingsRepository.findOne({
     where: { deletedAt: null },
@@ -89,9 +89,9 @@ export const getShopAddresses = async (
   }
 
   // if user is authenticated, show all otherwise show only isActive true addresses
-  let addresses = user
-    ? siteSettings.shopAddresses
-    : siteSettings.shopAddresses.filter((addr) => addr.isActive);
+  let addresses = forCustomer
+    ? siteSettings.shopAddresses.filter((addr) => addr.isActive)
+    : siteSettings.shopAddresses;
 
   // Optional search filter
   if (search && search.trim()) {

@@ -46,12 +46,14 @@ export const getShopAddresses = async (
 
     const { page, limit, search } = result.data;
 
+    const forCustomer = user?.id ? false : true;
+
     //  Attempt to fetch shop addresses and count from Redis cache
     const cachedData = await getShopAddressesFromRedis(
       page,
       limit,
       search,
-      user ? false : true
+      forCustomer
     );
 
     if (cachedData.shopAddresses && cachedData.count !== null) {
@@ -71,7 +73,7 @@ export const getShopAddresses = async (
       page,
       limit,
       search,
-      user ? false : true
+      forCustomer
     );
 
     //  Cache the fresh data in Redis for future requests
@@ -82,7 +84,7 @@ export const getShopAddresses = async (
       data as any,
       total,
       3600,
-      user ? false : true
+      forCustomer
     );
 
     //  Return the fetched data
