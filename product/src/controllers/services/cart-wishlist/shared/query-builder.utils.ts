@@ -1,17 +1,36 @@
 import { SelectQueryBuilder } from "typeorm";
 
+interface ProductQueryOptions {
+  includeOnlyVisible?: boolean;
+  includeBrands?: boolean;
+}
+
 /**
  * Adds all product relations to a query builder for cart/wishlist items.
  * This function eliminates code duplication across cart and wishlist services.
  *
  * @param queryBuilder - The query builder to add product relations to
  * @param productAlias - The alias used for the product entity (default: "product")
+ * @param options - Options to control which relations and filters to include
  * @returns The same query builder with all product relations added
  */
 export const addProductRelationsToQuery = <T>(
   queryBuilder: SelectQueryBuilder<T>,
-  productAlias: string = "product"
+  productAlias: string = "product",
+  options: ProductQueryOptions = {}
 ): SelectQueryBuilder<T> => {
+  const { includeOnlyVisible = true, includeBrands = true } = options;
+
+  // Apply product visibility filter if requested (for customer-facing queries)
+  if (includeOnlyVisible) {
+    queryBuilder = queryBuilder.andWhere(
+      `${productAlias}.deletedAt IS NULL AND ${productAlias}.isVisible = :isVisible`,
+      { isVisible: true }
+    );
+  } else {
+    queryBuilder = queryBuilder.andWhere(`${productAlias}.deletedAt IS NULL`);
+  }
+
   return queryBuilder
     .leftJoinAndSelect(
       `${productAlias}.brands`,

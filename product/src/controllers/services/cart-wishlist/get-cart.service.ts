@@ -18,8 +18,10 @@ const createCartQueryBuilder = (): SelectQueryBuilder<Cart> => {
     .leftJoinAndSelect("cart.items", "items")
     .leftJoinAndSelect("items.product", "product");
 
-  // Add all product relations
-  queryBuilder = addProductRelationsToQuery(queryBuilder, "product");
+  // Add all product relations with visibility filtering (customer-facing)
+  queryBuilder = addProductRelationsToQuery(queryBuilder, "product", {
+    includeOnlyVisible: true,
+  });
 
   // Add product variation relations for items
   queryBuilder = queryBuilder.leftJoinAndSelect(
