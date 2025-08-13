@@ -99,7 +99,7 @@ export const createOrUpdateShopAddress = async (
     ]);
 
     return {
-      statusCode: 201,
+      statusCode: args.input.id ? 200 : 201,
       success: true,
       shopAddress: updatedAddress as ShopAddress,
       message: `${
