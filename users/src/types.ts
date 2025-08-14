@@ -2273,9 +2273,9 @@ export type Region = {
 
 export type RegionInput = {
   area?: InputMaybe<Scalars['String']['input']>;
-  city: Scalars['String']['input'];
-  country: Scalars['String']['input'];
-  state: Scalars['String']['input'];
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  state?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RemoveFromCartOrWishListResponseOrError = BaseResponse | ErrorResponse;

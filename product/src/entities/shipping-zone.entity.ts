@@ -14,9 +14,9 @@ export class ShippingZone {
   @Column({ type: "jsonb", nullable: true })
   regions:
     | {
-        country: string;
-        state: string;
-        city: string;
+        country: string | null;
+        state: string | null;
+        city: string | null;
         area: string | null;
       }[]
     | null;

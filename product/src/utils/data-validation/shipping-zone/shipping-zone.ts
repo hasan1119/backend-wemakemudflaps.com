@@ -2,9 +2,9 @@ import { z } from "zod";
 import { SortOrderTypeEnum } from "../common/common";
 
 const regionSchema = z.object({
-  country: z.string().min(1).max(100),
-  state: z.string().min(1).max(100),
-  city: z.string().min(1).max(100),
+  country: z.string().min(1).max(100).nullable().optional(),
+  state: z.string().min(1).max(100).nullable().optional(),
+  city: z.string().min(1).max(100).nullable().optional(),
   area: z.string().min(1).max(100).nullable().optional(),
 });
 
@@ -55,14 +55,6 @@ export const updateShippingZoneSchema = z
     {
       message: "At least one field must be provided for update besides id",
       path: [],
-    }
-  )
-  .refine(
-    (data) =>
-      !data.regions || (Array.isArray(data.regions) && data.regions.length > 0),
-    {
-      message: "Regions array cannot be empty if provided",
-      path: ["regions"],
     }
   );
 

@@ -36,9 +36,9 @@ type ShippingZonePaginationResponse {
 
 # ---------------------- Unions ----------------------
 input RegionInput {
-  country: String!
-  state: String!
-  city: String!
+  country: String
+  state: String
+  city: String
   area: String
 }
 
