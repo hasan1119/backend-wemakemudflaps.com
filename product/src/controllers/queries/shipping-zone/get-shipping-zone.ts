@@ -112,7 +112,7 @@ export const getAllShippingZones = async (
     shippingZonesData = dbShippingZones.map((shippingZone) => ({
       id: shippingZone.id,
       name: shippingZone.name,
-      regions: shippingZone.regions,
+      regions: shippingZone.regions || [],
       zipCodes: shippingZone.zipCodes,
       shippingMethods: shippingZone.shippingMethods?.map((method) => ({
         id: method.id,

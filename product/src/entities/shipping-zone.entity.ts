@@ -11,8 +11,15 @@ export class ShippingZone {
   name: string;
 
   // Region or geographical area of the shipping zone
-  @Column({ type: "text", array: true })
-  regions: string[];
+  @Column({ type: "jsonb", nullable: true })
+  regions:
+    | {
+        country: string;
+        state: string;
+        city: string;
+        area: string | null;
+      }[]
+    | null;
 
   // Zip codes applicable to the shipping zone
   @Column({ type: "text", array: true, nullable: true, default: null })

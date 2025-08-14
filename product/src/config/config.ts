@@ -19,6 +19,9 @@ interface Config {
   /* Frontend application URL */
   FRONTEND_URL: string;
 
+  /*  User Graph Url */
+  USER_GRAPH_URL: string;
+
   /* GraphQL Sub Graph identifier */
   SUB_GRAPH_NAME: string;
 
@@ -76,6 +79,9 @@ const CONFIG: Config = {
   /* Application Frontend Url */
   FRONTEND_URL: process.env.FRONTEND_URL as string,
   SUB_GRAPH_NAME: process.env.SUB_GRAPH_NAME as string,
+
+  /* User Graph Url */
+  USER_GRAPH_URL: process.env.USER_GRAPH_URL as string,
 
   // ===================== Database Configurations =====================
   DB_TYPE: process.env.DB_TYPE as string,

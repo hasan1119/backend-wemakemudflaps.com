@@ -1,9 +1,15 @@
 # ---------------------- Shipping Zone Types ----------------------
+type Region {
+  country: String
+  state: String
+  city: String
+  area: String
+}
 
 type ShippingZone {
   id: ID!
   name: String!
-  regions: [String!]!
+  regions: [Region!]!
   zipCodes: [String]
   shippingMethods: [ShippingMethod]
   createdBy: CreatedBy
@@ -26,6 +32,14 @@ type ShippingZonePaginationResponse {
   message: String!
   shippingZones: [ShippingZone!]!
   total: Int!
+}
+
+# ---------------------- Unions ----------------------
+input RegionInput {
+  country: String!
+  state: String!
+  city: String!
+  area: String
 }
 
 # ---------------------- Unions ----------------------

@@ -1,7 +1,7 @@
 # Queries to fetch cart & wishlist from the system.
 type Query {
   # Fetches the current user's cart.
-  getCart: GetCartOrWishListResponseOrError!
+  getCart(shippingAddressId: ID): GetCartOrWishListResponseOrError!
 
   # Fetches the current user's wishlist.
   getWishlist: GetCartOrWishListResponseOrError!

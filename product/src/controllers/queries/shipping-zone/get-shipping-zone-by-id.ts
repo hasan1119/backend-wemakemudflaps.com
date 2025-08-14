@@ -91,7 +91,7 @@ export const getShippingZoneById = async (
       shippingZone: {
         id: dbShippingZone.id,
         name: dbShippingZone.name,
-        regions: dbShippingZone.regions,
+        regions: dbShippingZone.regions || [],
         shippingMethods: dbShippingZone.shippingMethods?.map((method) => ({
           id: method.id,
           title: method.title,

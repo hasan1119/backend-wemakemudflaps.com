@@ -20,6 +20,13 @@ export const createShippingZone = async (
 ): Promise<ShippingZone> => {
   const shippingZone = shippingZoneRepository.create({
     ...data,
+    regions:
+      data?.regions.map((reg) => ({
+        country: reg.country || null,
+        state: reg.state || null,
+        city: reg.city || null,
+        area: reg.area || null,
+      })) || null,
     createdBy: userId,
   });
 

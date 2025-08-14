@@ -1,6 +1,13 @@
 import { z } from "zod";
 import { SortOrderTypeEnum } from "../common/common";
 
+const regionSchema = z.object({
+  country: z.string().min(1).max(100),
+  state: z.string().min(1).max(100),
+  city: z.string().min(1).max(100),
+  area: z.string().min(1).max(100).nullable().optional(),
+});
+
 /**
  * Defines the schema for validating a shipping zone creation input.
  *
@@ -15,7 +22,7 @@ import { SortOrderTypeEnum } from "../common/common";
  */
 export const createShippingZoneSchema = z.object({
   name: z.string().min(2).max(100),
-  regions: z.array(z.string().min(1).max(100)),
+  regions: z.array(regionSchema).optional().nullable(),
   zipCodes: z.array(z.string().min(1).max(20)).optional(),
 });
 
@@ -37,7 +44,7 @@ export const updateShippingZoneSchema = z
   .object({
     id: z.string().uuid(),
     name: z.string().min(2).max(100).optional().nullable(),
-    regions: z.array(z.string().min(1).max(100)).optional().nullable(),
+    regions: z.array(regionSchema).optional().nullable(),
     zipCodes: z.array(z.string().min(1).max(20)).optional().nullable(),
   })
   .refine(
@@ -48,6 +55,14 @@ export const updateShippingZoneSchema = z
     {
       message: "At least one field must be provided for update besides id",
       path: [],
+    }
+  )
+  .refine(
+    (data) =>
+      !data.regions || (Array.isArray(data.regions) && data.regions.length > 0),
+    {
+      message: "Regions array cannot be empty if provided",
+      path: ["regions"],
     }
   );
 

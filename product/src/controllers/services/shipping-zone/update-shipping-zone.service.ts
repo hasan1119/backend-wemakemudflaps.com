@@ -22,7 +22,15 @@ export const updateShippingZone = async (
   await shippingZoneRepository.update(id, {
     ...(data.name !== undefined && data.name !== null && { name: data.name }),
     ...(data.regions !== undefined &&
-      data.regions !== null && { regions: data.regions }),
+      data.regions !== null && {
+        regions:
+          data?.regions.map((reg) => ({
+            country: reg.country || null,
+            state: reg.state || null,
+            city: reg.city || null,
+            area: reg.area || null,
+          })) || null,
+      }),
     ...(data.zipCodes !== undefined &&
       data.zipCodes !== null && { zipCodes: data.zipCodes }),
   });

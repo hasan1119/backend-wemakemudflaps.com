@@ -2,14 +2,14 @@
 extend type Mutation {
   createShippingZone(
     name: String!
-    regions: [String!]!
+    regions: [RegionInput!]!
     zipCodes: [String]
   ): CreateShippingZoneResponseOrError!
 
   updateShippingZone(
     id: ID!
     name: String
-    regions: [String!]
+    regions: [RegionInput!]
     zipCodes: [String!]
   ): UpdateShippingZoneResponseOrError!
 
