@@ -1,4 +1,5 @@
 import { gql, GraphQLClient } from "graphql-request";
+import { ILike } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import { TaxRate } from "../../../entities";
@@ -93,7 +94,7 @@ const GET_SHIPPING_ADDRESS = gql`
 `;
 
 /**
- * Fetches the applicable tax rate based on tax class and shipping address.
+ * Fetches the applicable tax rate based on tax class and shipping address using case-insensitive matching.
  * @param taxClassId - The ID of the tax class.
  * @param address - The shipping address details.
  * @returns The applicable TaxRate or null if none found.
@@ -103,23 +104,34 @@ async function getTaxRateByTaxClassAndAddress(
   address: { country: string; state?: string; city?: string; postcode?: string }
 ): Promise<TaxRate | null> {
   try {
+    const whereClause: any = {
+      taxClass: { id: taxClassId },
+    };
+
+    // Case-insensitive matching using ILike
+    whereClause.country = ILike(address.country);
+    if (address.state) {
+      whereClause.state = ILike(address.state);
+    } else {
+      whereClause.state = null;
+    }
+    if (address.city) {
+      whereClause.city = ILike(address.city);
+    } else {
+      whereClause.city = null;
+    }
+    if (address.postcode) {
+      whereClause.postcode = ILike(address.postcode);
+    } else {
+      whereClause.postcode = null;
+    }
+
     const taxRate = await taxRateRepository.findOne({
-      where: { taxClass: { id: taxClassId } },
+      where: whereClause,
       order: { priority: "ASC" },
     });
 
-    if (taxRate) {
-      const countryMatch = taxRate.country === address.country;
-      const stateMatch = !address.state || taxRate.state === address.state;
-      const cityMatch = !address.city || taxRate.city === address.city;
-      const postcodeMatch =
-        !address.postcode || taxRate.postcode === address.postcode;
-      if (countryMatch && stateMatch && cityMatch && postcodeMatch) {
-        return taxRate;
-      }
-    }
-
-    return null;
+    return taxRate || null;
   } catch (error) {
     console.error("Error fetching tax rate:", error);
     return null;
