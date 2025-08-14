@@ -8,6 +8,7 @@ import { addToWishListSchema } from "../../../utils/data-validation";
 import {
   addToWishList as addToWishListService,
   checkUserAuth,
+  findCartItem,
   getProductById,
   mapProductRecursive,
   mapProductVariationRecursive,
@@ -105,6 +106,32 @@ export const addToWishList = async (
         }
       }
     }
+
+    // Check product already exist in cart or not
+    const existingItem = await findCartItem(
+      product.id,
+      productVariationId,
+      user.id
+    );
+
+    if (existingItem) {
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Product already in cart, can't add to wishlist",
+        __typename: "BaseResponse",
+      };
+    }
+
+    if (existingItem) {
+      return {
+        statusCode: 400,
+        success: false,
+        message: "Product is already in the cart",
+        __typename: "BaseResponse",
+      };
+    }
+
     const wishlist = await addToWishListService(
       product,
       productVariationId ?? null,

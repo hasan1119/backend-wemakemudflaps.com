@@ -616,6 +616,7 @@ export { applyCoupon } from "./cart-wishlist/apply-coupon.service";
  * 2. Supports fetching multiple carts or wishlists by their IDs.
  */
 export {
+  findCartItem,
   getCartById,
   getCartByUserId,
   getCartsByIds,

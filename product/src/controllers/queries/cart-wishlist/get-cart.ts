@@ -1,6 +1,7 @@
 import { gql, GraphQLClient } from "graphql-request";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { TaxRate } from "../../../entities";
 import {
   GetCartOrWishListResponseOrError,
   QueryGetCartArgs,
@@ -14,6 +15,7 @@ import {
   mapProductRecursive,
   mapProductVariationRecursive,
 } from "../../services";
+import { taxRateRepository } from "../../services/repositories/repositories";
 
 const GET_TAX_EXEMPTION = gql`
   query GetTaxExemptionEntryByUserId($userId: ID!) {
@@ -91,6 +93,40 @@ const GET_SHIPPING_ADDRESS = gql`
 `;
 
 /**
+ * Fetches the applicable tax rate based on tax class and shipping address.
+ * @param taxClassId - The ID of the tax class.
+ * @param address - The shipping address details.
+ * @returns The applicable TaxRate or null if none found.
+ */
+async function getTaxRateByTaxClassAndAddress(
+  taxClassId: string,
+  address: { country: string; state?: string; city?: string; postcode?: string }
+): Promise<TaxRate | null> {
+  try {
+    const taxRate = await taxRateRepository.findOne({
+      where: { taxClass: { id: taxClassId } },
+      order: { priority: "ASC" },
+    });
+
+    if (taxRate) {
+      const countryMatch = taxRate.country === address.country;
+      const stateMatch = !address.state || taxRate.state === address.state;
+      const cityMatch = !address.city || taxRate.city === address.city;
+      const postcodeMatch =
+        !address.postcode || taxRate.postcode === address.postcode;
+      if (countryMatch && stateMatch && cityMatch && postcodeMatch) {
+        return taxRate;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching tax rate:", error);
+    return null;
+  }
+}
+
+/**
  * Fetches the cart for the authenticated user.
  *
  * @param _ - Unused parent argument.
@@ -109,7 +145,6 @@ export const getCart = async (
     if (authResponse) return authResponse;
 
     // Validate input product ID with Zod schema
-
     if (args.shippingAddressId) {
       const validationResult = await idSchema.safeParseAsync({
         id: args.shippingAddressId,
@@ -133,10 +168,8 @@ export const getCart = async (
 
     const { shippingAddressId } = args;
 
-    // Tax Exemption
     // Extract token from Authorization header
     const token = req.headers.authorization?.replace("Bearer ", "");
-
     const decoded = token ? await DecodeToken(token) : null;
 
     // Create GraphQL client for user subgraph
@@ -158,15 +191,6 @@ export const getCart = async (
       (taxExemption as { getTaxExemptionEntryByUserId?: any })
         .getTaxExemptionEntryByUserId || null;
 
-    if (taxExemptionData.statusCode === 403) {
-      return {
-        statusCode: taxExemptionData.statusCode,
-        success: taxExemptionData.success,
-        message:
-          "Access denied: You do not have permission to view this user's cart due to tax exemption restrictions.",
-        __typename: "ErrorResponse",
-      };
-    }
     if (taxExemptionData.statusCode !== 200) {
       return {
         statusCode: taxExemptionData.statusCode,
@@ -176,10 +200,7 @@ export const getCart = async (
       };
     }
 
-    console.log(taxExemptionData);
-
     let shippingAddressInfo;
-
     if (shippingAddressId) {
       // Fetch shipping address entry
       const shippingAddress = await UserClient.request(GET_SHIPPING_ADDRESS, {
@@ -191,15 +212,6 @@ export const getCart = async (
         (shippingAddress as { getAddressBookEntryById?: any })
           .getAddressBookEntryById || null;
 
-      if (shippingAddressData?.statusCode === 403) {
-        return {
-          statusCode: shippingAddressData.statusCode,
-          success: shippingAddressData.success,
-          message:
-            "Access denied: You do not have permission to view this user's cart due to shipping address restriction.",
-          __typename: "ErrorResponse",
-        };
-      }
       if (shippingAddressData?.statusCode !== 200) {
         return {
           statusCode: shippingAddressData.statusCode,
@@ -220,61 +232,8 @@ export const getCart = async (
       shippingAddressInfo = shippingAddressData;
     }
 
-    console.log(shippingAddressInfo);
-
-    /* 
-      {
-        statusCode: 200,
-        success: true,
-        message: "Tax exemption fetched successfully",
-        taxExemption: {
-          id: "d1b6b662-965c-4715-ba27-e3baeafc65bd",
-          taxNumber: "TAX_2971AFD",
-          assumptionReason: "ZERO TAX",
-          status: "Approved",
-          expiryDate: "2025-12-31T23:59:59.000Z",
-          createdAt: "2025-08-14T06:12:22.689Z",
-          updatedAt: "2025-08-14T06:16:36.138Z",
-        },
-      }
-      {
-        statusCode: 200,
-        success: true,
-        message: "AddressBook fetched successfully",
-        addressBook: {
-          id: "e57acb50-2929-45f1-9a08-be4b331a6914",
-          company: "Williams and Gomez Trading",
-          streetOne: "113 Oak Extension",
-          streetTwo: "Deserunt possimus a",
-          city: "Baghlān",
-          state: "BGL",
-          zip: "1860",
-          country: "AF",
-          type: "SHIPPING",
-          isDefault: false,
-          createdAt: "2025-08-10T04:24:51.645Z",
-          updatedAt: "2025-08-10T04:32:11.080Z",
-        },
-      }
-    */
-
-    // Calculate tax if the customer has no tax exemption certificate or if the certificate is expired or if the status is not "Approved"
-
     // Fetch cart
     const cart = await getCartByUserId(user.id);
-
-    // Fetch tax options
-    const taxOptions = await getTaxOptions();
-
-    if (taxExemptionData) {
-      // Type assertion to access pricesEnteredWithTax safely
-      const pricesEnteredWithTax = (
-        taxExemptionData as { pricesEnteredWithTax?: boolean }
-      ).pricesEnteredWithTax;
-      if (!pricesEnteredWithTax) {
-      }
-    }
-
     if (!cart) {
       return {
         statusCode: 404,
@@ -284,23 +243,137 @@ export const getCart = async (
       };
     }
 
+    // Fetch tax options
+    const taxOptions = await getTaxOptions();
+    const pricesEnteredWithTax = taxOptions?.pricesEnteredWithTax || false;
+
+    // Determine if tax should be calculated
+    let calculateTax = true;
+    if (
+      taxExemptionData?.taxExemption &&
+      taxExemptionData.taxExemption.status === "Approved" &&
+      new Date(taxExemptionData.taxExemption.expiryDate) > new Date()
+    ) {
+      calculateTax = false;
+    }
+
+    // Calculate taxes for cart items
+    let totalTax = 0;
+    const cartItemsWithTax = await Promise.all(
+      (cart.items ?? []).map(async (item) => {
+        if (!item.product) {
+          return {
+            id: item.id,
+            quantity: item.quantity,
+            product: null,
+            productVariation: null,
+            tax: 0,
+          };
+        }
+
+        // Determine base price (salePrice if valid, else regularPrice)
+        const currentDate = new Date();
+        let basePrice = item.product.regularPrice ?? 0;
+        if (
+          item.product.salePrice &&
+          (!item.product.salePriceStartAt ||
+            new Date(item.product.salePriceStartAt) <= currentDate) &&
+          (!item.product.salePriceEndAt ||
+            new Date(item.product.salePriceEndAt) >= currentDate)
+        ) {
+          basePrice = item.product.salePrice;
+        }
+        if (item.productVariation) {
+          basePrice = item.productVariation.regularPrice ?? basePrice;
+          if (
+            item.productVariation.salePrice &&
+            (!item.productVariation.salePriceStartAt ||
+              new Date(item.productVariation.salePriceStartAt) <=
+                currentDate) &&
+            (!item.productVariation.salePriceEndAt ||
+              new Date(item.productVariation.salePriceEndAt) >= currentDate)
+          ) {
+            basePrice = item.productVariation.salePrice;
+          }
+        }
+
+        // Apply tiered pricing
+        let price = basePrice;
+        const tierPricingInfo = item.productVariation
+          ? await item.productVariation.tierPricingInfo
+          : await item.product.tierPricingInfo;
+        if (tierPricingInfo && tierPricingInfo.tieredPrices) {
+          const tieredPrices = await tierPricingInfo.tieredPrices;
+          const applicableTier = tieredPrices.find(
+            (tier) =>
+              tier.minQuantity !== null &&
+              tier.maxQuantity !== null &&
+              item.quantity >= tier.minQuantity &&
+              item.quantity <= tier.maxQuantity
+          );
+          if (applicableTier && tierPricingInfo.pricingType) {
+            if (
+              tierPricingInfo.pricingType === "Fixed" &&
+              applicableTier.fixedPrice !== null
+            ) {
+              price = applicableTier.fixedPrice;
+            } else if (
+              tierPricingInfo.pricingType === "Percentage" &&
+              applicableTier.percentageDiscount !== null
+            ) {
+              price = basePrice * (1 - applicableTier.percentageDiscount / 100);
+            }
+          }
+        }
+
+        let itemTax = 0;
+        if (calculateTax && shippingAddressInfo) {
+          // Determine tax class (variation takes precedence)
+          const taxClassId =
+            item.productVariation?.taxClass?.id ?? item.product.taxClass?.id;
+          if (taxClassId) {
+            const taxRate = await getTaxRateByTaxClassAndAddress(taxClassId, {
+              country: shippingAddressInfo.addressBook.country,
+              state: shippingAddressInfo.addressBook.state,
+              city: shippingAddressInfo.addressBook.city,
+              postcode: shippingAddressInfo.addressBook.zip,
+            });
+
+            if (taxRate) {
+              const taxableAmount = price * item.quantity;
+              if (pricesEnteredWithTax) {
+                // Back-calculate tax: taxableAmount = price / (1 + rate)
+                const taxRateDecimal = taxRate.rate / 100;
+                const baseAmount = taxableAmount / (1 + taxRateDecimal);
+                itemTax = taxableAmount - baseAmount;
+              } else {
+                // Tax-exclusive: tax = price * quantity * rate
+                itemTax = taxableAmount * (taxRate.rate / 100);
+              }
+              totalTax += itemTax;
+            }
+          }
+        }
+
+        return {
+          id: item.id,
+          quantity: item.quantity,
+          product: await mapProductRecursive(item.product),
+          productVariation: item.productVariation
+            ? await mapProductVariationRecursive(item.productVariation)
+            : null,
+          tax: itemTax,
+        };
+      })
+    );
+
     return {
       statusCode: 200,
       success: true,
       message: "Cart fetched successfully.",
       cart: {
         id: cart.id,
-        items: await Promise.all(
-          (cart.items ?? []).map(async (item) => ({
-            id: item.id,
-            quantity: item.quantity,
-            product: await mapProductRecursive(item.product),
-            productVariation: item.productVariation
-              ? await mapProductVariationRecursive(item.productVariation)
-              : null,
-            tax: 0,
-          }))
-        ),
+        items: cartItemsWithTax,
         coupons: (cart.coupons ?? []).map((coupon) => ({
           id: coupon.id,
           code: coupon.code,
@@ -345,7 +418,7 @@ export const getCart = async (
               ? coupon.deletedAt.toISOString()
               : coupon.deletedAt ?? null,
         })),
-        totalTax: 0,
+        totalTax,
         createdBy: cart.createdBy as any,
         createdAt:
           cart.createdAt instanceof Date

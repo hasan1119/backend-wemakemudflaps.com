@@ -1,6 +1,9 @@
 import { SelectQueryBuilder } from "typeorm";
-import { Cart } from "../../../entities";
-import { cartRepository } from "../repositories/repositories";
+import { Cart, CartItem } from "../../../entities";
+import {
+  cartItemRepository,
+  cartRepository,
+} from "../repositories/repositories";
 import {
   addProductRelationsToQuery,
   addProductVariationRelationsToQuery,
@@ -93,5 +96,35 @@ export const getCartByUserId = async (userId: string): Promise<Cart | null> => {
   return await createCartQueryBuilder()
     .where("cart.createdBy = :userId", { userId })
     .andWhere("cart.deletedAt IS NULL")
+    .getOne();
+};
+
+/**
+ * Finds a CartItem by product ID, product variation ID, and user ID.
+ *
+ * Workflow:
+ * 1. Creates a QueryBuilder to find a cart item matching the provided criteria.
+ * 2. Left joins "product" and "variation" relations for detailed information.
+ * 3. Returns the CartItem entity or null if not found.
+ *
+ * @param productId - The UUID of the product to search for.
+ * @param productVariationId - The UUID of the product variation (can be null).
+ * @param userId - The UUID of the user who owns the cart item.
+ * @returns A promise resolving to the CartItem entity or null if not found.
+ */
+export const findCartItem = async (
+  productId: string,
+  productVariationId: string | null,
+  userId: string
+): Promise<CartItem | null> => {
+  return await cartItemRepository
+    .createQueryBuilder("cartItem")
+    .leftJoinAndSelect("cartItem.product", "product")
+    .leftJoinAndSelect("cartItem.productVariation", "variation")
+    .where("cartItem.userId = :userId", { userId })
+    .andWhere("product.id = :productId", { productId })
+    .andWhere("variation.id = :productVariationId", {
+      productVariationId,
+    })
     .getOne();
 };
