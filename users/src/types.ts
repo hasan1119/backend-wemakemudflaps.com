@@ -141,6 +141,7 @@ export type Cart = {
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   items: Array<CartItems>;
+  totalTax?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CartItems = {
@@ -149,6 +150,7 @@ export type CartItems = {
   product: Product;
   productVariation?: Maybe<ProductVariation>;
   quantity: Scalars['Int']['output'];
+  tax?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CartResponse = {
@@ -3949,6 +3951,7 @@ export type CartResolvers<ContextType = Context, ParentType extends ResolversPar
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   items?: Resolver<Array<ResolversTypes['CartItems']>, ParentType, ContextType>;
+  totalTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3957,6 +3960,7 @@ export type CartItemsResolvers<ContextType = Context, ParentType extends Resolve
   product?: Resolver<ResolversTypes['Product'], ParentType, ContextType>;
   productVariation?: Resolver<Maybe<ResolversTypes['ProductVariation']>, ParentType, ContextType>;
   quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  tax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

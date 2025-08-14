@@ -1,6 +1,12 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearBrandsAndCountCache,
+  clearShippingClassesAndCountCache,
+  clearTagsAndCountCache,
+  clearTaxClassesAndCountCache,
+} from "../../../helper/redis";
+import {
   MutationUpdateProductArgs,
   UpdateProductResponseOrError,
 } from "../../../types";
@@ -366,6 +372,14 @@ export const updateProduct = async (
     const product = await updateProductService(currentProduct, {
       ...result.data,
     } as any);
+
+    await Promise.all([
+      clearBrandsAndCountCache(),
+      // clearCategoriesAndCountCache(),
+      clearShippingClassesAndCountCache(),
+      clearTagsAndCountCache(),
+      clearTaxClassesAndCountCache(),
+    ]);
 
     return {
       statusCode: 200,

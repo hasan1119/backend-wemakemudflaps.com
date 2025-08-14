@@ -52,6 +52,7 @@ export const getCart = async (
             productVariation: item.productVariation
               ? await mapProductVariationRecursive(item.productVariation)
               : null,
+            tax: 0,
           }))
         ),
         coupons: (cart.coupons ?? []).map((coupon) => ({
@@ -98,6 +99,7 @@ export const getCart = async (
               ? coupon.deletedAt.toISOString()
               : coupon.deletedAt ?? null,
         })),
+        totalTax: 0,
         createdBy: cart.createdBy as any,
         createdAt:
           cart.createdAt instanceof Date

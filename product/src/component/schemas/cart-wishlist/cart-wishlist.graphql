@@ -3,6 +3,7 @@ type Cart {
   id: ID!
   items: [CartItems!]!
   coupons: [Coupon!]!
+  totalTax: Int
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String
@@ -23,6 +24,7 @@ type CartItems {
   quantity: Int!
   product: Product!
   productVariation: ProductVariation
+  tax: Int
 }
 
 type WishlistItems {
