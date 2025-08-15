@@ -80,6 +80,7 @@ export class SiteSettings {
             }[]
           | null;
         direction?: string | null; // google map direction
+        isDefaultForTax?: boolean | null; // mark the default address for tax calculations
       }[]
     | null;
 

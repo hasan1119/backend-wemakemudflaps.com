@@ -2173,6 +2173,7 @@ export type QueryGetBrandByIdArgs = {
 
 
 export type QueryGetCartArgs = {
+  billingAddressId?: InputMaybe<Scalars['ID']['input']>;
   shippingAddressId?: InputMaybe<Scalars['ID']['input']>;
 };
 

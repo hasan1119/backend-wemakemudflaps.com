@@ -10,6 +10,7 @@ export { createOrUpdateShopAddress } from "./mutations/site-settings/create-or-u
 export { createOrUpdateSiteSetting } from "./mutations/site-settings/create-or-update-site-settings";
 export { deleteShopAddresses } from "./mutations/site-settings/delete-shop-addresses";
 export { getShopAddresses } from "./queries/site-settings/get-shop-addresses";
+export { getShopForDefaultTax } from "./queries/site-settings/get-shop-for-default-tax";
 export { getSiteSettings } from "./queries/site-settings/get-site-settings";
 
 /**

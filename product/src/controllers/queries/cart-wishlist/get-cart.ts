@@ -51,7 +51,7 @@ const GET_TAX_EXEMPTION = gql`
   }
 `;
 
-const GET_SHIPPING_ADDRESS = gql`
+const GET_ADDRESS_BOOK = gql`
   query GetAddressBookEntryById($addressBookEntryById: ID!, $userId: ID!) {
     getAddressBookEntryById(id: $addressBookEntryById, userId: $userId) {
       ... on BaseResponse {
@@ -91,6 +91,114 @@ const GET_SHIPPING_ADDRESS = gql`
   }
 `;
 
+const GET_SHOP_FOR_TAX = gql`
+  query GetShopForDefaultTax {
+    getShopForDefaultTax {
+      ... on BaseResponse {
+        statusCode
+        success
+        message
+      }
+      ... on ShopAddressResponse {
+        statusCode
+        success
+        message
+        shopAddress {
+          id
+          brunchName
+          addressLine1
+          addressLine2
+          emails {
+            type
+            email
+          }
+          phones {
+            type
+            number
+          }
+          city
+          state
+          country
+          zipCode
+          direction
+          isActive
+          openingAndClosingHours {
+            opening
+            closing
+          }
+          isEveryDayOpen
+          weeklyOffDays {
+            day
+          }
+          isDefaultForTax
+        }
+      }
+      ... on ErrorResponse {
+        statusCode
+        success
+        message
+        errors {
+          field
+          message
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * Fetches the default store address for tax calculations using GraphQL.
+ * @param token - The authorization token for the GraphQL request.
+ * @returns The default store address (with isDefaultForTax: true) or null if none found.
+ */
+async function getActiveStoreAddress(token?: string): Promise<{
+  country: string;
+  state?: string;
+  city?: string;
+  postcode?: string;
+} | null> {
+  try {
+    const ShopClient = new GraphQLClient(
+      process.env.SITE_SETTINGS_URL || "http://localhost:4004",
+      {
+        headers: {
+          Authorization: `Bearer ${token}` || "",
+        },
+      }
+    );
+
+    const response = await ShopClient.request(GET_SHOP_FOR_TAX);
+
+    const shopData = (response as { getShopForDefaultTax?: any })
+      .getShopForDefaultTax;
+
+    if (shopData?.statusCode !== 200 || !shopData?.shopAddress) {
+      console.error(
+        "Error fetching default tax address:",
+        shopData?.message || "No shop address found"
+      );
+      return null;
+    }
+
+    const shopAddress = shopData.shopAddress;
+
+    if (!shopAddress.isDefaultForTax) {
+      console.error("Shop address is not marked as default for tax");
+      return null;
+    }
+
+    return {
+      country: shopAddress.country || "",
+      state: shopAddress.state || undefined,
+      city: shopAddress.city || undefined,
+      postcode: shopAddress.zipCode || undefined,
+    };
+  } catch (error) {
+    console.error("Error fetching store address via GraphQL:", error);
+    return null;
+  }
+}
+
 /**
  * Fetches the cart for the authenticated user.
  *
@@ -110,28 +218,34 @@ export const getCart = async (
     if (authResponse) return authResponse;
 
     // Validate input product ID with Zod schema
-    if (args.shippingAddressId) {
-      const validationResult = await idSchema.safeParseAsync({
-        id: args.shippingAddressId,
-      });
+    if (args.shippingAddressId || args.billingAddressId) {
+      // Validate input data with Zod schema
+      const [shippingResult, billingResult] = await Promise.all([
+        idSchema.safeParseAsync({ id: args.shippingAddressId }),
+        idSchema.safeParseAsync({ id: args.billingAddressId }),
+      ]);
 
-      if (!validationResult.success) {
-        const errorMessages = validationResult.error.errors.map((error) => ({
-          field: error.path.join("."),
-          message: error.message,
+      // Return detailed validation errors if input is invalid
+      if (!shippingResult.success || !billingResult.success) {
+        const errors = [
+          ...(shippingResult.error?.errors || []),
+          ...(billingResult.error?.errors || []),
+        ].map((e) => ({
+          field: e.path.join("."),
+          message: e.message,
         }));
 
         return {
           statusCode: 400,
           success: false,
           message: "Validation failed",
-          errors: errorMessages,
+          errors,
           __typename: "ErrorResponse",
         };
       }
     }
 
-    const { shippingAddressId } = args;
+    const { shippingAddressId, billingAddressId } = args;
 
     // Extract token from Authorization header
     const token = req.headers.authorization?.replace("Bearer ", "");
@@ -168,7 +282,7 @@ export const getCart = async (
     let shippingAddressInfo;
     if (shippingAddressId) {
       // Fetch shipping address entry
-      const shippingAddress = await UserClient.request(GET_SHIPPING_ADDRESS, {
+      const shippingAddress = await UserClient.request(GET_ADDRESS_BOOK, {
         addressBookEntryById: shippingAddressId,
         userId: decoded.id,
       });
@@ -197,6 +311,38 @@ export const getCart = async (
       shippingAddressInfo = shippingAddressData;
     }
 
+    let billingAddressInfo;
+    if (billingAddressId) {
+      // Fetch billing address entry
+      const billingAddress = await UserClient.request(GET_ADDRESS_BOOK, {
+        addressBookEntryById: billingAddressId,
+        userId: decoded.id,
+      });
+
+      const billingAddressData =
+        (billingAddress as { getAddressBookEntryById?: any })
+          .getAddressBookEntryById || null;
+
+      if (billingAddressData?.statusCode !== 200) {
+        return {
+          statusCode: billingAddressData.statusCode,
+          success: billingAddressData.success,
+          message: billingAddressData.message,
+          __typename: "ErrorResponse",
+        };
+      }
+      if (billingAddressData.addressBook.type !== "BILLING") {
+        return {
+          statusCode: 400,
+          success: billingAddressData.success,
+          message: "Provided address is not a valid billing address.",
+          __typename: "ErrorResponse",
+        };
+      }
+
+      billingAddressInfo = billingAddressData;
+    }
+
     // Fetch cart
     const cart = await getCartByUserId(user.id);
     if (!cart) {
@@ -211,6 +357,7 @@ export const getCart = async (
     // Fetch tax options
     const taxOptions = await getTaxOptions();
     const pricesEnteredWithTax = taxOptions?.pricesEnteredWithTax || false;
+    const taxCalculateBasedOn = taxOptions?.calculateTaxBasedOn || null;
 
     // Determine if tax should be calculated
     let calculateTax = true;
@@ -220,6 +367,54 @@ export const getCart = async (
       new Date(taxExemptionData.taxExemption.expiryDate) > new Date()
     ) {
       calculateTax = false;
+    }
+
+    // Determine address for tax calculation
+    let taxAddress: {
+      country: string;
+      state?: string;
+      city?: string;
+      postcode?: string;
+    } | null = null;
+    if (calculateTax) {
+      if (taxCalculateBasedOn === "SHIPPING_ADDRESS") {
+        if (shippingAddressInfo) {
+          taxAddress = {
+            country: shippingAddressInfo.addressBook.country,
+            state: shippingAddressInfo.addressBook.state,
+            city: shippingAddressInfo.addressBook.city,
+            postcode: shippingAddressInfo.addressBook.zip,
+          };
+        } else {
+          return {
+            statusCode: 400,
+            success: false,
+            message: "Shipping address is required for tax calculation",
+            __typename: "ErrorResponse",
+          };
+        }
+      } else if (taxCalculateBasedOn === "BILLING_ADDRESS") {
+        if (billingAddressInfo) {
+          taxAddress = {
+            country: billingAddressInfo.addressBook.country,
+            state: billingAddressInfo.addressBook.state,
+            city: billingAddressInfo.addressBook.city,
+            postcode: billingAddressInfo.addressBook.zip,
+          };
+        } else {
+          return {
+            statusCode: 400,
+            success: false,
+            message: "Billing address is required for tax calculation",
+            __typename: "ErrorResponse",
+          };
+        }
+      } else if (taxCalculateBasedOn === "STORE_ADDRESS") {
+        taxAddress = await getActiveStoreAddress(token);
+        if (!taxAddress) {
+          calculateTax = false; // Skip tax calculation if no store address found
+        }
+      }
     }
 
     // Calculate taxes for cart items
@@ -292,18 +487,15 @@ export const getCart = async (
         }
 
         let itemTax = 0;
-        if (calculateTax && shippingAddressInfo) {
+        if (calculateTax && taxAddress) {
           // Determine tax class (variation takes precedence)
           const taxClassId =
             item.productVariation?.taxClass?.id ?? item.product.taxClass?.id;
           if (taxClassId) {
-            const taxRate = await getTaxRateByTaxClassAndAddress(taxClassId, {
-              country: shippingAddressInfo.addressBook.country,
-              state: shippingAddressInfo.addressBook.state,
-              city: shippingAddressInfo.addressBook.city,
-              postcode: shippingAddressInfo.addressBook.zip,
-            });
-
+            const taxRate = await getTaxRateByTaxClassAndAddress(
+              taxClassId,
+              taxAddress
+            );
             if (taxRate) {
               const taxableAmount = price * item.quantity;
               if (pricesEnteredWithTax) {

@@ -22,6 +22,7 @@ export { checkUserPermission } from "./permission/get-user-permission.service";
  */
 export {
   getShopAddresses,
+  getShopForDefaultTax,
   getSiteSettings,
   ShopAddressData,
 } from "./site-settings/get-site-settings.service";

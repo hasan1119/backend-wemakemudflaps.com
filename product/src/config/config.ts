@@ -22,6 +22,9 @@ interface Config {
   /*  User Graph Url */
   USER_GRAPH_URL: string;
 
+  /* Site Settings Graph URL */
+  SITE_SETTINGS_URL: string;
+
   /* GraphQL Sub Graph identifier */
   SUB_GRAPH_NAME: string;
 
@@ -82,6 +85,9 @@ const CONFIG: Config = {
 
   /* User Graph Url */
   USER_GRAPH_URL: process.env.USER_GRAPH_URL as string,
+
+  /* Site Settings Graph URL */
+  SITE_SETTINGS_URL: process.env.SITE_SETTINGS_URL as string,
 
   // ===================== Database Configurations =====================
   DB_TYPE: process.env.DB_TYPE as string,

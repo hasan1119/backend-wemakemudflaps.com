@@ -42,7 +42,7 @@ type OpeningAndClosingHours {
   closing: String
 }
 
-type ShopAddress @key(fields: "id") @shareable {
+type ShopAddress {
   id: ID!
   brunchName: String
   addressLine1: String
@@ -58,6 +58,7 @@ type ShopAddress @key(fields: "id") @shareable {
   openingAndClosingHours: OpeningAndClosingHours
   isEveryDayOpen: Boolean
   weeklyOffDays: [WeeklyOffDay]
+  isDefaultForTax: Boolean
 }
 
 type MetaData {
@@ -117,6 +118,7 @@ input ShopAddressInput {
   isActive: Boolean
   isEveryDayOpen: Boolean
   weeklyOffDays: [WeeklyOffDayInput]
+  isDefaultForTax: Boolean
 }
 
 input MetaDataInput {
@@ -150,6 +152,10 @@ type ShopAddressesResponse {
 
 # ---------------------- Unions ----------------------
 union CreateOrUpdateShopAddressResponseOrError =
+    BaseResponse
+  | ShopAddressResponse
+  | ErrorResponse
+union GetShopForDefaultTaxResponseOrError =
     BaseResponse
   | ShopAddressResponse
   | ErrorResponse

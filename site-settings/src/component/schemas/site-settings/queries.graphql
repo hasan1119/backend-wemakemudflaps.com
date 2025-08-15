@@ -13,4 +13,9 @@ type Query {
     limit: Int!
     search: String
   ): GetShopAddressesResponseOrError!
+
+  # Fetch shop address for default tax.
+  # Retrieves the shop address marked as default for tax purposes.
+  # Returns a `GetShopForDefaultTaxResponseOrError` containing shop address data and request status.
+  getShopForDefaultTax: GetShopForDefaultTaxResponseOrError!
 }

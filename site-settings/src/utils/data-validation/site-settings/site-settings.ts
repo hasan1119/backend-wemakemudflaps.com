@@ -41,6 +41,8 @@ import z from "zod";
  *   - openingAndClosingHours: Object containing opening and closing hours (optional, nullable).
  *   - isActive: Boolean indicating if the shop is active (optional, nullable).
  *   - direction: Google Maps direction (optional, nullable).
+ *   - isDefaultForTax: mark the default address for tax calculations(optional, nullable).
+
  */
 export const siteSettingsSchema = z
   .object({
@@ -230,6 +232,7 @@ export const siteSettingsSchema = z
           )
           .optional()
           .nullable(),
+        isDefaultForTax: z.boolean().optional().nullable(),
       })
       .optional()
       .nullable()

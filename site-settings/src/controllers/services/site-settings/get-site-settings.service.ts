@@ -113,6 +113,28 @@ export const getShopAddresses = async (
 };
 
 /**
+ * Retrieves the shop address marked as default for tax purposes.
+ *
+ * Workflow:
+ * 1. Fetches the site settings from the database.
+ * 2. If no site settings or shop addresses are found, returns null.
+ * 3. Finds and returns the shop address marked as default for tax purposes.
+ *
+ * @returns Promise resolving to the default tax shop address or null if not found.
+ */
+export const getShopForDefaultTax = async (): Promise<ShopAddress | null> => {
+  const siteSettings = await siteSettingsRepository.findOne({
+    where: { deletedAt: null },
+  });
+
+  if (!siteSettings || !siteSettings.shopAddresses) return null;
+
+  return (
+    siteSettings.shopAddresses.find((addr) => addr.isDefaultForTax) || null
+  );
+};
+
+/**
  * Federated reference resolver for the Media entity.
  * Used by Apollo Federation to resolve media entities by ID from other subgraphs.
  *

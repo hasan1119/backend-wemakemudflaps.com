@@ -2,6 +2,7 @@ import {
   getAllFaqs,
   getFaqById,
   getShopAddresses,
+  getShopForDefaultTax,
   getSiteSettings,
 } from "../../controllers";
 import { ShopAddressData } from "../../controllers/services";
@@ -80,6 +81,8 @@ export const siteSettingsQueriesResolver = {
      * Retrieves a specific FAQ by its ID.
      */
     getFaqById,
+
+    getShopForDefaultTax,
   },
 
   /**
