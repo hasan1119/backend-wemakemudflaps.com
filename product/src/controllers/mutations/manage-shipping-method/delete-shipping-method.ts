@@ -9,6 +9,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   deleteShippingMethod as deleteShippingMethodService,
+  getShippingMethodById,
 } from "../../services";
 
 /**
@@ -69,8 +70,19 @@ export const deleteShippingMethod = async (
 
     const { id } = args;
 
+    const shippingMethod = await getShippingMethodById(id);
+
+    if (!shippingMethod) {
+      return {
+        statusCode: 403,
+        success: false,
+        message: "Shipping method not found",
+        __typename: "ErrorResponse",
+      };
+    }
+
     // Attempt to delete the shipping method
-    await deleteShippingMethodService(id);
+    await deleteShippingMethodService(shippingMethod);
 
     return {
       statusCode: 200,

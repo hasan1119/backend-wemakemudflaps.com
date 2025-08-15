@@ -38,22 +38,34 @@ export class ShippingMethod {
 
   // Only one of these relations should be set at a time
   // Flat Rate shipping method
-  @OneToOne(() => FlatRate, { nullable: true, cascade: true })
+  @OneToOne(() => FlatRate, {
+    nullable: true,
+    cascade: true,
+    onDelete: "CASCADE",
+  })
   @JoinColumn()
   flatRate: FlatRate | null;
 
   // Free Shipping method
-  @OneToOne(() => FreeShipping, { nullable: true, cascade: true })
+  @OneToOne(() => FreeShipping, {
+    nullable: true,
+    cascade: true,
+    onDelete: "CASCADE",
+  })
   @JoinColumn()
   freeShipping: FreeShipping | null;
 
   // Local Pick Up method
-  @OneToOne(() => LocalPickUp, { nullable: true, cascade: true })
+  @OneToOne(() => LocalPickUp, {
+    nullable: true,
+    cascade: true,
+    onDelete: "CASCADE",
+  })
   @JoinColumn()
   localPickUp: LocalPickUp | null;
 
   // UPS shipping method
-  @OneToOne(() => Ups, { nullable: true, cascade: true })
+  @OneToOne(() => Ups, { nullable: true, cascade: true, onDelete: "CASCADE" })
   @JoinColumn()
   ups: Ups | null;
 

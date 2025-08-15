@@ -1,4 +1,4 @@
-import { Brackets, In } from "typeorm";
+import { Brackets } from "typeorm";
 import { ShippingMethod } from "../../../entities";
 import { shippingMethodRepository } from "../repositories/repositories";
 
@@ -16,18 +16,18 @@ import { shippingMethodRepository } from "../repositories/repositories";
 export const getShippingMethodById = async (
   id: string
 ): Promise<ShippingMethod | null> => {
-  return await shippingMethodRepository.findOne({
-    where: { id, deletedAt: null },
-    relations: [
-      "flatRate",
-      "flatRate.costs",
-      "flatRate.costs.shippingClass",
-      "freeShipping",
-      "localPickUp",
-      "ups",
-      "shippingZone",
-    ],
-  });
+  return await shippingMethodRepository
+    .createQueryBuilder("shippingMethod")
+    .leftJoinAndSelect("shippingMethod.flatRate", "flatRate")
+    .leftJoinAndSelect("flatRate.costs", "flatRateCosts")
+    .leftJoinAndSelect("flatRateCosts.shippingClass", "flatRateShippingClass")
+    .leftJoinAndSelect("shippingMethod.freeShipping", "freeShipping")
+    .leftJoinAndSelect("shippingMethod.localPickUp", "localPickUp")
+    .leftJoinAndSelect("shippingMethod.ups", "ups")
+    .leftJoinAndSelect("shippingMethod.shippingZone", "shippingZone")
+    .where("shippingMethod.id = :id", { id })
+    .andWhere("shippingMethod.deletedAt IS NULL")
+    .getOne();
 };
 
 /**
@@ -45,21 +45,18 @@ export const getShippingMethodsByIds = async (
 ): Promise<ShippingMethod[]> => {
   if (!ids.length) return [];
 
-  return await shippingMethodRepository.find({
-    where: {
-      id: In(ids),
-      deletedAt: null,
-    },
-    relations: [
-      "flatRate",
-      "flatRate.costs",
-      "flatRate.costs.shippingClass",
-      "freeShipping",
-      "localPickUp",
-      "ups",
-      "shippingZone",
-    ],
-  });
+  return await shippingMethodRepository
+    .createQueryBuilder("shippingMethod")
+    .leftJoinAndSelect("shippingMethod.flatRate", "flatRate")
+    .leftJoinAndSelect("flatRate.costs", "flatRateCosts")
+    .leftJoinAndSelect("flatRateCosts.shippingClass", "flatRateShippingClass")
+    .leftJoinAndSelect("shippingMethod.freeShipping", "freeShipping")
+    .leftJoinAndSelect("shippingMethod.localPickUp", "localPickUp")
+    .leftJoinAndSelect("shippingMethod.ups", "ups")
+    .leftJoinAndSelect("shippingMethod.shippingZone", "shippingZone")
+    .where("shippingMethod.id IN (:...ids)", { ids })
+    .andWhere("shippingMethod.deletedAt IS NULL")
+    .getMany();
 };
 
 interface GetPaginatedShippingMethodsInput {

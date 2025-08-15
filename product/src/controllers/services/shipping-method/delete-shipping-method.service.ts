@@ -1,4 +1,11 @@
-import { shippingMethodRepository } from "../repositories/repositories";
+import { ShippingMethod } from "../../../entities";
+import {
+  flatRateRepository,
+  freeShippingRepository,
+  localPickUpRepository,
+  shippingMethodRepository,
+  upsRepository,
+} from "../repositories/repositories";
 
 /**
  * Permanently deletes a shipping method from the database.
@@ -11,7 +18,19 @@ import { shippingMethodRepository } from "../repositories/repositories";
  * @returns A promise that resolves when the deletion is complete.
  */
 export const deleteShippingMethod = async (
-  shippingMethodId: string
+  shippingMethod: ShippingMethod
 ): Promise<void> => {
-  await shippingMethodRepository.delete({ id: shippingMethodId });
+  if (shippingMethod?.flatRate?.id) {
+    await flatRateRepository.delete({ id: shippingMethod.flatRate.id });
+  }
+  if (shippingMethod?.freeShipping?.id) {
+    await freeShippingRepository.delete({ id: shippingMethod.freeShipping.id });
+  }
+  if (shippingMethod?.localPickUp?.id) {
+    await localPickUpRepository.delete({ id: shippingMethod.localPickUp.id });
+  }
+  if (shippingMethod?.ups?.id) {
+    await upsRepository.delete({ id: shippingMethod.ups.id });
+  }
+  await shippingMethodRepository.delete({ id: shippingMethod.id });
 };
