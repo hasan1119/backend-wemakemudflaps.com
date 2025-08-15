@@ -2265,17 +2265,15 @@ export type QueryGetUserByIdArgs = {
 
 export type Region = {
   __typename?: 'Region';
-  area?: Maybe<Scalars['String']['output']>;
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<Scalars['String']['output']>;
   state?: Maybe<Scalars['String']['output']>;
 };
 
 export type RegionInput = {
-  area?: InputMaybe<Scalars['String']['input']>;
-  city: Scalars['String']['input'];
-  country: Scalars['String']['input'];
-  state: Scalars['String']['input'];
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  state?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RemoveFromCartOrWishListResponseOrError = BaseResponse | ErrorResponse;
@@ -5004,7 +5002,6 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 };
 
 export type RegionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Region'] = ResolversParentTypes['Region']> = {
-  area?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

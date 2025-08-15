@@ -439,9 +439,9 @@ export {
  * 3. Supports paginated retrieval of tax rates.
  */
 export {
-  countTaxRatesWithSearch,
   getTaxRateById,
   getTaxRateByIds,
+  getTaxRateByTaxClassAndAddress,
   paginateTaxRates,
 } from "./tax-rate/get-tax-rate.service";
 

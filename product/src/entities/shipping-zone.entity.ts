@@ -17,7 +17,6 @@ export class ShippingZone {
         country: string | null;
         state: string | null;
         city: string | null;
-        area: string | null;
       }[]
     | null;
 

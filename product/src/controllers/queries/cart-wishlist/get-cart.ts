@@ -1,8 +1,6 @@
 import { gql, GraphQLClient } from "graphql-request";
-import { ILike } from "typeorm";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { TaxRate } from "../../../entities";
 import {
   GetCartOrWishListResponseOrError,
   QueryGetCartArgs,
@@ -13,10 +11,10 @@ import {
   checkUserAuth,
   getCartByUserId,
   getTaxOptions,
+  getTaxRateByTaxClassAndAddress,
   mapProductRecursive,
   mapProductVariationRecursive,
 } from "../../services";
-import { taxRateRepository } from "../../services/repositories/repositories";
 
 const GET_TAX_EXEMPTION = gql`
   query GetTaxExemptionEntryByUserId($userId: ID!) {
@@ -92,51 +90,6 @@ const GET_SHIPPING_ADDRESS = gql`
     }
   }
 `;
-
-/**
- * Fetches the applicable tax rate based on tax class and shipping address using case-insensitive matching.
- * @param taxClassId - The ID of the tax class.
- * @param address - The shipping address details.
- * @returns The applicable TaxRate or null if none found.
- */
-async function getTaxRateByTaxClassAndAddress(
-  taxClassId: string,
-  address: { country: string; state?: string; city?: string; postcode?: string }
-): Promise<TaxRate | null> {
-  try {
-    const whereClause: any = {
-      taxClass: { id: taxClassId },
-    };
-
-    // Case-insensitive matching using ILike
-    whereClause.country = ILike(address.country);
-    if (address.state) {
-      whereClause.state = ILike(address.state);
-    } else {
-      whereClause.state = null;
-    }
-    if (address.city) {
-      whereClause.city = ILike(address.city);
-    } else {
-      whereClause.city = null;
-    }
-    if (address.postcode) {
-      whereClause.postcode = ILike(address.postcode);
-    } else {
-      whereClause.postcode = null;
-    }
-
-    const taxRate = await taxRateRepository.findOne({
-      where: whereClause,
-      order: { priority: "ASC" },
-    });
-
-    return taxRate || null;
-  } catch (error) {
-    console.error("Error fetching tax rate:", error);
-    return null;
-  }
-}
 
 /**
  * Fetches the cart for the authenticated user.

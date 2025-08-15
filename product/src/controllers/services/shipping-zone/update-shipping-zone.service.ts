@@ -28,7 +28,6 @@ export const updateShippingZone = async (
             country: reg.country || null,
             state: reg.state || null,
             city: reg.city || null,
-            area: reg.area || null,
           })) || null,
       }),
     ...(data.zipCodes !== undefined &&

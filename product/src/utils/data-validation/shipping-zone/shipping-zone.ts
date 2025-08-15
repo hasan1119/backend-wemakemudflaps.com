@@ -5,7 +5,6 @@ const regionSchema = z.object({
   country: z.string().min(1).max(100).nullable().optional(),
   state: z.string().min(1).max(100).nullable().optional(),
   city: z.string().min(1).max(100).nullable().optional(),
-  area: z.string().min(1).max(100).nullable().optional(),
 });
 
 /**

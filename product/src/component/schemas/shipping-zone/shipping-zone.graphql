@@ -3,7 +3,6 @@ type Region {
   country: String
   state: String
   city: String
-  area: String
 }
 
 type ShippingZone {
@@ -39,7 +38,6 @@ input RegionInput {
   country: String
   state: String
   city: String
-  area: String
 }
 
 # ---------------------- Unions ----------------------

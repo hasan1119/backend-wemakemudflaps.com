@@ -1,4 +1,4 @@
-import { Brackets, In } from "typeorm";
+import { Brackets, ILike, In } from "typeorm";
 import { TaxRate } from "../../../entities";
 import { taxRateRepository } from "../repositories/repositories";
 
@@ -45,6 +45,51 @@ export const getTaxRateByIds = async (ids: string[]): Promise<TaxRate[]> => {
     },
     relations: ["taxClass"],
   });
+};
+
+/**
+ * Fetches the applicable tax rate based on tax class and shipping address using case-insensitive matching.
+ * @param taxClassId - The ID of the tax class.
+ * @param address - The shipping address details.
+ * @returns The applicable TaxRate or null if none found.
+ */
+export const getTaxRateByTaxClassAndAddress = async (
+  taxClassId: string,
+  address: { country: string; state?: string; city?: string; postcode?: string }
+): Promise<TaxRate | null> => {
+  try {
+    const whereClause: any = {
+      taxClass: { id: taxClassId },
+    };
+
+    // Case-insensitive matching using ILike
+    whereClause.country = ILike(address.country);
+    if (address.state) {
+      whereClause.state = ILike(address.state);
+    } else {
+      whereClause.state = null;
+    }
+    if (address.city) {
+      whereClause.city = ILike(address.city);
+    } else {
+      whereClause.city = null;
+    }
+    if (address.postcode) {
+      whereClause.postcode = ILike(address.postcode);
+    } else {
+      whereClause.postcode = null;
+    }
+
+    const taxRate = await taxRateRepository.findOne({
+      where: whereClause,
+      order: { priority: "ASC" },
+    });
+
+    return taxRate || null;
+  } catch (error) {
+    console.error("Error fetching tax rate:", error);
+    return null;
+  }
 };
 
 interface GetPaginatedTaxRatesInput {
@@ -105,41 +150,4 @@ export const paginateTaxRates = async ({
   const [taxRates, total] = await queryBuilder.getManyAndCount();
 
   return { taxRates, total };
-};
-
-/**
- * Counts total tax rates filtered by tax class ID and optional search term.
- *
- * Workflow:
- * 1. Builds a query joining taxClass relation and filtering by taxClassId and non-deleted rates.
- * 2. Applies search filters on label and country if search term is provided.
- * 3. Retrieves and returns the count of matching tax rates.
- *
- * @param taxClassId - The ID of the tax class to filter tax rates.
- * @param search - Optional search term to filter by label or country.
- * @returns A promise resolving to the count of matching tax rates.
- */
-export const countTaxRatesWithSearch = async (
-  taxClassId: string,
-  search?: string
-): Promise<number> => {
-  const queryBuilder = taxRateRepository
-    .createQueryBuilder("taxRate")
-    .innerJoin("taxRate.taxClass", "taxClass")
-    .where("taxRate.deletedAt IS NULL")
-    .andWhere("taxClass.id = :taxClassId", { taxClassId });
-
-  if (search) {
-    const searchTerm = `%${search.trim()}%`;
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        qb.where("taxRate.label ILIKE :search", { search: searchTerm }).orWhere(
-          "taxRate.country ILIKE :search",
-          { search: searchTerm }
-        );
-      })
-    );
-  }
-
-  return await queryBuilder.getCount();
 };
