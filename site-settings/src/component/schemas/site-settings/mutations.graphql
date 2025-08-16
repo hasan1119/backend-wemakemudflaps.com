@@ -12,14 +12,4 @@ type Mutation {
     privacyPolicy: String # The privacy policy for the site setting.
     termsAndConditions: String # The terms and conditions for the site setting.
   ): CreateOrUpdateSiteSettingsResponseOrError!
-
-  createOrUpdateShopAddress(
-    input: ShopAddressInput! # The input data for the shop address.
-  ): CreateOrUpdateShopAddressResponseOrError!
-
-  # Delete existing shop addresses.
-  # Only accessible by authorized users.
-  deleteShopAddresses(
-    ids: [ID!]! # The IDs of the shop addresses to delete.
-  ): BaseResponse!
 }

@@ -1,0 +1,130 @@
+# ---------------------- Site Settings Types ----------------------
+enum ShopEmailType {
+  Corporate
+  Complain
+  Support
+  Other
+}
+
+enum WeeklyOffDayEnum {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+type ShopEmail {
+  type: ShopEmailType!
+  email: String!
+}
+
+enum ShopPhoneType {
+  Mobile
+  Landline
+  Fax
+  Other
+}
+
+type ShopPhone {
+  type: ShopPhoneType!
+  number: String!
+}
+
+type WeeklyOffDay {
+  day: WeeklyOffDayEnum!
+}
+
+type OpeningAndClosingHours {
+  opening: String
+  closing: String
+}
+
+type ShopAddress {
+  id: ID!
+  brunchName: String
+  addressLine1: String
+  addressLine2: String
+  emails: [ShopEmail]
+  phones: [ShopPhone]
+  city: String
+  state: String
+  country: String
+  zipCode: String
+  direction: String
+  isActive: Boolean
+  openingAndClosingHours: OpeningAndClosingHours
+  isEveryDayOpen: Boolean
+  weeklyOffDays: [WeeklyOffDay]
+  isDefaultForTax: Boolean
+}
+
+# ---------------------- Input Types ----------------------
+input ShopEmailInput {
+  type: ShopEmailType!
+  email: String!
+}
+
+input ShopPhoneInput {
+  type: ShopPhoneType!
+  number: String!
+}
+
+input WeeklyOffDayInput {
+  day: WeeklyOffDayEnum!
+}
+
+input OpeningAndClosingHoursInput {
+  opening: String
+  closing: String
+}
+
+input ShopAddressInput {
+  id: ID
+  brunchName: String
+  addressLine1: String
+  addressLine2: String
+  emails: [ShopEmailInput]
+  phones: [ShopPhoneInput]
+  city: String
+  state: String
+  country: String
+  zipCode: String
+  direction: String
+  openingAndClosingHours: OpeningAndClosingHoursInput
+  isActive: Boolean
+  isEveryDayOpen: Boolean
+  weeklyOffDays: [WeeklyOffDayInput]
+  isDefaultForTax: Boolean
+}
+
+type ShopAddressResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shopAddress: ShopAddress!
+}
+
+type ShopAddressesResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shopAddresses: [ShopAddress!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+union CreateOrUpdateShopAddressResponseOrError =
+    BaseResponse
+  | ShopAddressResponse
+  | ErrorResponse
+union GetShopForDefaultTaxResponseOrError =
+    BaseResponse
+  | ShopAddressResponse
+  | ErrorResponse
+union GetShopAddressesResponseOrError =
+    BaseResponse
+  | ShopAddressesResponse
+  | ErrorResponse

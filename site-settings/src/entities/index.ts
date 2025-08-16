@@ -21,3 +21,12 @@ export { SiteSettings } from "./site-settings.entity";
  * 1. Provides the Newsletter entity to handle user subscriptions to newsletters and related communications.
  */
 export { Newsletter } from "./news-letter.entity";
+
+/**
+ * Exports the ShopAddress entity for managing physical shop or branch addresses.
+ *
+ * Workflow:
+ * 1. Provides the ShopAddress entity to define and store detailed shop or branch location information.
+ * 2. Supports metadata such as emails, phones, opening hours, weekly off days, and default tax address flags.
+ */
+export { ShopAddress } from "./shop-address.entity";

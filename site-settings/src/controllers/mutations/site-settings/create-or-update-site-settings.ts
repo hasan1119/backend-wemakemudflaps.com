@@ -105,7 +105,6 @@ export const createOrUpdateSiteSetting = async (
       logo: siteSettings.logo as any,
       contactNumber: siteSettings.contactNumber,
       contactEmail: siteSettings.contactEmail,
-      shopAddresses: siteSettings.shopAddresses as any,
       privacyPolicy: siteSettings.privacyPolicy,
       termsAndConditions: siteSettings.termsAndConditions,
       createdBy: siteSettings.createdBy as any,

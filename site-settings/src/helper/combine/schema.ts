@@ -4,6 +4,9 @@ import {
   faqMutationsDef,
   faqQueriesDef,
   sharedDef,
+  shopAddressDef,
+  shopAddressMutationsDef,
+  shopAddressQueriesDef,
   siteSettingsDef,
   siteSettingsMutationsDef,
   siteSettingsQueriesDef,
@@ -38,4 +41,13 @@ export const typeDefs = mergeTypeDefs([
 
   // Site settings mutations schema definition for modifying site settings
   siteSettingsMutationsDef,
+
+  // Shop address schema definition for managing shop addresses
+  shopAddressDef,
+
+  // Shop address queries schema definition for fetching shop addresses
+  shopAddressQueriesDef,
+
+  // Shop address mutations schema definition for modifying shop addresses
+  shopAddressMutationsDef,
 ]);

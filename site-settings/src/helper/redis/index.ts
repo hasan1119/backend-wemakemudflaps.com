@@ -28,11 +28,8 @@ export {
  */
 export {
   clearShopAddressesCache,
-  getShopAddressByIdFromRedis,
   getShopAddressesFromRedis,
   getSiteSettingsFromRedis,
-  removeShopAddressByIdFromRedis,
-  setShopAddressByIdInRedis,
   setShopAddressesToRedis,
   setSiteSettingsToRedis,
 } from "./utils/site-settings/site-settings-session-manage";

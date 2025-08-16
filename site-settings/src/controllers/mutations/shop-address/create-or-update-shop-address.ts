@@ -1,9 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import {
-  clearShopAddressesCache,
-  setShopAddressByIdInRedis,
-} from "../../../helper/redis";
+import { clearShopAddressesCache } from "../../../helper/redis";
 import {
   CreateOrUpdateShopAddressResponseOrError,
   MutationCreateOrUpdateShopAddressArgs,
@@ -84,24 +81,13 @@ export const createOrUpdateShopAddress = async (
       user.id
     );
 
-    // Return the updated/created address
-    const updatedAddress = args.input.id
-      ? shopAddress.shopAddresses.find((addr) => addr.id === args.input.id)
-      : shopAddress.shopAddresses[shopAddress.shopAddresses.length - 1];
-
     // Clear the cache for shop addresses
-    await Promise.all([
-      setShopAddressByIdInRedis(
-        updatedAddress.id,
-        updatedAddress as ShopAddress
-      ),
-      clearShopAddressesCache(),
-    ]);
+    await clearShopAddressesCache();
 
     return {
       statusCode: args.input.id ? 200 : 201,
       success: true,
-      shopAddress: updatedAddress as ShopAddress,
+      shopAddress: shopAddress as ShopAddress,
       message: `${
         args.input.id
           ? "Shop Address updated successfully"

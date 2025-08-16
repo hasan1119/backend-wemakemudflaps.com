@@ -1,4 +1,4 @@
-import { FAQ, Newsletter, SiteSettings } from "../../../entities";
+import { FAQ, Newsletter, ShopAddress, SiteSettings } from "../../../entities";
 import { AppDataSource } from "../../../helper";
 
 /**
@@ -24,3 +24,11 @@ export const newsletterRepository = AppDataSource.getRepository(Newsletter);
  * 1. Retrieves the SiteSettings repository from AppDataSource for database operations.
  */
 export const siteSettingsRepository = AppDataSource.getRepository(SiteSettings);
+
+/**
+ * Initializes repository for ShopAddress entity.
+ *
+ * Workflow:
+ * 1. Retrieves the ShopAddress repository from AppDataSource for database operations.
+ */
+export const shopAddressRepository = AppDataSource.getRepository(ShopAddress);

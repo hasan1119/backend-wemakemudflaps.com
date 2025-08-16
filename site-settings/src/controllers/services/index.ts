@@ -24,7 +24,6 @@ export {
   getShopAddresses,
   getShopForDefaultTax,
   getSiteSettings,
-  ShopAddressData,
 } from "./site-settings/get-site-settings.service";
 
 /**
@@ -41,7 +40,7 @@ export { createOrUpdateSiteSettings } from "./site-settings/create-or-update-sit
  * Workflow:
  * 1. Provides a function to create a new shop address or update an existing one.
  */
-export { createOrUpdateShopAddress } from "./site-settings/create-or-update-shop-address.service";
+export { createOrUpdateShopAddress } from "./shop-address/create-or-update-shop-address.service";
 
 /**
  * Exports service for deleting shop addresses.
@@ -49,7 +48,7 @@ export { createOrUpdateShopAddress } from "./site-settings/create-or-update-shop
  * Workflow:
  * 1. Provides a function to delete specified shop addresses from the site settings.
  */
-export { deleteShopAddresses } from "./site-settings/delete-shop-addresses.service";
+export { deleteShopAddresses } from "./shop-address/delete-shop-addresses.service";
 
 /**
  * Exports services for managing FAQs.

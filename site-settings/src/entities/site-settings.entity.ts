@@ -33,57 +33,6 @@ export class SiteSettings {
   @Column({ nullable: true, default: null })
   contactEmail: string | null;
 
-  // Address of the shop for the site setting
-  @Column({
-    type: "jsonb",
-    nullable: true,
-    default: null,
-  })
-  shopAddresses:
-    | {
-        id: string;
-        brunchName?: string | null;
-        addressLine1?: string | null;
-        addressLine2?: string | null;
-        emails?:
-          | {
-              type: "Corporate" | "Complain" | "Support" | "Other" | null;
-              email: string | null;
-            }[]
-          | null;
-        phones?:
-          | {
-              type: "Mobile" | "Landline" | "Fax" | "Other" | null;
-              number: string | null;
-            }[]
-          | null;
-        city?: string | null;
-        state?: string | null;
-        country?: string | null;
-        zipCode?: string | null;
-        openingAndClosingHours?: {
-          opening: string | null;
-          closing: string | null;
-        } | null;
-        isActive?: boolean | null;
-        isEveryDayOpen?: boolean | null;
-        weeklyOffDays?:
-          | {
-              day:
-                | "Monday"
-                | "Tuesday"
-                | "Wednesday"
-                | "Thursday"
-                | "Friday"
-                | "Saturday"
-                | "Sunday";
-            }[]
-          | null;
-        direction?: string | null; // google map direction
-        isDefaultForTax?: boolean | null; // mark the default address for tax calculations
-      }[]
-    | null;
-
   // Privacy policy for the site setting
   @Column({ nullable: true, default: null })
   privacyPolicy: string | null;

@@ -5,7 +5,6 @@ import {
   getShopForDefaultTax,
   getSiteSettings,
 } from "../../controllers";
-import { ShopAddressData } from "../../controllers/services";
 
 /**
  * Shared resolver function for federated `CreatedBy` references.
@@ -82,14 +81,11 @@ export const siteSettingsQueriesResolver = {
      */
     getFaqById,
 
+    /**
+     * Retrieves the default tax information for a shop.
+     */
     getShopForDefaultTax,
   },
-
-  /**
-   * Federated reference resolver for ShopAddress entity.
-   * Resolves shop address data by ID from other subgraphs.
-   */
-  ShopAddress: ShopAddressData,
 
   // Dynamically assign resolvers for createdBy and thumbnail
   ...Object.fromEntries(

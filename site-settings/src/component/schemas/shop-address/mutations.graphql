@@ -1,0 +1,12 @@
+# Mutations to manage site settings operations.
+type Mutation {
+  createOrUpdateShopAddress(
+    input: ShopAddressInput! # The input data for the shop address.
+  ): CreateOrUpdateShopAddressResponseOrError!
+
+  # Delete existing shop addresses.
+  # Only accessible by authorized users.
+  deleteShopAddresses(
+    ids: [ID!]! # The IDs of the shop addresses to delete.
+  ): BaseResponse!
+}

@@ -8,7 +8,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   getShopForDefaultTax as getShopForDefaultTaxService,
-} from "./../../services";
+} from "../../services";
 
 /**
  * Handles the retrieval of shop addresses with pagination and search functionality.

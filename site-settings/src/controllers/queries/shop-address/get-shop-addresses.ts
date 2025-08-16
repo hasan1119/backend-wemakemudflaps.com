@@ -9,7 +9,7 @@ import {
   QueryGetShopAddressesArgs,
 } from "../../../types";
 import { paginationSchema } from "../../../utils/data-validation";
-import { getShopAddresses as getShopAddressesService } from "./../../services";
+import { getShopAddresses as getShopAddressesService } from "../../services";
 
 /**
  * Handles the retrieval of shop addresses with pagination and search functionality.

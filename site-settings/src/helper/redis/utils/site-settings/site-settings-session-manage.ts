@@ -10,51 +10,6 @@ const PREFIX = {
 };
 
 /**
- * Retrieves a shop address by ID from Redis.
- *
- * @param id - The ID of the shop address to retrieve
- * @returns A promise resolving to ShopAddress or null if not found.
- */
-export const getShopAddressByIdFromRedis = async (
-  id: string
-): Promise<ShopAddress | null> => {
-  return redis.getSession<ShopAddress | null>(
-    `${PREFIX.SHOP_ADDRESS}${id}`,
-    "site-settings"
-  );
-};
-
-/**
- * Sets a shop address by ID in Redis.
- *
- * @param id - The ID of the shop address
- * @param shopAddress - The ShopAddress object to cache
- * @returns A promise that resolves when the operation is complete.
- */
-export const setShopAddressByIdInRedis = async (
-  id: string,
-  shopAddress: ShopAddress
-): Promise<void> => {
-  await redis.setSession(
-    `${PREFIX.SHOP_ADDRESS}${id}`,
-    shopAddress,
-    "site-settings"
-  );
-};
-
-/**
- * Removes a shop address by ID from Redis.
- *
- * @param id - The ID of the shop address to remove
- * @returns A promise that resolves when the operation is complete.
- */
-export const removeShopAddressByIdFromRedis = async (
-  id: string
-): Promise<void> => {
-  await redis.deleteSession(`${PREFIX.SHOP_ADDRESS}${id}`, "site-settings");
-};
-
-/**
  * Retrieves site settings from Redis.
  *
  * @returns A promise resolving to SiteSettings or null if not found.
