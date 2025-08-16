@@ -1,6 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import { getProductAttributeById as getProductAttributeByIdService } from "./../../services";
+import { getProductAttributeById as getProductAttributeByIdService } from "../../services";
 
 import {
   GetProductAttributeByIdResponseOrError,

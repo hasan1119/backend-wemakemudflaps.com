@@ -1,5 +1,5 @@
 {
-  "name": "products-service",
+  "name": "products-carts-orders-service",
   "module": "index.ts",
   "type": "module",
   "version": "1.0.0",

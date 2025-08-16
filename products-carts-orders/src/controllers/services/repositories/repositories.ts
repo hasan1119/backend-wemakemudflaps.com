@@ -28,8 +28,8 @@ import {
   Wishlist,
   WishlistItem,
 } from "../../../entities";
+import { CartItem } from "../../../entities/cart-item.entity";
 import { AppDataSource } from "../../../helper";
-import { CartItem } from "./../../../entities/cart-item.entity";
 
 /**
  * Initializes repository for Brand entity.
