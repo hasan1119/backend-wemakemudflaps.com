@@ -77,8 +77,7 @@ export const createOrUpdateShopAddress = async (
 
     // Create the shop address
     const shopAddress = await createOrUpdateShopAddressService(
-      result.data as any,
-      user.id
+      result.data as any
     );
 
     // Clear the cache for shop addresses

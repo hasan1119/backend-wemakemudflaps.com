@@ -11,8 +11,7 @@ import { shopAddressRepository } from "../repositories/repositories";
  * @returns The updated ShopAddress entity
  */
 export const createOrUpdateShopAddress = async (
-  data: ShopAddressInput,
-  userId: string
+  data: ShopAddressInput
 ): Promise<ShopAddress> => {
   let shopAddress;
 
