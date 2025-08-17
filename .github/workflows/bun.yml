@@ -22,10 +22,10 @@ jobs:
             port: 4002
             pm2: steven_media_subgraph
           
-          - name: product
-            path: product
+          - name: products-carts-orders
+            path: products-carts-orders
             port: 4003
-            pm2: steven_product_subgraph
+            pm2: steven_products_carts_orders_subgraph
 
           - name: site-settings
             path: site-settings
