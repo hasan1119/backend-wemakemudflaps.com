@@ -18,7 +18,7 @@ export { checkUserPermission } from "./permission/get-user-permission.service";
  * Exports service for retrieving site settings.
  *
  * Workflow:
- * 1. Provides a function to fetch the first site settings record from the database.
+ * 1. Provides a function to fetch the first site settings.
  */
 export { getSiteSettings } from "./site-settings/get-site-settings.service";
 
@@ -28,15 +28,34 @@ export { getSiteSettings } from "./site-settings/get-site-settings.service";
  * Workflow:
  * 1. Provides a function to create a new SiteSettings entity with the provided data.
  */
-export { createSiteSettings } from "./site-settings/create-site-settings.service";
+export { createOrUpdateSiteSettings } from "./site-settings/create-or-update-site-settings.service";
 
 /**
- * Exports service for updating existing site settings.
+ * Exports service for retrieving shop addresses.
  *
  * Workflow:
- * 1. Provides a function to update the existing SiteSettings entity with new data.
+ * 1. Provides a function to fetch shop addresses.
  */
-export { updateSiteSettings } from "./site-settings/update-site-settings.service";
+export {
+  getShopAddresses,
+  getShopForDefaultTax,
+} from "./shop-address/get-shop-address.service";
+
+/**
+ * Exports service for creating or updating shop addresses.
+ *
+ * Workflow:
+ * 1. Provides a function to create a new shop address or update an existing one.
+ */
+export { createOrUpdateShopAddress } from "./shop-address/create-or-update-shop-address.service";
+
+/**
+ * Exports service for deleting shop addresses.
+ *
+ * Workflow:
+ * 1. Provides a function to delete specified shop addresses from the site settings.
+ */
+export { deleteShopAddresses } from "./shop-address/delete-shop-addresses.service";
 
 /**
  * Exports services for managing FAQs.

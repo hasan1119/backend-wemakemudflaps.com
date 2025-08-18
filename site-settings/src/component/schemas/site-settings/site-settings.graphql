@@ -1,22 +1,18 @@
 # ---------------------- Site Settings Types ----------------------
-type ShopAddress {
-  addressLine1: String
-  addressLine2: String
-  city: String
-  state: String
-  country: String
-  zipCode: String
+type MetaData {
+  title: String
+  description: String
+  keywords: [String]
 }
 
 type SiteSettings {
   id: ID!
   name: String
-  metaData: String
+  metaData: MetaData
   favIcon: Media
   logo: Media
   contactNumber: String
   contactEmail: String
-  shopAddress: ShopAddress
   privacyPolicy: String
   termsAndConditions: String
   createdBy: CreatedBy
@@ -25,13 +21,10 @@ type SiteSettings {
 }
 
 # ---------------------- Input Types ----------------------
-input ShopAddressInput {
-  addressLine1: String
-  addressLine2: String
-  city: String
-  state: String
-  country: String
-  zipCode: String
+input MetaDataInput {
+  title: String
+  description: String
+  keywords: [String]
 }
 
 # Response for fetching a site settings.
@@ -41,17 +34,12 @@ type SiteSettingsResponse {
   message: String!
   siteSettings: SiteSettings!
 }
-
 # ---------------------- Unions ----------------------
-union CreateSiteSettingsResponseOrError =
+union CreateOrUpdateSiteSettingsResponseOrError =
     BaseResponse
   | SiteSettingsResponse
   | ErrorResponse
 union GetSiteSettingsResponseOrError =
-    BaseResponse
-  | SiteSettingsResponse
-  | ErrorResponse
-union UpdateSiteSettingsResponseOrError =
     BaseResponse
   | SiteSettingsResponse
   | ErrorResponse

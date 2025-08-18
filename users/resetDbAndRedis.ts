@@ -12,9 +12,9 @@ import { Pool } from "pg";
 const pgConfig = {
   user: "postgres",
   host: "127.0.0.1",
-  password: "password",
+  password: "Joy112233",
   port: 5432,
-  database: "postgres",
+  database: "steven",
 };
 
 // Redis configuration

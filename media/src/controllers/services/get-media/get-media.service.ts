@@ -48,14 +48,6 @@ export const getMediaByIds = async (ids: string[]): Promise<Media[]> => {
  * @param id - ID of the media to resolve
  * @returns Resolved Media object or null
  */
-
-/**
- * Federated reference resolver for the Media entity.
- * Used by Apollo Federation to resolve media entities by ID from other subgraphs.
- *
- * @param id - ID of the media to resolve
- * @returns Resolved Media object or null
- */
 export const MediaData = {
   __resolveReference: async ({ id }) => {
     let mediaData = await getMediaByMediaIdFromRedis(id);

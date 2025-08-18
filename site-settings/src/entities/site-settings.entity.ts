@@ -10,8 +10,12 @@ export class SiteSettings {
   name: string | null;
 
   // Metadata for the site setting
-  @Column({ nullable: true, default: null })
-  metaData: string | null;
+  @Column({ type: "jsonb", nullable: true, default: null })
+  metaData: {
+    title?: string | null;
+    description?: string | null;
+    keywords?: string[] | null;
+  } | null;
 
   // Favicon URL for the site setting
   @Column({ nullable: true, default: null })
@@ -28,21 +32,6 @@ export class SiteSettings {
   // Contact email for the site setting
   @Column({ nullable: true, default: null })
   contactEmail: string | null;
-
-  // Address of the shop for the site setting
-  @Column({
-    type: "jsonb",
-    nullable: true,
-    default: null,
-  })
-  shopAddress: {
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    state?: string | null;
-    country?: string | null;
-    zipCode?: string | null;
-  } | null;
 
   // Privacy policy for the site setting
   @Column({ nullable: true, default: null })

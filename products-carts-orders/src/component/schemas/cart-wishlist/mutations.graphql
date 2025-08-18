@@ -1,0 +1,32 @@
+# Mutations to manage cart & wishlist operations.
+type Mutation {
+  # Adds a product to the cart or wishlist.
+  addToCart(
+    productId: ID!
+    productVariationId: ID
+    quantity: Int!
+  ): AddToCartOrWishListResponseOrError!
+
+  # Adds a product to the wishlist.
+  addToWishList(
+    productId: ID!
+    productVariationId: ID
+  ): AddToCartOrWishListResponseOrError!
+
+  # Removes an item from the cart.
+  removeItemsFromCart(
+    cartItemIds: [ID!]!
+  ): RemoveFromCartOrWishListResponseOrError!
+
+  # Removes an item from the wishlist.
+  removeItemsFromWishList(
+    wishListItemIds: [ID!]!
+  ): RemoveFromCartOrWishListResponseOrError!
+
+  # Applies a coupon to the cart.
+  applyCoupon(
+    couponCodes: [String]!
+    shippingAddressId: ID
+    billingAddressId: ID
+  ): ApplyCouponResponseOrError!
+}

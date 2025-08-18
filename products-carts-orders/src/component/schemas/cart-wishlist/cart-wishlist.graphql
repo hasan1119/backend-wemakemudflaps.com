@@ -1,0 +1,69 @@
+# ---------------------- Cart & Wishlist Types ----------------------
+type Cart {
+  id: ID!
+  items: [CartItems!]!
+  coupons: [Coupon!]!
+  productTax: Int
+  productTotalCostWithTax: Int
+  shippingTax: Int
+  shippingCost: Int
+  shippingTotalCostWithTax: Int
+  inTotal: Int
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+type Wishlist {
+  id: ID!
+  items: [WishlistItems!]!
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# ---------------------- Cart & Wishlist Item Types ----------------------
+
+type CartItems {
+  id: ID!
+  quantity: Int!
+  product: Product!
+  productVariation: ProductVariation
+  tax: Int
+}
+
+type WishlistItems {
+  id: ID!
+  product: Product!
+  productVariation: ProductVariation
+}
+
+# Response for fetching a wishlist.
+type WishlistResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  wishlist: Wishlist!
+}
+
+# Response for fetching a cart.
+type CartResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  cart: Cart!
+}
+
+# ---------------------- Unions ----------------------
+union AddToCartOrWishListResponseOrError =
+    BaseResponse
+  | CartResponse
+  | WishlistResponse
+  | ErrorResponse
+union RemoveFromCartOrWishListResponseOrError = BaseResponse | ErrorResponse
+union ApplyCouponResponseOrError = BaseResponse | CartResponse | ErrorResponse
+union GetCartOrWishListResponseOrError =
+    BaseResponse
+  | CartResponse
+  | WishlistResponse
+  | ErrorResponse

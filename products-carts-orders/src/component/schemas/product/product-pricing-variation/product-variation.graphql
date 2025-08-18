@@ -1,0 +1,101 @@
+# ---------------------- Product Variation Types ----------------------
+
+# Represents a variation of a product (e.g., "T-Shirt - Red - L")
+type ProductVariation {
+  # ---------------------- Identification ----------------------
+  id: ID! # Unique identifier
+  name: String # Variation name
+  sku: String # Stock Keeping Unit (optional)
+  productDeliveryType: [String!] # Product type (e.g., physical, virtual and downloadable)
+  isCustomized: Boolean # Indicates if the variation is customized
+  brands: [Brand!] # Associated brands for the product variation
+  # ---------------------- Quantity Rules ----------------------
+  minQuantity: Int # Minimum quantity allowed in order
+  defaultQuantity: Int # Default quantity for this variation
+  maxQuantity: Int # Maximum quantity allowed in order
+  quantityStep: Int # Step value for quantity increments
+  # ---------------------- Pricing ----------------------
+  regularPrice: Float # Regular price of the variation
+  salePrice: Float # Sale price if applicable
+  salePriceStartAt: String # Start time for sale pricing
+  salePriceEndAt: String # End time for sale pricing
+  saleQuantityUnit: String # Optional quantity type (e.g., piece, liter)
+  tierPricingInfo: ProductPrice # Related tiered pricing info
+  # ---------------------- Stock & Inventory ----------------------
+  stockStatus: String # Stock status (e.g., "in_stock", "out_of_stock")
+  # ---------------------- Physical Attributes ----------------------
+  weightUnit: String # Unit of weight (e.g., kg, lb)
+  weight: Float # Weight value
+  dimensionUnit: String # Unit for dimensions (e.g., cm, inch)
+  length: Float # Length of the product
+  width: Float # Width of the product
+  height: Float # Height of the product
+  # ---------------------- Relations ----------------------
+  product: Product # The parent product
+  attributeValues: [ProductAttributeValue!] # List of variation-specific attribute values (e.g., Color: Red)
+  # ---------------------- Warranty Info ----------------------
+  warrantyDigit: Int # Numeric part of warranty duration
+  defaultWarrantyPeriod: String # Period string (e.g., "months", "years")
+  warrantyPolicy: String # Description of the warranty policy
+  # ---------------------- Miscellaneous ----------------------
+  shippingClass: ShippingClass # Shipping class ID for rates
+  taxStatus: String # Tax Status specific to the variation
+  taxClass: TaxClass # Related tax class ID
+  description: String # Optional description specific to the variation
+  # ---------------------- Media ----------------------
+  images: [Media!] # Gallery images
+  videos: [Media!] # Videos
+  # ---------------------- Status ----------------------
+  isActive: Boolean # Indicates if the variation is active
+  # ---------------------- Meta ----------------------
+  createdAt: String # Creation timestamp
+  deletedAt: String # Soft deletion timestamp
+}
+
+# Input type for creating/updating a product variation
+input ProductVariationInput {
+  # ---------------------- Identification ----------------------
+  id: ID # Unique identifier (required for updates)
+  name: String # Variation name
+  sku: String # Optional SKU for inventory tracking
+  productDeliveryType: [ProductDeliveryType!] # Optional Product type (e.g., physical, virtual and downloadable)
+  isCustomized: Boolean # Indicates if the variation is customized
+  brandIds: [ID!] # Optional ID to update the brand
+  # ---------------------- Quantity Rules ----------------------
+  minQuantity: Int # Minimum purchase quantity
+  defaultQuantity: Int # Default quantity selected
+  maxQuantity: Int # Maximum allowed quantity
+  quantityStep: Int # Step value for quantity increments
+  # ---------------------- Pricing ----------------------
+  regularPrice: Float # Required regular price
+  salePrice: Float # Optional sale price
+  salePriceStartAt: String # Sale start datetime
+  salePriceEndAt: String # Sale end datetime
+  saleQuantityUnit: String # Optional quantity type (e.g., piece, liter)
+  tierPricingInfo: ProductPriceInput # Associated tier pricing information
+  # ---------------------- Stock & Inventory ----------------------
+  stockStatus: StockStatus # Stock status
+  # ---------------------- Physical Attributes ----------------------
+  weightUnit: WeightUnit # Unit for weight
+  weight: Float # Weight value
+  dimensionUnit: DimensionUnit # Unit of dimension
+  length: Float # Length of item
+  width: Float # Width of item
+  height: Float # Height of item
+  # ---------------------- Relations ----------------------
+  attributeValueIds: [ID!] # List of variation attribute values
+  # ---------------------- Warranty Info ----------------------
+  warrantyDigit: Int # Duration number for warranty
+  defaultWarrantyPeriod: DefaultWarrantyPeriod # Period type (e.g., "months")
+  warrantyPolicy: String # Warranty policy description
+  # ---------------------- Miscellaneous ----------------------
+  shippingClassId: ID # Shipping class relation
+  taxStatus: TaxStatus # Tax status reference
+  taxClassId: ID # Tax class reference
+  description: String # Optional description
+  # ---------------------- Media ----------------------
+  images: [ID!] # Product gallery IDs
+  videos: [ID!] # Product video IDs
+  # ---------------------- Status ----------------------
+  isActive: Boolean # Indicates if the variation is active
+}

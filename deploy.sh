@@ -6,11 +6,15 @@ cd $APP_DIR || exit
 
 echo "SSH key setup..."
 eval "$(ssh-agent -s)"
-ssh-add "$HOME/.ssh/github"
+ssh-add "$HOME/.ssh/id_ed25519"
 
+
+echo "Stashing unstaged changes..."
+git stash save "Auto-stashed during deployment $(date)"
 
 echo "Pulling latest code..."
-git pull origin main
+git fetch origin
+git pull origin main --force
 
 # Subgraph matrix
 declare -A SUBGRAPHS
@@ -85,7 +89,8 @@ for subgraph in "${!SUBGRAPHS[@]}"; do
   done
 done
 
-echo "$SUDO_PASSWORD" | sudo -S rover supergraph compose --config supergraph.yaml --elv2-license accept > supergraph.graphql
+bun run gen:sg
+echo "Supergraph generated successfully."
 
 GEN_STATUS=$?
 if [ $GEN_STATUS -ne 0 ]; then

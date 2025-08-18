@@ -6,8 +6,11 @@
  * 2. Enables updating existing site settings.
  * 3. Supports retrieval of site settings.
  */
-export { createSiteSetting } from "./mutations/site-settings/create-site-settings";
-export { updateSiteSetting } from "./mutations/site-settings/update-site-settings";
+export { createOrUpdateShopAddress } from "./mutations/shop-address/create-or-update-shop-address";
+export { deleteShopAddresses } from "./mutations/shop-address/delete-shop-addresses";
+export { createOrUpdateSiteSetting } from "./mutations/site-settings/create-or-update-site-settings";
+export { getShopAddresses } from "./queries/shop-address/get-shop-addresses";
+export { getShopForDefaultTax } from "./queries/shop-address/get-shop-for-default-tax";
 export { getSiteSettings } from "./queries/site-settings/get-site-settings";
 
 /**

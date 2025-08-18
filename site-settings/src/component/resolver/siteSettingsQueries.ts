@@ -1,4 +1,10 @@
-import { getAllFaqs, getFaqById, getSiteSettings } from "../../controllers";
+import {
+  getAllFaqs,
+  getFaqById,
+  getShopAddresses,
+  getShopForDefaultTax,
+  getSiteSettings,
+} from "../../controllers";
 
 /**
  * Shared resolver function for federated `CreatedBy` references.
@@ -61,6 +67,11 @@ export const siteSettingsQueriesResolver = {
     getSiteSettings,
 
     /**
+     * Retrieves shop addresses.
+     */
+    getShopAddresses,
+
+    /**
      * Retrieves all FAQs.
      */
     getAllFaqs,
@@ -69,6 +80,11 @@ export const siteSettingsQueriesResolver = {
      * Retrieves a specific FAQ by its ID.
      */
     getFaqById,
+
+    /**
+     * Retrieves the default tax information for a shop.
+     */
+    getShopForDefaultTax,
   },
 
   // Dynamically assign resolvers for createdBy and thumbnail

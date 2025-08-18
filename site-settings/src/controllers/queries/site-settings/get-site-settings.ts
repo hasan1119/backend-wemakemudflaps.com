@@ -37,7 +37,7 @@ export const getSiteSettings = async (
       return {
         statusCode: 409,
         success: false,
-        message: "Site settings already exist",
+        message: "Site settings doesn't exist",
         __typename: "BaseResponse",
       };
     }
@@ -56,7 +56,6 @@ export const getSiteSettings = async (
         logo: siteSettings.logo as any,
         contactNumber: siteSettings.contactNumber,
         contactEmail: siteSettings.contactEmail,
-        shopAddress: siteSettings.shopAddress,
         createdBy: siteSettings.createdBy as any,
         createdAt:
           siteSettings.createdAt instanceof Date

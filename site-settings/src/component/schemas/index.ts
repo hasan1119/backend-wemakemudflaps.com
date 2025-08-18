@@ -102,3 +102,48 @@ export const siteSettingsMutationsDef = gql(
     encoding: "utf-8",
   })
 );
+
+/**
+ * Loads and parses the GraphQL schema for shop address-related types.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `shop-address/shop-address.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for shop addresses as a DocumentNode.
+ */
+export const shopAddressDef = gql(
+  readFileSync(path.join(__dirname, "./shop-address/shop-address.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses the GraphQL schema for shop address queries.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `shop-address/queries.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for shop address queries as a DocumentNode.
+ */
+export const shopAddressQueriesDef = gql(
+  readFileSync(path.join(__dirname, "./shop-address/queries.graphql"), {
+    encoding: "utf-8",
+  })
+);
+
+/**
+ * Loads and parses the GraphQL schema for shop address mutations.
+ *
+ * Workflow:
+ * 1. Reads the schema definition from the `shop-address/mutations.graphql` file.
+ * 2. Parses the file content into a GraphQL DocumentNode using the `gql` tag.
+ *
+ * @returns The parsed GraphQL schema for shop address mutations as a DocumentNode.
+ */
+export const shopAddressMutationsDef = gql(
+  readFileSync(path.join(__dirname, "./shop-address/mutations.graphql"), {
+    encoding: "utf-8",
+  })
+);

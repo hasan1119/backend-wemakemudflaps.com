@@ -1,5 +1,5 @@
 {
-  "name": "products-service",
+  "name": "site-settings-service",
   "module": "index.ts",
   "type": "module",
   "version": "1.0.0",
@@ -37,6 +37,8 @@
     "ioredis": "^5.6.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.3",
+    "pino": "^9.8.0",
+    "pino-pretty": "^13.1.1",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.22",
     "zod": "^3.24.2"

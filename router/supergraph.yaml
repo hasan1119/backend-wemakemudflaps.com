@@ -1,5 +1,5 @@
 subgraphs:
-  user:
+  users:
     routing_url: http://localhost:4001
     schema:
       subgraph_url: http://localhost:4001
@@ -7,7 +7,7 @@ subgraphs:
     routing_url: http://localhost:4002
     schema:
       subgraph_url: http://localhost:4002
-  product:
+  products-carts-orders:
     routing_url: http://localhost:4003
     schema:
       subgraph_url: http://localhost:4003

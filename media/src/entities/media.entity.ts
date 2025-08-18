@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import type { Category, MimeType } from "../utils/data-validation";
 import { categories, mimeTypes } from "../utils/data-validation";
-import type { Category, MimeType } from "./../utils/data-validation";
 
 @Entity()
 export class Media {

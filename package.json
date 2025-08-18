@@ -7,7 +7,7 @@
     "dev": "concurrently -k -n subgraph1,subgraph2,subgraph3,subgraph4,router -c blue,green,magenta,cyan,yellow \"bun dev:sub1\" \"bun dev:sub2\" \"bun dev:sub3\" \"bun dev:sub4\" \"bun dev:router\"",
     "dev:sub1": "cd users && bun dev",
     "dev:sub2": "cd media && bun dev",
-    "dev:sub3": "cd product && bun dev",
+    "dev:sub3": "cd products-carts-orders && bun dev",
     "dev:sub4": "cd site-settings && bun dev",
     "dev:router": "wait-on tcp:4001 tcp:4002 tcp:4003 tcp:4004 && bun start:router",
     "start:router": "cd router && bun dev",

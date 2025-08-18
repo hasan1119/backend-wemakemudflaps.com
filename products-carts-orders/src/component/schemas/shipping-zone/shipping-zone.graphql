@@ -1,0 +1,61 @@
+# ---------------------- Shipping Zone Types ----------------------
+type Region {
+  country: String
+  state: String
+  city: String
+}
+
+type ShippingZone {
+  id: ID!
+  name: String!
+  regions: [Region!]!
+  zipCodes: [String]
+  shippingMethods: [ShippingMethod]
+  createdBy: CreatedBy
+  createdAt: String
+  deletedAt: String
+}
+
+# Response for fetching a shipping zone.
+type ShippingZoneResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingZone: ShippingZone!
+}
+
+# Response for fetching a shipping zones list.
+type ShippingZonePaginationResponse {
+  statusCode: Int!
+  success: Boolean!
+  message: String!
+  shippingZones: [ShippingZone!]!
+  total: Int!
+}
+
+# ---------------------- Unions ----------------------
+input RegionInput {
+  country: String
+  state: String
+  city: String
+}
+
+# ---------------------- Unions ----------------------
+union CreateShippingZoneResponseOrError =
+    BaseResponse
+  | ShippingZoneResponse
+  | ErrorResponse
+union GetShippingZoneByIDResponseOrError =
+    BaseResponse
+  | ShippingZoneResponse
+  | ErrorResponse
+union GetShippingZonesResponseOrError =
+    BaseResponse
+  | ShippingZonePaginationResponse
+  | ErrorResponse
+union UpdateShippingZoneResponseOrError =
+    BaseResponse
+  | ShippingZoneResponse
+  | ErrorResponse
+union DeleteShippingZoneResponseOrError = BaseResponse | ErrorResponse
+union RestoreShippingZoneResponseOrError = BaseResponse | ErrorResponse

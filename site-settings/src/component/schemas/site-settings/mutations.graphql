@@ -2,29 +2,14 @@
 type Mutation {
   # Create a new site setting.
   # Only accessible by authorized users.
-  createSiteSetting(
+  createOrUpdateSiteSetting(
     name: String # The name of the site setting.
-    metaData: String # The meta data for the site setting.
+    metaData: MetaDataInput # The meta data for the site setting.
     favIcon: String # The favicon for the site setting.
     logo: String # The logo for the site setting.
     contactNumber: String # The contact number for the site setting.
     contactEmail: String # The contact email for the site setting.
-    shopAddress: ShopAddressInput # The shop address for the site setting.
     privacyPolicy: String # The privacy policy for the site setting.
     termsAndConditions: String # The terms and conditions for the site setting.
-  ): CreateSiteSettingsResponseOrError!
-
-  # Update an existing site setting.
-  # Only accessible by authorized users.
-  updateSiteSetting(
-    name: String # Optional updated name for the site setting.
-    metaData: String # Optional updated meta data for the site setting.
-    favIcon: String # Optional updated favicon for the site setting.
-    logo: String # Optional updated logo for the site setting.
-    contactNumber: String # Optional updated contact number for the site setting.
-    contactEmail: String # Optional updated contact email for the site setting.
-    shopAddress: ShopAddressInput # Optional updated shop address for the site setting.
-    privacyPolicy: String # Optional updated privacy policy for the site setting.
-    termsAndConditions: String # Optional updated terms and conditions for the site setting.
-  ): UpdateSiteSettingsResponseOrError!
+  ): CreateOrUpdateSiteSettingsResponseOrError!
 }

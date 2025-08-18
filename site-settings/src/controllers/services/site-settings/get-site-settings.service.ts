@@ -11,6 +11,23 @@ import { siteSettingsRepository } from "../repositories/repositories";
  * @returns Promise resolving to SiteSettings or null if not found.
  */
 export const getSiteSettings = async (): Promise<SiteSettings | null> => {
-  const siteSettings = await siteSettingsRepository.find();
-  return siteSettings[0] || null;
+  const siteSettings = await siteSettingsRepository.findOne({
+    where: { deletedAt: null },
+    select: {
+      id: true,
+      name: true,
+      metaData: true,
+      favIcon: true,
+      logo: true,
+      contactNumber: true,
+      contactEmail: true,
+      privacyPolicy: true,
+      termsAndConditions: true,
+      createdBy: true,
+      createdAt: true,
+      deletedAt: true,
+    },
+  });
+
+  return siteSettings || null;
 };
