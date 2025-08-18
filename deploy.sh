@@ -20,7 +20,7 @@ git pull origin main --force
 declare -A SUBGRAPHS
 SUBGRAPHS[users]="4001 steven_users_subgraph"
 SUBGRAPHS[media]="4002 steven_media_subgraph"
-SUBGRAPHS[product]="4003 steven_product_subgraph"
+SUBGRAPHS[products-carts-orders]="4003 steven_product_carts_orders_subgraph"
 SUBGRAPHS[site-settings]="4004 steven_site_settings_subgraph"
 
 # Shared environment variables (replace with actual values or source from secrets)
