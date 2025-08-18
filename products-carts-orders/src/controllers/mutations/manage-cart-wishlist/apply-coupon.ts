@@ -353,6 +353,24 @@ export const applyCoupon = async (
       }
     }
 
+    // Check the user email is eligible for the coupon
+    for (const coupon of coupons) {
+      if (
+        coupon.allowedEmails &&
+        coupon.allowedEmails.length > 0 &&
+        user.email
+      ) {
+        if (!coupon.allowedEmails.includes(user.email)) {
+          return {
+            statusCode: 400,
+            success: false,
+            message: `User email ${user.email} is not allowed for coupon ${coupon.code}.`,
+            __typename: "ErrorResponse",
+          };
+        }
+      }
+    }
+
     // Extract user email from token
     const token = req.headers.authorization?.replace("Bearer ", "");
     const decoded = token ? await DecodeToken(token) : null;
