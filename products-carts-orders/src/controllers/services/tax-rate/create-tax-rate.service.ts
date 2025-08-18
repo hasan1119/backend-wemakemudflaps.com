@@ -30,6 +30,16 @@ export const createTaxRate = async (
     taxClassId,
   } = data ?? {};
 
+  const existing = await taxRateRepository.findOne({
+    where: { taxClass: { id: taxClassId }, priority },
+  });
+
+  if (existing) {
+    throw new Error(
+      `Priority ${priority} already exists in this tax class. Please choose a different priority.`
+    );
+  }
+
   const taxRate = taxRateRepository.create({
     country,
     state,

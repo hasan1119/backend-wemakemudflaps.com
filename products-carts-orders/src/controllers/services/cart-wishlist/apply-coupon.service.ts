@@ -16,46 +16,38 @@ import { getCartByUserId } from "./get-cart.service";
  * @param userId - The UUID of the user applying the coupons.
  * @returns The updated Cart entity with applied coupons.
  */
-export const applyCoupon = async (
-  couponCodes: Coupon[],
+export async function applyCoupon(
+  coupons: Coupon[],
   userCart: Cart,
   userId: string
-): Promise<Cart> => {
-  //Validate coupon codes against valid coupons
-  const validCouponIds = couponCodes.map((c) => c.id);
-
-  // Check if all valid coupons are already applied using TypeORM
+): Promise<Cart> {
+  // Check for already applied coupons
   const appliedCoupons = await cartRepository
     .createQueryBuilder("cart")
     .leftJoinAndSelect("cart.coupons", "coupons")
     .where("cart.id = :cartId", { cartId: userCart.id })
-    .andWhere("coupons.id IN (:...validCouponIds)", { validCouponIds })
     .andWhere("coupons.deletedAt IS NULL")
-    .getMany();
+    .getOne();
 
-  const appliedCouponIds = appliedCoupons.map((c) => c.id);
-
-  //  Check if any valid coupon is not already applied
-  const newCouponIds = validCouponIds.filter(
-    (id) => !appliedCouponIds.includes(id)
-  );
+  const appliedCouponIds = appliedCoupons?.coupons?.map((c) => c.id) || [];
+  const newCouponIds = coupons
+    .map((c) => c.id)
+    .filter((id) => !appliedCouponIds.includes(id));
 
   if (newCouponIds.length === 0) {
-    // All coupons already applied — return cart
     return userCart;
   }
 
-  //  Increment usage and fetch new coupon entities
-  const newCoupons = couponCodes.filter((c) => newCouponIds.includes(c.id));
-
+  // Increment usage count for new coupons
+  const newCoupons = coupons.filter((c) => newCouponIds.includes(c.id));
   for (const coupon of newCoupons) {
     coupon.usageCount = (coupon.usageCount || 0) + 1;
     await couponRepository.save(coupon);
   }
 
-  //  Append new coupons to cart and save
+  // Update cart with new coupons
   userCart.coupons = [...(userCart.coupons || []), ...newCoupons];
   await cartRepository.save(userCart);
 
   return await getCartByUserId(userId);
-};
+}

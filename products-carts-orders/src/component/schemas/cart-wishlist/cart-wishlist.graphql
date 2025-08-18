@@ -3,7 +3,12 @@ type Cart {
   id: ID!
   items: [CartItems!]!
   coupons: [Coupon!]!
-  totalTax: Int
+  productTax: Int
+  productTotalCostWithTax: Int
+  shippingTax: Int
+  shippingCost: Int
+  shippingTotalCostWithTax: Int
+  inTotal: Int
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String

@@ -140,8 +140,13 @@ export type Cart = {
   createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  inTotal?: Maybe<Scalars['Int']['output']>;
   items: Array<CartItems>;
-  totalTax?: Maybe<Scalars['Int']['output']>;
+  productTax?: Maybe<Scalars['Int']['output']>;
+  productTotalCostWithTax?: Maybe<Scalars['Int']['output']>;
+  shippingCost?: Maybe<Scalars['Int']['output']>;
+  shippingTax?: Maybe<Scalars['Int']['output']>;
+  shippingTotalCostWithTax?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CartItems = {
@@ -927,7 +932,9 @@ export type MutationAddToWishListArgs = {
 
 
 export type MutationApplyCouponArgs = {
+  billingAddressId?: InputMaybe<Scalars['ID']['input']>;
   couponCodes: Array<InputMaybe<Scalars['String']['input']>>;
+  shippingAddressId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -3981,8 +3988,13 @@ export type CartResolvers<ContextType = Context, ParentType extends ResolversPar
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inTotal?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   items?: Resolver<Array<ResolversTypes['CartItems']>, ParentType, ContextType>;
-  totalTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  productTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  productTotalCostWithTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  shippingCost?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  shippingTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  shippingTotalCostWithTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

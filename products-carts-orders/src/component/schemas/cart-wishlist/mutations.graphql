@@ -24,5 +24,9 @@ type Mutation {
   ): RemoveFromCartOrWishListResponseOrError!
 
   # Applies a coupon to the cart.
-  applyCoupon(couponCodes: [String]!): ApplyCouponResponseOrError!
+  applyCoupon(
+    couponCodes: [String]!
+    shippingAddressId: ID
+    billingAddressId: ID
+  ): ApplyCouponResponseOrError!
 }

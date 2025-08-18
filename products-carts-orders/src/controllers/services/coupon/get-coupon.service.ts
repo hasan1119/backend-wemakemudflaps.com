@@ -76,10 +76,10 @@ export const findCouponsByCodes = async (
   codes: string[]
 ): Promise<Coupon[]> => {
   return await couponRepository.find({
-    where: {
-      code: In(codes),
+    where: codes.map((code) => ({
+      code: ILike(code),
       deletedAt: null,
-    },
+    })),
     relations: [
       "applicableProducts",
       "excludedProducts",

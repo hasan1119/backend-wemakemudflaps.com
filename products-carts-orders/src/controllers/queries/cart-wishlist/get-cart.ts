@@ -1,6 +1,9 @@
 import { gql, GraphQLClient } from "graphql-request";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { ShippingZone } from "../../../entities";
+import { CouponType } from "../../../entities/coupon.entity";
+import { FreeShippingConditions } from "../../../entities/free-shipping.entity";
 import {
   GetCartOrWishListResponseOrError,
   QueryGetCartArgs,
@@ -15,6 +18,7 @@ import {
   mapProductRecursive,
   mapProductVariationRecursive,
 } from "../../services";
+import { shippingZoneRepository } from "../../services/repositories/repositories";
 
 const GET_TAX_EXEMPTION = gql`
   query GetTaxExemptionEntryByUserId($userId: ID!) {
@@ -200,8 +204,365 @@ async function getActiveStoreAddress(token?: string): Promise<{
 }
 
 /**
+ * Matches a shipping zone based on the shipping address.
+ * @param shippingAddress - The user's shipping address.
+ * @returns The matched ShippingZone or null if none found.
+ */
+async function getMatchedShippingZone(shippingAddress: {
+  country: string;
+  state?: string;
+  city?: string;
+  zip?: string;
+}): Promise<ShippingZone | null> {
+  try {
+    const zones = await shippingZoneRepository.find({
+      where: { deletedAt: null },
+      relations: [
+        "shippingMethods",
+        "shippingMethods.flatRate",
+        "shippingMethods.freeShipping",
+        "shippingMethods.localPickUp",
+      ],
+    });
+
+    for (const zone of zones) {
+      // Match by zip code
+      if (
+        zone.zipCodes &&
+        shippingAddress.zip &&
+        zone.zipCodes.includes(shippingAddress.zip)
+      ) {
+        return zone;
+      }
+      // Match by regions
+      if (zone.regions) {
+        const matchedRegion = zone.regions.find(
+          (region) =>
+            (!region.country ||
+              region.country.toLowerCase() ===
+                shippingAddress.country.toLowerCase()) &&
+            (!region.state ||
+              !shippingAddress.state ||
+              region.state.toLowerCase() ===
+                shippingAddress.state.toLowerCase()) &&
+            (!region.city ||
+              !shippingAddress.city ||
+              region.city.toLowerCase() === shippingAddress.city.toLowerCase())
+        );
+        if (matchedRegion) {
+          return zone;
+        }
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching shipping zones:", error);
+    return null;
+  }
+}
+
+/**
+ * Calculates shipping cost and tax for the cart.
+ * @param shippingZone - The matched shipping zone.
+ * @param cartItems - The cart items to calculate shipping for.
+ * @param taxAddress - The address for tax calculation.
+ * @param pricesEnteredWithTax - Whether prices include tax.
+ * @param cartTotal - The total cart price before shipping and discounts.
+ * @param hasValidCoupon - Whether a valid free shipping coupon is applied.
+ * @returns Shipping cost, tax, and total with tax.
+ */
+async function calculateShippingCostAndTax(
+  shippingZone: ShippingZone | null,
+  cartItems: any[],
+  taxAddress: {
+    country: string;
+    state?: string;
+    city?: string;
+    postcode?: string;
+  } | null,
+  pricesEnteredWithTax: boolean,
+  cartTotal: number,
+  hasValidCoupon: boolean
+): Promise<{
+  shippingCost: number;
+  shippingTax: number;
+  shippingTotalCostWithTax: number;
+}> {
+  if (!shippingZone || !shippingZone.shippingMethods) {
+    return { shippingCost: 0, shippingTax: 0, shippingTotalCostWithTax: 0 };
+  }
+
+  // Filter active shipping methods
+  const activeMethods = shippingZone.shippingMethods.filter(
+    (method) => method.status && method.deletedAt === null
+  );
+  if (!activeMethods.length) {
+    return { shippingCost: 0, shippingTax: 0, shippingTotalCostWithTax: 0 };
+  }
+
+  // Select the first active method
+  const method = activeMethods[0];
+
+  let shippingCost = 0;
+  let shippingTax = 0;
+
+  // Handle different shipping method types
+  if (method.flatRate && method.flatRate.taxStatus) {
+    // Calculate FlatRate cost
+    for (const item of cartItems) {
+      if (!item.product) continue;
+      const shippingClassId =
+        item.productVariation?.shippingClass || item.product.shippingClass;
+      if (shippingClassId && method.flatRate.costs) {
+        const flatRateCost = method.flatRate.costs.find(
+          (cost) => cost.shippingClass.id === shippingClassId
+        );
+        if (flatRateCost) {
+          shippingCost += flatRateCost.cost * item.quantity;
+        } else {
+          shippingCost += method.flatRate.cost * item.quantity;
+        }
+      } else {
+        shippingCost += method.flatRate.cost * item.quantity;
+      }
+    }
+
+    // Calculate tax for FlatRate if taxStatus is true
+    if (method.flatRate.taxStatus && taxAddress) {
+      const taxClassId = method.flatRate.taxStatus
+        ? await getTaxOptions().then((opt) => opt.shippingTaxClass?.id)
+        : null;
+      if (taxClassId) {
+        const taxRate = await getTaxRateByTaxClassAndAddress(
+          taxClassId,
+          taxAddress
+        );
+        if (taxRate) {
+          if (pricesEnteredWithTax) {
+            const taxRateDecimal = taxRate.rate / 100;
+            const baseAmount = shippingCost / (1 + taxRateDecimal);
+            shippingTax = shippingCost - baseAmount;
+          } else {
+            shippingTax = shippingCost * (taxRate.rate / 100);
+          }
+        }
+      }
+    }
+  } else if (method.freeShipping) {
+    // Check FreeShipping conditions
+    const conditions = method.freeShipping.conditions;
+    let isFreeShippingEligible = false;
+
+    if (conditions === FreeShippingConditions.NA) {
+      isFreeShippingEligible = true;
+    } else if (conditions === FreeShippingConditions.COUPON && hasValidCoupon) {
+      isFreeShippingEligible = true;
+    } else if (
+      conditions === FreeShippingConditions.MINIMUM_ORDER_AMOUNT &&
+      method.freeShipping.minimumOrderAmount !== null &&
+      cartTotal >= method.freeShipping.minimumOrderAmount
+    ) {
+      isFreeShippingEligible = true;
+    } else if (
+      conditions === FreeShippingConditions.MINIMUM_ORDER_AMOUNT_OR_COUPON &&
+      (hasValidCoupon ||
+        (method.freeShipping.minimumOrderAmount !== null &&
+          cartTotal >= method.freeShipping.minimumOrderAmount))
+    ) {
+      isFreeShippingEligible = true;
+    } else if (
+      conditions === FreeShippingConditions.MINIMUM_ORDER_AMOUNT_AND_COUPON &&
+      hasValidCoupon &&
+      method.freeShipping.minimumOrderAmount !== null &&
+      cartTotal >= method.freeShipping.minimumOrderAmount
+    ) {
+      isFreeShippingEligible = true;
+    }
+
+    if (isFreeShippingEligible) {
+      shippingCost = 0;
+      shippingTax = 0;
+    } else if (activeMethods.length > 1) {
+      // Try the next active method
+      const nextMethod = activeMethods[1];
+      if (nextMethod.flatRate && nextMethod.flatRate.taxStatus) {
+        for (const item of cartItems) {
+          if (!item.product) continue;
+          const shippingClassId =
+            item.productVariation?.shippingClass || item.product.shippingClass;
+          if (shippingClassId && nextMethod.flatRate.costs) {
+            const flatRateCost = nextMethod.flatRate.costs.find(
+              (cost) => cost.shippingClass.id === shippingClassId
+            );
+            if (flatRateCost) {
+              shippingCost += flatRateCost.cost * item.quantity;
+            } else {
+              shippingCost += nextMethod.flatRate.cost * item.quantity;
+            }
+          } else {
+            shippingCost += nextMethod.flatRate.cost * item.quantity;
+          }
+        }
+
+        if (nextMethod.flatRate.taxStatus && taxAddress) {
+          const taxClassId = nextMethod.flatRate.taxStatus
+            ? await getTaxOptions().then((opt) => opt.shippingTaxClass?.id)
+            : null;
+          if (taxClassId) {
+            const taxRate = await getTaxRateByTaxClassAndAddress(
+              taxClassId,
+              taxAddress
+            );
+            if (taxRate) {
+              if (pricesEnteredWithTax) {
+                const taxRateDecimal = taxRate.rate / 100;
+                const baseAmount = shippingCost / (1 + taxRateDecimal);
+                shippingTax = shippingCost - baseAmount;
+              } else {
+                shippingTax = shippingCost * (taxRate.rate / 100);
+              }
+            }
+          }
+        }
+      } else if (nextMethod.localPickUp && nextMethod.localPickUp.taxStatus) {
+        shippingCost = nextMethod.localPickUp.cost;
+        if (nextMethod.localPickUp.taxStatus && taxAddress) {
+          const taxClassId = nextMethod.localPickUp.taxStatus
+            ? await getTaxOptions().then((opt) => opt.shippingTaxClass?.id)
+            : null;
+          if (taxClassId) {
+            const taxRate = await getTaxRateByTaxClassAndAddress(
+              taxClassId,
+              taxAddress
+            );
+            if (taxRate) {
+              if (pricesEnteredWithTax) {
+                const taxRateDecimal = taxRate.rate / 100;
+                const baseAmount = shippingCost / (1 + taxRateDecimal);
+                shippingTax = shippingCost - baseAmount;
+              } else {
+                shippingTax = shippingCost * (taxRate.rate / 100);
+              }
+            }
+          }
+        }
+      }
+    }
+  } else if (method.localPickUp && method.localPickUp.taxStatus) {
+    shippingCost = method.localPickUp.cost;
+    if (method.localPickUp.taxStatus && taxAddress) {
+      const taxClassId = method.localPickUp.taxStatus
+        ? await getTaxOptions().then((opt) => opt.shippingTaxClass?.id)
+        : null;
+      if (taxClassId) {
+        const taxRate = await getTaxRateByTaxClassAndAddress(
+          taxClassId,
+          taxAddress
+        );
+        if (taxRate) {
+          if (pricesEnteredWithTax) {
+            const taxRateDecimal = taxRate.rate / 100;
+            const baseAmount = shippingCost / (1 + taxRateDecimal);
+            shippingTax = shippingCost - baseAmount;
+          } else {
+            shippingTax = shippingCost * (taxRate.rate / 100);
+          }
+        }
+      }
+    }
+  }
+
+  // Round to two decimal places as per requirement
+  shippingCost = parseFloat(shippingCost.toFixed(2));
+  shippingTax = parseFloat(shippingTax.toFixed(2));
+  const shippingTotalCostWithTax = parseFloat(
+    (shippingCost + shippingTax).toFixed(2)
+  );
+
+  return { shippingCost, shippingTax, shippingTotalCostWithTax };
+}
+
+/**
+ * Validates if a coupon is applicable for free shipping based on cart items and user email.
+ * @param coupon - The coupon to validate.
+ * @param cartItems - The cart items to check against applicable/excluded products and categories.
+ * @param cartTotal - The total cart price before discounts.
+ * @param userEmail - The user's email from the JWT token.
+ * @returns Whether the coupon is valid for free shipping.
+ */
+function isValidFreeShippingCoupon(
+  coupon: any,
+  cartItems: any[],
+  cartTotal: number,
+  userEmail: string | null
+): boolean {
+  // Check basic coupon validity
+  if (
+    !coupon.freeShipping ||
+    (coupon.expiryDate && new Date(coupon.expiryDate) <= new Date()) ||
+    (coupon.minimumSpend && cartTotal < coupon.minimumSpend) ||
+    (coupon.maximumSpend && cartTotal > coupon.maximumSpend) ||
+    (coupon.maxUsage !== null && coupon.usageCount >= coupon.maxUsage)
+  ) {
+    return false;
+  }
+
+  // Check allowedEmails
+  if (coupon.allowedEmails && coupon.allowedEmails.length > 0 && userEmail) {
+    if (!coupon.allowedEmails.includes(userEmail)) {
+      return false;
+    }
+  }
+
+  // Check applicable/excluded products and categories
+  const hasApplicableItems = cartItems.some((item) => {
+    if (!item.product) return false;
+
+    const productId = item.product.id;
+    const productCategories =
+      item.product.categories?.map((cat: any) => cat.id) || [];
+
+    // Check applicableProducts
+    const isApplicableProduct =
+      !coupon.applicableProducts ||
+      coupon.applicableProducts.length === 0 ||
+      coupon.applicableProducts.some((prod: any) => prod.id === productId);
+
+    // Check excludedProducts
+    const isNotExcludedProduct =
+      !coupon.excludedProducts ||
+      coupon.excludedProducts.length === 0 ||
+      !coupon.excludedProducts.some((prod: any) => prod.id === productId);
+
+    // Check applicableCategories
+    const isApplicableCategory =
+      !coupon.applicableCategories ||
+      coupon.applicableCategories.length === 0 ||
+      coupon.applicableCategories.some((cat: any) =>
+        productCategories.includes(cat.id)
+      );
+
+    // Check excludedCategories
+    const isNotExcludedCategory =
+      !coupon.excludedCategories ||
+      coupon.excludedCategories.length === 0 ||
+      !coupon.excludedCategories.some((cat: any) =>
+        productCategories.includes(cat.id)
+      );
+
+    return (
+      isApplicableProduct &&
+      isNotExcludedProduct &&
+      isApplicableCategory &&
+      isNotExcludedCategory
+    );
+  });
+
+  return hasApplicableItems;
+}
+
+/**
  * Fetches the cart for the authenticated user.
- *
  * @param _ - Unused parent argument.
  * @param args - The arguments for fetching the cart.
  * @param context - The context containing user information.
@@ -217,15 +578,13 @@ export const getCart = async (
     const authResponse = checkUserAuth(user);
     if (authResponse) return authResponse;
 
-    // Validate input product ID with Zod schema
+    // Validate input shipping and billing ID with Zod schema
     if (args.shippingAddressId || args.billingAddressId) {
-      // Validate input data with Zod schema
       const [shippingResult, billingResult] = await Promise.all([
         idSchema.safeParseAsync({ id: args.shippingAddressId }),
         idSchema.safeParseAsync({ id: args.billingAddressId }),
       ]);
 
-      // Return detailed validation errors if input is invalid
       if (!shippingResult.success || !billingResult.success) {
         const errors = [
           ...(shippingResult.error?.errors || []),
@@ -247,9 +606,10 @@ export const getCart = async (
 
     const { shippingAddressId, billingAddressId } = args;
 
-    // Extract token from Authorization header
+    // Extract token and decode user email
     const token = req.headers.authorization?.replace("Bearer ", "");
     const decoded = token ? await DecodeToken(token) : null;
+    const userEmail = decoded?.email || null;
 
     // Create GraphQL client for user subgraph
     const UserClient = new GraphQLClient(
@@ -281,7 +641,6 @@ export const getCart = async (
 
     let shippingAddressInfo;
     if (shippingAddressId) {
-      // Fetch shipping address entry
       const shippingAddress = await UserClient.request(GET_ADDRESS_BOOK, {
         addressBookEntryById: shippingAddressId,
         userId: decoded.id,
@@ -313,7 +672,6 @@ export const getCart = async (
 
     let billingAddressInfo;
     if (billingAddressId) {
-      // Fetch billing address entry
       const billingAddress = await UserClient.request(GET_ADDRESS_BOOK, {
         addressBookEntryById: billingAddressId,
         userId: decoded.id,
@@ -417,8 +775,11 @@ export const getCart = async (
       }
     }
 
-    // Calculate taxes for cart items
-    let totalTax = 0;
+    // Calculate cart total and apply coupon discounts
+    let cartTotal = 0;
+    let productTax = 0;
+    let discountTotal = 0;
+
     const cartItemsWithTax = await Promise.all(
       (cart.items ?? []).map(async (item) => {
         if (!item.product) {
@@ -428,6 +789,7 @@ export const getCart = async (
             product: null,
             productVariation: null,
             tax: 0,
+            discount: 0,
           };
         }
 
@@ -486,9 +848,69 @@ export const getCart = async (
           }
         }
 
+        // Apply coupon discounts
+        let itemDiscount = 0;
+        const productId = item.product.id;
+        const productCategories =
+          item.product.categories?.map((cat: any) => cat.id) || [];
+
+        for (const coupon of cart.coupons ?? []) {
+          // Validate coupon for this item
+          const isApplicableProduct =
+            !coupon.applicableProducts ||
+            coupon.applicableProducts.length === 0 ||
+            coupon.applicableProducts.some(
+              (prod: any) => prod.id === productId
+            );
+          const isNotExcludedProduct =
+            !coupon.excludedProducts ||
+            coupon.excludedProducts.length === 0 ||
+            !coupon.excludedProducts.some((prod: any) => prod.id === productId);
+          const isApplicableCategory =
+            !coupon.applicableCategories ||
+            coupon.applicableCategories.length === 0 ||
+            coupon.applicableCategories.some((cat: any) =>
+              productCategories.includes(cat.id)
+            );
+          const isNotExcludedCategory =
+            !coupon.excludedCategories ||
+            coupon.excludedCategories.length === 0 ||
+            !coupon.excludedCategories.some((cat: any) =>
+              productCategories.includes(cat.id)
+            );
+          const isValidCoupon =
+            (!coupon.expiryDate || new Date(coupon.expiryDate) > new Date()) &&
+            (coupon.maxUsage === null || coupon.usageCount < coupon.maxUsage) &&
+            (!coupon.allowedEmails ||
+              coupon.allowedEmails.length === 0 ||
+              (userEmail && coupon.allowedEmails.includes(userEmail))) &&
+            isApplicableProduct &&
+            isNotExcludedProduct &&
+            isApplicableCategory &&
+            isNotExcludedCategory;
+
+          if (isValidCoupon) {
+            if (coupon.discountType === CouponType.FIXED_PRODUCT_DISCOUNT) {
+              itemDiscount += coupon.discountValue * item.quantity;
+            } else if (coupon.discountType === CouponType.PERCENTAGE_DISCOUNT) {
+              itemDiscount +=
+                price * item.quantity * (coupon.discountValue / 100);
+            }
+            // Note: FIXED_CART_DISCOUNT is applied to cartTotal below
+          }
+        }
+
+        // Ensure discount does not exceed item price
+        itemDiscount = Math.min(itemDiscount, price * item.quantity);
+        discountTotal += itemDiscount;
+
+        // Calculate item tax
         let itemTax = 0;
-        if (calculateTax && taxAddress) {
-          // Determine tax class (variation takes precedence)
+        if (
+          calculateTax &&
+          taxAddress &&
+          item.product.taxStatus !== "SHIPPING_ONLY"
+        ) {
           const taxClassId =
             item.productVariation?.taxClass?.id ?? item.product.taxClass?.id;
           if (taxClassId) {
@@ -497,20 +919,22 @@ export const getCart = async (
               taxAddress
             );
             if (taxRate) {
-              const taxableAmount = price * item.quantity;
+              const taxableAmount =
+                (price - itemDiscount / item.quantity) * item.quantity;
               if (pricesEnteredWithTax) {
-                // Back-calculate tax: taxableAmount = price / (1 + rate)
                 const taxRateDecimal = taxRate.rate / 100;
                 const baseAmount = taxableAmount / (1 + taxRateDecimal);
                 itemTax = taxableAmount - baseAmount;
               } else {
-                // Tax-exclusive: tax = price * quantity * rate
                 itemTax = taxableAmount * (taxRate.rate / 100);
               }
-              totalTax += itemTax;
+              productTax += itemTax;
             }
           }
         }
+
+        // Add to cart total (before discounts)
+        cartTotal += price * item.quantity;
 
         return {
           id: item.id,
@@ -519,9 +943,111 @@ export const getCart = async (
           productVariation: item.productVariation
             ? await mapProductVariationRecursive(item.productVariation)
             : null,
-          tax: itemTax,
+          tax: parseFloat(itemTax.toFixed(2)),
+          discount: parseFloat(itemDiscount.toFixed(2)),
         };
       })
+    );
+
+    // Apply FIXED_CART_DISCOUNT coupons
+    for (const coupon of cart.coupons ?? []) {
+      const isValidCoupon =
+        (!coupon.expiryDate || new Date(coupon.expiryDate) > new Date()) &&
+        (coupon.maxUsage === null || coupon.usageCount < coupon.maxUsage) &&
+        (!coupon.allowedEmails ||
+          coupon.allowedEmails.length === 0 ||
+          (userEmail && coupon.allowedEmails.includes(userEmail)));
+      if (
+        isValidCoupon &&
+        coupon.discountType === CouponType.FIXED_CART_DISCOUNT
+      ) {
+        // Check if cart meets product/category restrictions
+        const hasApplicableItems = cartItemsWithTax.some((item) => {
+          if (!item.product) return false;
+          const productId = item.product.id;
+          const productCategories =
+            item.product.categories?.map((cat: any) => cat.id) || [];
+          const isApplicableProduct =
+            !coupon.applicableProducts ||
+            coupon.applicableProducts.length === 0 ||
+            coupon.applicableProducts.some(
+              (prod: any) => prod.id === productId
+            );
+          const isNotExcludedProduct =
+            !coupon.excludedProducts ||
+            coupon.excludedProducts.length === 0 ||
+            !coupon.excludedProducts.some((prod: any) => prod.id === productId);
+          const isApplicableCategory =
+            !coupon.applicableCategories ||
+            coupon.applicableCategories.length === 0 ||
+            coupon.applicableCategories.some((cat: any) =>
+              productCategories.includes(cat.id)
+            );
+          const isNotExcludedCategory =
+            !coupon.excludedCategories ||
+            coupon.excludedCategories.length === 0 ||
+            !coupon.excludedCategories.some((cat: any) =>
+              productCategories.includes(cat.id)
+            );
+          return (
+            isApplicableProduct &&
+            isNotExcludedProduct &&
+            isApplicableCategory &&
+            isNotExcludedCategory
+          );
+        });
+
+        if (hasApplicableItems) {
+          discountTotal += coupon.discountValue;
+        }
+      }
+    }
+
+    // Ensure discountTotal does not exceed cartTotal
+    discountTotal = Math.min(discountTotal, cartTotal);
+    discountTotal = parseFloat(discountTotal.toFixed(2));
+
+    // Apply minimumSpend and maximumSpend for coupons after discounts
+    let adjustedCartTotal = cartTotal - discountTotal;
+    adjustedCartTotal = parseFloat(adjustedCartTotal.toFixed(2));
+
+    // Check for valid free shipping coupon
+    const hasValidCoupon = (cart.coupons ?? []).some((coupon) =>
+      isValidFreeShippingCoupon(
+        coupon,
+        cart.items,
+        adjustedCartTotal,
+        userEmail
+      )
+    );
+
+    // Calculate shipping cost and tax using adjusted cart total
+    let shippingZone: ShippingZone | null = null;
+    if (shippingAddressInfo) {
+      shippingZone = await getMatchedShippingZone({
+        country: shippingAddressInfo.addressBook.country,
+        state: shippingAddressInfo.addressBook.state,
+        city: shippingAddressInfo.addressBook.city,
+        zip: shippingAddressInfo.addressBook.zip,
+      });
+    }
+
+    const { shippingCost, shippingTax, shippingTotalCostWithTax } =
+      await calculateShippingCostAndTax(
+        shippingZone,
+        cart.items,
+        taxAddress,
+        pricesEnteredWithTax,
+        adjustedCartTotal,
+        hasValidCoupon
+      );
+
+    // Calculate final totals
+    const productTotalCostWithTax = parseFloat(
+      (cartTotal - discountTotal + productTax).toFixed(2)
+    );
+    const inTotal = parseFloat(
+      (productTotalCostWithTax + shippingTotalCostWithTax).toFixed(2)
     );
 
     return {
@@ -575,7 +1101,12 @@ export const getCart = async (
               ? coupon.deletedAt.toISOString()
               : coupon.deletedAt ?? null,
         })),
-        totalTax,
+        productTax: parseFloat(productTax.toFixed(2)),
+        productTotalCostWithTax,
+        shippingTax,
+        shippingCost,
+        shippingTotalCostWithTax,
+        inTotal,
         createdBy: cart.createdBy as any,
         createdAt:
           cart.createdAt instanceof Date
