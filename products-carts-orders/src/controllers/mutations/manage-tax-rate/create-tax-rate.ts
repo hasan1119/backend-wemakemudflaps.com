@@ -14,6 +14,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   createTaxRate as createTaxRateService,
+  findTaxRateByTaxClassAndPriority,
   getTaxClassById,
 } from "../../services";
 
@@ -117,6 +118,20 @@ export const createTaxRate = async (
           __typename: "BaseResponse",
         };
       }
+    }
+
+    const existing = await findTaxRateByTaxClassAndPriority(
+      taxClassId,
+      priority
+    );
+
+    if (existing) {
+      return {
+        statusCode: 409,
+        success: false,
+        message: `Priority ${priority} already exists in this tax class. Please choose a different priority.`,
+        __typename: "BaseResponse",
+      };
     }
 
     // Create the tax rate in the database

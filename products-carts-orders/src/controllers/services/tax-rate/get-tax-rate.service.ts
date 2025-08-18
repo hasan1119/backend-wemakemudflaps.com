@@ -1,4 +1,4 @@
-import { Brackets, ILike, In } from "typeorm";
+import { Brackets, ILike, In, Not } from "typeorm";
 import { TaxRate } from "../../../entities";
 import { taxRateRepository } from "../repositories/repositories";
 
@@ -44,6 +44,55 @@ export const getTaxRateByIds = async (ids: string[]): Promise<TaxRate[]> => {
       deletedAt: null,
     },
     relations: ["taxClass"],
+  });
+};
+
+/**
+ * Finds a tax rate by its tax class ID and priority.
+ *
+ * Workflow:
+ * 1. Queries the taxRateRepository for a tax rate matching the provided taxClassId and priority.
+ * 2. Ensures the tax rate is not soft-deleted.
+ * 3. Returns the tax rate entity or null if not found.
+ *
+ * @param taxClassId - The ID of the tax class to filter tax rates.
+ * @param priority - The priority of the tax rate to retrieve.
+ * @returns A promise resolving to the TaxRate entity or null.
+ */
+export const findTaxRateByTaxClassAndPriority = async (
+  taxClassId: string,
+  priority: number
+): Promise<TaxRate | null> => {
+  return await taxRateRepository.findOne({
+    where: {
+      taxClass: { id: taxClassId },
+      priority,
+      deletedAt: null,
+    },
+  });
+};
+
+/**
+ * Finds a tax rate by its tax class ID and priority, excluding a specific tax rate ID.
+ *
+ * Workflow:
+ * 1. Queries the taxRateRepository for a tax rate matching the provided taxClassId and priority.
+ * 2. Ensures the tax rate is not soft-deleted.
+ * 3. Excludes the tax rate with the specified taxRateId.
+ * 4. Returns the tax rate entity or null if not found.
+ */
+export const findTaxRateByTaxClassAndPriorityToUpdateScope = async (
+  taxClassId: string,
+  priority: number,
+  taxRateId: string
+): Promise<TaxRate | null> => {
+  return await taxRateRepository.findOne({
+    where: {
+      taxClass: { id: taxClassId },
+      priority,
+      deletedAt: null,
+      id: Not(taxRateId),
+    },
   });
 };
 

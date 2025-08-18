@@ -1,6 +1,7 @@
 import { TaxRate } from "../../../entities";
 import { MutationUpdateTaxRateArgs } from "../../../types";
 import { taxRateRepository } from "../repositories/repositories";
+import { getTaxRateById } from "./get-tax-rate.service";
 
 /**
  * Directly updates a tax rate with the given fields and returns the updated entity.
@@ -13,32 +14,6 @@ export const updateTaxRate = async (
   taxRateId: string,
   data: Partial<MutationUpdateTaxRateArgs>
 ): Promise<TaxRate> => {
-  // Load existing taxRate (with taxClass id)
-  const existingTaxRate = await taxRateRepository.findOne({
-    where: { id: taxRateId },
-    relations: ["taxClass"], // need taxClass id for uniqueness check
-  });
-
-  if (!existingTaxRate) {
-    throw new Error(`TaxRate with id ${taxRateId} not found`);
-  }
-
-  // If priority is being updated, ensure uniqueness
-  if (data.priority !== undefined && data.priority !== null) {
-    const conflict = await taxRateRepository.findOne({
-      where: {
-        taxClass: { id: (await existingTaxRate.taxClass).id },
-        priority: data.priority,
-      },
-    });
-
-    if (conflict && conflict.id !== taxRateId) {
-      throw new Error(
-        `Priority ${data.priority} already exists in this tax class. Please choose a different priority.`
-      );
-    }
-  }
-
   // Update the taxRate
   await taxRateRepository.update(taxRateId, {
     ...(data.country !== undefined &&
@@ -63,9 +38,6 @@ export const updateTaxRate = async (
       data.priority !== null && { priority: data.priority }),
   });
 
-  // ✅ Step 4: return updated entity
-  return (await taxRateRepository.findOne({
-    where: { id: taxRateId },
-    relations: ["taxClass"],
-  })) as TaxRate;
+  // return updated entity
+  return await getTaxRateById(taxRateId);
 };

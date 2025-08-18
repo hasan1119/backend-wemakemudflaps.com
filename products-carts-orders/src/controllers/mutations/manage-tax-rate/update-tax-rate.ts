@@ -15,6 +15,7 @@ import { updateTaxRateSchema } from "../../../utils/data-validation";
 import {
   checkUserAuth,
   checkUserPermission,
+  findTaxRateByTaxClassAndPriorityToUpdateScope,
   getTaxClassById,
   getTaxRateById,
   updateTaxRate as updateTaxRateService,
@@ -122,6 +123,24 @@ export const updateTaxRate = async (
           statusCode: 404,
           success: false,
           message: "Tax rate not found",
+          __typename: "BaseResponse",
+        };
+      }
+    }
+
+    // Check but skip the tax rate id for the priority check
+    if (result.data.priority !== undefined && result.data.priority !== null) {
+      const conflict = await findTaxRateByTaxClassAndPriorityToUpdateScope(
+        taxClassId,
+        result.data.priority,
+        id
+      );
+
+      if (conflict && conflict.id !== id) {
+        return {
+          statusCode: 400,
+          success: false,
+          message: `Priority ${result.data.priority} already exists in this tax class. Please choose a different priority.`,
           __typename: "BaseResponse",
         };
       }

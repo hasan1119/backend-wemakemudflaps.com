@@ -439,6 +439,8 @@ export {
  * 3. Supports paginated retrieval of tax rates.
  */
 export {
+  findTaxRateByTaxClassAndPriority,
+  findTaxRateByTaxClassAndPriorityToUpdateScope,
   getTaxRateById,
   getTaxRateByIds,
   getTaxRateByTaxClassAndAddress,
