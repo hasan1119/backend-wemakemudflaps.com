@@ -46,11 +46,23 @@ export const addToWishListSchema = z.object({
  *
  * Workflow:
  * 1. Validates couponCodes as an array of non-empty strings.
+ * 2. Ensures no duplicate coupon codes are applied.
  *
- * @property couponCodes- Array of coupon code strings (each must be non-empty).
+ * @property couponCodes - Array of coupon code strings (each must be non-empty).
  */
-export const applyCouponSchema = z.object({
-  couponCodes: z.array(z.string().min(1, "Coupon code cannot be empty"), {
-    message: "Coupon code must be a string",
-  }),
-});
+export const applyCouponSchema = z
+  .object({
+    couponCodes: z.array(z.string().min(1, "Coupon code cannot be empty"), {
+      message: "Coupon code must be a string",
+    }),
+  })
+  .refine(
+    (data) => {
+      const uniqueCoupons = new Set(data.couponCodes);
+      return uniqueCoupons.size === data.couponCodes.length;
+    },
+    {
+      message: "Duplicate coupon codes are not allowed",
+      path: ["couponCodes"],
+    }
+  );

@@ -254,6 +254,56 @@ async function validateCoupon(
 }
 
 /**
+ * Checks if a coupon is a valid free shipping coupon for the cart.
+ */
+async function isValidFreeShippingCoupon(
+  coupon: Coupon,
+  cartItems: any[],
+  adjustedCartTotal: number,
+  userEmail: string | null,
+  currentDate: Date
+): Promise<boolean> {
+  if (!coupon.freeShipping) return false;
+
+  // Check general coupon validity using validateCoupon
+  const validation = await validateCoupon(
+    coupon,
+    cartItems,
+    adjustedCartTotal,
+    userEmail
+  );
+  if (!validation.valid) return false;
+
+  // Additional free shipping-specific checks
+  const isApplicable = cartItems.some((item) => {
+    if (!item.product) return false;
+    const productId = item.product.id;
+    const productCategories =
+      item.product.categories?.map((cat: any) => cat.id) || [];
+    return (
+      (!coupon.applicableProducts ||
+        coupon.applicableProducts.length === 0 ||
+        coupon.applicableProducts.some((prod: any) => prod.id === productId)) &&
+      (!coupon.excludedProducts ||
+        coupon.excludedProducts.length === 0 ||
+        !coupon.excludedProducts.some((prod: any) => prod.id === productId)) &&
+      (!coupon.applicableCategories ||
+        coupon.applicableCategories.length === 0 ||
+        coupon.applicableCategories.some((cat: any) =>
+          productCategories.includes(cat.id)
+        )) &&
+      (!coupon.excludedCategories ||
+        coupon.excludedCategories.length === 0 ||
+        !coupon.excludedCategories.some((cat: any) =>
+          productCategories.includes(cat.id)
+        ))
+    );
+  });
+
+  return isApplicable;
+}
+
+/**
  * Applies a coupon to the user's cart.
  */
 export const applyCoupon = async (
@@ -339,36 +389,6 @@ export const applyCoupon = async (
         message: "One or more coupon codes are invalid",
         __typename: "ErrorResponse",
       };
-    }
-
-    // Check the max uses of the coupon code
-    for (const coupon of coupons) {
-      if (coupon.maxUsage && coupon.usageCount >= coupon.maxUsage) {
-        return {
-          statusCode: 400,
-          success: false,
-          message: `Coupon ${coupon.code} has reached its maximum usage limit.`,
-          __typename: "ErrorResponse",
-        };
-      }
-    }
-
-    // Check the user email is eligible for the coupon
-    for (const coupon of coupons) {
-      if (
-        coupon.allowedEmails &&
-        coupon.allowedEmails.length > 0 &&
-        user.email
-      ) {
-        if (!coupon.allowedEmails.includes(user.email)) {
-          return {
-            statusCode: 400,
-            success: false,
-            message: `User email ${user.email} is not allowed for coupon ${coupon.code}.`,
-            __typename: "ErrorResponse",
-          };
-        }
-      }
     }
 
     // Extract user email from token
@@ -810,47 +830,18 @@ export const applyCoupon = async (
     );
 
     // Check for valid free shipping coupon
-    const hasValidCoupon = (updatedCart.coupons ?? []).some((coupon) => {
-      if (!coupon.freeShipping) return false;
-      const isApplicable = updatedCart.items.some((item) => {
-        if (!item.product) return false;
-        const productId = item.product.id;
-        const productCategories =
-          item.product.categories?.map((cat: any) => cat.id) || [];
-        return (
-          (!coupon.applicableProducts ||
-            coupon.applicableProducts.length === 0 ||
-            coupon.applicableProducts.some(
-              (prod: any) => prod.id === productId
-            )) &&
-          (!coupon.excludedProducts ||
-            coupon.excludedProducts.length === 0 ||
-            !coupon.excludedProducts.some(
-              (prod: any) => prod.id === productId
-            )) &&
-          (!coupon.applicableCategories ||
-            coupon.applicableCategories.length === 0 ||
-            coupon.applicableCategories.some((cat: any) =>
-              productCategories.includes(cat.id)
-            )) &&
-          (!coupon.excludedCategories ||
-            coupon.excludedCategories.length === 0 ||
-            !coupon.excludedCategories.some((cat: any) =>
-              productCategories.includes(cat.id)
-            ))
-        );
-      });
-      return (
-        isApplicable &&
-        (!coupon.expiryDate || new Date(coupon.expiryDate) > currentDate) &&
-        (coupon.maxUsage === null || coupon.usageCount < coupon.maxUsage) &&
-        (!coupon.allowedEmails ||
-          coupon.allowedEmails.length === 0 ||
-          (userEmail && coupon.allowedEmails.includes(userEmail))) &&
-        (!coupon.minimumSpend || adjustedCartTotal >= coupon.minimumSpend) &&
-        (!coupon.maximumSpend || adjustedCartTotal <= coupon.maximumSpend)
-      );
-    });
+    const freeShippingChecks = await Promise.all(
+      (updatedCart.coupons ?? []).map(async (coupon) =>
+        isValidFreeShippingCoupon(
+          coupon,
+          updatedCart.items,
+          adjustedCartTotal,
+          userEmail,
+          currentDate
+        )
+      )
+    );
+    const hasValidCoupon = freeShippingChecks.some(Boolean); // If any coupon is valid, this will be true
 
     // Calculate shipping
     let shippingZone: ShippingZone | null = null;
@@ -874,20 +865,15 @@ export const applyCoupon = async (
       );
 
     // Calculate final totals
+    const productTotalWithoutTax = parseFloat(
+      (cartTotal - discountTotal).toFixed(2)
+    );
     const productTotalCostWithTax = parseFloat(
       (cartTotal - discountTotal + productTax).toFixed(2)
     );
     const inTotal = parseFloat(
       (productTotalCostWithTax + shippingTotalCostWithTax).toFixed(2)
     );
-
-    // Note: If Cart type requires Int (cents), modify monetary fields:
-    // productTax: Math.round(productTax * 100),
-    // productTotalCostWithTax: Math.round(productTotalCostWithTax * 100),
-    // shippingTax: Math.round(shippingTax * 100),
-    // shippingCost: Math.round(shippingCost * 100),
-    // shippingTotalCostWithTax: Math.round(shippingTotalCostWithTax * 100),
-    // inTotal: Math.round(inTotal * 100),
 
     return {
       statusCode: 200,
@@ -940,11 +926,13 @@ export const applyCoupon = async (
               ? coupon.deletedAt.toISOString()
               : coupon.deletedAt ?? null,
         })),
+        productTotalWithoutTax,
         productTax: parseFloat(productTax.toFixed(2)),
         productTotalCostWithTax,
         shippingTax,
         shippingCost,
         shippingTotalCostWithTax,
+        discountTotal: parseFloat(discountTotal.toFixed(2)),
         inTotal,
         createdBy: updatedCart.createdBy as any,
         createdAt:

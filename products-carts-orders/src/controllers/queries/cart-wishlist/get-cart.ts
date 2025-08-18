@@ -586,6 +586,9 @@ export const getCart = async (
       );
 
     // Calculate final totals
+    const productTotalWithoutTax = parseFloat(
+      (cartTotal - discountTotal).toFixed(2)
+    );
     const productTotalCostWithTax = parseFloat(
       (cartTotal - discountTotal + productTax).toFixed(2)
     );
@@ -644,11 +647,13 @@ export const getCart = async (
               ? coupon.deletedAt.toISOString()
               : coupon.deletedAt ?? null,
         })),
+        productTotalWithoutTax,
         productTax: parseFloat(productTax.toFixed(2)),
         productTotalCostWithTax,
         shippingTax,
         shippingCost,
         shippingTotalCostWithTax,
+        discountTotal: parseFloat(discountTotal.toFixed(2)),
         inTotal,
         createdBy: cart.createdBy as any,
         createdAt:
