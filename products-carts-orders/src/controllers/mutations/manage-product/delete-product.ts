@@ -2,10 +2,14 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearBrandsAndCountCache,
-  clearCategoriesAndCountCache,
+  clearProductsAndCountCache,
   clearShippingClassesAndCountCache,
   clearTagsAndCountCache,
   clearTaxClassesAndCountCache,
+  removeProductInfoByIdFromRedis,
+  removeProductInfoBySlugFromRedis,
+  setProductInfoByIdInRedis,
+  setProductInfoBySlugInRedis,
 } from "../../../helper/redis";
 import { BaseResponseOrError, MutationDeleteProductArgs } from "../../../types";
 import { idsSchema, skipTrashSchema } from "../../../utils/data-validation";
@@ -14,6 +18,7 @@ import {
   checkUserPermission,
   getProductsByIdsToDelete,
   hardDeleteProduct,
+  mapProductRecursive,
   softDeleteProduct,
 } from "../../services";
 
@@ -101,7 +106,7 @@ export const deleteProduct = async (
     const deletedProducts: string[] = [];
 
     for (const productData of foundProducts) {
-      const { id, name, deletedAt } = productData;
+      const { id, name, slug, deletedAt } = productData;
 
       if (skipTrash) {
         await hardDeleteProduct(productData);
@@ -109,10 +114,13 @@ export const deleteProduct = async (
         // Clear caches for related entities
         await Promise.all([
           clearBrandsAndCountCache(),
-          clearCategoriesAndCountCache(),
+          // clearCategoriesAndCountCache(),
           clearShippingClassesAndCountCache(),
           clearTagsAndCountCache(),
           clearTaxClassesAndCountCache(),
+          clearProductsAndCountCache(),
+          removeProductInfoBySlugFromRedis(slug),
+          removeProductInfoByIdFromRedis(id),
         ]);
       } else {
         if (deletedAt) {
@@ -124,6 +132,15 @@ export const deleteProduct = async (
           };
         }
         await softDeleteProduct(id);
+
+        const updatedProduct = await mapProductRecursive(productData);
+
+        // Update caches for the related entities
+        await Promise.all([
+          clearProductsAndCountCache(),
+          setProductInfoByIdInRedis(id, updatedProduct),
+          setProductInfoBySlugInRedis(slug, updatedProduct),
+        ]);
       }
 
       deletedProducts.push(name);

@@ -140,17 +140,14 @@ export {
  * Workflow:
  * 1. Provides functions for getting, setting and removing.
  */
-// export {
-//   clearProductsAndCountCache,
-//   getProductInfoByIdFromRedis,
-//   getProductNameExistFromRedis,
-//   getProductsAndCountFromRedis,
-//   getProductSlugExistFromRedis,
-//   removeProductInfoByIdFromRedis,
-//   removeProductNameExistFromRedis,
-//   removeProductSlugExistFromRedis,
-//   setProductInfoByIdInRedis,
-//   setProductNameExistInRedis,
-//   setProductsAndCountInRedis,
-//   setProductSlugExistInRedis,
-// } from "./utils/product/product-session-manage";
+export {
+  clearProductsAndCountCache,
+  getProductInfoByIdFromRedis,
+  getProductInfoBySlugFromRedis,
+  getProductsAndCountFromRedis,
+  removeProductInfoByIdFromRedis,
+  removeProductInfoBySlugFromRedis,
+  setProductInfoByIdInRedis,
+  setProductInfoBySlugInRedis,
+  setProductsAndCountInRedis,
+} from "./utils/product/product-session-manage";

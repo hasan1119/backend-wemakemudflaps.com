@@ -1,5 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { getProductInfoByIdFromRedis } from "../../../helper/redis";
 import {
   GetProductByIdResponseOrError,
   QueryGetProductByIdArgs,
@@ -72,23 +73,32 @@ export const getProductById = async (
 
     const { id } = args;
 
-    // Fetch product data from database
-    const productData = await getProductByIdService(id);
+    let productData;
 
-    if (!productData || productData.deletedAt) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: `Product not found with this id: ${id}, or it may have been deleted or moved to the trash`,
-        __typename: "BaseResponse",
-      };
+    // Try fetching product data from Redis
+    productData = await getProductInfoByIdFromRedis(id);
+
+    if (!productData) {
+      // Fetch product data from database
+      productData = await getProductByIdService(id);
+
+      productData = await mapProductRecursive(productData);
+
+      if (!productData || productData.deletedAt) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: `Product not found with this id: ${id}, or it may have been deleted or moved to the trash`,
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     return {
       statusCode: 200,
       success: true,
       message: "Product fetched successfully",
-      product: await mapProductRecursive(productData),
+      product: productData,
       __typename: "ProductResponse",
     };
   } catch (error: any) {

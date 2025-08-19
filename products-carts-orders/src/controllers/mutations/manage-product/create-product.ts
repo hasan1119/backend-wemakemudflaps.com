@@ -1,11 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
-import {
-  clearBrandsAndCountCache,
-  clearShippingClassesAndCountCache,
-  clearTagsAndCountCache,
-  clearTaxClassesAndCountCache,
-} from "../../../helper/redis";
+import { clearProductsAndCountCache } from "../../../helper/redis";
 import { CreateProductResponseOrError } from "../../../types";
 import {
   checkUserAuth,
@@ -58,14 +53,7 @@ export const createProduct = async (
     // Create the product in the database
     const product = await createProductService(user.id);
 
-    // Clear caches for related entities
-    await Promise.all([
-      clearBrandsAndCountCache(),
-      // clearCategoriesAndCountCache(),
-      clearShippingClassesAndCountCache(),
-      clearTagsAndCountCache(),
-      clearTaxClassesAndCountCache(),
-    ]);
+    await clearProductsAndCountCache();
 
     return {
       statusCode: 201,

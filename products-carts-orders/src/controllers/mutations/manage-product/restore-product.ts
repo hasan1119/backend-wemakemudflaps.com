@@ -1,6 +1,11 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  clearProductsAndCountCache,
+  setProductInfoByIdInRedis,
+  setProductInfoBySlugInRedis,
+} from "../../../helper/redis";
+import {
   BaseResponseOrError,
   MutationRestoreProductsArgs,
 } from "../../../types";
@@ -9,6 +14,7 @@ import {
   checkUserAuth,
   checkUserPermission,
   getProductsByIds,
+  mapProductRecursive,
   restoreProduct,
 } from "../../services";
 
@@ -105,7 +111,20 @@ export const restoreProducts = async (
     }
 
     // Restore products
-    await restoreProduct(ids);
+    const restoredProducts = await restoreProduct(ids);
+
+    await clearProductsAndCountCache();
+
+    // Update product-specific caches
+    await Promise.all(
+      restoredProducts.map(async (product) => {
+        const updatedProduct = await mapProductRecursive(product);
+        return Promise.all([
+          setProductInfoByIdInRedis(product.id, updatedProduct),
+          setProductInfoBySlugInRedis(product.slug, updatedProduct),
+        ]);
+      })
+    );
 
     return {
       statusCode: 200,

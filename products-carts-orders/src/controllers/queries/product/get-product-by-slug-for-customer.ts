@@ -1,5 +1,6 @@
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
+import { getProductInfoBySlugFromRedis } from "../../../helper/redis";
 import {
   GetProductBySlugResponseOrError,
   QueryGetProductBySlugForCustomerArgs,
@@ -47,16 +48,25 @@ export const getProductBySlugForCustomer = async (
 
     const { slug } = args;
 
-    // Fetch product data from database
-    const productData = await findProductBySlug(slug);
+    let productData;
 
-    if (!productData || productData.deletedAt) {
-      return {
-        statusCode: 404,
-        success: false,
-        message: `Product not found with this slug: ${slug}, or it may have been deleted or moved to the trash`,
-        __typename: "BaseResponse",
-      };
+    // Try fetching product data from Redis
+    productData = await getProductInfoBySlugFromRedis(slug);
+
+    if (!productData) {
+      // Fetch product data from database
+      productData = await findProductBySlug(slug);
+
+      productData = await mapProductRecursive(productData);
+
+      if (!productData || productData.deletedAt) {
+        return {
+          statusCode: 404,
+          success: false,
+          message: `Product not found with this slug: ${slug}, or it may have been deleted or moved to the trash`,
+          __typename: "BaseResponse",
+        };
+      }
     }
 
     if (!productData.isVisible) {
@@ -72,7 +82,7 @@ export const getProductBySlugForCustomer = async (
       statusCode: 200,
       success: true,
       message: "Product fetched successfully",
-      product: await mapProductRecursive(productData),
+      product: productData,
       __typename: "ProductResponse",
     };
   } catch (error: any) {

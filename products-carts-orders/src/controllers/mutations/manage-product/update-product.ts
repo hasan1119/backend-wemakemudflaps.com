@@ -2,9 +2,13 @@ import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
   clearBrandsAndCountCache,
+  clearProductsAndCountCache,
   clearShippingClassesAndCountCache,
   clearTagsAndCountCache,
   clearTaxClassesAndCountCache,
+  removeProductInfoBySlugFromRedis,
+  setProductInfoByIdInRedis,
+  setProductInfoBySlugInRedis,
 } from "../../../helper/redis";
 import {
   MutationUpdateProductArgs,
@@ -373,19 +377,27 @@ export const updateProduct = async (
       ...result.data,
     } as any);
 
+    const updatedProductData = await mapProductRecursive(product);
+
+    // Clear and update caches for related entities
     await Promise.all([
       clearBrandsAndCountCache(),
       // clearCategoriesAndCountCache(),
       clearShippingClassesAndCountCache(),
       clearTagsAndCountCache(),
       clearTaxClassesAndCountCache(),
+      clearProductsAndCountCache(),
+      removeProductInfoBySlugFromRedis(currentProduct.slug),
+
+      setProductInfoByIdInRedis(updatedProductData.id, updatedProductData),
+      setProductInfoBySlugInRedis(updatedProductData.slug, updatedProductData),
     ]);
 
     return {
       statusCode: 200,
       success: true,
       message: "Product updated successfully",
-      product: await mapProductRecursive(product),
+      product: updatedProductData,
       __typename: "ProductResponse",
     };
   } catch (error: any) {

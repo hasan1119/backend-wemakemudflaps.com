@@ -2,6 +2,10 @@ import { z } from "zod";
 import CONFIG from "../../../config/config";
 import { Context } from "../../../context";
 import {
+  getProductsAndCountFromRedis,
+  setProductsAndCountInRedis,
+} from "../../../helper/redis";
+import {
   GetProductsResponseOrError,
   QueryGetAllProductsArgs,
   QueryGetAllProductsForCustomerArgs,
@@ -74,23 +78,69 @@ export const getAllProductsForCustomer = async (
 
     const { page, limit, search, sortBy, sortOrder, filtering } = mappedArgs;
 
+    // Extract filter arrays for Redis key stability
+    const brandIds = filtering.brandIds ?? null;
+    const categoryIds = filtering.categoryIds ?? null;
+    const tagIds = filtering.tagIds ?? null;
+    const productDeliveryType = filtering.productDeliveryType ?? null;
+    const forCustomer = true; // Always true for customer queries
+
     // Ensure sortOrder is "asc" or "desc"
     const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
 
-    // Fetch products from database directly
-    const { products: dbProducts, total } = await paginateProductsForCustomer({
-      page,
-      limit,
-      search,
-      sortBy,
-      sortOrder: safeSortOrder,
-      filtering: filtering || {},
-    });
+    const { products: cachedProducts, count: cachedCount } =
+      await getProductsAndCountFromRedis(
+        page,
+        limit,
+        search,
+        sortBy,
+        safeSortOrder,
+        brandIds,
+        categoryIds,
+        tagIds,
+        productDeliveryType,
+        forCustomer
+      );
 
-    // Map database products to response format
-    const productsData = await Promise.all(
-      dbProducts.map((product) => mapProductRecursive(product))
-    );
+    let productsData: any[];
+    let total: number;
+
+    if (cachedProducts && cachedCount !== null) {
+      productsData = cachedProducts;
+      total = cachedCount;
+    } else {
+      // Cache miss: Fetch from DB
+      const { products: dbProducts, total: dbTotal } =
+        await paginateProductsForCustomer({
+          page,
+          limit,
+          search,
+          sortBy,
+          sortOrder: safeSortOrder,
+          filtering,
+        });
+      // Fix: Explicitly call mapProductRecursive with only the product parameter
+      productsData = await Promise.all(
+        dbProducts.map((product) => mapProductRecursive(product))
+      );
+      total = dbTotal;
+
+      // Cache results for next time
+      await setProductsAndCountInRedis(
+        page,
+        limit,
+        search,
+        sortBy,
+        safeSortOrder,
+        brandIds,
+        categoryIds,
+        tagIds,
+        productDeliveryType,
+        forCustomer,
+        productsData,
+        total
+      );
+    }
 
     return {
       statusCode: 200,
