@@ -153,10 +153,12 @@ export type Cart = {
 
 export type CartItems = {
   __typename?: 'CartItems';
+  discount?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   product: Product;
   productVariation?: Maybe<ProductVariation>;
   quantity: Scalars['Int']['output'];
+  subtotal?: Maybe<Scalars['Int']['output']>;
   tax?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -4003,10 +4005,12 @@ export type CartResolvers<ContextType = Context, ParentType extends ResolversPar
 };
 
 export type CartItemsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CartItems'] = ResolversParentTypes['CartItems']> = {
+  discount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   product?: Resolver<ResolversTypes['Product'], ParentType, ContextType>;
   productVariation?: Resolver<Maybe<ResolversTypes['ProductVariation']>, ParentType, ContextType>;
   quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  subtotal?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   tax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

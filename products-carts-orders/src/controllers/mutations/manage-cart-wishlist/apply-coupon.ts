@@ -771,6 +771,9 @@ export const applyCoupon = async (
             : null,
           tax: parseFloat(itemTax.toFixed(2)),
           discount: parseFloat(itemDiscount.toFixed(2)),
+          subtotal: parseFloat(
+            (price * item.quantity - itemDiscount).toFixed(2)
+          ),
         };
       })
     );

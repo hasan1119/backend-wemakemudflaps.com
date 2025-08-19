@@ -32,6 +32,8 @@ type CartItems {
   product: Product!
   productVariation: ProductVariation
   tax: Int
+  discount: Int
+  subtotal: Int
 }
 
 type WishlistItems {
