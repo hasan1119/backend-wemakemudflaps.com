@@ -139,9 +139,16 @@ export type Cart = {
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
+  discountTotal?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
+  inTotal?: Maybe<Scalars['Int']['output']>;
   items: Array<CartItems>;
-  totalTax?: Maybe<Scalars['Int']['output']>;
+  productTax?: Maybe<Scalars['Int']['output']>;
+  productTotalCostWithTax?: Maybe<Scalars['Int']['output']>;
+  productTotalWithoutTax?: Maybe<Scalars['Int']['output']>;
+  shippingCost?: Maybe<Scalars['Int']['output']>;
+  shippingTax?: Maybe<Scalars['Int']['output']>;
+  shippingTotalCostWithTax?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CartItems = {
@@ -927,7 +934,9 @@ export type MutationAddToWishListArgs = {
 
 
 export type MutationApplyCouponArgs = {
+  billingAddressId?: InputMaybe<Scalars['ID']['input']>;
   couponCodes: Array<InputMaybe<Scalars['String']['input']>>;
+  shippingAddressId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -997,8 +1006,8 @@ export type MutationCreateOrUpdateShopAddressArgs = {
 
 
 export type MutationCreateOrUpdateSiteSettingArgs = {
-  contactEmail?: InputMaybe<Scalars['String']['input']>;
-  contactNumber?: InputMaybe<Scalars['String']['input']>;
+  contactEmails?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  contactNumbers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   favIcon?: InputMaybe<Scalars['String']['input']>;
   logo?: InputMaybe<Scalars['String']['input']>;
   metaData?: InputMaybe<MetaDataInput>;
@@ -2571,8 +2580,8 @@ export type SinglePermissionInput = {
 
 export type SiteSettings = {
   __typename?: 'SiteSettings';
-  contactEmail?: Maybe<Scalars['String']['output']>;
-  contactNumber?: Maybe<Scalars['String']['output']>;
+  contactEmails?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  contactNumbers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
@@ -3980,9 +3989,16 @@ export type CartResolvers<ContextType = Context, ParentType extends ResolversPar
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  discountTotal?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inTotal?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   items?: Resolver<Array<ResolversTypes['CartItems']>, ParentType, ContextType>;
-  totalTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  productTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  productTotalCostWithTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  productTotalWithoutTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  shippingCost?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  shippingTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  shippingTotalCostWithTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5275,8 +5291,8 @@ export type ShopPhoneResolvers<ContextType = Context, ParentType extends Resolve
 };
 
 export type SiteSettingsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SiteSettings'] = ResolversParentTypes['SiteSettings']> = {
-  contactEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  contactNumber?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  contactEmails?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  contactNumbers?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

@@ -18,8 +18,8 @@ import z from "zod";
  * @property metaData - Metadata for the site setting (optional, nullable).
  * @property favIcon - Favicon URL for the site setting (optional, nullable).
  * @property logo - Logo URL for the site setting (optional, nullable).
- * @property contactNumber - Contact number for the site setting (optional, nullable).
- * @property contactEmail - Contact email for the site setting (optional, nullable).
+ * @property contactNumbers - Contact numbers for the site setting (optional, nullable).
+ * @property contactEmails - Contact emails for the site setting (optional, nullable).
  * @property shopAddress - Shop address for the site setting (optional, nullable).
  * @property privacyPolicy - Privacy policy for the site setting (optional, nullable).
  * @property termsAndConditions - Terms and conditions for the site setting (optional, nullable).
@@ -78,13 +78,16 @@ export const siteSettingsSchema = z
       .string({ message: "Logo URL must be a string" })
       .optional()
       .nullable(),
-    contactNumber: z
-      .string({ message: "Contact number must be a string" })
+    contactNumbers: z
+      .array(z.string({ message: "Contact number must be a string" }))
       .optional()
       .nullable(),
-    contactEmail: z
-      .string({ message: "Contact email must be a string" })
-      .email({ message: "Invalid email format" })
+    contactEmails: z
+      .array(
+        z
+          .string({ message: "Contact email must be a string" })
+          .email({ message: "Invalid email format" })
+      )
       .optional()
       .nullable(),
     shopAddress: z

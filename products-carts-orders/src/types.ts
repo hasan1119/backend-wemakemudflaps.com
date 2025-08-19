@@ -1006,8 +1006,8 @@ export type MutationCreateOrUpdateShopAddressArgs = {
 
 
 export type MutationCreateOrUpdateSiteSettingArgs = {
-  contactEmail?: InputMaybe<Scalars['String']['input']>;
-  contactNumber?: InputMaybe<Scalars['String']['input']>;
+  contactEmails?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  contactNumbers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   favIcon?: InputMaybe<Scalars['String']['input']>;
   logo?: InputMaybe<Scalars['String']['input']>;
   metaData?: InputMaybe<MetaDataInput>;
@@ -2580,8 +2580,8 @@ export type SinglePermissionInput = {
 
 export type SiteSettings = {
   __typename?: 'SiteSettings';
-  contactEmail?: Maybe<Scalars['String']['output']>;
-  contactNumber?: Maybe<Scalars['String']['output']>;
+  contactEmails?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  contactNumbers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
@@ -5291,8 +5291,8 @@ export type ShopPhoneResolvers<ContextType = Context, ParentType extends Resolve
 };
 
 export type SiteSettingsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SiteSettings'] = ResolversParentTypes['SiteSettings']> = {
-  contactEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  contactNumber?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  contactEmails?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  contactNumbers?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

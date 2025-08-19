@@ -28,11 +28,11 @@ export const createOrUpdateSiteSettings = async (
       ...(data.metaData !== undefined && { metaData: data.metaData }),
       ...(data.favIcon !== undefined && { favIcon: data.favIcon }),
       ...(data.logo !== undefined && { logo: data.logo }),
-      ...(data.contactNumber !== undefined && {
-        contactNumber: data.contactNumber,
+      ...(data.contactNumbers !== undefined && {
+        contactNumbers: data.contactNumbers,
       }),
-      ...(data.contactEmail !== undefined && {
-        contactEmail: data.contactEmail,
+      ...(data.contactEmails !== undefined && {
+        contactEmails: data.contactEmails,
       }),
       ...(data.privacyPolicy !== undefined && {
         privacyPolicy: data.privacyPolicy,

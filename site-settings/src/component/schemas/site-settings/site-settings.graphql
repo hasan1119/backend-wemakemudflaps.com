@@ -11,8 +11,8 @@ type SiteSettings {
   metaData: MetaData
   favIcon: Media
   logo: Media
-  contactNumber: String
-  contactEmail: String
+  contactNumbers: [String]
+  contactEmails: [String]
   privacyPolicy: String
   termsAndConditions: String
   createdBy: CreatedBy

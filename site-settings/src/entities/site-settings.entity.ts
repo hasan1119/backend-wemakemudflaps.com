@@ -25,13 +25,21 @@ export class SiteSettings {
   @Column({ nullable: true, default: null })
   logo: string | null;
 
-  // Footer text for the site setting
-  @Column({ nullable: true, default: null })
-  contactNumber: string | null;
+  @Column({
+    type: "text",
+    array: true,
+    nullable: true,
+    default: null,
+  })
+  contactNumbers: string[] | null;
 
-  // Contact email for the site setting
-  @Column({ nullable: true, default: null })
-  contactEmail: string | null;
+  @Column({
+    type: "text",
+    array: true,
+    nullable: true,
+    default: null,
+  })
+  contactEmails: string[] | null;
 
   // Privacy policy for the site setting
   @Column({ nullable: true, default: null })
