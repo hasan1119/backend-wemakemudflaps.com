@@ -33,6 +33,7 @@ type CartItems {
   productVariation: ProductVariation
   tax: Int
   discount: Int
+  basePrice: Int
   subtotal: Int
 }
 
