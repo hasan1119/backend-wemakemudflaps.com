@@ -118,13 +118,12 @@ export const findCartItem = async (
   userId: string
 ): Promise<CartItem | null> => {
   return await cartItemRepository
-    .createQueryBuilder("cartItem")
-    .leftJoinAndSelect("cartItem.product", "product")
-    .leftJoinAndSelect("cartItem.productVariation", "variation")
-    .where("cartItem.userId = :userId", { userId })
+    .createQueryBuilder("item")
+    .leftJoinAndSelect("item.product", "product")
+    .leftJoinAndSelect("item.productVariation", "variation")
+    .leftJoinAndSelect("item.cart", "cart")
+    .where("cart.createdBy = :userId", { userId })
     .andWhere("product.id = :productId", { productId })
-    .andWhere("variation.id = :productVariationId", {
-      productVariationId,
-    })
+    .andWhere("variation.id = :productVariationId", { productVariationId })
     .getOne();
 };
