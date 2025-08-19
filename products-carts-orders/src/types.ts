@@ -139,28 +139,28 @@ export type Cart = {
   createdAt?: Maybe<Scalars['String']['output']>;
   createdBy?: Maybe<CreatedBy>;
   deletedAt?: Maybe<Scalars['String']['output']>;
-  discountTotal?: Maybe<Scalars['Int']['output']>;
+  discountTotal?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
-  inTotal?: Maybe<Scalars['Int']['output']>;
+  inTotal?: Maybe<Scalars['Float']['output']>;
   items: Array<CartItems>;
-  productTax?: Maybe<Scalars['Int']['output']>;
-  productTotalCostWithTax?: Maybe<Scalars['Int']['output']>;
-  productTotalWithoutTax?: Maybe<Scalars['Int']['output']>;
-  shippingCost?: Maybe<Scalars['Int']['output']>;
-  shippingTax?: Maybe<Scalars['Int']['output']>;
-  shippingTotalCostWithTax?: Maybe<Scalars['Int']['output']>;
+  productTax?: Maybe<Scalars['Float']['output']>;
+  productTotalCostWithTax?: Maybe<Scalars['Float']['output']>;
+  productTotalWithoutTax?: Maybe<Scalars['Float']['output']>;
+  shippingCost?: Maybe<Scalars['Float']['output']>;
+  shippingTax?: Maybe<Scalars['Float']['output']>;
+  shippingTotalCostWithTax?: Maybe<Scalars['Float']['output']>;
 };
 
 export type CartItems = {
   __typename?: 'CartItems';
-  basePrice?: Maybe<Scalars['Int']['output']>;
-  discount?: Maybe<Scalars['Int']['output']>;
+  basePrice?: Maybe<Scalars['Float']['output']>;
+  discount?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
   product: Product;
   productVariation?: Maybe<ProductVariation>;
   quantity: Scalars['Int']['output'];
-  subtotal?: Maybe<Scalars['Int']['output']>;
-  tax?: Maybe<Scalars['Int']['output']>;
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax?: Maybe<Scalars['Float']['output']>;
 };
 
 export type CartResponse = {
@@ -3339,6 +3339,7 @@ export type ResolversTypes = {
   BrandResponse: ResolverTypeWrapper<BrandResponse>;
   CalculateTaxBasedOn: CalculateTaxBasedOn;
   Cart: ResolverTypeWrapper<Cart>;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   CartItems: ResolverTypeWrapper<CartItems>;
   CartResponse: ResolverTypeWrapper<CartResponse>;
   Category: ResolverTypeWrapper<Category>;
@@ -3347,7 +3348,6 @@ export type ResolversTypes = {
   CategoryResponse: ResolverTypeWrapper<CategoryResponse>;
   CategoryResponseById: ResolverTypeWrapper<CategoryResponseById>;
   Coupon: ResolverTypeWrapper<Coupon>;
-  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   CouponCategory: ResolverTypeWrapper<CouponCategory>;
   CouponPaginationResponse: ResolverTypeWrapper<CouponPaginationResponse>;
   CouponProduct: ResolverTypeWrapper<CouponProduct>;
@@ -3629,6 +3629,7 @@ export type ResolversParentTypes = {
   BrandPaginationResponse: BrandPaginationResponse;
   BrandResponse: BrandResponse;
   Cart: Cart;
+  Float: Scalars['Float']['output'];
   CartItems: CartItems;
   CartResponse: CartResponse;
   Category: Category;
@@ -3637,7 +3638,6 @@ export type ResolversParentTypes = {
   CategoryResponse: CategoryResponse;
   CategoryResponseById: CategoryResponseById;
   Coupon: Coupon;
-  Float: Scalars['Float']['output'];
   CouponCategory: CouponCategory;
   CouponPaginationResponse: CouponPaginationResponse;
   CouponProduct: CouponProduct;
@@ -3992,28 +3992,28 @@ export type CartResolvers<ContextType = Context, ParentType extends ResolversPar
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdBy?: Resolver<Maybe<ResolversTypes['CreatedBy']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  discountTotal?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  discountTotal?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  inTotal?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  inTotal?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   items?: Resolver<Array<ResolversTypes['CartItems']>, ParentType, ContextType>;
-  productTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  productTotalCostWithTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  productTotalWithoutTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  shippingCost?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  shippingTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  shippingTotalCostWithTax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  productTax?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  productTotalCostWithTax?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  productTotalWithoutTax?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  shippingCost?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  shippingTax?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  shippingTotalCostWithTax?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type CartItemsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CartItems'] = ResolversParentTypes['CartItems']> = {
-  basePrice?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  discount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  basePrice?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  discount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   product?: Resolver<ResolversTypes['Product'], ParentType, ContextType>;
   productVariation?: Resolver<Maybe<ResolversTypes['ProductVariation']>, ParentType, ContextType>;
   quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  subtotal?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  tax?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  subtotal?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  tax?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

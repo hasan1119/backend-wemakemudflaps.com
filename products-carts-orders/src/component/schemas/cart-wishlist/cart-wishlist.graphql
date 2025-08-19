@@ -3,14 +3,14 @@ type Cart {
   id: ID!
   items: [CartItems!]!
   coupons: [Coupon!]!
-  productTotalWithoutTax: Int
-  productTax: Int
-  productTotalCostWithTax: Int
-  shippingTax: Int
-  shippingCost: Int
-  shippingTotalCostWithTax: Int
-  discountTotal: Int
-  inTotal: Int
+  productTotalWithoutTax: Float
+  productTax: Float
+  productTotalCostWithTax: Float
+  shippingTax: Float
+  shippingCost: Float
+  shippingTotalCostWithTax: Float
+  discountTotal: Float
+  inTotal: Float
   createdBy: CreatedBy
   createdAt: String
   deletedAt: String
@@ -31,10 +31,10 @@ type CartItems {
   quantity: Int!
   product: Product!
   productVariation: ProductVariation
-  tax: Int
-  discount: Int
-  basePrice: Int
-  subtotal: Int
+  tax: Float
+  discount: Float
+  basePrice: Float
+  subtotal: Float
 }
 
 type WishlistItems {

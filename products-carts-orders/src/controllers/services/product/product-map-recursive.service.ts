@@ -19,7 +19,7 @@ export function mapCategoryRecursive(category: Category | null): any {
     description: category.description ?? null,
     thumbnail: category.thumbnail ?? null,
     position: category.position,
-    totalProducts: category.products.length ?? 0,
+    totalProducts: category?.products?.length ?? 0,
     createdBy: category.createdBy as any,
     createdAt:
       category.createdAt instanceof Date
