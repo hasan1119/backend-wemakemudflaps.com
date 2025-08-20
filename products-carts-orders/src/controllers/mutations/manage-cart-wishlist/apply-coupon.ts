@@ -380,6 +380,24 @@ export const applyCoupon = async (
       };
     }
 
+    // Check for duplicate coupons already in cart
+    const existingCouponCodes = (userCart.coupons ?? []).map(
+      (coupon) => coupon.code
+    );
+    const duplicateCoupons = couponCodes.filter((code) =>
+      existingCouponCodes.includes(code)
+    );
+    if (duplicateCoupons.length > 0) {
+      return {
+        statusCode: 400,
+        success: false,
+        message: `Coupon(s) ${duplicateCoupons.join(
+          ", "
+        )} already applied to the cart`,
+        __typename: "ErrorResponse",
+      };
+    }
+
     // Fetch coupons
     const coupons = await findCouponsByCodes(couponCodes);
     if (coupons.length !== couponCodes.length) {
