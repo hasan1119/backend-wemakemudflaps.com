@@ -717,8 +717,11 @@ export const updateProductSchema = z
  * @property sortOrder - Sort order direction (asc, desc).
  * @property filtering - Optional object containing filters:
  *   - `brandIds`: Optional array of brand UUIDs.
+ *   - `brandSlugs`: Optional array of brand slugs.
  *   - `categoryIds`: Optional array of category UUIDs.
+ *   - `categorySlugs`: Optional array of category slugs.
  *   - `tagIds`: Optional array of tag UUIDs.
+ *   - `tagSlugs`: Optional array of tag slugs.
  *   - `productDeliveryType`: Optional array of product delivery types.
  */
 export const productSortingSchema = z.object({
@@ -736,14 +739,17 @@ export const productSortingSchema = z.object({
         .array(z.string().uuid({ message: "Invalid UUID format" }))
         .optional()
         .nullable(),
+      brandSlugs: z.array(z.string().min(1)).optional().nullable(),
       categoryIds: z
         .array(z.string().uuid({ message: "Invalid UUID format" }))
         .optional()
         .nullable(),
+      categorySlugs: z.array(z.string().min(1)).optional().nullable(),
       tagIds: z
         .array(z.string().uuid({ message: "Invalid UUID format" }))
         .optional()
         .nullable(),
+      tagSlugs: z.array(z.string().min(1)).optional().nullable(),
       productDeliveryType: z
         .array(
           z.enum([

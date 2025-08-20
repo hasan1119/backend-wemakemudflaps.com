@@ -261,18 +261,37 @@ const applyFiltering = (
 ): void => {
   if (!filtering) return;
 
-  const { brandIds, categoryIds, tagIds, productDeliveryTypes } = filtering;
+  const {
+    brandIds,
+    brandSlugs,
+    categoryIds,
+    categorySlugs,
+    tagIds,
+    tagSlugs,
+    productDeliveryTypes,
+  } = filtering;
 
   if (brandIds?.length) {
     queryBuilder.andWhere("brands.id IN (:...brandIds)", { brandIds });
+  }
+  if (brandSlugs?.length) {
+    queryBuilder.andWhere("brands.slug IN (:...brandSlugs)", { brandSlugs });
   }
   if (categoryIds?.length) {
     queryBuilder.andWhere("categories.id IN (:...categoryIds)", {
       categoryIds,
     });
   }
+  if (categorySlugs?.length) {
+    queryBuilder.andWhere("categories.slug IN (:...categorySlugs)", {
+      categorySlugs,
+    });
+  }
   if (tagIds?.length) {
     queryBuilder.andWhere("tags.id IN (:...tagIds)", { tagIds });
+  }
+  if (tagSlugs?.length) {
+    queryBuilder.andWhere("tags.slug IN (:...tagSlugs)", { tagSlugs });
   }
   if (productDeliveryTypes?.length) {
     queryBuilder.andWhere(

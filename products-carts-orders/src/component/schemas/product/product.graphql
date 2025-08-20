@@ -90,12 +90,15 @@ type ProductPaginationResponse {
 }
 
 input FilteringInput {
-  # Optional filter by brand IDs
+  # Optional filter by brand IDs and slugs
   brandIds: [ID!]
-  # Optional filter by category IDs
+  brandSlugs: [String!]
+  # Optional filter by category IDs and slugs
   categoryIds: [ID!]
-  # Optional filter by tag IDs
+  categorySlugs: [String!]
+  # Optional filter by tag IDs and slugs
   tagIds: [ID!]
+  tagSlugs: [String!]
   # Optional filter by product delivery type (e.g., physical, virtual, downloadable)
   productDeliveryType: [ProductDeliveryType!]
 }

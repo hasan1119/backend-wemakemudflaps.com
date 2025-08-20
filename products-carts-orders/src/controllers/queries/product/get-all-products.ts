@@ -101,8 +101,11 @@ export const getAllProducts = async (
 
     // Extract filter arrays for Redis key stability
     const brandIds = filtering.brandIds ?? null;
+    const brandSlugs = filtering.brandSlugs ?? null;
     const categoryIds = filtering.categoryIds ?? null;
+    const categorySlugs = filtering.categorySlugs ?? null;
     const tagIds = filtering.tagIds ?? null;
+    const tagSlugs = filtering.tagSlugs ?? null;
     const productDeliveryType = filtering.productDeliveryType ?? null;
     const forCustomer = false; // Always false for non-customer queries
 
@@ -117,8 +120,11 @@ export const getAllProducts = async (
         sortBy,
         safeSortOrder,
         brandIds,
+        brandSlugs,
         categoryIds,
+        categorySlugs,
         tagIds,
+        tagSlugs,
         productDeliveryType,
         forCustomer
       );
@@ -153,8 +159,11 @@ export const getAllProducts = async (
         sortBy,
         safeSortOrder,
         brandIds,
+        brandSlugs,
         categoryIds,
+        categorySlugs,
         tagIds,
+        tagSlugs,
         productDeliveryType,
         forCustomer,
         productsData,

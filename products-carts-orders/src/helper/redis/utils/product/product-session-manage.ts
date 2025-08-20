@@ -65,8 +65,11 @@ const buildProductCacheKeys = (
   sortBy: string,
   sortOrder: string,
   brandIds: string[] | null,
+  brandSlugs: string[] | null,
   categoryIds: string[] | null,
+  categorySlugs: string[] | null,
   tagIds: string[] | null,
+  tagSlugs: string[] | null,
   productDeliveryType: string[] | null,
   forCustomer: boolean
 ) => {
@@ -77,8 +80,11 @@ const buildProductCacheKeys = (
     sortOrder,
     forCustomer,
     brandIds,
+    brandSlugs,
     categoryIds,
+    categorySlugs,
     tagIds,
+    tagSlugs,
     productDeliveryType,
   });
 
@@ -102,8 +108,11 @@ const buildProductCacheKeys = (
  * @param sortBy - The field to sort by (default: "createdAt").
  * @param sortOrder - The sort order (default: "desc").
  * @param brandIds - Optional array of brand IDs to filter by.
+ * @param brandSlugs - Optional array of brand slugs to filter by.
  * @param categoryIds - Optional array of category IDs to filter by.
+ * @param categorySlugs - Optional array of category slugs to filter by.
  * @param tagIds - Optional array of tag IDs to filter by.
+ * @param tagSlugs - Optional array of tag slugs to filter by.
  * @param productDeliveryType - Optional array of product delivery types to filter by.
  * @param forCustomer - Boolean indicating if the request is for a customer.
  * @returns A promise resolving to an object with products (Product array or null) and count (number or null).
@@ -115,8 +124,11 @@ export const getProductsAndCountFromRedis = async (
   sortBy: string = "createdAt",
   sortOrder: string = "desc",
   brandIds: string[] | null,
+  brandSlugs: string[] | null,
   categoryIds: string[] | null,
+  categorySlugs: string[] | null,
   tagIds: string[] | null,
+  tagSlugs: string[] | null,
   productDeliveryType: string[] | null,
   forCustomer: boolean
 ): Promise<{
@@ -132,8 +144,11 @@ export const getProductsAndCountFromRedis = async (
     sortOrder,
     forCustomer,
     brandIds,
+    brandSlugs,
     categoryIds,
+    categorySlugs,
     tagIds,
+    tagSlugs,
     productDeliveryType,
   });
 
@@ -171,8 +186,11 @@ export const getProductsAndCountFromRedis = async (
  * @param products - The array of Product data to cache.
  * @param total - The total products count to cache.
  * @param brandIds - Optional array of brand IDs to filter by.
+ * @param brandSlugs - Optional array of brand slugs to filter by.
  * @param categoryIds - Optional array of category IDs to filter by.
+ * @param categorySlugs - Optional array of category slugs to filter by.
  * @param tagIds - Optional array of tag IDs to filter by.
+ * @param tagSlugs - Optional array of tag slugs to filter by.
  * @param productDeliveryType - Optional array of product delivery types to filter by.
  * @param forCustomer - Boolean indicating if the request is for a customer.
  * @param ttl - Optional time-to-live in seconds (default: 3600).
@@ -185,8 +203,11 @@ export const setProductsAndCountInRedis = async (
   sortBy: string,
   sortOrder: string,
   brandIds: string[] | null,
+  brandSlugs: string[] | null,
   categoryIds: string[] | null,
+  categorySlugs: string[] | null,
   tagIds: string[] | null,
+  tagSlugs: string[] | null,
   productDeliveryType: string[] | null,
   forCustomer: boolean,
   products: Product[],
@@ -200,8 +221,11 @@ export const setProductsAndCountInRedis = async (
     sortBy,
     sortOrder,
     brandIds,
+    brandSlugs,
     categoryIds,
+    categorySlugs,
     tagIds,
+    tagSlugs,
     productDeliveryType,
     forCustomer
   );
