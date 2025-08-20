@@ -448,9 +448,12 @@ export type FieldError = {
 
 export type FilteringInput = {
   brandIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  brandSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
   categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  categorySlugs?: InputMaybe<Array<Scalars['String']['input']>>;
   productDeliveryType?: InputMaybe<Array<ProductDeliveryType>>;
   tagIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  tagSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type FlatRate = {
