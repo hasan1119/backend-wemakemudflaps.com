@@ -289,6 +289,7 @@ export const paginateCategories = async ({
 
   const query = categoryRepository
     .createQueryBuilder("category")
+    .leftJoinAndSelect("category.products", "product")
     .leftJoinAndSelect(
       "category.subCategories",
       "subCategory",
