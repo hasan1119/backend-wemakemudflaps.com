@@ -16,9 +16,10 @@ export const countProductsForCategory = async (
     .innerJoin("category.products", "product", "product.deletedAt IS NULL")
     .where("category.id = :categoryId", { categoryId })
     .andWhere("category.deletedAt IS NULL")
-    .getCount();
+    .select("COUNT(product.id)", "count") // count products, not categories
+    .getRawOne<{ count: string }>();
 
-  return result;
+  return parseInt(result?.count ?? "0", 10);
 };
 
 /**

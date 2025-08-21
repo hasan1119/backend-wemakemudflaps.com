@@ -1,7 +1,7 @@
 import {
   Column,
   Entity,
-  OneToMany,
+  ManyToMany,
   PrimaryGeneratedColumn,
   Tree,
   TreeChildren,
@@ -40,7 +40,7 @@ export class Category {
   parentCategory: Category | null;
 
   // One category can have multiple products
-  @OneToMany(() => Product, (product) => product.categories, {
+  @ManyToMany(() => Product, (product) => product.categories, {
     cascade: true,
     nullable: true,
   })
