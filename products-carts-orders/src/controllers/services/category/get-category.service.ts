@@ -168,25 +168,51 @@ export async function getCategoryByIds(ids: string[]): Promise<Category[]> {
 }
 
 /**
- * Recursively fetches subcategories for a given category.
+ * Recursively fetches subcategories for a given category (with optional products).
  *
  * @param parentCategoryId - UUID of the parent category.
+ * @param loadProducts - Whether to load products for subcategories.
  * @returns Promise<Category[]>
  */
 async function fetchNestedCategories(
-  parentCategoryId: string | null
+  parentCategoryId: string | null,
+  loadProducts = false
 ): Promise<Category[]> {
-  const subCategories = await categoryRepository.find({
-    where: {
-      parentCategory: parentCategoryId ? { id: parentCategoryId } : null,
-      deletedAt: null,
-    },
-    relations: ["parentCategory"],
-    order: { position: "ASC" },
-  });
+  const query = categoryRepository
+    .createQueryBuilder("category")
+    .leftJoinAndSelect("category.parentCategory", "parentCategory")
+    .leftJoinAndSelect(
+      "category.subCategories",
+      "subCategory",
+      "subCategory.deletedAt IS NULL"
+    )
+    .where("category.deletedAt IS NULL");
+
+  if (loadProducts) {
+    query.leftJoinAndSelect(
+      "category.products",
+      "product",
+      "product.deletedAt IS NULL"
+    );
+  }
+
+  if (parentCategoryId) {
+    query.andWhere("category.parentCategory = :parentCategoryId", {
+      parentCategoryId,
+    });
+  } else {
+    query.andWhere("category.parentCategory IS NULL");
+  }
+
+  const subCategories = await query
+    .orderBy("category.position", "ASC")
+    .getMany();
 
   for (const subCategory of subCategories) {
-    subCategory.subCategories = await fetchNestedCategories(subCategory.id);
+    subCategory.subCategories = await fetchNestedCategories(
+      subCategory.id,
+      loadProducts
+    );
     subCategory.createdAt = new Date(
       subCategory.createdAt
     ).toISOString() as any;
@@ -197,6 +223,10 @@ async function fetchNestedCategories(
 
 /**
  * Recursively filters and prunes categories that don’t match the search term.
+ *
+ * @param cat - Category to filter.
+ * @param searchTerm - Term to search for.
+ * @returns Filtered Category tree or null.
  */
 function filterCategoryTreeBySearch(
   cat: Category,
@@ -255,7 +285,7 @@ function countMatchingCategories(cat: Category): number {
 }
 
 /**
- * Handles pagination of categories including their nested subcategories.
+ * Handles pagination of categories including their nested subcategories and products.
  *
  * @param page - The current page number (1-based index).
  * @param limit - The number of categories to retrieve per page.
@@ -289,11 +319,15 @@ export const paginateCategories = async ({
 
   const query = categoryRepository
     .createQueryBuilder("category")
-    .leftJoinAndSelect("category.products", "product")
     .leftJoinAndSelect(
       "category.subCategories",
       "subCategory",
       "subCategory.deletedAt IS NULL"
+    )
+    .leftJoinAndSelect(
+      "category.products",
+      "product",
+      "product.deletedAt IS NULL"
     )
     .where("category.deletedAt IS NULL")
     .andWhere("category.parentCategory IS NULL")
@@ -306,8 +340,9 @@ export const paginateCategories = async ({
 
   const [categories, _total] = await query.getManyAndCount();
 
+  // Recursively fetch subcategories with products
   for (const category of categories) {
-    category.subCategories = await fetchNestedCategories(category.id);
+    category.subCategories = await fetchNestedCategories(category.id, true);
     category.createdAt = new Date(category.createdAt).toISOString() as any;
   }
 
