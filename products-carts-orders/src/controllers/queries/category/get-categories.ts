@@ -38,7 +38,8 @@ function mapCategoryToResponse(cat: Category): any {
     description: cat.description || null,
     thumbnail: (cat.thumbnail as any) || null,
     position: cat.position,
-    totalProducts: 0, // Add totalProducts field for pagination response
+    totalProducts: cat.products ? cat.products.length : 0, // Add totalProducts field for pagination response
+    // Add totalProducts field for pagination response
     createdBy: (cat.createdBy as any) || null,
     createdAt:
       cat.createdAt instanceof Date
